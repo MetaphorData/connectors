@@ -1,0 +1,19 @@
+[
+  {
+    "tenant": "default",
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "person": {
+      "logicalId": {
+        "email": "foo@bar.com"
+      },
+      "slackProfile": {
+        "slackId": "slack_id",
+        "teamId": "team_id",
+        "username": "foo",
+        "deleted": false
+      }
+    }
+  }
+]

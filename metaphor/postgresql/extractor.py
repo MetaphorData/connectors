@@ -1,0 +1,244 @@
+import logging
+from dataclasses import dataclass
+from typing import Dict, List, Tuple
+
+from dataclasses_json import dataclass_json
+
+from metaphor.common.event_util import EventUtil
+
+try:
+    import asyncpg
+except ImportError:
+    print("Please install metaphor[postgresql] extra\n")
+    raise
+
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
+    DatasetSchema,
+    ForeignKey,
+    MaterializationType,
+    MetadataChangeEvent,
+    SchemaField,
+    SchemaType,
+    SQLSchema,
+)
+
+from metaphor.common.extractor import BaseExtractor, RunConfig
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+@dataclass_json
+@dataclass
+class PostgresqlRunConfig(RunConfig):
+    host: str
+    database: str
+    user: str
+    password: str
+
+    port: int = 5432
+    redshift: bool = False  # whether the target is redshift or postgresql
+
+
+class PostgresqlExtractor(BaseExtractor):
+    """PostgreSQL metadata extractor"""
+
+    _ignored_dbs = ["template0", "template1", "rdsadmin"]
+
+    def __init__(self):
+        self._datasets: Dict[str, Dataset] = {}
+
+    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+        assert isinstance(config, PostgresqlRunConfig)
+
+        platform = DataPlatform.REDSHIFT if config.redshift else DataPlatform.POSTGRESQL
+        logger.info(f"Fetching metadata from {platform} host {config.host}")
+
+        conn = await self._connect_database(config, config.database)
+        try:
+            databases = await self._fetch_databases(conn)
+            logger.info(f"Databases: {databases}")
+        finally:
+            await conn.close()
+
+        for db in databases:
+            conn = await self._connect_database(config, db)
+            try:
+                tables = await self._fetch_tables(conn, platform)
+                logger.info(f"DB {db} has tables {tables}")
+
+                # TODO: parallel fetching
+                for schema, name, fullname in tables:
+                    dataset = self._datasets[fullname]
+                    await self._fetch_columns(conn, schema, name, dataset)
+                    if not config.redshift:
+                        await self._fetch_constraints(conn, schema, name, dataset)
+            finally:
+                await conn.close()
+
+        logger.debug(self._datasets)
+
+        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+
+    @staticmethod
+    def _dataset_name(db: str, schema: str, table: str) -> str:
+        """The full table name including database, schema and name"""
+        return f"{db}.{schema}.{table}".lower()
+
+    @staticmethod
+    async def _connect_database(config: PostgresqlRunConfig, database: str):
+        logger.info(f"Connecting to DB {database}")
+        return await asyncpg.connect(
+            host=config.host,
+            port=config.port,
+            user=config.user,
+            password=config.password,
+            database=database,
+        )
+
+    @staticmethod
+    async def _fetch_databases(conn) -> List[str]:
+        results = await conn.fetch("SELECT datname FROM pg_database")
+        return [r[0] for r in results if r[0] not in PostgresqlExtractor._ignored_dbs]
+
+    async def _fetch_tables(
+        self, conn, platform: DataPlatform
+    ) -> List[Tuple[str, str, str]]:
+        results = await conn.fetch(
+            "SELECT table_catalog, table_schema, table_name, table_type, pgd.description "
+            "FROM information_schema.tables t "
+            "LEFT JOIN pg_catalog.pg_description pgd "
+            "  ON pgd.objoid = ( "
+            "      SELECT oid FROM pg_class "
+            "      WHERE relname = t.table_name "
+            "        AND relnamespace = ( "
+            "            SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = t.table_schema "
+            "          ) "
+            "        ) AND pgd.objsubid = 0 "
+            "WHERE table_schema != 'pg_catalog' AND table_schema != 'information_schema' "
+            "ORDER BY table_schema, table_name"
+        )
+
+        tables: List[Tuple[str, str, str]] = []
+        for table in results:
+            catalog = table["table_catalog"]
+            schema = table["table_schema"]
+            name = table["table_name"]
+            table_type = table["table_type"]
+            description = table["description"]
+            full_name = self._dataset_name(catalog, schema, name)
+            self._datasets[full_name] = self._init_dataset(
+                full_name, table_type, platform, description
+            )
+            tables.append((schema, name, full_name))
+
+        return tables
+
+    @staticmethod
+    async def _fetch_columns(conn, schema: str, name: str, dataset: Dataset) -> None:
+        assert dataset.schema is not None and dataset.schema.fields is not None
+
+        results = await conn.fetch(
+            "SELECT ordinal_position, cols.column_name, data_type, character_maximum_length, "
+            "  numeric_precision, is_nullable, pgd.description "
+            "FROM information_schema.columns AS cols "
+            "LEFT OUTER JOIN pg_catalog.pg_description pgd "
+            "  ON pgd.objoid = ( "
+            "    SELECT oid FROM pg_class "
+            "    WHERE relname = $2 AND relnamespace = ( "
+            "        SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = $1 "
+            "      ) "
+            "    ) "
+            "  AND pgd.objsubid = cols.ordinal_position "
+            "WHERE cols.table_schema = $1 AND cols.table_name = $2 "
+            "ORDER BY ordinal_position",
+            schema,
+            name,
+        )
+        for column in results:
+            dataset.schema.fields.append(PostgresqlExtractor._build_field(column))
+
+    @staticmethod
+    async def _fetch_constraints(conn, schema: str, name: str, dataset: Dataset):
+        assert dataset.schema is not None and dataset.schema.sql_schema is not None
+
+        results = await conn.fetch(
+            "SELECT constraints.constraint_name, constraints.constraint_type, "
+            "  string_agg(key_col.column_name, ',') AS key_columns, "
+            "  constraint_col.table_catalog AS constraint_db, "
+            "  constraint_col.table_schema AS constraint_schema, "
+            "  constraint_col.table_name AS constraint_table, "
+            "  string_agg(constraint_col.column_name, ',') AS constraint_columns "
+            "FROM information_schema.table_constraints AS constraints "
+            "LEFT OUTER JOIN information_schema.key_column_usage AS key_col "
+            "  ON constraints.table_schema = key_col.table_schema "
+            "  AND constraints.constraint_name = key_col.constraint_name "
+            "LEFT OUTER JOIN  information_schema.constraint_column_usage AS constraint_col "
+            "  ON constraints.table_schema = constraint_col.table_schema "
+            "  AND constraints.constraint_name = constraint_col.constraint_name "
+            "WHERE constraints.table_schema =$1 AND constraints.table_name = $2 "
+            "  AND constraints.constraint_type IN ('PRIMARY KEY', 'UNIQUE', 'FOREIGN KEY') "
+            "GROUP BY constraints.constraint_name, constraints.constraint_type, constraint_col.table_catalog, "
+            "  constraint_col.table_schema, constraint_col.table_name",
+            schema,
+            name,
+        )
+        if results:
+            for constraint in results:
+                PostgresqlExtractor._build_constraint(
+                    constraint, dataset.schema.sql_schema
+                )
+
+    @staticmethod
+    def _init_dataset(
+        full_name: str, table_type: str, platform: DataPlatform, description: str
+    ) -> Dataset:
+        dataset = Dataset()
+        dataset.logical_id = DatasetLogicalID()
+        dataset.logical_id.platform = platform
+        dataset.logical_id.name = full_name
+
+        dataset.schema = DatasetSchema()
+        dataset.schema.schema_type = SchemaType.SQL
+        dataset.schema.description = description
+        dataset.schema.fields = []
+        dataset.schema.sql_schema = SQLSchema()
+        dataset.schema.sql_schema.materialization = (
+            MaterializationType.VIEW
+            if table_type == "VIEW"
+            else MaterializationType.TABLE
+        )
+
+        return dataset
+
+    @staticmethod
+    def _build_field(column) -> SchemaField:
+        field = SchemaField()
+        field.field_path = column["column_name"]
+        field.native_type = column["data_type"]
+        field.nullable = column["is_nullable"] == "YES"
+        field.description = column["description"]
+        return field
+
+    @staticmethod
+    def _build_constraint(constraint: Dict, schema: SQLSchema) -> None:
+        if constraint["constraint_type"] == "PRIMARY KEY":
+            schema.primary_key = constraint["key_columns"].split(",")
+        elif constraint["constraint_type"] == "FOREIGN KEY":
+            foreign_key = ForeignKey()
+            foreign_key.field_path = constraint["key_columns"]
+            foreign_key.parent = DatasetLogicalID()
+            foreign_key.parent.name = PostgresqlExtractor._dataset_name(
+                constraint["constraint_db"],
+                constraint["constraint_schema"],
+                constraint["constraint_table"],
+            )
+            foreign_key.parent.platform = DataPlatform.POSTGRESQL
+            foreign_key.parent_field = constraint["constraint_columns"]
+
+            if not schema.foreign_key:
+                schema.foreign_key = []
+            schema.foreign_key.append(foreign_key)

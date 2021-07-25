@@ -1,0 +1,10 @@
+{
+  "foo": "bar",
+  "kinesis": null,
+  "file": null,
+  "api": {
+    "url": "foo_url",
+    "api_key": "key",
+    "timeout": 5
+  }
+}

@@ -1,0 +1,458 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/catalog/v1.json",
+    "dbt_version": "0.19.0",
+    "generated_at": "2021-03-17T06:12:49.206602Z",
+    "invocation_id": "daec0903-be2b-43e9-8dca-c916dd24798b",
+    "env": {}
+  },
+  "nodes": {
+    "model.trial.my_first_dbt_model": {
+      "metadata": {
+        "type": "VIEW",
+        "database": "DEMO_DB",
+        "schema": "DBT_DEV",
+        "name": "MY_FIRST_DBT_MODEL",
+        "comment": "A starter dbt model",
+        "owner": "SYSADMIN"
+      },
+      "columns": {
+        "ID": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 1,
+          "name": "ID"
+        }
+      },
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": false,
+          "description": "Indicates whether there are statistics for this table",
+          "include": false
+        }
+      },
+      "unique_id": "model.trial.my_first_dbt_model"
+    },
+    "model.trial.trial_model_2": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "database": "DEMO_DB",
+        "schema": "DBT_DEV",
+        "name": "TRIAL_MODEL_2",
+        "comment": "Second trial model",
+        "owner": "SYSADMIN"
+      },
+      "columns": {
+        "COUNTRY": {
+          "type": "TEXT",
+          "comment": "Country",
+          "index": 1,
+          "name": "COUNTRY"
+        },
+        "ITEM_TYPE": {
+          "type": "TEXT",
+          "comment": "The type of the item",
+          "index": 2,
+          "name": "ITEM_TYPE"
+        },
+        "YEAR": {
+          "type": "NUMBER",
+          "comment": "Year",
+          "index": 3,
+          "name": "YEAR"
+        },
+        "REVENUE": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 4,
+          "name": "REVENUE"
+        },
+        "PROFIT": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 5,
+          "name": "PROFIT"
+        }
+      },
+      "stats": {
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 218624.0,
+          "description": "Approximate size of the table as reported by Snowflake",
+          "include": true
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-03-16 20:37UTC",
+          "description": "The timestamp for last update/change",
+          "include": true
+        },
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 17656.0,
+          "description": "An approximate count of rows in this table",
+          "include": true
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "Indicates whether there are statistics for this table",
+          "include": false
+        }
+      },
+      "unique_id": "model.trial.trial_model_2"
+    },
+    "model.trial.my_second_dbt_model": {
+      "metadata": {
+        "type": "VIEW",
+        "database": "DEMO_DB",
+        "schema": "DBT_DEV",
+        "name": "MY_SECOND_DBT_MODEL",
+        "comment": "A starter dbt model",
+        "owner": "SYSADMIN"
+      },
+      "columns": {
+        "ID": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 1,
+          "name": "ID"
+        }
+      },
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": false,
+          "description": "Indicates whether there are statistics for this table",
+          "include": false
+        }
+      },
+      "unique_id": "model.trial.my_second_dbt_model"
+    },
+    "model.trial.trial_model_1": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "database": "DEMO_DB",
+        "schema": "DBT_DEV",
+        "name": "TRIAL_MODEL_1",
+        "comment": "First trial model",
+        "owner": "SYSADMIN"
+      },
+      "columns": {
+        "SHOW_ID": {
+          "type": "TEXT",
+          "comment": "The show id, primary key for this table",
+          "index": 1,
+          "name": "SHOW_ID"
+        },
+        "TYPE": {
+          "type": "TEXT",
+          "comment": "The type of the show",
+          "index": 2,
+          "name": "TYPE"
+        },
+        "TITLE": {
+          "type": "TEXT",
+          "comment": "The title of the show",
+          "index": 3,
+          "name": "TITLE"
+        },
+        "COUNTRY": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 4,
+          "name": "COUNTRY"
+        },
+        "RELEASE_YEAR": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 5,
+          "name": "RELEASE_YEAR"
+        }
+      },
+      "stats": {
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 185344.0,
+          "description": "Approximate size of the table as reported by Snowflake",
+          "include": true
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-03-16 20:37UTC",
+          "description": "The timestamp for last update/change",
+          "include": true
+        },
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 7787.0,
+          "description": "An approximate count of rows in this table",
+          "include": true
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "Indicates whether there are statistics for this table",
+          "include": false
+        }
+      },
+      "unique_id": "model.trial.trial_model_1"
+    }
+  },
+  "sources": {
+    "source.trial.DBT_DEV.SALES_RECORDS": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "database": "DEMO_DB",
+        "schema": "DBT_DEV",
+        "name": "SALES_RECORDS",
+        "comment": null,
+        "owner": "SYSADMIN"
+      },
+      "columns": {
+        "REGION": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 1,
+          "name": "REGION"
+        },
+        "COUNTRY": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 2,
+          "name": "COUNTRY"
+        },
+        "ITEM_TYPE": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 3,
+          "name": "ITEM_TYPE"
+        },
+        "SALES_CHANNEL": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 4,
+          "name": "SALES_CHANNEL"
+        },
+        "ORDER_PRIORITY": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 5,
+          "name": "ORDER_PRIORITY"
+        },
+        "ORDER_DATE": {
+          "type": "DATE",
+          "comment": null,
+          "index": 6,
+          "name": "ORDER_DATE"
+        },
+        "ORDER_ID": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 7,
+          "name": "ORDER_ID"
+        },
+        "SHIP_DATE": {
+          "type": "DATE",
+          "comment": null,
+          "index": 8,
+          "name": "SHIP_DATE"
+        },
+        "UNITS_SOLD": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 9,
+          "name": "UNITS_SOLD"
+        },
+        "UNIT_PRICE": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 10,
+          "name": "UNIT_PRICE"
+        },
+        "UNIT_COST": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 11,
+          "name": "UNIT_COST"
+        },
+        "TOTAL_REVENUE": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 12,
+          "name": "TOTAL_REVENUE"
+        },
+        "TOTAL_COST": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 13,
+          "name": "TOTAL_COST"
+        },
+        "TOTAL_PROFIT": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 14,
+          "name": "TOTAL_PROFIT"
+        }
+      },
+      "stats": {
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 2019328.0,
+          "description": "Approximate size of the table as reported by Snowflake",
+          "include": true
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-03-15 05:18UTC",
+          "description": "The timestamp for last update/change",
+          "include": true
+        },
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 100000.0,
+          "description": "An approximate count of rows in this table",
+          "include": true
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "Indicates whether there are statistics for this table",
+          "include": false
+        }
+      },
+      "unique_id": "source.trial.DBT_DEV.SALES_RECORDS"
+    },
+    "source.trial.DBT_DEV.NETFLIX": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "database": "DEMO_DB",
+        "schema": "DBT_DEV",
+        "name": "NETFLIX",
+        "comment": null,
+        "owner": "SYSADMIN"
+      },
+      "columns": {
+        "SHOW_ID": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 1,
+          "name": "SHOW_ID"
+        },
+        "TYPE": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 2,
+          "name": "TYPE"
+        },
+        "TITLE": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 3,
+          "name": "TITLE"
+        },
+        "DIRECTOR": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 4,
+          "name": "DIRECTOR"
+        },
+        "CAST": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 5,
+          "name": "CAST"
+        },
+        "COUNTRY": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 6,
+          "name": "COUNTRY"
+        },
+        "DATE_ADDED": {
+          "type": "DATE",
+          "comment": null,
+          "index": 7,
+          "name": "DATE_ADDED"
+        },
+        "RELEASE_YEAR": {
+          "type": "NUMBER",
+          "comment": null,
+          "index": 8,
+          "name": "RELEASE_YEAR"
+        },
+        "RATING": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 9,
+          "name": "RATING"
+        },
+        "DURATION": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 10,
+          "name": "DURATION"
+        },
+        "LISTED_IN": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 11,
+          "name": "LISTED_IN"
+        },
+        "DESCRIPTION": {
+          "type": "TEXT",
+          "comment": null,
+          "index": 12,
+          "name": "DESCRIPTION"
+        }
+      },
+      "stats": {
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 1655296.0,
+          "description": "Approximate size of the table as reported by Snowflake",
+          "include": true
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-03-11 04:38UTC",
+          "description": "The timestamp for last update/change",
+          "include": true
+        },
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 7787.0,
+          "description": "An approximate count of rows in this table",
+          "include": true
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "Indicates whether there are statistics for this table",
+          "include": false
+        }
+      },
+      "unique_id": "source.trial.DBT_DEV.NETFLIX"
+    }
+  },
+  "errors": null
+}
