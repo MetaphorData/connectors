@@ -1,0 +1,67 @@
+---
+name: CI/CD
+
+# Run this build workflow every time a new PR or push is made to the main branch
+on:
+    push:
+        branches: [main]
+
+    pull_request:
+        branches: [main]
+
+jobs:
+    check-py:
+        name: Check Python code
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Setup python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: '3.7'
+            - name: Setup Poetry
+              uses: abatilo/actions-poetry@v2.0.0
+              with:
+                  poetry-version: 1.1.5
+            - name: Lint & Type Check
+              run: |
+                  poetry install -E all
+                  poetry run flakehell lint
+                  poetry run black --check .
+                  poetry run isort --check .
+                  poetry run mypy .
+
+            - name: Test
+              run: |
+                  poetry run pytest
+
+  # Only run publish flow after a PR is merged into main
+    publish:
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+        needs:
+            - check-py
+        name: Publish to PyPI
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Setup python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: '3.7'
+
+            - name: Setup Poetry
+              uses: abatilo/actions-poetry@v2.0.0
+              with:
+                  poetry-version: 1.1.5
+
+      # Publishing the same version twice to PyPI is expected to fail
+            - name: Publish to PyPI
+              run: >
+                  poetry publish --build
+                  -u ${{ secrets.PYPI_USERNAME }}
+                  -p ${{ secrets.PYPI_PASSWORD }}
+                  2>&1 | tee logs
+                  || grep -qiE 'File already exists' logs
