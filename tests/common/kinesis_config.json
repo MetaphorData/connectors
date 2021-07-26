@@ -1,9 +1,0 @@
-{
-  "foo": "bar",
-  "kinesis": {
-    "region_name": "foo",
-    "assume_role_arn": "baz"
-  },
-  "api": null,
-  "file": null
-}
