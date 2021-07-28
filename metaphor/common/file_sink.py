@@ -37,7 +37,19 @@ class FileSink(Sink):
     def _sink(self, messages: List[dict]) -> bool:
         """Write records to file"""
 
-        with open(self.output, "w") as fp:
+        # Give S3 bucket owner full control over the new object
+        # See https://github.com/RaRe-Technologies/smart_open/blob/develop/howto.md#how-to-pass-additional-parameters-to-boto3
+        params = None
+        if self.output.startswith("s3://"):
+            params = {
+                "client_kwargs": {
+                    "S3.Client.create_multipart_upload": {
+                        "ACL": "bucket-owner-full-control"
+                    }
+                }
+            }
+
+        with open(self.output, "w", transport_params=params) as fp:
             json.dump(messages, fp)
 
         return True
