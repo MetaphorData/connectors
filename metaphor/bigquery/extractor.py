@@ -61,10 +61,14 @@ def build_client(config: BigQueryRunConfig):
 class BigQueryExtractor(BaseExtractor):
     """BigQuery metadata extractor"""
 
+    @staticmethod
+    def config_class():
+        return BigQueryRunConfig
+
     BYTES_PER_MEGABYTES = 1024 * 1024
 
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
-        assert isinstance(config, BigQueryRunConfig)
+        assert isinstance(config, BigQueryExtractor.config_class())
 
         logger.info("Fetching metadata from BigQuery")
 

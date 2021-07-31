@@ -46,6 +46,10 @@ class LookerRunConfig(RunConfig):
 class LookerExtractor(BaseExtractor):
     """Looker metadata extractor"""
 
+    @staticmethod
+    def config_class():
+        return LookerRunConfig
+
     # From https://docs.looker.com/setup-and-management/database-config
     dialect_platform_map = {
         "snowflake": DataPlatform.SNOWFLAKE,
@@ -85,7 +89,7 @@ class LookerExtractor(BaseExtractor):
         return looker_sdk.init31()
 
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
-        assert isinstance(config, LookerRunConfig)
+        assert isinstance(config, LookerExtractor.config_class())
 
         logger.info("Fetching metadata from Looker")
 

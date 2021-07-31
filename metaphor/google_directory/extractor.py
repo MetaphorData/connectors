@@ -63,12 +63,16 @@ def build_directory_service(config: GoogleDirectoryRunConfig):
 class GoogleDirectoryExtractor(BaseExtractor):
     """Google Directory metadata extractor"""
 
+    @staticmethod
+    def config_class():
+        return GoogleDirectoryRunConfig
+
     def __init__(self):
         self._users: List[Person] = []
         self._groups: List[Group] = []
 
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
-        assert isinstance(config, GoogleDirectoryRunConfig)
+        assert isinstance(config, GoogleDirectoryExtractor.config_class())
 
         logger.info("Fetching metadata from Google Directory")
 

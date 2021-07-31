@@ -79,7 +79,7 @@ def mock_get_table(mock_build_client, tables):
 @pytest.mark.asyncio
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
-    config = BigQueryRunConfig(kinesis=None, api=None, file=None, key_path="fake_file")
+    config = BigQueryRunConfig(output=None, key_path="fake_file")
     extractor = BigQueryExtractor()
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996

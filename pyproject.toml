@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.2.22"
+version = "0.3.0"
 description = ""
 authors = ["Metaphor <dev@metaphor.io>"]
 packages = [
@@ -45,9 +45,9 @@ bigquery = ["google-cloud-bigquery"]
 dbt = []
 postgresql = ["asyncpg"]
 snowflake = ["snowflake-connector-python"]
-google = ["google-api-python-client","google-auth-oauthlib"]
+google_directory = ["google-api-python-client","google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
-slack = ["slack-sdk"]
+slack_directory = ["slack-sdk"]
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"

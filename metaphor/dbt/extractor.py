@@ -46,13 +46,17 @@ class DbtRunConfig(RunConfig):
 class DbtExtractor(BaseExtractor):
     """DBT metadata extractor"""
 
+    @staticmethod
+    def config_class():
+        return DbtRunConfig
+
     def __init__(self):
         self._manifest: Optional[DbtManifest] = None
         self._catalog: Optional[DbtCatalog] = None
         self._metadata: Dict[str, Dataset] = {}
 
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
-        assert isinstance(config, DbtRunConfig)
+        assert isinstance(config, DbtExtractor.config_class())
 
         logger.info("Fetching metadata from DBT repo")
 

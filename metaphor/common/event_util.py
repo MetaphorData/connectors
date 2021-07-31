@@ -23,8 +23,6 @@ logger.setLevel(logging.INFO)
 class EventUtil:
     """Event utilities"""
 
-    kinesis_tenant = os.environ.get("KINESIS_TENANT", "default")
-
     with resources.open_text(models, "metadata_change_event.json") as f:
         validate = fastjsonschema.compile(json.load(f))
 
@@ -32,7 +30,7 @@ class EventUtil:
     def _build_event() -> MetadataChangeEvent:
         """Create an MCE"""
         event = MetadataChangeEvent()
-        event.tenant = EventUtil.kinesis_tenant
+        event.tenant = "default"
         event.event_header = EventHeader()
         event.event_header.time = datetime.now(timezone.utc)
         return event
