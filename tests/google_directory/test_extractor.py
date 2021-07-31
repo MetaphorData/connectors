@@ -38,9 +38,7 @@ def mock_users_photos_get(mock_build_service, value):
 @pytest.mark.asyncio
 @freeze_time("2000-01-01")
 async def test_extractor_user(test_root_dir):
-    config = GoogleDirectoryRunConfig(
-        kinesis=None, api=None, file=None, token_file="fake_file"
-    )
+    config = GoogleDirectoryRunConfig(output=None, token_file="fake_file")
     extractor = GoogleDirectoryExtractor()
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
@@ -76,9 +74,7 @@ async def test_extractor_user(test_root_dir):
 @pytest.mark.asyncio
 @freeze_time("2000-01-01")
 async def test_extractor_group(test_root_dir):
-    config = GoogleDirectoryRunConfig(
-        kinesis=None, api=None, file=None, token_file="fake_file"
-    )
+    config = GoogleDirectoryRunConfig(output=None, token_file="fake_file")
     extractor = GoogleDirectoryExtractor()
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996

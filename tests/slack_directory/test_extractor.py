@@ -12,9 +12,7 @@ from tests.test_utils import load_json
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     config = SlackRunConfig(
-        kinesis=None,
-        api=None,
-        file=None,
+        output=None,
         oauth_token="fake_token",
         include_restricted=False,
     )

@@ -27,6 +27,15 @@ repos:
 
     - repo: local
       hooks:
+          - id: flakehell
+            name: flakehell
+            entry: flakehell lint
+            language: python
+            pass_filenames: false
+            always_run: true
+
+    - repo: local
+      hooks:
           - id: pytest-check
             name: pytest-check
             entry: pytest

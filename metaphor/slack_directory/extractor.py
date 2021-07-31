@@ -56,8 +56,12 @@ def list_all_users(config: SlackRunConfig) -> List[Dict]:
 class SlackExtractor(BaseExtractor):
     """Slack directory extractor"""
 
+    @staticmethod
+    def config_class():
+        return SlackRunConfig
+
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
-        assert isinstance(config, SlackRunConfig)
+        assert isinstance(config, SlackExtractor.config_class())
 
         logger.info("Fetching directory data from Slack")
 

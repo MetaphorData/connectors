@@ -46,13 +46,17 @@ class PostgresqlRunConfig(RunConfig):
 class PostgresqlExtractor(BaseExtractor):
     """PostgreSQL metadata extractor"""
 
+    @staticmethod
+    def config_class():
+        return PostgresqlRunConfig
+
     _ignored_dbs = ["template0", "template1", "rdsadmin"]
 
     def __init__(self):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
-        assert isinstance(config, PostgresqlRunConfig)
+        assert isinstance(config, PostgresqlExtractor.config_class())
 
         platform = DataPlatform.REDSHIFT if config.redshift else DataPlatform.POSTGRESQL
         logger.info(f"Fetching metadata from {platform} host {config.host}")
