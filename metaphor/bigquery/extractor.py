@@ -93,7 +93,7 @@ class BigQueryExtractor(BaseExtractor):
                 logger.info(f"Found table {table_ref}")
 
                 bq_table = client.get_table(table_ref)
-                datasets.append(self._parse_table(bq_table))
+                datasets.append(self._parse_table(client.project, bq_table))
 
         return [EventUtil.build_dataset_event(d) for d in datasets]
 
@@ -106,10 +106,10 @@ class BigQueryExtractor(BaseExtractor):
         return True
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
-    def _parse_table(self, bq_table: bigquery.table.Table) -> Dataset:
+    def _parse_table(self, project_id, bq_table: bigquery.table.Table) -> Dataset:
         dataset_id = DatasetLogicalID(
             platform=DataPlatform.BIGQUERY,
-            name=f"{bq_table.dataset_id}.{bq_table.table_id}",
+            name=f"{project_id}.{bq_table.dataset_id}.{bq_table.table_id}",
         )
 
         schema = self._parse_schema(bq_table)

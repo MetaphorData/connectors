@@ -7,7 +7,7 @@
     "dataset": {
       "logicalId": {
         "platform": "BIGQUERY",
-        "name": "dataset1.table1"
+        "name": "project1.dataset1.table1"
       },
       "schema": {
         "description": "description",
@@ -42,7 +42,7 @@
     "dataset": {
       "logicalId": {
         "platform": "BIGQUERY",
-        "name": "dataset1.table2"
+        "name": "project1.dataset1.table2"
       },
       "schema": {
         "description": "description",
