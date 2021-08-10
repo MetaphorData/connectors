@@ -9,10 +9,6 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from metaphor.models.metadata_change_event import (
-    EntityType,
-    Group,
-    GroupID,
-    GroupInfo,
     MetadataChangeEvent,
     Person,
     PersonLogicalID,
@@ -20,7 +16,6 @@ from metaphor.models.metadata_change_event import (
 )
 from smart_open import open
 
-from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
@@ -30,7 +25,6 @@ logger.setLevel(logging.INFO)
 # If modifying these scopes, delete the file token.json.
 SCOPES = [
     "https://www.googleapis.com/auth/admin.directory.user",
-    "https://www.googleapis.com/auth/admin.directory.group",
 ]
 
 
@@ -69,7 +63,6 @@ class GoogleDirectoryExtractor(BaseExtractor):
 
     def __init__(self):
         self._users: List[Person] = []
-        self._groups: List[Group] = []
 
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, GoogleDirectoryExtractor.config_class())
@@ -88,29 +81,9 @@ class GoogleDirectoryExtractor(BaseExtractor):
             photo = self._get_photo(service, user["id"])
             self._parse_user(user, photo)
 
-        # get all groups
-        results = (
-            service.groups().list(customer="my_customer", orderBy="email").execute()
-        )
-        groups = results.get("groups", [])
-
-        for group in groups:
-            # get group members
-            response = (
-                service.members()
-                .list(groupKey=group["email"], includeDerivedMembership=True)
-                .execute()
-            )
-            members = response["members"]
-
-            self._parse_group(group, members)
-
         logger.debug(json.dumps([p.to_dict() for p in self._users]))
-        logger.debug(json.dumps([p.to_dict() for p in self._groups]))
 
-        return [EventUtil.build_person_event(p) for p in self._users] + [
-            EventUtil.build_group_event(p) for p in self._groups
-        ]
+        return [EventUtil.build_person_event(p) for p in self._users]
 
     def _get_photo(self, service, user_id) -> Dict:
         try:
@@ -139,25 +112,3 @@ class GoogleDirectoryExtractor(BaseExtractor):
             person.properties.avatar_url = f'data:{photo["mimeType"]};base64,{data}'
 
         self._users.append(person)
-
-    def _parse_group(self, group: Dict, members: List[Dict]) -> None:
-        grp = Group()
-        grp.logical_id = GroupID()
-        grp.logical_id.group_name = group["name"]
-        grp.group_info = GroupInfo()
-        grp.group_info.email = group["email"]
-        grp.group_info.admins = []
-        grp.group_info.members = []
-        grp.group_info.subgroups = []
-
-        for member in members:
-            # TODO: get subgroups instead of derived members
-            if member["type"] == "USER":
-                user = EntityId(EntityType.PERSON, PersonLogicalID(member["email"]))
-
-                if member["role"] in ["OWNER", "MANAGER"]:
-                    grp.group_info.admins.append(str(user))
-                else:
-                    grp.group_info.members.append(str(user))
-
-        self._groups.append(grp)

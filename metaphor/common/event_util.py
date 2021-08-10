@@ -8,7 +8,6 @@ from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
     EventHeader,
-    Group,
     MetadataChangeEvent,
     Person,
 )
@@ -53,13 +52,6 @@ class EventUtil:
         """Build MCE given a person"""
         event = EventUtil._build_event()
         event.person = entity
-        return event
-
-    @staticmethod
-    def build_group_event(entity: Group) -> MetadataChangeEvent:
-        """Build MCE given a group"""
-        event = EventUtil._build_event()
-        event.group = entity
         return event
 
     @staticmethod

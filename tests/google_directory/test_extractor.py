@@ -17,12 +17,6 @@ def mock_users_list(mock_build_service, value):
     )
 
 
-def mock_groups_list(mock_build_service, value):
-    mock_build_service.return_value.groups.return_value.list.return_value.execute.return_value = (
-        value
-    )
-
-
 def mock_members_list(mock_build_service, value):
     mock_build_service.return_value.members.return_value.list.return_value.execute.return_value = (
         value
@@ -69,35 +63,3 @@ async def test_extractor_user(test_root_dir):
         events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
     assert events == load_json(f"{test_root_dir}/google_directory/expected_users.json")
-
-
-@pytest.mark.asyncio
-@freeze_time("2000-01-01")
-async def test_extractor_group(test_root_dir):
-    config = GoogleDirectoryRunConfig(output=None, token_file="fake_file")
-    extractor = GoogleDirectoryExtractor()
-
-    # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch(
-        "metaphor.google_directory.extractor.build_directory_service",
-    ) as mock_build_service:
-        mock_users_list(mock_build_service, {})
-
-        mock_groups_list(
-            mock_build_service,
-            {"groups": [{"name": "group1", "email": "group@foo.com"}]},
-        )
-
-        mock_members_list(
-            mock_build_service,
-            {
-                "members": [
-                    {"type": "USER", "email": "owner@foo.com", "role": "OWNER"},
-                    {"type": "USER", "email": "member@foo.com", "role": "MEMBER"},
-                ]
-            },
-        )
-
-        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
-
-    assert events == load_json(f"{test_root_dir}/google_directory/expected_groups.json")

@@ -1,6 +1,5 @@
 [
   {
-    "tenant": "default",
     "eventHeader": {
       "time": "2000-01-01T00:00:00+00:00"
     },
@@ -35,7 +34,6 @@
     }
   },
   {
-    "tenant": "default",
     "eventHeader": {
       "time": "2000-01-01T00:00:00+00:00"
     },
