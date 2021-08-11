@@ -25,34 +25,26 @@ class EventUtil:
         validate = fastjsonschema.compile(json.load(f))
 
     @staticmethod
-    def _build_event() -> MetadataChangeEvent:
+    def _build_event(**kwargs) -> MetadataChangeEvent:
         """Create an MCE"""
-        event = MetadataChangeEvent()
-        event.tenant = "default"
-        event.event_header = EventHeader()
-        event.event_header.time = datetime.now(timezone.utc)
-        return event
+        return MetadataChangeEvent(
+            event_header=EventHeader(time=datetime.now(timezone.utc)), **kwargs
+        )
 
     @staticmethod
     def build_dashboard_event(entity: Dashboard) -> MetadataChangeEvent:
         """Build MCE given a dashboard"""
-        event = EventUtil._build_event()
-        event.dashboard = entity
-        return event
+        return EventUtil._build_event(dashboard=entity)
 
     @staticmethod
     def build_dataset_event(entity: Dataset) -> MetadataChangeEvent:
         """Build MCE given a dataset"""
-        event = EventUtil._build_event()
-        event.dataset = entity
-        return event
+        return EventUtil._build_event(dataset=entity)
 
     @staticmethod
     def build_person_event(entity: Person) -> MetadataChangeEvent:
         """Build MCE given a person"""
-        event = EventUtil._build_event()
-        event.person = entity
-        return event
+        return EventUtil._build_event(person=entity)
 
     @staticmethod
     def validate_message(message: dict) -> bool:
