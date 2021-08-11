@@ -1,3 +1,4 @@
+import json
 import logging
 from dataclasses import dataclass
 from typing import List, Optional
@@ -35,5 +36,5 @@ class FileSink(Sink):
 
     def _sink(self, messages: List[dict]) -> bool:
         """Write records to file"""
-        write_file(self.path, messages)
+        write_file(self.path, json.dumps(messages))
         return True

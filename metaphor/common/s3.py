@@ -1,5 +1,3 @@
-import json
-
 from smart_open import open
 
 # Give S3 bucket owner full control over the new object
@@ -12,7 +10,7 @@ OWNER_FULL_CONTROL_ACL = {
 }
 
 
-def write_file(path: str, payload: object):
+def write_file(path: str, payload: str):
     params = OWNER_FULL_CONTROL_ACL if path.startswith("s3://") else None
     with open(path, "w", transport_params=params) as fp:
-        json.dump(payload, fp)
+        fp.write(payload)
