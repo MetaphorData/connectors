@@ -667,7 +667,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.0.4"
+version = "0.1.1"
 description = ""
 category = "main"
 optional = false
@@ -1215,16 +1215,16 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "lkml", "looker-sdk", "slack-sdk", "snowflake-connector-python", "sql-metadata"]
 bigquery = ["google-cloud-bigquery"]
 dbt = []
-google = ["google-api-python-client", "google-auth-oauthlib"]
+google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
 postgresql = ["asyncpg"]
-slack = ["slack-sdk"]
+slack_directory = ["slack-sdk"]
 snowflake = ["snowflake-connector-python"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.7,<3.10"
-content-hash = "8c090daa1ffb224e6200ce4536d8af6cd8bc74801c26094fd153d5f10bdd6f29"
+python-versions = ">=3.7,<3.10"  # See https://github.com/googleapis/python-bigquery/issues/856
+content-hash = "65769777afec5d8d9b70b0be7a9ceacc98da882aee700a1f7f2d35a9e2eaf0ca"
 
 [metadata.files]
 appdirs = [
@@ -1577,8 +1577,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.0.4.tar.gz", hash = "sha256:f2b3ec3033b282e88fb7392b010c8cbc7c4bb4d21f31f4dc51f41e37dc341906"},
-    {file = "metaphor_models-0.0.4-py3-none-any.whl", hash = "sha256:d73f7bdf80b03468efff546919d6712dcc2f2eca7690e38022543d69308b209b"},
+    {file = "metaphor-models-0.1.1.tar.gz", hash = "sha256:dc0a2add71ed2ab54cc5ffe53f217d8b00feb3c6a991723935d820e4d7a15e37"},
+    {file = "metaphor_models-0.1.1-py3-none-any.whl", hash = "sha256:47fd7e75e10a141a297e1a0b1daa2507eab1e80817a4065e828a5d0a2a49cc34"},
 ]
 msrest = [
     {file = "msrest-0.6.21-py2.py3-none-any.whl", hash = "sha256:c840511c845330e96886011a236440fafc2c9aff7b2df9c0a92041ee2dee3782"},

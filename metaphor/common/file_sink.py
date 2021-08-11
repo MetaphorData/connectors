@@ -17,7 +17,7 @@ logger.setLevel(logging.INFO)
 @dataclass
 class FileSinkConfig:
     # Location of the sink file. Can be local file or s3://bucket/object
-    output: str
+    path: str
 
     # IAM role to assume before writing to file
     assume_role_arn: Optional[str] = None
@@ -27,7 +27,7 @@ class FileSink(Sink):
     """File sink functions"""
 
     def __init__(self, config: FileSinkConfig):
-        self.output = config.output
+        self.path = config.path
 
         session = boto3.Session()
         if config.assume_role_arn is not None:
@@ -35,5 +35,5 @@ class FileSink(Sink):
 
     def _sink(self, messages: List[dict]) -> bool:
         """Write records to file"""
-        write_file(self.output, messages)
+        write_file(self.path, messages)
         return True

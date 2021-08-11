@@ -12,7 +12,6 @@ from tests.test_utils import load_json
 
 def test_file_sink(test_root_dir):
     output = tempfile.mktemp(suffix=".json")
-    print(output)
 
     message = MetadataChangeEvent(
         person=Person(
@@ -20,7 +19,6 @@ def test_file_sink(test_root_dir):
             first_name="foo",
             last_name="bar",
         ),
-        tenant="default",
     )
 
     sink = FileSink(FileSinkConfig(output))
