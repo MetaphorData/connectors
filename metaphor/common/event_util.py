@@ -8,6 +8,7 @@ from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
     EventHeader,
+    KnowledgeCard,
     MetadataChangeEvent,
     Person,
 )
@@ -45,6 +46,11 @@ class EventUtil:
     def build_person_event(entity: Person) -> MetadataChangeEvent:
         """Build MCE given a person"""
         return EventUtil._build_event(person=entity)
+
+    @staticmethod
+    def build_knowledge_card_event(entity: KnowledgeCard) -> MetadataChangeEvent:
+        """Build MCE given a person"""
+        return EventUtil._build_event(knowledge_card=entity)
 
     @staticmethod
     def validate_message(message: dict) -> bool:
