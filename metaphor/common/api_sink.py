@@ -3,8 +3,8 @@ import logging
 from dataclasses import dataclass
 from typing import List
 
-from dataclasses_json import dataclass_json
 from requests import HTTPError, post
+from serde import deserialize
 
 from .sink import Sink
 
@@ -12,7 +12,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class ApiSinkConfig:
     url: str

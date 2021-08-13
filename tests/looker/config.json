@@ -1,0 +1,9 @@
+{
+  "base_url": "base_url",
+  "client_id": "client_id",
+  "client_secret": "client_secret",
+  "lookml_dir": "lookml_dir",
+  "verify_ssl": true,
+  "timeout": 1,
+  "output": null
+}

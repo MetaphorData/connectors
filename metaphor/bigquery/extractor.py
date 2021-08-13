@@ -2,8 +2,10 @@ import json
 import logging
 import re
 from dataclasses import dataclass
-from typing import Any, List, Mapping, Optional, Sequence, Tuple, Union
+from dataclasses import field as dataclass_field
+from typing import Any, List, Mapping, Optional, Sequence, Union
 
+from serde import deserialize
 from smart_open import open
 
 try:
@@ -33,6 +35,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+@deserialize
 @dataclass
 class BigQueryRunConfig(RunConfig):
     # Path to service account's JSON key file
@@ -42,7 +45,7 @@ class BigQueryRunConfig(RunConfig):
     project_id: Optional[str] = None
 
     # Filters for dataset names (any match will be included)
-    dataset_filters: Tuple[str] = (r".*",)
+    dataset_filters: List[str] = dataclass_field(default_factory=lambda: [r".*"])
 
 
 def build_client(config: BigQueryRunConfig):

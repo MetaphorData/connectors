@@ -4,8 +4,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Type
 
-from dataclasses_json import dataclass_json
 from metaphor.models.metadata_change_event import MetadataChangeEvent
+from serde import deserialize
+from serde.json import from_json
+from serde.yaml import from_yaml
 from smart_open import open
 
 from .api_sink import ApiSink, ApiSinkConfig
@@ -15,7 +17,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class OutputConfig:
     """Config for where to output the data"""
@@ -24,12 +26,12 @@ class OutputConfig:
     file: Optional[FileSinkConfig] = None
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class RunConfig:
     """Base class for runtime parameters
 
-    All subclasses should add the @dataclass_json & @dataclass decorators
+    All subclasses should add the @dataclass @deserialize decorators
     """
 
     output: OutputConfig
@@ -37,8 +39,12 @@ class RunConfig:
     @classmethod
     def from_json_file(cls, path: str) -> "RunConfig":
         with open(path, encoding="utf8") as fin:
-            # Ignored due to https://github.com/lidatong/dataclasses-json/issues/23
-            return cls.from_json(fin.read())  # type: ignore
+            return from_json(cls, fin.read())
+
+    @classmethod
+    def from_yaml_file(cls, path: str) -> "RunConfig":
+        with open(path, encoding="utf8") as fin:
+            return from_yaml(cls, fin.read())
 
 
 class BaseExtractor(ABC):

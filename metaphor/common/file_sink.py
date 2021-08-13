@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import boto3
 from aws_assume_role_lib import assume_role
-from dataclasses_json import dataclass_json
+from serde import deserialize
 
 from .s3 import write_file
 from .sink import Sink
@@ -14,7 +14,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class FileSinkConfig:
     # Location of the sink file. Can be local file or s3://bucket/object
