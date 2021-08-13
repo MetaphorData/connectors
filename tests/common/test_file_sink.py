@@ -17,7 +17,9 @@ def test_file_sink(test_root_dir):
     message = MetadataChangeEvent(
         person=Person(
             logical_id=PersonLogicalID("foo@bar.com"),
-            properties=PersonProperties(entity_id="abc", first_name="foo", last_name="bar", latest=False)
+            properties=PersonProperties(
+                entity_id="abc", first_name="foo", last_name="bar", latest=False
+            ),
         ),
     )
 
