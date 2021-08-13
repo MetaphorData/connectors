@@ -4,6 +4,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Person,
     PersonLogicalID,
+    PersonProperties,
 )
 
 from metaphor.common.file_sink import FileSink, FileSinkConfig
@@ -16,8 +17,7 @@ def test_file_sink(test_root_dir):
     message = MetadataChangeEvent(
         person=Person(
             logical_id=PersonLogicalID("foo@bar.com"),
-            first_name="foo",
-            last_name="bar",
+            properties=PersonProperties(entity_id="abc", first_name="foo", last_name="bar", latest=False)
         ),
     )
 
