@@ -537,7 +537,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "importlib-metadata"
-version = "4.6.3"
+version = "4.6.4"
 description = "Read metadata from Python packages"
 category = "dev"
 optional = false
@@ -647,7 +647,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.1.1"
+version = "0.2.0"
 description = ""
 category = "main"
 optional = false
@@ -1051,7 +1051,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "slack-sdk"
-version = "3.8.0"
+version = "3.9.0"
 description = "The Slack API Platform SDK for Python"
 category = "main"
 optional = true
@@ -1059,7 +1059,7 @@ python-versions = ">=3.6.0"
 
 [package.extras]
 optional = ["aiodns (>1.0)", "aiohttp (>=3.7.3,<4)", "boto3 (<=2)", "SQLAlchemy (>=1,<2)", "websockets (>=9.1,<10)", "websocket-client (>=1,<2)"]
-testing = ["pytest (>=5.4,<6)", "pytest-asyncio (<1)", "Flask-Sockets (>=0.2,<1)", "pytest-cov (>=2,<3)", "codecov (>=2,<3)", "flake8 (>=3,<4)", "black (==21.6b0)", "psutil (>=5,<6)", "databases (>=0.3)"]
+testing = ["pytest (>=5.4,<6)", "pytest-asyncio (<1)", "Flask-Sockets (>=0.2,<1)", "Flask (>=1,<2)", "Werkzeug (<2)", "pytest-cov (>=2,<3)", "codecov (>=2,<3)", "flake8 (>=3,<4)", "black (==21.7b0)", "psutil (>=5,<6)", "databases (>=0.3)", "boto3 (<=2)", "moto (<2)"]
 
 [[package]]
 name = "smart-open"
@@ -1233,7 +1233,7 @@ snowflake = ["snowflake-connector-python"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "9ec61b851fbe718505658a98a9de2732a351a5962859403502c585fc764fbb16"
+content-hash = "e4f091330f844fc7e8359b6d613206ada227bdc288c3c915028b07f4f6abf46c"
 
 [metadata.files]
 appdirs = [
@@ -1542,8 +1542,8 @@ idna = [
     {file = "idna-2.10.tar.gz", hash = "sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"},
 ]
 importlib-metadata = [
-    {file = "importlib_metadata-4.6.3-py3-none-any.whl", hash = "sha256:51c6635429c77cf1ae634c997ff9e53ca3438b495f10a55ba28594dd69764a8b"},
-    {file = "importlib_metadata-4.6.3.tar.gz", hash = "sha256:0645585859e9a6689c523927a5032f2ba5919f1f7d0e84bd4533312320de1ff9"},
+    {file = "importlib_metadata-4.6.4-py3-none-any.whl", hash = "sha256:ed5157fef23a4bc4594615a0dd8eba94b2bb36bf2a343fa3d8bb2fa0a62a99d5"},
+    {file = "importlib_metadata-4.6.4.tar.gz", hash = "sha256:7b30a78db2922d78a6f47fb30683156a14f3c6aa5cc23f77cc8967e9ab2d002f"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
@@ -1614,8 +1614,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.1.1.tar.gz", hash = "sha256:dc0a2add71ed2ab54cc5ffe53f217d8b00feb3c6a991723935d820e4d7a15e37"},
-    {file = "metaphor_models-0.1.1-py3-none-any.whl", hash = "sha256:47fd7e75e10a141a297e1a0b1daa2507eab1e80817a4065e828a5d0a2a49cc34"},
+    {file = "metaphor-models-0.2.0.tar.gz", hash = "sha256:a40b906d153bbd2a79a951f08efe294fa9bf2b3d4603e4b7bef876e7256a0d6f"},
+    {file = "metaphor_models-0.2.0-py3-none-any.whl", hash = "sha256:40ce6c44a5af5e6e5149a3d43862940a205130d24e84285a736c653a63b5c361"},
 ]
 msrest = [
     {file = "msrest-0.6.21-py2.py3-none-any.whl", hash = "sha256:c840511c845330e96886011a236440fafc2c9aff7b2df9c0a92041ee2dee3782"},
@@ -1945,8 +1945,8 @@ six = [
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
 ]
 slack-sdk = [
-    {file = "slack_sdk-3.8.0-py2.py3-none-any.whl", hash = "sha256:802dd4297bde5c5092e24e268f8b3dcbd89cd100e8d68b94ad29f0269a67c86d"},
-    {file = "slack_sdk-3.8.0.tar.gz", hash = "sha256:cb90ce362b2497169cba5488c9ac0f6bc0d7941a3d6c4e4bee469c1cda391f39"},
+    {file = "slack_sdk-3.9.0-py2.py3-none-any.whl", hash = "sha256:699236b82502bceba8f08f4340463a3dbe08fe710bd301c3745af9986ec6ea23"},
+    {file = "slack_sdk-3.9.0.tar.gz", hash = "sha256:15a71de840b8b1371dd9e5dbd1fc3d0f73eda8701ea2553257da3368ccc3bc77"},
 ]
 smart-open = [
     {file = "smart_open-5.1.0-py3-none-any.whl", hash = "sha256:2059b07f530c8c9e2158e4e1575309aacb74bd813da2325c1f348015d04f3bd6"},
