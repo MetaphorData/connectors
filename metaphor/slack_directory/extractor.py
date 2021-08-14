@@ -1,6 +1,6 @@
 import logging
-from dataclasses import dataclass
-from typing import Dict, FrozenSet, List
+from dataclasses import dataclass, field
+from typing import Dict, List, Set
 
 try:
     from slack_sdk import WebClient
@@ -14,6 +14,7 @@ from metaphor.models.metadata_change_event import (
     PersonLogicalID,
     PersonSlackProfile,
 )
+from serde import deserialize
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
@@ -24,6 +25,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+@deserialize
 @dataclass
 class SlackRunConfig(RunConfig):
     oauth_token: str
@@ -38,7 +40,7 @@ class SlackRunConfig(RunConfig):
     include_restricted: bool = False
 
     # Exclude the default Slack bot, which is weirdly not marked as "is_bot".
-    excluded_ids: FrozenSet[str] = frozenset(["USLACKBOT"])
+    excluded_ids: Set[str] = field(default_factory=lambda: set(["USLACKBOT"]))
 
 
 def list_all_users(config: SlackRunConfig) -> List[Dict]:

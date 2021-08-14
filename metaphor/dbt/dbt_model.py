@@ -1,22 +1,23 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from dataclasses_json import dataclass_json
+from serde import deserialize
+from serde.json import from_json
 
 ######################
 # Models for manifest
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class ManifestMetadata:
     adapter_type: str
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class ManifestTestMetadata:
-    @dataclass_json
+    @deserialize
     @dataclass
     class Kwargs:
         column_name: str
@@ -26,7 +27,7 @@ class ManifestTestMetadata:
     kwargs: Kwargs
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class ManifestColumn:
     name: str
@@ -34,10 +35,10 @@ class ManifestColumn:
     data_type: Optional[str] = None
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class DbtManifestNode:
-    @dataclass_json
+    @deserialize
     @dataclass
     class DependsOn:
         macros: List[str]
@@ -56,7 +57,7 @@ class DbtManifestNode:
     test_metadata: Optional[ManifestTestMetadata] = None
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class DbtManifest:
     metadata: ManifestMetadata
@@ -67,32 +68,32 @@ class DbtManifest:
     def from_json_file(cls, path: str) -> "DbtManifest":
         with open(path, encoding="utf8") as fin:
             # Ignored due to https://github.com/lidatong/dataclasses-json/issues/23
-            return cls.from_json(fin.read())  # type: ignore
+            return from_json(cls, fin.read())  # type: ignore
 
 
 ######################
 # Models for catalog
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class CatalogStats:
-    @dataclass_json
+    @deserialize
     @dataclass
     class HasStats:
         value: bool
 
-    @dataclass_json
+    @deserialize
     @dataclass
     class RowCount:
         value: float
 
-    @dataclass_json
+    @deserialize
     @dataclass
     class Bytes:
         value: float
 
-    @dataclass_json
+    @deserialize
     @dataclass
     class LastModified:
         value: str
@@ -103,7 +104,7 @@ class CatalogStats:
     last_modified: Optional[LastModified] = None
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class CatalogMetadata:
     database: str
@@ -111,7 +112,7 @@ class CatalogMetadata:
     name: str
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class CatalogColumn:
     name: str
@@ -119,7 +120,7 @@ class CatalogColumn:
     type: Optional[str] = None
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class DbtCatalogNode:
     metadata: CatalogMetadata
@@ -128,7 +129,7 @@ class DbtCatalogNode:
     stats: Optional[CatalogStats] = None
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class DbtCatalog:
     nodes: Dict[str, DbtCatalogNode]
@@ -138,4 +139,4 @@ class DbtCatalog:
     def from_json_file(cls, path: str) -> "DbtCatalog":
         with open(path, encoding="utf8") as fin:
             # Ignored due to https://github.com/lidatong/dataclasses-json/issues/23
-            return cls.from_json(fin.read())  # type: ignore
+            return from_json(cls, fin.read())  # type: ignore

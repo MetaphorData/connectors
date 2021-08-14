@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
-from dataclasses_json import dataclass_json
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -25,6 +24,7 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SQLSchema,
 )
+from serde import deserialize
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
@@ -36,7 +36,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@dataclass_json
+@deserialize
 @dataclass
 class DbtRunConfig(RunConfig):
     manifest: str

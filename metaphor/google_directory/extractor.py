@@ -14,6 +14,7 @@ from metaphor.models.metadata_change_event import (
     PersonLogicalID,
     PersonProperties,
 )
+from serde import deserialize
 from smart_open import open
 
 from metaphor.common.event_util import EventUtil
@@ -35,6 +36,7 @@ class InvalidTokenError(Exception):
         super.__init__(self, "Token is no longer valid. Please authenticate again")
 
 
+@deserialize
 @dataclass
 class GoogleDirectoryRunConfig(RunConfig):
     token_file: str

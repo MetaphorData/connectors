@@ -1,6 +1,6 @@
 import argparse
 import logging
-import sys
+import os
 from typing import Type
 
 from .extractor import BaseExtractor, RunConfig
@@ -18,5 +18,12 @@ def cli_main(
     args = parser.parse_args()
 
     extractor = extractor_cls()
-    if not extractor.run(config=config_cls.from_json_file(args.config)):
-        sys.exit(1)
+
+    extension = os.path.splitext(args.config)[-1].lower()
+
+    if extension == ".json":
+        extractor.run(config=config_cls.from_json_file(args.config))
+    elif extension == ".yml" or extension == ".yaml":
+        extractor.run(config=config_cls.from_yaml_file(args.config))
+    else:
+        raise ValueError(f"Unknown config file extension: {extension}")

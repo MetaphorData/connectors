@@ -23,6 +23,7 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SQLSchema,
 )
+from serde import deserialize
 
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
@@ -30,6 +31,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+@deserialize
 @dataclass
 class SnowflakeRunConfig(RunConfig):
     account: str

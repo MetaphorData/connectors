@@ -22,6 +22,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     MetadataChangeEvent,
 )
+from serde import deserialize
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
@@ -31,6 +32,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+@deserialize
 @dataclass
 class LookerRunConfig(RunConfig):
     base_url: str
