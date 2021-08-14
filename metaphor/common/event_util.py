@@ -49,7 +49,7 @@ class EventUtil:
 
     @staticmethod
     def build_knowledge_card_event(entity: KnowledgeCard) -> MetadataChangeEvent:
-        """Build MCE given a person"""
+        """Build MCE given a knowledge card"""
         return EventUtil._build_event(knowledge_card=entity)
 
     @staticmethod
