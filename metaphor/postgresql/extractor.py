@@ -2,6 +2,8 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
+from serde import deserialize
+
 from metaphor.common.event_util import EventUtil
 
 try:
@@ -29,6 +31,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+@deserialize
 @dataclass
 class PostgresqlRunConfig(RunConfig):
     host: str
