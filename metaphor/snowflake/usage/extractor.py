@@ -42,6 +42,9 @@ class SnowflakeUsageRunConfig(RunConfig):
     lookback_days: int = 30
 
     # Exclude queries whose user name is in the excluded_usernames
+    excluded_databases: Set[str] = field(default_factory=lambda: set())
+
+    # Exclude queries whose user name is in the excluded_usernames
     excluded_usernames: Set[str] = field(default_factory=lambda: set())
 
 
@@ -65,6 +68,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
             account=config.account, user=config.user, password=config.password
         )
 
+        excluded_databases = ",".join(config.excluded_databases)
         excluded_usernames = ",".join(config.excluded_usernames)
         start_date = datetime.utcnow().date() - timedelta(config.lookback_days)
         query_id = "0"  # query id initial value for batch filtering
@@ -78,10 +82,17 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 cursor.execute(
                     "SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME "
                     "FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY "
-                    "WHERE SCHEMA_NAME != 'NULL' and START_TIME > %s and QUERY_ID > %s and USER_NAME NOT IN (%s) "
+                    "WHERE SCHEMA_NAME != 'NULL' and START_TIME > %s and QUERY_ID > %s "
+                    "  and DATABASE_NAME NOT IN (%s) and USER_NAME NOT IN (%s) "
                     "ORDER BY QUERY_ID "
                     "LIMIT %s ",
-                    (start_date, query_id, excluded_usernames, batch_size),
+                    (
+                        start_date,
+                        query_id,
+                        excluded_databases,
+                        excluded_usernames,
+                        batch_size,
+                    ),
                 )
                 queries = [row for row in cursor]
                 logger.debug(f"Queries: {queries}")
