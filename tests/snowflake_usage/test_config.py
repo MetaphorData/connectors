@@ -1,4 +1,4 @@
-from metaphor.snowflake_usage.extractor import SnowflakeUsageRunConfig
+from metaphor.snowflake.usage import SnowflakeUsageRunConfig
 
 
 def test_json_config(test_root_dir):

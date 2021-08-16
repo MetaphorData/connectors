@@ -106,7 +106,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
         tables = []
         try:
             tables = sql_metadata.Parser(query).tables
-        except:
+        except Exception:
             self.error_count += 1
         logger.debug(f"tables: {tables}")
 
