@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass, field
-from datetime import timedelta, datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Set
 
 from serde import deserialize
@@ -19,9 +19,9 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
+    DatasetUsage,
     EntityType,
     MetadataChangeEvent,
-    DatasetUsage,
     QueryCount,
 )
 
