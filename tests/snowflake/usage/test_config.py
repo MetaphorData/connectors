@@ -11,8 +11,10 @@ def test_json_config(test_root_dir):
         user="user",
         password="password",
         lookback_days=365,
-        excluded_databases={"DEMO_DB"},
+        included_databases={"DEMO_DB"},
         excluded_usernames={"METAPHOR"},
+        included_table_names={'*.*'},
+        excluded_table_names={'*.databases'},
         output=None,
     )
 
@@ -27,7 +29,9 @@ def test_yaml_config(test_root_dir):
         user="user",
         password="password",
         lookback_days=30,
-        excluded_databases=set(),
+        included_databases=set(),
         excluded_usernames=set(),
+        included_table_names={'*'},
+        excluded_table_names=set(),
         output=None,
     )

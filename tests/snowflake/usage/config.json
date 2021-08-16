@@ -3,7 +3,9 @@
   "user": "user",
   "password": "password",
   "lookback_days": 365,
-  "excluded_databases": ["DEMO_DB"],
+  "included_databases": ["DEMO_DB"],
   "excluded_usernames": ["METAPHOR"],
+  "included_table_names": ["*.*"],
+  "excluded_table_names": ["*.databases"],
   "output": null
 }

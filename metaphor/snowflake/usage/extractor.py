@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from fnmatch import fnmatch
 from typing import Dict, List, Set
 
 from serde import deserialize
@@ -41,11 +42,17 @@ class SnowflakeUsageRunConfig(RunConfig):
     # The number of days in history to retrieve query log
     lookback_days: int = 30
 
-    # Exclude queries whose user name is in the excluded_usernames
-    excluded_databases: Set[str] = field(default_factory=lambda: set())
+    # Query filter to only include logs against database in included_databases
+    included_databases: Set[str] = field(default_factory=lambda: set())
 
-    # Exclude queries whose user name is in the excluded_usernames
+    # Query filter to exclude logs whose user name is in excluded_usernames
     excluded_usernames: Set[str] = field(default_factory=lambda: set())
+
+    # Post filter to only include table names that matches the pattern with shell-style wildcards
+    included_table_names: Set[str] = field(default_factory=lambda: {"*"})
+
+    # Post filter to exclude table names that matches the pattern with shell-style wildcards
+    excluded_table_names: Set[str] = field(default_factory=lambda: set())
 
 
 class SnowflakeUsageExtractor(BaseExtractor):
@@ -59,6 +66,8 @@ class SnowflakeUsageExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self.total_queries_count = 0
         self.error_count = 0
+        self.included_table_names = []
+        self.excluded_table_names = []
 
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeUsageExtractor.config_class())
@@ -68,8 +77,24 @@ class SnowflakeUsageExtractor(BaseExtractor):
             account=config.account, user=config.user, password=config.password
         )
 
-        excluded_databases = ",".join(config.excluded_databases)
-        excluded_usernames = ",".join(config.excluded_usernames)
+        self.included_table_names = [
+            name.lower() for name in config.included_table_names
+        ]
+        self.excluded_table_names = [
+            name.lower() for name in config.excluded_table_names
+        ]
+
+        included_databases_clause = (
+            f"and DATABASE_NAME IN ({','.join(['%s'] * len(config.included_databases))})"
+            if config.included_databases
+            else ""
+        )
+        excluded_usernames_clause = (
+            f"and USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
+            if config.excluded_usernames
+            else ""
+        )
+
         start_date = datetime.utcnow().date() - timedelta(config.lookback_days)
         query_id = "0"  # query id initial value for batch filtering
         batch_size = 1000
@@ -83,14 +108,14 @@ class SnowflakeUsageExtractor(BaseExtractor):
                     "SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME "
                     "FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY "
                     "WHERE SCHEMA_NAME != 'NULL' and START_TIME > %s and QUERY_ID > %s "
-                    "  and DATABASE_NAME NOT IN (%s) and USER_NAME NOT IN (%s) "
+                    f"  {included_databases_clause} {excluded_usernames_clause} "
                     "ORDER BY QUERY_ID "
                     "LIMIT %s ",
                     (
                         start_date,
                         query_id,
-                        excluded_databases,
-                        excluded_usernames,
+                        *config.included_databases,
+                        *config.excluded_usernames,
                         batch_size,
                     ),
                 )
@@ -101,19 +126,20 @@ class SnowflakeUsageExtractor(BaseExtractor):
                     self._parse_query_tables(query[1], query[2], query[3], query[4])
 
                 self.total_queries_count += len(queries)
-                query_id = queries[-1][0]
                 logger.info(
-                    f"total queries: {self.total_queries_count}, errors {self.error_count}, last query id: {query_id}"
+                    f"total queries: {self.total_queries_count}, errors {self.error_count}"
                 )
 
                 if len(queries) < batch_size:
                     break
+                # set last query id for filtering in next batch
+                query_id = queries[-1][0]
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     def _parse_query_tables(
         self, query: str, db: str, schema: str, start_time: datetime
-    ):
+    ) -> None:
         tables = []
         try:
             tables = sql_metadata.Parser(query).tables
@@ -123,6 +149,9 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
         for table in tables:
             fullname = SnowflakeUsageExtractor._built_table_fullname(table, db, schema)
+            if not self._filter_table_names(fullname):
+                continue
+
             if fullname not in self._datasets:
                 self._datasets[fullname] = SnowflakeUsageExtractor._init_dataset(
                     fullname
@@ -143,6 +172,24 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
             if start_time > utc_now - timedelta(365):
                 self._datasets[fullname].usage.query_count.last365_days += 1
+
+    def _filter_table_names(self, table_fullname: str) -> bool:
+        """Filter table names based on included/excluded table names in config"""
+
+        included = False
+        for pattern in self.included_table_names:
+            if fnmatch(table_fullname, pattern):
+                included = True
+                break
+
+        if not included:
+            return False
+
+        for pattern in self.excluded_table_names:
+            if fnmatch(table_fullname, pattern):
+                return False
+
+        return True
 
     @staticmethod
     def _built_table_fullname(table: str, db: str, schema: str) -> str:
