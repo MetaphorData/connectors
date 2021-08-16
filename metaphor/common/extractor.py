@@ -55,7 +55,7 @@ class BaseExtractor(ABC):
     def config_class() -> Type[RunConfig]:
         """Returns the corresponding config class"""
 
-    def run(self, config: RunConfig) -> bool:
+    def run(self, config: RunConfig) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
         logger.info("Starting extractor {}".format(self.__class__.__name__))
 
@@ -63,16 +63,13 @@ class BaseExtractor(ABC):
 
         logger.info("Fetched {} entities".format(len(events)))
 
-        no_error = True
-
         if config.output.api is not None:
-            no_error = no_error & ApiSink(config.output.api).sink(events)
+            ApiSink(config.output.api).sink(events)
 
         if config.output.file is not None:
-            no_error = no_error & FileSink(config.output.file).sink(events)
+            FileSink(config.output.file).sink(events)
 
-        logger.info("Execution finished")
-        return no_error
+        return events
 
     @abstractmethod
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
