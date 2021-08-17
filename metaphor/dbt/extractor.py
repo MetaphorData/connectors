@@ -123,6 +123,7 @@ class DbtExtractor(BaseExtractor):
             dataset.schema.sql_schema.table_schema = model.compiled_sql
 
         if model.description is not None:
+            dataset.schema.description = model.description
             self._init_documentation(dataset)
             assert (
                 dataset.documentation is not None
