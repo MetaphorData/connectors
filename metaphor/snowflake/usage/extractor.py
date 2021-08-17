@@ -212,6 +212,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
         dataset.usage = DatasetUsage(aspect_type=AspectType.DATASET_USAGE)
         dataset.usage.query_count = QueryCount(
             # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
+            # See https://github.com/quicktype/quicktype/issues/1375
             last24_hours=0.0,
             last7_days=0.0,
             last30_days=0.0,
