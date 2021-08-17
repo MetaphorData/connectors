@@ -20,6 +20,7 @@
         "platform": "SNOWFLAKE"
       },
       "schema": {
+        "description": "A starter dbt model",
         "fields": [
           {
             "fieldPath": "id",
@@ -61,6 +62,7 @@
         "platform": "SNOWFLAKE"
       },
       "schema": {
+        "description": "A starter dbt model",
         "fields": [
           {
             "fieldPath": "id",
@@ -125,6 +127,7 @@
         "platform": "SNOWFLAKE"
       },
       "schema": {
+        "description": "First trial model",
         "fields": [
           {
             "description": "The show id, primary key for this table",
@@ -212,6 +215,7 @@
         "platform": "SNOWFLAKE"
       },
       "schema": {
+        "description": "Second trial model",
         "fields": [
           {
             "description": "Country",
