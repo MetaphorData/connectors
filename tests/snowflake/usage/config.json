@@ -1,0 +1,11 @@
+{
+  "account": "account",
+  "user": "user",
+  "password": "password",
+  "lookback_days": 365,
+  "included_databases": ["DEMO_DB"],
+  "excluded_usernames": ["METAPHOR"],
+  "included_table_names": ["*.*"],
+  "excluded_table_names": ["*.databases"],
+  "output": null
+}
