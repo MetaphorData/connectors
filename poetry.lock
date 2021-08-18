@@ -647,7 +647,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.2.1"
+version = "0.2.3"
 description = ""
 category = "main"
 optional = false
@@ -1228,12 +1228,12 @@ google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
 postgresql = ["asyncpg"]
 slack_directory = ["slack-sdk"]
-snowflake = ["snowflake-connector-python"]
+snowflake = ["snowflake-connector-python", "sql-metadata"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "62193cd5e2477eeadc2ce4a50272a01400322c8239973223b267102d349ac930"
+content-hash = "5fa935cb0436c7dcb44aff740a4c0ff7f5ef089cbec986e758d376ae0cf679a2"
 
 [metadata.files]
 appdirs = [
@@ -1636,8 +1636,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.2.1.tar.gz", hash = "sha256:303d35e29a53f74331f7f7ecf72f97c6438ec5482041dc56f4af94de8dcfb3be"},
-    {file = "metaphor_models-0.2.1-py3-none-any.whl", hash = "sha256:daad497a61862e707402d643fe0eb0ea604c9bff469df5c6f1a1bfe42066461e"},
+    {file = "metaphor-models-0.2.3.tar.gz", hash = "sha256:706a5663a40f4f45fa7d9bae122073073fe4f1a585632398c28dfff5b633346b"},
+    {file = "metaphor_models-0.2.3-py3-none-any.whl", hash = "sha256:785b6bb3d986ade6a413b89feb4415ea4ef57a799ada84f1e3a5a3e50a011437"},
 ]
 msrest = [
     {file = "msrest-0.6.21-py2.py3-none-any.whl", hash = "sha256:c840511c845330e96886011a236440fafc2c9aff7b2df9c0a92041ee2dee3782"},

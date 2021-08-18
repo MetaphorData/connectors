@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from fnmatch import fnmatch
-from typing import Dict, List, Set
+from typing import Callable, Collection, Dict, List, Set
 
 from serde import deserialize
 
@@ -24,6 +24,7 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     MetadataChangeEvent,
     QueryCount,
+    QueryCounts,
 )
 
 from metaphor.common.extractor import BaseExtractor, RunConfig
@@ -135,6 +136,9 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 # set last query id for filtering in next batch
                 query_id = queries[-1][0]
 
+        # calculate statistics based on the counts
+        self._calculate_statistics()
+
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     def _parse_query_tables(
@@ -159,19 +163,19 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
             utc_now = datetime.now().replace(tzinfo=timezone.utc)
             if start_time > utc_now - timedelta(1):
-                self._datasets[fullname].usage.query_count.last24_hours += 1
+                self._datasets[fullname].usage.query_counts.last24_hours.count += 1
 
             if start_time > utc_now - timedelta(7):
-                self._datasets[fullname].usage.query_count.last7_days += 1
+                self._datasets[fullname].usage.query_counts.last7_days.count += 1
 
             if start_time > utc_now - timedelta(30):
-                self._datasets[fullname].usage.query_count.last30_days += 1
+                self._datasets[fullname].usage.query_counts.last30_days.count += 1
 
             if start_time > utc_now - timedelta(90):
-                self._datasets[fullname].usage.query_count.last90_days += 1
+                self._datasets[fullname].usage.query_counts.last90_days.count += 1
 
             if start_time > utc_now - timedelta(365):
-                self._datasets[fullname].usage.query_count.last365_days += 1
+                self._datasets[fullname].usage.query_counts.last365_days.count += 1
 
     def _filter_table_names(self, table_fullname: str) -> bool:
         """Filter table names based on included/excluded table names in config"""
@@ -201,6 +205,41 @@ class SnowflakeUsageExtractor(BaseExtractor):
         else:  # should have at most two dots in SQL table name
             return table.lower()
 
+    def _calculate_statistics(self) -> None:
+        """Calculate statistics for the extracted Dataset usages"""
+        datasets = self._datasets.values()
+
+        self._calculate_percentile(
+            datasets, lambda dataset: dataset.usage.query_counts.last24_hours
+        )
+
+        self._calculate_percentile(
+            datasets, lambda dataset: dataset.usage.query_counts.last7_days
+        )
+
+        self._calculate_percentile(
+            datasets, lambda dataset: dataset.usage.query_counts.last30_days
+        )
+
+        self._calculate_percentile(
+            datasets, lambda dataset: dataset.usage.query_counts.last90_days
+        )
+
+        self._calculate_percentile(
+            datasets, lambda dataset: dataset.usage.query_counts.last365_days
+        )
+
+    @staticmethod
+    def _calculate_percentile(
+        datasets: Collection[Dataset], time_window: Callable[[Dataset], QueryCount]
+    ) -> None:
+        counts = [time_window(dataset).count for dataset in datasets]
+        counts.sort()
+
+        for dataset in datasets:
+            query_count = time_window(dataset)
+            query_count.percentile = counts.index(query_count.count) / len(datasets)
+
     @staticmethod
     def _init_dataset(full_name: str) -> Dataset:
         dataset = Dataset()
@@ -210,14 +249,14 @@ class SnowflakeUsageExtractor(BaseExtractor):
         )
 
         dataset.usage = DatasetUsage(aspect_type=AspectType.DATASET_USAGE)
-        dataset.usage.query_count = QueryCount(
+        dataset.usage.query_counts = QueryCounts(
             # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
             # See https://github.com/quicktype/quicktype/issues/1375
-            last24_hours=0.0,
-            last7_days=0.0,
-            last30_days=0.0,
-            last90_days=0.0,
-            last365_days=0.0,
+            last24_hours=QueryCount(count=0.0),
+            last7_days=QueryCount(count=0.0),
+            last30_days=QueryCount(count=0.0),
+            last90_days=QueryCount(count=0.0),
+            last365_days=QueryCount(count=0.0),
         )
 
         return dataset
