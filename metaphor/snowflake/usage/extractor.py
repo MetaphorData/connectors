@@ -209,35 +209,35 @@ class SnowflakeUsageExtractor(BaseExtractor):
         """Calculate statistics for the extracted Dataset usages"""
         datasets = self._datasets.values()
 
-        self._calculate_percentile(
+        self.calculate_percentile(
             datasets, lambda dataset: dataset.usage.query_counts.last24_hours
         )
 
-        self._calculate_percentile(
+        self.calculate_percentile(
             datasets, lambda dataset: dataset.usage.query_counts.last7_days
         )
 
-        self._calculate_percentile(
+        self.calculate_percentile(
             datasets, lambda dataset: dataset.usage.query_counts.last30_days
         )
 
-        self._calculate_percentile(
+        self.calculate_percentile(
             datasets, lambda dataset: dataset.usage.query_counts.last90_days
         )
 
-        self._calculate_percentile(
+        self.calculate_percentile(
             datasets, lambda dataset: dataset.usage.query_counts.last365_days
         )
 
     @staticmethod
-    def _calculate_percentile(
-        datasets: Collection[Dataset], time_window: Callable[[Dataset], QueryCount]
+    def calculate_percentile(
+        datasets: Collection[Dataset], get_query_count: Callable[[Dataset], QueryCount]
     ) -> None:
-        counts = [time_window(dataset).count for dataset in datasets]
+        counts = [get_query_count(dataset).count for dataset in datasets]
         counts.sort()
 
         for dataset in datasets:
-            query_count = time_window(dataset)
+            query_count = get_query_count(dataset)
             query_count.percentile = counts.index(query_count.count) / len(datasets)
 
     @staticmethod
