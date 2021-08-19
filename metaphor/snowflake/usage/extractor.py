@@ -108,7 +108,8 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 cursor.execute(
                     "SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME "
                     "FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY "
-                    "WHERE SCHEMA_NAME != 'NULL' and START_TIME > %s and QUERY_ID > %s "
+                    "WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' "
+                    "  and START_TIME > %s and QUERY_ID > %s "
                     f"  {included_databases_clause} {excluded_usernames_clause} "
                     "ORDER BY QUERY_ID "
                     "LIMIT %s ",
