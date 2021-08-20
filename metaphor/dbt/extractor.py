@@ -17,9 +17,6 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     FieldDocumentation,
     MetadataChangeEvent,
-    Ownership,
-    PersonLogicalID,
-    PersonOwner,
     SchemaField,
     SchemaType,
     SQLSchema,
@@ -261,20 +258,6 @@ class DbtExtractor(BaseExtractor):
             field.field_path = column
             dataset.schema.fields.append(field)
         return field
-
-    @staticmethod
-    def _init_ownership(dataset: Dataset) -> None:
-        if not dataset.ownership:
-            dataset.ownership = Ownership()
-            dataset.ownership.people = []
-            dataset.ownership.groups = []
-
-    @staticmethod
-    def _build_owner(db_owner: str) -> PersonOwner:
-        owner = PersonOwner()
-        owner.person = PersonLogicalID(db_owner)
-        owner.role = "DB_TABLE_OWNER"
-        return owner
 
     @staticmethod
     def _init_documentation(dataset: Dataset) -> None:
