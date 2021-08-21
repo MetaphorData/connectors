@@ -2,19 +2,9 @@
 
 ## Install Python
 
-Install [pyenv](https://github.com/pyenv/pyenv#installation) to manage multiple versions of Python on your system
+We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage multiple versions of Python on your system. Refer to the [installation guide](https://github.com/pyenv/pyenv#installation) for your system.
 
-```shell
-brew install pyenv
-
-For bash:
-echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile
-
-For zsh:
-echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.zshrc
-```
-
-Install Python version `3.7.10` if haven't done so already
+Install Python `3.7` if haven't done so already
 
 ```shell
 pyenv install 3.7.10
@@ -25,6 +15,12 @@ Verify that it's the version selected by `pyenv` for the project.
 ```shell
 python -V
 Python 3.7.10
+```
+
+If you prefer to use Python 3.7 only for this project, you can run the following command to generate a `.python_version` file.
+
+```shell
+pyenv local 3.7.10
 ```
 
 > Note: We recommend using the latest 3.7 release to ensure maximum compatibility. If you're developing on an Apple Silicon Macs, please develop in a [Rosetta Terminal](https://www.courier.com/blog/tips-and-tricks-to-setup-your-apple-m1-for-development).
@@ -59,13 +55,9 @@ To make life easier, we recommend to always develop in a poetry shell. Many of t
 
 ## Setup Pre-commit
 
-Install [pre-commit](https://pre-commit.com/)
-```
-brew install pre-commit
-```
+Install [pre-commit](https://pre-commit.com/#installation) then setup git hooks
 
-Install git hook
-```
+```shell
 pre-commit install
 ```
 
@@ -102,3 +94,7 @@ We use [flakehell](https://github.com/life4/flakehell), which is a wrapper aroun
 ```shell
 flakehell lint
 ```
+
+## Publishing
+
+[This package](https://pypi.org/project/metaphor-connectors/) is automatically published to [PyPI](https://pypi.org/) as part of the [CI/CD workflow](.github/workflows/cicd.yml). Please make sure to bump up the version in [pyproject.toml](../pyproject.toml) along with the PR to trigger the publish workflow. 

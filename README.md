@@ -6,15 +6,21 @@ Each connector is placed under its own directory under `metaphor` and is expecte
 
 ## Installation
 
-[This package](https://pypi.org/project/metaphor-connectors/) is automatically published to [PyPI](https://pypi.org/) as part of the [CI/CD workflow](.github/workflows/cicd.yml). You can install it in your environment using pip.
+This package requires Python 3.7+ installed. You can verify the version on your system by running the following command,
 
+```shell
+python -V  # or python3 -V on some systems
 ```
+
+Once verified, you can install the package using [pip](https://docs.python.org/3/installing/index.html),
+
+```shell
 pip install metaphor-connectors[all]
 ```
 
 This will install all the connectors and required dependencies. You can also choose to install only a subset of the dependencies by installing specific [extra](https://packaging.python.org/tutorials/installing-packages/#installing-setuptools-extras), e.g.
 
-```
+```shell
 pip install metaphor-connectors[snowflake]
 ```
 
