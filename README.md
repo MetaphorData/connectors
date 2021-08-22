@@ -1,8 +1,7 @@
 # Metaphor Connectors
 
-![Python version 3.7+](https://img.shields.io/badge/python-3.7%2B-blue)
 [![CI/CD](https://github.com/MetaphorData/connectors/actions/workflows/cicd.yml/badge.svg)](https://github.com/MetaphorData/connectors/actions/workflows/cicd.yml)
-![PyPI Version](https://img.shields.io/pypi/v/metaphor-connectors)
+[![PyPI Version](https://img.shields.io/pypi/v/metaphor-connectors)](https://pypi.org/project/metaphor-connectors/)
 ![Python version 3.7+](https://img.shields.io/badge/python-3.7%2B-blue)
 
 This repository contains a collection of Python-based "connectors" that extract metadata from various sources to ingest into the Metaphor app.
