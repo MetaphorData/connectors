@@ -47,7 +47,18 @@ async def test_extractor_user(test_root_dir):
                         "id": "1234",
                         "primaryEmail": "foo@bar.com",
                         "name": {"givenName": "Foo", "familyName": "Bar"},
-                    }
+                    },
+                    {
+                        "id": "5678",
+                        "primaryEmail": "foo2@bar.com",
+                        "name": {"givenName": "Foo2", "familyName": "Bar2"},
+                        "organizations": [
+                            {
+                                "title": "software engineer",
+                                "department": "engineering",
+                            }
+                        ],
+                    },
                 ]
             },
         )
