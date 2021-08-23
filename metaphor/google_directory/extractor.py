@@ -12,6 +12,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Person,
     PersonLogicalID,
+    PersonOrganization,
     PersonProperties,
 )
 from serde import deserialize
@@ -99,12 +100,11 @@ class GoogleDirectoryExtractor(BaseExtractor):
 
     def _parse_user(self, user: Dict, photo: Dict) -> None:
         person = Person()
-        person.logical_id = PersonLogicalID()
-        person.logical_id.email = user["primaryEmail"]
+        person.logical_id = PersonLogicalID(email=user["primaryEmail"])
 
-        person.properties = PersonProperties()
-        person.properties.first_name = user["name"]["givenName"]
-        person.properties.last_name = user["name"]["familyName"]
+        person.properties = PersonProperties(
+            first_name=user["name"]["givenName"], last_name=user["name"]["familyName"]
+        )
 
         if "mimeType" and "photoData" in photo:
             # Convert URL-safe to standard base64 encoding to form a Data URL
@@ -112,5 +112,12 @@ class GoogleDirectoryExtractor(BaseExtractor):
                 base64.urlsafe_b64decode(photo["photoData"])
             ).decode("utf-8")
             person.properties.avatar_url = f'data:{photo["mimeType"]};base64,{data}'
+
+        if len(user.get("organizations", [])) > 0:
+            organization = user["organizations"][0]
+            person.organization = PersonOrganization(
+                title=organization.get("title"),
+                department=organization.get("department"),
+            )
 
         self._users.append(person)

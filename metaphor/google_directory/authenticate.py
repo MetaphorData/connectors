@@ -5,18 +5,16 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-# If modifying these scopes, delete the file token.json.
+# If modifying these scopes, delete the token file.
 SCOPES = [
     "https://www.googleapis.com/auth/admin.directory.user",
+    "https://www.googleapis.com/auth/user.organization.read",
 ]
 
 
 def authenticate(credential_file, token_file):
-    workspace = os.path.dirname(os.path.realpath(credential_file))
-    token_file = workspace + "/token.json"
-
     if not os.path.exists(credential_file):
-        raise Exception("Not credential.json")
+        raise FileNotFoundError(f"Unable to find credential file {credential_file}")
 
     credential = None
     # The file token.json stores the user's access and refresh tokens, and is
