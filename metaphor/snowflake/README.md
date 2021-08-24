@@ -1,4 +1,4 @@
-# Google Directory Connector
+# Snowflake Connector
 
 This connector extracts technical metadata from a Snowflake account using [Snowflake Connector](https://docs.snowflake.com/en/user-guide/python-connector.html).
 
