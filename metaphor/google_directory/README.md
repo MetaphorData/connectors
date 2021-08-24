@@ -1,5 +1,7 @@
 # Google Directory Connector
 
+This connector extracts user information from a Google Workspace using [Directory API](https://developers.google.com/admin-sdk/directory).
+
 ## Setup
 
 1. Create a [new GCP project](https://support.google.com/googleapi/answer/6251787?hl=en#zippy=%2Ccreate-a-project). Select the project from the project dropdown list once it's created (may takes a few seconds).
@@ -40,11 +42,16 @@ Create a YAML config file based the following template.
 ```yaml
 token_file: <path_to_token_file>
 output:
-  <common_output_config>
+  file:
+    path: <path_to_output_file>
 ```
 
 ## Testing
 
+To test the connector locally, change the config file to output to a local path and run the following command
+
 ```
 python -m metaphor.google_directory <config_file>
 ```
+
+Manually verify the output after the run finishes.
