@@ -7,8 +7,6 @@
 
 This repository contains a collection of Python-based "connectors" that extract metadata from various sources to ingest into the Metaphor app.
 
-Each connector is placed under its own directory under `metaphor` and is expected to extend `metaphor.common.BaseExtractor`.
-
 ## Installation
 
 This package requires Python 3.7+ installed. You can verify the version on your system by running the following command,
@@ -30,6 +28,15 @@ pip install metaphor-connectors[snowflake]
 ```
 
 Similary, you can also install the package using `requirements.txt` or `pyproject.toml`.
+
+## Connectors
+
+Each connector is placed under its own directory under `metaphor` and extends the `metaphor.common.BaseExtractor` class.
+
+| Connector | Metadata  |
+| --------- | --------- |  
+| [metaphor.google_directory](metaphor/google_directory/README.md) | User |
+| [metaphor.snowflake](metaphor/snowflake/README.md) | Schema, Description |
 
 ## Development
 
