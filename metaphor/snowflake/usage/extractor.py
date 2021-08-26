@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from fnmatch import fnmatch
-from typing import Callable, Collection, Dict, List, Set
+from typing import Callable, Collection, Dict, List, Set, Tuple
 
 from serde import deserialize
 from sql_metadata import Parser
@@ -278,7 +278,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
     @staticmethod
     def built_column_fullname(
         column: str, db: str, schema: str, tables: List[str]
-    ) -> (str, str):
+    ) -> Tuple[str, str]:
         """built column fullname with (<DB>.<SCHEMA>.<TABLE>, <COLUMN>), in lowercase"""
         table, _, column_name = column.rpartition(".")
         dots = column.count(".")
