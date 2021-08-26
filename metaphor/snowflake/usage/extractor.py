@@ -35,6 +35,8 @@ from metaphor.common.extractor import BaseExtractor, RunConfig
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+_default_excluded_table_names = ["snowflake.*"]
+
 
 @deserialize
 @dataclass
@@ -73,7 +75,9 @@ class SnowflakeUsageExtractor(BaseExtractor):
         self.included_table_names = []
         self.excluded_table_names = []
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(
+        self, config: SnowflakeUsageRunConfig
+    ) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeUsageExtractor.config_class())
 
         logger.info(f"Fetching usage info from Snowflake account {config.account}")
@@ -81,12 +85,17 @@ class SnowflakeUsageExtractor(BaseExtractor):
             account=config.account, user=config.user, password=config.password
         )
 
-        self.included_table_names = [
-            name.lower() for name in config.included_table_names
-        ]
-        self.excluded_table_names = [
-            name.lower() for name in config.excluded_table_names
-        ]
+        self.included_table_names = set(
+            [name.lower() for name in config.included_table_names]
+        )
+        # merge config excluded_table_names with _default_excluded_table_names
+        self.excluded_table_names = set(
+            [
+                name.lower()
+                for name in list(config.excluded_table_names)
+                + _default_excluded_table_names
+            ]
+        )
 
         included_databases_clause = (
             f"and DATABASE_NAME IN ({','.join(['%s'] * len(config.included_databases))})"
