@@ -21,6 +21,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     SchemaField,
     SchemaType,
+    SourceInfo,
     SQLSchema,
 )
 from serde import deserialize
@@ -66,7 +67,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             # TODO: parallel fetching
             for db in databases:
-                tables = self._fetch_tables(cursor, db)
+                tables = self._fetch_tables(cursor, db, config.account)
                 logger.info(f"DB {db} has tables {tables}")
 
                 for schema, name, full_name in tables:
@@ -91,7 +92,9 @@ class SnowflakeExtractor(BaseExtractor):
         )
         return [db[0] for db in cursor]
 
-    def _fetch_tables(self, cursor, database: str) -> List[Tuple[str, str, str]]:
+    def _fetch_tables(
+        self, cursor, database: str, account: str
+    ) -> List[Tuple[str, str, str]]:
         cursor.execute("USE " + database)
         cursor.execute(
             "SELECT table_schema, table_name, table_type, COMMENT "
@@ -104,7 +107,7 @@ class SnowflakeExtractor(BaseExtractor):
         for schema, name, table_type, comment in cursor:
             full_name = self._table_fullname(database, schema, name)
             self._datasets[full_name] = self._init_dataset(
-                full_name, table_type, comment
+                account, full_name, table_type, comment
             )
             tables.append((schema, name, full_name))
 
@@ -136,12 +139,18 @@ class SnowflakeExtractor(BaseExtractor):
             logger.error(e)
 
     @staticmethod
-    def _init_dataset(full_name: str, table_type: str, comment: str) -> Dataset:
+    def _init_dataset(
+        account: str, full_name: str, table_type: str, comment: str
+    ) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
-        dataset.logical_id = DatasetLogicalID()
-        dataset.logical_id.platform = DataPlatform.SNOWFLAKE
-        dataset.logical_id.name = full_name
+        dataset.logical_id = DatasetLogicalID(
+            name=full_name, account=account, platform=DataPlatform.SNOWFLAKE
+        )
+
+        dataset.source_info = SourceInfo(
+            main_url=SnowflakeExtractor.build_table_url(account, full_name)
+        )
 
         dataset.schema = DatasetSchema()
         dataset.schema.aspect_type = AspectType.DATASET_SCHEMA
@@ -156,6 +165,14 @@ class SnowflakeExtractor(BaseExtractor):
         )
 
         return dataset
+
+    @staticmethod
+    def build_table_url(account: str, full_name: str) -> str:
+        db, schema, table = full_name.upper().split(".")
+        return (
+            f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
+            f"databaseName={db}&schemaName={schema}&tableName={table}"
+        )
 
     @staticmethod
     def _build_field(column) -> SchemaField:
