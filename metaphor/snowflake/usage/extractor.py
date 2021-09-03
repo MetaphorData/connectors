@@ -69,6 +69,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
         return SnowflakeUsageRunConfig
 
     def __init__(self):
+        self.account = None
         self._datasets: Dict[str, Dataset] = {}
         self.total_queries_count = 0
         self.error_count = 0
@@ -85,6 +86,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
             account=config.account, user=config.user, password=config.password
         )
 
+        self.account = config.account
         self.included_table_names = set(
             [name.lower() for name in config.included_table_names]
         )
@@ -178,7 +180,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
             if fullname not in self._datasets:
                 self._datasets[fullname] = SnowflakeUsageExtractor._init_dataset(
-                    fullname
+                    self.account, fullname
                 )
 
             utc_now = datetime.now().replace(tzinfo=timezone.utc)
@@ -365,11 +367,11 @@ class SnowflakeUsageExtractor(BaseExtractor):
             column.percentile = 1.0 - counts.index(column.count) / len(columns)
 
     @staticmethod
-    def _init_dataset(full_name: str) -> Dataset:
+    def _init_dataset(account: str, full_name: str) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, platform=DataPlatform.SNOWFLAKE
+            name=full_name, account=account, platform=DataPlatform.SNOWFLAKE
         )
 
         dataset.usage = DatasetUsage(aspect_type=AspectType.DATASET_USAGE)
