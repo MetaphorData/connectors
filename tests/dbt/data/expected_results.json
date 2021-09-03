@@ -16,6 +16,7 @@
         ]
       },
       "logicalId": {
+        "account": "metaphor",
         "name": "demo_db.dbt_dev.my_first_dbt_model",
         "platform": "SNOWFLAKE"
       },
@@ -58,6 +59,7 @@
         ]
       },
       "logicalId": {
+        "account": "metaphor",
         "name": "demo_db.dbt_dev.my_second_dbt_model",
         "platform": "SNOWFLAKE"
       },
@@ -123,6 +125,7 @@
         ]
       },
       "logicalId": {
+        "account": "metaphor",
         "name": "demo_db.dbt_dev.trial_model_1",
         "platform": "SNOWFLAKE"
       },
@@ -211,6 +214,7 @@
         ]
       },
       "logicalId": {
+        "account": "metaphor",
         "name": "demo_db.dbt_dev.trial_model_2",
         "platform": "SNOWFLAKE"
       },
@@ -312,6 +316,7 @@
         ]
       },
       "logicalId": {
+        "account": "metaphor",
         "name": "demo_db.dbt_dev.sales_records",
         "platform": "SNOWFLAKE"
       },
@@ -430,6 +435,7 @@
         ]
       },
       "logicalId": {
+        "account": "metaphor",
         "name": "demo_db.dbt_dev.netflix",
         "platform": "SNOWFLAKE"
       },
