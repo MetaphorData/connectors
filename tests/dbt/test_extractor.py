@@ -13,7 +13,9 @@ async def test_extractor(test_root_dir):
     catalog = test_root_dir + "/dbt/data/catalog.json"
     expected = test_root_dir + "/dbt/data/expected_results.json"
 
-    config = DbtRunConfig(output=None, manifest=manifest, catalog=catalog)
+    config = DbtRunConfig(
+        output=None, account="metaphor", manifest=manifest, catalog=catalog
+    )
     extractor = DbtExtractor()
     events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 

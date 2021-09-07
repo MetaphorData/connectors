@@ -39,6 +39,9 @@ class DbtRunConfig(RunConfig):
     manifest: str
     catalog: str
 
+    # the database service account this DBT project is connected to
+    account: Optional[str] = None
+
 
 class DbtExtractor(BaseExtractor):
     """DBT metadata extractor"""
@@ -48,6 +51,7 @@ class DbtExtractor(BaseExtractor):
         return DbtRunConfig
 
     def __init__(self):
+        self.account = None
         self._manifest: Optional[DbtManifest] = None
         self._catalog: Optional[DbtCatalog] = None
         self._metadata: Dict[str, Dataset] = {}
@@ -56,6 +60,7 @@ class DbtExtractor(BaseExtractor):
         assert isinstance(config, DbtExtractor.config_class())
 
         logger.info("Fetching metadata from DBT repo")
+        self.account = config.account
 
         try:
             self._manifest = DbtManifest.from_json_file(config.manifest)
@@ -226,11 +231,13 @@ class DbtExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def _build_entity(table_name: str, platform: str) -> Dataset:
+    def _build_entity(
+        table_name: str, platform: str, account: Optional[str]
+    ) -> Dataset:
         dataset = Dataset()
-        dataset.logical_id = DatasetLogicalID()
-        dataset.logical_id.platform = DataPlatform[platform]
-        dataset.logical_id.name = table_name
+        dataset.logical_id = DatasetLogicalID(
+            name=table_name, account=account, platform=DataPlatform[platform]
+        )
         return dataset
 
     def _init_dataset(
@@ -238,7 +245,7 @@ class DbtExtractor(BaseExtractor):
     ) -> Dataset:
         table = self._dataset_name(database, schema, name)
         if table not in self._metadata:
-            self._metadata[table] = self._build_entity(table, platform)
+            self._metadata[table] = self._build_entity(table, platform, self.account)
         return self._metadata[table]
 
     @staticmethod
