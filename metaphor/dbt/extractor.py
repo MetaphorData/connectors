@@ -40,7 +40,7 @@ class DbtRunConfig(RunConfig):
     catalog: str
 
     # the database service account this DBT project is connected to
-    account: str = None
+    account: Optional[str] = None
 
 
 class DbtExtractor(BaseExtractor):
