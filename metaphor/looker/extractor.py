@@ -136,7 +136,7 @@ class LookerExtractor(BaseExtractor):
             # Snowflake host <account_name>.snowflakecomputing.com
             # see https://docs.looker.com/setup-and-management/database-config/snowflake
             return host.split(".")[0]
-        return
+        return None
 
     def _fetch_dashboards(
         self, config: LookerRunConfig, sdk: Looker31SDK, model_map: Dict[str, Model]
