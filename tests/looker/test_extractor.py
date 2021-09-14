@@ -1,6 +1,6 @@
 from metaphor.models.metadata_change_event import DataPlatform
 
-from metaphor.looker.extractor import LookerExtractor, LookerRunConfig
+from metaphor.looker.extractor import LookerExtractor
 
 
 def test_parse_account(test_root_dir):
