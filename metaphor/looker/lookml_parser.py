@@ -24,6 +24,7 @@ class Connection:
     name: str
     platform: DataPlatform
     database: str
+    account: Optional[str]
     default_schema: Optional[str]
 
 
