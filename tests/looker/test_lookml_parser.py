@@ -41,7 +41,9 @@ def test_basic(test_root_dir):
                         EntityId(
                             EntityType.DATASET,
                             DatasetLogicalID(
-                                name="db.schema.view1", platform=DataPlatform.SNOWFLAKE
+                                name="db.schema.view1",
+                                platform=DataPlatform.SNOWFLAKE,
+                                account="account",
                             ),
                         )
                     },
@@ -67,13 +69,17 @@ def test_join(test_root_dir):
                         EntityId(
                             EntityType.DATASET,
                             DatasetLogicalID(
-                                name="db.schema.view1", platform=DataPlatform.SNOWFLAKE
+                                name="db.schema.view1",
+                                platform=DataPlatform.SNOWFLAKE,
+                                account="account",
                             ),
                         ),
                         EntityId(
                             EntityType.DATASET,
                             DatasetLogicalID(
-                                name="db.schema2.view2", platform=DataPlatform.SNOWFLAKE
+                                name="db.schema2.view2",
+                                platform=DataPlatform.SNOWFLAKE,
+                                account="account",
                             ),
                         ),
                     },
@@ -99,7 +105,9 @@ def test_explore_in_view(test_root_dir):
                         EntityId(
                             EntityType.DATASET,
                             DatasetLogicalID(
-                                name="db.schema.view1", platform=DataPlatform.SNOWFLAKE
+                                name="db.schema.view1",
+                                platform=DataPlatform.SNOWFLAKE,
+                                account="account",
                             ),
                         )
                     },
@@ -125,7 +133,9 @@ def test_derived_table(test_root_dir):
                         EntityId(
                             EntityType.DATASET,
                             DatasetLogicalID(
-                                name="db.schema.table1", platform=DataPlatform.SNOWFLAKE
+                                name="db.schema.table1",
+                                platform=DataPlatform.SNOWFLAKE,
+                                account="account",
                             ),
                         )
                     },
@@ -138,7 +148,9 @@ def test_derived_table(test_root_dir):
                         EntityId(
                             EntityType.DATASET,
                             DatasetLogicalID(
-                                name="db.schema.table1", platform=DataPlatform.SNOWFLAKE
+                                name="db.schema.table1",
+                                platform=DataPlatform.SNOWFLAKE,
+                                account="account",
                             ),
                         )
                     },

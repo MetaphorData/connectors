@@ -92,7 +92,9 @@ class Explore:
 
         return EntityId(
             EntityType.DATASET,
-            DatasetLogicalID(name=full_name, platform=connection.platform),
+            DatasetLogicalID(
+                name=full_name, platform=connection.platform, account=connection.account
+            ),
         )
 
     @staticmethod
