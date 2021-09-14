@@ -79,7 +79,7 @@
       "upstream": {
         "sourceCodeUrl": "models/example/my_second_dbt_model.sql",
         "sourceDatasets": [
-          "DATASET~82D1C5DCAC9512AF99F49318FDC8EAE0"
+          "DATASET~AF64AB4122CD383EA8360D20965ABB67"
         ]
       }
     },
@@ -169,7 +169,7 @@
       "upstream": {
         "sourceCodeUrl": "models/example/trial_model_1.sql",
         "sourceDatasets": [
-          "DATASET~77A301EF532BCAF1F679E5979AE70974"
+          "DATASET~BDB320613577550E8EE6BE295054A8A0"
         ]
       }
     },
@@ -258,7 +258,7 @@
       "upstream": {
         "sourceCodeUrl": "models/example/trial_model_2.sql",
         "sourceDatasets": [
-          "DATASET~4DED9233C6796641B5625158719C55CD"
+          "DATASET~88E2F99BE08491C03619AC3FF0FF07BC"
         ]
       }
     },

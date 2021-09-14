@@ -1,7 +1,7 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Sequence, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 try:
     import looker_sdk
@@ -90,7 +90,7 @@ class LookerExtractor(BaseExtractor):
         os.environ["LOOKERSDK_TIMEOUT"] = str(config.timeout)
         return looker_sdk.init31()
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: LookerRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, LookerExtractor.config_class())
 
         logger.info("Fetching metadata from Looker")
@@ -118,15 +118,25 @@ class LookerExtractor(BaseExtractor):
                     f"Ignore connection {name} with unsupported dialect {dialect}"
                 )
                 continue
+            platform = self.dialect_platform_map[dialect]
 
             connection_map[name] = Connection(
                 name=connection.name,
-                platform=self.dialect_platform_map[dialect],
+                platform=platform,
                 database=connection.database,
+                account=self.parse_account(connection.host, platform),
                 default_schema=connection.schema,
             )
 
         return connection_map
+
+    @staticmethod
+    def parse_account(host: str, platform: DataPlatform) -> Optional[str]:
+        if platform == DataPlatform.SNOWFLAKE:
+            # Snowflake host <account_name>.snowflakecomputing.com
+            # see https://docs.looker.com/setup-and-management/database-config/snowflake
+            return host.split(".")[0]
+        return None
 
     def _fetch_dashboards(
         self, config: LookerRunConfig, sdk: Looker31SDK, model_map: Dict[str, Model]

@@ -146,7 +146,7 @@ class DbtExtractor(BaseExtractor):
             dataset.upstream = DatasetUpstream()
             dataset.upstream.source_code_url = model.original_file_path
             dataset.upstream.source_datasets = [
-                self._get_upstream(n, platform, datasets)
+                self._get_upstream(n, datasets, platform, self.account)
                 for n in model.depends_on.nodes
             ]
 
@@ -296,9 +296,14 @@ class DbtExtractor(BaseExtractor):
 
     @staticmethod
     def _get_upstream(
-        node: str, platform: str, datasets: Dict[str, DbtManifestNode]
+        node: str,
+        datasets: Dict[str, DbtManifestNode],
+        platform: str,
+        account: Optional[str],
     ) -> str:
-        dataset_id = DatasetLogicalID()
-        dataset_id.platform = DataPlatform[platform]
-        dataset_id.name = DbtExtractor._get_dataset_name(datasets[node])
+        dataset_id = DatasetLogicalID(
+            platform=DataPlatform[platform],
+            account=account,
+            name=DbtExtractor._get_dataset_name(datasets[node]),
+        )
         return str(EntityId(EntityType.DATASET, dataset_id))

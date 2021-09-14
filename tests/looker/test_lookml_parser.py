@@ -12,6 +12,7 @@ connection_map = {
         name="snowflake",
         platform=DataPlatform.SNOWFLAKE,
         database="db",
+        account="account",
         default_schema="schema",
     )
 }
