@@ -131,12 +131,12 @@ class LookerExtractor(BaseExtractor):
         return connection_map
 
     @staticmethod
-    def parse_account(host: str, platform: DataPlatform) -> Optional[str]:
-        if platform == DataPlatform.SNOWFLAKE:
+    def parse_account(host: Optional[str], platform: DataPlatform) -> Optional[str]:
+        if platform == DataPlatform.SNOWFLAKE and host:
             # Snowflake host <account_name>.snowflakecomputing.com
             # see https://docs.looker.com/setup-and-management/database-config/snowflake
             return host.split(".")[0]
-        return None
+        return
 
     def _fetch_dashboards(
         self, config: LookerRunConfig, sdk: Looker31SDK, model_map: Dict[str, Model]
