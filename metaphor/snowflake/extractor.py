@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple
 
 from metaphor.common.event_util import EventUtil
 
@@ -16,6 +17,7 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
+    DatasetStatistics,
     EntityType,
     MaterializationType,
     MetadataChangeEvent,
@@ -74,6 +76,7 @@ class SnowflakeExtractor(BaseExtractor):
                     dataset = self._datasets[full_name]
                     self._fetch_columns(cursor, schema, name, dataset)
                     self._fetch_ddl(cursor, schema, name, dataset)
+                    self._fetch_last_updated(cursor, schema, name, dataset)
 
         logger.debug(self._datasets)
 
@@ -97,17 +100,17 @@ class SnowflakeExtractor(BaseExtractor):
     ) -> List[Tuple[str, str, str]]:
         cursor.execute("USE " + database)
         cursor.execute(
-            "SELECT table_schema, table_name, table_type, COMMENT "
+            "SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes "
             "FROM information_schema.tables "
             "WHERE table_schema != 'INFORMATION_SCHEMA' "
             "ORDER BY table_schema, table_name"
         )
 
         tables: List[Tuple[str, str, str]] = []
-        for schema, name, table_type, comment in cursor:
+        for schema, name, table_type, comment, row_count, table_bytes in cursor:
             full_name = self._table_fullname(database, schema, name)
             self._datasets[full_name] = self._init_dataset(
-                account, full_name, table_type, comment
+                account, full_name, table_type, comment, row_count, table_bytes
             )
             tables.append((schema, name, full_name))
 
@@ -139,8 +142,32 @@ class SnowflakeExtractor(BaseExtractor):
             logger.error(e)
 
     @staticmethod
+    def _fetch_last_updated(cursor, schema: str, name: str, dataset: Dataset) -> None:
+        assert dataset.schema is not None and dataset.schema.sql_schema is not None
+        if dataset.schema.sql_schema.materialization != MaterializationType.TABLE:
+            return
+
+        assert dataset.statistics is not None
+        try:
+            cursor.execute(
+                "SELECT SYSTEM$LAST_CHANGE_COMMIT_TIME(%s)", f"{schema}.{name}"
+            )
+            timestamp = cursor.fetchone()[0]
+            if timestamp > 0:
+                dataset.statistics.last_updated = datetime.utcfromtimestamp(
+                    timestamp / 1000
+                )
+        except Exception as e:
+            logger.error(e)
+
+    @staticmethod
     def _init_dataset(
-        account: str, full_name: str, table_type: str, comment: str
+        account: str,
+        full_name: str,
+        table_type: str,
+        comment: str,
+        row_count: Optional[int],
+        table_bytes: Optional[float],
     ) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
@@ -163,6 +190,12 @@ class SnowflakeExtractor(BaseExtractor):
             if table_type == "VIEW"
             else MaterializationType.TABLE
         )
+
+        dataset.statistics = DatasetStatistics()
+        if row_count:
+            dataset.statistics.record_count = float(row_count)
+        if table_bytes:
+            dataset.statistics.data_size = table_bytes / 1048576
 
         return dataset
 
