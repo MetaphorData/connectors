@@ -114,7 +114,7 @@ class PostgresqlExtractor(BaseExtractor):
     ) -> List[Tuple[str, str, str]]:
         results = await conn.fetch(
             """
-            SELECT table_catalog, table_schema, table_name, table_type, pgd.description, 
+            SELECT table_catalog, table_schema, table_name, table_type, pgd.description,
                 pgc.reltuples::bigint AS row_count,
                 pg_total_relation_size('"' || table_schema || '"."' || table_name || '"') as table_size
             FROM information_schema.tables t
@@ -231,7 +231,7 @@ class PostgresqlExtractor(BaseExtractor):
 
         dataset.statistics = DatasetStatistics()
         dataset.statistics.record_count = float(row_count)
-        dataset.statistics.data_size = table_size / 1000000
+        dataset.statistics.data_size = table_size / (1000 * 1000)  # in MB
         # There is no reliable way to directly get data last modified time, can explore alternatives in future
         # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 
