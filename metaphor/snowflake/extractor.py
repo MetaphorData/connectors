@@ -195,7 +195,7 @@ class SnowflakeExtractor(BaseExtractor):
         if row_count:
             dataset.statistics.record_count = float(row_count)
         if table_bytes:
-            dataset.statistics.data_size = table_bytes / 1048576
+            dataset.statistics.data_size = table_bytes / 1000000
 
         return dataset
 
