@@ -17,6 +17,7 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
+    DatasetStatistics,
     ForeignKey,
     MaterializationType,
     MetadataChangeEvent,
@@ -55,7 +56,7 @@ class PostgresqlExtractor(BaseExtractor):
     def __init__(self):
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: PostgresqlRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, PostgresqlExtractor.config_class())
 
         platform = DataPlatform.REDSHIFT if config.redshift else DataPlatform.POSTGRESQL
@@ -112,19 +113,24 @@ class PostgresqlExtractor(BaseExtractor):
         self, conn, platform: DataPlatform
     ) -> List[Tuple[str, str, str]]:
         results = await conn.fetch(
-            "SELECT table_catalog, table_schema, table_name, table_type, pgd.description "
-            "FROM information_schema.tables t "
-            "LEFT JOIN pg_catalog.pg_description pgd "
-            "  ON pgd.objoid = ( "
-            "      SELECT oid FROM pg_class "
-            "      WHERE relname = t.table_name "
-            "        AND relnamespace = ( "
-            "            SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = t.table_schema "
-            "          ) "
-            "        ) AND pgd.objsubid = 0 "
-            "WHERE table_schema != 'pg_catalog' AND table_schema != 'information_schema' "
-            "ORDER BY table_schema, table_name"
+            """
+            SELECT table_catalog, table_schema, table_name, table_type, pgd.description,
+                pgc.reltuples::bigint AS row_count,
+                pg_total_relation_size('"' || table_schema || '"."' || table_name || '"') as table_size
+            FROM information_schema.tables t
+            JOIN pg_class pgc
+              ON pgc.relname = t.table_name
+                AND pgc.relnamespace = (
+                  SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = t.table_schema
+                )
+            LEFT JOIN pg_catalog.pg_description pgd
+              ON pgd.objoid = pgc.oid AND pgd.objsubid = 0
+            WHERE table_schema != 'pg_catalog' AND table_schema != 'information_schema'
+            ORDER BY table_schema, table_name;
+            """
         )
+        # TODO: the table size query above does NOT work for redshift, use SVV_TABLE_INFO instead [sc3610]
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_TABLE_INFO.html
 
         tables: List[Tuple[str, str, str]] = []
         for table in results:
@@ -133,9 +139,11 @@ class PostgresqlExtractor(BaseExtractor):
             name = table["table_name"]
             table_type = table["table_type"]
             description = table["description"]
+            row_count = table["row_count"]
+            table_size = table["table_size"]
             full_name = self._dataset_name(catalog, schema, name)
             self._datasets[full_name] = self._init_dataset(
-                full_name, table_type, platform, description
+                full_name, table_type, platform, description, row_count, table_size
             )
             tables.append((schema, name, full_name))
 
@@ -198,7 +206,12 @@ class PostgresqlExtractor(BaseExtractor):
 
     @staticmethod
     def _init_dataset(
-        full_name: str, table_type: str, platform: DataPlatform, description: str
+        full_name: str,
+        table_type: str,
+        platform: DataPlatform,
+        description: str,
+        row_count: int,
+        table_size: int,
     ) -> Dataset:
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
@@ -215,6 +228,12 @@ class PostgresqlExtractor(BaseExtractor):
             if table_type == "VIEW"
             else MaterializationType.TABLE
         )
+
+        dataset.statistics = DatasetStatistics()
+        dataset.statistics.record_count = float(row_count)
+        dataset.statistics.data_size = table_size / (1000 * 1000)  # in MB
+        # There is no reliable way to directly get data last modified time, can explore alternatives in future
+        # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 
         return dataset
 
