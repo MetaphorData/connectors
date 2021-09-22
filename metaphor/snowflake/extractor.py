@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 
 from metaphor.common.event_util import EventUtil
@@ -156,7 +156,7 @@ class SnowflakeExtractor(BaseExtractor):
             if timestamp > 0:
                 dataset.statistics.last_updated = datetime.utcfromtimestamp(
                     timestamp / 1000
-                )
+                ).replace(tzinfo=timezone.utc)
         except Exception as e:
             logger.error(e)
 
