@@ -31,6 +31,14 @@ from metaphor.common.extractor import BaseExtractor, RunConfig
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+_ignored_dbs = ["template0", "template1", "rdsadmin"]
+_ignored_schemas = [
+    "pg_catalog",
+    "information_schema",
+    "pg_internal",
+    "catalog_history",
+]
+
 
 @deserialize
 @dataclass
@@ -50,8 +58,6 @@ class PostgresqlExtractor(BaseExtractor):
     @staticmethod
     def config_class():
         return PostgresqlRunConfig
-
-    _ignored_dbs = ["template0", "template1", "rdsadmin"]
 
     def __init__(self):
         self._datasets: Dict[str, Dataset] = {}
@@ -107,13 +113,16 @@ class PostgresqlExtractor(BaseExtractor):
     @staticmethod
     async def _fetch_databases(conn) -> List[str]:
         results = await conn.fetch("SELECT datname FROM pg_database")
-        return [r[0] for r in results if r[0] not in PostgresqlExtractor._ignored_dbs]
+        return [r[0] for r in results if r[0] not in _ignored_dbs]
 
     async def _fetch_tables(
         self, conn, platform: DataPlatform
     ) -> List[Tuple[str, str, str]]:
+        # e.g. table_schema not in ($1, $2, ...)
+        excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
+
         results = await conn.fetch(
-            """
+            f"""
             SELECT table_catalog, table_schema, table_name, table_type, pgd.description,
                 pgc.reltuples::bigint AS row_count,
                 pg_total_relation_size('"' || table_schema || '"."' || table_name || '"') as table_size
@@ -125,9 +134,10 @@ class PostgresqlExtractor(BaseExtractor):
                 )
             LEFT JOIN pg_catalog.pg_description pgd
               ON pgd.objoid = pgc.oid AND pgd.objsubid = 0
-            WHERE table_schema != 'pg_catalog' AND table_schema != 'information_schema'
+            WHERE {excluded_schemas_clause}
             ORDER BY table_schema, table_name;
-            """
+            """,
+            *_ignored_schemas,
         )
         # TODO: the table size query above does NOT work for redshift, use SVV_TABLE_INFO instead [sc3610]
         # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_TABLE_INFO.html
