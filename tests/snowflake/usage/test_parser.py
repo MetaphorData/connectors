@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timezone
 from typing import List
 
@@ -123,11 +122,11 @@ def test_column_percentile():
 
 def test_parse_query_log(test_root_dir):
     sql = """
-    SELECT n.SHOW_ID, n.TITLE, n.TYPE, n.Date_added, n.RATING 
-    FROM DBT_DEV.NETFLIX n 
-    JOIN DBT_DEV.TRIAL_MODEL_1 t 
-      ON n.SHOW_ID = t.SHOW_ID 
-    WHERE t.COUNTRY = 'India';
+    SELECT n.SHOW_ID, n.TITLE, n.TYPE, n.Date_added, n.RATING
+    FROM DBT_DEV.NETFLIX n
+    JOIN DBT_DEV.TRIAL_MODEL_1 t
+      ON n.SHOW_ID = t.SHOW_ID
+    WHERE t.COUNTRY = 'India'
     """
 
     extractor = SnowflakeUsageExtractor()

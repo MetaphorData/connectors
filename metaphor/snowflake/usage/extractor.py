@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from fnmatch import fnmatch
-from typing import Callable, Collection, Dict, List, Optional, Set, Tuple
+from typing import Callable, Collection, Dict, List, Set, Tuple
 
 from serde import deserialize
 from sql_metadata import Parser
@@ -278,7 +278,10 @@ class SnowflakeUsageExtractor(BaseExtractor):
             logger.debug(f"parser query {parser.query}")
             return
 
-        usages = defaultdict(lambda: SnowflakeUsageExtractor._ColumnsUsage())
+        usages: Dict[str, SnowflakeUsageExtractor._ColumnsUsage] = defaultdict(
+            lambda: SnowflakeUsageExtractor._ColumnsUsage()
+        )  # table_name to ColumnUsage map
+
         for join_column in parser.columns_dict["join"]:
             table, column = self.built_column_fullname(join_column, db, schema, [])
             usages[table].join.add(column)
