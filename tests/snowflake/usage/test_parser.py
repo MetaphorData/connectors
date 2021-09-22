@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List
 
 from metaphor.models.metadata_change_event import (
@@ -8,7 +9,9 @@ from metaphor.models.metadata_change_event import (
     QueryCounts,
 )
 
+from metaphor.common.event_util import EventUtil
 from metaphor.snowflake.usage.extractor import SnowflakeUsageExtractor
+from tests.test_utils import load_json
 
 
 def make_dataset_with_usage(counts: List[int]):
@@ -115,3 +118,27 @@ def test_column_percentile():
         FieldQueryCount(count=1, percentile=0.33333333333333337),
         FieldQueryCount(count=5, percentile=1.0),
     ]
+
+
+def test_parse_query_log(test_root_dir):
+    sql = """
+    SELECT n.SHOW_ID, n.TITLE, n.TYPE, n.Date_added, n.RATING
+    FROM DBT_DEV.NETFLIX n
+    JOIN DBT_DEV.TRIAL_MODEL_1 t
+      ON n.SHOW_ID = t.SHOW_ID
+    WHERE t.COUNTRY = 'India'
+    """
+
+    extractor = SnowflakeUsageExtractor()
+
+    extractor._parse_query_log(
+        sql, "db", "schema", datetime.now().replace(tzinfo=timezone.utc)
+    )
+
+    results = {}
+    for key, value in extractor._datasets.items():
+        results[key] = EventUtil.clean_nones(value.to_dict())
+
+    assert results == load_json(
+        test_root_dir + "/snowflake/usage/data/parse_query_log_result.json"
+    )
