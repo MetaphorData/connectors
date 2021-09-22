@@ -1,0 +1,459 @@
+{
+  "db.dbt_dev.netflix": {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "db.dbt_dev.netflix",
+      "platform": "SNOWFLAKE"
+    },
+    "usage": {
+      "aspectType": "DATASET_USAGE",
+      "fieldQueryCounts": {
+        "last24Hours": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "title"
+          },
+          {
+            "count": 1.0,
+            "field": "type"
+          },
+          {
+            "count": 1.0,
+            "field": "date_added"
+          },
+          {
+            "count": 1.0,
+            "field": "rating"
+          }
+        ],
+        "last30Days": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "title"
+          },
+          {
+            "count": 1.0,
+            "field": "type"
+          },
+          {
+            "count": 1.0,
+            "field": "date_added"
+          },
+          {
+            "count": 1.0,
+            "field": "rating"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "title"
+          },
+          {
+            "count": 1.0,
+            "field": "type"
+          },
+          {
+            "count": 1.0,
+            "field": "date_added"
+          },
+          {
+            "count": 1.0,
+            "field": "rating"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "title"
+          },
+          {
+            "count": 1.0,
+            "field": "type"
+          },
+          {
+            "count": 1.0,
+            "field": "date_added"
+          },
+          {
+            "count": 1.0,
+            "field": "rating"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "title"
+          },
+          {
+            "count": 1.0,
+            "field": "type"
+          },
+          {
+            "count": 1.0,
+            "field": "date_added"
+          },
+          {
+            "count": 1.0,
+            "field": "rating"
+          }
+        ]
+      },
+      "queryCounts": {
+        "last24Hours": {
+          "count": 1.0
+        },
+        "last30Days": {
+          "count": 1.0
+        },
+        "last365Days": {
+          "count": 1.0
+        },
+        "last7Days": {
+          "count": 1.0
+        },
+        "last90Days": {
+          "count": 1.0
+        }
+      },
+      "tableJoins": {
+        "last24Hours": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~76F03A93BB2BD7BDBD018F56E2EC7F99"
+              ],
+              "filteringColumns": [],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        },
+        "last30Days": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~76F03A93BB2BD7BDBD018F56E2EC7F99"
+              ],
+              "filteringColumns": [],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        },
+        "last365Days": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~76F03A93BB2BD7BDBD018F56E2EC7F99"
+              ],
+              "filteringColumns": [],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        },
+        "last7Days": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~76F03A93BB2BD7BDBD018F56E2EC7F99"
+              ],
+              "filteringColumns": [],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        },
+        "last90Days": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~76F03A93BB2BD7BDBD018F56E2EC7F99"
+              ],
+              "filteringColumns": [],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        }
+      }
+    }
+  },
+  "db.dbt_dev.trial_model_1": {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "db.dbt_dev.trial_model_1",
+      "platform": "SNOWFLAKE"
+    },
+    "usage": {
+      "aspectType": "DATASET_USAGE",
+      "fieldQueryCounts": {
+        "last24Hours": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "country"
+          }
+        ],
+        "last30Days": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "country"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "country"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "country"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 1.0,
+            "field": "show_id"
+          },
+          {
+            "count": 1.0,
+            "field": "country"
+          }
+        ]
+      },
+      "queryCounts": {
+        "last24Hours": {
+          "count": 1.0
+        },
+        "last30Days": {
+          "count": 1.0
+        },
+        "last365Days": {
+          "count": 1.0
+        },
+        "last7Days": {
+          "count": 1.0
+        },
+        "last90Days": {
+          "count": 1.0
+        }
+      },
+      "tableJoins": {
+        "last24Hours": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~DA7596ED0A2D80CE2586C9DE61868BC6"
+              ],
+              "filteringColumns": [
+                {
+                  "columns": [
+                    "country"
+                  ],
+                  "count": 1.0
+                }
+              ],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        },
+        "last30Days": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~DA7596ED0A2D80CE2586C9DE61868BC6"
+              ],
+              "filteringColumns": [
+                {
+                  "columns": [
+                    "country"
+                  ],
+                  "count": 1.0
+                }
+              ],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        },
+        "last365Days": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~DA7596ED0A2D80CE2586C9DE61868BC6"
+              ],
+              "filteringColumns": [
+                {
+                  "columns": [
+                    "country"
+                  ],
+                  "count": 1.0
+                }
+              ],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        },
+        "last7Days": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~DA7596ED0A2D80CE2586C9DE61868BC6"
+              ],
+              "filteringColumns": [
+                {
+                  "columns": [
+                    "country"
+                  ],
+                  "count": 1.0
+                }
+              ],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        },
+        "last90Days": {
+          "scenarios": [
+            {
+              "count": 1.0,
+              "datasets": [
+                "DATASET~DA7596ED0A2D80CE2586C9DE61868BC6"
+              ],
+              "filteringColumns": [
+                {
+                  "columns": [
+                    "country"
+                  ],
+                  "count": 1.0
+                }
+              ],
+              "joiningColumns": [
+                {
+                  "columns": [
+                    "show_id"
+                  ],
+                  "count": 1.0
+                }
+              ]
+            }
+          ],
+          "totalJoinCount": 1.0
+        }
+      }
+    }
+  }
+}
