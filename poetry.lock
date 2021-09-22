@@ -647,7 +647,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.3.1"
+version = "0.4.0"
 description = ""
 category = "main"
 optional = false
@@ -1233,7 +1233,7 @@ snowflake = ["snowflake-connector-python", "sql-metadata"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "84faa493e949618dbfb5d9489d8aa22c624cbada6e870793d00d7b137d53f9ce"
+content-hash = "33472486432fd1c360a3de415b82f2a88cc4c2a6e2515e73b9c442a728d3ff38"
 
 [metadata.files]
 appdirs = [
@@ -1636,8 +1636,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.3.1.tar.gz", hash = "sha256:13d608be862633aa72a6e00ed9a43d68079de91852a07d79be4439c09b2e0b3f"},
-    {file = "metaphor_models-0.3.1-py3-none-any.whl", hash = "sha256:09cc1e3466a4964ee9434c146c4a2bd8162f071b7ef00a8b879c22dc1a2c8989"},
+    {file = "metaphor-models-0.4.0.tar.gz", hash = "sha256:8c964eabd85b7634ed619c205b1adf2dfb1321c4f65123e0d7f7379a378e985e"},
+    {file = "metaphor_models-0.4.0-py3-none-any.whl", hash = "sha256:996795ae6755ab41d453505b09096881bfe628580efdbd4df75fba95d71445c7"},
 ]
 msrest = [
     {file = "msrest-0.6.21-py2.py3-none-any.whl", hash = "sha256:c840511c845330e96886011a236440fafc2c9aff7b2df9c0a92041ee2dee3782"},
