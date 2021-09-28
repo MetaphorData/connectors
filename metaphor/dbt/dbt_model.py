@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from serde import deserialize
 from serde.json import from_json
@@ -19,12 +19,18 @@ class ManifestMetadata:
 class ManifestTestMetadata:
     @deserialize
     @dataclass
-    class Kwargs:
+    class KwargsColumn:
         column_name: str
         model: str
 
+    @deserialize
+    @dataclass
+    class KwargsColumns:
+        combination_of_columns: List[str]
+        model: str
+
     name: str
-    kwargs: Kwargs
+    kwargs: Union[KwargsColumn, KwargsColumns]
 
 
 @deserialize
