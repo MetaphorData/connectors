@@ -143,7 +143,7 @@ class DbtExtractor(BaseExtractor):
             column_name = col.name.lower()
             field = self._init_field(dataset, column_name)
             field.description = col.description
-            field.native_type = col.data_type
+            field.native_type = "Not Set" if col.data_type is None else col.data_type
 
             field_doc = self._init_field_doc(dataset, column_name)
             field_doc.documentation = col.description
@@ -209,7 +209,7 @@ class DbtExtractor(BaseExtractor):
             column_name = col.name.lower()
             field = self._init_field(dataset, column_name)
             field.description = col.comment
-            field.native_type = col.type
+            field.native_type = "Not Set" if col.type is None else col.type
 
             field_doc = self._init_field_doc(dataset, column_name)
             field_doc.documentation = col.comment
