@@ -9,7 +9,18 @@
           {
             "fieldPath": "id",
             "tests": [
-              "unique",
+              "unique"
+            ]
+          },
+          {
+            "fieldPath": "f1",
+            "tests": [
+              "not_null"
+            ]
+          },
+          {
+            "fieldPath": "f2",
+            "tests": [
               "not_null"
             ]
           }

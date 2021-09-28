@@ -27,7 +27,13 @@ from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
-from .dbt_model import DbtCatalog, DbtCatalogNode, DbtManifest, DbtManifestNode
+from .dbt_model import (
+    DbtCatalog,
+    DbtCatalogNode,
+    DbtManifest,
+    DbtManifestNode,
+    ManifestTestMetadata,
+)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -161,13 +167,18 @@ class DbtExtractor(BaseExtractor):
 
         model_name = matches[0]
         table = DbtExtractor._dataset_name(test.database, test.schema, model_name)
-        column = test_meta.kwargs.column_name
         dataset = self._metadata[table]
 
-        field_doc = self._init_field_doc(dataset, column)
-        if not field_doc.tests:
-            field_doc.tests = []
-        field_doc.tests.append(test_meta.name)
+        if isinstance(test_meta.kwargs, ManifestTestMetadata.KwargsColumns):
+            columns = test_meta.kwargs.combination_of_columns
+        else:
+            columns = [test_meta.kwargs.column_name]
+
+        for column in columns:
+            field_doc = self._init_field_doc(dataset, column)
+            if not field_doc.tests:
+                field_doc.tests = []
+            field_doc.tests.append(test_meta.name)
 
     def _parse_catalog(self, platform: str) -> None:
         if self._catalog is None:
