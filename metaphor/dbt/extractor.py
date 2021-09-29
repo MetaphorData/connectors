@@ -1,7 +1,6 @@
 import json
 import logging
 import re
-import traceback
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
@@ -72,14 +71,13 @@ class DbtExtractor(BaseExtractor):
             self._manifest = DbtManifest.from_json_file(config.manifest)
         except Exception as e:
             logger.error(f"Read manifest json error: {e}")
-            traceback.print_exc()
-            return []
+            raise e
 
         try:
             self._catalog = DbtCatalog.from_json_file(config.catalog)
         except Exception as e:
             logger.error(f"Read catalog json error: {e}")
-            traceback.print_exc()
+            raise e
 
         platform = self._parse_manifest()
         if platform is None:
@@ -157,7 +155,8 @@ class DbtExtractor(BaseExtractor):
             ]
 
     def _parse_test(self, test: DbtManifestNode) -> None:
-        assert test.test_metadata is not None
+        if test.test_metadata is None:
+            return
 
         test_meta = test.test_metadata
         model_arg = test_meta.kwargs.model
