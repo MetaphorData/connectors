@@ -728,14 +728,7 @@
     },
     "test.trial.unique_trial_model_1_show_id": {
       "raw_sql": "{{ config(severity='ERROR') }}{{ test_unique(**_dbt_schema_test_kwargs) }}",
-      "test_metadata": {
-        "namespace": null,
-        "name": "unique",
-        "kwargs": {
-          "column_name": "show_id",
-          "model": "{{ ref('trial_model_1') }}"
-        }
-      },
+      "test_metadata": null,
       "database": "DEMO_DB",
       "schema": "DBT_DEV",
       "fqn": [
