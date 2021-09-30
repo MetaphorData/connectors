@@ -15,7 +15,7 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor import models
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

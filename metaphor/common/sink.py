@@ -7,7 +7,7 @@ from metaphor.models.metadata_change_event import MetadataChangeEvent
 
 from .event_util import EventUtil
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

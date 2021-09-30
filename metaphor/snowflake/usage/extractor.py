@@ -38,8 +38,11 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+# disable logging from sql_metadata
+logging.getLogger("Parser").setLevel(logging.CRITICAL)
 
 _default_excluded_table_names = ["snowflake.*"]
 
@@ -170,12 +173,12 @@ class SnowflakeUsageExtractor(BaseExtractor):
             tables = self._parse_tables(parser, db, schema, start_time)
             self._parse_columns(parser, db, schema, tables, start_time)
             self._parse_joins(parser, db, schema, start_time)
-        except (KeyError, ValueError):
+        except (KeyError, ValueError) as e:
             self.error_count += 1
-        except Exception:
+            logger.debug(f"{e} {query}")
+        except Exception as e:
             self.error_count += 1
-            logger.exception("parser error")
-            logger.info(f"query {query}")
+            logger.error(f"parser error {e}: {query}")
 
     def _parse_tables(
         self, parser: Parser, db: str, schema: str, start_time: datetime

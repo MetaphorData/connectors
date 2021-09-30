@@ -21,7 +21,7 @@ from metaphor.common.extractor import BaseExtractor, RunConfig
 
 logging.basicConfig(level=logging.INFO)
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

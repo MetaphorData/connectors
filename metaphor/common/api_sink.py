@@ -8,7 +8,7 @@ from serde import deserialize
 
 from .sink import Sink
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
