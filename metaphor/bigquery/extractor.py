@@ -31,7 +31,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

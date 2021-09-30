@@ -28,7 +28,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
 from metaphor.looker.lookml_parser import Connection, Model, parse_models
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

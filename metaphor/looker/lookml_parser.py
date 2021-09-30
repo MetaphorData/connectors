@@ -15,7 +15,7 @@ from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 
 from metaphor.common.entity_id import EntityId, EntityType
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

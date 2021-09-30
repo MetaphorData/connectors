@@ -30,7 +30,7 @@ from serde import deserialize
 
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
