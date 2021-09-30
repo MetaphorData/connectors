@@ -79,6 +79,7 @@
       },
       "patch_path": "models/example/schema.yml",
       "build_path": "target/run/trial/models/example/my_first_dbt_model.sql",
+      "compiled_path": "target/compiled/trial/models/example/my_first_dbt_model.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -166,6 +167,7 @@
       },
       "patch_path": "models/example/schema.yml",
       "build_path": "target/run/trial/models/example/my_second_dbt_model.sql",
+      "compiled_path": "target/compiled/trial/models/example/my_second_dbt_model.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -272,6 +274,7 @@
       },
       "patch_path": "models/example/schema.yml",
       "build_path": "target/run/trial/models/example/trial_model_1.sql",
+      "compiled_path": "target/compiled/trial/models/example/trial_model_1.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -378,6 +381,7 @@
       },
       "patch_path": "models/example/schema.yml",
       "build_path": "target/run/trial/models/example/trial_model_2.sql",
+      "compiled_path": "target/compiled/trial/models/example/trial_model_2.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -728,7 +732,14 @@
     },
     "test.trial.unique_trial_model_1_show_id": {
       "raw_sql": "{{ config(severity='ERROR') }}{{ test_unique(**_dbt_schema_test_kwargs) }}",
-      "test_metadata": null,
+      "test_metadata": {
+        "namespace": null,
+        "name": "unique",
+        "kwargs": {
+          "column_name": "show_id",
+          "model": "{{ ref('trial_model_1') }}"
+        }
+      },
       "database": "DEMO_DB",
       "schema": "DBT_DEV",
       "fqn": [

@@ -36,7 +36,7 @@
         "fields": [
           {
             "fieldPath": "id",
-            "nativeType": "Not Set"
+            "nativeType": ""
           }
         ],
         "schemaType": "SQL",
@@ -109,6 +109,7 @@
             "documentation": "The show id, primary key for this table",
             "fieldPath": "show_id",
             "tests": [
+              "unique",
               "not_null"
             ]
           },
