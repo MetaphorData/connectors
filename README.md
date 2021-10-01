@@ -35,6 +35,7 @@ Each connector is placed under its own directory under `metaphor` and extends th
 
 | Connector | Metadata  |
 | --------- | --------- |  
+| [metaphor.dbt](metaphor/dbt/README.md) | dbt definitions, Lineage |
 | [metaphor.google_directory](metaphor/google_directory/README.md) | User |
 | [metaphor.snowflake](metaphor/snowflake/README.md) | Schema, Description |
 
