@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.4.28"
+version = "0.4.29"
 description = ""
 authors = ["Metaphor <dev@metaphor.io>"]
 packages = [
@@ -20,6 +20,7 @@ google-cloud-bigquery = { version = "^2.21.0", optional = true }
 lkml = { version = "^1.1.0", optional = true }
 looker-sdk = { version = "^21.4.1", optional = true }
 metaphor-models = "^0.4.0"
+pydantic = { version = "^1.8.2", optional = true }
 pyserde = { extras = ["yaml"], version = "^0.4.0" }
 python = ">=3.7,<3.10"  # See https://github.com/googleapis/python-bigquery/issues/856
 python-dateutil = "~=2.8.1"
@@ -27,7 +28,7 @@ requests = "^2.25.1"
 slack-sdk = { version = "^3.5.1", optional = true }
 smart-open = "^5.0.0"
 snowflake-connector-python = { version = "~=2.4.1", optional = true }
-sql-metadata = { version = "^2.0.0", optional = true }
+sql-metadata = { version = "2.2.2", optional = true }
 
 [tool.poetry.extras]
 all = [
@@ -42,7 +43,7 @@ all = [
   "sql-metadata",
 ]
 bigquery = ["google-cloud-bigquery"]
-dbt = []
+dbt = ["pydantic"]
 postgresql = ["asyncpg"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
@@ -51,6 +52,7 @@ slack_directory = ["slack-sdk"]
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
+datamodel-code-generator = { extras = ["http"], version = "^0.11.14" }
 flakehell = "^0.9.0"
 flake8 = "3.9.0"
 freezegun = "^1.1.0"
@@ -65,10 +67,15 @@ types-requests = "^2.25.0"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.black]
+exclude = "^/(metaphor/dbt/generated/.+)"
+
 [tool.isort]
 profile = "black"
 extend_skip = [
   ".serverless",
+  "dbt_manifest.py",
+  "dbt_catalog.py"
 ]
 
 [tool.flakehell]
@@ -77,6 +84,10 @@ format = "colored"
 [tool.flakehell.plugins]
 pycodestyle = ["+*", "-E203", "-E501", "-W503"]
 pyflakes = ["+*"]
+
+[tool.flakehell.exceptions."metaphor/dbt/generated/"]
+pycodestyle = ["-*"]
+pyflakes = ["-*"]
 
 [tool.mypy]
 ignore_missing_imports = true

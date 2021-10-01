@@ -3,7 +3,8 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from pathlib import Path
+from typing import Dict, List, Optional, cast
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -26,16 +27,18 @@ from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
-from .dbt_model import (
-    DbtCatalog,
-    DbtCatalogNode,
-    DbtManifest,
-    DbtManifestNode,
-    ManifestTestMetadata,
-)
+from .generated.dbt_catalog import CatalogTable, DbtCatalog
+from .generated.dbt_manifest import CompiledModelNode, DbtManifest, ParsedSchemaTestNode
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+@dataclass
+class DbtDataset:
+    database: str
+    schema: str
+    name: str
 
 
 @deserialize
@@ -57,8 +60,8 @@ class DbtExtractor(BaseExtractor):
 
     def __init__(self):
         self.account = None
-        self._manifest: Optional[DbtManifest] = None
-        self._catalog: Optional[DbtCatalog] = None
+        self._manifest: DbtManifest
+        self._catalog: DbtCatalog
         self._metadata: Dict[str, Dataset] = {}
 
     async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
@@ -68,13 +71,13 @@ class DbtExtractor(BaseExtractor):
         self.account = config.account
 
         try:
-            self._manifest = DbtManifest.from_json_file(config.manifest)
+            self._manifest = DbtManifest.parse_file(Path(config.manifest))
         except Exception as e:
             logger.error(f"Read manifest json error: {e}")
             raise e
 
         try:
-            self._catalog = DbtCatalog.from_json_file(config.catalog)
+            self._catalog = DbtCatalog.parse_file(Path(config.catalog))
         except Exception as e:
             logger.error(f"Read catalog json error: {e}")
             raise e
@@ -100,14 +103,30 @@ class DbtExtractor(BaseExtractor):
         nodes = self._manifest.nodes
         sources = self._manifest.sources
 
+        assert metadata.adapter_type is not None
         platform = metadata.adapter_type.upper()
 
-        models = {k: v for (k, v) in nodes.items() if v.resource_type == "model"}
-        tests = {k: v for (k, v) in nodes.items() if v.resource_type == "test"}
-        datasets = {**models, **sources}
+        models = {
+            k: cast(CompiledModelNode, v)
+            for (k, v) in nodes.items()
+            if isinstance(v, CompiledModelNode)
+        }
+        tests = {
+            k: cast(ParsedSchemaTestNode, v)
+            for (k, v) in nodes.items()
+            if isinstance(v, ParsedSchemaTestNode)
+        }
+
+        dataset_map = {}
+        for key, model in models.items():
+            assert model.database is not None
+            dataset_map[key] = DbtDataset(model.database, model.schema_, model.name)
+        for key, source in sources.items():
+            assert source.database is not None
+            dataset_map[key] = DbtDataset(source.database, source.schema_, source.name)
 
         for model in models.values():
-            self._parse_model(model, platform, datasets)
+            self._parse_model(model, platform, dataset_map)
 
         for test in tests.values():
             self._parse_test(test)
@@ -116,11 +135,15 @@ class DbtExtractor(BaseExtractor):
 
     def _parse_model(
         self,
-        model: DbtManifestNode,
+        model: CompiledModelNode,
         platform: str,
-        datasets: Dict[str, DbtManifestNode],
+        dataset_map: Dict[str, DbtDataset],
     ) -> None:
-        dataset = self._init_dataset(model.database, model.schema, model.name, platform)
+
+        assert model.database is not None
+        dataset = self._init_dataset(
+            model.database, model.schema_, model.name, platform
+        )
         self._init_schema(dataset)
 
         if model.compiled_sql is not None:
@@ -137,47 +160,63 @@ class DbtExtractor(BaseExtractor):
             )
             dataset.documentation.dataset_documentations.append(model.description)
 
-        for col in model.columns.values():
-            column_name = col.name.lower()
-            field = self._init_field(dataset, column_name)
-            field.description = col.description
-            field.native_type = "Not Set" if col.data_type is None else col.data_type
+        if model.columns is not None:
+            for col in model.columns.values():
+                column_name = col.name.lower()
+                field = self._init_field(dataset, column_name)
+                field.description = col.description
+                field.native_type = (
+                    "Not Set" if col.data_type is None else col.data_type
+                )
 
-            field_doc = self._init_field_doc(dataset, column_name)
-            field_doc.documentation = col.description
+                field_doc = self._init_field_doc(dataset, column_name)
+                field_doc.documentation = col.description
 
         if model.depends_on is not None:
             dataset.upstream = DatasetUpstream()
             dataset.upstream.source_code_url = model.original_file_path
-            dataset.upstream.source_datasets = [
-                self._get_upstream(n, datasets, platform, self.account)
-                for n in model.depends_on.nodes
-            ]
 
-    def _parse_test(self, test: DbtManifestNode) -> None:
+            if model.depends_on.nodes is not None:
+                dataset.upstream.source_datasets = [
+                    self._get_upstream(n, dataset_map, platform, self.account)
+                    for n in model.depends_on.nodes
+                ]
+
+    def _parse_test(self, test: ParsedSchemaTestNode) -> None:
         if test.test_metadata is None:
             return
 
-        test_meta = test.test_metadata
-        model_arg = test_meta.kwargs.model
+        test_kwargs = test.test_metadata.kwargs
+        if test_kwargs is None:
+            return
+
+        model_arg = test_kwargs.get("model")
+        if model_arg is None:
+            return
+
         matches = re.findall("^{{ ref\\('([^'\" ]+)'\\) }}$", model_arg)
         if len(matches) == 0:
             return
 
         model_name = matches[0]
-        table = DbtExtractor._dataset_name(test.database, test.schema, model_name)
+
+        assert test.database is not None
+        table = DbtExtractor._dataset_name(test.database, test.schema_, model_name)
         dataset = self._metadata[table]
 
-        if isinstance(test_meta.kwargs, ManifestTestMetadata.KwargsColumns):
-            columns = test_meta.kwargs.combination_of_columns
-        else:
-            columns = [test_meta.kwargs.column_name]
+        combination_of_columns = test_kwargs.get("combination_of_columns")
+        column_name = test_kwargs.get("column_name")
+
+        if combination_of_columns is not None:
+            columns = cast(List[str], test_kwargs.get("combination_of_columns"))
+        elif column_name is not None:
+            columns = [column_name]
 
         for column in columns:
             field_doc = self._init_field_doc(dataset, column)
             if not field_doc.tests:
                 field_doc.tests = []
-            field_doc.tests.append(test_meta.name)
+            field_doc.tests.append(test.test_metadata.name)
 
     def _parse_catalog(self, platform: str) -> None:
         if self._catalog is None:
@@ -189,12 +228,13 @@ class DbtExtractor(BaseExtractor):
         for model in {**nodes, **sources}.values():
             self._parse_catalog_model(model, platform)
 
-    def _parse_catalog_model(self, model: DbtCatalogNode, platform: str):
+    def _parse_catalog_model(self, model: CatalogTable, platform: str):
         meta = model.metadata
         columns = model.columns
         stats = model.stats
 
-        dataset = self._init_dataset(meta.database, meta.schema, meta.name, platform)
+        assert meta.database is not None
+        dataset = self._init_dataset(meta.database, meta.schema_, meta.name, platform)
 
         # TODO (ch1236): Re-enable once we figure the source & expected format
         # self._init_ownership(dataset)
@@ -213,31 +253,47 @@ class DbtExtractor(BaseExtractor):
             field_doc = self._init_field_doc(dataset, column_name)
             field_doc.documentation = col.comment
 
-        if stats and stats.has_stats.value:
-            dataset.statistics = DatasetStatistics()
+        has_stats = stats.get("has_stats")
+        if has_stats is not None and has_stats.value is not None:
+            statistics = DatasetStatistics()
+            found_statistics = False
 
-            assert stats.row_count is not None
-            dataset.statistics.record_count = float(stats.row_count.value)
+            row_count = stats.get("row_count")
+            if row_count is not None and row_count.value is not None:
+                found_statistics = True
+                statistics.record_count = float(row_count.value)
 
-            assert stats.bytes is not None
-            dataset.statistics.data_size = (
-                float(stats.bytes.value) / 1048576  # convert bytes to MB
-            )
+            bytes = stats.get("bytes")
+            if bytes is not None and bytes.value is not None:
+                found_statistics = True
+                statistics.data_size = (
+                    float(bytes.value) / 1048576  # convert bytes to MB
+                )
 
-            assert stats.last_modified is not None
-            # Must set tzinfo explicitly due to https://bugs.python.org/issue22377
-            dataset.statistics.last_updated = datetime.strptime(
-                stats.last_modified.value, "%Y-%m-%d %H:%M%Z"
-            ).replace(tzinfo=timezone.utc)
+            last_modified = stats.get("last_modified")
+            if last_modified is not None and last_modified.value is not None:
+                found_statistics = True
+                if isinstance(last_modified.value, str):
+                    # Must set tzinfo explicitly due to https://bugs.python.org/issue22377
+                    statistics.last_updated = datetime.strptime(
+                        last_modified.value, "%Y-%m-%d %H:%M%Z"
+                    ).replace(tzinfo=timezone.utc)
+                else:
+                    statistics.last_updated = datetime.fromtimestamp(
+                        last_modified.value
+                    ).replace(tzinfo=timezone.utc)
+
+            if found_statistics:
+                dataset.statistics = statistics
 
     @staticmethod
     def _dataset_name(db: str, schema: str, table: str) -> str:
         return f"{db}.{schema}.{table}".lower()
 
     @staticmethod
-    def _get_dataset_name(metadata: DbtManifestNode) -> str:
+    def _get_dataset_name(dataset: DbtDataset) -> str:
         return DbtExtractor._dataset_name(
-            metadata.database, metadata.schema, metadata.name
+            dataset.database, dataset.schema, dataset.name
         )
 
     @staticmethod
@@ -307,13 +363,13 @@ class DbtExtractor(BaseExtractor):
     @staticmethod
     def _get_upstream(
         node: str,
-        datasets: Dict[str, DbtManifestNode],
+        dataset_map: Dict[str, DbtDataset],
         platform: str,
         account: Optional[str],
     ) -> str:
         dataset_id = DatasetLogicalID(
             platform=DataPlatform[platform],
             account=account,
-            name=DbtExtractor._get_dataset_name(datasets[node]),
+            name=DbtExtractor._get_dataset_name(dataset_map[node]),
         )
         return str(EntityId(EntityType.DATASET, dataset_id))

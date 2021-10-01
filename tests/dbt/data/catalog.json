@@ -18,7 +18,7 @@
       },
       "columns": {
         "ID": {
-          "type": null,
+          "type": "",
           "comment": null,
           "index": 1,
           "name": "ID"
