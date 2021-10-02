@@ -2,7 +2,7 @@ import glob
 import logging
 import os
 from dataclasses import dataclass
-from typing import Dict, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 try:
     import lkml
@@ -11,7 +11,18 @@ except ImportError:
     print("Please install metaphor[looker] extra\n")
     raise
 
-from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    DatasetLogicalID,
+    LookerExplore,
+    LookerExploreJoin,
+    LookerView,
+    LookerViewDimension,
+    LookerViewMeasure,
+    VirtualView,
+    VirtualViewLogicalID,
+    VirtualViewType,
+)
 
 from metaphor.common.entity_id import EntityId, EntityType
 
@@ -39,7 +50,6 @@ class Explore:
     def from_dict(
         raw_explore: Dict, raw_views: Dict[str, Dict], connection: Connection
     ):
-
         explore_name = raw_explore["name"]
 
         # The underlying view of an explore can be specified via "from" or "view_name".
@@ -66,38 +76,6 @@ class Explore:
         )
 
     @staticmethod
-    def _to_dataset_id(source_name: str, connection: Connection) -> EntityId:
-        parts = source_name.split(".")
-
-        if len(parts) == 1:
-            # table
-            if connection.default_schema is None:
-                raise ValueError(
-                    f"Default schema is required for the connection {connection.name}"
-                )
-            full_name = (
-                f"{connection.database}.{connection.default_schema}.{source_name}"
-            )
-        elif len(parts) == 2:
-            # schema.table
-            full_name = f"{connection.database}.{source_name}"
-        elif len(parts) == 3:
-            # db.schema.table
-            full_name = source_name
-        else:
-            raise ValueError(f"Invalid source name {source_name}")
-
-        # Normalize dataset name by lower casing & dropping the quotation marks
-        full_name = full_name.replace('"', "").lower()
-
-        return EntityId(
-            EntityType.DATASET,
-            DatasetLogicalID(
-                name=full_name, platform=connection.platform, account=connection.account
-            ),
-        )
-
-    @staticmethod
     def _get_upstream(
         view_name, raw_views: Dict[str, Dict], connection: Connection
     ) -> Set[EntityId]:
@@ -118,7 +96,7 @@ class Explore:
             return set()
 
         source_name = raw_view.get("sql_table_name", view_name)
-        return {Explore._to_dataset_id(source_name, connection)}
+        return {_to_dataset_id(source_name, connection)}
 
     @staticmethod
     def _extract_upstream_from_sql(
@@ -138,7 +116,7 @@ class Explore:
                 view_name = table.split(".")[0]
                 upstream.update(Explore._get_upstream(view_name, raw_views, connection))
             else:
-                upstream.add(Explore._to_dataset_id(table, connection))
+                upstream.add(_to_dataset_id(table, connection))
 
         return upstream
 
@@ -164,6 +142,126 @@ class Model:
         return Model(explores=dict((e.name, e) for e in explores))
 
 
+def _to_dataset_id(source_name: str, connection: Connection) -> EntityId:
+    parts = source_name.split(".")
+
+    if len(parts) == 1:
+        # table
+        if connection.default_schema is None:
+            raise ValueError(
+                f"Default schema is required for the connection {connection.name}"
+            )
+        full_name = f"{connection.database}.{connection.default_schema}.{source_name}"
+    elif len(parts) == 2:
+        # schema.table
+        full_name = f"{connection.database}.{source_name}"
+    elif len(parts) == 3:
+        # db.schema.table
+        full_name = source_name
+    else:
+        raise ValueError(f"Invalid source name {source_name}")
+
+    # Normalize dataset name by lower casing & dropping the quotation marks
+    full_name = full_name.replace('"', "").lower()
+
+    return EntityId(
+        EntityType.DATASET,
+        DatasetLogicalID(
+            name=full_name, platform=connection.platform, account=connection.account
+        ),
+    )
+
+
+def to_virtual_view_id(name: str, virtualViewType: VirtualViewType) -> EntityId:
+    return EntityId(
+        EntityType.VIRTUAL_VIEW,
+        VirtualViewLogicalID(name=name, type=virtualViewType),
+    )
+
+
+def _build_looker_view(raw_view: Dict, connection: Connection) -> VirtualView:
+    name = raw_view["name"]
+    view = LookerView(
+        label=raw_view.get("label", None),
+        source_dataset=str(
+            _to_dataset_id(raw_view.get("sql_table_name", name), connection)
+        ),
+    )
+
+    if "extends" in raw_view:
+        view.extends = [
+            str(to_virtual_view_id(view, VirtualViewType.LOOKER_VIEW))
+            for view in raw_view["extends"]
+        ]
+
+    if "dimensions" in raw_view:
+        view.dimensions = [
+            LookerViewDimension(
+                field=raw_dimension["name"],
+                data_type=raw_dimension.get("type", raw_dimension["name"]),
+            )
+            for raw_dimension in raw_view["dimensions"]
+        ]
+
+    if "measures" in raw_view:
+        view.measures = [
+            LookerViewMeasure(
+                field=raw_measure["name"],
+                type=raw_measure.get("type", "N/A"),
+            )
+            for raw_measure in raw_view["measures"]
+        ]
+
+    return VirtualView(
+        logical_id=VirtualViewLogicalID(name=name, type=VirtualViewType.LOOKER_VIEW),
+        looker_view=view,
+    )
+
+
+def _build_looker_explore(raw_explore: Dict) -> VirtualView:
+    name = raw_explore["name"]
+    base_view_name = raw_explore.get("view_name", raw_explore.get("from", name))
+
+    explore = LookerExplore(
+        description=raw_explore.get("description", None),
+        label=raw_explore.get("label", None),
+        tags=raw_explore.get("tags", None),
+        fields=raw_explore.get("fields", None),
+        base_view=str(to_virtual_view_id(base_view_name, VirtualViewType.LOOKER_VIEW)),
+    )
+
+    if "extends" in raw_explore:
+        explore.extends = [
+            str(to_virtual_view_id(explore, VirtualViewType.LOOKER_EXPLORE))
+            for explore in raw_explore["extends"]
+        ]
+
+    if "joins" in raw_explore:
+        explore.joins = [
+            LookerExploreJoin(
+                view=str(
+                    to_virtual_view_id(
+                        raw_join.get("from", raw_join["name"]),
+                        VirtualViewType.LOOKER_VIEW,
+                    )
+                ),
+                fields=raw_join.get("fields", None),
+                on_clause=raw_join.get("sql_on", None),
+                where_clause=raw_join.get("sql_where", None),
+                type=raw_join.get("type", "left_outer"),
+                relationship=raw_join.get("relationship", "many_to_one"),
+            )
+            for raw_join in raw_explore["joins"]
+        ]
+
+    # TODO: combine access_filters, always_filters and conditional_filters into explore.filters
+
+    return VirtualView(
+        logical_id=VirtualViewLogicalID(name=name, type=VirtualViewType.LOOKER_EXPLORE),
+        looker_explore=explore,
+    )
+
+
 def _load_included_file(
     include_path: str, base_dir: str
 ) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
@@ -187,7 +285,10 @@ def _load_included_file(
 
 def _load_model(
     model_path: str, base_dir: str, connections: Dict[str, Connection]
-) -> Model:
+) -> (Dict[str, Dict], Dict[str, Dict], Connection):
+    """
+    Loads model file and extract raw Views and Explores
+    """
     with open(model_path) as f:
         model = lkml.load(f)
 
@@ -211,14 +312,28 @@ def _load_model(
     if connection is None:
         raise ValueError(f"Model ${model_path} has an invalid connection")
 
-    return Model.from_dict(raw_views, raw_explores, connection)
+    return raw_views, raw_explores, connection
 
 
-def parse_models(base_dir: str, connections: Dict[str, Connection]) -> Dict[str, Model]:
-
+def parse_models(
+    base_dir: str, connections: Dict[str, Connection]
+) -> (Dict[str, Model], List[VirtualView]):
     model_map = {}
+    virtual_views = []
+
     for model_path in glob.glob(f"{base_dir}/**/*.model.lkml", recursive=True):
         model_name = os.path.basename(model_path)[0 : -len(".model.lkml")]
-        model_map[model_name] = _load_model(model_path, base_dir, connections)
+        raw_views, raw_explores, connection = _load_model(
+            model_path, base_dir, connections
+        )
 
-    return model_map
+        virtual_views.extend(
+            [_build_looker_view(view, connection) for view in raw_views.values()]
+        )
+        virtual_views.extend(
+            [_build_looker_explore(explore) for explore in raw_explores.values()]
+        )
+
+        model_map[model_name] = Model.from_dict(raw_views, raw_explores, connection)
+
+    return model_map, virtual_views
