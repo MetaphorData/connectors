@@ -56,7 +56,7 @@ class Explore:
         # When not specified, it's default to the same name as the explore itself.
         # See https://docs.looker.com/reference/explore-params/from-for-explore
         view_name = raw_explore.get("from", raw_explore.get("view_name", explore_name))
-        upstream_datasets = Explore._get_upstream(view_name, raw_views, connection)
+        upstream_datasets = _get_upstream_datasets(view_name, raw_views, connection)
 
         # zero or more joins
         for join in raw_explore.get("joins", []):
@@ -65,7 +65,7 @@ class Explore:
             join_view_name = join.get("from", join["name"])
 
             upstream_datasets.update(
-                Explore._get_upstream(join_view_name, raw_views, connection)
+                _get_upstream_datasets(join_view_name, raw_views, connection)
             )
 
         return Explore(
@@ -74,51 +74,6 @@ class Explore:
             label=raw_explore.get("label", None),
             upstream_datasets=upstream_datasets,
         )
-
-    @staticmethod
-    def _get_upstream(
-        view_name, raw_views: Dict[str, Dict], connection: Connection
-    ) -> Set[EntityId]:
-        # The source for a view can be specified via "sql_table_name" or "derived_table".
-        # When not specified, it's default to the same name as the view itself.
-        # https://docs.looker.com/reference/view-params/sql_table_name-for-view
-
-        raw_view = raw_views.get(view_name)
-        if raw_view is None:
-            raise ValueError(f"Refer to non-existing view {view_name}")
-
-        if "derived_table" in raw_view:
-            sql = raw_view["derived_table"].get("sql")
-            if sql is not None:
-                return Explore._extract_upstream_from_sql(sql, raw_views, connection)
-
-            # TODO(1329): Add support for native derived tables
-            return set()
-
-        source_name = raw_view.get("sql_table_name", view_name)
-        return {_to_dataset_id(source_name, connection)}
-
-    @staticmethod
-    def _extract_upstream_from_sql(
-        sql: str, raw_views: Dict[str, Dict], connection: Connection
-    ) -> Set[EntityId]:
-        upstream: Set[EntityId] = set()
-        try:
-            tables = sql_metadata.Parser(sql).tables
-        except Exception as e:
-            logger.warn(f"Failed to parse SQL:\n{sql}\n\nError:{e}")
-            return upstream
-
-        for table in tables:
-            if table.endswith(".SQL_TABLE_NAME"):
-                # Selecting from another derived table
-                # https://docs.looker.com/data-modeling/learning-lookml/sql-and-referring-to-lookml
-                view_name = table.split(".")[0]
-                upstream.update(Explore._get_upstream(view_name, raw_views, connection))
-            else:
-                upstream.add(_to_dataset_id(table, connection))
-
-        return upstream
 
 
 @dataclass
@@ -177,6 +132,50 @@ def to_virtual_view_id(name: str, virtualViewType: VirtualViewType) -> EntityId:
         EntityType.VIRTUAL_VIEW,
         VirtualViewLogicalID(name=name, type=virtualViewType),
     )
+
+
+def _get_upstream_datasets(
+    view_name, raw_views: Dict[str, Dict], connection: Connection
+) -> Set[EntityId]:
+    # The source for a view can be specified via "sql_table_name" or "derived_table".
+    # When not specified, it's default to the same name as the view itself.
+    # https://docs.looker.com/reference/view-params/sql_table_name-for-view
+    raw_view = raw_views.get(view_name)
+    if raw_view is None:
+        raise ValueError(f"Refer to non-existing view {view_name}")
+
+    if "derived_table" in raw_view:
+        sql = raw_view["derived_table"].get("sql")
+        if sql is not None:
+            return _extract_upstream_datasets_from_sql(sql, raw_views, connection)
+
+        # TODO(1329): Add support for native derived tables
+        return set()
+
+    source_name = raw_view.get("sql_table_name", view_name)
+    return {_to_dataset_id(source_name, connection)}
+
+
+def _extract_upstream_datasets_from_sql(
+    sql: str, raw_views: Dict[str, Dict], connection: Connection
+) -> Set[EntityId]:
+    upstream: Set[EntityId] = set()
+    try:
+        tables = sql_metadata.Parser(sql).tables
+    except Exception as e:
+        logger.warn(f"Failed to parse SQL:\n{sql}\n\nError:{e}")
+        return upstream
+
+    for table in tables:
+        if table.endswith(".SQL_TABLE_NAME"):
+            # Selecting from another derived table
+            # https://docs.looker.com/data-modeling/learning-lookml/sql-and-referring-to-lookml
+            view_name = table.split(".")[0]
+            upstream.update(_get_upstream_datasets(view_name, raw_views, connection))
+        else:
+            upstream.add(_to_dataset_id(table, connection))
+
+    return upstream
 
 
 def _build_looker_view(raw_view: Dict, connection: Connection) -> VirtualView:
@@ -285,7 +284,7 @@ def _load_included_file(
 
 def _load_model(
     model_path: str, base_dir: str, connections: Dict[str, Connection]
-) -> (Dict[str, Dict], Dict[str, Dict], Connection):
+) -> Tuple[Dict[str, Dict], Dict[str, Dict], Connection]:
     """
     Loads model file and extract raw Views and Explores
     """
@@ -317,7 +316,7 @@ def _load_model(
 
 def parse_models(
     base_dir: str, connections: Dict[str, Connection]
-) -> (Dict[str, Model], List[VirtualView]):
+) -> Tuple[Dict[str, Model], List[VirtualView]]:
     model_map = {}
     virtual_views = []
 
