@@ -128,6 +128,9 @@ def _to_dataset_id(source_name: str, connection: Connection) -> EntityId:
 
 
 def to_virtual_view_id(name: str, virtualViewType: VirtualViewType) -> EntityId:
+    """
+    converts a virtual view name and type into an Virtual View entity ID
+    """
     return EntityId(
         EntityType.VIRTUAL_VIEW,
         VirtualViewLogicalID(name=name, type=virtualViewType),
@@ -178,13 +181,15 @@ def _extract_upstream_datasets_from_sql(
     return upstream
 
 
-def _build_looker_view(raw_view: Dict, connection: Connection) -> VirtualView:
+def _build_looker_view(
+    raw_view: Dict, raw_views: Dict[str, Dict], connection: Connection
+) -> VirtualView:
     name = raw_view["name"]
     view = LookerView(
         label=raw_view.get("label", None),
-        source_dataset=str(
-            _to_dataset_id(raw_view.get("sql_table_name", name), connection)
-        ),
+        source_datasets=[
+            str(ds) for ds in _get_upstream_datasets(name, raw_views, connection)
+        ],
     )
 
     if "extends" in raw_view:
@@ -314,9 +319,13 @@ def _load_model(
     return raw_views, raw_explores, connection
 
 
-def parse_models(
+def parse_projects(
     base_dir: str, connections: Dict[str, Connection]
 ) -> Tuple[Dict[str, Model], List[VirtualView]]:
+    """
+    parse all projects under the base_dir, returning a Model map and a list of virtual views including
+    Looker Explores and Views
+    """
     model_map = {}
     virtual_views = []
 
@@ -327,7 +336,10 @@ def parse_models(
         )
 
         virtual_views.extend(
-            [_build_looker_view(view, connection) for view in raw_views.values()]
+            [
+                _build_looker_view(view, raw_views, connection)
+                for view in raw_views.values()
+            ]
         )
         virtual_views.extend(
             [_build_looker_explore(explore) for explore in raw_explores.values()]

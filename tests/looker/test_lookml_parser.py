@@ -13,7 +13,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.entity_id import EntityId
-from metaphor.looker.lookml_parser import Connection, Explore, Model, parse_models
+from metaphor.looker.lookml_parser import Connection, Explore, Model, parse_projects
 
 connection_map = {
     "snowflake": Connection(
@@ -27,7 +27,7 @@ connection_map = {
 
 
 def test_empty_model(test_root_dir):
-    models_map, virtual_views = parse_models(
+    models_map, virtual_views = parse_projects(
         test_root_dir + "/looker/empty_model", connection_map
     )
 
@@ -37,7 +37,7 @@ def test_empty_model(test_root_dir):
 
 
 def test_basic(test_root_dir):
-    models_map, virtual_views = parse_models(
+    models_map, virtual_views = parse_projects(
         test_root_dir + "/looker/basic", connection_map
     )
 
@@ -74,7 +74,7 @@ def test_basic(test_root_dir):
                 measures=[
                     LookerViewMeasure(field="average_measurement", type="average")
                 ],
-                source_dataset="DATASET~5881AB4C0A42EF1C15F6C02C0D14AD43",
+                source_datasets=["DATASET~5881AB4C0A42EF1C15F6C02C0D14AD43"],
             ),
         ),
         VirtualView(
@@ -91,7 +91,7 @@ def test_basic(test_root_dir):
 
 
 def test_join(test_root_dir):
-    models_map, virtual_views = parse_models(
+    models_map, virtual_views = parse_projects(
         test_root_dir + "/looker/join", connection_map
     )
 
@@ -136,7 +136,7 @@ def test_join(test_root_dir):
                 measures=[
                     LookerViewMeasure(field="average_measurement", type="average")
                 ],
-                source_dataset="DATASET~5881AB4C0A42EF1C15F6C02C0D14AD43",
+                source_datasets=["DATASET~5881AB4C0A42EF1C15F6C02C0D14AD43"],
             ),
         ),
         VirtualView(
@@ -148,7 +148,7 @@ def test_join(test_root_dir):
                 measures=[
                     LookerViewMeasure(field="average_measurement", type="average")
                 ],
-                source_dataset="DATASET~ED9F33ADDE4537C4DE68E6BD18A3899B",
+                source_datasets=["DATASET~ED9F33ADDE4537C4DE68E6BD18A3899B"],
             ),
         ),
         VirtualView(
@@ -179,7 +179,7 @@ def test_join(test_root_dir):
 
 
 def test_explore_in_view(test_root_dir):
-    models_map, virtual_views = parse_models(
+    models_map, virtual_views = parse_projects(
         test_root_dir + "/looker/explore_in_view", connection_map
     )
 
@@ -216,7 +216,7 @@ def test_explore_in_view(test_root_dir):
                 measures=[
                     LookerViewMeasure(field="average_measurement", type="average")
                 ],
-                source_dataset="DATASET~5881AB4C0A42EF1C15F6C02C0D14AD43",
+                source_datasets=["DATASET~5881AB4C0A42EF1C15F6C02C0D14AD43"],
             ),
         ),
         VirtualView(
@@ -233,7 +233,7 @@ def test_explore_in_view(test_root_dir):
 
 
 def test_derived_table(test_root_dir):
-    models_map, virtual_views = parse_models(
+    models_map, virtual_views = parse_projects(
         test_root_dir + "/looker/derived_table", connection_map
     )
 
@@ -285,7 +285,7 @@ def test_derived_table(test_root_dir):
                 measures=[
                     LookerViewMeasure(field="average_measurement", type="average")
                 ],
-                source_dataset="DATASET~5881AB4C0A42EF1C15F6C02C0D14AD43",
+                source_datasets=["DATASET~22F73B93BC1BBDE2A552F0B23A83626B"],
             ),
         ),
         VirtualView(
@@ -297,7 +297,7 @@ def test_derived_table(test_root_dir):
                 measures=[
                     LookerViewMeasure(field="average_measurement", type="average")
                 ],
-                source_dataset="DATASET~66B2CABC0E5FA838E7A279EA377DCD7E",
+                source_datasets=["DATASET~22F73B93BC1BBDE2A552F0B23A83626B"],
             ),
         ),
         VirtualView(
