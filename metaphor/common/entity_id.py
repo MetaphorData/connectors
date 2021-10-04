@@ -8,7 +8,9 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     EntityType,
     GroupID,
+    KnowledgeCardLogicalID,
     PersonLogicalID,
+    VirtualViewLogicalID,
 )
 
 from metaphor.common.event_util import EventUtil
@@ -17,7 +19,14 @@ from metaphor.common.event_util import EventUtil
 @dataclass
 class EntityId:
     type: EntityType
-    logicalId: Union[DatasetLogicalID, DashboardLogicalID, PersonLogicalID, GroupID]
+    logicalId: Union[
+        DatasetLogicalID,
+        DashboardLogicalID,
+        GroupID,
+        KnowledgeCardLogicalID,
+        PersonLogicalID,
+        VirtualViewLogicalID,
+    ]
 
     def __str__(self) -> str:
         json = encode_canonical_json(EventUtil.clean_nones(self.logicalId.to_dict()))

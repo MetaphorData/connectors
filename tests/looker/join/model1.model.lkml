@@ -9,7 +9,7 @@ explore: explore1 {
 
   join: view2 {
     type: left_outer
-    relationship: one_to_one
+    relationship: many_to_one
     sql_on: ${view2.country} = ${view1.country} ;;
   }
 

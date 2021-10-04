@@ -21,12 +21,18 @@ from metaphor.models.metadata_change_event import (
     DashboardUpstream,
     DataPlatform,
     MetadataChangeEvent,
+    VirtualViewType,
 )
 from serde import deserialize
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
-from metaphor.looker.lookml_parser import Connection, Model, parse_models
+from metaphor.looker.lookml_parser import (
+    Connection,
+    Model,
+    parse_project,
+    to_virtual_view_id,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -99,10 +105,15 @@ class LookerExtractor(BaseExtractor):
 
         connections = self._fetch_connections(sdk)
 
-        model_map = parse_models(config.lookml_dir, connections)
+        model_map, virtual_views = parse_project(config.lookml_dir, connections)
 
         dashboards = self._fetch_dashboards(config, sdk, model_map)
-        return [EventUtil.build_dashboard_event(d) for d in dashboards]
+
+        dashboard_events = [EventUtil.build_dashboard_event(d) for d in dashboards]
+        virtual_view_events = [
+            EventUtil.build_virtual_view_event(d) for d in virtual_views
+        ]
+        return dashboard_events + virtual_view_events
 
     def _fetch_connections(self, sdk: Looker31SDK) -> Dict[str, Connection]:
         connection_map = {}
@@ -124,14 +135,14 @@ class LookerExtractor(BaseExtractor):
                 name=connection.name,
                 platform=platform,
                 database=connection.database,
-                account=self.parse_account(connection.host, platform),
+                account=self._parse_account(connection.host, platform),
                 default_schema=connection.schema,
             )
 
         return connection_map
 
     @staticmethod
-    def parse_account(host: Optional[str], platform: DataPlatform) -> Optional[str]:
+    def _parse_account(host: Optional[str], platform: DataPlatform) -> Optional[str]:
         if platform == DataPlatform.SNOWFLAKE and host:
             # Snowflake host <account_name>.snowflakecomputing.com
             # see https://docs.looker.com/setup-and-management/database-config/snowflake
@@ -181,9 +192,10 @@ class LookerExtractor(BaseExtractor):
         dashboard_elements: Sequence[DashboardElement],
         model_map: Dict[str, Model],
     ) -> Tuple[List[Chart], DashboardUpstream]:
-
-        dataset_ids: Set[str] = set()
         charts = []
+        dataset_ids: Set[str] = set()
+        explore_ids: Set[str] = set()
+
         for e in filter(lambda e: e.type == "vis", dashboard_elements):
 
             if e.result_maker is None:
@@ -222,9 +234,16 @@ class LookerExtractor(BaseExtractor):
                 for id in explore.upstream_datasets:
                     dataset_ids.add(str(id))
 
+                explore_ids.add(
+                    str(
+                        to_virtual_view_id(explore.name, VirtualViewType.LOOKER_EXPLORE)
+                    )
+                )
+
         return (
             charts,
             DashboardUpstream(
                 source_datasets=list(dataset_ids),
+                source_virtual_views=list(explore_ids),
             ),
         )

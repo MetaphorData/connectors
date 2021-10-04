@@ -11,6 +11,7 @@ from metaphor.models.metadata_change_event import (
     KnowledgeCard,
     MetadataChangeEvent,
     Person,
+    VirtualView,
 )
 
 from metaphor import models
@@ -51,6 +52,11 @@ class EventUtil:
     def build_knowledge_card_event(entity: KnowledgeCard) -> MetadataChangeEvent:
         """Build MCE given a knowledge card"""
         return EventUtil._build_event(knowledge_card=entity)
+
+    @staticmethod
+    def build_virtual_view_event(entity: VirtualView) -> MetadataChangeEvent:
+        """Build MCE given a virtual view"""
+        return EventUtil._build_event(virtual_view=entity)
 
     @staticmethod
     def validate_message(message: dict) -> bool:
