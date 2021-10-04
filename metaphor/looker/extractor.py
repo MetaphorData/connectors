@@ -30,7 +30,7 @@ from metaphor.common.extractor import BaseExtractor, RunConfig
 from metaphor.looker.lookml_parser import (
     Connection,
     Model,
-    parse_projects,
+    parse_project,
     to_virtual_view_id,
 )
 
@@ -105,7 +105,7 @@ class LookerExtractor(BaseExtractor):
 
         connections = self._fetch_connections(sdk)
 
-        model_map, virtual_views = parse_projects(config.lookml_dir, connections)
+        model_map, virtual_views = parse_project(config.lookml_dir, connections)
 
         dashboards = self._fetch_dashboards(config, sdk, model_map)
 

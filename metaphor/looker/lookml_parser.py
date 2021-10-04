@@ -152,7 +152,7 @@ def _get_upstream_datasets(
         if sql is not None:
             return _extract_upstream_datasets_from_sql(sql, raw_views, connection)
 
-        # TODO(1329): Add support for native derived tables
+        # TODO (SC1329): Add support for native derived tables
         return set()
 
     source_name = raw_view.get("sql_table_name", view_name)
@@ -319,12 +319,13 @@ def _load_model(
     return raw_views, raw_explores, connection
 
 
-def parse_projects(
+def parse_project(
     base_dir: str, connections: Dict[str, Connection]
 ) -> Tuple[Dict[str, Model], List[VirtualView]]:
     """
-    parse all projects under the base_dir, returning a Model map and a list of virtual views including
+    parse the project under base_dir, returning a Model map and a list of virtual views including
     Looker Explores and Views
+    https://docs.looker.com/data-modeling/getting-started/how-project-works
     """
     model_map = {}
     virtual_views = []
