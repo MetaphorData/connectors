@@ -9,18 +9,7 @@
           {
             "fieldPath": "id",
             "tests": [
-              "unique"
-            ]
-          },
-          {
-            "fieldPath": "f1",
-            "tests": [
-              "not_null"
-            ]
-          },
-          {
-            "fieldPath": "f2",
-            "tests": [
+              "unique",
               "not_null"
             ]
           }
@@ -217,10 +206,16 @@
             ]
           },
           {
-            "fieldPath": "revenue"
+            "fieldPath": "revenue",
+            "tests": [
+              "not_null"
+            ]
           },
           {
-            "fieldPath": "profit"
+            "fieldPath": "profit",
+            "tests": [
+              "not_null"
+            ]
           }
         ]
       },
@@ -511,6 +506,325 @@
     },
     "eventHeader": {
       "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
+        "description": "A starter dbt model",
+        "fields": [
+          {
+            "description": "The primary key for this table",
+            "fieldPath": "id",
+            "nativeType": "Not Set"
+          }
+        ],
+        "materialization": {
+          "targetDataset": "DATASET~AF64AB4122CD383EA8360D20965ABB67",
+          "type": "VIEW"
+        },
+        "packageName": "trial",
+        "rawSql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
+        "tags": [],
+        "tests": [
+          {
+            "columns": [
+              "id"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_unique"
+            ],
+            "name": "unique_my_first_dbt_model_id",
+            "sql": "{{ test_unique(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.unique_my_first_dbt_model_id.5ef3c774bb"
+          },
+          {
+            "columns": [
+              "id"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_my_first_dbt_model_id",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_my_first_dbt_model_id.f479667b44"
+          }
+        ]
+      },
+      "logicalId": {
+        "name": "trial.my_first_dbt_model",
+        "type": "DBT_MODEL"
+      }
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
+        "description": "A starter dbt model",
+        "fields": [
+          {
+            "description": "The primary key for this table",
+            "fieldPath": "id",
+            "nativeType": "Not Set"
+          }
+        ],
+        "materialization": {
+          "targetDataset": "DATASET~C2E3AFBF33CD1595EE25A57D02B4F04A",
+          "type": "VIEW"
+        },
+        "packageName": "trial",
+        "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
+        "sourceDatasets": [],
+        "sourceModels": [
+          "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
+        ],
+        "tags": [],
+        "tests": [
+          {
+            "columns": [
+              "id"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_unique"
+            ],
+            "name": "unique_my_second_dbt_model_id",
+            "sql": "{{ test_unique(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.unique_my_second_dbt_model_id.bc96125570"
+          },
+          {
+            "columns": [
+              "id"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_my_second_dbt_model_id",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_my_second_dbt_model_id.dc1d13aa6d"
+          }
+        ]
+      },
+      "logicalId": {
+        "name": "trial.my_second_dbt_model",
+        "type": "DBT_MODEL"
+      }
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "\n\nselect show_id, type, title, country, release_year \nfrom DEMO_DB.DBT_DEV.NETFLIX",
+        "description": "First trial model",
+        "fields": [
+          {
+            "description": "The show id, primary key for this table",
+            "fieldPath": "show_id",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "The type of the show",
+            "fieldPath": "type",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "The title of the show",
+            "fieldPath": "title",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "The country where the show was originated from",
+            "fieldPath": "country",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "The year the show was released",
+            "fieldPath": "release_year",
+            "nativeType": "Not Set"
+          }
+        ],
+        "materialization": {
+          "targetDataset": "DATASET~1712CB731B3A99B418D013CDD380ED96",
+          "type": "TABLE"
+        },
+        "packageName": "trial",
+        "rawSql": "{{ config(materialized='table') }}\n\nselect show_id, type, title, country, release_year \nfrom {{ source('DBT_DEV', 'NETFLIX') }}",
+        "sourceDatasets": [
+          "DATASET~BDB320613577550E8EE6BE295054A8A0"
+        ],
+        "sourceModels": [],
+        "tags": [],
+        "tests": [
+          {
+            "columns": [
+              "show_id"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_unique"
+            ],
+            "name": "unique_trial_model_1_show_id",
+            "sql": "{{ test_unique(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.unique_trial_model_1_show_id.e5e71dcd5c"
+          },
+          {
+            "columns": [
+              "show_id"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_trial_model_1_show_id",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_trial_model_1_show_id.b9cd21f3cc"
+          },
+          {
+            "columns": [
+              "type"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_trial_model_1_type",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_trial_model_1_type.8258650d8f"
+          },
+          {
+            "columns": [
+              "title"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_trial_model_1_title",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_trial_model_1_title.0df06c3bb2"
+          }
+        ]
+      },
+      "logicalId": {
+        "name": "trial.trial_model_1",
+        "type": "DBT_MODEL"
+      }
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+        "description": "Second trial model",
+        "fields": [
+          {
+            "description": "The country where the sales records are from",
+            "fieldPath": "country",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "The type of the item",
+            "fieldPath": "item_type",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "The year that the aggregated sales statistics is for",
+            "fieldPath": "year",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "The total revenue aggregated over the country + item_type + year",
+            "fieldPath": "revenue",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "The total profit aggregated over the country + item_type + year",
+            "fieldPath": "profit",
+            "nativeType": "Not Set"
+          }
+        ],
+        "materialization": {
+          "targetDataset": "DATASET~193E378823E334188F097A104793663C",
+          "type": "TABLE"
+        },
+        "packageName": "trial",
+        "rawSql": "{{ config(materialized='table') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+        "sourceDatasets": [
+          "DATASET~88E2F99BE08491C03619AC3FF0FF07BC"
+        ],
+        "sourceModels": [],
+        "tags": [],
+        "tests": [
+          {
+            "columns": [
+              "country"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_trial_model_2_country",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_trial_model_2_country.38e34b4f06"
+          },
+          {
+            "columns": [
+              "item_type"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_trial_model_2_item_type",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_trial_model_2_item_type.41de9591b6"
+          },
+          {
+            "columns": [
+              "year"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_trial_model_2_year",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_trial_model_2_year.97b36e02ab"
+          },
+          {
+            "columns": [
+              "revenue"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_trial_model_2_revenue",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_trial_model_2_revenue.78ade8f402"
+          },
+          {
+            "columns": [
+              "profit"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_trial_model_2_profit",
+            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "uniqueId": "test.trial.not_null_trial_model_2_profit.fe4505f957"
+          }
+        ]
+      },
+      "logicalId": {
+        "name": "trial.trial_model_2",
+        "type": "DBT_MODEL"
+      }
     }
   }
 ]
