@@ -4,7 +4,7 @@ This connector extracts technical metadata from a Snowflake account using [Snowf
 
 ## Setup
 
-We recommend creating a separate Snowflake user with limited permission for the connector to use. You can use the following statements to create a role and grant it to the user.
+We recommend creating a separate Snowflake user with limited permissions for the connector to use. You can use the following statements to create a role and grant it to the user.
 
 ```sql
 create role metaphor_connector comment = 'Limited access role for Metaphor connector';
