@@ -64,19 +64,14 @@ class SnowflakeExtractor(BaseExtractor):
         with ctx:
             cursor = ctx.cursor()
 
-            databases = self._fetch_databases(cursor, config.database)
-            logger.info(f"Databases: {databases}")
+            tables = self._fetch_tables(cursor, config.database, config.account)
+            logger.info(f"DB {config.database} has tables {tables}")
 
-            # TODO: parallel fetching
-            for db in databases:
-                tables = self._fetch_tables(cursor, db, config.account)
-                logger.info(f"DB {db} has tables {tables}")
-
-                for schema, name, full_name in tables:
-                    dataset = self._datasets[full_name]
-                    self._fetch_columns(cursor, schema, name, dataset)
-                    self._fetch_ddl(cursor, schema, name, dataset)
-                    self._fetch_last_updated(cursor, schema, name, dataset)
+            for schema, name, full_name in tables:
+                dataset = self._datasets[full_name]
+                self._fetch_columns(cursor, schema, name, dataset)
+                self._fetch_ddl(cursor, schema, name, dataset)
+                self._fetch_last_updated(cursor, schema, name, dataset)
 
         logger.debug(self._datasets)
 
@@ -87,18 +82,14 @@ class SnowflakeExtractor(BaseExtractor):
         """The full table name including database, schema and name"""
         return f"{db}.{schema}.{name}".lower()
 
-    @staticmethod
-    def _fetch_databases(cursor, initial_database: str) -> List[str]:
-        cursor.execute("USE " + initial_database)
-        cursor.execute(
-            "SELECT database_name FROM information_schema.databases ORDER BY database_name"
-        )
-        return [db[0] for db in cursor]
-
     def _fetch_tables(
         self, cursor, database: str, account: str
     ) -> List[Tuple[str, str, str]]:
-        cursor.execute("USE " + database)
+        try:
+            cursor.execute("USE " + database)
+        except snowflake.connector.errors.ProgrammingError:
+            raise ValueError(f"Invalid or inaccessible database {database}")
+
         cursor.execute(
             "SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes "
             "FROM information_schema.tables "
