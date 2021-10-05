@@ -1,5 +1,4 @@
 import logging
-import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -39,7 +38,6 @@ from .generated.dbt_manifest import (
     CompiledModelNode,
     CompiledSchemaTestNode,
     DbtManifest,
-    ParsedDataTestNode,
     ParsedMacro,
     ParsedSchemaTestNode,
     ParsedSourceDefinition,
