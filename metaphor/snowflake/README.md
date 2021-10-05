@@ -4,22 +4,31 @@ This connector extracts technical metadata from a Snowflake account using [Snowf
 
 ## Setup
 
-We recommend creating a separate Snowflake user with limited permission for the connector to use. You can use the following statements to create a role and grant it to the user.
+We recommend creating a dedicated Snowflake user with limited permissions for the connector to use by running the following statements using `ACCOUNTADMIN` role:
 
 ```sql
-create role metaphor_connector comment = 'Limited access role for Metaphor connector';
+set warehouse = '<warehouse>';
+set db = '<database>';
 
-grant usage on database <database> to role metaphor_connector;
-grant usage on schema <database>.information_schema to role metaphor_connector;
-grant select on all tables in schema <database>.information_schema to role metaphor_connector;
-grant usage on warehouse <warehouse> to role metaphor_connector;
+-- Create metaphor_role
+create role metaphor_role comment = 'Limited access role for Metaphor connector';
+grant usage on warehouse identifier($warehouse) to role metaphor_role;
+grant usage on all schemas in database identifier($db) to role metaphor_role;
+grant usage on future schemas in database identifier($db) to role metaphor_role;
+grant references on all tables in database identifier($db) to role metaphor_role;
+grant references on future tables in database identifier($db) to role metaphor_role;
+grant references on all views in database identifier($db) to role metaphor_role;
+grant references on future views in database identifier($db) to role metaphor_role;
+grant references on all materialized views in database identifier($db) to role metaphor_role;
+grant references on future materialized views in database identifier($db) to role metaphor_role;
 
--- TODO: permission for get_ddl: https://docs.snowflake.com/en/sql-reference/functions/get_ddl.html#usage-notes
-
-alter user <username> set disabled = true;
-grant role metaphor_connector to user <username>;
-alter user <username> set default_role = metaphor_connector;
-alter user <username> set disabled = false;
+-- Create metaphor_user
+create user metaphor_user
+    password = '<password>'
+    default_warehouse = $warehouse
+    default_role = metaphor_role
+    comment = 'User for Metaphor connector';
+grant role metaphor_role to user metaphor_user;
 ```
 
 ## Config File
