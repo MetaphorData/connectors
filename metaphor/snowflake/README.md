@@ -4,7 +4,7 @@ This connector extracts technical metadata from a Snowflake account using [Snowf
 
 ## Setup
 
-We recommend creating a dedicated Snowflake user with limited permission for the connector to use by running the following statements using `ACCOUNTADMIN` role:
+We recommend creating a dedicated Snowflake user with limited permissions for the connector to use by running the following statements using `ACCOUNTADMIN` role:
 
 ```sql
 set warehouse = '<warehouse>';
