@@ -277,20 +277,58 @@ def test_derived_table(test_root_dir):
         VirtualViewLogicalID(name="view2", type=VirtualViewType.LOOKER_VIEW),
     )
 
+    virtual_view_id3 = EntityId(
+        EntityType.VIRTUAL_VIEW,
+        VirtualViewLogicalID(name="view3", type=VirtualViewType.LOOKER_VIEW),
+    )
+
     expected = {
         "model": Model(
             explores={
                 "explore1": Explore(
                     name="explore1",
+                    upstream_datasets={
+                        EntityId(
+                            type=EntityType.DATASET,
+                            logicalId=DatasetLogicalID(
+                                account="account",
+                                name="db.schema.table1",
+                                platform=DataPlatform.SNOWFLAKE,
+                            ),
+                        )
+                    },
                     description="description",
                     label="label",
-                    upstream_datasets={dataset_id},
                 ),
                 "explore2": Explore(
                     name="explore2",
+                    upstream_datasets={
+                        EntityId(
+                            type=EntityType.DATASET,
+                            logicalId=DatasetLogicalID(
+                                account="account",
+                                name="db.schema.table1",
+                                platform=DataPlatform.SNOWFLAKE,
+                            ),
+                        )
+                    },
                     description="description",
                     label="label",
-                    upstream_datasets={dataset_id},
+                ),
+                "explore3": Explore(
+                    name="explore3",
+                    upstream_datasets={
+                        EntityId(
+                            type=EntityType.DATASET,
+                            logicalId=DatasetLogicalID(
+                                account="account",
+                                name="db.schema.table1",
+                                platform=DataPlatform.SNOWFLAKE,
+                            ),
+                        )
+                    },
+                    description="description3",
+                    label="label3",
                 ),
             }
         )
@@ -324,6 +362,15 @@ def test_derived_table(test_root_dir):
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
+                name="view3", type=VirtualViewType.LOOKER_VIEW
+            ),
+            looker_view=LookerView(
+                dimensions=[LookerViewDimension(data_type="string", field="country")],
+                source_datasets=["DATASET~22F73B93BC1BBDE2A552F0B23A83626B"],
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
                 name="explore1", type=VirtualViewType.LOOKER_EXPLORE
             ),
             looker_explore=LookerExplore(
@@ -340,6 +387,16 @@ def test_derived_table(test_root_dir):
                 base_view=str(virtual_view_id2),
                 description="description",
                 label="label",
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="explore3", type=VirtualViewType.LOOKER_EXPLORE
+            ),
+            looker_explore=LookerExplore(
+                base_view=str(virtual_view_id3),
+                description="description3",
+                label="label3",
             ),
         ),
     ]

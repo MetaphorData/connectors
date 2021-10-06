@@ -13,3 +13,9 @@ explore: explore2 {
   description: "description"
   view_name: "view2"
 }
+
+explore: explore3 {
+  label: "label3"
+  description: "description3"
+  view_name: "view3"
+}
