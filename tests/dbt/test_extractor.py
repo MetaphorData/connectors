@@ -6,44 +6,26 @@ from metaphor.dbt.extractor import DbtExtractor, DbtRunConfig
 from tests.test_utils import load_json
 
 
-@freeze_time("2000-01-01")
 @pytest.mark.asyncio
 async def test_trial_project(test_root_dir):
-    manifest = test_root_dir + "/dbt/data/trial_manifest.json"
-    catalog = test_root_dir + "/dbt/data/trial_catalog.json"
-    expected = test_root_dir + "/dbt/data/trial_results.json"
-
-    config = DbtRunConfig(
-        output=None, account="metaphor", manifest=manifest, catalog=catalog
-    )
-    extractor = DbtExtractor()
-    events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
-
-    assert events == load_json(expected)
+    await _test_project(test_root_dir + "/dbt/data/trial")
 
 
-@freeze_time("2000-01-01")
 @pytest.mark.asyncio
 async def test_ride_share_project(test_root_dir):
-    manifest = test_root_dir + "/dbt/data/ride_share_manifest.json"
-    catalog = test_root_dir + "/dbt/data/ride_share_catalog.json"
-    expected = test_root_dir + "/dbt/data/ride_share_results.json"
+    await _test_project(test_root_dir + "/dbt/data/ride_share")
 
-    config = DbtRunConfig(
-        output=None, account="metaphor", manifest=manifest, catalog=catalog
-    )
-    extractor = DbtExtractor()
-    events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
-    assert events == load_json(expected)
+@pytest.mark.asyncio
+async def test_shopify_project(test_root_dir):
+    await _test_project(test_root_dir + "/dbt/data/shopify")
 
 
 @freeze_time("2000-01-01")
-@pytest.mark.asyncio
-async def test_shopify_project(test_root_dir):
-    manifest = test_root_dir + "/dbt/data/shopify_manifest.json"
-    catalog = test_root_dir + "/dbt/data/shopify_catalog.json"
-    expected = test_root_dir + "/dbt/data/shopify_results.json"
+async def _test_project(data_dir):
+    manifest = data_dir + "/manifest.json"
+    catalog = data_dir + "/catalog.json"
+    expected = data_dir + "/results.json"
 
     config = DbtRunConfig(
         output=None, account="metaphor", manifest=manifest, catalog=catalog
