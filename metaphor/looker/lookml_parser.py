@@ -136,11 +136,19 @@ def _get_upstream_datasets(
         raise ValueError(f"Refer to non-existing view {view_name}")
 
     if "derived_table" in raw_view:
-        sql = raw_view["derived_table"].get("sql")
-        if sql is not None:
-            return _extract_upstream_datasets_from_sql(sql, raw_views, connection)
+        # https://docs.looker.com/data-modeling/learning-lookml/derived-tables
+        derived_table = raw_view["derived_table"]
 
-        # TODO (SC1329): Add support for native derived tables
+        if "sql" in derived_table:
+            return _extract_upstream_datasets_from_sql(
+                derived_table["sql"], raw_views, connection
+            )
+
+        if "explore_source" in derived_table:
+            return _get_upstream_datasets(
+                derived_table["explore_source"]["name"], raw_views, connection
+            )
+
         return set()
 
     source_name = raw_view.get("sql_table_name", view_name)
@@ -154,7 +162,7 @@ def _extract_upstream_datasets_from_sql(
     try:
         tables = sql_metadata.Parser(sql).tables
     except Exception as e:
-        logger.warn(f"Failed to parse SQL:\n{sql}\n\nError:{e}")
+        logger.warning(f"Failed to parse SQL:\n{sql}\n\nError:{e}")
         return upstream
 
     for table in tables:
