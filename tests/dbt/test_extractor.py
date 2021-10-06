@@ -6,12 +6,26 @@ from metaphor.dbt.extractor import DbtExtractor, DbtRunConfig
 from tests.test_utils import load_json
 
 
-@freeze_time("2000-01-01")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
-    manifest = test_root_dir + "/dbt/data/manifest.json"
-    catalog = test_root_dir + "/dbt/data/catalog.json"
-    expected = test_root_dir + "/dbt/data/expected_results.json"
+async def test_trial_project(test_root_dir):
+    await _test_project(test_root_dir + "/dbt/data/trial")
+
+
+@pytest.mark.asyncio
+async def test_ride_share_project(test_root_dir):
+    await _test_project(test_root_dir + "/dbt/data/ride_share")
+
+
+@pytest.mark.asyncio
+async def test_shopify_project(test_root_dir):
+    await _test_project(test_root_dir + "/dbt/data/shopify")
+
+
+@freeze_time("2000-01-01")
+async def _test_project(data_dir):
+    manifest = data_dir + "/manifest.json"
+    catalog = data_dir + "/catalog.json"
+    expected = data_dir + "/results.json"
 
     config = DbtRunConfig(
         output=None, account="metaphor", manifest=manifest, catalog=catalog

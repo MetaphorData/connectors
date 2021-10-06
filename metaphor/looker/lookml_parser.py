@@ -13,7 +13,6 @@ except ImportError:
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
-    DatasetLogicalID,
     LookerExplore,
     LookerExploreJoin,
     LookerView,
@@ -24,7 +23,11 @@ from metaphor.models.metadata_change_event import (
     VirtualViewType,
 )
 
-from metaphor.common.entity_id import EntityId, EntityType
+from metaphor.common.entity_id import (
+    EntityId,
+    to_dataset_entity_id,
+    to_virtual_view_entity_id,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -119,22 +122,7 @@ def _to_dataset_id(source_name: str, connection: Connection) -> EntityId:
     # Normalize dataset name by lower casing & dropping the quotation marks
     full_name = full_name.replace('"', "").lower()
 
-    return EntityId(
-        EntityType.DATASET,
-        DatasetLogicalID(
-            name=full_name, platform=connection.platform, account=connection.account
-        ),
-    )
-
-
-def to_virtual_view_id(name: str, virtualViewType: VirtualViewType) -> EntityId:
-    """
-    converts a virtual view name and type into an Virtual View entity ID
-    """
-    return EntityId(
-        EntityType.VIRTUAL_VIEW,
-        VirtualViewLogicalID(name=name, type=virtualViewType),
-    )
+    return to_dataset_entity_id(full_name, connection.platform, connection.account)
 
 
 def _get_upstream_datasets(
@@ -194,7 +182,7 @@ def _build_looker_view(
 
     if "extends" in raw_view:
         view.extends = [
-            str(to_virtual_view_id(view, VirtualViewType.LOOKER_VIEW))
+            str(to_virtual_view_entity_id(view, VirtualViewType.LOOKER_VIEW))
             for view in raw_view["extends"]
         ]
 
@@ -231,12 +219,14 @@ def _build_looker_explore(raw_explore: Dict) -> VirtualView:
         label=raw_explore.get("label", None),
         tags=raw_explore.get("tags", None),
         fields=raw_explore.get("fields", None),
-        base_view=str(to_virtual_view_id(base_view_name, VirtualViewType.LOOKER_VIEW)),
+        base_view=str(
+            to_virtual_view_entity_id(base_view_name, VirtualViewType.LOOKER_VIEW)
+        ),
     )
 
     if "extends" in raw_explore:
         explore.extends = [
-            str(to_virtual_view_id(explore, VirtualViewType.LOOKER_EXPLORE))
+            str(to_virtual_view_entity_id(explore, VirtualViewType.LOOKER_EXPLORE))
             for explore in raw_explore["extends"]
         ]
 
@@ -244,7 +234,7 @@ def _build_looker_explore(raw_explore: Dict) -> VirtualView:
         explore.joins = [
             LookerExploreJoin(
                 view=str(
-                    to_virtual_view_id(
+                    to_virtual_view_entity_id(
                         raw_join.get("from", raw_join["name"]),
                         VirtualViewType.LOOKER_VIEW,
                     )
