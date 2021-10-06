@@ -112,23 +112,20 @@ class DbtExtractor(BaseExtractor):
         assert self._manifest is not None
 
         metadata = self._manifest.metadata
-        nodes = self._manifest.nodes
-        sources = self._manifest.sources
 
         assert metadata.adapter_type is not None
         platform = metadata.adapter_type.upper()
         assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
         self.platform = DataPlatform[platform]
 
+        nodes = self._manifest.nodes
+        sources = self._manifest.sources
+        macros = self._manifest.macros
+
         models = {
             k: cast(CompiledModelNode, v)
             for (k, v) in nodes.items()
             if isinstance(v, CompiledModelNode)
-        }
-        macros = {
-            k: cast(ParsedMacro, v)
-            for (k, v) in nodes.items()
-            if isinstance(v, ParsedMacro)
         }
         tests = {
             k: cast(CompiledSchemaTestNode, v)
@@ -186,8 +183,9 @@ class DbtExtractor(BaseExtractor):
                     "Not Set" if col.data_type is None else col.data_type
                 )
 
-                field_doc = self._init_field_doc(dataset, column_name)
-                field_doc.documentation = col.description
+                if col.description:
+                    field_doc = self._init_field_doc(dataset, column_name)
+                    field_doc.documentation = col.description
 
         if model.depends_on is not None:
             dataset.upstream = DatasetUpstream()
@@ -258,8 +256,9 @@ class DbtExtractor(BaseExtractor):
             field.description = col.comment
             field.native_type = "Not Set" if col.type is None else col.type
 
-            field_doc = self._init_field_doc(dataset, column_name)
-            field_doc.documentation = col.comment
+            if col.comment:
+                field_doc = self._init_field_doc(dataset, column_name)
+                field_doc.documentation = col.comment
 
         has_stats = stats.get("has_stats")
         if has_stats is not None and has_stats.value is not None:

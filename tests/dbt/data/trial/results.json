@@ -7,6 +7,7 @@
         ],
         "fieldDocumentations": [
           {
+            "documentation": "The primary key for this table",
             "fieldPath": "id",
             "tests": [
               "unique",
@@ -50,6 +51,7 @@
         ],
         "fieldDocumentations": [
           {
+            "documentation": "The primary key for this table",
             "fieldPath": "id",
             "tests": [
               "unique",
@@ -117,9 +119,11 @@
             ]
           },
           {
+            "documentation": "The country where the show was originated from",
             "fieldPath": "country"
           },
           {
+            "documentation": "The year the show was released",
             "fieldPath": "release_year"
           }
         ]
@@ -206,12 +210,14 @@
             ]
           },
           {
+            "documentation": "The total revenue aggregated over the country + item_type + year",
             "fieldPath": "revenue",
             "tests": [
               "not_null"
             ]
           },
           {
+            "documentation": "The total profit aggregated over the country + item_type + year",
             "fieldPath": "profit",
             "tests": [
               "not_null"
@@ -276,50 +282,7 @@
     "dataset": {
       "documentation": {
         "datasetDocumentations": [],
-        "fieldDocumentations": [
-          {
-            "fieldPath": "region"
-          },
-          {
-            "fieldPath": "country"
-          },
-          {
-            "fieldPath": "item_type"
-          },
-          {
-            "fieldPath": "sales_channel"
-          },
-          {
-            "fieldPath": "order_priority"
-          },
-          {
-            "fieldPath": "order_date"
-          },
-          {
-            "fieldPath": "order_id"
-          },
-          {
-            "fieldPath": "ship_date"
-          },
-          {
-            "fieldPath": "units_sold"
-          },
-          {
-            "fieldPath": "unit_price"
-          },
-          {
-            "fieldPath": "unit_cost"
-          },
-          {
-            "fieldPath": "total_revenue"
-          },
-          {
-            "fieldPath": "total_cost"
-          },
-          {
-            "fieldPath": "total_profit"
-          }
-        ]
+        "fieldDocumentations": []
       },
       "logicalId": {
         "account": "metaphor",
@@ -401,44 +364,7 @@
     "dataset": {
       "documentation": {
         "datasetDocumentations": [],
-        "fieldDocumentations": [
-          {
-            "fieldPath": "show_id"
-          },
-          {
-            "fieldPath": "type"
-          },
-          {
-            "fieldPath": "title"
-          },
-          {
-            "fieldPath": "director"
-          },
-          {
-            "fieldPath": "cast"
-          },
-          {
-            "fieldPath": "country"
-          },
-          {
-            "fieldPath": "date_added"
-          },
-          {
-            "fieldPath": "release_year"
-          },
-          {
-            "fieldPath": "rating"
-          },
-          {
-            "fieldPath": "duration"
-          },
-          {
-            "fieldPath": "listed_in"
-          },
-          {
-            "fieldPath": "description"
-          }
-        ]
+        "fieldDocumentations": []
       },
       "logicalId": {
         "account": "metaphor",

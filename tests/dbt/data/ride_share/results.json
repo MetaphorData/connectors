@@ -7,6 +7,7 @@
         ],
         "fieldDocumentations": [
           {
+            "documentation": "The total minutes of a particular journey in a month and general time of day.",
             "fieldPath": "total_minutes",
             "tests": [
               "not_null",
@@ -14,9 +15,11 @@
             ]
           },
           {
+            "documentation": "Total number of bike hires of the same journey in a particular month and time of day - not_null - dbt_utils.at_least_one",
             "fieldPath": "total_bike_hires"
           },
           {
+            "documentation": "Month the bike hire was in",
             "fieldPath": "month",
             "tests": [
               "not_null",
@@ -40,18 +43,6 @@
             "tests": [
               "not_null"
             ]
-          },
-          {
-            "fieldPath": "average_duration"
-          },
-          {
-            "fieldPath": "start_station_id"
-          },
-          {
-            "fieldPath": "end_station_id"
-          },
-          {
-            "fieldPath": "end_station_name"
           }
         ]
       },
@@ -131,38 +122,7 @@
         "datasetDocumentations": [
           "This table contains all bike hires in London in 2017. This is the raw dataset so no cleaning or transformation."
         ],
-        "fieldDocumentations": [
-          {
-            "fieldPath": "rental_id"
-          },
-          {
-            "fieldPath": "duration_seconds"
-          },
-          {
-            "fieldPath": "duration_minutes"
-          },
-          {
-            "fieldPath": "bike_id"
-          },
-          {
-            "fieldPath": "start_date"
-          },
-          {
-            "fieldPath": "start_station_id"
-          },
-          {
-            "fieldPath": "start_station_name"
-          },
-          {
-            "fieldPath": "end_date"
-          },
-          {
-            "fieldPath": "end_station_id"
-          },
-          {
-            "fieldPath": "end_station_name"
-          }
-        ]
+        "fieldDocumentations": []
       },
       "logicalId": {
         "account": "metaphor",
@@ -242,22 +202,8 @@
         ],
         "fieldDocumentations": [
           {
+            "documentation": "Primary Key",
             "fieldPath": "id"
-          },
-          {
-            "fieldPath": "station_name"
-          },
-          {
-            "fieldPath": "bikes_count"
-          },
-          {
-            "fieldPath": "docks_count"
-          },
-          {
-            "fieldPath": "install_date"
-          },
-          {
-            "fieldPath": "removal_date"
           }
         ]
       },
@@ -321,56 +267,7 @@
         "datasetDocumentations": [
           ""
         ],
-        "fieldDocumentations": [
-          {
-            "fieldPath": "total_minutes"
-          },
-          {
-            "fieldPath": "total_bike_hires"
-          },
-          {
-            "fieldPath": "average_duration"
-          },
-          {
-            "fieldPath": "month"
-          },
-          {
-            "fieldPath": "start_peak_travel"
-          },
-          {
-            "fieldPath": "same_station_flag"
-          },
-          {
-            "fieldPath": "start_station_id"
-          },
-          {
-            "fieldPath": "start_station_name"
-          },
-          {
-            "fieldPath": "start_station_bikes_count"
-          },
-          {
-            "fieldPath": "start_station_docks_count"
-          },
-          {
-            "fieldPath": "start_station_install_date"
-          },
-          {
-            "fieldPath": "end_station_id"
-          },
-          {
-            "fieldPath": "end_station_name"
-          },
-          {
-            "fieldPath": "end_station_bikes_count"
-          },
-          {
-            "fieldPath": "end_station_docks_count"
-          },
-          {
-            "fieldPath": "end_station_install_date"
-          }
-        ]
+        "fieldDocumentations": []
       },
       "logicalId": {
         "account": "metaphor",
@@ -473,44 +370,7 @@
         "datasetDocumentations": [
           ""
         ],
-        "fieldDocumentations": [
-          {
-            "fieldPath": "total_minutes"
-          },
-          {
-            "fieldPath": "total_hours"
-          },
-          {
-            "fieldPath": "total_bike_hires"
-          },
-          {
-            "fieldPath": "average_duration_in_minutes"
-          },
-          {
-            "fieldPath": "month"
-          },
-          {
-            "fieldPath": "start_peak_travel"
-          },
-          {
-            "fieldPath": "same_station_flag"
-          },
-          {
-            "fieldPath": "start_station_id"
-          },
-          {
-            "fieldPath": "start_station_name"
-          },
-          {
-            "fieldPath": "start_station_bikes_count"
-          },
-          {
-            "fieldPath": "start_station_docks_count"
-          },
-          {
-            "fieldPath": "start_station_install_date"
-          }
-        ]
+        "fieldDocumentations": []
       },
       "logicalId": {
         "account": "metaphor",
@@ -594,44 +454,7 @@
     "dataset": {
       "documentation": {
         "datasetDocumentations": [],
-        "fieldDocumentations": [
-          {
-            "fieldPath": "rental_id"
-          },
-          {
-            "fieldPath": "duration"
-          },
-          {
-            "fieldPath": "bike_id"
-          },
-          {
-            "fieldPath": "end_date"
-          },
-          {
-            "fieldPath": "end_station_id"
-          },
-          {
-            "fieldPath": "end_station_name"
-          },
-          {
-            "fieldPath": "start_date"
-          },
-          {
-            "fieldPath": "start_station_id"
-          },
-          {
-            "fieldPath": "start_station_name"
-          },
-          {
-            "fieldPath": "end_station_logical_terminal"
-          },
-          {
-            "fieldPath": "start_station_logical_terminal"
-          },
-          {
-            "fieldPath": "end_station_priority_id"
-          }
-        ]
+        "fieldDocumentations": []
       },
       "logicalId": {
         "account": "metaphor",
@@ -705,47 +528,7 @@
     "dataset": {
       "documentation": {
         "datasetDocumentations": [],
-        "fieldDocumentations": [
-          {
-            "fieldPath": "id"
-          },
-          {
-            "fieldPath": "installed"
-          },
-          {
-            "fieldPath": "latitude"
-          },
-          {
-            "fieldPath": "locked"
-          },
-          {
-            "fieldPath": "longitude"
-          },
-          {
-            "fieldPath": "name"
-          },
-          {
-            "fieldPath": "bikes_count"
-          },
-          {
-            "fieldPath": "docks_count"
-          },
-          {
-            "fieldPath": "nbemptydocks"
-          },
-          {
-            "fieldPath": "temporary"
-          },
-          {
-            "fieldPath": "terminal_name"
-          },
-          {
-            "fieldPath": "install_date"
-          },
-          {
-            "fieldPath": "removal_date"
-          }
-        ]
+        "fieldDocumentations": []
       },
       "logicalId": {
         "account": "metaphor",
