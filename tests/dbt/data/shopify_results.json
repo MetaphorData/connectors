@@ -1,0 +1,6664 @@
+[
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "fulfillable_quantity"
+          },
+          {
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "fieldPath": "is_gift_card"
+          },
+          {
+            "fieldPath": "grams"
+          },
+          {
+            "fieldPath": "order_line_id"
+          },
+          {
+            "fieldPath": "index"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "pre_tax_price"
+          },
+          {
+            "fieldPath": "price"
+          },
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "property_charge_interval_frequency"
+          },
+          {
+            "fieldPath": "property_for_shipping_jan_3_rd_2020"
+          },
+          {
+            "fieldPath": "property_shipping_interval_frequency"
+          },
+          {
+            "fieldPath": "property_shipping_interval_unit_type"
+          },
+          {
+            "fieldPath": "property_subscription_id"
+          },
+          {
+            "fieldPath": "quantity"
+          },
+          {
+            "fieldPath": "is_requiring_shipping"
+          },
+          {
+            "fieldPath": "sku"
+          },
+          {
+            "fieldPath": "is_taxable"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "total_discount"
+          },
+          {
+            "fieldPath": "variant_id"
+          },
+          {
+            "fieldPath": "vendor"
+          },
+          {
+            "fieldPath": "source_relation"
+          },
+          {
+            "fieldPath": "refunded_quantity"
+          },
+          {
+            "fieldPath": "refunded_subtotal"
+          },
+          {
+            "fieldPath": "quantity_net_refunds"
+          },
+          {
+            "fieldPath": "subtotal_net_refunds"
+          },
+          {
+            "fieldPath": "variant_created_at"
+          },
+          {
+            "fieldPath": "variant_updated_at"
+          },
+          {
+            "fieldPath": "inventory_item_id"
+          },
+          {
+            "fieldPath": "image_id"
+          },
+          {
+            "fieldPath": "variant_title"
+          },
+          {
+            "fieldPath": "variant_price"
+          },
+          {
+            "fieldPath": "variant_sku"
+          },
+          {
+            "fieldPath": "variant_position"
+          },
+          {
+            "fieldPath": "variant_inventory_policy"
+          },
+          {
+            "fieldPath": "variant_compare_at_price"
+          },
+          {
+            "fieldPath": "variant_fulfillment_service"
+          },
+          {
+            "fieldPath": "variant_inventory_management"
+          },
+          {
+            "fieldPath": "variant_is_taxable"
+          },
+          {
+            "fieldPath": "variant_barcode"
+          },
+          {
+            "fieldPath": "variant_grams"
+          },
+          {
+            "fieldPath": "variant_inventory_quantity"
+          },
+          {
+            "fieldPath": "variant_weight"
+          },
+          {
+            "fieldPath": "variant_weight_unit"
+          },
+          {
+            "fieldPath": "variant_option_1"
+          },
+          {
+            "fieldPath": "variant_option_2"
+          },
+          {
+            "fieldPath": "variant_option_3"
+          },
+          {
+            "fieldPath": "variant_tax_code"
+          },
+          {
+            "fieldPath": "variant_is_requiring_shipping"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_shopify.shopify__order_lines",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillable_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_service",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_gift_card",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "grams",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_line_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "index",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "pre_tax_price",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "property_charge_interval_frequency",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "property_for_shipping_jan_3_rd_2020",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "property_shipping_interval_frequency",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "property_shipping_interval_unit_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "property_subscription_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_requiring_shipping",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "sku",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_taxable",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_discount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "vendor",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refunded_quantity",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "refunded_subtotal",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "quantity_net_refunds",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "subtotal_net_refunds",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "variant_created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_item_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "image_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_sku",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_position",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_inventory_policy",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_compare_at_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_fulfillment_service",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_inventory_management",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_is_taxable",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_barcode",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_grams",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_inventory_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_weight",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_weight_unit",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_option_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_option_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_option_3",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_tax_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_is_requiring_shipping",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_deleted"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "handle"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "product_type"
+          },
+          {
+            "fieldPath": "published_at"
+          },
+          {
+            "fieldPath": "published_scope"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "updated_at"
+          },
+          {
+            "fieldPath": "vendor"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__product_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_deleted",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "handle",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "published_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "published_scope",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "vendor",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "amount"
+          },
+          {
+            "fieldPath": "tax_amount"
+          },
+          {
+            "fieldPath": "kind"
+          },
+          {
+            "fieldPath": "reason"
+          },
+          {
+            "fieldPath": "amount_set"
+          },
+          {
+            "fieldPath": "tax_amount_set"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__order_adjustment_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "kind",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "reason",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_amount_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "has_accepted_marketing"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "default_address_id"
+          },
+          {
+            "fieldPath": "email"
+          },
+          {
+            "fieldPath": "first_name"
+          },
+          {
+            "fieldPath": "customer_id"
+          },
+          {
+            "fieldPath": "last_name"
+          },
+          {
+            "fieldPath": "orders_count"
+          },
+          {
+            "fieldPath": "phone"
+          },
+          {
+            "fieldPath": "account_state"
+          },
+          {
+            "fieldPath": "is_tax_exempt"
+          },
+          {
+            "fieldPath": "total_spent"
+          },
+          {
+            "fieldPath": "updated_timestamp"
+          },
+          {
+            "fieldPath": "is_verified_email"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__customer",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "has_accepted_marketing",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "default_address_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "customer_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "orders_count",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "account_state",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_tax_exempt",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_spent",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_verified_email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "order_line_id"
+          },
+          {
+            "fieldPath": "quantity"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "restock_type"
+          },
+          {
+            "fieldPath": "subtotal"
+          },
+          {
+            "fieldPath": "total_tax"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__order_line_refund_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_line_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "restock_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "subtotal",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_tax",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "accepts_marketing"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "default_address_id"
+          },
+          {
+            "fieldPath": "email"
+          },
+          {
+            "fieldPath": "first_name"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "last_name"
+          },
+          {
+            "fieldPath": "orders_count"
+          },
+          {
+            "fieldPath": "phone"
+          },
+          {
+            "fieldPath": "state"
+          },
+          {
+            "fieldPath": "tax_exempt"
+          },
+          {
+            "fieldPath": "total_spent"
+          },
+          {
+            "fieldPath": "updated_at"
+          },
+          {
+            "fieldPath": "verified_email"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__customer_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "accepts_marketing",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "default_address_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "orders_count",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "state",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_exempt",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_spent",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "verified_email",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "fulfillable_quantity"
+          },
+          {
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "fieldPath": "is_gift_card"
+          },
+          {
+            "fieldPath": "grams"
+          },
+          {
+            "fieldPath": "order_line_id"
+          },
+          {
+            "fieldPath": "index"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "pre_tax_price"
+          },
+          {
+            "fieldPath": "price"
+          },
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "property_charge_interval_frequency"
+          },
+          {
+            "fieldPath": "property_for_shipping_jan_3_rd_2020"
+          },
+          {
+            "fieldPath": "property_shipping_interval_frequency"
+          },
+          {
+            "fieldPath": "property_shipping_interval_unit_type"
+          },
+          {
+            "fieldPath": "property_subscription_id"
+          },
+          {
+            "fieldPath": "quantity"
+          },
+          {
+            "fieldPath": "is_requiring_shipping"
+          },
+          {
+            "fieldPath": "sku"
+          },
+          {
+            "fieldPath": "is_taxable"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "total_discount"
+          },
+          {
+            "fieldPath": "variant_id"
+          },
+          {
+            "fieldPath": "vendor"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__order_line",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillable_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_service",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_gift_card",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "grams",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_line_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "index",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "pre_tax_price",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "property_charge_interval_frequency",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "property_for_shipping_jan_3_rd_2020",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "property_shipping_interval_frequency",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "property_shipping_interval_unit_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "property_subscription_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_requiring_shipping",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "sku",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_taxable",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_discount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "vendor",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "transaction_id"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "amount"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "processed_timestamp"
+          },
+          {
+            "fieldPath": "device_id"
+          },
+          {
+            "fieldPath": "gateway"
+          },
+          {
+            "fieldPath": "source_name"
+          },
+          {
+            "fieldPath": "message"
+          },
+          {
+            "fieldPath": "currency"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "parent_id"
+          },
+          {
+            "fieldPath": "payment_avs_result_code"
+          },
+          {
+            "fieldPath": "payment_credit_card_bin"
+          },
+          {
+            "fieldPath": "payment_cvv_result_code"
+          },
+          {
+            "fieldPath": "payment_credit_card_number"
+          },
+          {
+            "fieldPath": "payment_credit_card_company"
+          },
+          {
+            "fieldPath": "kind"
+          },
+          {
+            "fieldPath": "receipt"
+          },
+          {
+            "fieldPath": "currency_exchange_id"
+          },
+          {
+            "fieldPath": "currency_exchange_adjustment"
+          },
+          {
+            "fieldPath": "currency_exchange_original_amount"
+          },
+          {
+            "fieldPath": "currency_exchange_final_amount"
+          },
+          {
+            "fieldPath": "currency_exchange_currency"
+          },
+          {
+            "fieldPath": "error_code"
+          },
+          {
+            "fieldPath": "status"
+          },
+          {
+            "fieldPath": "test"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "source_relation"
+          },
+          {
+            "fieldPath": "exchange_rate"
+          },
+          {
+            "fieldPath": "currency_exchange_calculated_amount"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_shopify.shopify__transactions",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "transaction_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "processed_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "device_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "gateway",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "message",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "parent_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_avs_result_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_bin",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_cvv_result_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "kind",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "receipt",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_adjustment",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_original_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_final_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "error_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "test",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "exchange_rate",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "currency_exchange_calculated_amount",
+            "nativeType": "NUMBER"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "customer_id"
+          },
+          {
+            "fieldPath": "source_relation"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "has_accepted_marketing"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "default_address_id"
+          },
+          {
+            "fieldPath": "email"
+          },
+          {
+            "fieldPath": "first_name"
+          },
+          {
+            "fieldPath": "last_name"
+          },
+          {
+            "fieldPath": "phone"
+          },
+          {
+            "fieldPath": "account_state"
+          },
+          {
+            "fieldPath": "is_tax_exempt"
+          },
+          {
+            "fieldPath": "updated_timestamp"
+          },
+          {
+            "fieldPath": "is_verified_email"
+          },
+          {
+            "fieldPath": "first_order_timestamp"
+          },
+          {
+            "fieldPath": "most_recent_order_timestamp"
+          },
+          {
+            "fieldPath": "average_order_value"
+          },
+          {
+            "fieldPath": "lifetime_total_spent"
+          },
+          {
+            "fieldPath": "lifetime_total_refunded"
+          },
+          {
+            "fieldPath": "lifetime_total_amount"
+          },
+          {
+            "fieldPath": "lifetime_count_orders"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_shopify.shopify__customers",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "customer_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "has_accepted_marketing",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "default_address_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "account_state",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_tax_exempt",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_verified_email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "first_order_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "most_recent_order_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "average_order_value",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "lifetime_total_spent",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "lifetime_total_refunded",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "lifetime_total_amount",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "lifetime_count_orders",
+            "nativeType": "NUMBER"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:45:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_deleted"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "handle"
+          },
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "product_type"
+          },
+          {
+            "fieldPath": "published_timestamp"
+          },
+          {
+            "fieldPath": "published_scope"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "updated_timestamp"
+          },
+          {
+            "fieldPath": "vendor"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__product",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_deleted",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "handle",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "published_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "published_scope",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "vendor",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "date_day"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_shopify.shopify__calendar",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "date_day",
+            "nativeType": "DATE"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.001953125,
+        "lastUpdated": "2021-10-06T02:43:00+00:00",
+        "recordCount": 1008.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "order_line_refund_id"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "order_line_id"
+          },
+          {
+            "fieldPath": "subtotal"
+          },
+          {
+            "fieldPath": "total_tax"
+          },
+          {
+            "fieldPath": "quantity"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "restock_type"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__order_line_refund",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_line_refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_line_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "subtotal",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_tax",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "restock_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "note"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "processed_at"
+          },
+          {
+            "fieldPath": "restock"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__refund",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "restock",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "billing_address_address_1"
+          },
+          {
+            "fieldPath": "billing_address_address_2"
+          },
+          {
+            "fieldPath": "billing_address_city"
+          },
+          {
+            "fieldPath": "billing_address_company"
+          },
+          {
+            "fieldPath": "billing_address_country"
+          },
+          {
+            "fieldPath": "billing_address_country_code"
+          },
+          {
+            "fieldPath": "billing_address_first_name"
+          },
+          {
+            "fieldPath": "billing_address_last_name"
+          },
+          {
+            "fieldPath": "billing_address_latitude"
+          },
+          {
+            "fieldPath": "billing_address_longitude"
+          },
+          {
+            "fieldPath": "billing_address_name"
+          },
+          {
+            "fieldPath": "billing_address_phone"
+          },
+          {
+            "fieldPath": "billing_address_province"
+          },
+          {
+            "fieldPath": "billing_address_province_code"
+          },
+          {
+            "fieldPath": "billing_address_zip"
+          },
+          {
+            "fieldPath": "browser_ip"
+          },
+          {
+            "fieldPath": "has_buyer_accepted_marketing"
+          },
+          {
+            "fieldPath": "cancel_reason"
+          },
+          {
+            "fieldPath": "cancelled_timestamp"
+          },
+          {
+            "fieldPath": "cart_token"
+          },
+          {
+            "fieldPath": "checkout_token"
+          },
+          {
+            "fieldPath": "closed_timestamp"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "currency"
+          },
+          {
+            "fieldPath": "customer_id"
+          },
+          {
+            "fieldPath": "email"
+          },
+          {
+            "fieldPath": "financial_status"
+          },
+          {
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "landing_site_base_url"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "note"
+          },
+          {
+            "fieldPath": "number"
+          },
+          {
+            "fieldPath": "order_number"
+          },
+          {
+            "fieldPath": "processed_timestamp"
+          },
+          {
+            "fieldPath": "processing_method"
+          },
+          {
+            "fieldPath": "referring_site"
+          },
+          {
+            "fieldPath": "total_shipping_price_set"
+          },
+          {
+            "fieldPath": "shipping_address_address_1"
+          },
+          {
+            "fieldPath": "shipping_address_address_2"
+          },
+          {
+            "fieldPath": "shipping_address_city"
+          },
+          {
+            "fieldPath": "shipping_address_company"
+          },
+          {
+            "fieldPath": "shipping_address_country"
+          },
+          {
+            "fieldPath": "shipping_address_country_code"
+          },
+          {
+            "fieldPath": "shipping_address_first_name"
+          },
+          {
+            "fieldPath": "shipping_address_last_name"
+          },
+          {
+            "fieldPath": "shipping_address_latitude"
+          },
+          {
+            "fieldPath": "shipping_address_longitude"
+          },
+          {
+            "fieldPath": "shipping_address_name"
+          },
+          {
+            "fieldPath": "shipping_address_phone"
+          },
+          {
+            "fieldPath": "shipping_address_province"
+          },
+          {
+            "fieldPath": "shipping_address_province_code"
+          },
+          {
+            "fieldPath": "shipping_address_zip"
+          },
+          {
+            "fieldPath": "source_name"
+          },
+          {
+            "fieldPath": "subtotal_price"
+          },
+          {
+            "fieldPath": "has_taxes_included"
+          },
+          {
+            "fieldPath": "is_test_order"
+          },
+          {
+            "fieldPath": "token"
+          },
+          {
+            "fieldPath": "total_discounts"
+          },
+          {
+            "fieldPath": "total_line_items_price"
+          },
+          {
+            "fieldPath": "total_price"
+          },
+          {
+            "fieldPath": "total_tax"
+          },
+          {
+            "fieldPath": "total_weight"
+          },
+          {
+            "fieldPath": "updated_timestamp"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "source_relation"
+          },
+          {
+            "fieldPath": "shipping_cost"
+          },
+          {
+            "fieldPath": "order_adjustment_amount"
+          },
+          {
+            "fieldPath": "order_adjustment_tax_amount"
+          },
+          {
+            "fieldPath": "refund_subtotal"
+          },
+          {
+            "fieldPath": "refund_total_tax"
+          },
+          {
+            "fieldPath": "order_adjusted_total"
+          },
+          {
+            "fieldPath": "line_item_count"
+          },
+          {
+            "fieldPath": "customer_order_seq_number"
+          },
+          {
+            "fieldPath": "new_vs_repeat"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_shopify.shopify__orders",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_address_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_address_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_city",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_country",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_country_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_latitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_longitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_province",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_province_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_zip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "browser_ip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "has_buyer_accepted_marketing",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cancel_reason",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cancelled_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cart_token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "checkout_token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "closed_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "customer_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "financial_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "landing_site_base_url",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processing_method",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "referring_site",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_shipping_price_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_address_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_address_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_city",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_country",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_country_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_latitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_longitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_province",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_province_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_zip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "subtotal_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "has_taxes_included",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_test_order",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_discounts",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_line_items_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_tax",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_weight",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_cost",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "order_adjustment_amount",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "order_adjustment_tax_amount",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "refund_subtotal",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "refund_total_tax",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "order_adjusted_total",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "line_item_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "customer_order_seq_number",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "new_vs_repeat",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "date_month"
+          },
+          {
+            "fieldPath": "customer_id"
+          },
+          {
+            "fieldPath": "first_order_timestamp"
+          },
+          {
+            "fieldPath": "cohort_month"
+          },
+          {
+            "fieldPath": "source_relation"
+          },
+          {
+            "fieldPath": "order_count_in_month"
+          },
+          {
+            "fieldPath": "total_price_in_month"
+          },
+          {
+            "fieldPath": "line_item_count_in_month"
+          },
+          {
+            "fieldPath": "total_price_lifetime"
+          },
+          {
+            "fieldPath": "order_count_lifetime"
+          },
+          {
+            "fieldPath": "line_item_count_lifetime"
+          },
+          {
+            "fieldPath": "cohort_month_number"
+          },
+          {
+            "fieldPath": "customer_cohort_id"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_shopify.shopify__customer_cohorts",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "date_month",
+            "nativeType": "DATE"
+          },
+          {
+            "fieldPath": "customer_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "first_order_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "cohort_month",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_count_in_month",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "total_price_in_month",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "line_item_count_in_month",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "total_price_lifetime",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "order_count_lifetime",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "line_item_count_lifetime",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "cohort_month_number",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "customer_cohort_id",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:45:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "processed_at"
+          },
+          {
+            "fieldPath": "note"
+          },
+          {
+            "fieldPath": "restock"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "total_duties_set"
+          },
+          {
+            "fieldPath": "order_id"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__refund_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "restock",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_duties_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "order_adjustment_id"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "amount"
+          },
+          {
+            "fieldPath": "tax_amount"
+          },
+          {
+            "fieldPath": "kind"
+          },
+          {
+            "fieldPath": "reason"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__order_adjustment",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "order_adjustment_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "kind",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "reason",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "transaction_id"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "amount"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "processed_timestamp"
+          },
+          {
+            "fieldPath": "device_id"
+          },
+          {
+            "fieldPath": "gateway"
+          },
+          {
+            "fieldPath": "source_name"
+          },
+          {
+            "fieldPath": "message"
+          },
+          {
+            "fieldPath": "currency"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "parent_id"
+          },
+          {
+            "fieldPath": "payment_avs_result_code"
+          },
+          {
+            "fieldPath": "payment_credit_card_bin"
+          },
+          {
+            "fieldPath": "payment_cvv_result_code"
+          },
+          {
+            "fieldPath": "payment_credit_card_number"
+          },
+          {
+            "fieldPath": "payment_credit_card_company"
+          },
+          {
+            "fieldPath": "kind"
+          },
+          {
+            "fieldPath": "receipt"
+          },
+          {
+            "fieldPath": "currency_exchange_id"
+          },
+          {
+            "fieldPath": "currency_exchange_adjustment"
+          },
+          {
+            "fieldPath": "currency_exchange_original_amount"
+          },
+          {
+            "fieldPath": "currency_exchange_final_amount"
+          },
+          {
+            "fieldPath": "currency_exchange_currency"
+          },
+          {
+            "fieldPath": "error_code"
+          },
+          {
+            "fieldPath": "status"
+          },
+          {
+            "fieldPath": "test"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__transaction",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "transaction_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "processed_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "device_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "gateway",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "message",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "parent_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_avs_result_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_bin",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_cvv_result_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "kind",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "receipt",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_adjustment",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_original_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_final_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "error_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "test",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "billing_address_address_1"
+          },
+          {
+            "fieldPath": "billing_address_address_2"
+          },
+          {
+            "fieldPath": "billing_address_city"
+          },
+          {
+            "fieldPath": "billing_address_company"
+          },
+          {
+            "fieldPath": "billing_address_country"
+          },
+          {
+            "fieldPath": "billing_address_country_code"
+          },
+          {
+            "fieldPath": "billing_address_first_name"
+          },
+          {
+            "fieldPath": "billing_address_last_name"
+          },
+          {
+            "fieldPath": "billing_address_latitude"
+          },
+          {
+            "fieldPath": "billing_address_longitude"
+          },
+          {
+            "fieldPath": "billing_address_name"
+          },
+          {
+            "fieldPath": "billing_address_phone"
+          },
+          {
+            "fieldPath": "billing_address_province"
+          },
+          {
+            "fieldPath": "billing_address_province_code"
+          },
+          {
+            "fieldPath": "billing_address_zip"
+          },
+          {
+            "fieldPath": "browser_ip"
+          },
+          {
+            "fieldPath": "has_buyer_accepted_marketing"
+          },
+          {
+            "fieldPath": "cancel_reason"
+          },
+          {
+            "fieldPath": "cancelled_timestamp"
+          },
+          {
+            "fieldPath": "cart_token"
+          },
+          {
+            "fieldPath": "checkout_token"
+          },
+          {
+            "fieldPath": "closed_timestamp"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "currency"
+          },
+          {
+            "fieldPath": "customer_id"
+          },
+          {
+            "fieldPath": "email"
+          },
+          {
+            "fieldPath": "financial_status"
+          },
+          {
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "landing_site_base_url"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "note"
+          },
+          {
+            "fieldPath": "number"
+          },
+          {
+            "fieldPath": "order_number"
+          },
+          {
+            "fieldPath": "processed_timestamp"
+          },
+          {
+            "fieldPath": "processing_method"
+          },
+          {
+            "fieldPath": "referring_site"
+          },
+          {
+            "fieldPath": "total_shipping_price_set"
+          },
+          {
+            "fieldPath": "shipping_address_address_1"
+          },
+          {
+            "fieldPath": "shipping_address_address_2"
+          },
+          {
+            "fieldPath": "shipping_address_city"
+          },
+          {
+            "fieldPath": "shipping_address_company"
+          },
+          {
+            "fieldPath": "shipping_address_country"
+          },
+          {
+            "fieldPath": "shipping_address_country_code"
+          },
+          {
+            "fieldPath": "shipping_address_first_name"
+          },
+          {
+            "fieldPath": "shipping_address_last_name"
+          },
+          {
+            "fieldPath": "shipping_address_latitude"
+          },
+          {
+            "fieldPath": "shipping_address_longitude"
+          },
+          {
+            "fieldPath": "shipping_address_name"
+          },
+          {
+            "fieldPath": "shipping_address_phone"
+          },
+          {
+            "fieldPath": "shipping_address_province"
+          },
+          {
+            "fieldPath": "shipping_address_province_code"
+          },
+          {
+            "fieldPath": "shipping_address_zip"
+          },
+          {
+            "fieldPath": "source_name"
+          },
+          {
+            "fieldPath": "subtotal_price"
+          },
+          {
+            "fieldPath": "has_taxes_included"
+          },
+          {
+            "fieldPath": "is_test_order"
+          },
+          {
+            "fieldPath": "token"
+          },
+          {
+            "fieldPath": "total_discounts"
+          },
+          {
+            "fieldPath": "total_line_items_price"
+          },
+          {
+            "fieldPath": "total_price"
+          },
+          {
+            "fieldPath": "total_tax"
+          },
+          {
+            "fieldPath": "total_weight"
+          },
+          {
+            "fieldPath": "updated_timestamp"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__order",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_address_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_address_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_city",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_country",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_country_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_latitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_longitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_province",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_province_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_zip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "browser_ip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "has_buyer_accepted_marketing",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cancel_reason",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cancelled_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cart_token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "checkout_token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "closed_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "customer_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "financial_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "landing_site_base_url",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processing_method",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "referring_site",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_shipping_price_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_address_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_address_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_city",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_country",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_country_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_latitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_longitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_province",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_province_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_zip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "subtotal_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "has_taxes_included",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_test_order",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_discounts",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_line_items_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_tax",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_weight",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "transaction_id"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "amount"
+          },
+          {
+            "fieldPath": "authorization"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "processed_timestamp"
+          },
+          {
+            "fieldPath": "device_id"
+          },
+          {
+            "fieldPath": "gateway"
+          },
+          {
+            "fieldPath": "source_name"
+          },
+          {
+            "fieldPath": "message"
+          },
+          {
+            "fieldPath": "currency"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "parent_id"
+          },
+          {
+            "fieldPath": "payment_avs_result_code"
+          },
+          {
+            "fieldPath": "payment_credit_card_bin"
+          },
+          {
+            "fieldPath": "payment_cvv_result_code"
+          },
+          {
+            "fieldPath": "payment_credit_card_number"
+          },
+          {
+            "fieldPath": "payment_credit_card_company"
+          },
+          {
+            "fieldPath": "kind"
+          },
+          {
+            "fieldPath": "receipt"
+          },
+          {
+            "fieldPath": "currency_exchange_id"
+          },
+          {
+            "fieldPath": "currency_exchange_adjustment"
+          },
+          {
+            "fieldPath": "currency_exchange_original_amount"
+          },
+          {
+            "fieldPath": "currency_exchange_final_amount"
+          },
+          {
+            "fieldPath": "currency_exchange_currency"
+          },
+          {
+            "fieldPath": "error_code"
+          },
+          {
+            "fieldPath": "status"
+          },
+          {
+            "fieldPath": "test"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__transaction_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "transaction_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "authorization",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "device_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "gateway",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "message",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "parent_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_avs_result_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_bin",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_cvv_result_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "kind",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "receipt",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_adjustment",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_original_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_final_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "error_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "test",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "app_id"
+          },
+          {
+            "fieldPath": "billing_address_address_1"
+          },
+          {
+            "fieldPath": "billing_address_address_2"
+          },
+          {
+            "fieldPath": "billing_address_city"
+          },
+          {
+            "fieldPath": "billing_address_company"
+          },
+          {
+            "fieldPath": "billing_address_country"
+          },
+          {
+            "fieldPath": "billing_address_country_code"
+          },
+          {
+            "fieldPath": "billing_address_first_name"
+          },
+          {
+            "fieldPath": "billing_address_last_name"
+          },
+          {
+            "fieldPath": "billing_address_latitude"
+          },
+          {
+            "fieldPath": "billing_address_longitude"
+          },
+          {
+            "fieldPath": "billing_address_name"
+          },
+          {
+            "fieldPath": "billing_address_phone"
+          },
+          {
+            "fieldPath": "billing_address_province"
+          },
+          {
+            "fieldPath": "billing_address_province_code"
+          },
+          {
+            "fieldPath": "billing_address_zip"
+          },
+          {
+            "fieldPath": "browser_ip"
+          },
+          {
+            "fieldPath": "buyer_accepts_marketing"
+          },
+          {
+            "fieldPath": "cancel_reason"
+          },
+          {
+            "fieldPath": "cancelled_at"
+          },
+          {
+            "fieldPath": "cart_token"
+          },
+          {
+            "fieldPath": "closed_at"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "currency"
+          },
+          {
+            "fieldPath": "customer_id"
+          },
+          {
+            "fieldPath": "email"
+          },
+          {
+            "fieldPath": "financial_status"
+          },
+          {
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "landing_site_base_url"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "note"
+          },
+          {
+            "fieldPath": "number"
+          },
+          {
+            "fieldPath": "order_number"
+          },
+          {
+            "fieldPath": "processed_at"
+          },
+          {
+            "fieldPath": "processing_method"
+          },
+          {
+            "fieldPath": "referring_site"
+          },
+          {
+            "fieldPath": "shipping_address_address_1"
+          },
+          {
+            "fieldPath": "shipping_address_address_2"
+          },
+          {
+            "fieldPath": "shipping_address_city"
+          },
+          {
+            "fieldPath": "shipping_address_company"
+          },
+          {
+            "fieldPath": "shipping_address_country"
+          },
+          {
+            "fieldPath": "shipping_address_country_code"
+          },
+          {
+            "fieldPath": "shipping_address_first_name"
+          },
+          {
+            "fieldPath": "shipping_address_last_name"
+          },
+          {
+            "fieldPath": "shipping_address_latitude"
+          },
+          {
+            "fieldPath": "shipping_address_longitude"
+          },
+          {
+            "fieldPath": "shipping_address_name"
+          },
+          {
+            "fieldPath": "shipping_address_phone"
+          },
+          {
+            "fieldPath": "shipping_address_province"
+          },
+          {
+            "fieldPath": "shipping_address_province_code"
+          },
+          {
+            "fieldPath": "shipping_address_zip"
+          },
+          {
+            "fieldPath": "source_name"
+          },
+          {
+            "fieldPath": "subtotal_price"
+          },
+          {
+            "fieldPath": "taxes_included"
+          },
+          {
+            "fieldPath": "test"
+          },
+          {
+            "fieldPath": "token"
+          },
+          {
+            "fieldPath": "total_discounts"
+          },
+          {
+            "fieldPath": "total_line_items_price"
+          },
+          {
+            "fieldPath": "total_price"
+          },
+          {
+            "fieldPath": "total_tax"
+          },
+          {
+            "fieldPath": "total_weight"
+          },
+          {
+            "fieldPath": "updated_at"
+          },
+          {
+            "fieldPath": "user_id"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__order_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "app_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_address_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_address_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_city",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_country",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_country_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_latitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_longitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_province",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_province_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_zip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "browser_ip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "buyer_accepts_marketing",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cancel_reason",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cancelled_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cart_token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "closed_at",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "customer_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "financial_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "landing_site_base_url",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processing_method",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "referring_site",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_address_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_address_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_city",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_country",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_country_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_latitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_longitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_province",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_province_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_zip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "subtotal_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "taxes_included",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "test",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_discounts",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_line_items_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_tax",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_weight",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "barcode"
+          },
+          {
+            "fieldPath": "compare_at_price"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "fieldPath": "grams"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "image_id"
+          },
+          {
+            "fieldPath": "inventory_item_id"
+          },
+          {
+            "fieldPath": "inventory_management"
+          },
+          {
+            "fieldPath": "inventory_policy"
+          },
+          {
+            "fieldPath": "inventory_quantity"
+          },
+          {
+            "fieldPath": "old_inventory_quantity"
+          },
+          {
+            "fieldPath": "option_1"
+          },
+          {
+            "fieldPath": "option_2"
+          },
+          {
+            "fieldPath": "option_3"
+          },
+          {
+            "fieldPath": "position"
+          },
+          {
+            "fieldPath": "price"
+          },
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "requires_shipping"
+          },
+          {
+            "fieldPath": "sku"
+          },
+          {
+            "fieldPath": "taxable"
+          },
+          {
+            "fieldPath": "tax_code"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "updated_at"
+          },
+          {
+            "fieldPath": "weight"
+          },
+          {
+            "fieldPath": "weight_unit"
+          },
+          {
+            "fieldPath": "total_shipping_price_set"
+          },
+          {
+            "fieldPath": "index"
+          },
+          {
+            "fieldPath": "pre_tax_price"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__product_variant_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "barcode",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "compare_at_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_service",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "grams",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "image_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_item_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_management",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_policy",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "old_inventory_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_3",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "requires_shipping",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "sku",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "taxable",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "weight",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "weight_unit",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_shipping_price_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "index",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "pre_tax_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "variant_id"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "updated_timestamp"
+          },
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "inventory_item_id"
+          },
+          {
+            "fieldPath": "image_id"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "price"
+          },
+          {
+            "fieldPath": "sku"
+          },
+          {
+            "fieldPath": "position"
+          },
+          {
+            "fieldPath": "inventory_policy"
+          },
+          {
+            "fieldPath": "compare_at_price"
+          },
+          {
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "fieldPath": "inventory_management"
+          },
+          {
+            "fieldPath": "is_taxable"
+          },
+          {
+            "fieldPath": "barcode"
+          },
+          {
+            "fieldPath": "grams"
+          },
+          {
+            "fieldPath": "inventory_quantity"
+          },
+          {
+            "fieldPath": "weight"
+          },
+          {
+            "fieldPath": "weight_unit"
+          },
+          {
+            "fieldPath": "option_1"
+          },
+          {
+            "fieldPath": "option_2"
+          },
+          {
+            "fieldPath": "option_3"
+          },
+          {
+            "fieldPath": "tax_code"
+          },
+          {
+            "fieldPath": "old_inventory_quantity"
+          },
+          {
+            "fieldPath": "is_requiring_shipping"
+          },
+          {
+            "fieldPath": "source_relation"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__product_variant",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "variant_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_item_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "image_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "sku",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_policy",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "compare_at_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_service",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_management",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_taxable",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "barcode",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "grams",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "weight",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "weight_unit",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_3",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "old_inventory_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "is_requiring_shipping",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "source_relation"
+          },
+          {
+            "fieldPath": "_fivetran_deleted"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "handle"
+          },
+          {
+            "fieldPath": "product_type"
+          },
+          {
+            "fieldPath": "published_timestamp"
+          },
+          {
+            "fieldPath": "published_scope"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "updated_timestamp"
+          },
+          {
+            "fieldPath": "vendor"
+          },
+          {
+            "fieldPath": "quantity_sold"
+          },
+          {
+            "fieldPath": "subtotal_sold"
+          },
+          {
+            "fieldPath": "quantity_sold_net_refunds"
+          },
+          {
+            "fieldPath": "subtotal_sold_net_refunds"
+          },
+          {
+            "fieldPath": "first_order_timestamp"
+          },
+          {
+            "fieldPath": "most_recent_order_timestamp"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_shopify.shopify__products",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_relation",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_deleted",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "handle",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "published_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "published_scope",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "vendor",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "quantity_sold",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "subtotal_sold",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "quantity_sold_net_refunds",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "subtotal_sold_net_refunds",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "first_order_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "most_recent_order_timestamp",
+            "nativeType": "TIMESTAMP_NTZ"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:44:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "fulfillable_quantity"
+          },
+          {
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "fieldPath": "gift_card"
+          },
+          {
+            "fieldPath": "grams"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "price"
+          },
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "quantity"
+          },
+          {
+            "fieldPath": "requires_shipping"
+          },
+          {
+            "fieldPath": "sku"
+          },
+          {
+            "fieldPath": "taxable"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "total_discount"
+          },
+          {
+            "fieldPath": "variant_id"
+          },
+          {
+            "fieldPath": "vendor"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev_stg_shopify.stg_shopify__order_line_tmp",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillable_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_service",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "gift_card",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "grams",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "requires_shipping",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "sku",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "taxable",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_discount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "vendor",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "transaction_id"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "amount"
+          },
+          {
+            "fieldPath": "authorization"
+          },
+          {
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "fieldPath": "processed_timestamp"
+          },
+          {
+            "fieldPath": "device_id"
+          },
+          {
+            "fieldPath": "gateway"
+          },
+          {
+            "fieldPath": "source_name"
+          },
+          {
+            "fieldPath": "message"
+          },
+          {
+            "fieldPath": "currency"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "parent_id"
+          },
+          {
+            "fieldPath": "payment_avs_result_code"
+          },
+          {
+            "fieldPath": "payment_credit_card_bin"
+          },
+          {
+            "fieldPath": "payment_cvv_result_code"
+          },
+          {
+            "fieldPath": "payment_credit_card_number"
+          },
+          {
+            "fieldPath": "payment_credit_card_company"
+          },
+          {
+            "fieldPath": "kind"
+          },
+          {
+            "fieldPath": "receipt"
+          },
+          {
+            "fieldPath": "currency_exchange_id"
+          },
+          {
+            "fieldPath": "currency_exchange_adjustment"
+          },
+          {
+            "fieldPath": "currency_exchange_original_amount"
+          },
+          {
+            "fieldPath": "currency_exchange_final_amount"
+          },
+          {
+            "fieldPath": "currency_exchange_currency"
+          },
+          {
+            "fieldPath": "error_code"
+          },
+          {
+            "fieldPath": "status"
+          },
+          {
+            "fieldPath": "test"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.transaction",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "transaction_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "authorization",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_timestamp",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "device_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "gateway",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "message",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "parent_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_avs_result_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_bin",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_cvv_result_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "payment_credit_card_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "kind",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "receipt",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_adjustment",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_original_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_final_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "currency_exchange_currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "error_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "test",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "processed_at"
+          },
+          {
+            "fieldPath": "note"
+          },
+          {
+            "fieldPath": "restock"
+          },
+          {
+            "fieldPath": "user_id"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "total_duties_set"
+          },
+          {
+            "fieldPath": "order_id"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.refund",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "restock",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_duties_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "barcode"
+          },
+          {
+            "fieldPath": "compare_at_price"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "fieldPath": "grams"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "image_id"
+          },
+          {
+            "fieldPath": "inventory_item_id"
+          },
+          {
+            "fieldPath": "inventory_management"
+          },
+          {
+            "fieldPath": "inventory_policy"
+          },
+          {
+            "fieldPath": "inventory_quantity"
+          },
+          {
+            "fieldPath": "old_inventory_quantity"
+          },
+          {
+            "fieldPath": "option_1"
+          },
+          {
+            "fieldPath": "option_2"
+          },
+          {
+            "fieldPath": "option_3"
+          },
+          {
+            "fieldPath": "position"
+          },
+          {
+            "fieldPath": "price"
+          },
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "requires_shipping"
+          },
+          {
+            "fieldPath": "sku"
+          },
+          {
+            "fieldPath": "taxable"
+          },
+          {
+            "fieldPath": "tax_code"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "updated_at"
+          },
+          {
+            "fieldPath": "weight"
+          },
+          {
+            "fieldPath": "weight_unit"
+          },
+          {
+            "fieldPath": "total_shipping_price_set"
+          },
+          {
+            "fieldPath": "index"
+          },
+          {
+            "fieldPath": "pre_tax_price"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.product_variant",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "barcode",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "compare_at_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_service",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "grams",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "image_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_item_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_management",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_policy",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "inventory_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "old_inventory_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "option_3",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "requires_shipping",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "sku",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "taxable",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "weight",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "weight_unit",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_shipping_price_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "index",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "pre_tax_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_deleted"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "handle"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "product_type"
+          },
+          {
+            "fieldPath": "published_at"
+          },
+          {
+            "fieldPath": "published_scope"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "updated_at"
+          },
+          {
+            "fieldPath": "vendor"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.product",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_deleted",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "handle",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "published_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "published_scope",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "vendor",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "order_line_id"
+          },
+          {
+            "fieldPath": "quantity"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "restock_type"
+          },
+          {
+            "fieldPath": "subtotal"
+          },
+          {
+            "fieldPath": "total_tax"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.order_line_refund",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_line_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "restock_type",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "subtotal",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_tax",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "fulfillable_quantity"
+          },
+          {
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "fieldPath": "gift_card"
+          },
+          {
+            "fieldPath": "grams"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "price"
+          },
+          {
+            "fieldPath": "product_id"
+          },
+          {
+            "fieldPath": "quantity"
+          },
+          {
+            "fieldPath": "requires_shipping"
+          },
+          {
+            "fieldPath": "sku"
+          },
+          {
+            "fieldPath": "taxable"
+          },
+          {
+            "fieldPath": "title"
+          },
+          {
+            "fieldPath": "total_discount"
+          },
+          {
+            "fieldPath": "variant_id"
+          },
+          {
+            "fieldPath": "vendor"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.order_line",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillable_quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_service",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "gift_card",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "grams",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "product_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "quantity",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "requires_shipping",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "sku",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "taxable",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_discount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "variant_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "vendor",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "order_id"
+          },
+          {
+            "fieldPath": "refund_id"
+          },
+          {
+            "fieldPath": "amount"
+          },
+          {
+            "fieldPath": "tax_amount"
+          },
+          {
+            "fieldPath": "kind"
+          },
+          {
+            "fieldPath": "reason"
+          },
+          {
+            "fieldPath": "amount_set"
+          },
+          {
+            "fieldPath": "tax_amount_set"
+          },
+          {
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.order_adjustment",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "refund_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_amount",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "kind",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "reason",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "amount_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_amount_set",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "app_id"
+          },
+          {
+            "fieldPath": "billing_address_address_1"
+          },
+          {
+            "fieldPath": "billing_address_address_2"
+          },
+          {
+            "fieldPath": "billing_address_city"
+          },
+          {
+            "fieldPath": "billing_address_company"
+          },
+          {
+            "fieldPath": "billing_address_country"
+          },
+          {
+            "fieldPath": "billing_address_country_code"
+          },
+          {
+            "fieldPath": "billing_address_first_name"
+          },
+          {
+            "fieldPath": "billing_address_last_name"
+          },
+          {
+            "fieldPath": "billing_address_latitude"
+          },
+          {
+            "fieldPath": "billing_address_longitude"
+          },
+          {
+            "fieldPath": "billing_address_name"
+          },
+          {
+            "fieldPath": "billing_address_phone"
+          },
+          {
+            "fieldPath": "billing_address_province"
+          },
+          {
+            "fieldPath": "billing_address_province_code"
+          },
+          {
+            "fieldPath": "billing_address_zip"
+          },
+          {
+            "fieldPath": "browser_ip"
+          },
+          {
+            "fieldPath": "buyer_accepts_marketing"
+          },
+          {
+            "fieldPath": "cancel_reason"
+          },
+          {
+            "fieldPath": "cancelled_at"
+          },
+          {
+            "fieldPath": "cart_token"
+          },
+          {
+            "fieldPath": "closed_at"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "currency"
+          },
+          {
+            "fieldPath": "customer_id"
+          },
+          {
+            "fieldPath": "email"
+          },
+          {
+            "fieldPath": "financial_status"
+          },
+          {
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "landing_site_base_url"
+          },
+          {
+            "fieldPath": "location_id"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "note"
+          },
+          {
+            "fieldPath": "number"
+          },
+          {
+            "fieldPath": "order_number"
+          },
+          {
+            "fieldPath": "processed_at"
+          },
+          {
+            "fieldPath": "processing_method"
+          },
+          {
+            "fieldPath": "referring_site"
+          },
+          {
+            "fieldPath": "shipping_address_address_1"
+          },
+          {
+            "fieldPath": "shipping_address_address_2"
+          },
+          {
+            "fieldPath": "shipping_address_city"
+          },
+          {
+            "fieldPath": "shipping_address_company"
+          },
+          {
+            "fieldPath": "shipping_address_country"
+          },
+          {
+            "fieldPath": "shipping_address_country_code"
+          },
+          {
+            "fieldPath": "shipping_address_first_name"
+          },
+          {
+            "fieldPath": "shipping_address_last_name"
+          },
+          {
+            "fieldPath": "shipping_address_latitude"
+          },
+          {
+            "fieldPath": "shipping_address_longitude"
+          },
+          {
+            "fieldPath": "shipping_address_name"
+          },
+          {
+            "fieldPath": "shipping_address_phone"
+          },
+          {
+            "fieldPath": "shipping_address_province"
+          },
+          {
+            "fieldPath": "shipping_address_province_code"
+          },
+          {
+            "fieldPath": "shipping_address_zip"
+          },
+          {
+            "fieldPath": "source_name"
+          },
+          {
+            "fieldPath": "subtotal_price"
+          },
+          {
+            "fieldPath": "taxes_included"
+          },
+          {
+            "fieldPath": "test"
+          },
+          {
+            "fieldPath": "token"
+          },
+          {
+            "fieldPath": "total_discounts"
+          },
+          {
+            "fieldPath": "total_line_items_price"
+          },
+          {
+            "fieldPath": "total_price"
+          },
+          {
+            "fieldPath": "total_tax"
+          },
+          {
+            "fieldPath": "total_weight"
+          },
+          {
+            "fieldPath": "updated_at"
+          },
+          {
+            "fieldPath": "user_id"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.order",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "app_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_address_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_address_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_city",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_country",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_country_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_latitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_longitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_province",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_province_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "billing_address_zip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "browser_ip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "buyer_accepts_marketing",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cancel_reason",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cancelled_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "cart_token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "closed_at",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "currency",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "customer_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "financial_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "fulfillment_status",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "landing_site_base_url",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "location_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "order_number",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processed_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "processing_method",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "referring_site",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_address_1",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_address_2",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_city",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_company",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_country",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_country_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_latitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_longitude",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_province",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_province_code",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "shipping_address_zip",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "source_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "subtotal_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "taxes_included",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "test",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "token",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_discounts",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_line_items_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_price",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_tax",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_weight",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "user_id",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "fieldPath": "accepts_marketing"
+          },
+          {
+            "fieldPath": "created_at"
+          },
+          {
+            "fieldPath": "default_address_id"
+          },
+          {
+            "fieldPath": "email"
+          },
+          {
+            "fieldPath": "first_name"
+          },
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "last_name"
+          },
+          {
+            "fieldPath": "orders_count"
+          },
+          {
+            "fieldPath": "phone"
+          },
+          {
+            "fieldPath": "state"
+          },
+          {
+            "fieldPath": "tax_exempt"
+          },
+          {
+            "fieldPath": "total_spent"
+          },
+          {
+            "fieldPath": "updated_at"
+          },
+          {
+            "fieldPath": "verified_email"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.customer",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "_fivetran_synced",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "accepts_marketing",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "default_address_id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "first_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "last_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "orders_count",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "phone",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "state",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "tax_exempt",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "total_spent",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "updated_at",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "verified_email",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T02:40:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  }
+]

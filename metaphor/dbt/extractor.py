@@ -382,7 +382,7 @@ class DbtExtractor(BaseExtractor):
             columns = []
             if test.columns:
                 columns = list(test.columns.keys())
-            elif test.columns:
+            elif test.column_name:
                 columns = [test.column_name]
 
             dbt_test = DbtTest(

@@ -1,0 +1,1077 @@
+[
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "This table contains a transformed version of the raw_bike_hires table, which includes additional calculated fields such as creating a duration in minutes field.  Each ride has been aggregated so any journey that starts and ends at the same station, in the same month and roughly time of day are  aggregated together to get the total minutes similar journeys have taken.\n"
+        ],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "total_minutes",
+            "tests": [
+              "not_null",
+              "at_least_one"
+            ]
+          },
+          {
+            "fieldPath": "total_bike_hires"
+          },
+          {
+            "fieldPath": "month",
+            "tests": [
+              "not_null",
+              "at_least_one"
+            ]
+          },
+          {
+            "fieldPath": "start_peak_travel",
+            "tests": [
+              "accepted_values"
+            ]
+          },
+          {
+            "fieldPath": "same_station_flag",
+            "tests": [
+              "not_null"
+            ]
+          },
+          {
+            "fieldPath": "start_station_name",
+            "tests": [
+              "not_null"
+            ]
+          },
+          {
+            "fieldPath": "average_duration"
+          },
+          {
+            "fieldPath": "start_station_id"
+          },
+          {
+            "fieldPath": "end_station_id"
+          },
+          {
+            "fieldPath": "end_station_name"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev.cleaned_bike_rides",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "description": "This table contains a transformed version of the raw_bike_hires table, which includes additional calculated fields such as creating a duration in minutes field.  Each ride has been aggregated so any journey that starts and ends at the same station, in the same month and roughly time of day are  aggregated together to get the total minutes similar journeys have taken.\n",
+        "fields": [
+          {
+            "fieldPath": "total_minutes",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "total_bike_hires",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "month",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_peak_travel",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "same_station_flag",
+            "nativeType": "BOOLEAN"
+          },
+          {
+            "fieldPath": "start_station_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "average_duration",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_station_name",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL",
+        "sqlSchema": {
+          "tableSchema": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration_minutes) as total_minutes\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM DEV_DB.DBT_DEV.raw_bike_hires\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_minutes DESC"
+        }
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T01:23:00+00:00",
+        "recordCount": 0.0
+      },
+      "upstream": {
+        "sourceCodeUrl": "models/rides/cleaned_bike_rides.sql",
+        "sourceDatasets": [
+          "DATASET~A63EA13B24C8EEB3731EC3B631B037CF"
+        ]
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "This table contains all bike hires in London in 2017. This is the raw dataset so no cleaning or transformation."
+        ],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "rental_id"
+          },
+          {
+            "fieldPath": "duration_seconds"
+          },
+          {
+            "fieldPath": "duration_minutes"
+          },
+          {
+            "fieldPath": "bike_id"
+          },
+          {
+            "fieldPath": "start_date"
+          },
+          {
+            "fieldPath": "start_station_id"
+          },
+          {
+            "fieldPath": "start_station_name"
+          },
+          {
+            "fieldPath": "end_date"
+          },
+          {
+            "fieldPath": "end_station_id"
+          },
+          {
+            "fieldPath": "end_station_name"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev.raw_bike_hires",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "description": "This table contains all bike hires in London in 2017. This is the raw dataset so no cleaning or transformation.",
+        "fields": [
+          {
+            "fieldPath": "rental_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "duration_seconds",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "duration_minutes",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "bike_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_date",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "start_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "end_date",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "end_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_station_name",
+            "nativeType": "TEXT"
+          }
+        ],
+        "schemaType": "SQL",
+        "sqlSchema": {
+          "tableSchema": "SELECT \n    rental_id\n    , duration as duration_seconds\n    , duration / 60 as duration_minutes\n    , bike_id\n    , start_date\n    , start_station_id\n    , start_station_name\n    , end_date\n    , end_station_id\n    , end_station_name\nFROM  DEV_DB.london_bicycles.cycle_hire\nWHERE EXTRACT(year from start_date) = 2017"
+        }
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T01:23:00+00:00",
+        "recordCount": 0.0
+      },
+      "upstream": {
+        "sourceCodeUrl": "models/rides/raw_bike_hires.sql",
+        "sourceDatasets": [
+          "DATASET~1A16BB5D20E3C415D2DE357F23D70AC9"
+        ]
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "This table contains all bike stations in the London area. This only includes stations intalled before January 1, 2017 and doesn't include stations that were removed in 2017 (before Jan 1 2018). This is the raw data so no cleaning or transformation."
+        ],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "station_name"
+          },
+          {
+            "fieldPath": "bikes_count"
+          },
+          {
+            "fieldPath": "docks_count"
+          },
+          {
+            "fieldPath": "install_date"
+          },
+          {
+            "fieldPath": "removal_date"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev.raw_bike_stations",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "description": "This table contains all bike stations in the London area. This only includes stations intalled before January 1, 2017 and doesn't include stations that were removed in 2017 (before Jan 1 2018). This is the raw data so no cleaning or transformation.",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "station_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "bikes_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "docks_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "install_date",
+            "nativeType": "DATE"
+          },
+          {
+            "fieldPath": "removal_date",
+            "nativeType": "DATE"
+          }
+        ],
+        "schemaType": "SQL",
+        "sqlSchema": {
+          "tableSchema": "SELECT \n    id\n    , name as station_name\n    , bikes_count\n    , docks_count\n    , install_date\n    , removal_date\nFROM  DEV_DB.london_bicycles.cycle_stations\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)"
+        }
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T01:23:00+00:00",
+        "recordCount": 0.0
+      },
+      "upstream": {
+        "sourceCodeUrl": "models/rides/raw_bike_stations.sql",
+        "sourceDatasets": [
+          "DATASET~C071F4A4DF6111DBD75340527CBCC7B9"
+        ]
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          ""
+        ],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "total_minutes"
+          },
+          {
+            "fieldPath": "total_bike_hires"
+          },
+          {
+            "fieldPath": "average_duration"
+          },
+          {
+            "fieldPath": "month"
+          },
+          {
+            "fieldPath": "start_peak_travel"
+          },
+          {
+            "fieldPath": "same_station_flag"
+          },
+          {
+            "fieldPath": "start_station_id"
+          },
+          {
+            "fieldPath": "start_station_name"
+          },
+          {
+            "fieldPath": "start_station_bikes_count"
+          },
+          {
+            "fieldPath": "start_station_docks_count"
+          },
+          {
+            "fieldPath": "start_station_install_date"
+          },
+          {
+            "fieldPath": "end_station_id"
+          },
+          {
+            "fieldPath": "end_station_name"
+          },
+          {
+            "fieldPath": "end_station_bikes_count"
+          },
+          {
+            "fieldPath": "end_station_docks_count"
+          },
+          {
+            "fieldPath": "end_station_install_date"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev.rides_by_month_2017",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "description": "",
+        "fields": [
+          {
+            "fieldPath": "total_minutes",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "total_bike_hires",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "average_duration",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "month",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_peak_travel",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "same_station_flag",
+            "nativeType": "BOOLEAN"
+          },
+          {
+            "fieldPath": "start_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "start_station_bikes_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_docks_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_install_date",
+            "nativeType": "DATE"
+          },
+          {
+            "fieldPath": "end_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_station_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "end_station_bikes_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_station_docks_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_station_install_date",
+            "nativeType": "DATE"
+          }
+        ],
+        "schemaType": "SQL",
+        "sqlSchema": {
+          "tableSchema": "WITH stations AS (\n\n    SELECT *\n    FROM DEV_DB.DBT_DEV.raw_bike_stations\n\n),\n\nrides AS (\n\n    SELECT *\n    FROM DEV_DB.DBT_DEV.cleaned_bike_rides\n\n),\n\nstart_stat_join AS (\n\n    SELECT rides.*\n    , stations.bikes_count as start_station_bikes_count\n    , stations.docks_count as start_station_docks_count\n    , stations.install_date as start_station_install_date\n    FROM rides\n    LEFT JOIN stations\n    ON rides.start_station_id = stations.id\n)\n\nSELECT \n    total_minutes \n    , total_bike_hires \n    , average_duration \n    , month \n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count \n    , start_station_docks_count \n    , start_station_install_date \n    , end_station_id\n    , end_station_name\n    , stations.bikes_count as end_station_bikes_count\n    , stations.docks_count as end_station_docks_count\n    , stations.install_date as end_station_install_date\nFROM start_stat_join\nLEFT JOIN stations\nON start_stat_join.end_station_id = stations.id"
+        }
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T01:23:00+00:00",
+        "recordCount": 0.0
+      },
+      "upstream": {
+        "sourceCodeUrl": "models/rides/rides_by_month_2017.sql",
+        "sourceDatasets": [
+          "DATASET~EA80A6A5B9AB6AFED28F2F55C603BE20",
+          "DATASET~6331C49A5AEC90F77A1716FD0DEB0265"
+        ]
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          ""
+        ],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "total_minutes"
+          },
+          {
+            "fieldPath": "total_hours"
+          },
+          {
+            "fieldPath": "total_bike_hires"
+          },
+          {
+            "fieldPath": "average_duration_in_minutes"
+          },
+          {
+            "fieldPath": "month"
+          },
+          {
+            "fieldPath": "start_peak_travel"
+          },
+          {
+            "fieldPath": "same_station_flag"
+          },
+          {
+            "fieldPath": "start_station_id"
+          },
+          {
+            "fieldPath": "start_station_name"
+          },
+          {
+            "fieldPath": "start_station_bikes_count"
+          },
+          {
+            "fieldPath": "start_station_docks_count"
+          },
+          {
+            "fieldPath": "start_station_install_date"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev.rides_by_month_start_station_2017",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "description": "",
+        "fields": [
+          {
+            "fieldPath": "total_minutes",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "total_hours",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "total_bike_hires",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "average_duration_in_minutes",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "month",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_peak_travel",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "same_station_flag",
+            "nativeType": "BOOLEAN"
+          },
+          {
+            "fieldPath": "start_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "start_station_bikes_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_docks_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_install_date",
+            "nativeType": "DATE"
+          }
+        ],
+        "schemaType": "SQL",
+        "sqlSchema": {
+          "tableSchema": "SELECT \n    SUM(total_minutes) AS total_minutes\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\n    , SUM(total_bike_hires) AS total_bike_hires\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\n    , month\n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count\n    , start_station_docks_count\n    , start_station_install_date\nFROM DEV_DB.DBT_DEV.rides_by_month_2017\nGROUP BY 5,6,7,8,9,10,11,12\nORDER BY total_bike_hires DESC"
+        }
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T01:24:00+00:00",
+        "recordCount": 0.0
+      },
+      "upstream": {
+        "sourceCodeUrl": "models/rides/rides_by_month_start_station_2017.sql",
+        "sourceDatasets": [
+          "DATASET~5D2E27D9E2A964DAF3C66BA6288CFB61"
+        ]
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "rental_id"
+          },
+          {
+            "fieldPath": "duration"
+          },
+          {
+            "fieldPath": "bike_id"
+          },
+          {
+            "fieldPath": "end_date"
+          },
+          {
+            "fieldPath": "end_station_id"
+          },
+          {
+            "fieldPath": "end_station_name"
+          },
+          {
+            "fieldPath": "start_date"
+          },
+          {
+            "fieldPath": "start_station_id"
+          },
+          {
+            "fieldPath": "start_station_name"
+          },
+          {
+            "fieldPath": "end_station_logical_terminal"
+          },
+          {
+            "fieldPath": "start_station_logical_terminal"
+          },
+          {
+            "fieldPath": "end_station_priority_id"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.london_bicycles.cycle_hire",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "rental_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "duration",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "bike_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_date",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "end_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_station_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "start_date",
+            "nativeType": "TIMESTAMP_NTZ"
+          },
+          {
+            "fieldPath": "start_station_id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "end_station_logical_terminal",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "start_station_logical_terminal",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "end_station_priority_id",
+            "nativeType": "NUMBER"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T00:56:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [],
+        "fieldDocumentations": [
+          {
+            "fieldPath": "id"
+          },
+          {
+            "fieldPath": "installed"
+          },
+          {
+            "fieldPath": "latitude"
+          },
+          {
+            "fieldPath": "locked"
+          },
+          {
+            "fieldPath": "longitude"
+          },
+          {
+            "fieldPath": "name"
+          },
+          {
+            "fieldPath": "bikes_count"
+          },
+          {
+            "fieldPath": "docks_count"
+          },
+          {
+            "fieldPath": "nbemptydocks"
+          },
+          {
+            "fieldPath": "temporary"
+          },
+          {
+            "fieldPath": "terminal_name"
+          },
+          {
+            "fieldPath": "install_date"
+          },
+          {
+            "fieldPath": "removal_date"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.london_bicycles.cycle_stations",
+        "platform": "SNOWFLAKE"
+      },
+      "schema": {
+        "fields": [
+          {
+            "fieldPath": "id",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "installed",
+            "nativeType": "BOOLEAN"
+          },
+          {
+            "fieldPath": "latitude",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "locked",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "longitude",
+            "nativeType": "FLOAT"
+          },
+          {
+            "fieldPath": "name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "bikes_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "docks_count",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "nbemptydocks",
+            "nativeType": "NUMBER"
+          },
+          {
+            "fieldPath": "temporary",
+            "nativeType": "BOOLEAN"
+          },
+          {
+            "fieldPath": "terminal_name",
+            "nativeType": "TEXT"
+          },
+          {
+            "fieldPath": "install_date",
+            "nativeType": "DATE"
+          },
+          {
+            "fieldPath": "removal_date",
+            "nativeType": "DATE"
+          }
+        ],
+        "schemaType": "SQL"
+      },
+      "statistics": {
+        "dataSize": 0.0,
+        "lastUpdated": "2021-10-06T01:13:00+00:00",
+        "recordCount": 0.0
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration_minutes) as total_minutes\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM DEV_DB.DBT_DEV.raw_bike_hires\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_minutes DESC",
+        "description": "This table contains a transformed version of the raw_bike_hires table, which includes additional calculated fields such as creating a duration in minutes field.  Each ride has been aggregated so any journey that starts and ends at the same station, in the same month and roughly time of day are  aggregated together to get the total minutes similar journeys have taken.\n",
+        "fields": [
+          {
+            "description": "The total minutes of a particular journey in a month and general time of day.",
+            "fieldPath": "total_minutes",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "Total number of bike hires of the same journey in a particular month and time of day - not_null - dbt_utils.at_least_one",
+            "fieldPath": "total_bike_hires",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "Month the bike hire was in",
+            "fieldPath": "month",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "",
+            "fieldPath": "start_peak_travel",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "",
+            "fieldPath": "same_station_flag",
+            "nativeType": "Not Set"
+          },
+          {
+            "description": "",
+            "fieldPath": "start_station_name",
+            "nativeType": "Not Set"
+          }
+        ],
+        "materialization": {
+          "targetDataset": "DATASET~6331C49A5AEC90F77A1716FD0DEB0265",
+          "type": "TABLE"
+        },
+        "packageName": "london_bike_analysis",
+        "rawSql": "-- Adding extra fields including if the bike was rented during peak time \r\nSELECT\r\n    SUM(duration_minutes) as total_minutes\r\n    , COUNT(rental_id) as total_bike_hires\r\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\r\n    , EXTRACT(month from start_date) as month\r\n    , CASE\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\r\n        ELSE 'Off-Peak'\r\n      END AS start_peak_travel\r\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_station_id\r\n    , end_station_name\r\nFROM {{ ref('raw_bike_hires') }}\r\nGROUP BY 4,5,6,7,8,9,10\r\nORDER BY total_minutes DESC",
+        "sourceDatasets": [],
+        "sourceModels": [
+          "VIRTUAL_VIEW~AB431420AAB09A0DC1E238C1D2A8A423"
+        ],
+        "tags": [],
+        "tests": [
+          {
+            "columns": [
+              "total_minutes"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_cleaned_bike_rides_total_minutes",
+            "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.cleaned_bike_rides\nwhere total_minutes is null\n\n\n",
+            "uniqueId": "test.london_bike_analysis.not_null_cleaned_bike_rides_total_minutes.95033bce4a"
+          },
+          {
+            "columns": [
+              "total_minutes"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt_utils.test_at_least_one",
+              "macro.dbt_utils.default__test_at_least_one"
+            ],
+            "name": "dbt_utils_at_least_one_cleaned_bike_rides_total_minutes",
+            "sql": "\n\nselect *\nfrom (\n    select\n        \n        \n      count(total_minutes) as filler_column\n\n    from DEV_DB.DBT_DEV.cleaned_bike_rides\n\n    having count(total_minutes) = 0\n\n) validation_errors\n\n",
+            "uniqueId": "test.london_bike_analysis.dbt_utils_at_least_one_cleaned_bike_rides_total_minutes.06e197a501"
+          },
+          {
+            "columns": [
+              "month"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_cleaned_bike_rides_month",
+            "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.cleaned_bike_rides\nwhere month is null\n\n\n",
+            "uniqueId": "test.london_bike_analysis.not_null_cleaned_bike_rides_month.780f1df6b1"
+          },
+          {
+            "columns": [
+              "month"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt_utils.test_at_least_one",
+              "macro.dbt_utils.default__test_at_least_one"
+            ],
+            "name": "dbt_utils_at_least_one_cleaned_bike_rides_month",
+            "sql": "\n\nselect *\nfrom (\n    select\n        \n        \n      count(month) as filler_column\n\n    from DEV_DB.DBT_DEV.cleaned_bike_rides\n\n    having count(month) = 0\n\n) validation_errors\n\n",
+            "uniqueId": "test.london_bike_analysis.dbt_utils_at_least_one_cleaned_bike_rides_month.01c6ed36e2"
+          },
+          {
+            "columns": [
+              "start_peak_travel"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_accepted_values",
+              "macro.dbt.default__test_accepted_values"
+            ],
+            "name": "accepted_values_cleaned_bike_rides_start_peak_travel__Evening_Peak__Off_Peak__Morning_Peak",
+            "sql": "\n    \n    \n\nwith all_values as (\n\n    select\n        start_peak_travel as value_field,\n        count(*) as n_records\n\n    from DEV_DB.DBT_DEV.cleaned_bike_rides\n    group by 1\n\n)\n\nselect *\nfrom all_values\nwhere value_field not in (\n    'Evening Peak','Off-Peak','Morning Peak'\n)\n\n\n",
+            "uniqueId": "test.london_bike_analysis.accepted_values_cleaned_bike_rides_start_peak_travel__Evening_Peak__Off_Peak__Morning_Peak.060d9d35dc"
+          },
+          {
+            "columns": [
+              "same_station_flag"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_cleaned_bike_rides_same_station_flag",
+            "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.cleaned_bike_rides\nwhere same_station_flag is null\n\n\n",
+            "uniqueId": "test.london_bike_analysis.not_null_cleaned_bike_rides_same_station_flag.27a2ebb79b"
+          },
+          {
+            "columns": [
+              "start_station_name"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_cleaned_bike_rides_start_station_name",
+            "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.cleaned_bike_rides\nwhere start_station_name is null\n\n\n",
+            "uniqueId": "test.london_bike_analysis.not_null_cleaned_bike_rides_start_station_name.0242ad0365"
+          }
+        ]
+      },
+      "logicalId": {
+        "name": "london_bike_analysis.cleaned_bike_rides",
+        "type": "DBT_MODEL"
+      }
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "SELECT \n    rental_id\n    , duration as duration_seconds\n    , duration / 60 as duration_minutes\n    , bike_id\n    , start_date\n    , start_station_id\n    , start_station_name\n    , end_date\n    , end_station_id\n    , end_station_name\nFROM  DEV_DB.london_bicycles.cycle_hire\nWHERE EXTRACT(year from start_date) = 2017",
+        "description": "This table contains all bike hires in London in 2017. This is the raw dataset so no cleaning or transformation.",
+        "fields": [],
+        "materialization": {
+          "targetDataset": "DATASET~A63EA13B24C8EEB3731EC3B631B037CF",
+          "type": "TABLE"
+        },
+        "packageName": "london_bike_analysis",
+        "rawSql": "SELECT \r\n    rental_id\r\n    , duration as duration_seconds\r\n    , duration / 60 as duration_minutes\r\n    , bike_id\r\n    , start_date\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_date\r\n    , end_station_id\r\n    , end_station_name\r\nFROM  {{ source('london_bicycles', 'cycle_hire') }}\r\nWHERE EXTRACT(year from start_date) = 2017",
+        "sourceDatasets": [
+          "DATASET~1A16BB5D20E3C415D2DE357F23D70AC9"
+        ],
+        "sourceModels": [],
+        "tags": []
+      },
+      "logicalId": {
+        "name": "london_bike_analysis.raw_bike_hires",
+        "type": "DBT_MODEL"
+      }
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "SELECT \n    id\n    , name as station_name\n    , bikes_count\n    , docks_count\n    , install_date\n    , removal_date\nFROM  DEV_DB.london_bicycles.cycle_stations\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
+        "description": "This table contains all bike stations in the London area. This only includes stations intalled before January 1, 2017 and doesn't include stations that were removed in 2017 (before Jan 1 2018). This is the raw data so no cleaning or transformation.",
+        "fields": [
+          {
+            "description": "Primary Key",
+            "fieldPath": "id",
+            "nativeType": "Not Set"
+          }
+        ],
+        "materialization": {
+          "targetDataset": "DATASET~EA80A6A5B9AB6AFED28F2F55C603BE20",
+          "type": "TABLE"
+        },
+        "packageName": "london_bike_analysis",
+        "rawSql": "SELECT \r\n    id\r\n    , name as station_name\r\n    , bikes_count\r\n    , docks_count\r\n    , install_date\r\n    , removal_date\r\nFROM  {{ source('london_bicycles', 'cycle_stations') }}\r\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
+        "sourceDatasets": [
+          "DATASET~C071F4A4DF6111DBD75340527CBCC7B9"
+        ],
+        "sourceModels": [],
+        "tags": []
+      },
+      "logicalId": {
+        "name": "london_bike_analysis.raw_bike_stations",
+        "type": "DBT_MODEL"
+      }
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "WITH stations AS (\n\n    SELECT *\n    FROM DEV_DB.DBT_DEV.raw_bike_stations\n\n),\n\nrides AS (\n\n    SELECT *\n    FROM DEV_DB.DBT_DEV.cleaned_bike_rides\n\n),\n\nstart_stat_join AS (\n\n    SELECT rides.*\n    , stations.bikes_count as start_station_bikes_count\n    , stations.docks_count as start_station_docks_count\n    , stations.install_date as start_station_install_date\n    FROM rides\n    LEFT JOIN stations\n    ON rides.start_station_id = stations.id\n)\n\nSELECT \n    total_minutes \n    , total_bike_hires \n    , average_duration \n    , month \n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count \n    , start_station_docks_count \n    , start_station_install_date \n    , end_station_id\n    , end_station_name\n    , stations.bikes_count as end_station_bikes_count\n    , stations.docks_count as end_station_docks_count\n    , stations.install_date as end_station_install_date\nFROM start_stat_join\nLEFT JOIN stations\nON start_stat_join.end_station_id = stations.id",
+        "description": "",
+        "fields": [],
+        "materialization": {
+          "targetDataset": "DATASET~5D2E27D9E2A964DAF3C66BA6288CFB61",
+          "type": "TABLE"
+        },
+        "packageName": "london_bike_analysis",
+        "rawSql": "WITH stations AS (\r\n\r\n    SELECT *\r\n    FROM {{ ref('raw_bike_stations') }}\r\n\r\n),\r\n\r\nrides AS (\r\n\r\n    SELECT *\r\n    FROM {{ ref('cleaned_bike_rides') }}\r\n\r\n),\r\n\r\nstart_stat_join AS (\r\n\r\n    SELECT rides.*\r\n    , stations.bikes_count as start_station_bikes_count\r\n    , stations.docks_count as start_station_docks_count\r\n    , stations.install_date as start_station_install_date\r\n    FROM rides\r\n    LEFT JOIN stations\r\n    ON rides.start_station_id = stations.id\r\n)\r\n\r\nSELECT \r\n    total_minutes \r\n    , total_bike_hires \r\n    , average_duration \r\n    , month \r\n    , start_peak_travel\r\n    , same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , start_station_bikes_count \r\n    , start_station_docks_count \r\n    , start_station_install_date \r\n    , end_station_id\r\n    , end_station_name\r\n    , stations.bikes_count as end_station_bikes_count\r\n    , stations.docks_count as end_station_docks_count\r\n    , stations.install_date as end_station_install_date\r\nFROM start_stat_join\r\nLEFT JOIN stations\r\nON start_stat_join.end_station_id = stations.id",
+        "sourceDatasets": [],
+        "sourceModels": [
+          "VIRTUAL_VIEW~BEABE1FF13F4749A5287A0C3AB91A51C",
+          "VIRTUAL_VIEW~E2AC9FA16880683393FEF02E8AE6F087"
+        ],
+        "tags": []
+      },
+      "logicalId": {
+        "name": "london_bike_analysis.rides_by_month_2017",
+        "type": "DBT_MODEL"
+      }
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "SELECT \n    SUM(total_minutes) AS total_minutes\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\n    , SUM(total_bike_hires) AS total_bike_hires\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\n    , month\n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count\n    , start_station_docks_count\n    , start_station_install_date\nFROM DEV_DB.DBT_DEV.rides_by_month_2017\nGROUP BY 5,6,7,8,9,10,11,12\nORDER BY total_bike_hires DESC",
+        "description": "",
+        "fields": [],
+        "materialization": {
+          "targetDataset": "DATASET~0005D1ABC6FCB4416DC7C9421956B411",
+          "type": "TABLE"
+        },
+        "packageName": "london_bike_analysis",
+        "rawSql": "SELECT \r\n    SUM(total_minutes) AS total_minutes\r\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\r\n    , SUM(total_bike_hires) AS total_bike_hires\r\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\r\n    , month\r\n    , start_peak_travel\r\n    , same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , start_station_bikes_count\r\n    , start_station_docks_count\r\n    , start_station_install_date\r\nFROM {{ ref('rides_by_month_2017') }}\r\nGROUP BY 5,6,7,8,9,10,11,12\r\nORDER BY total_bike_hires DESC",
+        "sourceDatasets": [],
+        "sourceModels": [
+          "VIRTUAL_VIEW~C7AD0F50959B4A41901E513EB19B2592"
+        ],
+        "tags": []
+      },
+      "logicalId": {
+        "name": "london_bike_analysis.rides_by_month_start_station_2017",
+        "type": "DBT_MODEL"
+      }
+    }
+  }
+]

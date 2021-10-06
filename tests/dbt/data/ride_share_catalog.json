@@ -1,0 +1,789 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/catalog/v1.json",
+    "dbt_version": "0.20.2",
+    "generated_at": "2021-10-06T01:26:54.405181Z",
+    "invocation_id": "d54dc387-8646-48ec-b1ea-68287b5f3da5",
+    "env": {}
+  },
+  "nodes": {
+    "model.london_bike_analysis.cleaned_bike_rides": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "schema": "DBT_DEV",
+        "name": "CLEANED_BIKE_RIDES",
+        "database": "DEV_DB",
+        "comment": null,
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "TOTAL_MINUTES": {
+          "type": "NUMBER",
+          "index": 1,
+          "name": "TOTAL_MINUTES",
+          "comment": null
+        },
+        "TOTAL_BIKE_HIRES": {
+          "type": "NUMBER",
+          "index": 2,
+          "name": "TOTAL_BIKE_HIRES",
+          "comment": null
+        },
+        "AVERAGE_DURATION": {
+          "type": "NUMBER",
+          "index": 3,
+          "name": "AVERAGE_DURATION",
+          "comment": null
+        },
+        "MONTH": {
+          "type": "NUMBER",
+          "index": 4,
+          "name": "MONTH",
+          "comment": null
+        },
+        "START_PEAK_TRAVEL": {
+          "type": "TEXT",
+          "index": 5,
+          "name": "START_PEAK_TRAVEL",
+          "comment": null
+        },
+        "SAME_STATION_FLAG": {
+          "type": "BOOLEAN",
+          "index": 6,
+          "name": "SAME_STATION_FLAG",
+          "comment": null
+        },
+        "START_STATION_ID": {
+          "type": "NUMBER",
+          "index": 7,
+          "name": "START_STATION_ID",
+          "comment": null
+        },
+        "START_STATION_NAME": {
+          "type": "TEXT",
+          "index": 8,
+          "name": "START_STATION_NAME",
+          "comment": null
+        },
+        "END_STATION_ID": {
+          "type": "NUMBER",
+          "index": 9,
+          "name": "END_STATION_ID",
+          "comment": null
+        },
+        "END_STATION_NAME": {
+          "type": "TEXT",
+          "index": 10,
+          "name": "END_STATION_NAME",
+          "comment": null
+        }
+      },
+      "stats": {
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 0.0,
+          "include": true,
+          "description": "An approximate count of rows in this table"
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-10-06 01:23UTC",
+          "include": true,
+          "description": "The timestamp for last update/change"
+        },
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 0.0,
+          "include": true,
+          "description": "Approximate size of the table as reported by Snowflake"
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "model.london_bike_analysis.cleaned_bike_rides"
+    },
+    "model.london_bike_analysis.raw_bike_hires": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "schema": "DBT_DEV",
+        "name": "RAW_BIKE_HIRES",
+        "database": "DEV_DB",
+        "comment": null,
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "RENTAL_ID": {
+          "type": "NUMBER",
+          "index": 1,
+          "name": "RENTAL_ID",
+          "comment": null
+        },
+        "DURATION_SECONDS": {
+          "type": "NUMBER",
+          "index": 2,
+          "name": "DURATION_SECONDS",
+          "comment": null
+        },
+        "DURATION_MINUTES": {
+          "type": "NUMBER",
+          "index": 3,
+          "name": "DURATION_MINUTES",
+          "comment": null
+        },
+        "BIKE_ID": {
+          "type": "NUMBER",
+          "index": 4,
+          "name": "BIKE_ID",
+          "comment": null
+        },
+        "START_DATE": {
+          "type": "TIMESTAMP_NTZ",
+          "index": 5,
+          "name": "START_DATE",
+          "comment": null
+        },
+        "START_STATION_ID": {
+          "type": "NUMBER",
+          "index": 6,
+          "name": "START_STATION_ID",
+          "comment": null
+        },
+        "START_STATION_NAME": {
+          "type": "TEXT",
+          "index": 7,
+          "name": "START_STATION_NAME",
+          "comment": null
+        },
+        "END_DATE": {
+          "type": "TIMESTAMP_NTZ",
+          "index": 8,
+          "name": "END_DATE",
+          "comment": null
+        },
+        "END_STATION_ID": {
+          "type": "NUMBER",
+          "index": 9,
+          "name": "END_STATION_ID",
+          "comment": null
+        },
+        "END_STATION_NAME": {
+          "type": "TEXT",
+          "index": 10,
+          "name": "END_STATION_NAME",
+          "comment": null
+        }
+      },
+      "stats": {
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 0.0,
+          "include": true,
+          "description": "An approximate count of rows in this table"
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-10-06 01:23UTC",
+          "include": true,
+          "description": "The timestamp for last update/change"
+        },
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 0.0,
+          "include": true,
+          "description": "Approximate size of the table as reported by Snowflake"
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "model.london_bike_analysis.raw_bike_hires"
+    },
+    "model.london_bike_analysis.raw_bike_stations": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "schema": "DBT_DEV",
+        "name": "RAW_BIKE_STATIONS",
+        "database": "DEV_DB",
+        "comment": null,
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "ID": {
+          "type": "NUMBER",
+          "index": 1,
+          "name": "ID",
+          "comment": null
+        },
+        "STATION_NAME": {
+          "type": "TEXT",
+          "index": 2,
+          "name": "STATION_NAME",
+          "comment": null
+        },
+        "BIKES_COUNT": {
+          "type": "NUMBER",
+          "index": 3,
+          "name": "BIKES_COUNT",
+          "comment": null
+        },
+        "DOCKS_COUNT": {
+          "type": "NUMBER",
+          "index": 4,
+          "name": "DOCKS_COUNT",
+          "comment": null
+        },
+        "INSTALL_DATE": {
+          "type": "DATE",
+          "index": 5,
+          "name": "INSTALL_DATE",
+          "comment": null
+        },
+        "REMOVAL_DATE": {
+          "type": "DATE",
+          "index": 6,
+          "name": "REMOVAL_DATE",
+          "comment": null
+        }
+      },
+      "stats": {
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 0.0,
+          "include": true,
+          "description": "An approximate count of rows in this table"
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-10-06 01:23UTC",
+          "include": true,
+          "description": "The timestamp for last update/change"
+        },
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 0.0,
+          "include": true,
+          "description": "Approximate size of the table as reported by Snowflake"
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "model.london_bike_analysis.raw_bike_stations"
+    },
+    "model.london_bike_analysis.rides_by_month_2017": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "schema": "DBT_DEV",
+        "name": "RIDES_BY_MONTH_2017",
+        "database": "DEV_DB",
+        "comment": null,
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "TOTAL_MINUTES": {
+          "type": "NUMBER",
+          "index": 1,
+          "name": "TOTAL_MINUTES",
+          "comment": null
+        },
+        "TOTAL_BIKE_HIRES": {
+          "type": "NUMBER",
+          "index": 2,
+          "name": "TOTAL_BIKE_HIRES",
+          "comment": null
+        },
+        "AVERAGE_DURATION": {
+          "type": "NUMBER",
+          "index": 3,
+          "name": "AVERAGE_DURATION",
+          "comment": null
+        },
+        "MONTH": {
+          "type": "NUMBER",
+          "index": 4,
+          "name": "MONTH",
+          "comment": null
+        },
+        "START_PEAK_TRAVEL": {
+          "type": "TEXT",
+          "index": 5,
+          "name": "START_PEAK_TRAVEL",
+          "comment": null
+        },
+        "SAME_STATION_FLAG": {
+          "type": "BOOLEAN",
+          "index": 6,
+          "name": "SAME_STATION_FLAG",
+          "comment": null
+        },
+        "START_STATION_ID": {
+          "type": "NUMBER",
+          "index": 7,
+          "name": "START_STATION_ID",
+          "comment": null
+        },
+        "START_STATION_NAME": {
+          "type": "TEXT",
+          "index": 8,
+          "name": "START_STATION_NAME",
+          "comment": null
+        },
+        "START_STATION_BIKES_COUNT": {
+          "type": "NUMBER",
+          "index": 9,
+          "name": "START_STATION_BIKES_COUNT",
+          "comment": null
+        },
+        "START_STATION_DOCKS_COUNT": {
+          "type": "NUMBER",
+          "index": 10,
+          "name": "START_STATION_DOCKS_COUNT",
+          "comment": null
+        },
+        "START_STATION_INSTALL_DATE": {
+          "type": "DATE",
+          "index": 11,
+          "name": "START_STATION_INSTALL_DATE",
+          "comment": null
+        },
+        "END_STATION_ID": {
+          "type": "NUMBER",
+          "index": 12,
+          "name": "END_STATION_ID",
+          "comment": null
+        },
+        "END_STATION_NAME": {
+          "type": "TEXT",
+          "index": 13,
+          "name": "END_STATION_NAME",
+          "comment": null
+        },
+        "END_STATION_BIKES_COUNT": {
+          "type": "NUMBER",
+          "index": 14,
+          "name": "END_STATION_BIKES_COUNT",
+          "comment": null
+        },
+        "END_STATION_DOCKS_COUNT": {
+          "type": "NUMBER",
+          "index": 15,
+          "name": "END_STATION_DOCKS_COUNT",
+          "comment": null
+        },
+        "END_STATION_INSTALL_DATE": {
+          "type": "DATE",
+          "index": 16,
+          "name": "END_STATION_INSTALL_DATE",
+          "comment": null
+        }
+      },
+      "stats": {
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 0.0,
+          "include": true,
+          "description": "An approximate count of rows in this table"
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-10-06 01:23UTC",
+          "include": true,
+          "description": "The timestamp for last update/change"
+        },
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 0.0,
+          "include": true,
+          "description": "Approximate size of the table as reported by Snowflake"
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "model.london_bike_analysis.rides_by_month_2017"
+    },
+    "model.london_bike_analysis.rides_by_month_start_station_2017": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "schema": "DBT_DEV",
+        "name": "RIDES_BY_MONTH_START_STATION_2017",
+        "database": "DEV_DB",
+        "comment": null,
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "TOTAL_MINUTES": {
+          "type": "NUMBER",
+          "index": 1,
+          "name": "TOTAL_MINUTES",
+          "comment": null
+        },
+        "TOTAL_HOURS": {
+          "type": "NUMBER",
+          "index": 2,
+          "name": "TOTAL_HOURS",
+          "comment": null
+        },
+        "TOTAL_BIKE_HIRES": {
+          "type": "NUMBER",
+          "index": 3,
+          "name": "TOTAL_BIKE_HIRES",
+          "comment": null
+        },
+        "AVERAGE_DURATION_IN_MINUTES": {
+          "type": "NUMBER",
+          "index": 4,
+          "name": "AVERAGE_DURATION_IN_MINUTES",
+          "comment": null
+        },
+        "MONTH": {
+          "type": "NUMBER",
+          "index": 5,
+          "name": "MONTH",
+          "comment": null
+        },
+        "START_PEAK_TRAVEL": {
+          "type": "TEXT",
+          "index": 6,
+          "name": "START_PEAK_TRAVEL",
+          "comment": null
+        },
+        "SAME_STATION_FLAG": {
+          "type": "BOOLEAN",
+          "index": 7,
+          "name": "SAME_STATION_FLAG",
+          "comment": null
+        },
+        "START_STATION_ID": {
+          "type": "NUMBER",
+          "index": 8,
+          "name": "START_STATION_ID",
+          "comment": null
+        },
+        "START_STATION_NAME": {
+          "type": "TEXT",
+          "index": 9,
+          "name": "START_STATION_NAME",
+          "comment": null
+        },
+        "START_STATION_BIKES_COUNT": {
+          "type": "NUMBER",
+          "index": 10,
+          "name": "START_STATION_BIKES_COUNT",
+          "comment": null
+        },
+        "START_STATION_DOCKS_COUNT": {
+          "type": "NUMBER",
+          "index": 11,
+          "name": "START_STATION_DOCKS_COUNT",
+          "comment": null
+        },
+        "START_STATION_INSTALL_DATE": {
+          "type": "DATE",
+          "index": 12,
+          "name": "START_STATION_INSTALL_DATE",
+          "comment": null
+        }
+      },
+      "stats": {
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 0.0,
+          "include": true,
+          "description": "An approximate count of rows in this table"
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-10-06 01:24UTC",
+          "include": true,
+          "description": "The timestamp for last update/change"
+        },
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 0.0,
+          "include": true,
+          "description": "Approximate size of the table as reported by Snowflake"
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "model.london_bike_analysis.rides_by_month_start_station_2017"
+    }
+  },
+  "sources": {
+    "source.london_bike_analysis.london_bicycles.cycle_hire": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "schema": "LONDON_BICYCLES",
+        "name": "CYCLE_HIRE",
+        "database": "DEV_DB",
+        "comment": null,
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "RENTAL_ID": {
+          "type": "NUMBER",
+          "index": 1,
+          "name": "RENTAL_ID",
+          "comment": null
+        },
+        "DURATION": {
+          "type": "NUMBER",
+          "index": 2,
+          "name": "DURATION",
+          "comment": null
+        },
+        "BIKE_ID": {
+          "type": "NUMBER",
+          "index": 3,
+          "name": "BIKE_ID",
+          "comment": null
+        },
+        "END_DATE": {
+          "type": "TIMESTAMP_NTZ",
+          "index": 4,
+          "name": "END_DATE",
+          "comment": null
+        },
+        "END_STATION_ID": {
+          "type": "NUMBER",
+          "index": 5,
+          "name": "END_STATION_ID",
+          "comment": null
+        },
+        "END_STATION_NAME": {
+          "type": "TEXT",
+          "index": 6,
+          "name": "END_STATION_NAME",
+          "comment": null
+        },
+        "START_DATE": {
+          "type": "TIMESTAMP_NTZ",
+          "index": 7,
+          "name": "START_DATE",
+          "comment": null
+        },
+        "START_STATION_ID": {
+          "type": "NUMBER",
+          "index": 8,
+          "name": "START_STATION_ID",
+          "comment": null
+        },
+        "START_STATION_NAME": {
+          "type": "TEXT",
+          "index": 9,
+          "name": "START_STATION_NAME",
+          "comment": null
+        },
+        "END_STATION_LOGICAL_TERMINAL": {
+          "type": "NUMBER",
+          "index": 10,
+          "name": "END_STATION_LOGICAL_TERMINAL",
+          "comment": null
+        },
+        "START_STATION_LOGICAL_TERMINAL": {
+          "type": "NUMBER",
+          "index": 11,
+          "name": "START_STATION_LOGICAL_TERMINAL",
+          "comment": null
+        },
+        "END_STATION_PRIORITY_ID": {
+          "type": "NUMBER",
+          "index": 12,
+          "name": "END_STATION_PRIORITY_ID",
+          "comment": null
+        }
+      },
+      "stats": {
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 0.0,
+          "include": true,
+          "description": "An approximate count of rows in this table"
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-10-06 00:56UTC",
+          "include": true,
+          "description": "The timestamp for last update/change"
+        },
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 0.0,
+          "include": true,
+          "description": "Approximate size of the table as reported by Snowflake"
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "source.london_bike_analysis.london_bicycles.cycle_hire"
+    },
+    "source.london_bike_analysis.london_bicycles.cycle_stations": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "schema": "LONDON_BICYCLES",
+        "name": "CYCLE_STATIONS",
+        "database": "DEV_DB",
+        "comment": null,
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "ID": {
+          "type": "NUMBER",
+          "index": 1,
+          "name": "ID",
+          "comment": null
+        },
+        "INSTALLED": {
+          "type": "BOOLEAN",
+          "index": 2,
+          "name": "INSTALLED",
+          "comment": null
+        },
+        "LATITUDE": {
+          "type": "FLOAT",
+          "index": 3,
+          "name": "LATITUDE",
+          "comment": null
+        },
+        "LOCKED": {
+          "type": "TEXT",
+          "index": 4,
+          "name": "LOCKED",
+          "comment": null
+        },
+        "LONGITUDE": {
+          "type": "FLOAT",
+          "index": 5,
+          "name": "LONGITUDE",
+          "comment": null
+        },
+        "NAME": {
+          "type": "TEXT",
+          "index": 6,
+          "name": "NAME",
+          "comment": null
+        },
+        "BIKES_COUNT": {
+          "type": "NUMBER",
+          "index": 7,
+          "name": "BIKES_COUNT",
+          "comment": null
+        },
+        "DOCKS_COUNT": {
+          "type": "NUMBER",
+          "index": 8,
+          "name": "DOCKS_COUNT",
+          "comment": null
+        },
+        "NBEMPTYDOCKS": {
+          "type": "NUMBER",
+          "index": 9,
+          "name": "NBEMPTYDOCKS",
+          "comment": null
+        },
+        "TEMPORARY": {
+          "type": "BOOLEAN",
+          "index": 10,
+          "name": "TEMPORARY",
+          "comment": null
+        },
+        "TERMINAL_NAME": {
+          "type": "TEXT",
+          "index": 11,
+          "name": "TERMINAL_NAME",
+          "comment": null
+        },
+        "INSTALL_DATE": {
+          "type": "DATE",
+          "index": 12,
+          "name": "INSTALL_DATE",
+          "comment": null
+        },
+        "REMOVAL_DATE": {
+          "type": "DATE",
+          "index": 13,
+          "name": "REMOVAL_DATE",
+          "comment": null
+        }
+      },
+      "stats": {
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 0.0,
+          "include": true,
+          "description": "An approximate count of rows in this table"
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2021-10-06 01:13UTC",
+          "include": true,
+          "description": "The timestamp for last update/change"
+        },
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 0.0,
+          "include": true,
+          "description": "Approximate size of the table as reported by Snowflake"
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "source.london_bike_analysis.london_bicycles.cycle_stations"
+    }
+  },
+  "errors": null
+}
