@@ -539,7 +539,7 @@
               "macro.dbt.test_unique"
             ],
             "name": "unique_my_first_dbt_model_id",
-            "sql": "{{ test_unique(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
             "uniqueId": "test.trial.unique_my_first_dbt_model_id.5ef3c774bb"
           },
           {
@@ -550,7 +550,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_my_first_dbt_model_id",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
             "uniqueId": "test.trial.not_null_my_first_dbt_model_id.f479667b44"
           }
         ]
@@ -596,7 +596,7 @@
               "macro.dbt.test_unique"
             ],
             "name": "unique_my_second_dbt_model_id",
-            "sql": "{{ test_unique(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
             "uniqueId": "test.trial.unique_my_second_dbt_model_id.bc96125570"
           },
           {
@@ -607,7 +607,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_my_second_dbt_model_id",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
             "uniqueId": "test.trial.not_null_my_second_dbt_model_id.dc1d13aa6d"
           }
         ]
@@ -673,7 +673,7 @@
               "macro.dbt.test_unique"
             ],
             "name": "unique_trial_model_1_show_id",
-            "sql": "{{ test_unique(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect\n    show_id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is not null\ngroup by show_id\nhaving count(*) > 1\n\n\n",
             "uniqueId": "test.trial.unique_trial_model_1_show_id.e5e71dcd5c"
           },
           {
@@ -684,7 +684,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_1_show_id",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
             "uniqueId": "test.trial.not_null_trial_model_1_show_id.b9cd21f3cc"
           },
           {
@@ -695,7 +695,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_1_type",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
             "uniqueId": "test.trial.not_null_trial_model_1_type.8258650d8f"
           },
           {
@@ -706,7 +706,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_1_title",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
             "uniqueId": "test.trial.not_null_trial_model_1_title.0df06c3bb2"
           }
         ]
@@ -772,7 +772,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_country",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere country is null\n\n\n",
             "uniqueId": "test.trial.not_null_trial_model_2_country.38e34b4f06"
           },
           {
@@ -783,7 +783,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_item_type",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere item_type is null\n\n\n",
             "uniqueId": "test.trial.not_null_trial_model_2_item_type.41de9591b6"
           },
           {
@@ -794,7 +794,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_year",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere year is null\n\n\n",
             "uniqueId": "test.trial.not_null_trial_model_2_year.97b36e02ab"
           },
           {
@@ -805,7 +805,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_revenue",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere revenue is null\n\n\n",
             "uniqueId": "test.trial.not_null_trial_model_2_revenue.78ade8f402"
           },
           {
@@ -816,7 +816,7 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_profit",
-            "sql": "{{ test_not_null(**_dbt_schema_test_kwargs) }}",
+            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere profit is null\n\n\n",
             "uniqueId": "test.trial.not_null_trial_model_2_profit.fe4505f957"
           }
         ]

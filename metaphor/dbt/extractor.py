@@ -39,7 +39,6 @@ from .generated.dbt_manifest import (
     CompiledSchemaTestNode,
     DbtManifest,
     ParsedMacro,
-    ParsedSchemaTestNode,
     ParsedSourceDefinition,
 )
 
@@ -199,7 +198,7 @@ class DbtExtractor(BaseExtractor):
                     self._get_dataset_id(dataset_map[n]) for n in model.depends_on.nodes
                 ]
 
-    def _parse_test(self, test: ParsedSchemaTestNode) -> None:
+    def _parse_test(self, test: CompiledSchemaTestNode) -> None:
         if test.test_metadata is None:
             return
 
@@ -212,7 +211,11 @@ class DbtExtractor(BaseExtractor):
 
         dataset = self._datasets[depends_on_model]
 
-        columns = list(test.columns.keys()) if test.columns else [test.column_name]
+        columns = []
+        if test.columns:
+            columns = list(test.columns.keys())
+        elif test.column_name is not None:
+            columns = [test.column_name]
 
         for column in columns:
             field_doc = self._init_field_doc(dataset, column)
@@ -236,6 +239,7 @@ class DbtExtractor(BaseExtractor):
         stats = model.stats
 
         assert meta.database is not None
+        assert model.unique_id is not None
         dataset = self._init_dataset(
             meta.database, meta.schema_, meta.name, model.unique_id
         )
@@ -294,7 +298,7 @@ class DbtExtractor(BaseExtractor):
         self,
         sources: Dict[str, ParsedSourceDefinition],
         macros: Dict[str, ParsedMacro],
-        tests: Dict[str, ParsedSchemaTestNode],
+        tests: Dict[str, CompiledSchemaTestNode],
         models: Dict[str, CompiledModelNode],
     ) -> None:
         source_map = {}
@@ -311,7 +315,7 @@ class DbtExtractor(BaseExtractor):
                 description=macro.description,
                 arguments=macro.arguments,
                 sql=macro.macro_sql,
-                depends_on_macros=macro.depends_on.macros,
+                depends_on_macros=macro.depends_on.macros if macro.depends_on else None,
             )
 
         for _, model in models.items():
@@ -329,12 +333,16 @@ class DbtExtractor(BaseExtractor):
             )
             dbt_model = virtual_view.dbt_model
 
-            dbt_model.materialization = DbtMaterialization(
-                type=DbtMaterializationType[model.config.materialized.upper()],
-                target_dataset=self._get_dataset_id(
-                    DbtDataset(model.database, model.schema_, model.name)
-                ),
-            )
+            assert model.config is not None and model.database is not None
+            materialized = model.config.materialized
+
+            if materialized:
+                dbt_model.materialization = DbtMaterialization(
+                    type=DbtMaterializationType[materialized.upper()],
+                    target_dataset=self._get_dataset_id(
+                        DbtDataset(model.database, model.schema_, model.name)
+                    ),
+                )
 
             if model.columns is not None:
                 for col in model.columns.values():
@@ -364,22 +372,25 @@ class DbtExtractor(BaseExtractor):
 
         for key, test in tests.items():
             # check test is referring a model
-            if (
-                test.depends_on is None
-                or not test.depends_on.nodes
-                or not test.depends_on.nodes[0].startswith("model.")
-            ):
+            if test.depends_on is None or not test.depends_on.nodes:
                 continue
-            model_unique_id = test.depends_on.nodes[0]
 
-            columns = list(test.columns.keys()) if test.columns else [test.column_name]
+            model_unique_id = test.depends_on.nodes[0]
+            if not model_unique_id.startswith("model."):
+                continue
+
+            columns = []
+            if test.columns:
+                columns = list(test.columns.keys())
+            elif test.columns:
+                columns = [test.column_name]
 
             dbt_test = DbtTest(
                 name=test.name,
                 unique_id=test.unique_id,
                 columns=columns,
                 depends_on_macros=test.depends_on.macros,
-                sql=test.raw_sql,  # TODO: add "compiled_sql" to schema and use it instead of raw_sql
+                sql=test.compiled_sql,
             )
 
             self._init_dbt_tests(model_unique_id).append(dbt_test)
