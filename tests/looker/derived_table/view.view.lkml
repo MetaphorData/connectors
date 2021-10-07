@@ -37,3 +37,19 @@ view: view2 {
     sql: ${TABLE}.measurement ;;
   }
 }
+
+view: view3 {
+  derived_table: {
+    explore_source: view1 {
+      column: country {
+        field: view1.country
+      }
+    }
+  }
+
+  dimension: country {
+    type: string
+    description: "The country"
+    sql: ${TABLE}.country ;;
+  }
+}

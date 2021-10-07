@@ -2,7 +2,7 @@
 set -e
 
 # Generate various data models for dbt manifest & catalog using official JSON schemas
-MANIFEST_URL=https://schemas.getdbt.com/dbt/manifest/v3.json
+MANIFEST_URL=https://schemas.getdbt.com/dbt/manifest/v2.json
 CATALOG_URL=https://schemas.getdbt.com/dbt/catalog/v1.json
 OUTPUT_DIR=generated
 

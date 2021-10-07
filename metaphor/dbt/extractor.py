@@ -1,6 +1,4 @@
-import json
 import logging
-import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,21 +12,36 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     DatasetStatistics,
     DatasetUpstream,
+    DbtMacro,
+    DbtMacroArgument,
+    DbtMaterialization,
+    DbtMaterializationType,
+    DbtModel,
+    DbtTest,
     EntityType,
     FieldDocumentation,
     MetadataChangeEvent,
     SchemaField,
     SchemaType,
     SQLSchema,
+    VirtualView,
+    VirtualViewLogicalID,
+    VirtualViewType,
 )
 from serde import deserialize
 
-from metaphor.common.entity_id import EntityId
+from metaphor.common.entity_id import EntityId, to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
 from .generated.dbt_catalog import CatalogTable, DbtCatalog
-from .generated.dbt_manifest import CompiledModelNode, DbtManifest, ParsedSchemaTestNode
+from .generated.dbt_manifest import (
+    CompiledModelNode,
+    CompiledSchemaTestNode,
+    DbtManifest,
+    ParsedMacro,
+    ParsedSourceDefinition,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -59,12 +72,14 @@ class DbtExtractor(BaseExtractor):
         return DbtRunConfig
 
     def __init__(self):
-        self.account = None
+        self.platform: DataPlatform = DataPlatform.UNKNOWN
+        self.account: Optional[str] = None
         self._manifest: DbtManifest
         self._catalog: DbtCatalog
-        self._metadata: Dict[str, Dataset] = {}
+        self._datasets: Dict[str, Dataset] = {}
+        self._virtual_views: Dict[str, VirtualView] = {}
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: DbtRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, DbtExtractor.config_class())
 
         logger.info("Fetching metadata from DBT repo")
@@ -82,29 +97,31 @@ class DbtExtractor(BaseExtractor):
             logger.error(f"Read catalog json error: {e}")
             raise e
 
-        platform = self._parse_manifest()
-        if platform is None:
-            raise ValueError("Invalid platform from manifest.json")
+        self._parse_manifest()
 
-        self._parse_catalog(platform)
+        self._parse_catalog()
 
-        logger.debug(
-            json.dumps(
-                [EventUtil.clean_nones(d.to_dict()) for d in self._metadata.values()]
-            )
-        )
+        dataset_events = [
+            EventUtil.build_dataset_event(d) for d in self._datasets.values()
+        ]
+        virtual_view_events = [
+            EventUtil.build_virtual_view_event(d) for d in self._virtual_views.values()
+        ]
+        return dataset_events + virtual_view_events
 
-        return [EventUtil.build_dataset_event(d) for d in self._metadata.values()]
-
-    def _parse_manifest(self) -> Optional[str]:
+    def _parse_manifest(self) -> None:
         assert self._manifest is not None
 
         metadata = self._manifest.metadata
-        nodes = self._manifest.nodes
-        sources = self._manifest.sources
 
         assert metadata.adapter_type is not None
         platform = metadata.adapter_type.upper()
+        assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
+        self.platform = DataPlatform[platform]
+
+        nodes = self._manifest.nodes
+        sources = self._manifest.sources
+        macros = self._manifest.macros
 
         models = {
             k: cast(CompiledModelNode, v)
@@ -112,9 +129,9 @@ class DbtExtractor(BaseExtractor):
             if isinstance(v, CompiledModelNode)
         }
         tests = {
-            k: cast(ParsedSchemaTestNode, v)
+            k: cast(CompiledSchemaTestNode, v)
             for (k, v) in nodes.items()
-            if isinstance(v, ParsedSchemaTestNode)
+            if isinstance(v, CompiledSchemaTestNode)
         }
 
         dataset_map = {}
@@ -126,23 +143,21 @@ class DbtExtractor(BaseExtractor):
             dataset_map[key] = DbtDataset(source.database, source.schema_, source.name)
 
         for model in models.values():
-            self._parse_model(model, platform, dataset_map)
+            self._parse_model(model, dataset_map)
 
         for test in tests.values():
             self._parse_test(test)
 
-        return platform
+        self._parse_manifest_nodes(sources, macros, tests, models)
 
     def _parse_model(
         self,
         model: CompiledModelNode,
-        platform: str,
         dataset_map: Dict[str, DbtDataset],
     ) -> None:
-
         assert model.database is not None
         dataset = self._init_dataset(
-            model.database, model.schema_, model.name, platform
+            model.database, model.schema_, model.name, model.unique_id
         )
         self._init_schema(dataset)
 
@@ -163,14 +178,15 @@ class DbtExtractor(BaseExtractor):
         if model.columns is not None:
             for col in model.columns.values():
                 column_name = col.name.lower()
-                field = self._init_field(dataset, column_name)
+                field = self._init_field(dataset.schema.fields, column_name)
                 field.description = col.description
                 field.native_type = (
                     "Not Set" if col.data_type is None else col.data_type
                 )
 
-                field_doc = self._init_field_doc(dataset, column_name)
-                field_doc.documentation = col.description
+                if col.description:
+                    field_doc = self._init_field_doc(dataset, column_name)
+                    field_doc.documentation = col.description
 
         if model.depends_on is not None:
             dataset.upstream = DatasetUpstream()
@@ -178,39 +194,27 @@ class DbtExtractor(BaseExtractor):
 
             if model.depends_on.nodes is not None:
                 dataset.upstream.source_datasets = [
-                    self._get_upstream(n, dataset_map, platform, self.account)
-                    for n in model.depends_on.nodes
+                    self._get_dataset_id(dataset_map[n]) for n in model.depends_on.nodes
                 ]
 
-    def _parse_test(self, test: ParsedSchemaTestNode) -> None:
+    def _parse_test(self, test: CompiledSchemaTestNode) -> None:
         if test.test_metadata is None:
             return
 
-        test_kwargs = test.test_metadata.kwargs
-        if test_kwargs is None:
+        if test.depends_on is None or not test.depends_on.nodes:
             return
 
-        model_arg = test_kwargs.get("model")
-        if model_arg is None:
+        depends_on_model = test.depends_on.nodes[0]
+        if depends_on_model not in self._datasets:
             return
 
-        matches = re.findall("^{{ ref\\('([^'\" ]+)'\\) }}$", model_arg)
-        if len(matches) == 0:
-            return
+        dataset = self._datasets[depends_on_model]
 
-        model_name = matches[0]
-
-        assert test.database is not None
-        table = DbtExtractor._dataset_name(test.database, test.schema_, model_name)
-        dataset = self._metadata[table]
-
-        combination_of_columns = test_kwargs.get("combination_of_columns")
-        column_name = test_kwargs.get("column_name")
-
-        if combination_of_columns is not None:
-            columns = cast(List[str], test_kwargs.get("combination_of_columns"))
-        elif column_name is not None:
-            columns = [column_name]
+        columns = []
+        if test.columns:
+            columns = list(test.columns.keys())
+        elif test.column_name is not None:
+            columns = [test.column_name]
 
         for column in columns:
             field_doc = self._init_field_doc(dataset, column)
@@ -218,7 +222,7 @@ class DbtExtractor(BaseExtractor):
                 field_doc.tests = []
             field_doc.tests.append(test.test_metadata.name)
 
-    def _parse_catalog(self, platform: str) -> None:
+    def _parse_catalog(self) -> None:
         if self._catalog is None:
             return
 
@@ -226,15 +230,18 @@ class DbtExtractor(BaseExtractor):
         sources = self._catalog.sources
 
         for model in {**nodes, **sources}.values():
-            self._parse_catalog_model(model, platform)
+            self._parse_catalog_model(model)
 
-    def _parse_catalog_model(self, model: CatalogTable, platform: str):
+    def _parse_catalog_model(self, model: CatalogTable):
         meta = model.metadata
         columns = model.columns
         stats = model.stats
 
         assert meta.database is not None
-        dataset = self._init_dataset(meta.database, meta.schema_, meta.name, platform)
+        assert model.unique_id is not None
+        dataset = self._init_dataset(
+            meta.database, meta.schema_, meta.name, model.unique_id
+        )
 
         # TODO (ch1236): Re-enable once we figure the source & expected format
         # self._init_ownership(dataset)
@@ -246,12 +253,13 @@ class DbtExtractor(BaseExtractor):
 
         for col in columns.values():
             column_name = col.name.lower()
-            field = self._init_field(dataset, column_name)
+            field = self._init_field(dataset.schema.fields, column_name)
             field.description = col.comment
             field.native_type = "Not Set" if col.type is None else col.type
 
-            field_doc = self._init_field_doc(dataset, column_name)
-            field_doc.documentation = col.comment
+            if col.comment:
+                field_doc = self._init_field_doc(dataset, column_name)
+                field_doc.documentation = col.comment
 
         has_stats = stats.get("has_stats")
         if has_stats is not None and has_stats.value is not None:
@@ -286,33 +294,175 @@ class DbtExtractor(BaseExtractor):
             if found_statistics:
                 dataset.statistics = statistics
 
+    def _parse_manifest_nodes(
+        self,
+        sources: Dict[str, ParsedSourceDefinition],
+        macros: Dict[str, ParsedMacro],
+        tests: Dict[str, CompiledSchemaTestNode],
+        models: Dict[str, CompiledModelNode],
+    ) -> None:
+        source_map = {}
+        for key, source in sources.items():
+            assert source.database is not None
+            source_map[key] = DbtDataset(source.database, source.schema_, source.name)
+
+        macro_map = {}
+        for key, macro in macros.items():
+            arguments = (
+                [
+                    DbtMacroArgument(
+                        name=arg.name,
+                        type=arg.type,
+                        description=arg.description,
+                    )
+                    for arg in macro.arguments
+                ]
+                if macro.arguments
+                else []
+            )
+
+            macro_map[key] = DbtMacro(
+                name=macro.name,
+                unique_id=macro.unique_id,
+                package_name=macro.package_name,
+                description=macro.description,
+                arguments=arguments,
+                sql=macro.macro_sql,
+                depends_on_macros=macro.depends_on.macros if macro.depends_on else None,
+            )
+
+        for _, model in models.items():
+            self._init_virtual_view(model.unique_id)
+
+        for key, model in models.items():
+            virtual_view = self._init_virtual_view(model.unique_id)
+            virtual_view.dbt_model = DbtModel(
+                package_name=model.package_name,
+                description=model.description,
+                tags=model.tags,
+                raw_sql=model.raw_sql,
+                compiled_sql=model.compiled_sql,
+                fields=[],
+            )
+            dbt_model = virtual_view.dbt_model
+
+            assert model.config is not None and model.database is not None
+            materialized = model.config.materialized
+
+            if materialized:
+                dbt_model.materialization = DbtMaterialization(
+                    type=DbtMaterializationType[materialized.upper()],
+                    target_dataset=self._get_dataset_id(
+                        DbtDataset(model.database, model.schema_, model.name)
+                    ),
+                )
+
+            if model.columns is not None:
+                for col in model.columns.values():
+                    column_name = col.name.lower()
+                    field = self._init_field(dbt_model.fields, column_name)
+                    field.description = col.description
+                    field.native_type = (
+                        "Not Set" if col.data_type is None else col.data_type
+                    )
+
+            if model.depends_on is not None:
+                if model.depends_on.nodes:
+                    dbt_model.source_models = [
+                        self._get_virtual_view_id(self._virtual_views[n].logical_id)
+                        for n in model.depends_on.nodes
+                        if n.startswith("model.")
+                    ]
+
+                    dbt_model.source_datasets = [
+                        self._get_dataset_id(source_map[n])
+                        for n in model.depends_on.nodes
+                        if n.startswith("source.")
+                    ]
+
+                if model.depends_on.macros:
+                    dbt_model.macros = [macro_map[n] for n in model.depends_on.macros]
+
+        for key, test in tests.items():
+            # check test is referring a model
+            if test.depends_on is None or not test.depends_on.nodes:
+                continue
+
+            model_unique_id = test.depends_on.nodes[0]
+            if not model_unique_id.startswith("model."):
+                continue
+
+            columns = []
+            if test.columns:
+                columns = list(test.columns.keys())
+            elif test.column_name:
+                columns = [test.column_name]
+
+            dbt_test = DbtTest(
+                name=test.name,
+                unique_id=test.unique_id,
+                columns=columns,
+                depends_on_macros=test.depends_on.macros,
+                sql=test.compiled_sql,
+            )
+
+            self._init_dbt_tests(model_unique_id).append(dbt_test)
+
     @staticmethod
     def _dataset_name(db: str, schema: str, table: str) -> str:
         return f"{db}.{schema}.{table}".lower()
 
-    @staticmethod
-    def _get_dataset_name(dataset: DbtDataset) -> str:
-        return DbtExtractor._dataset_name(
+    def _get_dataset_id(self, dataset: DbtDataset) -> str:
+        dataset_name = DbtExtractor._dataset_name(
             dataset.database, dataset.schema, dataset.name
         )
 
-    @staticmethod
-    def _build_entity(
-        table_name: str, platform: str, account: Optional[str]
-    ) -> Dataset:
-        dataset = Dataset()
-        dataset.logical_id = DatasetLogicalID(
-            name=table_name, account=account, platform=DataPlatform[platform]
+        dataset_id = DatasetLogicalID(
+            name=dataset_name,
+            platform=self.platform,
+            account=self.account,
         )
-        return dataset
+        return str(EntityId(EntityType.DATASET, dataset_id))
+
+    @staticmethod
+    def _get_virtual_view_id(logical_id: VirtualViewLogicalID) -> str:
+        return str(to_virtual_view_entity_id(logical_id.name, logical_id.type))
+
+    @staticmethod
+    def _get_model_name_from_unique_id(unique_id: str) -> str:
+        assert unique_id.startswith("model."), f"invalid model id {unique_id}"
+        return unique_id[6:]
 
     def _init_dataset(
-        self, database: str, schema: str, name: str, platform: str
+        self, database: str, schema: str, name: str, unique_id: str
     ) -> Dataset:
-        table = self._dataset_name(database, schema, name)
-        if table not in self._metadata:
-            self._metadata[table] = self._build_entity(table, platform, self.account)
-        return self._metadata[table]
+        if unique_id not in self._datasets:
+            self._datasets[unique_id] = Dataset(
+                logical_id=DatasetLogicalID(
+                    name=self._dataset_name(database, schema, name),
+                    platform=self.platform,
+                    account=self.account,
+                )
+            )
+        return self._datasets[unique_id]
+
+    def _init_virtual_view(self, unique_id: str) -> VirtualView:
+        if unique_id not in self._virtual_views:
+            self._virtual_views[unique_id] = VirtualView(
+                logical_id=VirtualViewLogicalID(
+                    name=self._get_model_name_from_unique_id(unique_id),
+                    type=VirtualViewType.DBT_MODEL,
+                ),
+            )
+        return self._virtual_views[unique_id]
+
+    def _init_dbt_tests(self, dbt_model_unique_id: str) -> List[DbtTest]:
+        assert dbt_model_unique_id in self._virtual_views
+
+        dbt_model = self._virtual_views[dbt_model_unique_id].dbt_model
+        if dbt_model.tests is None:
+            dbt_model.tests = []
+        return dbt_model.tests
 
     @staticmethod
     def _init_schema(dataset: Dataset) -> None:
@@ -322,14 +472,11 @@ class DbtExtractor(BaseExtractor):
             dataset.schema.fields = []
 
     @staticmethod
-    def _init_field(dataset: Dataset, column: str) -> SchemaField:
-        assert dataset.schema is not None and dataset.schema.fields is not None
-
-        field = next((f for f in dataset.schema.fields if f.field_path == column), None)
+    def _init_field(fields: List[SchemaField], column: str) -> SchemaField:
+        field = next((f for f in fields if f.field_path == column), None)
         if not field:
-            field = SchemaField()
-            field.field_path = column
-            dataset.schema.fields.append(field)
+            field = SchemaField(field_path=column)
+            fields.append(field)
         return field
 
     @staticmethod
@@ -359,17 +506,3 @@ class DbtExtractor(BaseExtractor):
             doc.field_path = column
             dataset.documentation.field_documentations.append(doc)
         return doc
-
-    @staticmethod
-    def _get_upstream(
-        node: str,
-        dataset_map: Dict[str, DbtDataset],
-        platform: str,
-        account: Optional[str],
-    ) -> str:
-        dataset_id = DatasetLogicalID(
-            platform=DataPlatform[platform],
-            account=account,
-            name=DbtExtractor._get_dataset_name(dataset_map[node]),
-        )
-        return str(EntityId(EntityType.DATASET, dataset_id))

@@ -25,14 +25,10 @@ from metaphor.models.metadata_change_event import (
 )
 from serde import deserialize
 
+from metaphor.common.entity_id import to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
-from metaphor.looker.lookml_parser import (
-    Connection,
-    Model,
-    parse_project,
-    to_virtual_view_id,
-)
+from metaphor.looker.lookml_parser import Connection, Model, parse_project
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -236,7 +232,9 @@ class LookerExtractor(BaseExtractor):
 
                 explore_ids.add(
                     str(
-                        to_virtual_view_id(explore.name, VirtualViewType.LOOKER_EXPLORE)
+                        to_virtual_view_entity_id(
+                            explore.name, VirtualViewType.LOOKER_EXPLORE
+                        )
                     )
                 )
 

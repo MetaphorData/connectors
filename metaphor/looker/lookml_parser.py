@@ -13,7 +13,6 @@ except ImportError:
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
-    DatasetLogicalID,
     LookerExplore,
     LookerExploreJoin,
     LookerView,
@@ -24,7 +23,11 @@ from metaphor.models.metadata_change_event import (
     VirtualViewType,
 )
 
-from metaphor.common.entity_id import EntityId, EntityType
+from metaphor.common.entity_id import (
+    EntityId,
+    to_dataset_entity_id,
+    to_virtual_view_entity_id,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -119,22 +122,7 @@ def _to_dataset_id(source_name: str, connection: Connection) -> EntityId:
     # Normalize dataset name by lower casing & dropping the quotation marks
     full_name = full_name.replace('"', "").lower()
 
-    return EntityId(
-        EntityType.DATASET,
-        DatasetLogicalID(
-            name=full_name, platform=connection.platform, account=connection.account
-        ),
-    )
-
-
-def to_virtual_view_id(name: str, virtualViewType: VirtualViewType) -> EntityId:
-    """
-    converts a virtual view name and type into an Virtual View entity ID
-    """
-    return EntityId(
-        EntityType.VIRTUAL_VIEW,
-        VirtualViewLogicalID(name=name, type=virtualViewType),
-    )
+    return to_dataset_entity_id(full_name, connection.platform, connection.account)
 
 
 def _get_upstream_datasets(
@@ -148,11 +136,19 @@ def _get_upstream_datasets(
         raise ValueError(f"Refer to non-existing view {view_name}")
 
     if "derived_table" in raw_view:
-        sql = raw_view["derived_table"].get("sql")
-        if sql is not None:
-            return _extract_upstream_datasets_from_sql(sql, raw_views, connection)
+        # https://docs.looker.com/data-modeling/learning-lookml/derived-tables
+        derived_table = raw_view["derived_table"]
 
-        # TODO (SC1329): Add support for native derived tables
+        if "sql" in derived_table:
+            return _extract_upstream_datasets_from_sql(
+                derived_table["sql"], raw_views, connection
+            )
+
+        if "explore_source" in derived_table:
+            return _get_upstream_datasets(
+                derived_table["explore_source"]["name"], raw_views, connection
+            )
+
         return set()
 
     source_name = raw_view.get("sql_table_name", view_name)
@@ -166,7 +162,7 @@ def _extract_upstream_datasets_from_sql(
     try:
         tables = sql_metadata.Parser(sql).tables
     except Exception as e:
-        logger.warn(f"Failed to parse SQL:\n{sql}\n\nError:{e}")
+        logger.warning(f"Failed to parse SQL:\n{sql}\n\nError:{e}")
         return upstream
 
     for table in tables:
@@ -181,12 +177,16 @@ def _extract_upstream_datasets_from_sql(
     return upstream
 
 
+def _fullname(model: str, name: str) -> str:
+    return f"{model}.{name}"
+
+
 def _build_looker_view(
-    raw_view: Dict, raw_views: Dict[str, Dict], connection: Connection
+    model: str, raw_view: Dict, raw_views: Dict[str, Dict], connection: Connection
 ) -> VirtualView:
     name = raw_view["name"]
     view = LookerView(
-        label=raw_view.get("label", None),
+        label=raw_view.get("label"),
         source_datasets=[
             str(ds) for ds in _get_upstream_datasets(name, raw_views, connection)
         ],
@@ -194,7 +194,11 @@ def _build_looker_view(
 
     if "extends" in raw_view:
         view.extends = [
-            str(to_virtual_view_id(view, VirtualViewType.LOOKER_VIEW))
+            str(
+                to_virtual_view_entity_id(
+                    _fullname(model, view), VirtualViewType.LOOKER_VIEW
+                )
+            )
             for view in raw_view["extends"]
         ]
 
@@ -217,26 +221,37 @@ def _build_looker_view(
         ]
 
     return VirtualView(
-        logical_id=VirtualViewLogicalID(name=name, type=VirtualViewType.LOOKER_VIEW),
+        logical_id=VirtualViewLogicalID(
+            name=_fullname(model, name), type=VirtualViewType.LOOKER_VIEW
+        ),
         looker_view=view,
     )
 
 
-def _build_looker_explore(raw_explore: Dict) -> VirtualView:
+def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
     name = raw_explore["name"]
     base_view_name = raw_explore.get("view_name", raw_explore.get("from", name))
 
     explore = LookerExplore(
-        description=raw_explore.get("description", None),
-        label=raw_explore.get("label", None),
-        tags=raw_explore.get("tags", None),
-        fields=raw_explore.get("fields", None),
-        base_view=str(to_virtual_view_id(base_view_name, VirtualViewType.LOOKER_VIEW)),
+        model_name=model,
+        description=raw_explore.get("description"),
+        label=raw_explore.get("label"),
+        tags=raw_explore.get("tags"),
+        fields=raw_explore.get("fields"),
+        base_view=str(
+            to_virtual_view_entity_id(
+                _fullname(model, base_view_name), VirtualViewType.LOOKER_VIEW
+            )
+        ),
     )
 
     if "extends" in raw_explore:
         explore.extends = [
-            str(to_virtual_view_id(explore, VirtualViewType.LOOKER_EXPLORE))
+            str(
+                to_virtual_view_entity_id(
+                    _fullname(model, explore), VirtualViewType.LOOKER_EXPLORE
+                )
+            )
             for explore in raw_explore["extends"]
         ]
 
@@ -244,14 +259,14 @@ def _build_looker_explore(raw_explore: Dict) -> VirtualView:
         explore.joins = [
             LookerExploreJoin(
                 view=str(
-                    to_virtual_view_id(
-                        raw_join.get("from", raw_join["name"]),
+                    to_virtual_view_entity_id(
+                        _fullname(model, raw_join.get("from", raw_join["name"])),
                         VirtualViewType.LOOKER_VIEW,
                     )
                 ),
-                fields=raw_join.get("fields", None),
-                on_clause=raw_join.get("sql_on", None),
-                where_clause=raw_join.get("sql_where", None),
+                fields=raw_join.get("fields"),
+                on_clause=raw_join.get("sql_on"),
+                where_clause=raw_join.get("sql_where"),
                 type=raw_join.get("type", "left_outer"),
                 relationship=raw_join.get("relationship", "many_to_one"),
             )
@@ -261,7 +276,9 @@ def _build_looker_explore(raw_explore: Dict) -> VirtualView:
     # TODO: combine access_filters, always_filters and conditional_filters into explore.filters
 
     return VirtualView(
-        logical_id=VirtualViewLogicalID(name=name, type=VirtualViewType.LOOKER_EXPLORE),
+        logical_id=VirtualViewLogicalID(
+            name=_fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
+        ),
         looker_explore=explore,
     )
 
@@ -338,12 +355,15 @@ def parse_project(
 
         virtual_views.extend(
             [
-                _build_looker_view(view, raw_views, connection)
+                _build_looker_view(model_name, view, raw_views, connection)
                 for view in raw_views.values()
             ]
         )
         virtual_views.extend(
-            [_build_looker_explore(explore) for explore in raw_explores.values()]
+            [
+                _build_looker_explore(model_name, explore)
+                for explore in raw_explores.values()
+            ]
         )
 
         model_map[model_name] = Model.from_dict(raw_views, raw_explores, connection)

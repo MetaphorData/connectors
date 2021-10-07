@@ -40,7 +40,7 @@ class SlackRunConfig(RunConfig):
     include_restricted: bool = False
 
     # Exclude the default Slack bot, which is weirdly not marked as "is_bot".
-    excluded_ids: Set[str] = field(default_factory=lambda: set(["USLACKBOT"]))
+    excluded_ids: Set[str] = field(default_factory=lambda: {"USLACKBOT"})
 
 
 def list_all_users(config: SlackRunConfig) -> List[Dict]:
@@ -62,7 +62,7 @@ class SlackExtractor(BaseExtractor):
     def config_class():
         return SlackRunConfig
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: SlackRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, SlackExtractor.config_class())
 
         logger.info("Fetching directory data from Slack")
