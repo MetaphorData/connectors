@@ -2,6 +2,6 @@
   "account": "account",
   "user": "user",
   "password": "password",
-  "database": "database",
+  "default_database": "database",
   "output": null
 }
