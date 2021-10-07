@@ -40,7 +40,10 @@ class SnowflakeRunConfig(RunConfig):
     account: str
     user: str
     password: str
-    database: str
+    default_database: str
+
+    # A list of databases to include. Includes all databases if not specified.
+    target_databases: Optional[List[str]]
 
 
 class SnowflakeExtractor(BaseExtractor):
@@ -64,18 +67,34 @@ class SnowflakeExtractor(BaseExtractor):
         with ctx:
             cursor = ctx.cursor()
 
-            tables = self._fetch_tables(cursor, config.database, config.account)
-            logger.info(f"DB {config.database} has tables {tables}")
+            databases = (
+                self._fetch_databases(cursor, config.default_database)
+                if config.target_databases is None
+                else config.target_databases
+            )
+            logger.info(f"Databases to include: {databases}")
 
-            for schema, name, full_name in tables:
-                dataset = self._datasets[full_name]
-                self._fetch_columns(cursor, schema, name, dataset)
-                self._fetch_ddl(cursor, schema, name, dataset)
-                self._fetch_last_updated(cursor, schema, name, dataset)
+            for database in databases:
+                tables = self._fetch_tables(cursor, database, config.account)
+                logger.info(f"DB {database} has tables: {tables}")
+
+                for schema, name, full_name in tables:
+                    dataset = self._datasets[full_name]
+                    self._fetch_columns(cursor, schema, name, dataset)
+                    self._fetch_ddl(cursor, schema, name, dataset)
+                    self._fetch_last_updated(cursor, schema, name, dataset)
 
         logger.debug(self._datasets)
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+
+    @staticmethod
+    def _fetch_databases(cursor, initial_database: str) -> List[str]:
+        cursor.execute("USE " + initial_database)
+        cursor.execute(
+            "SELECT database_name FROM information_schema.databases ORDER BY database_name"
+        )
+        return [db[0] for db in cursor]
 
     @staticmethod
     def _table_fullname(db: str, schema: str, name: str):

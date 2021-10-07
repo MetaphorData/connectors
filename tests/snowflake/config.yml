@@ -1,5 +1,9 @@
+---
 account: account
 user: user
 password: password
-database: database
+default_database: database
+target_databases:
+    - foo
+    - bar
 output:

@@ -37,14 +37,21 @@ Create a YAML config file based the following template.
 
 ```yaml
 account: <snowflake_account>
-database: <database_to_extract>
 user: <snowflake_username>
 password: <snowflake_password>
+default_database: <default_database_for_connections>
 output:
   file:
     path: <path_to_output_file>
 ```
 
+By default the connector will extract metadata from all databases. You can optionally limit it to specific databases by adding the `target_databases` option to the config, e.g.
+
+```yaml
+target_databases:
+  - db1
+  - db2
+```
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `snowflake` extra.

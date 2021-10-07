@@ -8,7 +8,8 @@ def test_json_config(test_root_dir):
         account="account",
         user="user",
         password="password",
-        database="database",
+        default_database="database",
+        target_databases=None,
         output=None,
     )
 
@@ -20,6 +21,7 @@ def test_yaml_config(test_root_dir):
         account="account",
         user="user",
         password="password",
-        database="database",
+        default_database="database",
+        target_databases=["foo", "bar"],
         output=None,
     )
