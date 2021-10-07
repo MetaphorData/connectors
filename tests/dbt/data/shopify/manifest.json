@@ -18710,7 +18710,16 @@
         "show": true
       },
       "patch_path": null,
-      "arguments": [],
+      "arguments": [
+        {
+          "name": "table_identifier",
+          "type": "string"
+        },
+        {
+          "name": "database_variable",
+          "type": "string"
+        }
+      ],
       "created_at": 1633495280
     },
     "macro.fivetran_utils.default__union_data": {

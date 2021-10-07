@@ -9556,7 +9556,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],
@@ -9596,7 +9607,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],
@@ -9636,7 +9658,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],
@@ -9676,7 +9709,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],
@@ -9716,7 +9760,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],
@@ -9756,7 +9811,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],
@@ -9796,7 +9862,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],
@@ -9836,7 +9913,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],
@@ -9876,7 +9964,18 @@
         "fields": [],
         "macros": [
           {
-            "arguments": [],
+            "arguments": [
+              {
+                "description": "",
+                "name": "table_identifier",
+                "type": "string"
+              },
+              {
+                "description": "",
+                "name": "database_variable",
+                "type": "string"
+              }
+            ],
             "dependsOnMacros": [
               "macro.fivetran_utils.default__union_data"
             ],

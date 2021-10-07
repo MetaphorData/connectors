@@ -33,7 +33,6 @@ from serde import deserialize
 from metaphor.common.entity_id import EntityId, to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
-
 from .generated.dbt_catalog import CatalogTable, DbtCatalog
 from .generated.dbt_manifest import (
     CompiledModelNode,
@@ -308,19 +307,25 @@ class DbtExtractor(BaseExtractor):
 
         macro_map = {}
         for key, macro in macros.items():
-            macro_map[key] = DbtMacro(
-                name=macro.name,
-                unique_id=macro.unique_id,
-                package_name=macro.package_name,
-                description=macro.description,
-                arguments=[
+            arguments = (
+                [
                     DbtMacroArgument(
                         name=arg.name,
                         type=arg.type,
                         description=arg.description,
                     )
                     for arg in macro.arguments
-                ],
+                ]
+                if macro.arguments
+                else []
+            )
+
+            macro_map[key] = DbtMacro(
+                name=macro.name,
+                unique_id=macro.unique_id,
+                package_name=macro.package_name,
+                description=macro.description,
+                arguments=arguments,
                 sql=macro.macro_sql,
                 depends_on_macros=macro.depends_on.macros if macro.depends_on else None,
             )
