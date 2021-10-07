@@ -42,7 +42,7 @@ _ignored_schemas = [
 
 @deserialize
 @dataclass
-class PostgresqlRunConfig(RunConfig):
+class PostgreSQLRunConfig(RunConfig):
     host: str
     database: str
     user: str
@@ -52,18 +52,18 @@ class PostgresqlRunConfig(RunConfig):
     redshift: bool = False  # whether the target is redshift or postgresql
 
 
-class PostgresqlExtractor(BaseExtractor):
+class PostgreSQLExtractor(BaseExtractor):
     """PostgreSQL metadata extractor"""
 
     @staticmethod
     def config_class():
-        return PostgresqlRunConfig
+        return PostgreSQLRunConfig
 
     def __init__(self):
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(self, config: PostgresqlRunConfig) -> List[MetadataChangeEvent]:
-        assert isinstance(config, PostgresqlExtractor.config_class())
+    async def extract(self, config: PostgreSQLRunConfig) -> List[MetadataChangeEvent]:
+        assert isinstance(config, PostgreSQLExtractor.config_class())
 
         platform = DataPlatform.REDSHIFT if config.redshift else DataPlatform.POSTGRESQL
         logger.info(f"Fetching metadata from {platform} host {config.host}")
@@ -100,7 +100,7 @@ class PostgresqlExtractor(BaseExtractor):
         return f"{db}.{schema}.{table}".lower()
 
     @staticmethod
-    async def _connect_database(config: PostgresqlRunConfig, database: str):
+    async def _connect_database(config: PostgreSQLRunConfig, database: str):
         logger.info(f"Connecting to DB {database}")
         return await asyncpg.connect(
             host=config.host,
@@ -181,7 +181,7 @@ class PostgresqlExtractor(BaseExtractor):
             name,
         )
         for column in results:
-            dataset.schema.fields.append(PostgresqlExtractor._build_field(column))
+            dataset.schema.fields.append(PostgreSQLExtractor._build_field(column))
 
     @staticmethod
     async def _fetch_constraints(conn, schema: str, name: str, dataset: Dataset):
@@ -210,7 +210,7 @@ class PostgresqlExtractor(BaseExtractor):
         )
         if results:
             for constraint in results:
-                PostgresqlExtractor._build_constraint(
+                PostgreSQLExtractor._build_constraint(
                     constraint, dataset.schema.sql_schema
                 )
 
@@ -264,7 +264,7 @@ class PostgresqlExtractor(BaseExtractor):
             foreign_key = ForeignKey()
             foreign_key.field_path = constraint["key_columns"]
             foreign_key.parent = DatasetLogicalID()
-            foreign_key.parent.name = PostgresqlExtractor._dataset_name(
+            foreign_key.parent.name = PostgreSQLExtractor._dataset_name(
                 constraint["constraint_db"],
                 constraint["constraint_schema"],
                 constraint["constraint_table"],

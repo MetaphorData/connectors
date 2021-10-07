@@ -70,7 +70,7 @@ class BigQueryExtractor(BaseExtractor):
 
     BYTES_PER_MEGABYTES = 1024 * 1024
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: BigQueryRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, BigQueryExtractor.config_class())
 
         logger.info("Fetching metadata from BigQuery")
