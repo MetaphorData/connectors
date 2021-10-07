@@ -13,6 +13,7 @@ from metaphor.models.metadata_change_event import (
     DatasetStatistics,
     DatasetUpstream,
     DbtMacro,
+    DbtMacroArgument,
     DbtMaterialization,
     DbtMaterializationType,
     DbtModel,
@@ -312,7 +313,14 @@ class DbtExtractor(BaseExtractor):
                 unique_id=macro.unique_id,
                 package_name=macro.package_name,
                 description=macro.description,
-                arguments=macro.arguments,
+                arguments=[
+                    DbtMacroArgument(
+                        name=arg.name,
+                        type=arg.type,
+                        description=arg.description,
+                    )
+                    for arg in macro.arguments
+                ],
                 sql=macro.macro_sql,
                 depends_on_macros=macro.depends_on.macros if macro.depends_on else None,
             )
