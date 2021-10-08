@@ -61,9 +61,6 @@ def test_basic(test_root_dir):
             explores={
                 "explore1": Explore(
                     name="explore1",
-                    description="description",
-                    label="label",
-                    upstream_datasets={dataset_id},
                 )
             }
         )
@@ -135,9 +132,6 @@ def test_join(test_root_dir):
             explores={
                 "explore1": Explore(
                     name="explore1",
-                    description="description",
-                    label="label",
-                    upstream_datasets={dataset_id1, dataset_id2},
                 )
             }
         )
@@ -228,9 +222,6 @@ def test_explore_in_view(test_root_dir):
             explores={
                 "explore1": Explore(
                     name="explore1",
-                    description="description",
-                    label="label",
-                    upstream_datasets={dataset_id},
                 )
             }
         )
@@ -303,48 +294,12 @@ def test_derived_table(test_root_dir):
             explores={
                 "explore1": Explore(
                     name="explore1",
-                    upstream_datasets={
-                        EntityId(
-                            type=EntityType.DATASET,
-                            logicalId=DatasetLogicalID(
-                                account="account",
-                                name="db.schema.table1",
-                                platform=DataPlatform.SNOWFLAKE,
-                            ),
-                        )
-                    },
-                    description="description",
-                    label="label",
                 ),
                 "explore2": Explore(
                     name="explore2",
-                    upstream_datasets={
-                        EntityId(
-                            type=EntityType.DATASET,
-                            logicalId=DatasetLogicalID(
-                                account="account",
-                                name="db.schema.table1",
-                                platform=DataPlatform.SNOWFLAKE,
-                            ),
-                        )
-                    },
-                    description="description",
-                    label="label",
                 ),
                 "explore3": Explore(
                     name="explore3",
-                    upstream_datasets={
-                        EntityId(
-                            type=EntityType.DATASET,
-                            logicalId=DatasetLogicalID(
-                                account="account",
-                                name="db.schema.table1",
-                                platform=DataPlatform.SNOWFLAKE,
-                            ),
-                        )
-                    },
-                    description="description3",
-                    label="label3",
                 ),
             }
         )

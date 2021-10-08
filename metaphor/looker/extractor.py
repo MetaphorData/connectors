@@ -28,7 +28,7 @@ from serde import deserialize
 from metaphor.common.entity_id import to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
-from metaphor.looker.lookml_parser import Connection, Model, parse_project
+from metaphor.looker.lookml_parser import Connection, Model, fullname, parse_project
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -189,13 +189,12 @@ class LookerExtractor(BaseExtractor):
         model_map: Dict[str, Model],
     ) -> Tuple[List[Chart], DashboardUpstream]:
         charts = []
-        dataset_ids: Set[str] = set()
         explore_ids: Set[str] = set()
 
         for e in filter(lambda e: e.type == "vis", dashboard_elements):
 
             if e.result_maker is None:
-                logger.warn(f"Unable to find result_maker is element {e.title}")
+                logger.warn(f"Unable to find result_maker in element {e.title}")
                 continue
 
             chart_type = None
@@ -215,25 +214,23 @@ class LookerExtractor(BaseExtractor):
                     logger.warn(f"Missing model or view in element {e.title}")
                     continue
 
-                model = model_map.get(f.model, None)
+                model = model_map.get(f.model)
                 if model is None:
                     raise ValueError(
                         f"Chart {e.title} references invalid model {f.model}"
                     )
 
-                explore = model.explores.get(f.view, None)
+                explore = model.explores.get(f.view)
                 if explore is None:
                     raise ValueError(
                         f"Chart {e.title} references invalid explore {f.view}"
                     )
 
-                for id in explore.upstream_datasets:
-                    dataset_ids.add(str(id))
-
                 explore_ids.add(
                     str(
                         to_virtual_view_entity_id(
-                            explore.name, VirtualViewType.LOOKER_EXPLORE
+                            fullname(f.model, explore.name),
+                            VirtualViewType.LOOKER_EXPLORE,
                         )
                     )
                 )
@@ -241,7 +238,6 @@ class LookerExtractor(BaseExtractor):
         return (
             charts,
             DashboardUpstream(
-                source_datasets=list(dataset_ids),
                 source_virtual_views=list(explore_ids),
             ),
         )

@@ -45,37 +45,13 @@ class Connection:
 @dataclass
 class Explore:
     name: str
-    upstream_datasets: Set[EntityId]
-    description: Optional[str]
-    label: Optional[str]
 
     @staticmethod
     def from_dict(
         raw_explore: Dict, raw_views: Dict[str, Dict], connection: Connection
     ):
-        explore_name = raw_explore["name"]
-
-        # The underlying view of an explore can be specified via "from" or "view_name".
-        # When not specified, it's default to the same name as the explore itself.
-        # See https://docs.looker.com/reference/explore-params/from-for-explore
-        view_name = raw_explore.get("from", raw_explore.get("view_name", explore_name))
-        upstream_datasets = _get_upstream_datasets(view_name, raw_views, connection)
-
-        # zero or more joins
-        for join in raw_explore.get("joins", []):
-            # The actual view name may be overridden via "from".
-            # See https://docs.looker.com/reference/explore-params/join
-            join_view_name = join.get("from", join["name"])
-
-            upstream_datasets.update(
-                _get_upstream_datasets(join_view_name, raw_views, connection)
-            )
-
         return Explore(
-            name=explore_name,
-            description=raw_explore.get("description", None),
-            label=raw_explore.get("label", None),
-            upstream_datasets=upstream_datasets,
+            name=raw_explore["name"],
         )
 
 
@@ -177,7 +153,7 @@ def _extract_upstream_datasets_from_sql(
     return upstream
 
 
-def _fullname(model: str, name: str) -> str:
+def fullname(model: str, name: str) -> str:
     return f"{model}.{name}"
 
 
@@ -196,7 +172,7 @@ def _build_looker_view(
         view.extends = [
             str(
                 to_virtual_view_entity_id(
-                    _fullname(model, view), VirtualViewType.LOOKER_VIEW
+                    fullname(model, view), VirtualViewType.LOOKER_VIEW
                 )
             )
             for view in raw_view["extends"]
@@ -222,7 +198,7 @@ def _build_looker_view(
 
     return VirtualView(
         logical_id=VirtualViewLogicalID(
-            name=_fullname(model, name), type=VirtualViewType.LOOKER_VIEW
+            name=fullname(model, name), type=VirtualViewType.LOOKER_VIEW
         ),
         looker_view=view,
     )
@@ -230,7 +206,7 @@ def _build_looker_view(
 
 def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
     name = raw_explore["name"]
-    base_view_name = raw_explore.get("view_name", raw_explore.get("from", name))
+    base_view_name = raw_explore.get("from", raw_explore.get("view_name", name))
 
     explore = LookerExplore(
         model_name=model,
@@ -240,7 +216,7 @@ def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
         fields=raw_explore.get("fields"),
         base_view=str(
             to_virtual_view_entity_id(
-                _fullname(model, base_view_name), VirtualViewType.LOOKER_VIEW
+                fullname(model, base_view_name), VirtualViewType.LOOKER_VIEW
             )
         ),
     )
@@ -249,7 +225,7 @@ def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
         explore.extends = [
             str(
                 to_virtual_view_entity_id(
-                    _fullname(model, explore), VirtualViewType.LOOKER_EXPLORE
+                    fullname(model, explore), VirtualViewType.LOOKER_EXPLORE
                 )
             )
             for explore in raw_explore["extends"]
@@ -260,7 +236,7 @@ def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
             LookerExploreJoin(
                 view=str(
                     to_virtual_view_entity_id(
-                        _fullname(model, raw_join.get("from", raw_join["name"])),
+                        fullname(model, raw_join.get("from", raw_join["name"])),
                         VirtualViewType.LOOKER_VIEW,
                     )
                 ),
@@ -277,7 +253,7 @@ def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
 
     return VirtualView(
         logical_id=VirtualViewLogicalID(
-            name=_fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
+            name=fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
         ),
         looker_explore=explore,
     )
