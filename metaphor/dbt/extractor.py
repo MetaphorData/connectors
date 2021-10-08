@@ -158,11 +158,11 @@ class DbtExtractor(BaseExtractor):
             field.native_type = field.native_type or col.type or "Not Set"
 
     def _parse_catalog_source(self, model: CatalogTable):
-        assert model.unique_id is not None
-        assert model.metadata.database is not None
-
         meta = model.metadata
         columns = model.columns
+
+        assert model.unique_id is not None
+        assert meta.database is not None
 
         dataset = self._init_dataset(
             meta.database, meta.schema_, meta.name, model.unique_id
@@ -230,7 +230,9 @@ class DbtExtractor(BaseExtractor):
         source_map = {}
         for key, source in sources.items():
             assert source.database is not None
-            source_map[key] = DbtDataset(source.database, source.schema_, source.name)
+            source_map[key] = self._get_dataset_entity_id(
+                source.database, source.schema_, source.name
+            )
 
         macro_map = {}
         for key, macro in macros.items():
@@ -278,8 +280,10 @@ class DbtExtractor(BaseExtractor):
             if materialized:
                 dbt_model.materialization = DbtMaterialization(
                     type=DbtMaterializationType[materialized.upper()],
-                    target_dataset=self._get_dataset_id(
-                        DbtDataset(model.database, model.schema_, model.name)
+                    target_dataset=str(
+                        self._get_dataset_entity_id(
+                            model.database, model.schema_, model.name
+                        )
                     ),
                 )
 
@@ -299,7 +303,7 @@ class DbtExtractor(BaseExtractor):
                     ]
 
                     dbt_model.source_datasets = [
-                        self._get_dataset_id(source_map[n])
+                        str(source_map[n])
                         for n in model.depends_on.nodes
                         if n.startswith("source.")
                     ]
@@ -332,21 +336,21 @@ class DbtExtractor(BaseExtractor):
 
             self._init_dbt_tests(model_unique_id).append(dbt_test)
 
-    @staticmethod
-    def _dataset_name(db: str, schema: str, table: str) -> str:
-        return f"{db}.{schema}.{table}".lower()
+    def _get_dataset_logical_id(
+        self, db: str, schema: str, table: str
+    ) -> DatasetLogicalID:
+        full_name = f"{db}.{schema}.{table}".lower()
 
-    def _get_dataset_id(self, dataset: DbtDataset) -> str:
-        dataset_name = DbtExtractor._dataset_name(
-            dataset.database, dataset.schema, dataset.name
-        )
-
-        dataset_id = DatasetLogicalID(
-            name=dataset_name,
+        return DatasetLogicalID(
+            name=full_name,
             platform=self.platform,
             account=self.account,
         )
-        return str(EntityId(EntityType.DATASET, dataset_id))
+
+    def _get_dataset_entity_id(self, db: str, schema: str, table: str) -> EntityId:
+        return EntityId(
+            EntityType.DATASET, self._get_dataset_logical_id(db, schema, table)
+        )
 
     @staticmethod
     def _get_virtual_view_id(logical_id: VirtualViewLogicalID) -> str:
@@ -362,11 +366,7 @@ class DbtExtractor(BaseExtractor):
     ) -> Dataset:
         if unique_id not in self._datasets:
             self._datasets[unique_id] = Dataset(
-                logical_id=DatasetLogicalID(
-                    name=self._dataset_name(database, schema, name),
-                    platform=self.platform,
-                    account=self.account,
-                )
+                logical_id=self._get_dataset_logical_id(database, schema, name)
             )
         return self._datasets[unique_id]
 
