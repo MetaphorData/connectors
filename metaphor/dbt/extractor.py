@@ -49,7 +49,7 @@ logger.setLevel(logging.INFO)
 @dataclass
 class DbtRunConfig(RunConfig):
     manifest: str
-    catalog: str
+    catalog: Optional[str] = None
 
     # the database service account this DBT project is connected to
     account: Optional[str] = None
@@ -66,7 +66,7 @@ class DbtExtractor(BaseExtractor):
         self.platform: DataPlatform = DataPlatform.UNKNOWN
         self.account: Optional[str] = None
         self._manifest: DbtManifest
-        self._catalog: DbtCatalog
+        self._catalog: Optional[DbtCatalog] = None
         self._datasets: Dict[str, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
 
@@ -82,10 +82,12 @@ class DbtExtractor(BaseExtractor):
             logger.error(f"Read manifest json error: {e}")
             raise e
 
-        try:
-            self._catalog = DbtCatalog.parse_file(Path(config.catalog))
-        except Exception as e:
-            logger.warning(f"Read catalog json error: {e}")
+        if config.catalog:
+            try:
+                self._catalog = DbtCatalog.parse_file(Path(config.catalog))
+            except Exception as e:
+                logger.error(f"Read catalog json error: {e}")
+                raise e
 
         self._parse_manifest()
 
