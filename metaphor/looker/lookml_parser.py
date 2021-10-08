@@ -48,7 +48,7 @@ class Explore:
 
     @staticmethod
     def from_dict(
-        raw_explore: Dict, raw_views: Dict[str, Dict], connection: Connection
+        raw_explore: Dict,
     ):
         return Explore(
             name=raw_explore["name"],
@@ -61,14 +61,12 @@ class Model:
 
     @staticmethod
     def from_dict(
-        raw_views: Dict[str, Dict],
         raw_explores: Dict[str, Dict],
-        connection: Connection,
     ):
         explores = [
             # Ignore refinements since they don't change the sources
             # See https://docs.looker.com/data-modeling/learning-lookml/refinements
-            Explore.from_dict(raw_explore, raw_views, connection)
+            Explore.from_dict(raw_explore)
             for raw_explore in raw_explores.values()
             if not raw_explore["name"].startswith("+")
         ]
@@ -342,6 +340,6 @@ def parse_project(
             ]
         )
 
-        model_map[model_name] = Model.from_dict(raw_views, raw_explores, connection)
+        model_map[model_name] = Model.from_dict(raw_explores)
 
     return model_map, virtual_views
