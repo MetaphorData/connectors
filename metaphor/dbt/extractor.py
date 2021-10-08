@@ -45,13 +45,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-@dataclass
-class DbtDataset:
-    database: str
-    schema: str
-    name: str
-
-
 @deserialize
 @dataclass
 class DbtRunConfig(RunConfig):
