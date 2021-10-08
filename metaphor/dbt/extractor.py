@@ -11,7 +11,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
-    DatasetUpstream,
     DbtMacro,
     DbtMacroArgument,
     DbtMaterialization,
@@ -23,7 +22,6 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     SchemaField,
     SchemaType,
-    SQLSchema,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
@@ -94,8 +92,7 @@ class DbtExtractor(BaseExtractor):
         try:
             self._catalog = DbtCatalog.parse_file(Path(config.catalog))
         except Exception as e:
-            logger.error(f"Read catalog json error: {e}")
-            raise e
+            logger.warning(f"Read catalog json error: {e}")
 
         self._parse_manifest()
 
@@ -134,111 +131,39 @@ class DbtExtractor(BaseExtractor):
             if isinstance(v, CompiledSchemaTestNode)
         }
 
-        dataset_map = {}
-        for key, model in models.items():
-            assert model.database is not None
-            dataset_map[key] = DbtDataset(model.database, model.schema_, model.name)
-        for key, source in sources.items():
-            assert source.database is not None
-            dataset_map[key] = DbtDataset(source.database, source.schema_, source.name)
-
-        for model in models.values():
-            self._parse_model(model, dataset_map)
-
-        for test in tests.values():
-            self._parse_test(test)
-
         self._parse_manifest_nodes(sources, macros, tests, models)
-
-    def _parse_model(
-        self,
-        model: CompiledModelNode,
-        dataset_map: Dict[str, DbtDataset],
-    ) -> None:
-        assert model.database is not None
-        dataset = self._init_dataset(
-            model.database, model.schema_, model.name, model.unique_id
-        )
-        self._init_schema(dataset)
-
-        if model.compiled_sql is not None:
-            assert dataset.schema is not None
-            dataset.schema.sql_schema = SQLSchema()
-            dataset.schema.sql_schema.table_schema = model.compiled_sql
-
-        if model.description is not None:
-            dataset.schema.description = model.description
-            self._init_documentation(dataset)
-            assert (
-                dataset.documentation is not None
-                and dataset.documentation.dataset_documentations is not None
-            )
-            dataset.documentation.dataset_documentations.append(model.description)
-
-        if model.columns is not None:
-            for col in model.columns.values():
-                column_name = col.name.lower()
-                field = self._init_field(dataset.schema.fields, column_name)
-                field.description = col.description
-                field.native_type = (
-                    "Not Set" if col.data_type is None else col.data_type
-                )
-
-                if col.description:
-                    field_doc = self._init_field_doc(dataset, column_name)
-                    field_doc.documentation = col.description
-
-        if model.depends_on is not None:
-            dataset.upstream = DatasetUpstream()
-            dataset.upstream.source_code_url = model.original_file_path
-
-            if model.depends_on.nodes is not None:
-                dataset.upstream.source_datasets = [
-                    self._get_dataset_id(dataset_map[n]) for n in model.depends_on.nodes
-                ]
-
-    def _parse_test(self, test: CompiledSchemaTestNode) -> None:
-        if test.test_metadata is None:
-            return
-
-        if test.depends_on is None or not test.depends_on.nodes:
-            return
-
-        depends_on_model = test.depends_on.nodes[0]
-        if depends_on_model not in self._datasets:
-            return
-
-        dataset = self._datasets[depends_on_model]
-
-        columns = []
-        if test.columns:
-            columns = list(test.columns.keys())
-        elif test.column_name is not None:
-            columns = [test.column_name]
-
-        for column in columns:
-            field_doc = self._init_field_doc(dataset, column)
-            if not field_doc.tests:
-                field_doc.tests = []
-            field_doc.tests.append(test.test_metadata.name)
 
     def _parse_catalog(self) -> None:
         if self._catalog is None:
             return
 
-        nodes = self._catalog.nodes
-        sources = self._catalog.sources
+        for node in self._catalog.nodes.values():
+            self._parse_catalog_model(node)
 
-        for model in {**nodes, **sources}.values():
-            self._parse_catalog_model(model)
+        for source in self._catalog.sources.values():
+            self._parse_catalog_source(source)
 
     def _parse_catalog_model(self, model: CatalogTable):
+        assert model.unique_id is not None
+
+        virtual_view = self._init_virtual_view(model.unique_id)
+        dbt_model = virtual_view.dbt_model
+
+        dbt_model.description = dbt_model.description or model.metadata.comment
+
+        for col in model.columns.values():
+            column_name = col.name.lower()
+            field = self._init_field(dbt_model.fields, column_name)
+            field.description = field.description or col.comment
+            field.native_type = field.native_type or col.type or "Not Set"
+
+    def _parse_catalog_source(self, model: CatalogTable):
+        assert model.unique_id is not None
+        assert model.metadata.database is not None
+
         meta = model.metadata
         columns = model.columns
-        stats = model.stats
 
-        assert meta.database is not None
-        assert model.unique_id is not None
         dataset = self._init_dataset(
             meta.database, meta.schema_, meta.name, model.unique_id
         )
@@ -248,18 +173,19 @@ class DbtExtractor(BaseExtractor):
         # assert dataset.ownership is not None and dataset.ownership.people is not None
         # dataset.ownership.people.append(self._build_owner(meta["owner"]))
 
-        self._init_schema(dataset)
         self._init_documentation(dataset)
+        if meta.comment:
+            dataset.documentation.dataset_documentations = [meta.comment]
 
         for col in columns.values():
-            column_name = col.name.lower()
-            field = self._init_field(dataset.schema.fields, column_name)
-            field.description = col.comment
-            field.native_type = "Not Set" if col.type is None else col.type
-
             if col.comment:
+                column_name = col.name.lower()
                 field_doc = self._init_field_doc(dataset, column_name)
                 field_doc.documentation = col.comment
+
+    @staticmethod
+    def _parse_catalog_statistics(dataset: Dataset, model: CatalogTable):
+        stats = model.stats
 
         has_stats = stats.get("has_stats")
         if has_stats is not None and has_stats.value is not None:
@@ -362,9 +288,7 @@ class DbtExtractor(BaseExtractor):
                     column_name = col.name.lower()
                     field = self._init_field(dbt_model.fields, column_name)
                     field.description = col.description
-                    field.native_type = (
-                        "Not Set" if col.data_type is None else col.data_type
-                    )
+                    field.native_type = col.data_type or "Not Set"
 
             if model.depends_on is not None:
                 if model.depends_on.nodes:
