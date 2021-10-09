@@ -1,23 +1,23 @@
-<!-- markdownlint-disable MD041 -->
 <!-- ☝️ give your PR a short, but descriptive title. -->
 
 ### Why?
 
 <!--
-	Give reviewers the context necessary to understand this PR. For example,
-	a link to the associated Clubhouse, or a few words
-	describing the problem this PR solves.
+  Give reviewers the context necessary to understand this PR. For example,
+  a link to the associated Shortcut story, or a few words describing the
+  problem this PR solves.
 
-	e.g. [CH000](https://app.clubhouse.io/metaphor-data/story/000)
+  e.g. [SC000](https://app.shortcut.com/metaphor-data/story/000)
 -->
 
-### What?
+### 🤓 What?
 
 <!--
-	Summary of the changes committed. How does your PR fix the above issue?
+  Summary of the changes committed. How does your PR fix the above issue?
 -->
 
-### Checklist
+### 🧪 Tested?
 
-- [ ] I have tested that the changes in this PR work as expected
-- [ ] I have added/updated tests that exercise the critical code paths in this diff
+<!--
+  Describe how the change was tested end-to-end.
+-->
