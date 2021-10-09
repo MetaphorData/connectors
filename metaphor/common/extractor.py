@@ -57,11 +57,11 @@ class BaseExtractor(ABC):
 
     def run(self, config: RunConfig) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
-        logger.info("Starting extractor {}".format(self.__class__.__name__))
+        logger.info(f"Starting extractor {self.__class__.__name__}")
 
         events: List[MetadataChangeEvent] = asyncio.run(self.extract(config))
 
-        logger.info("Fetched {} entities".format(len(events)))
+        logger.info(f"Fetched {len(events)} entities")
 
         if config.output.api is not None:
             ApiSink(config.output.api).sink(events)
@@ -69,6 +69,7 @@ class BaseExtractor(ABC):
         if config.output.file is not None:
             FileSink(config.output.file).sink(events)
 
+        logger.info("Extractor ended successfully")
         return events
 
     @abstractmethod
