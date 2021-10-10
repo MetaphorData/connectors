@@ -125,7 +125,6 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
         with ctx:
             cursor = ctx.cursor()
-            cursor.execute("USE ROLE accountadmin")
 
             while True:
                 cursor.execute(
