@@ -18,13 +18,13 @@ python -V  # or python3 -V on some systems
 Once verified, you can install the package using [pip](https://docs.python.org/3/installing/index.html),
 
 ```shell
-pip install metaphor-connectors[all]
+pip install "metaphor-connectors[all]"
 ```
 
 This will install all the connectors and required dependencies. You can also choose to install only a subset of the dependencies by installing specific [extra](https://packaging.python.org/tutorials/installing-packages/#installing-setuptools-extras), e.g.
 
 ```shell
-pip install metaphor-connectors[snowflake]
+pip install "metaphor-connectors[snowflake]"
 ```
 
 Similary, you can also install the package using `requirements.txt` or `pyproject.toml`.
