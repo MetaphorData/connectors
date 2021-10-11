@@ -12,26 +12,26 @@ This repository contains a collection of Python-based "connectors" that extract 
 This package requires Python 3.7+ installed. You can verify the version on your system by running the following command,
 
 ```shell
-python -V  # or python3 -V on some systems
+python -V  # or python3 on some systems
 ```
 
 Once verified, you can install the package using [pip](https://docs.python.org/3/installing/index.html),
 
 ```shell
-pip install metaphor-connectors[all]
+pip install "metaphor-connectors[all]"  # or pip3 on some systems
 ```
 
-This will install all the connectors and required dependencies. You can also choose to install only a subset of the dependencies by installing specific [extra](https://packaging.python.org/tutorials/installing-packages/#installing-setuptools-extras), e.g.
+This will install all the connectors and required dependencies. You can also choose to install only a subset of the dependencies by installing the specific [extra](https://packaging.python.org/tutorials/installing-packages/#installing-setuptools-extras), e.g.
 
 ```shell
-pip install metaphor-connectors[snowflake]
+pip install "metaphor-connectors[snowflake]"
 ```
 
 Similary, you can also install the package using `requirements.txt` or `pyproject.toml`.
 
 ## Connectors
 
-Each connector is placed under its own directory under `metaphor` and extends the `metaphor.common.BaseExtractor` class.
+Each connector is placed under its own directory under [metaphor](./metaphor) and extends the `metaphor.common.BaseExtractor` class.
 
 | Connector | Metadata  |
 | --------- | --------- |  
