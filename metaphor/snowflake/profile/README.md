@@ -4,7 +4,16 @@ This connector extracts column-level data profiles from a Snowflake account usin
 
 ## Setup
 
-Create a dedicated user & role based on the [Setup](../README.md#Setup) guide for the general Snowflake connector.
+Create a dedicated user & role based on the [Setup](../README.md#Setup) guide for the general Snowflake connector. You'll need to grant additional permission to the role in order to access the Account Usage tables:
+
+```sql
+grant select on all tables in database identifier($db) to role metaphor_role;
+grant select on future tables in database identifier($db) to role metaphor_role;
+grant select on all views in database identifier($db) to role metaphor_role;
+grant select on future views in database identifier($db) to role metaphor_role;
+grant select on all materialized views in database identifier($db) to role metaphor_role;
+grant select on future materialized views in database identifier($db) to role metaphor_role;
+```
 
 ## Config File
 
