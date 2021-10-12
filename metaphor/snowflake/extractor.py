@@ -102,9 +102,9 @@ class SnowflakeExtractor(BaseExtractor):
         return f"{db}.{schema}.{name}".lower()
 
     fetch_table_query = """
-    SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes 
-    FROM information_schema.tables 
-    WHERE table_schema != 'INFORMATION_SCHEMA' 
+    SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes
+    FROM information_schema.tables
+    WHERE table_schema != 'INFORMATION_SCHEMA'
     ORDER BY table_schema, table_name
     """
 
@@ -129,10 +129,10 @@ class SnowflakeExtractor(BaseExtractor):
         return tables
 
     fetch_columns_query = """
-    SELECT ordinal_position, column_name, data_type, character_maximum_length, 
-      numeric_precision, is_nullable, column_default, comment 
-    FROM information_schema.columns 
-    WHERE table_schema = %s AND table_name = %s 
+    SELECT ordinal_position, column_name, data_type, character_maximum_length,
+      numeric_precision, is_nullable, column_default, comment
+    FROM information_schema.columns
+    WHERE table_schema = %s AND table_name = %s
     ORDER BY ordinal_position
     """
 
