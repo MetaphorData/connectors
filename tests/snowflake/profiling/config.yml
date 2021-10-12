@@ -1,0 +1,9 @@
+---
+account: account
+user: user
+password: password
+default_database: database
+target_databases:
+    - foo
+    - bar
+output:

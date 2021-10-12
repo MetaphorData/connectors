@@ -56,7 +56,7 @@ class SnowflakeExtractor(BaseExtractor):
     def __init__(self):
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: SnowflakeRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeExtractor.config_class())
 
         logger.info(f"Fetching metadata from Snowflake account {config.account}")
@@ -68,7 +68,7 @@ class SnowflakeExtractor(BaseExtractor):
             cursor = ctx.cursor()
 
             databases = (
-                self._fetch_databases(cursor, config.default_database)
+                self.fetch_databases(cursor, config.default_database)
                 if config.target_databases is None
                 else config.target_databases
             )
@@ -89,7 +89,7 @@ class SnowflakeExtractor(BaseExtractor):
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     @staticmethod
-    def _fetch_databases(cursor, initial_database: str) -> List[str]:
+    def fetch_databases(cursor, initial_database: str) -> List[str]:
         cursor.execute("USE " + initial_database)
         cursor.execute(
             "SELECT database_name FROM information_schema.databases ORDER BY database_name"
@@ -97,9 +97,16 @@ class SnowflakeExtractor(BaseExtractor):
         return [db[0] for db in cursor]
 
     @staticmethod
-    def _table_fullname(db: str, schema: str, name: str):
+    def table_fullname(db: str, schema: str, name: str):
         """The full table name including database, schema and name"""
         return f"{db}.{schema}.{name}".lower()
+
+    fetch_table_query = """
+    SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes 
+    FROM information_schema.tables 
+    WHERE table_schema != 'INFORMATION_SCHEMA' 
+    ORDER BY table_schema, table_name
+    """
 
     def _fetch_tables(
         self, cursor, database: str, account: str
@@ -109,16 +116,11 @@ class SnowflakeExtractor(BaseExtractor):
         except snowflake.connector.errors.ProgrammingError:
             raise ValueError(f"Invalid or inaccessible database {database}")
 
-        cursor.execute(
-            "SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes "
-            "FROM information_schema.tables "
-            "WHERE table_schema != 'INFORMATION_SCHEMA' "
-            "ORDER BY table_schema, table_name"
-        )
+        cursor.execute(self.fetch_table_query)
 
         tables: List[Tuple[str, str, str]] = []
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
-            full_name = self._table_fullname(database, schema, name)
+            full_name = self.table_fullname(database, schema, name)
             self._datasets[full_name] = self._init_dataset(
                 account, full_name, table_type, comment, row_count, table_bytes
             )
@@ -126,18 +128,20 @@ class SnowflakeExtractor(BaseExtractor):
 
         return tables
 
+    fetch_columns_query = """
+    SELECT ordinal_position, column_name, data_type, character_maximum_length, 
+      numeric_precision, is_nullable, column_default, comment 
+    FROM information_schema.columns 
+    WHERE table_schema = %s AND table_name = %s 
+    ORDER BY ordinal_position
+    """
+
     @staticmethod
     def _fetch_columns(cursor, schema: str, name: str, dataset: Dataset) -> None:
         assert dataset.schema is not None and dataset.schema.fields is not None
 
-        cursor.execute(
-            "SELECT ordinal_position, column_name, data_type, character_maximum_length, "
-            "  numeric_precision, is_nullable, column_default, comment "
-            "FROM information_schema.columns "
-            "WHERE table_schema = %s AND table_name = %s "
-            "ORDER BY ordinal_position",
-            (schema, name),
-        )
+        cursor.execute(SnowflakeExtractor.fetch_columns_query, (schema, name))
+
         for column in cursor:
             dataset.schema.fields.append(SnowflakeExtractor._build_field(column))
 
