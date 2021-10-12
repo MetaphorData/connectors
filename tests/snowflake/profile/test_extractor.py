@@ -7,7 +7,7 @@ from metaphor.models.metadata_change_event import (
     FieldStatistics,
 )
 
-from metaphor.snowflake.profiling.extractor import SnowflakeProfilingExtractor
+from metaphor.snowflake.profile.extractor import SnowflakeProfileExtractor
 
 
 def test_build_profiling_query():
@@ -27,7 +27,7 @@ def test_build_profiling_query():
     )
 
     assert (
-        SnowflakeProfilingExtractor._build_profiling_query(columns, schema, name)
+        SnowflakeProfileExtractor._build_profiling_query(columns, schema, name)
         == expected
     )
 
@@ -39,9 +39,9 @@ def test_parse_profiling_result():
         ("year", "NUMBER", True),
     ]
     results = (5, 5, 4, 0, 3, 8, 5, 1.5, 2, 1, 2000, 2020, 2015, 2.3)
-    dataset = SnowflakeProfilingExtractor._init_dataset(account="a", full_name="foo")
+    dataset = SnowflakeProfileExtractor._init_dataset(account="a", full_name="foo")
 
-    SnowflakeProfilingExtractor._parse_profiling_result(columns, results, dataset)
+    SnowflakeProfileExtractor._parse_profiling_result(columns, results, dataset)
 
     assert dataset == Dataset(
         entity_type=EntityType.DATASET,

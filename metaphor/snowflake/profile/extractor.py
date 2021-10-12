@@ -30,7 +30,7 @@ logger.setLevel(logging.INFO)
 
 @deserialize
 @dataclass
-class SnowflakeProfilingRunConfig(RunConfig):
+class SnowflakeProfileRunConfig(RunConfig):
     account: str
     user: str
     password: str
@@ -40,24 +40,22 @@ class SnowflakeProfilingRunConfig(RunConfig):
     target_databases: Optional[List[str]]
 
 
-class SnowflakeProfilingExtractor(BaseExtractor):
-    """Snowflake profiling metadata extractor"""
+class SnowflakeProfileExtractor(BaseExtractor):
+    """Snowflake data profile extractor"""
 
     @staticmethod
     def config_class():
-        return SnowflakeProfilingRunConfig
+        return SnowflakeProfileRunConfig
 
     def __init__(self):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
-        self, config: SnowflakeProfilingRunConfig
+        self, config: SnowflakeProfileRunConfig
     ) -> List[MetadataChangeEvent]:
-        assert isinstance(config, SnowflakeProfilingExtractor.config_class())
+        assert isinstance(config, SnowflakeProfileExtractor.config_class())
 
-        logger.info(
-            f"Fetching profiling metadata from Snowflake account {config.account}"
-        )
+        logger.info(f"Fetching data profile from Snowflake account {config.account}")
         ctx = snowflake.connector.connect(
             account=config.account, user=config.user, password=config.password
         )
@@ -113,10 +111,10 @@ class SnowflakeProfilingExtractor(BaseExtractor):
         columns = [(row[1], row[2], row[5] == "YES") for row in cursor]
 
         cursor.execute(
-            SnowflakeProfilingExtractor._build_profiling_query(columns, schema, name)
+            SnowflakeProfileExtractor._build_profiling_query(columns, schema, name)
         )
 
-        SnowflakeProfilingExtractor._parse_profiling_result(
+        SnowflakeProfileExtractor._parse_profiling_result(
             columns, cursor.fetchone(), dataset
         )
 
@@ -132,7 +130,7 @@ class SnowflakeProfilingExtractor(BaseExtractor):
             if nullable:
                 query.append(f', COUNT_IF("{column}" is NULL)')
 
-            if SnowflakeProfilingExtractor._is_numeric(data_type):
+            if SnowflakeProfileExtractor._is_numeric(data_type):
                 query.extend(
                     [
                         f', MIN("{column}")',
@@ -170,7 +168,7 @@ class SnowflakeProfilingExtractor(BaseExtractor):
             else:
                 nulls = 0.0
 
-            if SnowflakeProfilingExtractor._is_numeric(data_type):
+            if SnowflakeProfileExtractor._is_numeric(data_type):
                 min_value = float(results[index]) if results[index] else None
                 index += 1
                 max_value = float(results[index]) if results[index] else None

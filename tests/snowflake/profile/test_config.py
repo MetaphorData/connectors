@@ -1,12 +1,12 @@
-from metaphor.snowflake.profiling.extractor import SnowflakeProfilingRunConfig
+from metaphor.snowflake.profile.extractor import SnowflakeProfileRunConfig
 
 
 def test_json_config(test_root_dir):
-    config = SnowflakeProfilingRunConfig.from_json_file(
+    config = SnowflakeProfileRunConfig.from_json_file(
         f"{test_root_dir}/snowflake/config.json"
     )
 
-    assert config == SnowflakeProfilingRunConfig(
+    assert config == SnowflakeProfileRunConfig(
         account="account",
         user="user",
         password="password",
@@ -17,11 +17,11 @@ def test_json_config(test_root_dir):
 
 
 def test_yaml_config(test_root_dir):
-    config = SnowflakeProfilingRunConfig.from_yaml_file(
+    config = SnowflakeProfileRunConfig.from_yaml_file(
         f"{test_root_dir}/snowflake/config.yml"
     )
 
-    assert config == SnowflakeProfilingRunConfig(
+    assert config == SnowflakeProfileRunConfig(
         account="account",
         user="user",
         password="password",
