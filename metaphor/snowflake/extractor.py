@@ -101,7 +101,7 @@ class SnowflakeExtractor(BaseExtractor):
         """The full table name including database, schema and name"""
         return f"{db}.{schema}.{name}".lower()
 
-    fetch_table_query = """
+    FETCH_TABLE_QUERY = """
     SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes
     FROM information_schema.tables
     WHERE table_schema != 'INFORMATION_SCHEMA'
@@ -116,7 +116,7 @@ class SnowflakeExtractor(BaseExtractor):
         except snowflake.connector.errors.ProgrammingError:
             raise ValueError(f"Invalid or inaccessible database {database}")
 
-        cursor.execute(self.fetch_table_query)
+        cursor.execute(self.FETCH_TABLE_QUERY)
 
         tables: List[Tuple[str, str, str]] = []
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
@@ -128,7 +128,7 @@ class SnowflakeExtractor(BaseExtractor):
 
         return tables
 
-    fetch_columns_query = """
+    FETCH_COLUMNS_QUERY = """
     SELECT ordinal_position, column_name, data_type, character_maximum_length,
       numeric_precision, is_nullable, column_default, comment
     FROM information_schema.columns
@@ -140,7 +140,7 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_columns(cursor, schema: str, name: str, dataset: Dataset) -> None:
         assert dataset.schema is not None and dataset.schema.fields is not None
 
-        cursor.execute(SnowflakeExtractor.fetch_columns_query, (schema, name))
+        cursor.execute(SnowflakeExtractor.FETCH_COLUMNS_QUERY, (schema, name))
 
         for column in cursor:
             dataset.schema.fields.append(SnowflakeExtractor._build_field(column))

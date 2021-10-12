@@ -93,7 +93,7 @@ class SnowflakeProfilingExtractor(BaseExtractor):
         except snowflake.connector.errors.ProgrammingError:
             raise ValueError(f"Invalid or inaccessible database {database}")
 
-        cursor.execute(SnowflakeExtractor.fetch_table_query)
+        cursor.execute(SnowflakeExtractor.FETCH_TABLE_QUERY)
 
         tables: List[Tuple[str, str, str]] = []
         for row in cursor:
@@ -107,7 +107,7 @@ class SnowflakeProfilingExtractor(BaseExtractor):
     @staticmethod
     def _fetch_columns(cursor, schema: str, name: str, dataset: Dataset) -> None:
 
-        cursor.execute(SnowflakeExtractor.fetch_columns_query, (schema, name))
+        cursor.execute(SnowflakeExtractor.FETCH_COLUMNS_QUERY, (schema, name))
 
         # (column, data type, nullable)
         columns = [(row[1], row[2], row[5] == "YES") for row in cursor]

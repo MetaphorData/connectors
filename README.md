@@ -40,6 +40,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [metaphor.google_directory](metaphor/google_directory/README.md) | User |
 | [metaphor.snowflake](metaphor/snowflake/README.md) | Schema, Description |
 | [metaphor.snowflake.usage](metaphor/snowflake/usage/README.md) | Usage |
+| [metaphor.snowflake.profiling](metaphor/snowflake/profiling/README.md) | Data Profile |
 
 ## Development
 
