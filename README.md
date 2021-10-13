@@ -27,7 +27,7 @@ This will install all the connectors and required dependencies. You can also cho
 pip install "metaphor-connectors[snowflake]"
 ```
 
-Similary, you can also install the package using `requirements.txt` or `pyproject.toml`.
+Similarly, you can also install the package using `requirements.txt` or `pyproject.toml`.
 
 ## Connectors
 
@@ -39,6 +39,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [metaphor.dbt](metaphor/dbt/README.md) | dbt definitions, Lineage |
 | [metaphor.google_directory](metaphor/google_directory/README.md) | User |
 | [metaphor.snowflake](metaphor/snowflake/README.md) | Schema, Description |
+| [metaphor.snowflake.profile](metaphor/snowflake/profile/README.md) | Data Profile |
 | [metaphor.snowflake.usage](metaphor/snowflake/usage/README.md) | Usage |
 
 ## Development
