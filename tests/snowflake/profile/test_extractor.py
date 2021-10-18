@@ -23,7 +23,7 @@ def test_build_profiling_query():
         'COUNT_IF("price" is NULL), MIN("price"), MAX("price"), AVG("price"), STDDEV("price"), '
         'COUNT(DISTINCT "year"), COUNT_IF("year" is NULL), MIN("year"), MAX("year"), AVG("year"), '
         'STDDEV("year") '
-        "FROM schema.table"
+        'FROM "schema"."table"'
     )
 
     assert (

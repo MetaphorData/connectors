@@ -77,7 +77,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 for schema, name, full_name in tables:
                     logger.info(f"Profiling table {full_name}")
                     dataset = self._datasets[full_name]
-                    self._fetch_columns(cursor, schema, name, dataset)
+                    try:
+                        self._fetch_columns(cursor, schema, name, dataset)
+                    except Exception as e:
+                        logger.error(f"Failed to profile {full_name}:\n{e}")
 
         logger.debug(self._datasets)
 
@@ -140,7 +143,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                     ]
                 )
 
-        query.append(f" FROM {schema}.{name}")
+        query.append(f' FROM "{schema}"."{name}"')
 
         return "".join(query)
 
