@@ -150,7 +150,7 @@ class DbtExtractor(BaseExtractor):
         for source in self._catalog.sources.values():
             self._parse_catalog_source(source)
 
-    def _parse_catalog_model(self, model: CatalogTable):
+    def _parse_catalog_model(self, model: CatalogTable) -> None:
         assert model.unique_id is not None
 
         virtual_view = self._init_virtual_view(model.unique_id)
@@ -165,13 +165,13 @@ class DbtExtractor(BaseExtractor):
             field.description = field.description or col.comment
             field.native_type = field.native_type or col.type or "Not Set"
 
-    def _build_docs_url(self, unique_id: str):
+    def _build_docs_url(self, unique_id: str) -> str:
         return f"{self.docsBaseUrl}/#!/model/{unique_id}" if self.docsBaseUrl else None
 
-    def _build_source_code_url(self, file_path: str):
+    def _build_source_code_url(self, file_path: str) -> str:
         return f"{self.projectSourceUrl}/{file_path}" if self.projectSourceUrl else None
 
-    def _parse_catalog_source(self, model: CatalogTable):
+    def _parse_catalog_source(self, model: CatalogTable) -> None:
         meta = model.metadata
         columns = model.columns
 
@@ -198,7 +198,7 @@ class DbtExtractor(BaseExtractor):
                 field_doc.documentation = col.comment
 
     @staticmethod
-    def _parse_catalog_statistics(dataset: Dataset, model: CatalogTable):
+    def _parse_catalog_statistics(dataset: Dataset, model: CatalogTable) -> None:
         stats = model.stats
 
         has_stats = stats.get("has_stats")
