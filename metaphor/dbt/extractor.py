@@ -34,7 +34,6 @@ from serde import deserialize
 from metaphor.common.entity_id import EntityId, to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
-
 from .generated.dbt_catalog import CatalogTable, DbtCatalog
 from .generated.dbt_manifest import (
     CompiledModelNode,
@@ -286,12 +285,14 @@ class DbtExtractor(BaseExtractor):
                 description=model.description,
                 url=self._build_source_code_url(model.original_file_path),
                 tags=model.tags,
-                owners=self._get_owner_entity_id(model.meta.get("owner")),
                 raw_sql=model.raw_sql,
                 compiled_sql=model.compiled_sql,
                 fields=[],
             )
             dbt_model = virtual_view.dbt_model
+
+            if model.meta:
+                dbt_model.owners = self._get_owner_entity_id(model.meta.get("owner"))
 
             assert model.config is not None and model.database is not None
             materialized = model.config.materialized
