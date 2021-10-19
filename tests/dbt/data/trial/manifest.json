@@ -272,7 +272,9 @@
           "tags": []
         }
       },
-      "meta": {},
+      "meta": {
+        "owner": "yi@metaphor.io"
+      },
       "docs": {
         "show": true
       },
@@ -390,7 +392,9 @@
           "tags": []
         }
       },
-      "meta": {},
+      "meta": {
+        "owner": "yi@metaphor.io, mars@metaphor.io, foo"
+      },
       "docs": {
         "show": true
       },

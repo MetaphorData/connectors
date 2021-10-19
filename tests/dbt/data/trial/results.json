@@ -185,6 +185,9 @@
           "targetDataset": "DATASET~1712CB731B3A99B418D013CDD380ED96",
           "type": "TABLE"
         },
+        "owners": [
+          "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
+        ],
         "packageName": "trial",
         "rawSql": "{{ config(materialized='table') }}\n\nselect show_id, type, title, country, release_year \nfrom {{ source('DBT_DEV', 'NETFLIX') }}",
         "sourceDatasets": [
@@ -286,6 +289,10 @@
           "targetDataset": "DATASET~193E378823E334188F097A104793663C",
           "type": "TABLE"
         },
+        "owners": [
+          "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846",
+          "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        ],
         "packageName": "trial",
         "rawSql": "{{ config(materialized='table') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
         "sourceDatasets": [

@@ -1,6 +1,8 @@
 import logging
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from email.utils import parseaddr
 from pathlib import Path
 from typing import Dict, List, Optional, cast
 
@@ -20,6 +22,7 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     FieldDocumentation,
     MetadataChangeEvent,
+    PersonLogicalID,
     SchemaField,
     SchemaType,
     VirtualView,
@@ -283,6 +286,7 @@ class DbtExtractor(BaseExtractor):
                 description=model.description,
                 url=self._build_source_code_url(model.original_file_path),
                 tags=model.tags,
+                owners=self._get_owner_entity_id(model.meta.get("owner")),
                 raw_sql=model.raw_sql,
                 compiled_sql=model.compiled_sql,
                 fields=[],
@@ -375,6 +379,18 @@ class DbtExtractor(BaseExtractor):
     def _get_model_name_from_unique_id(unique_id: str) -> str:
         assert unique_id.startswith("model."), f"invalid model id {unique_id}"
         return unique_id[6:]
+
+    @staticmethod
+    def _get_owner_entity_id(owner: Optional[str]) -> Optional[List[str]]:
+        if not owner:
+            return None
+
+        parts = re.split(r"(\s|,)", owner.strip())
+        return [
+            str(EntityId(EntityType.PERSON, PersonLogicalID(email=p)))
+            for p in parts
+            if "@" in parseaddr(p)[1]
+        ]
 
     def _init_dataset(
         self, database: str, schema: str, name: str, unique_id: str
