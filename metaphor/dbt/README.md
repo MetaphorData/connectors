@@ -14,12 +14,16 @@ Create a YAML config file based the following template.
 manifest: <path_to_manifest_json>
 catalog: <path_to_catalog_json>
 account: <snowflake_account>
+docsBaseUrl: <docs_base_url>
+projectSourceUrl: <project_dir_source_url>
 output:
   file:
     path: <path_to_output_file>
 ```
 
 The manifest.json file is required and the catalog.json file is optional, but it's recommended to have both for complete metadata.
+
+If the dbt generated docs are hosted at a fixed URL, please provide the `docsBaseUrl` to generate links to model docs. Also, the `projectSourceUrl` can help to generate link to the model source code.
 
 ## Testing
 
