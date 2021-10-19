@@ -78,7 +78,7 @@
             "uniqueId": "test.trial.not_null_my_first_dbt_model_id.f479667b44"
           }
         ],
-        "url": "/models/example/my_first_dbt_model.sql"
+        "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_first_dbt_model.sql"
       },
       "logicalId": {
         "name": "trial.my_first_dbt_model",
@@ -137,7 +137,7 @@
             "uniqueId": "test.trial.not_null_my_second_dbt_model_id.dc1d13aa6d"
           }
         ],
-        "url": "/models/example/my_second_dbt_model.sql"
+        "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
       },
       "logicalId": {
         "name": "trial.my_second_dbt_model",
@@ -238,7 +238,7 @@
             "uniqueId": "test.trial.not_null_trial_model_1_title.0df06c3bb2"
           }
         ],
-        "url": "/models/example/trial_model_1.sql"
+        "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_1.sql"
       },
       "logicalId": {
         "name": "trial.trial_model_1",
@@ -350,7 +350,7 @@
             "uniqueId": "test.trial.not_null_trial_model_2_profit.fe4505f957"
           }
         ],
-        "url": "/models/example/trial_model_2.sql"
+        "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_2.sql"
       },
       "logicalId": {
         "name": "trial.trial_model_2",

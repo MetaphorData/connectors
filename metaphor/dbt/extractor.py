@@ -54,11 +54,11 @@ class DbtRunConfig(RunConfig):
     # the database service account this DBT project is connected to
     account: Optional[str] = None
 
-    # the dbt docs base URL, e.g. https://xxx.com/dbt/docs , if not specified, default to localhost
-    docsBaseUrl: Optional[str] = "http://localhost:8080"
+    # the dbt docs base URL
+    docsBaseUrl: Optional[str] = None
 
-    # the source code URL for the project directory, if not specified, default to empty string
-    projectSourceUrl: Optional[str] = ""
+    # the source code URL for the project directory
+    projectSourceUrl: Optional[str] = None
 
     # TODO: support dbt cloud and derive dbt cloud docs URL
 
@@ -166,7 +166,10 @@ class DbtExtractor(BaseExtractor):
             field.native_type = field.native_type or col.type or "Not Set"
 
     def _build_docs_url(self, unique_id: str):
-        return f"{self.docsBaseUrl}/#!/model/{unique_id}"
+        return f"{self.docsBaseUrl}/#!/model/{unique_id}" if self.docsBaseUrl else None
+
+    def _build_source_code_url(self, file_path: str):
+        return f"{self.projectSourceUrl}/{file_path}" if self.projectSourceUrl else None
 
     def _parse_catalog_source(self, model: CatalogTable):
         meta = model.metadata
@@ -278,7 +281,7 @@ class DbtExtractor(BaseExtractor):
             virtual_view.dbt_model = DbtModel(
                 package_name=model.package_name,
                 description=model.description,
-                url=f"{self.projectSourceUrl}/{model.original_file_path}",
+                url=self._build_source_code_url(model.original_file_path),
                 tags=model.tags,
                 raw_sql=model.raw_sql,
                 compiled_sql=model.compiled_sql,
