@@ -54,6 +54,14 @@ class DbtRunConfig(RunConfig):
     # the database service account this DBT project is connected to
     account: Optional[str] = None
 
+    # the dbt docs base URL
+    docsBaseUrl: Optional[str] = None
+
+    # the source code URL for the project directory
+    projectSourceUrl: Optional[str] = None
+
+    # TODO: support dbt cloud and derive dbt cloud docs URL
+
 
 class DbtExtractor(BaseExtractor):
     """DBT metadata extractor"""
@@ -65,6 +73,8 @@ class DbtExtractor(BaseExtractor):
     def __init__(self):
         self.platform: DataPlatform = DataPlatform.UNKNOWN
         self.account: Optional[str] = None
+        self.docsBaseUrl: Optional[str] = None
+        self.projectSourceUrl: Optional[str] = None
         self._manifest: DbtManifest
         self._catalog: Optional[DbtCatalog] = None
         self._datasets: Dict[str, Dataset] = {}
@@ -75,6 +85,8 @@ class DbtExtractor(BaseExtractor):
 
         logger.info("Fetching metadata from DBT repo")
         self.account = config.account
+        self.docsBaseUrl = config.docsBaseUrl
+        self.projectSourceUrl = config.projectSourceUrl
 
         try:
             self._manifest = DbtManifest.parse_file(Path(config.manifest))
@@ -138,13 +150,14 @@ class DbtExtractor(BaseExtractor):
         for source in self._catalog.sources.values():
             self._parse_catalog_source(source)
 
-    def _parse_catalog_model(self, model: CatalogTable):
+    def _parse_catalog_model(self, model: CatalogTable) -> None:
         assert model.unique_id is not None
 
         virtual_view = self._init_virtual_view(model.unique_id)
         dbt_model = virtual_view.dbt_model
 
         dbt_model.description = dbt_model.description or model.metadata.comment
+        dbt_model.docs_url = self._build_docs_url(model.unique_id)
 
         for col in model.columns.values():
             column_name = col.name.lower()
@@ -152,7 +165,13 @@ class DbtExtractor(BaseExtractor):
             field.description = field.description or col.comment
             field.native_type = field.native_type or col.type or "Not Set"
 
-    def _parse_catalog_source(self, model: CatalogTable):
+    def _build_docs_url(self, unique_id: str) -> Optional[str]:
+        return f"{self.docsBaseUrl}/#!/model/{unique_id}" if self.docsBaseUrl else None
+
+    def _build_source_code_url(self, file_path: str) -> Optional[str]:
+        return f"{self.projectSourceUrl}/{file_path}" if self.projectSourceUrl else None
+
+    def _parse_catalog_source(self, model: CatalogTable) -> None:
         meta = model.metadata
         columns = model.columns
 
@@ -179,7 +198,7 @@ class DbtExtractor(BaseExtractor):
                 field_doc.documentation = col.comment
 
     @staticmethod
-    def _parse_catalog_statistics(dataset: Dataset, model: CatalogTable):
+    def _parse_catalog_statistics(dataset: Dataset, model: CatalogTable) -> None:
         stats = model.stats
 
         has_stats = stats.get("has_stats")
@@ -262,6 +281,7 @@ class DbtExtractor(BaseExtractor):
             virtual_view.dbt_model = DbtModel(
                 package_name=model.package_name,
                 description=model.description,
+                url=self._build_source_code_url(model.original_file_path),
                 tags=model.tags,
                 raw_sql=model.raw_sql,
                 compiled_sql=model.compiled_sql,

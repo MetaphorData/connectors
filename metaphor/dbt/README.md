@@ -21,6 +21,13 @@ output:
 
 The manifest.json file is required and the catalog.json file is optional, but it's recommended to have both for complete metadata.
 
+You can optionally provide the `docsBaseUrl` (base URL serving the dbt generated docs) and `projectSourceUrl` (source code URL pointing to the project root directory). Those will help us to generate links to a model's docs and source code.
+
+```yaml
+docsBaseUrl: <docs_base_url>
+projectSourceUrl: <project_dir_source_code_url>
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `dbt` extra.
