@@ -277,7 +277,7 @@ def _get_entity_url(
 
 def _load_included_file(
     include_path: str, base_dir: str, projectSourceUrl: Optional[str]
-) -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, str]]:
+) -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, Optional[str]]]:
     glob_pattern = f"{base_dir}/{include_path}"
     if not glob_pattern.endswith(".lkml"):
         glob_pattern = glob_pattern + ".lkml"
@@ -306,7 +306,7 @@ def _load_model(
     base_dir: str,
     connections: Dict[str, Connection],
     projectSourceUrl: Optional[str],
-) -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, str], Connection]:
+) -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, Optional[str]], Connection]:
     """
     Loads model file and extract raw Views and Explores
     """
