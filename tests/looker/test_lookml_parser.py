@@ -39,7 +39,7 @@ def test_empty_model(test_root_dir):
 
 def test_basic(test_root_dir):
     models_map, virtual_views = parse_project(
-        test_root_dir + "/looker/basic", connection_map
+        test_root_dir + "/looker/basic", connection_map, "http://foo/files"
     )
 
     dataset_id = EntityId(
@@ -56,7 +56,7 @@ def test_basic(test_root_dir):
         VirtualViewLogicalID(name="model1.view1", type=VirtualViewType.LOOKER_VIEW),
     )
 
-    expected = {
+    assert models_map == {
         "model1": Model(
             explores={
                 "explore1": Explore(
@@ -65,7 +65,6 @@ def test_basic(test_root_dir):
             }
         )
     }
-    assert models_map == expected
 
     assert virtual_views == [
         VirtualView(
@@ -78,6 +77,7 @@ def test_basic(test_root_dir):
                     LookerViewMeasure(field="average_measurement", type="average")
                 ],
                 source_datasets=[str(dataset_id)],
+                url="http://foo/files/view1.view.lkml",
             ),
         ),
         VirtualView(
@@ -89,6 +89,7 @@ def test_basic(test_root_dir):
                 base_view=str(virtual_view_id),
                 description="description",
                 label="label",
+                url="http://foo/files/model1.model.lkml",
             ),
         ),
     ]

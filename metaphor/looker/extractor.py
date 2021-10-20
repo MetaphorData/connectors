@@ -41,7 +41,11 @@ class LookerRunConfig(RunConfig):
     client_id: str
     client_secret: str
 
+    # file path to LookerML project directory
     lookml_dir: str
+
+    # the source code URL for the project directory
+    projectSourceUrl: Optional[str] = None
 
     verify_ssl: bool = True
     timeout: int = 120
@@ -101,7 +105,9 @@ class LookerExtractor(BaseExtractor):
 
         connections = self._fetch_connections(sdk)
 
-        model_map, virtual_views = parse_project(config.lookml_dir, connections)
+        model_map, virtual_views = parse_project(
+            config.lookml_dir, connections, config.projectSourceUrl
+        )
 
         dashboards = self._fetch_dashboards(config, sdk, model_map)
 
