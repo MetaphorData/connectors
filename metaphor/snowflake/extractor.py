@@ -182,16 +182,12 @@ class SnowflakeExtractor(BaseExtractor):
         cursor.execute(f"SHOW UNIQUE KEYS IN DATABASE {database}")
 
         for entry in cursor:
-            (
-                create_time,
-                db,
-                schema,
-                table_name,
-                column,
-                order,
-                constraint_name,
-                *_rest,
-            ) = entry
+            schema, table_name, column, constraint_name = (
+                entry[2],
+                entry[3],
+                entry[4],
+                entry[6],
+            )
             table = self.table_fullname(database, schema, table_name)
 
             dataset = self._datasets.get(table)
@@ -201,7 +197,6 @@ class SnowflakeExtractor(BaseExtractor):
                 )
                 continue
 
-            column = entry[4]
             field = next(
                 (f for f in dataset.schema.fields if f.field_path == column),
                 None,
@@ -218,16 +213,12 @@ class SnowflakeExtractor(BaseExtractor):
         cursor.execute(f"SHOW PRIMARY KEYS IN DATABASE {database}")
 
         for entry in cursor:
-            (
-                create_time,
-                db,
-                schema,
-                table_name,
-                column,
-                order,
-                constraint_name,
-                *_rest,
-            ) = entry
+            schema, table_name, column, constraint_name = (
+                entry[2],
+                entry[3],
+                entry[4],
+                entry[6],
+            )
             table = self.table_fullname(database, schema, table_name)
 
             dataset = self._datasets.get(table)
@@ -242,7 +233,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             if sql_schema.primary_key is None:
                 sql_schema.primary_key = []
-            sql_schema.primary_key.append(entry[4])
+            sql_schema.primary_key.append(column)
 
     def _init_dataset(
         self,
