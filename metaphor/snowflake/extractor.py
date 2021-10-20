@@ -54,12 +54,15 @@ class SnowflakeExtractor(BaseExtractor):
         return SnowflakeRunConfig
 
     def __init__(self):
+        self.account = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self, config: SnowflakeRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeExtractor.config_class())
 
         logger.info(f"Fetching metadata from Snowflake account {config.account}")
+        self.account = config.account
+
         ctx = snowflake.connector.connect(
             account=config.account, user=config.user, password=config.password
         )
@@ -75,7 +78,7 @@ class SnowflakeExtractor(BaseExtractor):
             logger.info(f"Databases to include: {databases}")
 
             for database in databases:
-                tables = self._fetch_tables(cursor, database, config.account)
+                tables = self._fetch_tables(cursor, database)
                 logger.info(f"DB {database} has tables: {tables}")
 
                 for schema, name, full_name in tables:
@@ -83,6 +86,9 @@ class SnowflakeExtractor(BaseExtractor):
                     self._fetch_columns(cursor, schema, name, dataset)
                     self._fetch_ddl(cursor, schema, name, dataset)
                     self._fetch_last_updated(cursor, schema, name, dataset)
+
+                self._fetch_primary_keys(cursor, database)
+                self._fetch_unique_keys(cursor, database)
 
         logger.debug(self._datasets)
 
@@ -108,9 +114,7 @@ class SnowflakeExtractor(BaseExtractor):
     ORDER BY table_schema, table_name
     """
 
-    def _fetch_tables(
-        self, cursor, database: str, account: str
-    ) -> List[Tuple[str, str, str]]:
+    def _fetch_tables(self, cursor, database: str) -> List[Tuple[str, str, str]]:
         try:
             cursor.execute("USE " + database)
         except snowflake.connector.errors.ProgrammingError:
@@ -122,7 +126,7 @@ class SnowflakeExtractor(BaseExtractor):
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
             full_name = self.table_fullname(database, schema, name)
             self._datasets[full_name] = self._init_dataset(
-                account, full_name, table_type, comment, row_count, table_bytes
+                full_name, table_type, comment, row_count, table_bytes
             )
             tables.append((schema, name, full_name))
 
@@ -174,9 +178,56 @@ class SnowflakeExtractor(BaseExtractor):
         except Exception as e:
             logger.error(e)
 
-    @staticmethod
+    def _fetch_unique_keys(self, cursor, database: str) -> None:
+        cursor.execute(f"SHOW UNIQUE KEYS IN DATABASE {database}")
+
+        for entry in cursor:
+            table = self.table_fullname(database, entry[2], entry[3])
+            constraint_name = entry[6]
+
+            dataset = self._datasets.get(table)
+            if dataset is None or dataset.schema is None:
+                logger.error(
+                    f"Table {table} schema not found for unique key {constraint_name}"
+                )
+                continue
+
+            column = entry[4]
+            field = next(
+                (f for f in dataset.schema.fields if f.field_path == column),
+                None,
+            )
+            if not field:
+                logger.error(
+                    f"Column {column} not found in table {table} for unique key {constraint_name}"
+                )
+                continue
+
+            field.is_unique = True
+
+    def _fetch_primary_keys(self, cursor, database: str) -> None:
+        cursor.execute(f"SHOW PRIMARY KEYS IN DATABASE {database}")
+
+        for entry in cursor:
+            table = self.table_fullname(database, entry[2], entry[3])
+            constraint_name = entry[6]
+
+            dataset = self._datasets.get(table)
+            if dataset is None or dataset.schema is None:
+                logger.error(
+                    f"Table {table} schema not found for primary key {constraint_name}"
+                )
+                continue
+
+            sql_schema = dataset.schema.sql_schema
+            assert sql_schema is not None
+
+            if sql_schema.primary_key is None:
+                sql_schema.primary_key = []
+            sql_schema.primary_key.append(entry[4])
+
     def _init_dataset(
-        account: str,
+        self,
         full_name: str,
         table_type: str,
         comment: str,
@@ -186,11 +237,11 @@ class SnowflakeExtractor(BaseExtractor):
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, account=account, platform=DataPlatform.SNOWFLAKE
+            name=full_name, account=self.account, platform=DataPlatform.SNOWFLAKE
         )
 
         dataset.source_info = SourceInfo(
-            main_url=SnowflakeExtractor.build_table_url(account, full_name)
+            main_url=SnowflakeExtractor.build_table_url(self.account, full_name)
         )
 
         dataset.schema = DatasetSchema()
