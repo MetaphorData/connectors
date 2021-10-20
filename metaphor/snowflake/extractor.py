@@ -223,9 +223,11 @@ class SnowflakeExtractor(BaseExtractor):
 
     @staticmethod
     def _build_field(column) -> SchemaField:
-        field = SchemaField()
-        field.field_path = column[1]
-        field.native_type = column[2]
-        field.nullable = column[5] == "YES"
-        field.description = column[7]
-        return field
+        return SchemaField(
+            field_path=column[1],
+            native_type=column[2],
+            max_length=float(column[3]) if column[3] is not None else None,
+            precision=float(column[4]) if column[4] is not None else None,
+            nullable=column[5] == "YES",
+            description=column[7],
+        )
