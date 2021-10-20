@@ -226,6 +226,8 @@ class SnowflakeExtractor(BaseExtractor):
         field = SchemaField()
         field.field_path = column[1]
         field.native_type = column[2]
+        field.max_length = float(column[3]) if column[3] else None
+        field.precision = float(column[4]) if column[4] else None
         field.nullable = column[5] == "YES"
         field.description = column[7]
         return field
