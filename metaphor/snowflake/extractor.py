@@ -182,8 +182,17 @@ class SnowflakeExtractor(BaseExtractor):
         cursor.execute(f"SHOW UNIQUE KEYS IN DATABASE {database}")
 
         for entry in cursor:
-            table = self.table_fullname(database, entry[2], entry[3])
-            constraint_name = entry[6]
+            (
+                create_time,
+                db,
+                schema,
+                table_name,
+                column,
+                order,
+                constraint_name,
+                *_rest,
+            ) = entry
+            table = self.table_fullname(database, schema, table_name)
 
             dataset = self._datasets.get(table)
             if dataset is None or dataset.schema is None:
@@ -209,8 +218,17 @@ class SnowflakeExtractor(BaseExtractor):
         cursor.execute(f"SHOW PRIMARY KEYS IN DATABASE {database}")
 
         for entry in cursor:
-            table = self.table_fullname(database, entry[2], entry[3])
-            constraint_name = entry[6]
+            (
+                create_time,
+                db,
+                schema,
+                table_name,
+                column,
+                order,
+                constraint_name,
+                *_rest,
+            ) = entry
+            table = self.table_fullname(database, schema, table_name)
 
             dataset = self._datasets.get(table)
             if dataset is None or dataset.schema is None:
