@@ -293,7 +293,7 @@ class DbtExtractor(BaseExtractor):
             dbt_model = virtual_view.dbt_model
 
             if model.meta:
-                dbt_model.owners = self._get_owner_entity_id(model.meta.get("owner"))
+                dbt_model.owners = self._get_owner_entity_ids(model.meta.get("owner"))
 
             assert model.config is not None and model.database is not None
             materialized = model.config.materialized
@@ -383,11 +383,11 @@ class DbtExtractor(BaseExtractor):
         return unique_id[6:]
 
     @staticmethod
-    def _get_owner_entity_id(owner: Optional[str]) -> Optional[List[str]]:
-        if not owner:
+    def _get_owner_entity_ids(owners: Optional[str]) -> Optional[List[str]]:
+        if not owners:
             return None
 
-        parts = re.split(r"(\s|,)", owner.strip())
+        parts = re.split(r"(\s|,)", owners.strip())
         return [
             str(EntityId(EntityType.PERSON, PersonLogicalID(email=p)))
             for p in parts
