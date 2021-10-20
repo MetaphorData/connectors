@@ -156,11 +156,16 @@ def fullname(model: str, name: str) -> str:
 
 
 def _build_looker_view(
-    model: str, raw_view: Dict, raw_views: Dict[str, Dict], connection: Connection
+    model: str,
+    raw_view: Dict,
+    raw_views: Dict[str, Dict],
+    connection: Connection,
+    url: Optional[str],
 ) -> VirtualView:
     name = raw_view["name"]
     view = LookerView(
         label=raw_view.get("label"),
+        url=url,
         source_datasets=[
             str(ds) for ds in _get_upstream_datasets(name, raw_views, connection)
         ],
@@ -202,7 +207,9 @@ def _build_looker_view(
     )
 
 
-def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
+def _build_looker_explore(
+    model: str, raw_explore: Dict, url: Optional[str]
+) -> VirtualView:
     name = raw_explore["name"]
     base_view_name = raw_explore.get("from", raw_explore.get("view_name", name))
 
@@ -211,6 +218,7 @@ def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
         description=raw_explore.get("description"),
         label=raw_explore.get("label"),
         tags=raw_explore.get("tags"),
+        url=url,
         fields=raw_explore.get("fields"),
         base_view=str(
             to_virtual_view_entity_id(
@@ -257,30 +265,48 @@ def _build_looker_explore(model: str, raw_explore: Dict) -> VirtualView:
     )
 
 
+def _get_entity_url(
+    path: str, base_dir: str, projectSourceUrl: Optional[str]
+) -> Optional[str]:
+    if projectSourceUrl is None:
+        return None
+
+    relative_path = os.path.relpath(path, base_dir)
+    return f"{projectSourceUrl}/{relative_path}"
+
+
 def _load_included_file(
-    include_path: str, base_dir: str
-) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
+    include_path: str, base_dir: str, projectSourceUrl: Optional[str]
+) -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, Optional[str]]]:
     glob_pattern = f"{base_dir}/{include_path}"
     if not glob_pattern.endswith(".lkml"):
         glob_pattern = glob_pattern + ".lkml"
 
     raw_views = {}
     raw_explores = {}
+    entity_urls = {}
+
     for path in glob.glob(glob_pattern, recursive=True):
+        url = _get_entity_url(path, base_dir, projectSourceUrl)
         with open(path) as f:
             root = lkml.load(f)
             for view in root.get("views", []):
                 raw_views[view["name"]] = view
+                entity_urls[view["name"]] = url
 
             for explore in root.get("explores", []):
                 raw_explores[explore["name"]] = explore
+                entity_urls[explore["name"]] = url
 
-    return raw_views, raw_explores
+    return raw_views, raw_explores, entity_urls
 
 
 def _load_model(
-    model_path: str, base_dir: str, connections: Dict[str, Connection]
-) -> Tuple[Dict[str, Dict], Dict[str, Dict], Connection]:
+    model_path: str,
+    base_dir: str,
+    connections: Dict[str, Connection],
+    projectSourceUrl: Optional[str],
+) -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, Optional[str]], Connection]:
     """
     Loads model file and extract raw Views and Explores
     """
@@ -289,29 +315,39 @@ def _load_model(
 
     raw_views = {}
     raw_explores = {}
+    entity_urls = {}
 
     # Add explores & views defined in included files
     for include_path in model.get("includes", []):
-        views, explores = _load_included_file(include_path, base_dir)
+        views, explores, urls = _load_included_file(
+            include_path, base_dir, projectSourceUrl
+        )
         raw_views.update(views)
         raw_explores.update(explores)
+        entity_urls.update(urls)
+
+    url = _get_entity_url(model_path, base_dir, projectSourceUrl)
 
     # Add explores & views defined in model
     for explore in model.get("explores", []):
         raw_explores[explore["name"]] = explore
+        entity_urls[explore["name"]] = url
 
     for view in model.get("views", []):
         raw_views[view["name"]] = view
+        entity_urls[view["name"]] = url
 
     connection = connections.get(model.get("connection", ""), None)
     if connection is None:
         raise ValueError(f"Model ${model_path} has an invalid connection")
 
-    return raw_views, raw_explores, connection
+    return raw_views, raw_explores, entity_urls, connection
 
 
 def parse_project(
-    base_dir: str, connections: Dict[str, Connection]
+    base_dir: str,
+    connections: Dict[str, Connection],
+    projectSourceUrl: Optional[str] = None,
 ) -> Tuple[Dict[str, Model], List[VirtualView]]:
     """
     parse the project under base_dir, returning a Model map and a list of virtual views including
@@ -323,19 +359,27 @@ def parse_project(
 
     for model_path in glob.glob(f"{base_dir}/**/*.model.lkml", recursive=True):
         model_name = os.path.basename(model_path)[0 : -len(".model.lkml")]
-        raw_views, raw_explores, connection = _load_model(
-            model_path, base_dir, connections
+        raw_views, raw_explores, entity_urls, connection = _load_model(
+            model_path, base_dir, connections, projectSourceUrl
         )
 
         virtual_views.extend(
             [
-                _build_looker_view(model_name, view, raw_views, connection)
+                _build_looker_view(
+                    model_name,
+                    view,
+                    raw_views,
+                    connection,
+                    entity_urls.get(view["name"]),
+                )
                 for view in raw_views.values()
             ]
         )
         virtual_views.extend(
             [
-                _build_looker_explore(model_name, explore)
+                _build_looker_explore(
+                    model_name, explore, entity_urls.get(explore["name"])
+                )
                 for explore in raw_explores.values()
             ]
         )
