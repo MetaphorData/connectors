@@ -31,9 +31,21 @@ create user metaphor_user
 grant role metaphor_role to user metaphor_user;
 ```
 
+### Key Pair Authentication (Optional)
+
+If you intend to use key pair authentication instead of password, follow the [Snowflake instruction](https://docs.snowflake.com/en/user-guide/key-pair-auth.html) to generate a key pair. After that, assign the public key to the user using the following command:
+
+```sql
+alter user metaphor_user set rsa_public_key='<public_key_content>';
+```
+
 ## Config File
 
-Create a YAML config file based the following template.
+Create a YAML config file based on the following template.
+
+### Required configurations
+
+If using user password authentication:
 
 ```yaml
 account: <snowflake_account>
@@ -45,7 +57,25 @@ output:
     path: <path_to_output_file>
 ```
 
-By default the connector will extract metadata from all databases. You can optionally limit it to specific databases by adding the `target_databases` option to the config, e.g.
+If using key pair authentication:
+
+```yaml
+account: <snowflake_account>
+user: <snowflake_username>
+private_key:
+  key_file: <private_key_file>
+  passphrase: <private_key_encoding_passphrase>
+default_database: <default_database_for_connections>
+output:
+  file:
+    path: <path_to_output_file>
+```
+
+The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.
+
+### Optional configurations
+
+By default, the connector will extract metadata from all databases. You can optionally limit it to specific databases by adding the `target_databases` option to the config, e.g.
 
 ```yaml
 target_databases:

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
 from metaphor.common.event_util import EventUtil
+from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
 
 try:
@@ -22,7 +23,7 @@ from metaphor.models.metadata_change_event import (
 )
 from serde import deserialize
 
-from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.extractor import BaseExtractor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -30,14 +31,9 @@ logger.setLevel(logging.INFO)
 
 @deserialize
 @dataclass
-class SnowflakeProfileRunConfig(RunConfig):
-    account: str
-    user: str
-    password: str
-    default_database: str
-
+class SnowflakeProfileRunConfig(SnowflakeAuthConfig):
     # A list of databases to include. Includes all databases if not specified.
-    target_databases: Optional[List[str]]
+    target_databases: Optional[List[str]] = None
 
 
 class SnowflakeProfileExtractor(BaseExtractor):
@@ -55,16 +51,14 @@ class SnowflakeProfileExtractor(BaseExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeProfileExtractor.config_class())
 
-        logger.info(f"Fetching data profile from Snowflake account {config.account}")
-        ctx = snowflake.connector.connect(
-            account=config.account, user=config.user, password=config.password
-        )
+        logger.info("Fetching data profile from Snowflake")
+        ctx = connect(config)
 
         with ctx:
             cursor = ctx.cursor()
 
             databases = (
-                SnowflakeExtractor.fetch_databases(cursor, config.default_database)
+                SnowflakeExtractor.fetch_databases(cursor)
                 if config.target_databases is None
                 else config.target_databases
             )

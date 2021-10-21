@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 
 from metaphor.common.event_util import EventUtil
+from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
 
 try:
     import snowflake.connector
@@ -28,7 +29,7 @@ from metaphor.models.metadata_change_event import (
 )
 from serde import deserialize
 
-from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.extractor import BaseExtractor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -36,14 +37,9 @@ logger.setLevel(logging.INFO)
 
 @deserialize
 @dataclass
-class SnowflakeRunConfig(RunConfig):
-    account: str
-    user: str
-    password: str
-    default_database: str
-
+class SnowflakeRunConfig(SnowflakeAuthConfig):
     # A list of databases to include. Includes all databases if not specified.
-    target_databases: Optional[List[str]]
+    target_databases: Optional[List[str]] = None
 
 
 class SnowflakeExtractor(BaseExtractor):
@@ -60,18 +56,16 @@ class SnowflakeExtractor(BaseExtractor):
     async def extract(self, config: SnowflakeRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeExtractor.config_class())
 
-        logger.info(f"Fetching metadata from Snowflake account {config.account}")
+        logger.info("Fetching metadata from Snowflake")
         self.account = config.account
 
-        ctx = snowflake.connector.connect(
-            account=config.account, user=config.user, password=config.password
-        )
+        ctx = connect(config)
 
         with ctx:
             cursor = ctx.cursor()
 
             databases = (
-                self.fetch_databases(cursor, config.default_database)
+                self.fetch_databases(cursor)
                 if config.target_databases is None
                 else config.target_databases
             )
@@ -95,8 +89,7 @@ class SnowflakeExtractor(BaseExtractor):
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     @staticmethod
-    def fetch_databases(cursor, initial_database: str) -> List[str]:
-        cursor.execute("USE " + initial_database)
+    def fetch_databases(cursor) -> List[str]:
         cursor.execute(
             "SELECT database_name FROM information_schema.databases ORDER BY database_name"
         )

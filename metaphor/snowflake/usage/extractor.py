@@ -10,9 +10,9 @@ from sql_metadata import Parser
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
+from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
 
 try:
-    import snowflake.connector
     import sql_metadata
 except ImportError:
     print("Please install metaphor[snowflake] extra\n")
@@ -36,7 +36,7 @@ from metaphor.models.metadata_change_event import (
     TableJoinScenario,
 )
 
-from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.extractor import BaseExtractor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -49,11 +49,7 @@ _default_excluded_table_names = ["snowflake.*"]
 
 @deserialize
 @dataclass
-class SnowflakeUsageRunConfig(RunConfig):
-    account: str
-    user: str
-    password: str
-
+class SnowflakeUsageRunConfig(SnowflakeAuthConfig):
     # The number of days in history to retrieve query log
     lookback_days: int = 30
 
@@ -90,10 +86,8 @@ class SnowflakeUsageExtractor(BaseExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeUsageExtractor.config_class())
 
-        logger.info(f"Fetching usage info from Snowflake account {config.account}")
-        ctx = snowflake.connector.connect(
-            account=config.account, user=config.user, password=config.password
-        )
+        logger.info("Fetching usage info from Snowflake")
+        ctx = connect(config)
 
         self.account = config.account
         self.included_table_names = set(

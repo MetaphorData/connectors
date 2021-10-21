@@ -12,18 +12,15 @@ grant imported privileges on database snowflake to role metaphor_role;
 
 ## Config File
 
-Create a YAML config file based the following template.
+Create a YAML config file based on the following template.
 
-```yaml
-account: <snowflake_account>
-user: <snowflake_username>
-password: <snowflake_password>
-output:
-  file:
-    path: <path_to_output_file>
-```
+### Required configurations
 
-By default the connector will extract usage statistics from all tables in all databases for all users. You can limit the scope by specifying the following optional configs:
+Follow the same [required configurations instruction](../README.md#required-configurations).
+
+### Optional configurations
+
+By default, the connector will extract usage statistics from all tables in all databases for all users. You can limit the scope by specifying the following optional configs:
 
 ```yaml
 # Databases to be included
