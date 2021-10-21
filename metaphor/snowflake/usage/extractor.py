@@ -13,7 +13,6 @@ from metaphor.common.event_util import EventUtil
 from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
 
 try:
-    import snowflake.connector
     import sql_metadata
 except ImportError:
     print("Please install metaphor[snowflake] extra\n")

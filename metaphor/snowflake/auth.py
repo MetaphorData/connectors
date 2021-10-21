@@ -3,12 +3,16 @@ from typing import Optional
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import dsa, rsa
 from serde import deserialize
 from smart_open import open
-from snowflake import connector
 
 from metaphor.common.extractor import RunConfig
+
+try:
+    import snowflake.connector
+except ImportError:
+    print("Please install metaphor[snowflake] extra\n")
+    raise
 
 
 @deserialize
@@ -29,10 +33,10 @@ class SnowflakeAuthConfig(RunConfig):
     default_database: Optional[str] = None
 
 
-def connect(config: SnowflakeAuthConfig) -> connector.SnowflakeConnection:
+def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnection:
     # default authenticator
     if config.password is not None:
-        return connector.connect(
+        return snowflake.connector.connect(
             account=config.account,
             user=config.user,
             password=config.password,
@@ -58,7 +62,7 @@ def connect(config: SnowflakeAuthConfig) -> connector.SnowflakeConnection:
             encryption_algorithm=serialization.NoEncryption(),
         )
 
-        return connector.connect(
+        return snowflake.connector.connect(
             account=config.account,
             user=config.user,
             private_key=pkb,

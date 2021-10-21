@@ -58,7 +58,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
             cursor = ctx.cursor()
 
             databases = (
-                SnowflakeExtractor.fetch_databases(cursor, config.default_database)
+                SnowflakeExtractor.fetch_databases(cursor)
                 if config.target_databases is None
                 else config.target_databases
             )

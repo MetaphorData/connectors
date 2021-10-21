@@ -65,7 +65,7 @@ class SnowflakeExtractor(BaseExtractor):
             cursor = ctx.cursor()
 
             databases = (
-                self.fetch_databases(cursor, config.default_database)
+                self.fetch_databases(cursor)
                 if config.target_databases is None
                 else config.target_databases
             )
@@ -89,8 +89,7 @@ class SnowflakeExtractor(BaseExtractor):
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     @staticmethod
-    def fetch_databases(cursor, initial_database: str) -> List[str]:
-        cursor.execute("USE " + initial_database)
+    def fetch_databases(cursor) -> List[str]:
         cursor.execute(
             "SELECT database_name FROM information_schema.databases ORDER BY database_name"
         )
