@@ -17,19 +17,15 @@ grant select on future materialized views in database identifier($db) to role me
 
 ## Config File
 
-Create a YAML config file based the following template.
+Create a YAML config file based on the following template.
 
-```yaml
-account: <snowflake_account>
-user: <snowflake_username>
-password: <snowflake_password>
-default_database: <default_database_for_connections>
-output:
-  file:
-    path: <path_to_output_file>
-```
+### Required configurations
 
-By default the connector will extract metadata from all databases. You can optionally limit it to specific databases by adding the `target_databases` option to the config, e.g.
+Follow the same [required configurations instruction](../README.md#required-configurations).
+
+### Optional configurations
+
+By default, the connector will extract metadata from all databases. You can optionally limit it to specific databases by adding the `target_databases` option to the config, e.g.
 
 ```yaml
 target_databases:

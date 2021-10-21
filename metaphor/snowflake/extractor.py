@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 
 from metaphor.common.event_util import EventUtil
+from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
 
 try:
     import snowflake.connector
@@ -28,7 +29,7 @@ from metaphor.models.metadata_change_event import (
 )
 from serde import deserialize
 
-from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.extractor import BaseExtractor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -36,14 +37,9 @@ logger.setLevel(logging.INFO)
 
 @deserialize
 @dataclass
-class SnowflakeRunConfig(RunConfig):
-    account: str
-    user: str
-    password: str
-    default_database: str
-
+class SnowflakeRunConfig(SnowflakeAuthConfig):
     # A list of databases to include. Includes all databases if not specified.
-    target_databases: Optional[List[str]]
+    target_databases: Optional[List[str]] = None
 
 
 class SnowflakeExtractor(BaseExtractor):
@@ -63,9 +59,7 @@ class SnowflakeExtractor(BaseExtractor):
         logger.info(f"Fetching metadata from Snowflake account {config.account}")
         self.account = config.account
 
-        ctx = snowflake.connector.connect(
-            account=config.account, user=config.user, password=config.password
-        )
+        ctx = connect(config)
 
         with ctx:
             cursor = ctx.cursor()
