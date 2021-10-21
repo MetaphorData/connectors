@@ -56,7 +56,7 @@ class SnowflakeExtractor(BaseExtractor):
     async def extract(self, config: SnowflakeRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeExtractor.config_class())
 
-        logger.info(f"Fetching metadata from Snowflake")
+        logger.info("Fetching metadata from Snowflake")
         self.account = config.account
 
         ctx = connect(config)
