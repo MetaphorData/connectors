@@ -17,6 +17,17 @@ except ImportError:
 
 @deserialize
 @dataclass
+class SnowflakeKeyPairAuthConfig:
+    """Config for key pair authentication"""
+
+    key_file: str
+
+    # provide decryption passphrase if private key is encrypted
+    passphrase: Optional[str] = None
+
+
+@deserialize
+@dataclass
 class SnowflakeAuthConfig(RunConfig):
     account: str
     user: str
@@ -25,15 +36,18 @@ class SnowflakeAuthConfig(RunConfig):
     password: Optional[str] = None
 
     # if using key pair authentication
-    private_key_file: Optional[str] = None
-    # if private key is encrypted
-    private_key_passphrase: Optional[str] = None
+    private_key: Optional[SnowflakeKeyPairAuthConfig] = None
 
     # database context when opening a connection
     default_database: Optional[str] = None
 
 
 def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnection:
+    if config.password is None and config.private_key is None:
+        raise ValueError(
+            "Invalid Snowflake configuration, please set either password or private key"
+        )
+
     # default authenticator
     if config.password is not None:
         return snowflake.connector.connect(
@@ -44,14 +58,14 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
         )
 
     # key pair authentication
-    if config.private_key_file is not None:
+    if config.private_key is not None:
         passphrase = (
-            config.private_key_passphrase.encode()
-            if config.private_key_passphrase is not None
+            config.private_key.passphrase.encode()
+            if config.private_key.passphrase is not None
             else None
         )
 
-        with open(config.private_key_file, "rb") as f:
+        with open(config.private_key.key_file, "rb") as f:
             p_key = serialization.load_pem_private_key(
                 f.read(), password=passphrase, backend=default_backend()
             )
@@ -68,5 +82,3 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
             private_key=pkb,
             database=config.default_database,
         )
-
-    raise ValueError("Invalid Snowflake configuration, no authentication specified")
