@@ -97,7 +97,7 @@ def test_basic(test_root_dir):
 
 def test_join(test_root_dir):
     models_map, virtual_views = parse_project(
-        test_root_dir + "/looker/join", connection_map
+        test_root_dir + "/looker/join", connection_map, ""
     )
 
     dataset_id1 = EntityId(

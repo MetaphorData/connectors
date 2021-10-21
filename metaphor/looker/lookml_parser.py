@@ -268,7 +268,7 @@ def _build_looker_explore(
 def _get_entity_url(
     path: str, base_dir: str, projectSourceUrl: Optional[str]
 ) -> Optional[str]:
-    if projectSourceUrl is None:
+    if not projectSourceUrl:
         return None
 
     relative_path = os.path.relpath(path, base_dir)
