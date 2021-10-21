@@ -29,7 +29,7 @@ connection_map = {
 
 def test_empty_model(test_root_dir):
     models_map, virtual_views = parse_project(
-        test_root_dir + "/looker/empty_model", connection_map
+        f"{test_root_dir}/looker/empty_model", connection_map
     )
 
     expected = {"model1": Model(explores={})}
@@ -39,7 +39,7 @@ def test_empty_model(test_root_dir):
 
 def test_basic(test_root_dir):
     models_map, virtual_views = parse_project(
-        test_root_dir + "/looker/basic", connection_map, "http://foo/files"
+        f"{test_root_dir}/looker/basic", connection_map, "http://foo/files"
     )
 
     dataset_id = EntityId(
@@ -97,7 +97,7 @@ def test_basic(test_root_dir):
 
 def test_join(test_root_dir):
     models_map, virtual_views = parse_project(
-        test_root_dir + "/looker/join", connection_map, ""
+        f"{test_root_dir}/looker/join", connection_map, ""
     )
 
     dataset_id1 = EntityId(
@@ -201,7 +201,7 @@ def test_join(test_root_dir):
 
 def test_explore_in_view(test_root_dir):
     models_map, virtual_views = parse_project(
-        test_root_dir + "/looker/explore_in_view", connection_map
+        f"{test_root_dir}/looker/explore_in_view", connection_map
     )
 
     dataset_id = EntityId(
@@ -263,7 +263,7 @@ def test_explore_in_view(test_root_dir):
 
 def test_derived_table(test_root_dir):
     models_map, virtual_views = parse_project(
-        test_root_dir + "/looker/derived_table", connection_map
+        f"{test_root_dir}/looker/derived_table", connection_map
     )
 
     dataset_id = EntityId(
