@@ -86,7 +86,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeUsageExtractor.config_class())
 
-        logger.info(f"Fetching usage info from Snowflake account {config.account}")
+        logger.info(f"Fetching usage info from Snowflake")
         ctx = connect(config)
 
         self.account = config.account

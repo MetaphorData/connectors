@@ -51,7 +51,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, SnowflakeProfileExtractor.config_class())
 
-        logger.info(f"Fetching data profile from Snowflake account {config.account}")
+        logger.info(f"Fetching data profile from Snowflake")
         ctx = connect(config)
 
         with ctx:
