@@ -158,7 +158,7 @@ class SnowflakeExtractor(BaseExtractor):
             SnowflakeExtractor.FETCH_COLUMNS_QUERY,
             params,
             "fetch_columns",
-            self.max_concurrency,
+            self.max_concurrency
         )
 
         for full_name, columns in results.items():
