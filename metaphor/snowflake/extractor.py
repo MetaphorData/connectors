@@ -8,7 +8,11 @@ from snowflake.connector.cursor import SnowflakeCursor
 
 from metaphor.common.event_util import EventUtil
 from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
-from metaphor.snowflake.utils import DatasetInfo, async_execute
+from metaphor.snowflake.utils import (
+    DEFAULT_THREAD_POOL_SIZE,
+    DatasetInfo,
+    async_execute,
+)
 
 try:
     import snowflake.connector
@@ -46,7 +50,7 @@ class SnowflakeRunConfig(SnowflakeAuthConfig):
     target_databases: Optional[List[str]] = None
 
     # max number of concurrent queries to database
-    max_concurrency: Optional[int] = None
+    max_concurrency: Optional[int] = DEFAULT_THREAD_POOL_SIZE
 
 
 class SnowflakeExtractor(BaseExtractor):
