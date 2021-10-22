@@ -82,6 +82,13 @@ target_databases:
   - db1
   - db2
 ```
+
+The max number of concurrent queries to the snowflake database can be configured as follows, the default is 10.
+
+```yaml
+max_concurrency: <max_number_of_queries>
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `snowflake` extra.
