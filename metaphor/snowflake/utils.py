@@ -22,12 +22,19 @@ class DatasetInfo:
     type: str
 
 
-def async_query(
-    conn: SnowflakeConnection, query: str, params: Tuple
-) -> SnowflakeCursor:
+@dataclass
+class QueryWithParam:
+    query: str
+    params: Optional[Tuple] = None
+
+
+def async_query(conn: SnowflakeConnection, query: QueryWithParam) -> SnowflakeCursor:
     """Executing a snowflake query asynchronously"""
     cursor = conn.cursor()
-    cursor.execute_async(query, params)
+    if query.params is not None:
+        cursor.execute_async(query.query, query.params)
+    else:
+        cursor.execute_async(query.query)
 
     query_id = cursor.sfqid
 
@@ -41,8 +48,7 @@ def async_query(
 
 def async_execute(
     conn: SnowflakeConnection,
-    query: str,
-    params: Dict[str, Tuple],
+    queries: Dict[str, QueryWithParam],
     query_name: str = "",
     max_workers: Optional[int] = None,
 ) -> Dict[str, List]:
@@ -50,8 +56,8 @@ def async_execute(
     workers = max_workers if max_workers is not None else DEFAULT_THREAD_POOL_SIZE
     with futures.ThreadPoolExecutor(max_workers=workers) as executor:
         future_map = {
-            executor.submit(async_query, conn, query, value): key
-            for key, value in params.items()
+            executor.submit(async_query, conn, query): key
+            for key, query in queries.items()
         }
 
         results = {}
