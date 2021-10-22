@@ -1,10 +1,14 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
+
+from snowflake.connector import SnowflakeConnection
+from snowflake.connector.cursor import SnowflakeCursor
 
 from metaphor.common.event_util import EventUtil
 from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
+from metaphor.snowflake.utils import DatasetInfo, async_execute
 
 try:
     import snowflake.connector
@@ -41,6 +45,9 @@ class SnowflakeRunConfig(SnowflakeAuthConfig):
     # A list of databases to include. Includes all databases if not specified.
     target_databases: Optional[List[str]] = None
 
+    # max number of concurrent queries to database
+    max_concurrency: Optional[int] = None
+
 
 class SnowflakeExtractor(BaseExtractor):
     """Snowflake metadata extractor"""
@@ -51,6 +58,7 @@ class SnowflakeExtractor(BaseExtractor):
 
     def __init__(self):
         self.account = None
+        self.max_concurrency = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self, config: SnowflakeRunConfig) -> List[MetadataChangeEvent]:
@@ -58,11 +66,12 @@ class SnowflakeExtractor(BaseExtractor):
 
         logger.info("Fetching metadata from Snowflake")
         self.account = config.account
+        self.max_concurrency = config.max_concurrency
 
-        ctx = connect(config)
+        conn = connect(config)
 
-        with ctx:
-            cursor = ctx.cursor()
+        with conn:
+            cursor = conn.cursor()
 
             databases = (
                 self.fetch_databases(cursor)
@@ -75,11 +84,9 @@ class SnowflakeExtractor(BaseExtractor):
                 tables = self._fetch_tables(cursor, database)
                 logger.info(f"DB {database} has tables: {tables}")
 
-                for schema, name, full_name in tables:
-                    dataset = self._datasets[full_name]
-                    self._fetch_columns(cursor, schema, name, dataset)
-                    self._fetch_ddl(cursor, schema, name, dataset)
-                    self._fetch_last_updated(cursor, schema, name, dataset)
+                self._fetch_columns_async(conn, tables)
+                self._fetch_ddl_async(conn, tables)
+                self._fetch_last_updated_async(conn, tables)
 
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
@@ -89,7 +96,7 @@ class SnowflakeExtractor(BaseExtractor):
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     @staticmethod
-    def fetch_databases(cursor) -> List[str]:
+    def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
         cursor.execute(
             "SELECT database_name FROM information_schema.databases ORDER BY database_name"
         )
@@ -107,7 +114,9 @@ class SnowflakeExtractor(BaseExtractor):
     ORDER BY table_schema, table_name
     """
 
-    def _fetch_tables(self, cursor, database: str) -> List[Tuple[str, str, str]]:
+    def _fetch_tables(
+        self, cursor: SnowflakeCursor, database: str
+    ) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)
         except snowflake.connector.errors.ProgrammingError:
@@ -115,13 +124,13 @@ class SnowflakeExtractor(BaseExtractor):
 
         cursor.execute(self.FETCH_TABLE_QUERY)
 
-        tables: List[Tuple[str, str, str]] = []
+        tables: Dict[str, DatasetInfo] = {}
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
             full_name = self.table_fullname(database, schema, name)
             self._datasets[full_name] = self._init_dataset(
                 full_name, table_type, comment, row_count, table_bytes
             )
-            tables.append((schema, name, full_name))
+            tables[full_name] = DatasetInfo(database, schema, name, table_type)
 
         return tables
 
@@ -133,45 +142,76 @@ class SnowflakeExtractor(BaseExtractor):
     ORDER BY ordinal_position
     """
 
-    @staticmethod
-    def _fetch_columns(cursor, schema: str, name: str, dataset: Dataset) -> None:
-        assert dataset.schema is not None and dataset.schema.fields is not None
+    def _fetch_columns_async(
+        self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
+    ) -> None:
+        params = {
+            fullname: (dataset.schema, dataset.name)
+            for fullname, dataset in tables.items()
+        }
+        results = async_execute(
+            conn,
+            SnowflakeExtractor.FETCH_COLUMNS_QUERY,
+            params,
+            "fetch_columns",
+            self.max_concurrency,
+        )
 
-        cursor.execute(SnowflakeExtractor.FETCH_COLUMNS_QUERY, (schema, name))
+        for full_name, columns in results.items():
+            dataset = self._datasets[full_name]
+            assert dataset.schema is not None and dataset.schema.fields is not None
 
-        for column in cursor:
-            dataset.schema.fields.append(SnowflakeExtractor._build_field(column))
+            for column in columns:
+                dataset.schema.fields.append(SnowflakeExtractor._build_field(column))
 
-    @staticmethod
-    def _fetch_ddl(cursor, schema: str, name: str, dataset: Dataset) -> None:
-        assert dataset.schema is not None and dataset.schema.sql_schema is not None
+    def _fetch_ddl_async(
+        self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
+    ) -> None:
+        params = {
+            fullname: (f"{dataset.schema}.{dataset.name}",)
+            for fullname, dataset in tables.items()
+        }
+        results = async_execute(
+            conn,
+            "SELECT get_ddl('table', %s)",
+            params,
+            "fetch_ddl",
+            self.max_concurrency,
+        )
 
-        try:
-            cursor.execute("SELECT get_ddl('table', %s)", f"{schema}.{name}")
-            dataset.schema.sql_schema.table_schema = cursor.fetchone()[0]
-        except Exception as e:
-            logger.error(e)
+        for full_name, ddl in results.items():
+            dataset = self._datasets[full_name]
+            assert dataset.schema is not None and dataset.schema.sql_schema is not None
 
-    @staticmethod
-    def _fetch_last_updated(cursor, schema: str, name: str, dataset: Dataset) -> None:
-        assert dataset.schema is not None and dataset.schema.sql_schema is not None
-        if dataset.schema.sql_schema.materialization != MaterializationType.TABLE:
-            return
+            dataset.schema.sql_schema.table_schema = ddl[0][0]
 
-        assert dataset.statistics is not None
-        try:
-            cursor.execute(
-                "SELECT SYSTEM$LAST_CHANGE_COMMIT_TIME(%s)", f"{schema}.{name}"
-            )
-            timestamp = cursor.fetchone()[0]
+    def _fetch_last_updated_async(
+        self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
+    ) -> None:
+        params = {
+            fullname: (f"{dataset.schema}.{dataset.name}",)
+            for fullname, dataset in tables.items()
+            if dataset.type == "BASE TABLE"
+        }
+        results = async_execute(
+            conn,
+            "SELECT SYSTEM$LAST_CHANGE_COMMIT_TIME(%s)",
+            params,
+            "fetch_last_update_time",
+            self.max_concurrency,
+        )
+
+        for full_name, update_time in results.items():
+            dataset = self._datasets[full_name]
+            assert dataset.statistics is not None
+
+            timestamp = update_time[0][0]
             if timestamp > 0:
                 dataset.statistics.last_updated = datetime.utcfromtimestamp(
                     timestamp / 1000
                 ).replace(tzinfo=timezone.utc)
-        except Exception as e:
-            logger.error(e)
 
-    def _fetch_unique_keys(self, cursor, database: str) -> None:
+    def _fetch_unique_keys(self, cursor: SnowflakeCursor, database: str) -> None:
         cursor.execute(f"SHOW UNIQUE KEYS IN DATABASE {database}")
 
         for entry in cursor:
@@ -202,7 +242,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             field.is_unique = True
 
-    def _fetch_primary_keys(self, cursor, database: str) -> None:
+    def _fetch_primary_keys(self, cursor: SnowflakeCursor, database: str) -> None:
         cursor.execute(f"SHOW PRIMARY KEYS IN DATABASE {database}")
 
         for entry in cursor:
