@@ -11,6 +11,7 @@ from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
 from metaphor.snowflake.utils import (
     DEFAULT_THREAD_POOL_SIZE,
     DatasetInfo,
+    QueryWithParam,
     async_execute,
 )
 
@@ -149,14 +150,15 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_columns_async(
         self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
     ) -> None:
-        params = {
-            fullname: (dataset.schema, dataset.name)
+        queries = {
+            fullname: QueryWithParam(
+                SnowflakeExtractor.FETCH_COLUMNS_QUERY, (dataset.schema, dataset.name)
+            )
             for fullname, dataset in tables.items()
         }
         results = async_execute(
             conn,
-            SnowflakeExtractor.FETCH_COLUMNS_QUERY,
-            params,
+            queries,
             "fetch_columns",
             self.max_concurrency,
         )
@@ -171,14 +173,15 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_ddl_async(
         self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
     ) -> None:
-        params = {
-            fullname: (f"{dataset.schema}.{dataset.name}",)
+        queries = {
+            fullname: QueryWithParam(
+                "SELECT get_ddl('table', %s)", (f"{dataset.schema}.{dataset.name}",)
+            )
             for fullname, dataset in tables.items()
         }
         results = async_execute(
             conn,
-            "SELECT get_ddl('table', %s)",
-            params,
+            queries,
             "fetch_ddl",
             self.max_concurrency,
         )
@@ -192,15 +195,17 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_last_updated_async(
         self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
     ) -> None:
-        params = {
-            fullname: (f"{dataset.schema}.{dataset.name}",)
+        queries = {
+            fullname: QueryWithParam(
+                "SELECT SYSTEM$LAST_CHANGE_COMMIT_TIME(%s)",
+                (f"{dataset.schema}.{dataset.name}",),
+            )
             for fullname, dataset in tables.items()
             if dataset.type == "BASE TABLE"
         }
         results = async_execute(
             conn,
-            "SELECT SYSTEM$LAST_CHANGE_COMMIT_TIME(%s)",
-            params,
+            queries,
             "fetch_last_update_time",
             self.max_concurrency,
         )

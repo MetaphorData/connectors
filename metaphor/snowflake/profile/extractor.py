@@ -2,9 +2,17 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
+from snowflake.connector import SnowflakeConnection
+
 from metaphor.common.event_util import EventUtil
 from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
+from metaphor.snowflake.utils import (
+    DEFAULT_THREAD_POOL_SIZE,
+    DatasetInfo,
+    QueryWithParam,
+    async_execute,
+)
 
 try:
     import snowflake.connector
@@ -35,6 +43,9 @@ class SnowflakeProfileRunConfig(SnowflakeAuthConfig):
     # A list of databases to include. Includes all databases if not specified.
     target_databases: Optional[List[str]] = None
 
+    # max number of concurrent queries to database
+    max_concurrency: Optional[int] = DEFAULT_THREAD_POOL_SIZE
+
 
 class SnowflakeProfileExtractor(BaseExtractor):
     """Snowflake data profile extractor"""
@@ -44,6 +55,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
         return SnowflakeProfileRunConfig
 
     def __init__(self):
+        self.max_concurrency = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -52,10 +64,12 @@ class SnowflakeProfileExtractor(BaseExtractor):
         assert isinstance(config, SnowflakeProfileExtractor.config_class())
 
         logger.info("Fetching data profile from Snowflake")
-        ctx = connect(config)
+        self.max_concurrency = config.max_concurrency
 
-        with ctx:
-            cursor = ctx.cursor()
+        conn = connect(config)
+
+        with conn:
+            cursor = conn.cursor()
 
             databases = (
                 SnowflakeExtractor.fetch_databases(cursor)
@@ -68,13 +82,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 tables = self._fetch_tables(cursor, database, config.account)
                 logger.info(f"DB {database} has tables: {tables}")
 
-                for schema, name, full_name in tables:
-                    logger.info(f"Profiling table {full_name}")
-                    dataset = self._datasets[full_name]
-                    try:
-                        self._fetch_columns(cursor, schema, name, dataset)
-                    except Exception as e:
-                        logger.error(f"Failed to profile {full_name}:\n{e}")
+                self._fetch_columns_async(conn, tables)
 
         logger.debug(self._datasets)
 
@@ -82,7 +90,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     def _fetch_tables(
         self, cursor, database: str, account: str
-    ) -> List[Tuple[str, str, str]]:
+    ) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)
         except snowflake.connector.errors.ProgrammingError:
@@ -90,30 +98,50 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         cursor.execute(SnowflakeExtractor.FETCH_TABLE_QUERY)
 
-        tables: List[Tuple[str, str, str]] = []
+        tables: Dict[str, DatasetInfo] = {}
         for row in cursor:
-            schema, name = row[0], row[1]
+            schema, name, table_type = row[0], row[1], row[2]
             full_name = SnowflakeExtractor.table_fullname(database, schema, name)
             self._datasets[full_name] = self._init_dataset(account, full_name)
-            tables.append((schema, name, full_name))
+            tables[full_name] = DatasetInfo(database, schema, name, table_type)
 
         return tables
 
-    @staticmethod
-    def _fetch_columns(cursor, schema: str, name: str, dataset: Dataset) -> None:
+    def _fetch_columns_async(
+        self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
+    ) -> None:
+        queries = {
+            fullname: QueryWithParam(
+                SnowflakeExtractor.FETCH_COLUMNS_QUERY, (dataset.schema, dataset.name)
+            )
+            for fullname, dataset in tables.items()
+        }
+        results = async_execute(conn, queries, "fetch_columns", self.max_concurrency)
 
-        cursor.execute(SnowflakeExtractor.FETCH_COLUMNS_QUERY, (schema, name))
+        column_info_map = {}
+        profile_queries = {}
+        for full_name, columns in results.items():
+            dataset = tables[full_name]
+            column_info = [
+                (column[1], column[2], column[5] == "YES") for column in columns
+            ]
+            column_info_map[full_name] = column_info
+            profile_queries[full_name] = QueryWithParam(
+                SnowflakeProfileExtractor._build_profiling_query(
+                    column_info, dataset.schema, dataset.name
+                )
+            )
 
-        # (column, data type, nullable)
-        columns = [(row[1], row[2], row[5] == "YES") for row in cursor]
-
-        cursor.execute(
-            SnowflakeProfileExtractor._build_profiling_query(columns, schema, name)
+        profiles = async_execute(
+            conn, profile_queries, "profile_columns", self.max_concurrency
         )
 
-        SnowflakeProfileExtractor._parse_profiling_result(
-            columns, cursor.fetchone(), dataset
-        )
+        for full_name, profile in profiles.items():
+            dataset = self._datasets[full_name]
+
+            SnowflakeProfileExtractor._parse_profiling_result(
+                column_info_map[full_name], profile[0], dataset
+            )
 
     @staticmethod
     def _build_profiling_query(
