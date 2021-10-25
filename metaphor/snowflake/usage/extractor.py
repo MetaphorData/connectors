@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from fnmatch import fnmatch
-from typing import Callable, Collection, Dict, List, Set, Tuple
+from typing import Callable, Collection, Dict, List, Optional, Set, Tuple
 
 from serde import deserialize
 from sql_metadata import Parser
@@ -11,6 +11,11 @@ from sql_metadata import Parser
 from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
 from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
+from metaphor.snowflake.utils import (
+    DEFAULT_THREAD_POOL_SIZE,
+    QueryWithParam,
+    async_execute,
+)
 
 try:
     import sql_metadata
@@ -65,6 +70,9 @@ class SnowflakeUsageRunConfig(SnowflakeAuthConfig):
     # Post filter to exclude table names that matches the pattern with shell-style wildcards
     excluded_table_names: Set[str] = field(default_factory=lambda: set())
 
+    # max number of concurrent queries to database
+    max_concurrency: Optional[int] = DEFAULT_THREAD_POOL_SIZE
+
 
 class SnowflakeUsageExtractor(BaseExtractor):
     """Snowflake usage metadata extractor"""
@@ -75,6 +83,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
     def __init__(self):
         self.account = None
+        self.max_concurrency = None
         self._datasets: Dict[str, Dataset] = {}
         self.total_queries_count = 0
         self.error_count = 0
@@ -87,9 +96,10 @@ class SnowflakeUsageExtractor(BaseExtractor):
         assert isinstance(config, SnowflakeUsageExtractor.config_class())
 
         logger.info("Fetching usage info from Snowflake")
-        ctx = connect(config)
 
         self.account = config.account
+        self.max_concurrency = config.max_concurrency
+
         self.included_table_names = set(
             [name.lower() for name in config.included_table_names]
         )
@@ -117,46 +127,64 @@ class SnowflakeUsageExtractor(BaseExtractor):
         query_id = "0"  # query id initial value for batch filtering
         batch_size = 1000
 
-        with ctx:
-            cursor = ctx.cursor()
+        conn = connect(config)
 
-            while True:
-                cursor.execute(
-                    "SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME "
-                    "FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY "
-                    "WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' "
-                    "  and START_TIME > %s and QUERY_ID > %s "
-                    f"  {included_databases_clause} {excluded_usernames_clause} "
-                    "ORDER BY QUERY_ID "
-                    "LIMIT %s ",
+        with conn:
+            cursor = conn.cursor()
+
+            cursor.execute(
+                f"""
+                SELECT COUNT(1), MIN(QUERY_ID) 
+                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY 
+                WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s 
+                  {included_databases_clause} {excluded_usernames_clause} 
+                """,
+                (
+                    start_date,
+                    *config.included_databases,
+                    *config.excluded_usernames,
+                ),
+            )
+            count, min_query_id = cursor.fetchone()
+            batches = count // batch_size + 1
+            print(f"Total {count} queries, dividing into {batches} batches")
+
+            queries = {
+                x: QueryWithParam(
+                    f"""
+                    SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME 
+                    FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY 
+                    WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s 
+                      {included_databases_clause} {excluded_usernames_clause} 
+                    ORDER BY QUERY_ID 
+                    LIMIT {batch_size} OFFSET %s
+                    """,
                     (
                         start_date,
-                        query_id,
                         *config.included_databases,
                         *config.excluded_usernames,
-                        batch_size,
+                        x * batch_size,
                     ),
                 )
-                queries = [row for row in cursor]
-                logger.debug(f"Queries: {queries}")
-
-                for query in queries:
-                    self._parse_query_log(query[1], query[2], query[3], query[4])
-
-                self.total_queries_count += len(queries)
-                logger.info(
-                    f"total queries: {self.total_queries_count}, errors {self.error_count}"
-                )
-
-                if len(queries) < batch_size:
-                    break
-                # set last query id for filtering in next batch
-                query_id = queries[-1][0]
+                for x in range(batches)
+            }
+            async_execute(
+                conn,
+                queries,
+                "fetch_queries",
+                self.max_concurrency,
+                self._parse_query_logs,
+            )
 
         # calculate statistics based on the counts
         self._calculate_statistics()
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+
+    def _parse_query_logs(self, batch_number: str, queries: List[Tuple]):
+        logger.info(f"query logs batch #{batch_number}")
+        for query_id, query, db, schema, start_time in queries:
+            self._parse_query_log(query, db, schema, start_time)
 
     def _parse_query_log(
         self, query: str, db: str, schema: str, start_time: datetime

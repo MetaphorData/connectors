@@ -2,7 +2,7 @@ import logging
 import time
 from concurrent import futures
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
@@ -51,8 +51,13 @@ def async_execute(
     queries: Dict[str, QueryWithParam],
     query_name: str = "",
     max_workers: Optional[int] = None,
+    results_processor: Optional[Callable[[str, List[Tuple]], None]] = None,
 ) -> Dict[str, List]:
-    """Executing snowflake query with a set of parameters using thread pool"""
+    """
+    Executing snowflake query with a set of parameters using thread pool
+    If results_processor is not provided, will return Dict[key, result_tuples],
+    Otherwise, apply the results_processor to the result_tuples
+    """
     workers = max_workers if max_workers is not None else DEFAULT_THREAD_POOL_SIZE
     with futures.ThreadPoolExecutor(max_workers=workers) as executor:
         future_map = {
@@ -60,12 +65,18 @@ def async_execute(
             for key, query in queries.items()
         }
 
-        results = {}
+        results_map = {}
         for future in futures.as_completed(future_map):
             key = future_map[future]
             try:
-                results[key] = future.result().fetchall()
+                results = future.result().fetchall()
             except Exception as ex:
                 logger.error(f"Error executing {query_name} for {key}", ex)
+                continue
 
-        return results
+            if results_processor is None:
+                results_map[key] = results
+            else:
+                results_processor(key, results)
+
+        return results_map
