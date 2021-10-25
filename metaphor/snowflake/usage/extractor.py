@@ -124,7 +124,6 @@ class SnowflakeUsageExtractor(BaseExtractor):
         )
 
         start_date = datetime.utcnow().date() - timedelta(config.lookback_days)
-        query_id = "0"  # query id initial value for batch filtering
         batch_size = 1000
 
         conn = connect(config)
@@ -134,10 +133,10 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
             cursor.execute(
                 f"""
-                SELECT COUNT(1), MIN(QUERY_ID) 
-                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY 
-                WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s 
-                  {included_databases_clause} {excluded_usernames_clause} 
+                SELECT COUNT(1), MIN(QUERY_ID)
+                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+                WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
+                  {included_databases_clause} {excluded_usernames_clause}
                 """,
                 (
                     start_date,
@@ -147,16 +146,16 @@ class SnowflakeUsageExtractor(BaseExtractor):
             )
             count, min_query_id = cursor.fetchone()
             batches = count // batch_size + 1
-            print(f"Total {count} queries, dividing into {batches} batches")
+            logger.info(f"Total {count} queries, dividing into {batches} batches")
 
             queries = {
                 x: QueryWithParam(
                     f"""
-                    SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME 
-                    FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY 
-                    WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s 
-                      {included_databases_clause} {excluded_usernames_clause} 
-                    ORDER BY QUERY_ID 
+                    SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME
+                    FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+                    WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
+                      {included_databases_clause} {excluded_usernames_clause}
+                    ORDER BY QUERY_ID
                     LIMIT {batch_size} OFFSET %s
                     """,
                     (
@@ -456,7 +455,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
         dots = column.count(".")
         if dots == 0:  # contains only column name
             if len(tables) != 1:
-                raise TypeError(f"Query should have only 1 table, got {tables}")
+                raise ValueError(f"Query should have only 1 table, got {tables}")
             return tables[0], column_name.lower()
         elif dots == 1:  # should be at least "table.column"
             return f"{db}.{schema}.{table}".lower(), column_name.lower()
