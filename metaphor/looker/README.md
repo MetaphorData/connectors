@@ -58,10 +58,10 @@ client_secret: <client_secret>
 lookml_dir: <path_to_lookml_project>
 connections:
   <name>:
-    - database: <database_name>
-    - default_schema: <schema_name>
-    - account: <snowflake_account>
-    - platform: SNOWFLAKE
+    database: <database_name>
+    default_schema: <schema_name>
+    account: <snowflake_account>
+    platform: SNOWFLAKE
 output:
   file:
     path: <path_to_output_file>
