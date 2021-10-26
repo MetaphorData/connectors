@@ -1,4 +1,4 @@
-from metaphor.looker.extractor import LookerRunConfig
+from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 
 
 def test_json_config(test_root_dir):
@@ -9,6 +9,14 @@ def test_json_config(test_root_dir):
         client_id="client_id",
         client_secret="client_secret",
         lookml_dir="lookml_dir",
+        connections={
+            "conn1": LookerConnectionConfig(
+                database="db1",
+                default_schema="schema1",
+                platform="SNOWFLAKE",
+                account="account1",
+            )
+        },
         verify_ssl=True,
         timeout=1,
         output=None,
@@ -23,6 +31,14 @@ def test_yaml_config(test_root_dir):
         client_id="client_id",
         client_secret="client_secret",
         lookml_dir="lookml_dir",
+        connections={
+            "conn1": LookerConnectionConfig(
+                database="db1",
+                default_schema="schema1",
+                platform="SNOWFLAKE",
+                account="account1",
+            )
+        },
         verify_ssl=True,
         timeout=1,
         output=None,
