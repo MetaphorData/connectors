@@ -161,7 +161,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                         f', MIN("{column}")',
                         f', MAX("{column}")',
                         f', AVG("{column}")',
-                        f', STDDEV("{column}")',
+                        f', STDDEV(cast("{column}" as double))',
                     ]
                 )
 
