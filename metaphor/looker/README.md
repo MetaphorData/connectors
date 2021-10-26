@@ -56,10 +56,18 @@ base_url: <looker_base_url>
 client_id: <client_id>
 client_secret: <client_secret>
 lookml_dir: <path_to_lookml_project>
+connections:
+  <name>:
+    - database: <database_name>
+    - default_schema: <schema_name>
+    - account: <snowflake_account>
+    - platform: SNOWFLAKE
 output:
   file:
     path: <path_to_output_file>
 ```
+
+Note that `connections` is a mapping of database connection names to connection settings. You can find these settings under `Admin` > `Connections`. For now, the only platform supported is `SNOWFLAKE` with `account` set to the matching [Snowflake Account Identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier.html).
 
 ### Optional configurations
 
