@@ -20,9 +20,9 @@ def test_build_profiling_query():
 
     expected = (
         'SELECT COUNT(1) ROW_COUNT, COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-        'COUNT_IF("price" is NULL), MIN("price"), MAX("price"), AVG("price"), STDDEV("price"), '
+        'COUNT_IF("price" is NULL), MIN("price"), MAX("price"), AVG("price"), STDDEV(cast("price" as double)), '
         'COUNT(DISTINCT "year"), COUNT_IF("year" is NULL), MIN("year"), MAX("year"), AVG("year"), '
-        'STDDEV("year") '
+        'STDDEV(cast("year" as double)) '
         'FROM "schema"."table"'
     )
 
