@@ -6,6 +6,8 @@ This connector extracts technical metadata from a [dbt project](https://docs.get
 
 There is no special setup needed to run the connector as a CLI. However, we recommend running it as part of your dbt project's CI/CD workflow so that the metadata is refreshed automatically with each commit. Please refer to [Metaphor dbt GitHub Action](https://github.com/MetaphorData/dbt-action) for more details.
 
+The remaining sections are for those who intend to run the connector manually as a CLI or to integrate it into a different CI/CD environment.
+
 ## Config File
 
 Create a YAML config file based the following template.

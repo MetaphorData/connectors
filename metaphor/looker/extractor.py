@@ -1,7 +1,6 @@
 import logging
 import os
-from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
 try:
     import looker_sdk
@@ -19,36 +18,18 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
-    DataPlatform,
     MetadataChangeEvent,
     VirtualViewType,
 )
-from serde import deserialize
 
 from metaphor.common.entity_id import to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
-from metaphor.common.extractor import BaseExtractor, RunConfig
-from metaphor.looker.lookml_parser import Connection, Model, fullname, parse_project
+from metaphor.common.extractor import BaseExtractor
+from metaphor.looker.config import LookerRunConfig
+from metaphor.looker.lookml_parser import Model, fullname, parse_project
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-@deserialize
-@dataclass
-class LookerRunConfig(RunConfig):
-    base_url: str
-    client_id: str
-    client_secret: str
-
-    # file path to LookerML project directory
-    lookml_dir: str
-
-    # the source code URL for the project directory
-    projectSourceUrl: Optional[str] = None
-
-    verify_ssl: bool = True
-    timeout: int = 120
 
 
 class LookerExtractor(BaseExtractor):
@@ -57,15 +38,6 @@ class LookerExtractor(BaseExtractor):
     @staticmethod
     def config_class():
         return LookerRunConfig
-
-    # From https://docs.looker.com/setup-and-management/database-config
-    dialect_platform_map = {
-        "snowflake": DataPlatform.SNOWFLAKE,
-        "mysql": DataPlatform.MYSQL,
-        "mysql_8": DataPlatform.MYSQL,
-        "postgres": DataPlatform.POSTGRESQL,
-        "redshift": DataPlatform.REDSHIFT,
-    }
 
     vis_type_map = {
         "looker_area": ChartType.AREA,
@@ -103,7 +75,8 @@ class LookerExtractor(BaseExtractor):
 
         sdk = self.initSdk(config)
 
-        connections = self._fetch_connections(sdk)
+        # Lower case all connection names for case-insensitive lookup
+        connections = {k.lower(): v for (k, v) in config.connections.items()}
 
         model_map, virtual_views = parse_project(
             config.lookml_dir, connections, config.projectSourceUrl
@@ -116,40 +89,6 @@ class LookerExtractor(BaseExtractor):
             EventUtil.build_virtual_view_event(d) for d in virtual_views
         ]
         return dashboard_events + virtual_view_events
-
-    def _fetch_connections(self, sdk: Looker31SDK) -> Dict[str, Connection]:
-        connection_map = {}
-        for connection in sdk.all_connections():
-            assert connection.name is not None
-            assert connection.database is not None
-
-            name = connection.name
-            dialect = connection.dialect_name
-
-            if dialect not in self.dialect_platform_map:
-                logger.warn(
-                    f"Ignore connection {name} with unsupported dialect {dialect}"
-                )
-                continue
-            platform = self.dialect_platform_map[dialect]
-
-            connection_map[name] = Connection(
-                name=connection.name,
-                platform=platform,
-                database=connection.database,
-                account=self._parse_account(connection.host, platform),
-                default_schema=connection.schema,
-            )
-
-        return connection_map
-
-    @staticmethod
-    def _parse_account(host: Optional[str], platform: DataPlatform) -> Optional[str]:
-        if platform == DataPlatform.SNOWFLAKE and host:
-            # Snowflake host <account_name>.snowflakecomputing.com
-            # see https://docs.looker.com/setup-and-management/database-config/snowflake
-            return host.split(".")[0]
-        return None
 
     def _fetch_dashboards(
         self, config: LookerRunConfig, sdk: Looker31SDK, model_map: Dict[str, Model]

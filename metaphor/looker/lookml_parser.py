@@ -4,6 +4,8 @@ import os
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
 
+from metaphor.looker.config import LookerConnectionConfig
+
 try:
     import lkml
     import sql_metadata
@@ -12,7 +14,6 @@ except ImportError:
     raise
 
 from metaphor.models.metadata_change_event import (
-    DataPlatform,
     LookerExplore,
     LookerExploreJoin,
     LookerView,
@@ -31,15 +32,6 @@ from metaphor.common.entity_id import (
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-@dataclass
-class Connection:
-    name: str
-    platform: DataPlatform
-    database: str
-    account: Optional[str]
-    default_schema: Optional[str]
 
 
 @dataclass
@@ -74,7 +66,7 @@ class Model:
         return Model(explores=dict((e.name, e) for e in explores))
 
 
-def _to_dataset_id(source_name: str, connection: Connection) -> EntityId:
+def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> EntityId:
     parts = source_name.split(".")
 
     if len(parts) == 1:
@@ -100,7 +92,7 @@ def _to_dataset_id(source_name: str, connection: Connection) -> EntityId:
 
 
 def _get_upstream_datasets(
-    view_name, raw_views: Dict[str, Dict], connection: Connection
+    view_name, raw_views: Dict[str, Dict], connection: LookerConnectionConfig
 ) -> Set[EntityId]:
     # The source for a view can be specified via "sql_table_name" or "derived_table".
     # When not specified, it's default to the same name as the view itself.
@@ -130,7 +122,7 @@ def _get_upstream_datasets(
 
 
 def _extract_upstream_datasets_from_sql(
-    sql: str, raw_views: Dict[str, Dict], connection: Connection
+    sql: str, raw_views: Dict[str, Dict], connection: LookerConnectionConfig
 ) -> Set[EntityId]:
     upstream: Set[EntityId] = set()
     try:
@@ -159,7 +151,7 @@ def _build_looker_view(
     model: str,
     raw_view: Dict,
     raw_views: Dict[str, Dict],
-    connection: Connection,
+    connection: LookerConnectionConfig,
     url: Optional[str],
 ) -> VirtualView:
     name = raw_view["name"]
@@ -304,9 +296,11 @@ def _load_included_file(
 def _load_model(
     model_path: str,
     base_dir: str,
-    connections: Dict[str, Connection],
+    connections: Dict[str, LookerConnectionConfig],
     projectSourceUrl: Optional[str],
-) -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, Optional[str]], Connection]:
+) -> Tuple[
+    Dict[str, Dict], Dict[str, Dict], Dict[str, Optional[str]], LookerConnectionConfig
+]:
     """
     Loads model file and extract raw Views and Explores
     """
@@ -337,16 +331,19 @@ def _load_model(
         raw_views[view["name"]] = view
         entity_urls[view["name"]] = url
 
-    connection = connections.get(model.get("connection", ""), None)
+    connection_name = model.get("connection", "").lower()
+    connection = connections.get(connection_name, None)
     if connection is None:
-        raise ValueError(f"Model ${model_path} has an invalid connection")
+        raise ValueError(
+            f"Model {model_path} has an invalid connection {connection_name}"
+        )
 
     return raw_views, raw_explores, entity_urls, connection
 
 
 def parse_project(
     base_dir: str,
-    connections: Dict[str, Connection],
+    connections: Dict[str, LookerConnectionConfig],
     projectSourceUrl: Optional[str] = None,
 ) -> Tuple[Dict[str, Model], List[VirtualView]]:
     """

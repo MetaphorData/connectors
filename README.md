@@ -36,8 +36,9 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | Connector | Metadata  |
 | --------- | --------- |  
 | [metaphor.bigquery](metaphor/bigquery/README.md) | Schema, Description |
-| [metaphor.dbt](metaphor/dbt/README.md) | dbt definitions, Lineage |
+| [metaphor.dbt](metaphor/dbt/README.md) | dbt models, tests, lineage |
 | [metaphor.google_directory](metaphor/google_directory/README.md) | User |
+| [metaphor.looker](metaphor/looker/README.md) | Looker views, explores, dashboards |
 | [metaphor.snowflake](metaphor/snowflake/README.md) | Schema, Description |
 | [metaphor.snowflake.profile](metaphor/snowflake/profile/README.md) | Data Profile |
 | [metaphor.snowflake.usage](metaphor/snowflake/usage/README.md) | Usage |
