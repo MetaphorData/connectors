@@ -46,7 +46,7 @@ output:
     path: <path_to_output_file>
 ```
 
-See [Common Configurations](../commmon/README.md) for more information on `output`.
+See [Common Configurations](../common/README.md) for more information on `output`.
 
 ## Testing
 
