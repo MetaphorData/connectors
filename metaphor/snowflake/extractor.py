@@ -170,10 +170,10 @@ class SnowflakeExtractor(BaseExtractor):
                 dataset.schema.fields.append(SnowflakeExtractor._build_field(column))
 
     FETCH_TABLE_INFO_QUERY = """
-    SELECT get_ddl('table', %s) as ddl, SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as last_change_time      
+    SELECT get_ddl('table', %s) as ddl, SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as last_change_time
     """
 
-    FETCH_DDL_QUERY = "SELECT get_ddl('table', %s)"
+    FETCH_DDL_QUERY = "SELECT get_ddl('table', %s) as ddl"
 
     def _fetch_table_info_async(
         self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
