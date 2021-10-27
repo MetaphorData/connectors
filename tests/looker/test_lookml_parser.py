@@ -21,7 +21,7 @@ connection_map = {
     "snowflake": LookerConnectionConfig(
         database="db",
         default_schema="schema",
-        platform=DataPlatform.SNOWFLAKE,
+        platform="SNOWFLAKE",
         account="account",
     )
 }

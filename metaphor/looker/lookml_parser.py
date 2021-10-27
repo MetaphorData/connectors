@@ -14,6 +14,7 @@ except ImportError:
     raise
 
 from metaphor.models.metadata_change_event import (
+    DataPlatform,
     LookerExplore,
     LookerExploreJoin,
     LookerView,
@@ -88,7 +89,9 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
     # Normalize dataset name by lower casing & dropping the quotation marks
     full_name = full_name.replace('"', "").lower()
 
-    return to_dataset_entity_id(full_name, connection.platform, connection.account)
+    return to_dataset_entity_id(
+        full_name, DataPlatform[connection.platform], connection.account
+    )
 
 
 def _get_upstream_datasets(
@@ -99,7 +102,8 @@ def _get_upstream_datasets(
     # https://docs.looker.com/reference/view-params/sql_table_name-for-view
     raw_view = raw_views.get(view_name)
     if raw_view is None:
-        raise ValueError(f"Refer to non-existing view {view_name}")
+        logger.error(f"Refer to non-existing view {view_name}")
+        return set()
 
     if "derived_table" in raw_view:
         # https://docs.looker.com/data-modeling/learning-lookml/derived-tables
@@ -158,10 +162,14 @@ def _build_looker_view(
     view = LookerView(
         label=raw_view.get("label"),
         url=url,
-        source_datasets=[
-            str(ds) for ds in _get_upstream_datasets(name, raw_views, connection)
-        ],
     )
+
+    try:
+        view.source_datasets = [
+            str(ds) for ds in _get_upstream_datasets(name, raw_views, connection)
+        ]
+    except Exception as e:
+        logger.error(f"Can't fetch upstream datasets for view {name}", e)
 
     if "extends" in raw_view:
         view.extends = [
@@ -332,7 +340,7 @@ def _load_model(
         entity_urls[view["name"]] = url
 
     connection_name = model.get("connection", "").lower()
-    connection = connections.get(connection_name, None)
+    connection = connections.get(connection_name)
     if connection is None:
         raise ValueError(
             f"Model {model_path} has an invalid connection {connection_name}"
