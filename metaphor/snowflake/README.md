@@ -43,7 +43,7 @@ alter user metaphor_user set rsa_public_key='<public_key_content>';
 
 Create a YAML config file based on the following template.
 
-### Required configurations
+### Required Configurations
 
 If using user password authentication:
 
@@ -73,7 +73,9 @@ output:
 
 The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.
 
-### Optional configurations
+See [Common Configurations](../commmon/README.md) for more information on `output`.
+
+### Optional Configurations
 
 By default, the connector will extract metadata from all databases. You can optionally limit it to specific databases by adding the `target_databases` option to the config, e.g.
 

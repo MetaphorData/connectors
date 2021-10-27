@@ -12,6 +12,8 @@ The remaining sections are for those who intend to run the connector manually as
 
 Create a YAML config file based the following template.
 
+# Required Configurations
+
 ```yaml
 manifest: <path_to_manifest_json>
 catalog: <path_to_catalog_json>
@@ -21,7 +23,9 @@ output:
     path: <path_to_output_file>
 ```
 
-The manifest.json file is required and the catalog.json file is optional, but it's recommended to have both for complete metadata.
+See [Common Configurations](../commmon/README.md) for more information on `output`.
+
+# Optional Configurations
 
 You can optionally provide the `docsBaseUrl` (base URL serving the dbt generated docs) and `projectSourceUrl` (source code URL pointing to the project root directory). Those will help us to generate links to a model's docs and source code.
 

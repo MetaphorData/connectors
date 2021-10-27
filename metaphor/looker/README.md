@@ -49,7 +49,7 @@ The remaining sections are for those who intend to run the connector manually as
 
 Create a YAML config file based the following template.
 
-### Required configurations
+### Required Configurations
 
 ```yaml
 base_url: <looker_base_url>
@@ -69,7 +69,9 @@ output:
 
 Note that `connections` is a mapping of database connection names to connection settings. You can find these settings under `Admin` > `Connections`. For now, the only platform supported is `SNOWFLAKE` with `account` set to the matching [Snowflake Account Identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier.html).
 
-### Optional configurations
+See [Common Configurations](../commmon/README.md) for more information on `output`.
+
+### Optional Configurations
 
 To add a "View LookML" link to Looker explore & views on Metaphor you need to specify a base URL for the Looker project. This can be either a URL to the GitHub repository (`https://github.com/<account>/<repo>`) or Looker IDE (`https://<account>.cloud.looker.com/projects/<project>/files/`).
 

@@ -46,6 +46,8 @@ output:
     path: <path_to_output_file>
 ```
 
+See [Common Configurations](../commmon/README.md) for more information on `output`.
+
 ## Testing
 
 To test the connector locally, change the config file to output to a local path and run the following command
