@@ -109,12 +109,19 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         return tables
 
+    FETCH_COLUMNS_QUERY = """
+        SELECT column_name, data_type, is_nullable
+        FROM information_schema.columns
+        WHERE table_schema = %s AND table_name = %s
+        ORDER BY ordinal_position
+        """
+
     def _fetch_columns_async(
         self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
     ) -> None:
         queries = {
             fullname: QueryWithParam(
-                SnowflakeExtractor.FETCH_COLUMNS_QUERY, (dataset.schema, dataset.name)
+                self.FETCH_COLUMNS_QUERY, (dataset.schema, dataset.name)
             )
             for fullname, dataset in tables.items()
         }
@@ -125,7 +132,8 @@ class SnowflakeProfileExtractor(BaseExtractor):
         for full_name, columns in results.items():
             dataset = tables[full_name]
             column_info = [
-                (column[1], column[2], column[5] == "YES") for column in columns
+                (name, data_type, nullable == "YES")
+                for name, data_type, nullable in columns
             ]
             column_info_map[full_name] = column_info
             profile_queries[full_name] = QueryWithParam(
