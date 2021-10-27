@@ -18,6 +18,7 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
+    DataPlatform,
     MetadataChangeEvent,
     VirtualViewType,
 )
@@ -25,7 +26,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.common.entity_id import to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
-from metaphor.looker.config import LookerRunConfig
+from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 from metaphor.looker.lookml_parser import Model, fullname, parse_project
 
 logger = logging.getLogger(__name__)
@@ -76,7 +77,14 @@ class LookerExtractor(BaseExtractor):
         sdk = self.initSdk(config)
 
         # Lower case all connection names for case-insensitive lookup
-        connections = {k.lower(): v for (k, v) in config.connections.items()}
+        connections: Dict[str, LookerConnectionConfig] = {
+            k.lower(): v for (k, v) in config.connections.items()
+        }
+
+        for connection, connectionConfig in connections.items():
+            assert (
+                connectionConfig.platform in DataPlatform.__members__
+            ), f"invalid platform {connectionConfig.platform} in connection {connection}"
 
         model_map, virtual_views = parse_project(
             config.lookml_dir, connections, config.projectSourceUrl
@@ -139,7 +147,7 @@ class LookerExtractor(BaseExtractor):
         for e in filter(lambda e: e.type == "vis", dashboard_elements):
 
             if e.result_maker is None:
-                logger.warn(f"Unable to find result_maker in element {e.title}")
+                logger.warning(f"Unable to find result_maker in element {e.title}")
                 continue
 
             chart_type = None
@@ -151,25 +159,23 @@ class LookerExtractor(BaseExtractor):
             charts.append(Chart(title=e.title, chart_type=chart_type))
 
             if not isinstance(e.result_maker.filterables, Iterable):
-                logger.warn(f"Unable to iterate filterables in element {e.title}")
+                logger.warning(f"Unable to iterate filterables in element {e.title}")
                 continue
 
             for f in e.result_maker.filterables:
                 if f.model is None or f.view is None:
-                    logger.warn(f"Missing model or view in element {e.title}")
+                    logger.warning(f"Missing model or view in element {e.title}")
                     continue
 
                 model = model_map.get(f.model)
                 if model is None:
-                    raise ValueError(
-                        f"Chart {e.title} references invalid model {f.model}"
-                    )
+                    logger.error(f"Chart {e.title} references invalid model {f.model}")
+                    continue
 
                 explore = model.explores.get(f.view)
                 if explore is None:
-                    raise ValueError(
-                        f"Chart {e.title} references invalid explore {f.view}"
-                    )
+                    logger.error(f"Chart {e.title} references invalid explore {f.view}")
+                    continue
 
                 explore_ids.add(
                     str(
