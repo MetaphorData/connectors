@@ -1,6 +1,6 @@
 <!-- ☝️ give your PR a short, but descriptive title. -->
 
-### Why?
+### 🤔 Why?
 
 <!--
   Give reviewers the context necessary to understand this PR. For example,
