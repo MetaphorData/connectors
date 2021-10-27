@@ -15,10 +15,13 @@ grant imported privileges on database snowflake to role metaphor_role;
 The config file inherits all the required and optional fields from the general Snowflake connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
 ```yaml
+# (Optional) Number of days to include in the usage analysis. Default to 30.
+lookback_days: <days>
+
 # (Optional) A list of users whose queries will be excluded from the usage calculation 
 excluded_usernames:
-  - user1
-  - user2
+  - <user_name>
+  - <user_name>
 ```
 
 ## Testing
