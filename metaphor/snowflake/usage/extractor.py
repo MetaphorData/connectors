@@ -2,20 +2,15 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from fnmatch import fnmatch
-from typing import Callable, Collection, Dict, List, Optional, Set, Tuple
+from typing import Callable, Collection, Dict, List, Set, Tuple
 
-from serde import deserialize
 from sql_metadata import Parser
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
-from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
-from metaphor.snowflake.utils import (
-    DEFAULT_THREAD_POOL_SIZE,
-    QueryWithParam,
-    async_execute,
-)
+from metaphor.snowflake.auth import connect
+from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
+from metaphor.snowflake.utils import QueryWithParam, async_execute, include_table
 
 try:
     import sql_metadata
@@ -52,28 +47,6 @@ logging.getLogger("Parser").setLevel(logging.CRITICAL)
 _default_excluded_table_names = ["snowflake.*"]
 
 
-@deserialize
-@dataclass
-class SnowflakeUsageRunConfig(SnowflakeAuthConfig):
-    # The number of days in history to retrieve query log
-    lookback_days: int = 30
-
-    # Query filter to only include logs against database in included_databases
-    included_databases: Set[str] = field(default_factory=lambda: set())
-
-    # Query filter to exclude logs whose user name is in excluded_usernames
-    excluded_usernames: Set[str] = field(default_factory=lambda: set())
-
-    # Post filter to only include table names that matches the pattern with shell-style wildcards
-    included_table_names: Set[str] = field(default_factory=lambda: {"*"})
-
-    # Post filter to exclude table names that matches the pattern with shell-style wildcards
-    excluded_table_names: Set[str] = field(default_factory=lambda: set())
-
-    # max number of concurrent queries to database
-    max_concurrency: Optional[int] = DEFAULT_THREAD_POOL_SIZE
-
-
 class SnowflakeUsageExtractor(BaseExtractor):
     """Snowflake usage metadata extractor"""
 
@@ -87,8 +60,6 @@ class SnowflakeUsageExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self.total_queries_count = 0
         self.error_count = 0
-        self.included_table_names = ["*"]
-        self.excluded_table_names = []
 
     async def extract(
         self, config: SnowflakeUsageRunConfig
@@ -99,10 +70,8 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
         self.account = config.account
         self.max_concurrency = config.max_concurrency
+        self.filter = config.filter.normalize()
 
-        self.included_table_names = set(
-            [name.lower() for name in config.included_table_names]
-        )
         # merge config excluded_table_names with _default_excluded_table_names
         self.excluded_table_names = set(
             [
@@ -112,14 +81,20 @@ class SnowflakeUsageExtractor(BaseExtractor):
             ]
         )
 
+        included_databases = (
+            [d.lower() for d in list(config.filter.includes.keys())]
+            if config.filter.includes
+            else []
+        )
+
         included_databases_clause = (
             f"and DATABASE_NAME IN ({','.join(['%s'] * len(config.included_databases))})"
-            if config.included_databases
+            if len(included_databases) > 0
             else ""
         )
         excluded_usernames_clause = (
             f"and USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
-            if config.excluded_usernames
+            if len(config.excluded_usernames) > 0
             else ""
         )
 
@@ -208,8 +183,10 @@ class SnowflakeUsageExtractor(BaseExtractor):
         table_fullnames = []
         for table in parser.tables:
             fullname = SnowflakeUsageExtractor._built_table_fullname(table, db, schema)
-            if not self._filter_table_names(fullname):
+            if not include_table(db, schema, table, self.filter):
+                logger.info(f"Ignore {fullname} due to filter config")
                 continue
+
             table_fullnames.append(fullname)
 
             if fullname not in self._datasets:
@@ -416,24 +393,6 @@ class SnowflakeUsageExtractor(BaseExtractor):
             item.count += 1
         else:
             query_counts.append(FieldQueryCount(field=column, count=1.0))
-
-    def _filter_table_names(self, table_fullname: str) -> bool:
-        """Filter table names based on included/excluded table names in config"""
-
-        included = False
-        for pattern in self.included_table_names:
-            if fnmatch(table_fullname, pattern):
-                included = True
-                break
-
-        if not included:
-            return False
-
-        for pattern in self.excluded_table_names:
-            if fnmatch(table_fullname, pattern):
-                return False
-
-        return True
 
     @staticmethod
     def _built_table_fullname(table: str, db: str, schema: str) -> str:

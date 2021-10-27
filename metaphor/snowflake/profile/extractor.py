@@ -1,17 +1,18 @@
 import logging
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 from snowflake.connector import SnowflakeConnection
 
 from metaphor.common.event_util import EventUtil
-from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
+from metaphor.snowflake.auth import connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
+from metaphor.snowflake.filter import SnowflakeFilter
+from metaphor.snowflake.profile.config import SnowflakeProfileRunConfig
 from metaphor.snowflake.utils import (
-    DEFAULT_THREAD_POOL_SIZE,
     DatasetInfo,
     QueryWithParam,
     async_execute,
+    include_table,
 )
 
 try:
@@ -29,22 +30,11 @@ from metaphor.models.metadata_change_event import (
     FieldStatistics,
     MetadataChangeEvent,
 )
-from serde import deserialize
 
 from metaphor.common.extractor import BaseExtractor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-@deserialize
-@dataclass
-class SnowflakeProfileRunConfig(SnowflakeAuthConfig):
-    # A list of databases to include. Includes all databases if not specified.
-    target_databases: Optional[List[str]] = None
-
-    # max number of concurrent queries to database
-    max_concurrency: Optional[int] = DEFAULT_THREAD_POOL_SIZE
 
 
 class SnowflakeProfileExtractor(BaseExtractor):
@@ -71,15 +61,19 @@ class SnowflakeProfileExtractor(BaseExtractor):
         with conn:
             cursor = conn.cursor()
 
+            filter = config.filter.normalize()
+
             databases = (
-                SnowflakeExtractor.fetch_databases(cursor)
-                if config.target_databases is None
-                else config.target_databases
+                self.fetch_databases(cursor)
+                if filter.includes is None
+                else list(filter.includes.keys())
             )
-            logger.info(f"Databases to include: {databases}")
+
+            if config.filter.excludes is not None:
+                databases = [d for d in databases if d.lower not in filter.excludes]
 
             for database in databases:
-                tables = self._fetch_tables(cursor, database, config.account)
+                tables = self._fetch_tables(cursor, database, config.account, filter)
                 logger.info(f"DB {database} has tables: {tables}")
 
                 self._fetch_columns_async(conn, tables)
@@ -89,7 +83,11 @@ class SnowflakeProfileExtractor(BaseExtractor):
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     def _fetch_tables(
-        self, cursor, database: str, account: str
+        self,
+        cursor,
+        database: str,
+        account: str,
+        filter: SnowflakeFilter,
     ) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)
@@ -102,6 +100,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
         for row in cursor:
             schema, name, table_type = row[0], row[1], row[2]
             full_name = SnowflakeExtractor.table_fullname(database, schema, name)
+            if not include_table(database, schema, name, filter):
+                logger.info(f"Ignore {full_name} due to filter config")
+                continue
+
             self._datasets[full_name] = self._init_dataset(account, full_name)
             tables[full_name] = DatasetInfo(database, schema, name, table_type)
 
