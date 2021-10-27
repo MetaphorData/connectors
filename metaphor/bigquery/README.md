@@ -25,6 +25,8 @@ Once the service account is created, you need to create a service account key fo
 
 Create a YAML config file based the following template.
 
+### Required Configurations
+
 ```yaml
 project_id: <bigquery_project_id>
 key_path: <path_to_JSON_key_file>
@@ -32,6 +34,10 @@ output:
   file:
     path: <path_to_output_file>
 ```
+
+See [Common Configurations](../commmon/README.md) for more information on `output`.
+
+### Optional Configurations
 
 You can also optionally specify a list of regular expressions to limit the scan to selected datasets. For example,
 
