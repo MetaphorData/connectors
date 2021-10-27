@@ -169,16 +169,12 @@ class LookerExtractor(BaseExtractor):
 
                 model = model_map.get(f.model)
                 if model is None:
-                    logger.error(
-                        f"Chart {e.title} references invalid model {f.model}"
-                    )
+                    logger.error(f"Chart {e.title} references invalid model {f.model}")
                     continue
 
                 explore = model.explores.get(f.view)
                 if explore is None:
-                    logger.error(
-                        f"Chart {e.title} references invalid explore {f.view}"
-                    )
+                    logger.error(f"Chart {e.title} references invalid explore {f.view}")
                     continue
 
                 explore_ids.add(
