@@ -73,6 +73,12 @@ class SnowflakeUsageExtractor(BaseExtractor):
         self.max_concurrency = config.max_concurrency
         self.filter = config.filter.normalize()
 
+        self.filter.excludes = (
+            DEFAULT_EXCLUDED_DATABASES
+            if self.filter.excludes is None
+            else self.filter.excludes + DEFAULT_EXCLUDED_DATABASES
+        )
+
         # Database names must be capitalized for the IN clause to work
         included_databases = (
             [d.upper() for d in list(config.filter.includes.keys())]

@@ -76,9 +76,6 @@ class SnowflakeExtractor(BaseExtractor):
                 else list(filter.includes.keys())
             )
 
-            if config.filter.excludes is not None:
-                databases = [d for d in databases if d.lower not in filter.excludes]
-
             logger.info(f"Databases to include: {databases}")
 
             for database in databases:

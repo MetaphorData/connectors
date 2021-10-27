@@ -69,9 +69,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 else list(filter.includes.keys())
             )
 
-            if config.filter.excludes is not None:
-                databases = [d for d in databases if d.lower not in filter.excludes]
-
             for database in databases:
                 tables = self._fetch_tables(cursor, database, config.account, filter)
                 logger.info(f"Include {len(tables)} tables from {database}")
