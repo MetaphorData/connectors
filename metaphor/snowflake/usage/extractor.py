@@ -44,8 +44,6 @@ logger.setLevel(logging.INFO)
 # disable logging from sql_metadata
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
 
-_default_excluded_table_names = ["snowflake.*"]
-
 
 class SnowflakeUsageExtractor(BaseExtractor):
     """Snowflake usage metadata extractor"""
@@ -72,23 +70,12 @@ class SnowflakeUsageExtractor(BaseExtractor):
         self.max_concurrency = config.max_concurrency
         self.filter = config.filter.normalize()
 
-        # merge config excluded_table_names with _default_excluded_table_names
-        self.excluded_table_names = set(
-            [
-                name.lower()
-                for name in list(config.excluded_table_names)
-                + _default_excluded_table_names
-            ]
-        )
-
         included_databases = (
-            [d.lower() for d in list(config.filter.includes.keys())]
-            if config.filter.includes
-            else []
+            list(self.filter.includes.keys()) if self.filter.includes else []
         )
 
         included_databases_clause = (
-            f"and DATABASE_NAME IN ({','.join(['%s'] * len(config.included_databases))})"
+            f"and DATABASE_NAME IN ({','.join(['%s'] * len(included_databases))})"
             if len(included_databases) > 0
             else ""
         )
@@ -115,7 +102,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 """,
                 (
                     start_date,
-                    *config.included_databases,
+                    *included_databases,
                     *config.excluded_usernames,
                 ),
             )
@@ -135,7 +122,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
                     """,
                     (
                         start_date,
-                        *config.included_databases,
+                        *included_databases,
                         *config.excluded_usernames,
                         x * batch_size,
                     ),

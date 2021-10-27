@@ -83,7 +83,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             for database in databases:
                 tables = self._fetch_tables(cursor, database, filter)
-                logger.info(f"Include {len(tables)} from {database}: {tables}")
+                logger.info(f"Include {len(tables)} tables from {database}")
 
                 self._fetch_columns_async(conn, tables)
                 self._fetch_ddl_async(conn, tables)

@@ -20,8 +20,8 @@ lookback_days: <days>
 
 # (Optional) A list of users whose queries will be excluded from the usage calculation 
 excluded_usernames:
-  - <user_name>
-  - <user_name>
+  - <user_name1>
+  - <user_name2>
 ```
 
 ## Testing
