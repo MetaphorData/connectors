@@ -86,8 +86,7 @@ class SnowflakeExtractor(BaseExtractor):
                 logger.info(f"Include {len(tables)} tables from {database}")
 
                 self._fetch_columns_async(conn, tables)
-                self._fetch_ddl_async(conn, tables)
-                self._fetch_last_updated_async(conn, tables)
+                self._fetch_table_info_async(conn, tables)
 
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
@@ -170,51 +169,48 @@ class SnowflakeExtractor(BaseExtractor):
             for column in columns:
                 dataset.schema.fields.append(SnowflakeExtractor._build_field(column))
 
-    def _fetch_ddl_async(
+    FETCH_TABLE_INFO_QUERY = """
+    SELECT get_ddl('table', %s) as ddl, SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as last_change_time
+    """
+
+    FETCH_DDL_QUERY = "SELECT get_ddl('table', %s) as ddl"
+
+    def _fetch_table_info_async(
         self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
     ) -> None:
+        # fetch last_update_time and DDL for tables, and fetch only DDL for views
         queries = {
             fullname: QueryWithParam(
-                "SELECT get_ddl('table', %s)", (f"{dataset.schema}.{dataset.name}",)
+                self.FETCH_TABLE_INFO_QUERY, (f"{dataset.schema}.{dataset.name}",) * 2
             )
-            for fullname, dataset in tables.items()
-        }
-        results = async_execute(
-            conn,
-            queries,
-            "fetch_ddl",
-            self.max_concurrency,
-        )
-
-        for full_name, ddl in results.items():
-            dataset = self._datasets[full_name]
-            assert dataset.schema is not None and dataset.schema.sql_schema is not None
-
-            dataset.schema.sql_schema.table_schema = ddl[0][0]
-
-    def _fetch_last_updated_async(
-        self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
-    ) -> None:
-        queries = {
-            fullname: QueryWithParam(
-                "SELECT SYSTEM$LAST_CHANGE_COMMIT_TIME(%s)",
-                (f"{dataset.schema}.{dataset.name}",),
-            )
-            for fullname, dataset in tables.items()
             if dataset.type == "BASE TABLE"
+            else QueryWithParam(
+                self.FETCH_DDL_QUERY, (f"{dataset.schema}.{dataset.name}",)
+            )
+            for fullname, dataset in tables.items()
         }
         results = async_execute(
             conn,
             queries,
-            "fetch_last_update_time",
+            "fetch_table_info",
             self.max_concurrency,
         )
 
-        for full_name, update_time in results.items():
+        for full_name, result in results.items():
+            table_info = result[0]
             dataset = self._datasets[full_name]
-            assert dataset.statistics is not None
+            assert (
+                dataset.schema is not None
+                and dataset.schema.sql_schema is not None
+                and dataset.statistics is not None
+            )
 
-            timestamp = update_time[0][0]
+            dataset.schema.sql_schema.table_schema = table_info[0]
+
+            if len(table_info) == 1:
+                continue
+
+            timestamp = table_info[1]
             if timestamp > 0:
                 dataset.statistics.last_updated = datetime.utcfromtimestamp(
                     timestamp / 1000
