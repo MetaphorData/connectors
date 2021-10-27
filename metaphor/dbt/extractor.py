@@ -299,8 +299,13 @@ class DbtExtractor(BaseExtractor):
             materialized = model.config.materialized
 
             if materialized:
+                try:
+                    type = DbtMaterializationType[materialized.upper()]
+                except KeyError:
+                    type = DbtMaterializationType.OTHER
+
                 dbt_model.materialization = DbtMaterialization(
-                    type=DbtMaterializationType[materialized.upper()],
+                    type=type,
                     target_dataset=str(
                         self._get_dataset_entity_id(
                             model.database, model.schema_, model.name
