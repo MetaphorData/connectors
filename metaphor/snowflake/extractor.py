@@ -166,7 +166,12 @@ class SnowflakeExtractor(BaseExtractor):
             if full_name != current_table:
                 current_table = full_name
                 dataset = self._datasets[full_name]
-                assert dataset.schema is not None and dataset.schema.fields is not None
+
+            assert (
+                dataset is not None
+                and dataset.schema is not None
+                and dataset.schema.fields is not None
+            )
 
             dataset.schema.fields.append(
                 SchemaField(
