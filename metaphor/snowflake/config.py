@@ -12,8 +12,8 @@ from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE
 @dataclass
 class SnowflakeRunConfig(SnowflakeFilter, SnowflakeAuthConfig):
 
-    # include or exclude specific databases/schemas/tables
+    # Include or exclude specific databases/schemas/tables
     filter: Optional[SnowflakeFilter] = field(default_factory=lambda: SnowflakeFilter())
 
-    # max number of concurrent queries to database
+    # Max number of concurrent queries to database
     max_concurrency: Optional[int] = DEFAULT_THREAD_POOL_SIZE

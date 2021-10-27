@@ -9,7 +9,8 @@ from metaphor.snowflake.config import SnowflakeRunConfig
 @deserialize
 @dataclass
 class SnowflakeUsageRunConfig(SnowflakeRunConfig):
-    # The number of days in history to retrieve query log
+
+    # Number of days back in the query log to process
     lookback_days: int = 30
 
     # Query filter to exclude certain usernames from the processing
