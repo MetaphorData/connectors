@@ -84,7 +84,9 @@ def async_execute(
         return results_map
 
 
-def include_table(database: str, schema: str, table: str, filter: SnowflakeFilter):
+def include_table(
+    database: str, schema: str, table: str, filter: SnowflakeFilter
+) -> bool:
     database_lower = database.lower()
     schema_lower = schema.lower()
     table_lower = table.lower()
