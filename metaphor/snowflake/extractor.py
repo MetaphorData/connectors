@@ -89,11 +89,11 @@ class SnowflakeExtractor(BaseExtractor):
                 tables = self._fetch_tables(cursor, database)
                 logger.info(f"DB {database} has tables: {tables}")
 
-                self._fetch_columns_async(conn, tables)
-                self._fetch_table_info_async(conn, tables)
-
+                self._fetch_columns(cursor, database)
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
+
+                self._fetch_table_info_async(conn, tables)
 
         logger.debug(self._datasets)
 
@@ -138,36 +138,47 @@ class SnowflakeExtractor(BaseExtractor):
 
         return tables
 
-    FETCH_COLUMNS_QUERY = """
-    SELECT ordinal_position, column_name, data_type, character_maximum_length,
-      numeric_precision, is_nullable, column_default, comment
-    FROM information_schema.columns
-    WHERE table_schema = %s AND table_name = %s
-    ORDER BY ordinal_position
-    """
-
-    def _fetch_columns_async(
-        self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
-    ) -> None:
-        queries = {
-            fullname: QueryWithParam(
-                SnowflakeExtractor.FETCH_COLUMNS_QUERY, (dataset.schema, dataset.name)
-            )
-            for fullname, dataset in tables.items()
-        }
-        results = async_execute(
-            conn,
-            queries,
-            "fetch_columns",
-            self.max_concurrency,
+    def _fetch_columns(self, cursor: SnowflakeCursor, database: str) -> None:
+        cursor.execute(
+            """
+            SELECT table_schema, table_name, column_name, data_type, character_maximum_length,
+              numeric_precision, is_nullable, column_default, comment
+            FROM information_schema.columns
+            WHERE table_schema != 'INFORMATION_SCHEMA'
+            ORDER BY table_schema, table_name, ordinal_position
+            """
         )
 
-        for full_name, columns in results.items():
+        for (
+            table_schema,
+            table_name,
+            column,
+            data_type,
+            max_length,
+            precision,
+            nullable,
+            default,
+            comment,
+        ) in cursor:
+            full_name = self.table_fullname(database, table_schema, table_name)
+            if full_name not in self._datasets:
+                logger.warning(f"Table {full_name} not found")
+                continue
+
             dataset = self._datasets[full_name]
+
             assert dataset.schema is not None and dataset.schema.fields is not None
 
-            for column in columns:
-                dataset.schema.fields.append(SnowflakeExtractor._build_field(column))
+            dataset.schema.fields.append(
+                SchemaField(
+                    field_path=column,
+                    native_type=data_type,
+                    max_length=float(max_length) if max_length is not None else None,
+                    precision=float(precision) if precision is not None else None,
+                    nullable=nullable == "YES",
+                    description=comment,
+                )
+            )
 
     FETCH_TABLE_INFO_QUERY = """
     SELECT get_ddl('table', %s) as ddl, SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as last_change_time
@@ -230,7 +241,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             dataset = self._datasets.get(table)
             if dataset is None or dataset.schema is None:
-                logger.error(
+                logger.warning(
                     f"Table {table} schema not found for unique key {constraint_name}"
                 )
                 continue
@@ -240,7 +251,7 @@ class SnowflakeExtractor(BaseExtractor):
                 None,
             )
             if not field:
-                logger.error(
+                logger.warning(
                     f"Column {column} not found in table {table} for unique key {constraint_name}"
                 )
                 continue
@@ -317,15 +328,4 @@ class SnowflakeExtractor(BaseExtractor):
         return (
             f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
             f"databaseName={db}&schemaName={schema}&tableName={table}"
-        )
-
-    @staticmethod
-    def _build_field(column) -> SchemaField:
-        return SchemaField(
-            field_path=column[1],
-            native_type=column[2],
-            max_length=float(column[3]) if column[3] is not None else None,
-            precision=float(column[4]) if column[4] is not None else None,
-            nullable=column[5] == "YES",
-            description=column[7],
         )
