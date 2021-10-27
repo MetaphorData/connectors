@@ -149,8 +149,6 @@ class SnowflakeExtractor(BaseExtractor):
             """
         )
 
-        current_table, dataset = "", None
-
         for (
             table_schema,
             table_name,
@@ -163,15 +161,13 @@ class SnowflakeExtractor(BaseExtractor):
             comment,
         ) in cursor:
             full_name = self.table_fullname(database, table_schema, table_name)
-            if full_name != current_table:
-                current_table = full_name
-                dataset = self._datasets[full_name]
+            if full_name not in self._datasets:
+                logger.warning(f"Table {full_name} not found")
+                continue
 
-            assert (
-                dataset is not None
-                and dataset.schema is not None
-                and dataset.schema.fields is not None
-            )
+            dataset = self._datasets[full_name]
+
+            assert dataset.schema is not None and dataset.schema.fields is not None
 
             dataset.schema.fields.append(
                 SchemaField(
@@ -245,7 +241,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             dataset = self._datasets.get(table)
             if dataset is None or dataset.schema is None:
-                logger.error(
+                logger.warning(
                     f"Table {table} schema not found for unique key {constraint_name}"
                 )
                 continue
@@ -255,7 +251,7 @@ class SnowflakeExtractor(BaseExtractor):
                 None,
             )
             if not field:
-                logger.error(
+                logger.warning(
                     f"Column {column} not found in table {table} for unique key {constraint_name}"
                 )
                 continue
