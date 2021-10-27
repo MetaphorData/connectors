@@ -45,6 +45,9 @@ logger.setLevel(logging.INFO)
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
 
 
+DEFAULT_EXCLUDED_DATABASES = ["SNOWFLAKE"]
+
+
 class SnowflakeUsageExtractor(BaseExtractor):
     """Snowflake usage metadata extractor"""
 
@@ -70,8 +73,11 @@ class SnowflakeUsageExtractor(BaseExtractor):
         self.max_concurrency = config.max_concurrency
         self.filter = config.filter.normalize()
 
+        # Database names must be capitalized for the IN clause to work
         included_databases = (
-            list(self.filter.includes.keys()) if self.filter.includes else []
+            [d.upper() for d in list(config.filter.includes.keys())]
+            if config.filter.includes
+            else []
         )
 
         included_databases_clause = (
@@ -79,6 +85,20 @@ class SnowflakeUsageExtractor(BaseExtractor):
             if len(included_databases) > 0
             else ""
         )
+
+        # Database names must be capitalized for the NOT IN clause to work
+        excluded_databases = (
+            [d.upper() for d in list(config.filter.excludes.keys())]
+            if config.filter.excludes
+            else []
+        ) + DEFAULT_EXCLUDED_DATABASES
+
+        excluded_databases_clause = (
+            f"and DATABASE_NAME NOT IN ({','.join(['%s'] * len(excluded_databases))})"
+            if len(excluded_databases) > 0
+            else ""
+        )
+
         excluded_usernames_clause = (
             f"and USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
             if len(config.excluded_usernames) > 0
@@ -98,11 +118,12 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 SELECT COUNT(1), MIN(QUERY_ID)
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
                 WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
-                  {included_databases_clause} {excluded_usernames_clause}
+                  {included_databases_clause} {excluded_databases_clause} {excluded_usernames_clause}
                 """,
                 (
                     start_date,
                     *included_databases,
+                    *excluded_databases,
                     *config.excluded_usernames,
                 ),
             )
@@ -116,13 +137,14 @@ class SnowflakeUsageExtractor(BaseExtractor):
                     SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME
                     FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
                     WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
-                      {included_databases_clause} {excluded_usernames_clause}
+                      {included_databases_clause} {excluded_databases_clause} {excluded_usernames_clause}
                     ORDER BY QUERY_ID
                     LIMIT {batch_size} OFFSET %s
                     """,
                     (
                         start_date,
                         *included_databases,
+                        *excluded_databases,
                         *config.excluded_usernames,
                         x * batch_size,
                     ),

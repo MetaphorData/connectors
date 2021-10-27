@@ -79,7 +79,7 @@ See [Common Configurations](../common/README.md) for more information on `output
 
 #### Filter
 
-By default, the connector will extract metadata from all tables in all schemas and databases. You can optionally limit it by specifying the `filter` option. For example, the following config will only include tables from database `db1` and `db2`:
+By default, the connector will extract metadata from all tables/views in all schemas and databases. You can optionally limit it by specifying the `filter` option. For example, the following config will only include tables/views from database `db1` and `db2`:
 
 ```yaml
 filter:
@@ -88,7 +88,7 @@ filter:
     db2:
 ```
 
-You can also exclude only specific databases, schemas, or tables. For example, the following will include all tables except `db1.*`, `db2.schema1.*`, and `db3.schema1.table1`:
+You can also exclude only specific databases, schemas, or tables/views. For example, the following will include all tables/views except `db1.*`, `db2.schema1.*`, and `db3.schema1.table1`:
 
 ```yaml
 filter:
