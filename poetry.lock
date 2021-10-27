@@ -808,7 +808,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.6.4"
+version = "0.6.6"
 description = ""
 category = "main"
 optional = false
@@ -1997,8 +1997,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.6.4.tar.gz", hash = "sha256:da2870a1b78aae6ab1fec4178b52337e4024905f4cdc3c54dd5c766c0ebd0c35"},
-    {file = "metaphor_models-0.6.4-py3-none-any.whl", hash = "sha256:060e7a190a89758f76e8713d8548c1f72c04b81621436d8b0780d3216cd51ab6"},
+    {file = "metaphor-models-0.6.6.tar.gz", hash = "sha256:152a9567b502b0887623eaade7ab22a6c5eca43c9be24fda60b21c4ad9e662a5"},
+    {file = "metaphor_models-0.6.6-py3-none-any.whl", hash = "sha256:2b387d7f075e7cabff553f71d84079a7056b4adf9294d018de0f2329a736ceee"},
 ]
 msrest = [
     {file = "msrest-0.6.21-py2.py3-none-any.whl", hash = "sha256:c840511c845330e96886011a236440fafc2c9aff7b2df9c0a92041ee2dee3782"},
