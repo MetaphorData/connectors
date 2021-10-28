@@ -11,6 +11,7 @@ from metaphor.snowflake.utils import (
     DEFAULT_THREAD_POOL_SIZE,
     DatasetInfo,
     QueryWithParam,
+    SnowflakeTableType,
     async_execute,
 )
 
@@ -46,6 +47,9 @@ class SnowflakeProfileRunConfig(SnowflakeAuthConfig):
     # max number of concurrent queries to database
     max_concurrency: Optional[int] = DEFAULT_THREAD_POOL_SIZE
 
+    # exclude views from profiling
+    exclude_views: bool = True
+
 
 class SnowflakeProfileExtractor(BaseExtractor):
     """Snowflake data profile extractor"""
@@ -56,6 +60,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     def __init__(self):
         self.max_concurrency = None
+        self.exclude_views = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -65,6 +70,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         logger.info("Fetching data profile from Snowflake")
         self.max_concurrency = config.max_concurrency
+        self.exclude_views = config.exclude_views
 
         conn = connect(config)
 
@@ -101,6 +107,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo] = {}
         for row in cursor:
             schema, name, table_type = row[0], row[1], row[2]
+            if self.exclude_views and table_type != SnowflakeTableType.BASE_TABLE.value:
+                # exclude both view and temporary table
+                continue
+
             full_name = SnowflakeExtractor.table_fullname(database, schema, name)
             self._datasets[full_name] = self._init_dataset(account, full_name)
             tables[full_name] = DatasetInfo(database, schema, name, table_type)

@@ -2,6 +2,7 @@ import logging
 import time
 from concurrent import futures
 from dataclasses import dataclass
+from enum import Enum
 from typing import Callable, Dict, List, Optional, Tuple
 
 from snowflake.connector import SnowflakeConnection
@@ -12,6 +13,12 @@ logger.setLevel(logging.INFO)
 
 DEFAULT_THREAD_POOL_SIZE = 10
 DEFAULT_SLEEP_TIME = 0.1  # 0.1 s
+
+
+class SnowflakeTableType(Enum):
+    BASE_TABLE = "BASE TABLE"
+    VIEW = "VIEW"
+    TEMPORARY_TABLE = "TEMPORARY TABLE"
 
 
 @dataclass

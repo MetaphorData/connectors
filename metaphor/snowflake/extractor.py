@@ -12,6 +12,7 @@ from metaphor.snowflake.utils import (
     DEFAULT_THREAD_POOL_SIZE,
     DatasetInfo,
     QueryWithParam,
+    SnowflakeTableType,
     async_execute,
 )
 
@@ -194,7 +195,7 @@ class SnowflakeExtractor(BaseExtractor):
             fullname: QueryWithParam(
                 self.FETCH_TABLE_INFO_QUERY, (f"{dataset.schema}.{dataset.name}",) * 2
             )
-            if dataset.type == "BASE TABLE"
+            if dataset.type == SnowflakeTableType.BASE_TABLE.value
             else QueryWithParam(
                 self.FETCH_DDL_QUERY, (f"{dataset.schema}.{dataset.name}",)
             )
@@ -310,7 +311,7 @@ class SnowflakeExtractor(BaseExtractor):
         dataset.schema.sql_schema = SQLSchema()
         dataset.schema.sql_schema.materialization = (
             MaterializationType.VIEW
-            if table_type == "VIEW"
+            if table_type == SnowflakeTableType.VIEW.value
             else MaterializationType.TABLE
         )
 
