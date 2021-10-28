@@ -22,7 +22,7 @@ class LookerConnectionConfig:
     default_schema: Optional[str] = None
 
     # "Platform" portion of the resulting Dataset Logical ID.
-    platform: Optional[str] = DataPlatform.SNOWFLAKE
+    platform: Optional[DataPlatform] = DataPlatform.SNOWFLAKE
 
 
 @deserialize

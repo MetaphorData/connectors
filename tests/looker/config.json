@@ -7,7 +7,6 @@
     "conn1": {
       "database": "db1",
       "default_schema": "schema1",
-      "platform": "SNOWFLAKE",
       "account": "account1"
     }
   },
