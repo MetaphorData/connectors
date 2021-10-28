@@ -18,7 +18,6 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
-    DataPlatform,
     MetadataChangeEvent,
     VirtualViewType,
 )
