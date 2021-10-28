@@ -39,6 +39,12 @@ The max number of concurrent queries to the snowflake database can be configured
 max_concurrency: <max_number_of_queries>
 ```
 
+By default, the connector only profile Snowflake "base table", i.e. exclude views and temporary tables. The following config can enable profiling on all tables and views.
+
+```yaml
+exclude_views: false
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `snowflake` extra.
