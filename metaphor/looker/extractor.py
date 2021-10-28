@@ -81,11 +81,6 @@ class LookerExtractor(BaseExtractor):
             k.lower(): v for (k, v) in config.connections.items()
         }
 
-        for connection, connectionConfig in connections.items():
-            assert (
-                connectionConfig.platform in DataPlatform.__members__
-            ), f"invalid platform {connectionConfig.platform} in connection {connection}"
-
         model_map, virtual_views = parse_project(
             config.lookml_dir, connections, config.projectSourceUrl
         )
