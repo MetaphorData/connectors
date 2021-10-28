@@ -1,3 +1,5 @@
+from typing import Union
+
 from smart_open import open
 
 # Give S3 bucket owner full control over the new object
@@ -10,7 +12,19 @@ OWNER_FULL_CONTROL_ACL = {
 }
 
 
-def write_file(path: str, payload: str):
-    params = OWNER_FULL_CONTROL_ACL if path.startswith("s3://") else None
-    with open(path, "w", transport_params=params) as fp:
+def write_file(
+    path: str, payload: Union[str, bytes], binary_mode=False, s3_session=None
+):
+
+    transport_params = None
+    if path.startswith("s3://"):
+        transport_params = {
+            **OWNER_FULL_CONTROL_ACL,
+            # Use supplied credentials
+            # See https://github.com/RaRe-Technologies/smart_open#s3-credentials
+            "client": s3_session.client("s3"),
+        }
+
+    mode = "wb" if binary_mode else "w"
+    with open(path, mode, transport_params=transport_params) as fp:
         fp.write(payload)
