@@ -2,7 +2,8 @@ import pytest
 from freezegun import freeze_time
 
 from metaphor.common.event_util import EventUtil
-from metaphor.dbt.extractor import DbtExtractor, DbtRunConfig
+from metaphor.dbt.config import DbtRunConfig
+from metaphor.dbt.extractor import DbtExtractor
 from tests.test_utils import load_json
 
 
@@ -26,7 +27,7 @@ async def test_shopify_project(test_root_dir):
 
 
 @freeze_time("2000-01-01")
-async def _test_project(data_dir, docsBaseUrl=None, projectSourceUrl=None):
+async def _test_project(data_dir, docs_base_url=None, project_source_url=None):
     manifest = data_dir + "/manifest.json"
     catalog = data_dir + "/catalog.json"
     expected = data_dir + "/results.json"
@@ -36,8 +37,8 @@ async def _test_project(data_dir, docsBaseUrl=None, projectSourceUrl=None):
         account="metaphor",
         manifest=manifest,
         catalog=catalog,
-        docsBaseUrl=docsBaseUrl,
-        projectSourceUrl=projectSourceUrl,
+        docs_base_url=docs_base_url,
+        project_source_url=project_source_url,
     )
     extractor = DbtExtractor()
     events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
