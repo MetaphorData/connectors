@@ -19,6 +19,12 @@ grant select on future materialized views in database identifier($db) to role me
 
 The config file inherits all the required and optional fields from the general Snowflake connector [Config File](../README.md#config-file).
 
+By default, the connector only profile Snowflake "base table", i.e. exclude views and temporary tables. The following config can enable profiling on all tables and views.
+
+```yaml
+exclude_views: false
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `snowflake` extra.

@@ -1,9 +1,9 @@
-import logging
 from typing import Dict, List, Tuple
 
 from snowflake.connector import SnowflakeConnection
 
 from metaphor.common.event_util import EventUtil
+from metaphor.common.logging import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
 from metaphor.snowflake.filter import SnowflakeFilter
@@ -11,6 +11,7 @@ from metaphor.snowflake.profile.config import SnowflakeProfileRunConfig
 from metaphor.snowflake.utils import (
     DatasetInfo,
     QueryWithParam,
+    SnowflakeTableType,
     async_execute,
     include_table,
 )
@@ -33,8 +34,7 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.common.extractor import BaseExtractor
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class SnowflakeProfileExtractor(BaseExtractor):
@@ -46,6 +46,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     def __init__(self):
         self.max_concurrency = None
+        self.exclude_views = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -55,6 +56,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         logger.info("Fetching data profile from Snowflake")
         self.max_concurrency = config.max_concurrency
+        self.exclude_views = config.exclude_views
 
         conn = connect(config)
 
@@ -96,6 +98,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo] = {}
         for row in cursor:
             schema, name, table_type = row[0], row[1], row[2]
+            if self.exclude_views and table_type != SnowflakeTableType.BASE_TABLE.value:
+                # exclude both view and temporary table
+                continue
+
             full_name = SnowflakeExtractor.table_fullname(database, schema, name)
             if not include_table(database, schema, name, filter):
                 logger.info(f"Ignore {full_name} due to filter config")

@@ -1,4 +1,3 @@
-import logging
 import os
 from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
@@ -18,7 +17,6 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
-    DataPlatform,
     MetadataChangeEvent,
     VirtualViewType,
 )
@@ -26,11 +24,11 @@ from metaphor.models.metadata_change_event import (
 from metaphor.common.entity_id import to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logging import get_logger
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 from metaphor.looker.lookml_parser import Model, fullname, parse_project
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class LookerExtractor(BaseExtractor):
@@ -81,13 +79,8 @@ class LookerExtractor(BaseExtractor):
             k.lower(): v for (k, v) in config.connections.items()
         }
 
-        for connection, connectionConfig in connections.items():
-            assert (
-                connectionConfig.platform in DataPlatform.__members__
-            ), f"invalid platform {connectionConfig.platform} in connection {connection}"
-
         model_map, virtual_views = parse_project(
-            config.lookml_dir, connections, config.projectSourceUrl
+            config.lookml_dir, connections, config.project_source_url
         )
 
         dashboards = self._fetch_dashboards(config, sdk, model_map)

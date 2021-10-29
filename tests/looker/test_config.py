@@ -1,3 +1,5 @@
+from metaphor.models.metadata_change_event import DataPlatform
+
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 
 
@@ -13,7 +15,7 @@ def test_json_config(test_root_dir):
             "conn1": LookerConnectionConfig(
                 database="db1",
                 default_schema="schema1",
-                platform="SNOWFLAKE",
+                platform=DataPlatform.SNOWFLAKE,
                 account="account1",
             )
         },
@@ -35,10 +37,11 @@ def test_yaml_config(test_root_dir):
             "conn1": LookerConnectionConfig(
                 database="db1",
                 default_schema="schema1",
-                platform="SNOWFLAKE",
+                platform=DataPlatform.SNOWFLAKE,
                 account="account1",
             )
         },
+        project_source_url="http://foo.bar",
         verify_ssl=True,
         timeout=1,
         output=None,

@@ -14,7 +14,6 @@ except ImportError:
     raise
 
 from metaphor.models.metadata_change_event import (
-    DataPlatform,
     LookerExplore,
     LookerExploreJoin,
     LookerView,
@@ -89,9 +88,7 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
     # Normalize dataset name by lower casing & dropping the quotation marks
     full_name = full_name.replace('"', "").lower()
 
-    return to_dataset_entity_id(
-        full_name, DataPlatform[connection.platform], connection.account
-    )
+    return to_dataset_entity_id(full_name, connection.platform, connection.account)
 
 
 def _get_upstream_datasets(

@@ -22,7 +22,7 @@ class LookerConnectionConfig:
     default_schema: Optional[str] = None
 
     # "Platform" portion of the resulting Dataset Logical ID.
-    platform: Optional[str] = DataPlatform.SNOWFLAKE
+    platform: Optional[DataPlatform] = DataPlatform.SNOWFLAKE
 
 
 @deserialize
@@ -39,7 +39,7 @@ class LookerRunConfig(RunConfig):
     connections: Dict[str, LookerConnectionConfig]
 
     # Source code URL for the project directory
-    projectSourceUrl: Optional[str] = None
+    project_source_url: Optional[str] = None
 
     verify_ssl: bool = True
     timeout: int = 120

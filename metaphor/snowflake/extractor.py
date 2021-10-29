@@ -1,20 +1,15 @@
-import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from snowflake.connector import SnowflakeConnection
-from snowflake.connector.cursor import SnowflakeCursor
+from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
 from metaphor.common.event_util import EventUtil
+from metaphor.common.logging import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.config import SnowflakeRunConfig
 from metaphor.snowflake.filter import SnowflakeFilter
-from metaphor.snowflake.utils import (
-    DatasetInfo,
-    QueryWithParam,
-    async_execute,
-    include_table,
-)
+from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType, include_table
 
 try:
     import snowflake.connector
@@ -40,8 +35,7 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.common.extractor import BaseExtractor
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class SnowflakeExtractor(BaseExtractor):
@@ -85,8 +79,7 @@ class SnowflakeExtractor(BaseExtractor):
                 self._fetch_columns(cursor, database)
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
-
-                self._fetch_table_info_async(conn, tables)
+                self._fetch_table_info(conn, tables)
 
         logger.debug(self._datasets)
 
@@ -177,48 +170,40 @@ class SnowflakeExtractor(BaseExtractor):
                 )
             )
 
-    FETCH_TABLE_INFO_QUERY = """
-    SELECT get_ddl('table', %s) as ddl, SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as last_change_time
-    """
-
-    FETCH_DDL_QUERY = "SELECT get_ddl('table', %s) as ddl"
-
-    def _fetch_table_info_async(
+    def _fetch_table_info(
         self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
     ) -> None:
-        # fetch last_update_time and DDL for tables, and fetch only DDL for views
-        queries = {
-            fullname: QueryWithParam(
-                self.FETCH_TABLE_INFO_QUERY, (f"{dataset.schema}.{dataset.name}",) * 2
-            )
-            if dataset.type == "BASE TABLE"
-            else QueryWithParam(
-                self.FETCH_DDL_QUERY, (f"{dataset.schema}.{dataset.name}",)
-            )
-            for fullname, dataset in tables.items()
-        }
-        results = async_execute(
-            conn,
-            queries,
-            "fetch_table_info",
-            self.max_concurrency,
-        )
+        queries, params = [], []
+        ddl_tables, updated_time_tables = [], []
+        for fullname, table in tables.items():
+            # fetch last_update_time and DDL for tables, and fetch only DDL for views
+            if table.type == SnowflakeTableType.BASE_TABLE.value:
+                queries.append(
+                    f'SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as "UPDATED_{fullname}"'
+                )
+                params.append(fullname)
+                updated_time_tables.append(fullname)
 
-        for full_name, result in results.items():
-            table_info = result[0]
-            dataset = self._datasets[full_name]
-            assert (
-                dataset.schema is not None
-                and dataset.schema.sql_schema is not None
-                and dataset.statistics is not None
-            )
+            queries.append(f"get_ddl('table', %s) as \"DDL_{fullname}\"")
+            params.append(fullname)
+            ddl_tables.append(fullname)
 
-            dataset.schema.sql_schema.table_schema = table_info[0]
+        cursor = conn.cursor(DictCursor)
+        cursor.execute(f"SELECT {','.join(queries)}", tuple(params))
+        results = cursor.fetchone()
+        cursor.close()
 
-            if len(table_info) == 1:
-                continue
+        for fullname in ddl_tables:
+            dataset = self._datasets[fullname]
+            assert dataset.schema is not None and dataset.schema.sql_schema is not None
 
-            timestamp = table_info[1]
+            dataset.schema.sql_schema.table_schema = results[f"DDL_{fullname}"]
+
+        for fullname in updated_time_tables:
+            dataset = self._datasets[fullname]
+            assert dataset.schema.sql_schema is not None
+
+            timestamp = results[f"UPDATED_{fullname}"]
             if timestamp > 0:
                 dataset.statistics.last_updated = datetime.utcfromtimestamp(
                     timestamp / 1000
@@ -307,7 +292,7 @@ class SnowflakeExtractor(BaseExtractor):
         dataset.schema.sql_schema = SQLSchema()
         dataset.schema.sql_schema.materialization = (
             MaterializationType.VIEW
-            if table_type == "VIEW"
+            if table_type == SnowflakeTableType.VIEW.value
             else MaterializationType.TABLE
         )
 

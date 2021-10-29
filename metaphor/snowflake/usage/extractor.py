@@ -8,6 +8,7 @@ from sql_metadata import Parser
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
+from metaphor.common.logging import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 from metaphor.snowflake.utils import QueryWithParam, async_execute, include_table
@@ -38,8 +39,7 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.common.extractor import BaseExtractor
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 # disable logging from sql_metadata
 logging.getLogger("Parser").setLevel(logging.CRITICAL)

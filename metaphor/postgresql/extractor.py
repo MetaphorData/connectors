@@ -1,10 +1,8 @@
-import logging
-from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
-from serde import deserialize
-
 from metaphor.common.event_util import EventUtil
+from metaphor.common.logging import get_logger
+from metaphor.postgresql.config import PostgreSQLRunConfig
 
 try:
     import asyncpg
@@ -26,10 +24,9 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
 )
 
-from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.extractor import BaseExtractor
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 _ignored_dbs = ["template0", "template1", "rdsadmin"]
 _ignored_schemas = [
@@ -38,18 +35,6 @@ _ignored_schemas = [
     "pg_internal",
     "catalog_history",
 ]
-
-
-@deserialize
-@dataclass
-class PostgreSQLRunConfig(RunConfig):
-    host: str
-    database: str
-    user: str
-    password: str
-
-    port: int = 5432
-    redshift: bool = False  # whether the target is redshift or postgresql
 
 
 class PostgreSQLExtractor(BaseExtractor):
@@ -63,9 +48,14 @@ class PostgreSQLExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self, config: PostgreSQLRunConfig) -> List[MetadataChangeEvent]:
+        return await self._extract(config, False)
+
+    async def _extract(
+        self, config: PostgreSQLRunConfig, redshift: bool
+    ) -> List[MetadataChangeEvent]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
 
-        platform = DataPlatform.REDSHIFT if config.redshift else DataPlatform.POSTGRESQL
+        platform = DataPlatform.REDSHIFT if redshift else DataPlatform.POSTGRESQL
         logger.info(f"Fetching metadata from {platform} host {config.host}")
 
         conn = await self._connect_database(config, config.database)
@@ -85,7 +75,7 @@ class PostgreSQLExtractor(BaseExtractor):
                 for schema, name, fullname in tables:
                     dataset = self._datasets[fullname]
                     await self._fetch_columns(conn, schema, name, dataset)
-                    if not config.redshift:
+                    if not redshift:
                         await self._fetch_constraints(conn, schema, name, dataset)
             finally:
                 await conn.close()
