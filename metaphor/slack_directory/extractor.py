@@ -1,4 +1,3 @@
-import logging
 from dataclasses import dataclass, field
 from typing import Dict, List, Set
 
@@ -18,11 +17,9 @@ from serde import deserialize
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.logging import get_logger
 
-logging.basicConfig(level=logging.INFO)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 @deserialize
@@ -93,7 +90,7 @@ class SlackExtractor(BaseExtractor):
 
             email = user["profile"].get("email", None)
             if email is None:
-                logging.warn(f"Skipping user {user['id']} without email address")
+                logger.warn(f"Skipping user {user['id']} without email address")
                 continue
 
             persons.append(

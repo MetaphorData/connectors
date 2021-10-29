@@ -1,4 +1,3 @@
-import logging
 import re
 from datetime import datetime, timezone
 from email.utils import parseaddr
@@ -32,6 +31,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.common.entity_id import EntityId, to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logging import get_logger
 from metaphor.dbt.config import DbtRunConfig
 
 from .generated.dbt_catalog import CatalogTable, DbtCatalog
@@ -43,8 +43,7 @@ from .generated.dbt_manifest import (
     ParsedSourceDefinition,
 )
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class DbtExtractor(BaseExtractor):

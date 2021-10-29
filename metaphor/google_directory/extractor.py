@@ -1,6 +1,5 @@
 import base64
 import json
-import logging
 from dataclasses import dataclass
 from typing import Dict, List
 
@@ -20,9 +19,9 @@ from smart_open import open
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.logging import get_logger
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = [
