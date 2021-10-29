@@ -1,5 +1,4 @@
 import re
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parseaddr
 from pathlib import Path
@@ -28,12 +27,12 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-from serde import deserialize
 
 from metaphor.common.entity_id import EntityId, to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
-from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logging import get_logger
+from metaphor.dbt.config import DbtRunConfig
 
 from .generated.dbt_catalog import CatalogTable, DbtCatalog
 from .generated.dbt_manifest import (
@@ -47,24 +46,6 @@ from .generated.dbt_manifest import (
 logger = get_logger(__name__)
 
 
-@deserialize
-@dataclass
-class DbtRunConfig(RunConfig):
-    manifest: str
-    catalog: Optional[str] = None
-
-    # the database service account this DBT project is connected to
-    account: Optional[str] = None
-
-    # the dbt docs base URL
-    docsBaseUrl: Optional[str] = None
-
-    # the source code URL for the project directory
-    projectSourceUrl: Optional[str] = None
-
-    # TODO: support dbt cloud and derive dbt cloud docs URL
-
-
 class DbtExtractor(BaseExtractor):
     """DBT metadata extractor"""
 
@@ -75,8 +56,8 @@ class DbtExtractor(BaseExtractor):
     def __init__(self):
         self.platform: DataPlatform = DataPlatform.UNKNOWN
         self.account: Optional[str] = None
-        self.docsBaseUrl: Optional[str] = None
-        self.projectSourceUrl: Optional[str] = None
+        self.docs_base_url: Optional[str] = None
+        self.project_source_url: Optional[str] = None
         self._manifest: DbtManifest
         self._catalog: Optional[DbtCatalog] = None
         self._datasets: Dict[str, Dataset] = {}
@@ -87,8 +68,8 @@ class DbtExtractor(BaseExtractor):
 
         logger.info("Fetching metadata from DBT repo")
         self.account = config.account
-        self.docsBaseUrl = config.docsBaseUrl
-        self.projectSourceUrl = config.projectSourceUrl
+        self.docs_base_url = config.docs_base_url
+        self.project_source_url = config.project_source_url
 
         try:
             self._manifest = DbtManifest.parse_file(Path(config.manifest))
@@ -168,10 +149,16 @@ class DbtExtractor(BaseExtractor):
             field.native_type = field.native_type or col.type or "Not Set"
 
     def _build_docs_url(self, unique_id: str) -> Optional[str]:
-        return f"{self.docsBaseUrl}/#!/model/{unique_id}" if self.docsBaseUrl else None
+        return (
+            f"{self.docs_base_url}/#!/model/{unique_id}" if self.docs_base_url else None
+        )
 
     def _build_source_code_url(self, file_path: str) -> Optional[str]:
-        return f"{self.projectSourceUrl}/{file_path}" if self.projectSourceUrl else None
+        return (
+            f"{self.project_source_url}/{file_path}"
+            if self.project_source_url
+            else None
+        )
 
     def _parse_catalog_source(self, model: CatalogTable) -> None:
         meta = model.metadata
