@@ -41,6 +41,7 @@ def test_yaml_config(test_root_dir):
                 account="account1",
             )
         },
+        project_source_url="http://foo.bar",
         verify_ssl=True,
         timeout=1,
         output=None,
