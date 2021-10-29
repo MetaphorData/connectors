@@ -46,7 +46,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     def __init__(self):
         self.max_concurrency = None
-        self.exclude_views = None
+        self.include_views = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -56,7 +56,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         logger.info("Fetching data profile from Snowflake")
         self.max_concurrency = config.max_concurrency
-        self.exclude_views = config.exclude_views
+        self.include_views = config.include_views
 
         conn = connect(config)
 
@@ -98,7 +98,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo] = {}
         for row in cursor:
             schema, name, table_type = row[0], row[1], row[2]
-            if self.exclude_views and table_type != SnowflakeTableType.BASE_TABLE.value:
+            if not self.include_views and table_type != SnowflakeTableType.BASE_TABLE.value:
                 # exclude both view and temporary table
                 continue
 
