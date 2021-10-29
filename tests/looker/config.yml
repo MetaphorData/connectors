@@ -9,6 +9,7 @@ connections:
         default_schema: schema1
         platform: SNOWFLAKE
         account: account1
+project_source_url: http://foo.bar
 verify_ssl: true
 timeout: 1
 output:
