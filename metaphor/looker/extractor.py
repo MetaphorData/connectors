@@ -81,7 +81,7 @@ class LookerExtractor(BaseExtractor):
         }
 
         model_map, virtual_views = parse_project(
-            config.lookml_dir, connections, config.projectSourceUrl
+            config.lookml_dir, connections, config.project_source_url
         )
 
         dashboards = self._fetch_dashboards(config, sdk, model_map)
