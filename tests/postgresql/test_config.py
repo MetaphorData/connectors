@@ -12,7 +12,6 @@ def test_json_config(test_root_dir):
         user="user",
         password="password",
         port=5432,
-        redshift=True,
         output=None,
     )
 
@@ -27,7 +26,6 @@ def test_yaml_config(test_root_dir):
         database="database",
         user="user",
         password="password",
-        port=5432,
-        redshift=True,
+        port=1234,
         output=None,
     )
