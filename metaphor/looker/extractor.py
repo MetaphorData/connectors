@@ -1,4 +1,3 @@
-import logging
 import os
 from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
@@ -25,11 +24,11 @@ from metaphor.models.metadata_change_event import (
 from metaphor.common.entity_id import to_virtual_view_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logging import get_logger
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 from metaphor.looker.lookml_parser import Model, fullname, parse_project
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class LookerExtractor(BaseExtractor):

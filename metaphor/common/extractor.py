@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Type
@@ -10,11 +9,12 @@ from serde.json import from_json
 from serde.yaml import from_yaml
 from smart_open import open
 
+from metaphor.common.logging import get_logger
+
 from .api_sink import ApiSink, ApiSinkConfig
 from .file_sink import FileSink, FileSinkConfig
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 @deserialize
@@ -66,10 +66,16 @@ class BaseExtractor(ABC):
         if config.output.api is not None:
             ApiSink(config.output.api).sink(events)
 
+        file_sink = None
         if config.output.file is not None:
-            FileSink(config.output.file).sink(events)
+            file_sink = FileSink(config.output.file)
+            file_sink.sink(events)
 
         logger.info("Extractor ended successfully")
+
+        if file_sink is not None:
+            file_sink.sink_logs()
+
         return events
 
     @abstractmethod

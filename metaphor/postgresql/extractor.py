@@ -1,10 +1,10 @@
-import logging
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
 from serde import deserialize
 
 from metaphor.common.event_util import EventUtil
+from metaphor.common.logging import get_logger
 
 try:
     import asyncpg
@@ -28,8 +28,7 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.common.extractor import BaseExtractor, RunConfig
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 _ignored_dbs = ["template0", "template1", "rdsadmin"]
 _ignored_schemas = [

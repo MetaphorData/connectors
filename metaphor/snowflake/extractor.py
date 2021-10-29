@@ -1,4 +1,3 @@
-import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
@@ -7,6 +6,7 @@ from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
 from metaphor.common.event_util import EventUtil
+from metaphor.common.logging import get_logger
 from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
 from metaphor.snowflake.utils import (
     DEFAULT_THREAD_POOL_SIZE,
@@ -39,8 +39,7 @@ from serde import deserialize
 
 from metaphor.common.extractor import BaseExtractor
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 @deserialize
