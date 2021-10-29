@@ -74,7 +74,7 @@ class FileSink(Sink):
 
         prefix = self.path[0:-5]
 
-        zip_file = tempfile.mktemp(suffix=".zip")
+        _, zip_file = tempfile.mkstemp(suffix=".zip")
         arcname = f"{path.basename(prefix)}.log"
         with ZipFile(zip_file, "w", ZIP_DEFLATED) as file:
             file.write(LOG_FILE, arcname=arcname)

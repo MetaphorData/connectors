@@ -1,7 +1,7 @@
 import logging
 import tempfile
 
-LOG_FILE = tempfile.mktemp(suffix=".log")
+_, LOG_FILE = tempfile.mkstemp(suffix=".log")
 
 logging.basicConfig(level=logging.DEBUG, filename=LOG_FILE, filemode="w")
 
