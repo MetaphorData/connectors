@@ -22,7 +22,7 @@ def write_file(
             **OWNER_FULL_CONTROL_ACL,
             # Use supplied credentials
             # See https://github.com/RaRe-Technologies/smart_open#s3-credentials
-            "client": s3_session.client("s3"),
+            "client": None if s3_session is None else s3_session.client("s3"),
         }
 
     mode = "wb" if binary_mode else "w"
