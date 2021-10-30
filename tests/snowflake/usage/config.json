@@ -3,9 +3,16 @@
   "user": "user",
   "password": "password",
   "lookback_days": 365,
-  "included_databases": ["DEMO_DB"],
+  "filter": {
+    "includes": {
+      "DEMO_DB": null
+    },
+    "excludes": {
+      "db1": {
+        "schema1": {} 
+      }
+    }
+  },
   "excluded_usernames": ["METAPHOR"],
-  "included_table_names": ["*.*"],
-  "excluded_table_names": ["*.databases"],
   "output": null
 }

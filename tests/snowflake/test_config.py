@@ -1,4 +1,5 @@
-from metaphor.snowflake.extractor import SnowflakeRunConfig
+from metaphor.snowflake.config import SnowflakeRunConfig
+from metaphor.snowflake.filter import SnowflakeFilter
 
 
 def test_json_config(test_root_dir):
@@ -9,7 +10,7 @@ def test_json_config(test_root_dir):
         user="user",
         password="password",
         default_database="database",
-        target_databases=None,
+        filter=SnowflakeFilter(includes=None, excludes=None),
         output=None,
     )
 
@@ -22,6 +23,21 @@ def test_yaml_config(test_root_dir):
         user="user",
         password="password",
         default_database="database",
-        target_databases=["foo", "bar"],
+        filter=SnowflakeFilter(
+            includes={
+                "db1": {
+                    "schema1": None,
+                },
+                "db2": {
+                    "schema2": set(
+                        [
+                            "table1",
+                            "table2",
+                        ]
+                    )
+                },
+            },
+            excludes={"db3": None},
+        ),
         output=None,
     )

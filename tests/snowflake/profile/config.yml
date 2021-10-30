@@ -3,7 +3,8 @@ account: account
 user: user
 password: password
 default_database: database
-target_databases:
-    - foo
-    - bar
+filter:
+    includes:
+        foo:
+        bar:
 output:

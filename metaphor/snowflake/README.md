@@ -77,18 +77,50 @@ See [Common Configurations](../common/README.md) for more information on `output
 
 ### Optional Configurations
 
-By default, the connector will extract metadata from all databases. You can optionally limit it to specific databases by adding the `target_databases` option to the config, e.g.
+#### Filter
+
+By default, the connector will extract metadata from all tables/views in all schemas and databases. You can optionally limit it by specifying the `filter` option. For example, the following config will only include tables/views from database `db1` and `db2`:
 
 ```yaml
-target_databases:
-  - db1
-  - db2
+filter:
+  includes:
+    db1:    
+    db2:
 ```
 
-The max number of concurrent queries to the snowflake database can be configured as follows, the default is 10.
+You can also exclude only specific databases, schemas, or tables/views. For example, the following will include all tables/views except `db1.*`, `db2.schema1.*`, and `db3.schema1.table1`:
 
 ```yaml
-max_concurrency: <max_number_of_queries>
+filter:
+  excludes:
+    db1:  
+    db2:
+      schema1:
+    db3:
+      schema1:
+        - table1
+```
+
+Note that when there's an overlap between `includes` and `excludes`, the latter will always take precedence. For instance, the following config will include all tables under `db1`, except `db1.schema1.table1` and `db1.schema1.table2`:
+
+```
+filter:
+  includes:
+    db1:
+  excludes:
+    db1:
+      schema1:  
+        - table1
+        - table2
+
+```
+
+#### Concurrency
+
+The max number of concurrent queries to the snowflake database can be configured as follows,
+
+```yaml
+max_concurrency: <max_number_of_queries> # Default to 10
 ```
 
 ## Testing

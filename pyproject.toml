@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.7.9"
+version = "0.8.0"
 description = ""
 authors = ["Metaphor <dev@metaphor.io>"]
 packages = [

@@ -1,18 +1,19 @@
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 from snowflake.connector import SnowflakeConnection
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logging import get_logger
-from metaphor.snowflake.auth import SnowflakeAuthConfig, connect
+from metaphor.snowflake.auth import connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
+from metaphor.snowflake.filter import SnowflakeFilter
+from metaphor.snowflake.profile.config import SnowflakeProfileRunConfig
 from metaphor.snowflake.utils import (
-    DEFAULT_THREAD_POOL_SIZE,
     DatasetInfo,
     QueryWithParam,
     SnowflakeTableType,
     async_execute,
+    include_table,
 )
 
 try:
@@ -30,24 +31,10 @@ from metaphor.models.metadata_change_event import (
     FieldStatistics,
     MetadataChangeEvent,
 )
-from serde import deserialize
 
 from metaphor.common.extractor import BaseExtractor
 
 logger = get_logger(__name__)
-
-
-@deserialize
-@dataclass
-class SnowflakeProfileRunConfig(SnowflakeAuthConfig):
-    # A list of databases to include. Includes all databases if not specified.
-    target_databases: Optional[List[str]] = None
-
-    # max number of concurrent queries to database
-    max_concurrency: Optional[int] = DEFAULT_THREAD_POOL_SIZE
-
-    # exclude views from profiling
-    exclude_views: bool = True
 
 
 class SnowflakeProfileExtractor(BaseExtractor):
@@ -59,7 +46,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     def __init__(self):
         self.max_concurrency = None
-        self.exclude_views = None
+        self.include_views = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -69,23 +56,24 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         logger.info("Fetching data profile from Snowflake")
         self.max_concurrency = config.max_concurrency
-        self.exclude_views = config.exclude_views
+        self.include_views = config.include_views
 
         conn = connect(config)
 
         with conn:
             cursor = conn.cursor()
 
+            filter = config.filter.normalize()
+
             databases = (
-                SnowflakeExtractor.fetch_databases(cursor)
-                if config.target_databases is None
-                else config.target_databases
+                self.fetch_databases(cursor)
+                if filter.includes is None
+                else list(filter.includes.keys())
             )
-            logger.info(f"Databases to include: {databases}")
 
             for database in databases:
-                tables = self._fetch_tables(cursor, database, config.account)
-                logger.info(f"DB {database} has tables: {tables}")
+                tables = self._fetch_tables(cursor, database, config.account, filter)
+                logger.info(f"Include {len(tables)} tables from {database}")
 
                 self._fetch_columns_async(conn, tables)
 
@@ -94,7 +82,11 @@ class SnowflakeProfileExtractor(BaseExtractor):
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     def _fetch_tables(
-        self, cursor, database: str, account: str
+        self,
+        cursor,
+        database: str,
+        account: str,
+        filter: SnowflakeFilter,
     ) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)
@@ -106,11 +98,18 @@ class SnowflakeProfileExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo] = {}
         for row in cursor:
             schema, name, table_type = row[0], row[1], row[2]
-            if self.exclude_views and table_type != SnowflakeTableType.BASE_TABLE.value:
+            if (
+                not self.include_views
+                and table_type != SnowflakeTableType.BASE_TABLE.value
+            ):
                 # exclude both view and temporary table
                 continue
 
             full_name = SnowflakeExtractor.table_fullname(database, schema, name)
+            if not include_table(database, schema, name, filter):
+                logger.info(f"Ignore {full_name} due to filter config")
+                continue
+
             self._datasets[full_name] = self._init_dataset(account, full_name)
             tables[full_name] = DatasetInfo(database, schema, name, table_type)
 

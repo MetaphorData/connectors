@@ -1,4 +1,5 @@
-from metaphor.snowflake.usage.extractor import SnowflakeUsageRunConfig
+from metaphor.snowflake.filter import SnowflakeFilter
+from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 
 
 def test_json_config(test_root_dir):
@@ -10,11 +11,12 @@ def test_json_config(test_root_dir):
         account="account",
         user="user",
         password="password",
+        filter=SnowflakeFilter(
+            includes={"DEMO_DB": None},
+            excludes={"db1": {"schema1": set()}},
+        ),
         lookback_days=365,
-        included_databases={"DEMO_DB"},
         excluded_usernames={"METAPHOR"},
-        included_table_names={"*.*"},
-        excluded_table_names={"*.databases"},
         output=None,
     )
 
@@ -28,10 +30,8 @@ def test_yaml_config(test_root_dir):
         account="account",
         user="user",
         password="password",
+        filter=SnowflakeFilter(),
         lookback_days=30,
-        included_databases=set(),
         excluded_usernames=set(),
-        included_table_names={"*"},
-        excluded_table_names=set(),
         output=None,
     )

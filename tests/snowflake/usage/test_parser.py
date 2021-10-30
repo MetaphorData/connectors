@@ -10,6 +10,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.event_util import EventUtil
+from metaphor.snowflake.filter import SnowflakeFilter
 from metaphor.snowflake.usage.extractor import SnowflakeUsageExtractor
 from tests.test_utils import load_json
 
@@ -130,6 +131,7 @@ def test_parse_query_log(test_root_dir):
     """
 
     extractor = SnowflakeUsageExtractor()
+    extractor.filter = SnowflakeFilter()
 
     extractor._parse_query_log(
         sql, "db", "schema", datetime.now().replace(tzinfo=timezone.utc)

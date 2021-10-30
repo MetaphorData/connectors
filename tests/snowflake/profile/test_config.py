@@ -1,9 +1,10 @@
-from metaphor.snowflake.profile.extractor import SnowflakeProfileRunConfig
+from metaphor.snowflake.filter import SnowflakeFilter
+from metaphor.snowflake.profile.config import SnowflakeProfileRunConfig
 
 
 def test_json_config(test_root_dir):
     config = SnowflakeProfileRunConfig.from_json_file(
-        f"{test_root_dir}/snowflake/config.json"
+        f"{test_root_dir}/snowflake/profile/config.json"
     )
 
     assert config == SnowflakeProfileRunConfig(
@@ -11,14 +12,14 @@ def test_json_config(test_root_dir):
         user="user",
         password="password",
         default_database="database",
-        target_databases=None,
+        filter=SnowflakeFilter(),
         output=None,
     )
 
 
 def test_yaml_config(test_root_dir):
     config = SnowflakeProfileRunConfig.from_yaml_file(
-        f"{test_root_dir}/snowflake/config.yml"
+        f"{test_root_dir}/snowflake/profile/config.yml"
     )
 
     assert config == SnowflakeProfileRunConfig(
@@ -26,6 +27,6 @@ def test_yaml_config(test_root_dir):
         user="user",
         password="password",
         default_database="database",
-        target_databases=["foo", "bar"],
+        filter=SnowflakeFilter(includes={"foo": None, "bar": None}, excludes=None),
         output=None,
     )

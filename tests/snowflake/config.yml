@@ -3,7 +3,14 @@ account: account
 user: user
 password: password
 default_database: database
-target_databases:
-    - foo
-    - bar
+filter:
+    includes:
+        db1:
+            schema1:
+        db2:
+            schema2:
+                - table1
+                - table2
+    excludes:
+        db3:
 output:
