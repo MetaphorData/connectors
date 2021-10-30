@@ -98,7 +98,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo] = {}
         for row in cursor:
             schema, name, table_type = row[0], row[1], row[2]
-            if not self.include_views and table_type != SnowflakeTableType.BASE_TABLE.value:
+            if (
+                not self.include_views
+                and table_type != SnowflakeTableType.BASE_TABLE.value
+            ):
                 # exclude both view and temporary table
                 continue
 
