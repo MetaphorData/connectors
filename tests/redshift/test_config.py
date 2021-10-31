@@ -1,12 +1,10 @@
-from metaphor.redshift.config import RedshiftSQLRunConfig
+from metaphor.redshift.config import RedshiftRunConfig
 
 
 def test_json_config(test_root_dir):
-    config = RedshiftSQLRunConfig.from_json_file(
-        f"{test_root_dir}/redshift/config.json"
-    )
+    config = RedshiftRunConfig.from_json_file(f"{test_root_dir}/redshift/config.json")
 
-    assert config == RedshiftSQLRunConfig(
+    assert config == RedshiftRunConfig(
         host="host",
         database="database",
         user="user",
@@ -17,9 +15,9 @@ def test_json_config(test_root_dir):
 
 
 def test_yaml_config(test_root_dir):
-    config = RedshiftSQLRunConfig.from_yaml_file(f"{test_root_dir}/redshift/config.yml")
+    config = RedshiftRunConfig.from_yaml_file(f"{test_root_dir}/redshift/config.yml")
 
-    assert config == RedshiftSQLRunConfig(
+    assert config == RedshiftRunConfig(
         host="host",
         database="database",
         user="user",

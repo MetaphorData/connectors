@@ -7,5 +7,5 @@ from metaphor.postgresql.config import PostgreSQLRunConfig
 
 @deserialize
 @dataclass
-class RedshiftSQLRunConfig(PostgreSQLRunConfig):
+class RedshiftRunConfig(PostgreSQLRunConfig):
     port: int = 5439
