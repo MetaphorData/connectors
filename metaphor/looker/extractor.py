@@ -149,7 +149,14 @@ class LookerExtractor(BaseExtractor):
                     e.result_maker.vis_config.get("type", ""), ChartType.OTHER
                 )
 
-            charts.append(Chart(title=e.title, chart_type=chart_type))
+            charts.append(
+                Chart(
+                    # Use "id" if "title" is None or empty string
+                    title=e.title if e.title else e.id,
+                    description=e.note_text,
+                    chart_type=chart_type,
+                )
+            )
 
             if not isinstance(e.result_maker.filterables, Iterable):
                 logger.warning(f"Unable to iterate filterables in element {e.title}")
