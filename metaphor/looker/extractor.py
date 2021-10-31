@@ -151,7 +151,8 @@ class LookerExtractor(BaseExtractor):
 
             charts.append(
                 Chart(
-                    title=e.title if e.title else e.name,
+                    # Use "id" if "title" is None or empty string
+                    title=e.title if e.title else e.id,
                     description=e.note_text,
                     chart_type=chart_type,
                 )
