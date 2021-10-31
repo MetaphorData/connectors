@@ -3,11 +3,15 @@ from typing import List
 from metaphor.models.metadata_change_event import MetadataChangeEvent
 
 from metaphor.postgresql.extractor import PostgreSQLExtractor
-from metaphor.redshift.config import RedshiftSQLRunConfig
+from metaphor.redshift.config import RedshiftRunConfig
 
 
-class RedshiftSQLExtractor(PostgreSQLExtractor):
+class RedshiftExtractor(PostgreSQLExtractor):
     """Redshift metadata extractor"""
 
-    async def extract(self, config: RedshiftSQLRunConfig) -> List[MetadataChangeEvent]:
-        return self._extract(config, True)
+    @staticmethod
+    def config_class():
+        return RedshiftRunConfig
+
+    async def extract(self, config: RedshiftRunConfig) -> List[MetadataChangeEvent]:
+        return await self._extract(config, True)
