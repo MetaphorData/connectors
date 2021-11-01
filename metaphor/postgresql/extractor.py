@@ -239,12 +239,18 @@ class PostgreSQLExtractor(BaseExtractor):
 
     @staticmethod
     def _build_field(column) -> SchemaField:
-        field = SchemaField()
-        field.field_path = column["column_name"]
-        field.native_type = column["data_type"]
-        field.nullable = column["is_nullable"] == "YES"
-        field.description = column["description"]
-        return field
+        return SchemaField(
+            field_path=column["column_name"],
+            native_type=column["data_type"],
+            nullable=column["is_nullable"] == "YES",
+            description=column["description"],
+            max_length=float(column["character_maximum_length"])
+            if column["character_maximum_length"] is not None
+            else None,
+            precision=float(column["numeric_precision"])
+            if column["numeric_precision"] is not None
+            else None,
+        )
 
     @staticmethod
     def _build_constraint(constraint: Dict, schema: SQLSchema) -> None:
