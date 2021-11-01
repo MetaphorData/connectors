@@ -200,8 +200,8 @@ class PostgreSQLExtractor(BaseExtractor):
               ON constraints.table_schema = constraint_col.table_schema
               AND constraints.constraint_name = constraint_col.constraint_name
             WHERE constraints.constraint_type IN ('PRIMARY KEY', 'UNIQUE', 'FOREIGN KEY')
-            GROUP BY constraints.table_schema, constraints.table_name, constraints.constraint_name, 
-              constraints.constraint_type, constraint_col.table_catalog, constraint_col.table_schema, 
+            GROUP BY constraints.table_schema, constraints.table_name, constraints.constraint_name,
+              constraints.constraint_type, constraint_col.table_catalog, constraint_col.table_schema,
               constraint_col.table_name;
             """
         )
