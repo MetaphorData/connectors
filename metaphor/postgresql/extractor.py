@@ -1,5 +1,7 @@
 from typing import Dict, List, Tuple
 
+from asyncpg import Connection
+
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logging import get_logger
 from metaphor.postgresql.config import PostgreSQLRunConfig
@@ -71,12 +73,10 @@ class PostgreSQLExtractor(BaseExtractor):
                 tables = await self._fetch_tables(conn, platform)
                 logger.info(f"DB {db} has tables {tables}")
 
-                # TODO: parallel fetching
-                for schema, name, fullname in tables:
-                    dataset = self._datasets[fullname]
-                    await self._fetch_columns(conn, schema, name, dataset)
-                    if not redshift:
-                        await self._fetch_constraints(conn, schema, name, dataset)
+                await self._fetch_columns(conn, db)
+
+                if not redshift:
+                    await self._fetch_constraints(conn, db)
             finally:
                 await conn.close()
 
@@ -90,7 +90,9 @@ class PostgreSQLExtractor(BaseExtractor):
         return f"{db}.{schema}.{table}".lower()
 
     @staticmethod
-    async def _connect_database(config: PostgreSQLRunConfig, database: str):
+    async def _connect_database(
+        config: PostgreSQLRunConfig, database: str
+    ) -> Connection:
         logger.info(f"Connecting to DB {database}")
         return await asyncpg.connect(
             host=config.host,
@@ -101,15 +103,16 @@ class PostgreSQLExtractor(BaseExtractor):
         )
 
     @staticmethod
-    async def _fetch_databases(conn) -> List[str]:
+    async def _fetch_databases(conn: Connection) -> List[str]:
         results = await conn.fetch("SELECT datname FROM pg_database")
         return [r[0] for r in results if r[0] not in _ignored_dbs]
 
+    # Exclude schemas in WHERE clause, e.g. table_schema not in ($1, $2, ...)
+    _excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
+
     async def _fetch_tables(
-        self, conn, platform: DataPlatform
+        self, conn: Connection, platform: DataPlatform
     ) -> List[Tuple[str, str, str]]:
-        # e.g. table_schema not in ($1, $2, ...)
-        excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
 
         results = await conn.fetch(
             f"""
@@ -124,7 +127,7 @@ class PostgreSQLExtractor(BaseExtractor):
                 )
             LEFT JOIN pg_catalog.pg_description pgd
               ON pgd.objoid = pgc.oid AND pgd.objsubid = 0
-            WHERE {excluded_schemas_clause}
+            WHERE {self._excluded_schemas_clause}
             ORDER BY table_schema, table_name;
             """,
             *_ignored_schemas,
@@ -149,60 +152,75 @@ class PostgreSQLExtractor(BaseExtractor):
 
         return tables
 
-    @staticmethod
-    async def _fetch_columns(conn, schema: str, name: str, dataset: Dataset) -> None:
-        assert dataset.schema is not None and dataset.schema.fields is not None
-
-        results = await conn.fetch(
-            "SELECT ordinal_position, cols.column_name, data_type, character_maximum_length, "
-            "  numeric_precision, is_nullable, pgd.description "
-            "FROM information_schema.columns AS cols "
-            "LEFT OUTER JOIN pg_catalog.pg_description pgd "
-            "  ON pgd.objoid = ( "
-            "    SELECT oid FROM pg_class "
-            "    WHERE relname = $2 AND relnamespace = ( "
-            "        SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = $1 "
-            "      ) "
-            "    ) "
-            "  AND pgd.objsubid = cols.ordinal_position "
-            "WHERE cols.table_schema = $1 AND cols.table_name = $2 "
-            "ORDER BY ordinal_position",
-            schema,
-            name,
+    async def _fetch_columns(self, conn: Connection, catalog: str) -> None:
+        columns = await conn.fetch(
+            f"""
+            SELECT table_schema, table_name, ordinal_position, column_name, data_type,
+                   character_maximum_length, numeric_precision, is_nullable, pgd.description
+            FROM information_schema.columns AS cols
+            JOIN (
+                    SELECT pgc.oid, relname, nspname
+                    FROM pg_class pgc
+                    JOIN pg_catalog.pg_namespace pgn
+                        ON relnamespace = pgn.oid
+                ) pg
+                ON table_schema = nspname AND table_name = relname
+            LEFT JOIN pg_catalog.pg_description pgd
+              ON pgd.objoid = pg.oid AND pgd.objsubid = cols.ordinal_position
+            WHERE {self._excluded_schemas_clause}
+            ORDER BY table_schema, table_name, ordinal_position;
+            """,
+            *_ignored_schemas,
         )
-        for column in results:
+
+        for column in columns:
+            full_name = self._dataset_name(
+                catalog, column["table_schema"], column["table_name"]
+            )
+            dataset = self._datasets[full_name]
+            assert dataset.schema is not None and dataset.schema.fields is not None
+
             dataset.schema.fields.append(PostgreSQLExtractor._build_field(column))
 
-    @staticmethod
-    async def _fetch_constraints(conn, schema: str, name: str, dataset: Dataset):
-        assert dataset.schema is not None and dataset.schema.sql_schema is not None
-
-        results = await conn.fetch(
-            "SELECT constraints.constraint_name, constraints.constraint_type, "
-            "  string_agg(key_col.column_name, ',') AS key_columns, "
-            "  constraint_col.table_catalog AS constraint_db, "
-            "  constraint_col.table_schema AS constraint_schema, "
-            "  constraint_col.table_name AS constraint_table, "
-            "  string_agg(constraint_col.column_name, ',') AS constraint_columns "
-            "FROM information_schema.table_constraints AS constraints "
-            "LEFT OUTER JOIN information_schema.key_column_usage AS key_col "
-            "  ON constraints.table_schema = key_col.table_schema "
-            "  AND constraints.constraint_name = key_col.constraint_name "
-            "LEFT OUTER JOIN  information_schema.constraint_column_usage AS constraint_col "
-            "  ON constraints.table_schema = constraint_col.table_schema "
-            "  AND constraints.constraint_name = constraint_col.constraint_name "
-            "WHERE constraints.table_schema =$1 AND constraints.table_name = $2 "
-            "  AND constraints.constraint_type IN ('PRIMARY KEY', 'UNIQUE', 'FOREIGN KEY') "
-            "GROUP BY constraints.constraint_name, constraints.constraint_type, constraint_col.table_catalog, "
-            "  constraint_col.table_schema, constraint_col.table_name",
-            schema,
-            name,
+    async def _fetch_constraints(self, conn: Connection, catalog: str) -> None:
+        constraints = await conn.fetch(
+            """
+            SELECT constraints.table_schema, constraints.table_name,
+              constraints.constraint_name, constraints.constraint_type,
+              string_agg(key_col.column_name, ',') AS key_columns,
+              constraint_col.table_catalog AS constraint_db,
+              constraint_col.table_schema AS constraint_schema,
+              constraint_col.table_name AS constraint_table,
+              string_agg(constraint_col.column_name, ',') AS constraint_columns
+            FROM information_schema.table_constraints AS constraints
+            LEFT OUTER JOIN information_schema.key_column_usage AS key_col
+              ON constraints.table_schema = key_col.table_schema
+              AND constraints.constraint_name = key_col.constraint_name
+            LEFT OUTER JOIN  information_schema.constraint_column_usage AS constraint_col
+              ON constraints.table_schema = constraint_col.table_schema
+              AND constraints.constraint_name = constraint_col.constraint_name
+            WHERE constraints.constraint_type IN ('PRIMARY KEY', 'UNIQUE', 'FOREIGN KEY')
+            GROUP BY constraints.table_schema, constraints.table_name, constraints.constraint_name,
+              constraints.constraint_type, constraint_col.table_catalog, constraint_col.table_schema,
+              constraint_col.table_name;
+            """
         )
-        if results:
-            for constraint in results:
-                PostgreSQLExtractor._build_constraint(
-                    constraint, dataset.schema.sql_schema
-                )
+
+        if not constraints:
+            return
+
+        for constraint in constraints:
+            full_name = self._dataset_name(
+                catalog, constraint["table_schema"], constraint["table_name"]
+            )
+            if full_name not in self._datasets:
+                logger.warning(f"Table {full_name} not found")
+                continue
+
+            dataset = self._datasets[full_name]
+            assert dataset.schema is not None and dataset.schema.sql_schema is not None
+
+            self._build_constraint(constraint, dataset.schema.sql_schema)
 
     @staticmethod
     def _init_dataset(
@@ -239,12 +257,18 @@ class PostgreSQLExtractor(BaseExtractor):
 
     @staticmethod
     def _build_field(column) -> SchemaField:
-        field = SchemaField()
-        field.field_path = column["column_name"]
-        field.native_type = column["data_type"]
-        field.nullable = column["is_nullable"] == "YES"
-        field.description = column["description"]
-        return field
+        return SchemaField(
+            field_path=column["column_name"],
+            native_type=column["data_type"],
+            nullable=column["is_nullable"] == "YES",
+            description=column["description"],
+            max_length=float(column["character_maximum_length"])
+            if column["character_maximum_length"] is not None
+            else None,
+            precision=float(column["numeric_precision"])
+            if column["numeric_precision"] is not None
+            else None,
+        )
 
     @staticmethod
     def _build_constraint(constraint: Dict, schema: SQLSchema) -> None:
