@@ -4,22 +4,6 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Collection, Dict, List, Tuple
 
-from serde import deserialize
-from serde.json import from_json
-
-from metaphor.common.event_util import EventUtil
-from metaphor.common.logging import get_logger
-from metaphor.snowflake.auth import connect
-from metaphor.snowflake.filter import DatabaseFilter
-from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
-from metaphor.snowflake.utils import QueryWithParam, async_execute, include_table
-
-try:
-    import sql_metadata
-except ImportError:
-    print("Please install metaphor[snowflake] extra\n")
-    raise
-
 from metaphor.models.metadata_change_event import (
     AspectType,
     DataPlatform,
@@ -33,15 +17,21 @@ from metaphor.models.metadata_change_event import (
     QueryCount,
     QueryCounts,
 )
+from serde import deserialize
+from serde.json import from_json
 
+from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logging import get_logger
+from metaphor.snowflake.auth import connect
+from metaphor.snowflake.filter import DatabaseFilter
+from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
+from metaphor.snowflake.utils import QueryWithParam, async_execute, include_table
 
 logger = get_logger(__name__)
 
 # disable logging from sql_metadata
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
-
-DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 
 @deserialize
@@ -58,6 +48,9 @@ class AccessedObject:
     objectName: str
     objectId: int
     columns: List[AccessedObjectColumn]
+
+
+DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 
 class SnowflakeUsageExtractor(BaseExtractor):
