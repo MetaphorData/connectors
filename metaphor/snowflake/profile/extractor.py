@@ -66,7 +66,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
             filter = config.filter.normalize()
 
             databases = (
-                self.fetch_databases(cursor)
+                SnowflakeExtractor.fetch_databases(cursor)
                 if filter.includes is None
                 else list(filter.includes.keys())
             )
