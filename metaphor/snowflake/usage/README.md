@@ -1,6 +1,6 @@
 # Snowflake Usage Statistics Connector
 
-This connector extracts usage statistics from a Snowflake account using [Snowflake Connector](https://docs.snowflake.com/en/user-guide/python-connector.html).
+This connector extracts usage statistics from a Snowflake account using [Snowflake Connector](https://docs.snowflake.com/en/user-guide/python-connector.html). It can only be run against Snowflake Enterprise account or above, and doesn't support regular account yet.
 
 ## Setup
 
@@ -22,6 +22,9 @@ lookback_days: <days>
 excluded_usernames:
   - <user_name1>
   - <user_name2>
+
+# (Optional) The number of access logs fetched in a batch, default to 100000 
+batch_size: <batch_size>
 ```
 
 ## Testing
