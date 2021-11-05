@@ -1,6 +1,8 @@
 import asyncio
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List, Optional, Type
 
 from metaphor.models.metadata_change_event import MetadataChangeEvent
@@ -57,11 +59,14 @@ class BaseExtractor(ABC):
 
     def run(self, config: RunConfig) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
-        logger.info(f"Starting extractor {self.__class__.__name__}")
+        start_time = time.time()
+        logger.info(f"Starting extractor {self.__class__.__name__} at {datetime.now()}")
 
         events: List[MetadataChangeEvent] = asyncio.run(self.extract(config))
 
-        logger.info(f"Fetched {len(events)} entities")
+        logger.info(
+            f"Fetched {len(events)} entities, took {time.time() - start_time} s"
+        )
 
         if config.output.api is not None:
             ApiSink(config.output.api).sink(events)
@@ -71,7 +76,7 @@ class BaseExtractor(ABC):
             file_sink = FileSink(config.output.file)
             file_sink.sink(events)
 
-        logger.info("Extractor ended successfully")
+        logger.info(f"Extractor ended successfully at {datetime.now()}")
 
         if file_sink is not None:
             file_sink.sink_logs()

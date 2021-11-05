@@ -121,20 +121,51 @@ def test_column_percentile():
     ]
 
 
-def test_parse_query_log(test_root_dir):
-    sql = """
-    SELECT n.SHOW_ID, n.TITLE, n.TYPE, n.Date_added, n.RATING
-    FROM DBT_DEV.NETFLIX n
-    JOIN DBT_DEV.TRIAL_MODEL_1 t
-      ON n.SHOW_ID = t.SHOW_ID
-    WHERE t.COUNTRY = 'India'
-    """
-
+def test_parse_access_log(test_root_dir):
     extractor = SnowflakeUsageExtractor()
     extractor.filter = SnowflakeFilter()
 
-    extractor._parse_query_log(
-        sql, "db", "schema", datetime.now().replace(tzinfo=timezone.utc)
+    accessed_objects = """
+    [
+        {
+            "columns": [
+                {
+                    "columnId": 1419851,
+                    "columnName": "START_TIME"
+                },
+                {
+                    "columnId": 1419832,
+                    "columnName": "QUERY_ID"
+                },
+                {
+                    "columnId": 1419833,
+                    "columnName": "QUERY_TEXT"
+                }
+            ],
+            "objectDomain": "View",
+            "objectId": 1109388,
+            "objectName": "SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY"
+        },
+        {
+            "columns": [
+                {
+                    "columnId": 1511734,
+                    "columnName": "DIRECT_OBJECTS_ACCESSED"
+                },
+                {
+                    "columnId": 1511731,
+                    "columnName": "QUERY_ID"
+                }
+            ],
+            "objectDomain": "View",
+            "objectId": 1154686,
+            "objectName": "SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY"
+        }
+    ]
+    """
+
+    extractor._parse_access_log(
+        datetime.now().replace(tzinfo=timezone.utc), accessed_objects
     )
 
     results = {}

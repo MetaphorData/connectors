@@ -1,23 +1,8 @@
 import logging
-from collections import defaultdict
-from dataclasses import dataclass, field
+import math
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Callable, Collection, Dict, List, Set, Tuple
-
-from sql_metadata import Parser
-
-from metaphor.common.entity_id import EntityId
-from metaphor.common.event_util import EventUtil
-from metaphor.common.logging import get_logger
-from metaphor.snowflake.auth import connect
-from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
-from metaphor.snowflake.utils import QueryWithParam, async_execute, include_table
-
-try:
-    import sql_metadata
-except ImportError:
-    print("Please install metaphor[snowflake] extra\n")
-    raise
+from typing import Callable, Collection, Dict, List, Tuple
 
 from metaphor.models.metadata_change_event import (
     AspectType,
@@ -31,13 +16,17 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     QueryCount,
     QueryCounts,
-    TableColumnsUsage,
-    TableJoin,
-    TableJoins,
-    TableJoinScenario,
 )
+from serde import deserialize
+from serde.json import from_json
 
+from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logging import get_logger
+from metaphor.snowflake.auth import connect
+from metaphor.snowflake.filter import DatabaseFilter
+from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
+from metaphor.snowflake.utils import QueryWithParam, async_execute, include_table
 
 logger = get_logger(__name__)
 
@@ -45,7 +34,23 @@ logger = get_logger(__name__)
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
 
 
-DEFAULT_EXCLUDED_DATABASES = ["SNOWFLAKE"]
+@deserialize
+@dataclass
+class AccessedObjectColumn:
+    columnId: int
+    columnName: str
+
+
+@deserialize
+@dataclass
+class AccessedObject:
+    objectDomain: str
+    objectName: str
+    objectId: int
+    columns: List[AccessedObjectColumn]
+
+
+DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 
 class SnowflakeUsageExtractor(BaseExtractor):
@@ -57,10 +62,10 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
     def __init__(self):
         self.account = None
+        self.filter = None
         self.max_concurrency = None
+        self.batch_size = None
         self._datasets: Dict[str, Dataset] = {}
-        self.total_queries_count = 0
-        self.error_count = 0
 
     async def extract(
         self, config: SnowflakeUsageRunConfig
@@ -71,25 +76,14 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
         self.account = config.account
         self.max_concurrency = config.max_concurrency
+        self.batch_size = config.batch_size
+
         self.filter = config.filter.normalize()
 
         self.filter.excludes = (
             DEFAULT_EXCLUDED_DATABASES
             if self.filter.excludes is None
-            else self.filter.excludes + DEFAULT_EXCLUDED_DATABASES
-        )
-
-        # Database names must be capitalized for the IN clause to work
-        included_databases = (
-            [d.upper() for d in list(config.filter.includes.keys())]
-            if config.filter.includes
-            else []
-        )
-
-        included_databases_clause = (
-            f"and DATABASE_NAME IN ({','.join(['%s'] * len(included_databases))})"
-            if len(included_databases) > 0
-            else ""
+            else {**self.filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
         )
 
         excluded_usernames_clause = (
@@ -99,7 +93,6 @@ class SnowflakeUsageExtractor(BaseExtractor):
         )
 
         start_date = datetime.utcnow().date() - timedelta(config.lookback_days)
-        batch_size = 1000
 
         conn = connect(config)
 
@@ -108,36 +101,36 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
             cursor.execute(
                 f"""
-                SELECT COUNT(1), MIN(QUERY_ID)
+                SELECT COUNT(1)
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
-                WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
-                  {included_databases_clause} {excluded_usernames_clause}
+                WHERE EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
+                  {excluded_usernames_clause}
                 """,
                 (
                     start_date,
-                    *included_databases,
                     *config.excluded_usernames,
                 ),
             )
-            count, min_query_id = cursor.fetchone()
-            batches = count // batch_size + 1
+            count = cursor.fetchone()[0]
+            batches = math.ceil(count / self.batch_size)
             logger.info(f"Total {count} queries, dividing into {batches} batches")
 
             queries = {
                 x: QueryWithParam(
                     f"""
-                    SELECT QUERY_ID, QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME
-                    FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
-                    WHERE SCHEMA_NAME != 'NULL' and EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
-                      {included_databases_clause} {excluded_usernames_clause}
-                    ORDER BY QUERY_ID
-                    LIMIT {batch_size} OFFSET %s
+                    SELECT q.QUERY_ID, START_TIME, DIRECT_OBJECTS_ACCESSED
+                    FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
+                    JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+                      ON a.QUERY_ID = q.QUERY_ID
+                    WHERE EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
+                      {excluded_usernames_clause}
+                    ORDER BY q.QUERY_ID
+                    LIMIT {self.batch_size} OFFSET %s
                     """,
                     (
                         start_date,
-                        *included_databases,
                         *config.excluded_usernames,
-                        x * batch_size,
+                        x * self.batch_size,
                     ),
                 )
                 for x in range(batches)
@@ -145,9 +138,9 @@ class SnowflakeUsageExtractor(BaseExtractor):
             async_execute(
                 conn,
                 queries,
-                "fetch_queries",
+                "fetch_access_logs",
                 self.max_concurrency,
-                self._parse_query_logs,
+                self._parse_access_logs,
             )
 
         # calculate statistics based on the counts
@@ -155,81 +148,53 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
-    def _parse_query_logs(self, batch_number: str, queries: List[Tuple]):
-        logger.info(f"query logs batch #{batch_number}")
-        for query_id, query, db, schema, start_time in queries:
-            self._parse_query_log(query, db, schema, start_time)
+    def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
+        logger.info(f"access logs batch #{batch_number}")
+        for query_id, start_time, accessed_objects in access_logs:
+            self._parse_access_log(start_time, accessed_objects)
 
-    def _parse_query_log(
-        self, query: str, db: str, schema: str, start_time: datetime
-    ) -> None:
+    def _parse_access_log(self, start_time: datetime, accessed_objects: str) -> None:
         try:
-            parser = sql_metadata.Parser(query)
-            tables = self._parse_tables(parser, db, schema, start_time)
-            self._parse_columns(parser, db, schema, tables, start_time)
-            self._parse_joins(parser, db, schema, start_time)
-        except (KeyError, ValueError) as e:
-            self.error_count += 1
-            logger.debug(f"{e} {query}")
+            objects = from_json(List[AccessedObject], accessed_objects)
+            for obj in objects:
+                table_name = obj.objectName.lower()
+                parts = table_name.split(".")
+                db, schema, table = parts[0], parts[1], parts[2]
+                if not include_table(db, schema, table, self.filter):
+                    logger.debug(f"Ignore {table_name} due to filter config")
+                    continue
+
+                if table_name not in self._datasets:
+                    self._datasets[table_name] = SnowflakeUsageExtractor._init_dataset(
+                        self.account, table_name
+                    )
+
+                columns = [column.columnName.lower() for column in obj.columns]
+
+                self._update_table_and_columns_usage(table_name, columns, start_time)
         except Exception as e:
-            self.error_count += 1
-            logger.error(f"parser error {e}: {query}")
+            logger.error(f"access log error, objects: {accessed_objects}", e)
 
-    def _parse_tables(
-        self, parser: Parser, db: str, schema: str, start_time: datetime
-    ) -> List[str]:
-        logger.debug(f"tables: {parser.tables}")
-
-        table_fullnames = []
-        for table in parser.tables:
-            fullname = SnowflakeUsageExtractor._built_table_fullname(table, db, schema)
-            if not include_table(db, schema, table, self.filter):
-                logger.info(f"Ignore {fullname} due to filter config")
-                continue
-
-            table_fullnames.append(fullname)
-
-            if fullname not in self._datasets:
-                self._datasets[fullname] = SnowflakeUsageExtractor._init_dataset(
-                    self.account, fullname
-                )
-
-            utc_now = datetime.now().replace(tzinfo=timezone.utc)
-            if start_time > utc_now - timedelta(1):
-                self._datasets[fullname].usage.query_counts.last24_hours.count += 1
-
-            if start_time > utc_now - timedelta(7):
-                self._datasets[fullname].usage.query_counts.last7_days.count += 1
-
-            if start_time > utc_now - timedelta(30):
-                self._datasets[fullname].usage.query_counts.last30_days.count += 1
-
-            if start_time > utc_now - timedelta(90):
-                self._datasets[fullname].usage.query_counts.last90_days.count += 1
-
-            if start_time > utc_now - timedelta(365):
-                self._datasets[fullname].usage.query_counts.last365_days.count += 1
-
-        return table_fullnames
-
-    def _parse_columns(
-        self,
-        parser: Parser,
-        db: str,
-        schema: str,
-        tables: List[str],
-        start_time: datetime,
+    def _update_table_and_columns_usage(
+        self, table_name: str, columns: List[str], start_time: datetime
     ) -> None:
-        logger.debug(f"columns: {parser.columns}")
-        for column in parser.columns:
-            table_name, column_name = SnowflakeUsageExtractor.built_column_fullname(
-                column, db, schema, tables
-            )
-            if column_name == "*" or table_name not in self._datasets:
-                logger.debug(f"table {table_name} column {column_name} passed")
-                continue
+        utc_now = datetime.now().replace(tzinfo=timezone.utc)
+        if start_time > utc_now - timedelta(1):
+            self._datasets[table_name].usage.query_counts.last24_hours.count += 1
 
-            utc_now = datetime.now().replace(tzinfo=timezone.utc)
+        if start_time > utc_now - timedelta(7):
+            self._datasets[table_name].usage.query_counts.last7_days.count += 1
+
+        if start_time > utc_now - timedelta(30):
+            self._datasets[table_name].usage.query_counts.last30_days.count += 1
+
+        if start_time > utc_now - timedelta(90):
+            self._datasets[table_name].usage.query_counts.last90_days.count += 1
+
+        if start_time > utc_now - timedelta(365):
+            self._datasets[table_name].usage.query_counts.last365_days.count += 1
+
+        for column_name in columns:
             if start_time > utc_now - timedelta(1):
                 self._update_field_query_count(
                     self._datasets[table_name].usage.field_query_counts.last24_hours,
@@ -260,132 +225,6 @@ class SnowflakeUsageExtractor(BaseExtractor):
                     column_name,
                 )
 
-    @dataclass
-    class _ColumnsUsage:
-        join: Set[str] = field(default_factory=lambda: set())
-        filter: Set[str] = field(default_factory=lambda: set())
-
-    def _parse_joins(
-        self,
-        parser: Parser,
-        db: str,
-        schema: str,
-        start_time: datetime,
-    ) -> None:
-        logger.debug(f"column_dict: {parser.columns_dict}")
-
-        if parser.columns_dict is None or "join" not in parser.columns_dict:
-            logger.debug(f"parser query {parser.query}")
-            return
-
-        usages: Dict[str, SnowflakeUsageExtractor._ColumnsUsage] = defaultdict(
-            lambda: SnowflakeUsageExtractor._ColumnsUsage()
-        )  # table_name to ColumnUsage map
-
-        for join_column in parser.columns_dict["join"]:
-            table, column = self.built_column_fullname(join_column, db, schema, [])
-            usages[table].join.add(column)
-
-        for filter_column in parser.columns_dict.get("where", []):
-            table, column = self.built_column_fullname(filter_column, db, schema, [])
-            usages[table].filter.add(column)
-
-        # update table joins usages for each dataset
-        for table_name in usages:
-            if table_name not in self._datasets:
-                logger.debug(f"table {table_name} passed")
-                continue
-
-            table_joins = self._datasets[table_name].usage.table_joins
-            usage = usages[table_name]
-            joined_datasets = set(
-                [
-                    str(
-                        EntityId(
-                            EntityType.DATASET,
-                            DatasetLogicalID(
-                                name=name,
-                                platform=DataPlatform.SNOWFLAKE,
-                                account=self.account,
-                            ),
-                        )
-                    )
-                    for name in usages.keys()
-                    if name != table_name
-                ]
-            )  # convert joined tables into DatasetId
-
-            utc_now = datetime.now().replace(tzinfo=timezone.utc)
-            if start_time > utc_now - timedelta(1):
-                self._update_table_join(
-                    table_joins.last24_hours, joined_datasets, usage
-                )
-
-            if start_time > utc_now - timedelta(7):
-                self._update_table_join(table_joins.last7_days, joined_datasets, usage)
-
-            if start_time > utc_now - timedelta(30):
-                self._update_table_join(table_joins.last30_days, joined_datasets, usage)
-
-            if start_time > utc_now - timedelta(90):
-                self._update_table_join(table_joins.last90_days, joined_datasets, usage)
-
-            if start_time > utc_now - timedelta(365):
-                self._update_table_join(
-                    table_joins.last365_days, joined_datasets, usage
-                )
-
-    @staticmethod
-    def _update_table_join(
-        table_join: TableJoin, joined_datasets: Set[str], usage: _ColumnsUsage
-    ) -> None:
-        table_join.total_join_count += 1
-
-        # find the join scenario, or create new scenario
-        scenario = None
-        for join_scenario in table_join.scenarios:
-            if set(join_scenario.datasets) == joined_datasets:
-                scenario = join_scenario
-                break
-
-        if scenario is None:
-            scenario = TableJoinScenario(
-                datasets=list(joined_datasets),
-                count=0.0,
-                joining_columns=[],
-                filtering_columns=[],
-            )
-            table_join.scenarios.append(scenario)
-
-        scenario.count += 1
-
-        # update joiningColumns
-        SnowflakeUsageExtractor._update_table_join_columns_usage(
-            scenario.joining_columns, usage.join
-        )
-
-        # update filteringColumns
-        if len(usage.filter) > 0:
-            SnowflakeUsageExtractor._update_table_join_columns_usage(
-                scenario.filtering_columns, usage.filter
-            )
-
-    @staticmethod
-    def _update_table_join_columns_usage(
-        column_usages: List[TableColumnsUsage], columns: Set[str]
-    ) -> None:
-        columns_usage = None
-        for usage in column_usages:
-            if set(usage.columns) == columns:
-                columns_usage = usage
-                break
-
-        if columns_usage is None:
-            columns_usage = TableColumnsUsage(columns=list(columns), count=0.0)
-            column_usages.append(columns_usage)
-
-        columns_usage.count += 1
-
     @staticmethod
     def _update_field_query_count(query_counts: List[FieldQueryCount], column: str):
         item = next((x for x in query_counts if x.field == column), None)
@@ -393,35 +232,6 @@ class SnowflakeUsageExtractor(BaseExtractor):
             item.count += 1
         else:
             query_counts.append(FieldQueryCount(field=column, count=1.0))
-
-    @staticmethod
-    def _built_table_fullname(table: str, db: str, schema: str) -> str:
-        """built table fullname with <DB>.<SCHEMA>.<TABLE>, in lowercase"""
-        dots = table.count(".")
-        if dots == 0:
-            return f"{db}.{schema}.{table}".lower()
-        elif dots == 1:
-            return f"{db}.{table}".lower()
-        else:  # should have at most two dots in SQL table name
-            return table.lower()
-
-    @staticmethod
-    def built_column_fullname(
-        column: str, db: str, schema: str, tables: List[str]
-    ) -> Tuple[str, str]:
-        """built column fullname with (<DB>.<SCHEMA>.<TABLE>, <COLUMN>), in lowercase"""
-        table, _, column_name = column.rpartition(".")
-        dots = column.count(".")
-        if dots == 0:  # contains only column name
-            if len(tables) != 1:
-                raise ValueError(f"Query should have only 1 table, got {tables}")
-            return tables[0], column_name.lower()
-        elif dots == 1:  # should be at least "table.column"
-            return f"{db}.{schema}.{table}".lower(), column_name.lower()
-        elif dots == 2:
-            return f"{db}.{table}".lower(), column_name.lower()
-        else:  # should have at most three dots in SQL column name: db.schema.table.column
-            return table.lower(), column_name.lower()
 
     def _calculate_statistics(self) -> None:
         """Calculate statistics for the extracted usage info"""
@@ -509,13 +319,6 @@ class SnowflakeUsageExtractor(BaseExtractor):
             last30_days=[],
             last90_days=[],
             last365_days=[],
-        )
-        dataset.usage.table_joins = TableJoins(
-            last24_hours=TableJoin(total_join_count=0.0, scenarios=[]),
-            last7_days=TableJoin(total_join_count=0.0, scenarios=[]),
-            last30_days=TableJoin(total_join_count=0.0, scenarios=[]),
-            last90_days=TableJoin(total_join_count=0.0, scenarios=[]),
-            last365_days=TableJoin(total_join_count=0.0, scenarios=[]),
         )
 
         return dataset
