@@ -41,6 +41,9 @@ class SnowflakeAuthConfig(RunConfig):
     # database context when opening a connection
     default_database: Optional[str] = None
 
+    # the query tags for each snowflake query the connector issues
+    query_tag: Optional[str] = "MetaphorData"
+
 
 def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnection:
     if config.password is None and config.private_key is None:
@@ -55,6 +58,9 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
             user=config.user,
             password=config.password,
             database=config.default_database,
+            session_parameters={
+                "QUERY_TAG": config.query_tag,
+            },
         )
 
     # key pair authentication
@@ -81,4 +87,7 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
             user=config.user,
             private_key=pkb,
             database=config.default_database,
+            session_parameters={
+                "QUERY_TAG": config.query_tag,
+            },
         )

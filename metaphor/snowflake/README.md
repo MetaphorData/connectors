@@ -123,6 +123,14 @@ The max number of concurrent queries to the snowflake database can be configured
 max_concurrency: <max_number_of_queries> # Default to 10
 ```
 
+#### Query Tag
+
+Each query issued by snowflake connectors can be tagged with a query tag. It can be configured as follows,
+
+```yaml
+query_tag: <query_taqg> # Default to 'MetaphorData'
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `snowflake` extra.
