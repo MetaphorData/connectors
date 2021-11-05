@@ -13,6 +13,8 @@ on:
     pull_request:
         branches: [main]
 
+    workflow_dispatch:
+
 jobs:
     check-py:
         name: Check Python code
@@ -43,9 +45,9 @@ jobs:
               run: |
                   poetry run pytest
 
-  # Only run publish flow after a PR is merged into main
+    # Only publish to PyPI when PR merged or manually triggered
     publish:
-        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+        if: ${{ (github.ref == 'refs/heads/main' && github.event_name == 'push') ||  github.event_name == 'workflow_dispatch' }}
         needs:
             - check-py
         name: Publish to PyPI
@@ -64,11 +66,40 @@ jobs:
               with:
                   poetry-version: ${{ env.POETRY_VERSION }}
 
-      # Publishing the same version twice to PyPI is expected to fail
             - name: Publish to PyPI
               run: >
                   poetry publish --build
                   -u ${{ secrets.PYPI_USERNAME }}
                   -p ${{ secrets.PYPI_PASSWORD }}
-                  2>&1 | tee logs
-                  || grep -qiE 'File already exists' logs
+                  2>&1 | tee ${{ runner.temp }}/logs
+                  || grep -qiE 'File already exists' ${{ runner.temp }}/logs
+
+            - name: Check PyPI publish
+              id: check-publish
+              run: >
+                  grep -qiEv 'File already exists' ${{ runner.temp }}/logs &&  VERSION=$(grep '^version =' pyproject.toml | cut -d' ' -f 3 | tr -d '"')
+                  &&
+                  echo '::set-output name=PYPI_VERSION::$VERSION'
+
+            - name: Create tag
+              if: ${{ steps.check-publish.outputs.PYPI_VERSION }}
+              env:
+                  PYPI_VERSION: ${{ steps.check-publish.outputs.PYPI_VERSION }}
+              uses: actions/github-script@v3
+              with:
+                  github-token: ${{ github.token }}
+                  script: |
+                      try {
+                        await github.git.deleteRef({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          ref: "tags/${{ env.PYPI_VERSION }}"
+                        });
+                      } catch (err) {}
+
+                      github.git.createRef({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        ref: "refs/tags/${{ env.PYPI_VERSION }}",
+                        sha: "${{ github.sha }}"
+                      })
