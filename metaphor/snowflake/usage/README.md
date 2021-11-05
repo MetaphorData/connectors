@@ -1,6 +1,6 @@
 # Snowflake Usage Statistics Connector
 
-This connector extracts usage statistics from a Snowflake account using [Snowflake Connector](https://docs.snowflake.com/en/user-guide/python-connector.html). It can only be run against Snowflake Enterprise account or above, and doesn't support regular account yet.
+This connector extracts usage statistics from a Snowflake account using [Snowflake Connector](https://docs.snowflake.com/en/user-guide/python-connector.html). It queries [ACCESS_HISTORY](https://docs.snowflake.com/en/sql-reference/account-usage/access_history.html) and therefore requires Snowflake Enterprise or higher.
 
 ## Setup
 
