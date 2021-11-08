@@ -50,37 +50,19 @@ class PostgreSQLExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self, config: PostgreSQLRunConfig) -> List[MetadataChangeEvent]:
-        return await self._extract(config, False)
-
-    async def _extract(
-        self, config: PostgreSQLRunConfig, redshift: bool
-    ) -> List[MetadataChangeEvent]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
+        logger.info(f"Fetching metadata from postgreSQL host {config.host}")
 
-        platform = DataPlatform.REDSHIFT if redshift else DataPlatform.POSTGRESQL
-        logger.info(f"Fetching metadata from {platform} host {config.host}")
-
-        conn = await self._connect_database(config, config.database)
-        try:
-            databases = await self._fetch_databases(conn)
-            logger.info(f"Databases: {databases}")
-        finally:
-            await conn.close()
+        databases = await self._fetch_databases(config)
 
         for db in databases:
             conn = await self._connect_database(config, db)
             try:
-                tables = await self._fetch_tables(conn, platform)
-                logger.info(f"DB {db} has tables {tables}")
-
+                await self._fetch_tables(conn, DataPlatform.POSTGRESQL)
                 await self._fetch_columns(conn, db)
-
-                if not redshift:
-                    await self._fetch_constraints(conn, db)
+                await self._fetch_constraints(conn, db)
             finally:
                 await conn.close()
-
-        logger.debug(self._datasets)
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
@@ -103,9 +85,15 @@ class PostgreSQLExtractor(BaseExtractor):
         )
 
     @staticmethod
-    async def _fetch_databases(conn: Connection) -> List[str]:
-        results = await conn.fetch("SELECT datname FROM pg_database")
-        return [r[0] for r in results if r[0] not in _ignored_dbs]
+    async def _fetch_databases(config: PostgreSQLRunConfig) -> List[str]:
+        conn = await PostgreSQLExtractor._connect_database(config, config.database)
+        try:
+            results = await conn.fetch("SELECT datname FROM pg_database")
+            databases = [r[0] for r in results if r[0] not in _ignored_dbs]
+            logger.info(f"Databases: {databases}")
+            return databases
+        finally:
+            await conn.close()
 
     # Exclude schemas in WHERE clause, e.g. table_schema not in ($1, $2, ...)
     _excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
@@ -132,8 +120,6 @@ class PostgreSQLExtractor(BaseExtractor):
             """,
             *_ignored_schemas,
         )
-        # TODO: the table size query above does NOT work for redshift, use SVV_TABLE_INFO instead [sc3610]
-        # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_TABLE_INFO.html
 
         tables: List[Tuple[str, str, str]] = []
         for table in results:
