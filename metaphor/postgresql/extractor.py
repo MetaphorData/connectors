@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from asyncpg import Connection
 
@@ -47,6 +47,7 @@ class PostgreSQLExtractor(BaseExtractor):
         return PostgreSQLRunConfig
 
     def __init__(self):
+        self._platform = DataPlatform.POSTGRESQL
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self, config: PostgreSQLRunConfig) -> List[MetadataChangeEvent]:
@@ -58,7 +59,7 @@ class PostgreSQLExtractor(BaseExtractor):
         for db in databases:
             conn = await self._connect_database(config, db)
             try:
-                await self._fetch_tables(conn, DataPlatform.POSTGRESQL)
+                await self._fetch_tables(conn)
                 await self._fetch_columns(conn, db)
                 await self._fetch_constraints(conn, db)
             finally:
@@ -98,9 +99,7 @@ class PostgreSQLExtractor(BaseExtractor):
     # Exclude schemas in WHERE clause, e.g. table_schema not in ($1, $2, ...)
     _excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
 
-    async def _fetch_tables(
-        self, conn: Connection, platform: DataPlatform
-    ) -> List[Tuple[str, str, str]]:
+    async def _fetch_tables(self, conn: Connection) -> None:
 
         results = await conn.fetch(
             f"""
@@ -121,7 +120,6 @@ class PostgreSQLExtractor(BaseExtractor):
             *_ignored_schemas,
         )
 
-        tables: List[Tuple[str, str, str]] = []
         for table in results:
             catalog = table["table_catalog"]
             schema = table["table_schema"]
@@ -131,12 +129,9 @@ class PostgreSQLExtractor(BaseExtractor):
             row_count = table["row_count"]
             table_size = table["table_size"]
             full_name = self._dataset_name(catalog, schema, name)
-            self._datasets[full_name] = self._init_dataset(
-                full_name, table_type, platform, description, row_count, table_size
+            self._init_dataset(
+                full_name, table_type, description, row_count, table_size
             )
-            tables.append((schema, name, full_name))
-
-        return tables
 
     async def _fetch_columns(self, conn: Connection, catalog: str) -> None:
         columns = await conn.fetch(
@@ -208,18 +203,17 @@ class PostgreSQLExtractor(BaseExtractor):
 
             self._build_constraint(constraint, dataset.schema.sql_schema)
 
-    @staticmethod
     def _init_dataset(
+        self,
         full_name: str,
         table_type: str,
-        platform: DataPlatform,
         description: str,
         row_count: int,
         table_size: int,
-    ) -> Dataset:
+    ) -> None:
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
-        dataset.logical_id.platform = platform
+        dataset.logical_id.platform = self._platform
         dataset.logical_id.name = full_name
 
         dataset.schema = DatasetSchema()
@@ -239,7 +233,7 @@ class PostgreSQLExtractor(BaseExtractor):
         # There is no reliable way to directly get data last modified time, can explore alternatives in future
         # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 
-        return dataset
+        self._datasets[full_name] = dataset
 
     @staticmethod
     def _build_field(column) -> SchemaField:

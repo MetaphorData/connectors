@@ -17,6 +17,10 @@ class RedshiftExtractor(PostgreSQLExtractor):
     def config_class():
         return RedshiftRunConfig
 
+    def __init__(self):
+        super().__init__()
+        self._platform = DataPlatform.REDSHIFT
+
     async def extract(self, config: RedshiftRunConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
         logger.info(f"Fetching metadata from redshift host {config.host}")
@@ -26,7 +30,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
         for db in databases:
             conn = await self._connect_database(config, db)
             try:
-                await self._fetch_tables(conn, DataPlatform.REDSHIFT)
+                await self._fetch_tables(conn)
                 await self._fetch_columns(conn, db)
                 await self._fetch_redshift_table_stats(conn, db)
             finally:
