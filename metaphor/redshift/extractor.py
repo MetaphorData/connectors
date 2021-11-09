@@ -36,7 +36,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
 
     async def _fetch_redshift_table_stats(self, conn, catalog: str) -> None:
         results = await conn.fetch(
-            f"""
+            """
             SELECT "schema", "table", size, tbl_rows
             FROM svv_table_info;
             """,
