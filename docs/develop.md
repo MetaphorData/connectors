@@ -23,7 +23,7 @@ If you prefer to use Python 3.7 only for this project, you can run the following
 pyenv local 3.7.10
 ```
 
-> Note: We recommend using the latest 3.7 release to ensure maximum compatibility. If you're developing on an Apple Silicon Macs, please develop in a [Rosetta Terminal](https://www.courier.com/blog/tips-and-tricks-to-setup-your-apple-m1-for-development).
+> Note: We recommend using the latest 3.7 release to ensure maximum compatibility. However, if you're developing on an Apple Silicon Mac, please either run in a [Rosetta Terminal](https://www.courier.com/blog/tips-and-tricks-to-setup-your-apple-m1-for-development) or use the closest version that natively supports Apple Silicon (3.8.10 as of now).
 
 ## Install Poetry
 

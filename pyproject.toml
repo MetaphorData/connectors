@@ -14,7 +14,7 @@ boto3 = "~=1.17.53"
 botocore = "~=1.20.53"
 canonicaljson = "^1.4.0"
 fastjsonschema = "~=2.15.1"
-google-api-python-client = { version = "~=2.2.0", optional = true }
+google-api-python-client = { version = "~=2.29.0", optional = true }
 google-auth-oauthlib = { version = "~=0.4.4", optional = true }
 google-cloud-bigquery = { version = "^2.21.0", optional = true }
 lkml = { version = "^1.1.0", optional = true }
@@ -22,12 +22,12 @@ looker-sdk = { version = "^21.4.1", optional = true }
 metaphor-models = "^0.6.7"
 pydantic = { version = "^1.8.2", optional = true }
 pyserde = { extras = ["yaml"], version = "^0.4.0" }
-python = ">=3.7,<3.10"  # See https://github.com/googleapis/python-bigquery/issues/856
+python = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
 python-dateutil = "~=2.8.1"
 requests = "^2.25.1"
 slack-sdk = { version = "^3.5.1", optional = true }
 smart-open = "^5.0.0"
-snowflake-connector-python = { version = "~=2.4.1", optional = true }
+snowflake-connector-python = { version = "~=2.7.0", optional = true }
 sql-metadata = { version = "2.2.2", optional = true }
 
 [tool.poetry.extras]
