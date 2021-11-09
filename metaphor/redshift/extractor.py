@@ -1,6 +1,6 @@
 from typing import List
 
-from metaphor.models.metadata_change_event import MetadataChangeEvent, DataPlatform
+from metaphor.models.metadata_change_event import DataPlatform, MetadataChangeEvent
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logging import get_logger
