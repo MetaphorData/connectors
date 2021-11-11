@@ -4,6 +4,7 @@ name: CI/CD
 env:
     PYTHON_VERSION: 3.7
     POETRY_VERSION: 1.1.7
+    NODE_VERSION: 14
 
 # Run this build workflow every time a new PR or push is made to the main branch
 on:
@@ -14,6 +15,10 @@ on:
         branches: [main]
 
     workflow_dispatch:
+
+defaults:
+    run:
+        shell: bash
 
 jobs:
     check-py:
@@ -74,32 +79,50 @@ jobs:
                   2>&1 | tee ${{ runner.temp }}/logs
                   || grep -qiE 'File already exists' ${{ runner.temp }}/logs
 
-            - name: Check PyPI publish
-              id: check-publish
-              run: >
-                  grep -qiEv 'File already exists' ${{ runner.temp }}/logs &&  VERSION=$(grep '^version =' pyproject.toml | cut -d' ' -f 3 | tr -d '"')
-                  &&
-                  echo '::set-output name=PYPI_VERSION::$VERSION'
+            # Tag release
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - run: npm install toml
+
+            - id: get-version
+              name: Get version
+              uses: actions/github-script@v5
+              with:
+                  script: |
+                      const fs = require('fs');
+
+                      const logs = fs.readFileSync('${{ runner.temp }}/logs').toString('utf8');
+                      if (logs.search(/File already exists/ig) >= 0) {
+                        core.notice('No new version was published to PyPI.');
+                        process.exit(0);
+                      }
+
+                      const toml = require('toml');
+                      const pyproject = toml.parse(fs.readFileSync('pyproject.toml')); 
+                      core.setOutput('version', pyproject.tool.poetry.version);
 
             - name: Create tag
-              if: ${{ steps.check-publish.outputs.PYPI_VERSION }}
-              env:
-                  PYPI_VERSION: ${{ steps.check-publish.outputs.PYPI_VERSION }}
-              uses: actions/github-script@v3
+              if: ${{ steps.get-version.outputs.version }}
+              uses: actions/github-script@v5
               with:
                   github-token: ${{ github.token }}
                   script: |
+                      const version = '${{ steps.get-version.outputs.version }}';
+                      core.notice(`Tagging ${{ github.sha }} as ${version}`);
+
                       try {
-                        await github.git.deleteRef({
+                        await github.rest.git.deleteRef({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
-                          ref: "tags/${{ env.PYPI_VERSION }}"
+                          ref: `tags/${ version }`
                         });
                       } catch (err) {}
 
-                      github.git.createRef({
+                      github.rest.git.createRef({
                         owner: context.repo.owner,
                         repo: context.repo.repo,
-                        ref: "refs/tags/${{ env.PYPI_VERSION }}",
+                        ref: `refs/tags/${ version }`,
                         sha: "${{ github.sha }}"
                       })
