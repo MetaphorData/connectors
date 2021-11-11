@@ -3,11 +3,60 @@
     "dataset": {
       "documentation": {
         "datasetDocumentations": [],
-        "fieldDocumentations": []
+        "fieldDocumentations": [
+          {
+            "documentation": "SHOW_ID. SALES_RECORDS",
+            "fieldPath": "show_id"
+          },
+          {
+            "documentation": "TYPE. SALES_RECORDS",
+            "fieldPath": "type"
+          },
+          {
+            "documentation": "TITLE. SALES_RECORDS",
+            "fieldPath": "title"
+          },
+          {
+            "documentation": "DIRECTOR. SALES_RECORDS",
+            "fieldPath": "director"
+          },
+          {
+            "documentation": "CAST. SALES_RECORDS",
+            "fieldPath": "cast"
+          },
+          {
+            "documentation": "COUNTRY. SALES_RECORDS",
+            "fieldPath": "country"
+          },
+          {
+            "documentation": "DATE_ADDED. SALES_RECORDS",
+            "fieldPath": "date_added"
+          },
+          {
+            "documentation": "RELEASE_YEAR. SALES_RECORDS",
+            "fieldPath": "release_year"
+          },
+          {
+            "documentation": "RATING. SALES_RECORDS",
+            "fieldPath": "rating"
+          },
+          {
+            "documentation": "DURATION. SALES_RECORDS",
+            "fieldPath": "duration"
+          },
+          {
+            "documentation": "LISTED_IN. SALES_RECORDS",
+            "fieldPath": "listed_in"
+          },
+          {
+            "documentation": "DESCRIPTION. SALES_RECORDS",
+            "fieldPath": "description"
+          }
+        ]
       },
       "logicalId": {
         "account": "metaphor",
-        "name": "demo_db.dbt_dev.sales_records",
+        "name": "demo_db.dbt_dev.netflix",
         "platform": "SNOWFLAKE"
       }
     },
@@ -19,11 +68,68 @@
     "dataset": {
       "documentation": {
         "datasetDocumentations": [],
-        "fieldDocumentations": []
+        "fieldDocumentations": [
+          {
+            "documentation": "REGION. SALES_RECORDS",
+            "fieldPath": "region"
+          },
+          {
+            "documentation": "COUNTRY. SALES_RECORDS",
+            "fieldPath": "country"
+          },
+          {
+            "documentation": "ITEM_TYPE. SALES_RECORDS",
+            "fieldPath": "item_type"
+          },
+          {
+            "documentation": "SALES_CHANNEL. SALES_RECORDS",
+            "fieldPath": "sales_channel"
+          },
+          {
+            "documentation": "ORDER_PRIORITY. SALES_RECORDS",
+            "fieldPath": "order_priority"
+          },
+          {
+            "documentation": "ORDER_DATE. SALES_RECORDS",
+            "fieldPath": "order_date"
+          },
+          {
+            "documentation": "ORDER_ID. SALES_RECORDS",
+            "fieldPath": "order_id"
+          },
+          {
+            "documentation": "SHIP_DATE. SALES_RECORDS",
+            "fieldPath": "ship_date"
+          },
+          {
+            "documentation": "UNITS_SOLD. SALES_RECORDS",
+            "fieldPath": "units_sold"
+          },
+          {
+            "documentation": "UNIT_PRICE. SALES_RECORDS",
+            "fieldPath": "unit_price"
+          },
+          {
+            "documentation": "UNIT_COST. SALES_RECORDS",
+            "fieldPath": "unit_cost"
+          },
+          {
+            "documentation": "TOTAL_REVENUE. SALES_RECORDS",
+            "fieldPath": "total_revenue"
+          },
+          {
+            "documentation": "TOTAL_COST. SALES_RECORDS",
+            "fieldPath": "total_cost"
+          },
+          {
+            "documentation": "TOTAL_PROFIT. SALES_RECORDS",
+            "fieldPath": "total_profit"
+          }
+        ]
       },
       "logicalId": {
         "account": "metaphor",
-        "name": "demo_db.dbt_dev.netflix",
+        "name": "demo_db.dbt_dev.sales_records",
         "platform": "SNOWFLAKE"
       }
     },
@@ -38,19 +144,22 @@
     "virtualView": {
       "dbtModel": {
         "compiledSql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
-        "description": "A starter dbt model",
+        "description": "A starter dbt model, my_first_dbt_model",
         "docsUrl": "http://localhost:8080/#!/model/model.trial.my_first_dbt_model",
         "fields": [
           {
-            "description": "The primary key for this table",
+            "description": "The primary key for this table, auto generated id.",
             "fieldPath": "id",
             "nativeType": "Not Set"
           }
         ],
         "materialization": {
           "targetDataset": "DATASET~AF64AB4122CD383EA8360D20965ABB67",
-          "type": "OTHER"
+          "type": "VIEW"
         },
+        "owners": [
+          "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
+        ],
         "packageName": "trial",
         "rawSql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
         "tags": [],
@@ -63,8 +172,8 @@
               "macro.dbt.test_unique"
             ],
             "name": "unique_my_first_dbt_model_id",
-            "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
-            "uniqueId": "test.trial.unique_my_first_dbt_model_id.5ef3c774bb"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        id\n\n    from DEMO_DB.DBT_DEV.my_first_dbt_model\n    where id is not null\n    group by id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
+            "uniqueId": "test.trial.unique_my_first_dbt_model_id"
           },
           {
             "columns": [
@@ -74,8 +183,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_my_first_dbt_model_id",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
-            "uniqueId": "test.trial.not_null_my_first_dbt_model_id.f479667b44"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
+            "uniqueId": "test.trial.not_null_my_first_dbt_model_id"
           }
         ],
         "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_first_dbt_model.sql"
@@ -93,11 +202,11 @@
     "virtualView": {
       "dbtModel": {
         "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
-        "description": "A starter dbt model",
+        "description": "A starter dbt model, my_second_dbt_model",
         "docsUrl": "http://localhost:8080/#!/model/model.trial.my_second_dbt_model",
         "fields": [
           {
-            "description": "The primary key for this table",
+            "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'.",
             "fieldPath": "id",
             "nativeType": "Not Set"
           }
@@ -106,6 +215,9 @@
           "targetDataset": "DATASET~C2E3AFBF33CD1595EE25A57D02B4F04A",
           "type": "VIEW"
         },
+        "owners": [
+          "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
+        ],
         "packageName": "trial",
         "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
         "sourceDatasets": [],
@@ -122,8 +234,8 @@
               "macro.dbt.test_unique"
             ],
             "name": "unique_my_second_dbt_model_id",
-            "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
-            "uniqueId": "test.trial.unique_my_second_dbt_model_id.bc96125570"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        id\n\n    from DEMO_DB.DBT_DEV.my_second_dbt_model\n    where id is not null\n    group by id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
+            "uniqueId": "test.trial.unique_my_second_dbt_model_id"
           },
           {
             "columns": [
@@ -133,8 +245,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_my_second_dbt_model_id",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
-            "uniqueId": "test.trial.not_null_my_second_dbt_model_id.dc1d13aa6d"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
+            "uniqueId": "test.trial.not_null_my_second_dbt_model_id"
           }
         ],
         "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
@@ -152,7 +264,7 @@
     "virtualView": {
       "dbtModel": {
         "compiledSql": "\n\nselect show_id, type, title, country, release_year \nfrom DEMO_DB.DBT_DEV.NETFLIX",
-        "description": "First trial model",
+        "description": "First trial model, mapping columns from NETFLIX source table",
         "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_1",
         "fields": [
           {
@@ -161,7 +273,7 @@
             "nativeType": "Not Set"
           },
           {
-            "description": "The type of the show",
+            "description": "The type of the show, e.g. Movie or TV Show",
             "fieldPath": "type",
             "nativeType": "Not Set"
           },
@@ -204,8 +316,8 @@
               "macro.dbt.test_unique"
             ],
             "name": "unique_trial_model_1_show_id",
-            "sql": "\n    \n    \n\nselect\n    show_id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is not null\ngroup by show_id\nhaving count(*) > 1\n\n\n",
-            "uniqueId": "test.trial.unique_trial_model_1_show_id.e5e71dcd5c"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        show_id\n\n    from DEMO_DB.DBT_DEV.trial_model_1\n    where show_id is not null\n    group by show_id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
+            "uniqueId": "test.trial.unique_trial_model_1_show_id"
           },
           {
             "columns": [
@@ -215,8 +327,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_1_show_id",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
-            "uniqueId": "test.trial.not_null_trial_model_1_show_id.b9cd21f3cc"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
+            "uniqueId": "test.trial.not_null_trial_model_1_show_id"
           },
           {
             "columns": [
@@ -226,8 +338,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_1_type",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
-            "uniqueId": "test.trial.not_null_trial_model_1_type.8258650d8f"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
+            "uniqueId": "test.trial.not_null_trial_model_1_type"
           },
           {
             "columns": [
@@ -237,8 +349,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_1_title",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
-            "uniqueId": "test.trial.not_null_trial_model_1_title.0df06c3bb2"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
+            "uniqueId": "test.trial.not_null_trial_model_1_title"
           }
         ],
         "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_1.sql"
@@ -256,7 +368,7 @@
     "virtualView": {
       "dbtModel": {
         "compiledSql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
-        "description": "Second trial model",
+        "description": "Second trial model, get statistics from SALES_RECORDStable",
         "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_2",
         "fields": [
           {
@@ -265,7 +377,7 @@
             "nativeType": "Not Set"
           },
           {
-            "description": "The type of the item",
+            "description": "The type of the item, e.g. clothes, household, etc",
             "fieldPath": "item_type",
             "nativeType": "Not Set"
           },
@@ -290,8 +402,7 @@
           "type": "TABLE"
         },
         "owners": [
-          "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846",
-          "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+          "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
         ],
         "packageName": "trial",
         "rawSql": "{{ config(materialized='table') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
@@ -309,8 +420,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_country",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere country is null\n\n\n",
-            "uniqueId": "test.trial.not_null_trial_model_2_country.38e34b4f06"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere country is null\n\n\n",
+            "uniqueId": "test.trial.not_null_trial_model_2_country"
           },
           {
             "columns": [
@@ -320,8 +431,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_item_type",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere item_type is null\n\n\n",
-            "uniqueId": "test.trial.not_null_trial_model_2_item_type.41de9591b6"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere item_type is null\n\n\n",
+            "uniqueId": "test.trial.not_null_trial_model_2_item_type"
           },
           {
             "columns": [
@@ -331,8 +442,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_year",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere year is null\n\n\n",
-            "uniqueId": "test.trial.not_null_trial_model_2_year.97b36e02ab"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere year is null\n\n\n",
+            "uniqueId": "test.trial.not_null_trial_model_2_year"
           },
           {
             "columns": [
@@ -342,8 +453,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_revenue",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere revenue is null\n\n\n",
-            "uniqueId": "test.trial.not_null_trial_model_2_revenue.78ade8f402"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere revenue is null\n\n\n",
+            "uniqueId": "test.trial.not_null_trial_model_2_revenue"
           },
           {
             "columns": [
@@ -353,8 +464,8 @@
               "macro.dbt.test_not_null"
             ],
             "name": "not_null_trial_model_2_profit",
-            "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere profit is null\n\n\n",
-            "uniqueId": "test.trial.not_null_trial_model_2_profit.fe4505f957"
+            "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere profit is null\n\n\n",
+            "uniqueId": "test.trial.not_null_trial_model_2_profit"
           }
         ],
         "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_2.sql"

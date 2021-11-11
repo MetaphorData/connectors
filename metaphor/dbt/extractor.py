@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timezone
 from email.utils import parseaddr
 from pathlib import Path
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, Union, get_args
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -34,20 +34,29 @@ from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logging import get_logger
 from metaphor.dbt.config import DbtRunConfig
 
-from .generated.dbt_catalog import CatalogTable, DbtCatalog
-from .generated.dbt_manifest import (
+from .generated.dbt_catalog_v1 import CatalogTable, DbtCatalog
+from .generated.dbt_manifest_v3 import (
     CompiledModelNode,
     CompiledSchemaTestNode,
     DbtManifest,
     ParsedMacro,
+    ParsedModelNode,
+    ParsedSchemaTestNode,
     ParsedSourceDefinition,
 )
 
 logger = get_logger(__name__)
 
 
+MODEL_NODE_TYPE = Union[CompiledModelNode, ParsedModelNode]
+TEST_NODE_TYPE = Union[CompiledSchemaTestNode, ParsedSchemaTestNode]
+
+
 class DbtExtractor(BaseExtractor):
-    """DBT metadata extractor"""
+    """
+    dbt metadata extractor
+    Using manifest v3 and catalog v1 schema, but backward-compatible with older schema versions
+    """
 
     @staticmethod
     def config_class():
@@ -111,14 +120,10 @@ class DbtExtractor(BaseExtractor):
         macros = self._manifest.macros
 
         models = {
-            k: cast(CompiledModelNode, v)
-            for (k, v) in nodes.items()
-            if isinstance(v, CompiledModelNode)
+            k: v for (k, v) in nodes.items() if isinstance(v, get_args(MODEL_NODE_TYPE))
         }
         tests = {
-            k: cast(CompiledSchemaTestNode, v)
-            for (k, v) in nodes.items()
-            if isinstance(v, CompiledSchemaTestNode)
+            k: v for (k, v) in nodes.items() if isinstance(v, get_args(TEST_NODE_TYPE))
         }
 
         self._parse_manifest_nodes(sources, macros, tests, models)
@@ -227,8 +232,8 @@ class DbtExtractor(BaseExtractor):
         self,
         sources: Dict[str, ParsedSourceDefinition],
         macros: Dict[str, ParsedMacro],
-        tests: Dict[str, CompiledSchemaTestNode],
-        models: Dict[str, CompiledModelNode],
+        tests: Dict[str, TEST_NODE_TYPE],
+        models: Dict[str, MODEL_NODE_TYPE],
     ) -> None:
         source_map = {}
         for key, source in sources.items():
@@ -273,13 +278,16 @@ class DbtExtractor(BaseExtractor):
                 url=self._build_source_code_url(model.original_file_path),
                 tags=model.tags,
                 raw_sql=model.raw_sql,
-                compiled_sql=model.compiled_sql,
                 fields=[],
             )
             dbt_model = virtual_view.dbt_model
 
-            if model.meta:
-                dbt_model.owners = self._get_owner_entity_ids(model.meta.get("owner"))
+            if isinstance(model, CompiledModelNode):
+                dbt_model.compiled_sql = model.compiled_sql
+
+            # v3 use 'model.config.meta' while v1, v2 use 'model.meta'
+            owners = model.config.meta.get("owner", model.meta.get("owner"))
+            dbt_model.owners = self._get_owner_entity_ids(owners)
 
             assert model.config is not None and model.database is not None
             materialized = model.config.materialized
@@ -343,8 +351,10 @@ class DbtExtractor(BaseExtractor):
                 unique_id=test.unique_id,
                 columns=columns,
                 depends_on_macros=test.depends_on.macros,
-                sql=test.compiled_sql,
             )
+
+            if isinstance(test, CompiledSchemaTestNode):
+                dbt_test.sql = test.compiled_sql
 
             self._init_dbt_tests(model_unique_id).append(dbt_test)
 
