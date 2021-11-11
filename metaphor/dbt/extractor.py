@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timezone
 from email.utils import parseaddr
 from pathlib import Path
-from typing import Dict, List, Optional, Union, get_args
+from typing import Dict, List, Optional, Union
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -120,10 +120,15 @@ class DbtExtractor(BaseExtractor):
         macros = self._manifest.macros
 
         models = {
-            k: v for (k, v) in nodes.items() if isinstance(v, get_args(MODEL_NODE_TYPE))
+            k: v
+            for (k, v) in nodes.items()
+            if isinstance(v, (CompiledModelNode, ParsedModelNode))
+            # if upgraded to python 3.8+, can use get_args(MODEL_NODE_TYPE)
         }
         tests = {
-            k: v for (k, v) in nodes.items() if isinstance(v, get_args(TEST_NODE_TYPE))
+            k: v
+            for (k, v) in nodes.items()
+            if isinstance(v, (CompiledSchemaTestNode, ParsedSchemaTestNode))
         }
 
         self._parse_manifest_nodes(sources, macros, tests, models)
@@ -285,21 +290,19 @@ class DbtExtractor(BaseExtractor):
             if isinstance(model, CompiledModelNode):
                 dbt_model.compiled_sql = model.compiled_sql
 
-            # v3 use 'model.config.meta' while v1, v2 use 'model.meta'
-            owners = model.config.meta.get("owner", model.meta.get("owner"))
-            dbt_model.owners = self._get_owner_entity_ids(owners)
+            dbt_model.owners = self._get_model_owner_ids(model)
 
             assert model.config is not None and model.database is not None
             materialized = model.config.materialized
 
             if materialized:
                 try:
-                    type = DbtMaterializationType[materialized.upper()]
+                    materialization_type = DbtMaterializationType[materialized.upper()]
                 except KeyError:
-                    type = DbtMaterializationType.OTHER
+                    materialization_type = DbtMaterializationType.OTHER
 
                 dbt_model.materialization = DbtMaterialization(
-                    type=type,
+                    type=materialization_type,
                     target_dataset=str(
                         self._get_dataset_entity_id(
                             model.database, model.schema_, model.name
@@ -384,8 +387,15 @@ class DbtExtractor(BaseExtractor):
         return unique_id[6:]
 
     @staticmethod
-    def _get_owner_entity_ids(owners: Optional[str]) -> Optional[List[str]]:
-        if not owners:
+    def _get_model_owner_ids(
+        model: MODEL_NODE_TYPE, owner_key="owner"
+    ) -> Optional[List[str]]:
+        # v3 use 'model.config.meta' while v1, v2 use 'model.meta'
+        if model.config and model.config.meta and owner_key in model.config.meta:
+            owners = model.config.meta[owner_key]
+        elif model.meta and owner_key in model.meta:
+            owners = model.meta[owner_key]
+        else:
             return None
 
         parts = re.split(r"(\s|,)", owners.strip())
