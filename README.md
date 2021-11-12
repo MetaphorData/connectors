@@ -5,6 +5,8 @@
 ![Python version 3.7+](https://img.shields.io/badge/python-3.7%2B-blue)
 [![License](https://img.shields.io/github/license/MetaphorData/connectors)](https://github.com/MetaphorData/connectors/blob/master/LICENSE)
 
+<img src="./logo.png" width="300" />
+
 This repository contains a collection of Python-based "connectors" that extract metadata from various sources to ingest into the Metaphor app.
 
 ## Installation
