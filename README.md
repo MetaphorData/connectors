@@ -1,3 +1,5 @@
+<img src="./logo.png" width="300" />
+
 # Metaphor Connectors
 
 [![CI/CD](https://github.com/MetaphorData/connectors/actions/workflows/cicd.yml/badge.svg)](https://github.com/MetaphorData/connectors/actions/workflows/cicd.yml)
