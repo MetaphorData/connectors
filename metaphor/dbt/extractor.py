@@ -48,6 +48,7 @@ from .generated.dbt_manifest_v3 import (
 logger = get_logger(__name__)
 
 
+# compiled node has 'compiled_sql' field
 MODEL_NODE_TYPE = Union[CompiledModelNode, ParsedModelNode]
 TEST_NODE_TYPE = Union[CompiledSchemaTestNode, ParsedSchemaTestNode]
 
