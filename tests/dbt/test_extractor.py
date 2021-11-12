@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from freezegun import freeze_time
 
@@ -8,9 +10,27 @@ from tests.test_utils import load_json
 
 
 @pytest.mark.asyncio
-async def test_trial_project(test_root_dir):
+async def test_trial_project_v1(test_root_dir):
     await _test_project(
-        test_root_dir + "/dbt/data/trial",
+        test_root_dir + "/dbt/data/trial_v1",
+        "http://localhost:8080",
+        "https://github.com/MetaphorData/dbt/tree/main/trial",
+    )
+
+
+@pytest.mark.asyncio
+async def test_trial_project_v2(test_root_dir):
+    await _test_project(
+        test_root_dir + "/dbt/data/trial_v2",
+        "http://localhost:8080",
+        "https://github.com/MetaphorData/dbt/tree/main/trial",
+    )
+
+
+@pytest.mark.asyncio
+async def test_trial_project_v3(test_root_dir):
+    await _test_project(
+        test_root_dir + "/dbt/data/trial_v3",
         "http://localhost:8080",
         "https://github.com/MetaphorData/dbt/tree/main/trial",
     )
@@ -43,4 +63,5 @@ async def _test_project(data_dir, docs_base_url=None, project_source_url=None):
     extractor = DbtExtractor()
     events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
+    print(json.dumps(events))
     assert events == load_json(expected)
