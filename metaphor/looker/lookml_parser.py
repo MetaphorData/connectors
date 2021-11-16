@@ -166,7 +166,8 @@ def _build_looker_view(
             str(ds) for ds in _get_upstream_datasets(name, raw_views, connection)
         ]
     except Exception as e:
-        logger.error(f"Can't fetch upstream datasets for view {name}", e)
+        logger.error(f"Can't fetch upstream datasets for view {name}")
+        logger.exception(e)
 
     if "extends" in raw_view:
         view.extends = [

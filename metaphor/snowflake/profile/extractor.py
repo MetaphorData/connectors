@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, List, Tuple
 
 from snowflake.connector import SnowflakeConnection
@@ -35,6 +36,8 @@ from metaphor.models.metadata_change_event import (
 from metaphor.common.extractor import BaseExtractor
 
 logger = get_logger(__name__)
+
+logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 
 class SnowflakeProfileExtractor(BaseExtractor):
