@@ -41,6 +41,7 @@ def async_query(conn: SnowflakeConnection, query: QueryWithParam) -> SnowflakeCu
     """Executing a snowflake query asynchronously"""
     cursor = conn.cursor()
     if query.params is not None:
+        logger.debug(f"Query {query.query} params {query.params}")
         cursor.execute_async(query.query, query.params)
     else:
         cursor.execute_async(query.query)
@@ -80,7 +81,8 @@ def async_execute(
             try:
                 results = future.result().fetchall()
             except Exception as ex:
-                logger.error(f"Error executing {query_name} for {key}", ex)
+                logger.error(f"Error executing {query_name} for {key}")
+                logger.exception(ex)
                 continue
 
             if results_processor is None:

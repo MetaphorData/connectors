@@ -173,7 +173,8 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
                 self._update_table_and_columns_usage(table_name, columns, start_time)
         except Exception as e:
-            logger.error(f"access log error, objects: {accessed_objects}", e)
+            logger.error(f"access log error, objects: {accessed_objects}")
+            logger.exception(e)
 
     def _update_table_and_columns_usage(
         self, table_name: str, columns: List[str], start_time: datetime
