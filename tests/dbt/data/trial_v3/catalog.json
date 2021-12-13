@@ -7,6 +7,35 @@
     "env": {}
   },
   "nodes": {
+    "seed.trial.my_first_dbt_model": {
+      "metadata": {
+        "type": "VIEW",
+        "schema": "DBT_DEV",
+        "name": "MY_FIRST_DBT_MODEL",
+        "database": "DEMO_DB",
+        "comment": "A starter dbt model, my_first_dbt_model",
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "ID": {
+          "type": "NUMBER",
+          "index": 1,
+          "name": "ID",
+          "comment": null
+        }
+      },
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": false,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "model.trial.my_first_dbt_model"
+    },
+
     "model.trial.my_first_dbt_model": {
       "metadata": {
         "type": "VIEW",

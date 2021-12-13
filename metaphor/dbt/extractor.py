@@ -147,6 +147,11 @@ class DbtExtractor(BaseExtractor):
     def _parse_catalog_model(self, model: CatalogTable) -> None:
         assert model.unique_id is not None
 
+        # Catalog nodes can be either models or seeds.
+        # The only way to distinguish them is by their ID prefix
+        if not model.unique_id.startswith("model."):
+            return
+
         virtual_view = self._init_virtual_view(model.unique_id)
         dbt_model = virtual_view.dbt_model
 
