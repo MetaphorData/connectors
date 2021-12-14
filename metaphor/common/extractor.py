@@ -65,7 +65,7 @@ class BaseExtractor(ABC):
         events: List[MetadataChangeEvent] = asyncio.run(self.extract(config))
 
         logger.info(
-            f"Fetched {len(events)} entities, took {time.time() - start_time} s"
+            f"Fetched {len(events)} entities, took {format(time.time() - start_time, '.1f')} s"
         )
 
         if config.output.api is not None:
