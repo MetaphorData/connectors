@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.8.13"
+version = "0.8.14"
 description = ""
 authors = ["Metaphor <dev@metaphor.io>"]
 packages = [
@@ -45,6 +45,7 @@ all = [
 bigquery = ["google-cloud-bigquery"]
 dbt = ["pydantic"]
 postgresql = ["asyncpg"]
+redshift = ["asyncpg"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
