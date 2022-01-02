@@ -11,7 +11,7 @@ import boto3
 from aws_assume_role_lib import assume_role
 from serde import deserialize
 
-from .logging import LOG_FILE, get_logger
+from .logger import LOG_FILE, get_logger
 from .s3 import write_file
 from .sink import Sink
 

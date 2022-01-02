@@ -17,7 +17,7 @@ from serde import deserialize
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor, RunConfig
-from metaphor.common.logging import get_logger
+from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
 

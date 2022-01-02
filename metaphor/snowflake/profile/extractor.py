@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple
 from snowflake.connector import SnowflakeConnection
 
 from metaphor.common.event_util import EventUtil
-from metaphor.common.logging import get_logger
+from metaphor.common.logger import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
 from metaphor.snowflake.filter import SnowflakeFilter

@@ -22,7 +22,7 @@ from serde.json import from_json
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logging import get_logger
+from metaphor.common.logger import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.filter import DatabaseFilter
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
