@@ -3,7 +3,7 @@ from typing import Dict, List
 from asyncpg import Connection
 
 from metaphor.common.event_util import EventUtil
-from metaphor.common.logging import get_logger
+from metaphor.common.logger import get_logger
 from metaphor.postgresql.config import PostgreSQLRunConfig
 
 try:
