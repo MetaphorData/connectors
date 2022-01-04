@@ -47,7 +47,7 @@ The remaining sections are for those who intend to run the connector manually as
 
 ## Config File
 
-Create a YAML config file based the following template.
+Create a YAML config file based on the following template.
 
 ### Required Configurations
 
