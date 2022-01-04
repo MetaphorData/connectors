@@ -8,7 +8,6 @@ try:
         DatasourceItem,
         Pager,
         PersonalAccessTokenAuth,
-        ProjectItem,
         Server,
         TableauAuth,
         ViewItem,
