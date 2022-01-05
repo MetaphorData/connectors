@@ -325,20 +325,20 @@ class DbtExtractor(BaseExtractor):
 
             if model.depends_on is not None:
                 if model.depends_on.nodes:
-                    dbt_model.source_models = list(
-                        dict.fromkeys(
+                    dbt_model.source_models = self._unique_list(
+                        [
                             self._get_virtual_view_id(self._virtual_views[n].logical_id)
                             for n in model.depends_on.nodes
                             if n.startswith("model.")
-                        )
+                        ]
                     )
 
-                    dbt_model.source_datasets = list(
-                        dict.fromkeys(
+                    dbt_model.source_datasets = self._unique_list(
+                        [
                             str(source_map[n])
                             for n in model.depends_on.nodes
                             if n.startswith("source.")
-                        )
+                        ]
                     )
 
                 if model.depends_on.macros:
@@ -409,12 +409,12 @@ class DbtExtractor(BaseExtractor):
             return None
 
         parts = re.split(r"(\s|,)", owners.strip())
-        return list(
-            dict.fromkeys(
+        return DbtExtractor._unique_list(
+            [
                 str(EntityId(EntityType.PERSON, PersonLogicalID(email=p)))
                 for p in parts
                 if "@" in parseaddr(p)[1]
-            )
+            ]
         )
 
     def _init_dataset(
@@ -486,3 +486,7 @@ class DbtExtractor(BaseExtractor):
             doc.field_path = column
             dataset.documentation.field_documentations.append(doc)
         return doc
+
+    @staticmethod
+    def _unique_list(vars: List[str]) -> List[str]:
+        return list(dict.fromkeys(vars))
