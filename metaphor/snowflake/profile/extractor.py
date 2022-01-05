@@ -180,7 +180,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
                         f', MIN("{column}")',
                         f', MAX("{column}")',
                         f', AVG("{column}")',
-                        f', STDDEV(cast("{column}" as double))',
                     ]
                 )
 
@@ -219,10 +218,8 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 index += 1
                 avg = float(results[index]) if results[index] else None
                 index += 1
-                stddev = float(results[index]) if results[index] else None
-                index += 1
             else:
-                min_value, max_value, avg, stddev = None, None, None, None
+                min_value, max_value, avg = None, None, None
 
             fields.append(
                 FieldStatistics(
@@ -233,7 +230,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
                     min_value=min_value,
                     max_value=max_value,
                     average=avg,
-                    std_dev=stddev,
                 )
             )
 
