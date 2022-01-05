@@ -421,7 +421,6 @@
         "sourceDatasets": [],
         "sourceModels": [
           "VIRTUAL_VIEW~825BC664F52EBB66F2AA9A1E976F2D21",
-          "VIRTUAL_VIEW~825BC664F52EBB66F2AA9A1E976F2D21",
           "VIRTUAL_VIEW~7C86CCA6F5AA2F13F707554DCB19D5E7"
         ],
         "tags": [],
@@ -1906,7 +1905,6 @@
         "rawSql": "with source as (\n\n    select * from {{ ref('stg_shopify__customer_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n    \n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__customer_tmp')),\n                staging_columns=get_customer_columns()\n            )\n        }}\n\n      --The below script allows for pass through columns.\n      {% if var('customer_pass_through_columns') %}\n      ,\n      {{ var('customer_pass_through_columns') | join (\", \")}}\n\n      {% endif %}\n\n      {{ fivetran_utils.source_relation() }}\n\n    from source\n\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~357F5A899FF04B3155304FCE11986D71",
           "VIRTUAL_VIEW~357F5A899FF04B3155304FCE11986D71"
         ],
         "tags": [],
@@ -2338,7 +2336,6 @@
         "rawSql": "with source as (\n\n    select * from {{ ref('stg_shopify__order_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n    \n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__order_tmp')),\n                staging_columns=get_order_columns()\n            )\n        }}\n\n      --The below script allows for pass through columns.\n      {% if var('order_pass_through_columns') %}\n      ,\n      {{ var('order_pass_through_columns') | join (\", \")}}\n\n      {% endif %}\n\n      {{ fivetran_utils.source_relation() }}\n\n    from source\n\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~70E264A5D95DF2ADA1176AC48ECBAF2E",
           "VIRTUAL_VIEW~70E264A5D95DF2ADA1176AC48ECBAF2E"
         ],
         "tags": [],
@@ -2471,7 +2468,6 @@
         "rawSql": "--To disable this model, set the shopify__using_order_adjustment variable within your dbt_project.yml file to False.\n{{ config(enabled=var('shopify__using_order_adjustment', True)) }}\n\nwith source as (\n\n    select * \n    from {{ ref('stg_shopify__order_adjustment_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__order_adjustment_tmp')),\n                staging_columns=get_order_adjustment_columns()\n            )\n        }}\n\n      {{ fivetran_utils.source_relation() }}\n        \n    from source\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~A310FB46D1D81D8C2427FF1ECD48C0B6",
           "VIRTUAL_VIEW~A310FB46D1D81D8C2427FF1ECD48C0B6"
         ],
         "tags": [],
@@ -2677,7 +2673,6 @@
         "rawSql": "with source as (\n\n    select * from {{ ref('stg_shopify__order_line_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n    \n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__order_line_tmp')),\n                staging_columns=get_order_line_columns()\n            )\n        }}\n\n      --The below script allows for pass through columns.\n      {% if var('order_line_pass_through_columns') %}\n      ,\n      {{ var('order_line_pass_through_columns') | join (\", \")}}\n\n      {% endif %}\n\n      {{ fivetran_utils.source_relation() }}\n\n    from source\n\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~F39B352C7C85A5831F504CF466A0F53C",
           "VIRTUAL_VIEW~F39B352C7C85A5831F504CF466A0F53C"
         ],
         "tags": [],
@@ -2805,7 +2800,6 @@
         "rawSql": "--To disable this model, set the shopify__using_order_line_refund variable within your dbt_project.yml file to False.\n{{ config(enabled=var('shopify__using_order_line_refund', True)) }}\n\nwith source as (\n\n    select * from {{ ref('stg_shopify__order_line_refund_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n    \n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__order_line_refund_tmp')),\n                staging_columns=get_order_line_refund_columns()\n            )\n        }}\n\n      --The below script allows for pass through columns.\n      {% if var('order_line_refund_pass_through_columns') %}\n      ,\n      {{ var('order_line_refund_pass_through_columns') | join (\", \")}}\n\n      {% endif %}\n\n      {{ fivetran_utils.source_relation() }}\n\n    from source\n\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~4695C0BBBE2C6B5DAF0F7A493257BAC1",
           "VIRTUAL_VIEW~4695C0BBBE2C6B5DAF0F7A493257BAC1"
         ],
         "tags": [],
@@ -2942,7 +2936,6 @@
         "rawSql": "with source as (\n\n    select * from {{ ref('stg_shopify__product_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n    \n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__product_tmp')),\n                staging_columns=get_product_columns()\n            )\n        }}\n\n      --The below script allows for pass through columns.\n      {% if var('product_pass_through_columns') %}\n      ,\n      {{ var('product_pass_through_columns') | join (\", \")}}\n\n      {% endif %}\n\n      {{ fivetran_utils.source_relation() }}\n\n    from source\n\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~D6C48A55215C5F664A9A448F9602FC96",
           "VIRTUAL_VIEW~D6C48A55215C5F664A9A448F9602FC96"
         ],
         "tags": [],
@@ -3160,7 +3153,6 @@
         "rawSql": "with source as (\n\n    select * from {{ ref('stg_shopify__product_variant_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n    \n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__product_variant_tmp')),\n                staging_columns=get_product_variant_columns()\n            )\n        }}\n\n      --The below script allows for pass through columns.\n      {% if var('product_variant_pass_through_columns') %}\n      ,\n      {{ var('product_variant_pass_through_columns') | join (\", \")}}\n\n      {% endif %}\n\n      {{ fivetran_utils.source_relation() }}\n\n    from source\n\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~E0FED012FCC2D600FE2891979567B928",
           "VIRTUAL_VIEW~E0FED012FCC2D600FE2891979567B928"
         ],
         "tags": [],
@@ -3287,7 +3279,6 @@
         "rawSql": "--To disable this model, set the shopify__using_refund variable within your dbt_project.yml file to False.\n{{ config(enabled=var('shopify__using_refund', True)) }}\n\nwith source as (\n\n    select * \n    from {{ ref('stg_shopify__refund_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__refund_tmp')),\n                staging_columns=get_refund_columns()\n            )\n        }}\n\n      {{ fivetran_utils.source_relation() }}\n        \n    from source\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~8F32C74CCA09374F34894E479CE31EDD",
           "VIRTUAL_VIEW~8F32C74CCA09374F34894E479CE31EDD"
         ],
         "tags": [],
@@ -3524,7 +3515,6 @@
         "rawSql": "with source as (\n\n    select * from {{ ref('stg_shopify__transaction_tmp') }}\n\n),\n\nrenamed as (\n\n    select\n\n        {{\n            fivetran_utils.fill_staging_columns(\n                source_columns=adapter.get_columns_in_relation(ref('stg_shopify__transaction_tmp')),\n                staging_columns=get_transaction_columns()\n            )\n        }}\n\n         --The below script allows for pass through columns.\n        {% if var('transaction_pass_through_columns') %}\n        ,\n        {{ var('transaction_pass_through_columns') | join (\", \")}}\n\n        {% endif %}\n\n      {{ fivetran_utils.source_relation() }}\n\n    from source\n    where not test\n\n)\n\nselect * from renamed",
         "sourceDatasets": [],
         "sourceModels": [
-          "VIRTUAL_VIEW~0905F9D0D082B360DFB0F01BB53E5B79",
           "VIRTUAL_VIEW~0905F9D0D082B360DFB0F01BB53E5B79"
         ],
         "tags": [],
