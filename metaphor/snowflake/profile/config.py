@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from serde import deserialize
 
@@ -11,3 +12,6 @@ class SnowflakeProfileRunConfig(SnowflakeRunConfig):
 
     # Include views in profiling
     include_views: bool = False
+
+    # Sampling probability in percentage, i.e. 1 means 1% of rows will be sampled. Value must be between 0 and 100
+    sample_probability: Optional[float] = None

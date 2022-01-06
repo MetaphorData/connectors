@@ -19,11 +19,25 @@ grant select on future materialized views in database identifier($db) to role me
 
 The config file inherits all the required and optional fields from the general Snowflake connector [Config File](../README.md#config-file).
 
+### Optional Configurations
+
+#### Exclude_views
+
 By default, the connector only profile Snowflake "base table", i.e. exclude views and temporary tables. The following config can enable profiling on all tables and views.
 
 ```yaml
 exclude_views: false
 ```
+
+#### Sample Probability
+
+For tables with large number of rows, profiling can be inefficient. To speed up the process, we can choose to do percentage based random sampling on the data by setting the config below:
+
+```yaml
+sample_probability: <number between 0 and 100>
+```
+
+For example, `sample_probability = 1` means random sampling of 1% rows in the table. Keep in mind that sampling won't apply to smaller tables (with less than 100K rows), in that case, we do complete table profiling.
 
 ## Testing
 
