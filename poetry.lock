@@ -829,7 +829,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.6.8"
+version = "0.6.11"
 description = ""
 category = "main"
 optional = false
@@ -1447,7 +1447,7 @@ name = "tableauserverclient"
 version = "0.17.0"
 description = "A Python module for working with the Tableau Server REST API."
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [package.dependencies]
@@ -1542,7 +1542,7 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
-all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "lkml", "looker-sdk", "slack-sdk", "snowflake-connector-python", "sql-metadata"]
+all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "lkml", "looker-sdk", "slack-sdk", "snowflake-connector-python", "sql-metadata", "tableauserverclient"]
 bigquery = ["google-cloud-bigquery"]
 dbt = ["pydantic"]
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
@@ -1551,11 +1551,12 @@ postgresql = ["asyncpg"]
 redshift = ["asyncpg"]
 slack_directory = ["slack-sdk"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
+tableau = ["tableauserverclient"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "3b1d76ad1e63d9c3d767fa88cfde6027201e7516cee388056f41e3919f185482"
+content-hash = "a016507e294dd2aa0ce6eb6a3620654f03e4e916d1eb648dd9ae0643bd0123a5"
 
 [metadata.files]
 anyio = [
@@ -2016,8 +2017,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.6.8.tar.gz", hash = "sha256:d46ba0739e9280da70c19b6176fd4d97cddb69d64ca3d88c7f1b3ec4f7d7f596"},
-    {file = "metaphor_models-0.6.8-py3-none-any.whl", hash = "sha256:1d6df07a4af054b90a6703a699116b4eb64394dc5f15702919cee7766f768df6"},
+    {file = "metaphor-models-0.6.11.tar.gz", hash = "sha256:ad2fa74867dbe9aaf2792cb174154ecda5c82c8580d51bc0ece281353e798844"},
+    {file = "metaphor_models-0.6.11-py3-none-any.whl", hash = "sha256:ba71330d32def6962b7166820df74916d43e3bd47a3cd15eef727a1946d78a38"},
 ]
 mypy = [
     {file = "mypy-0.910-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:a155d80ea6cee511a3694b108c4494a39f42de11ee4e61e72bc424c490e46457"},
