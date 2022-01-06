@@ -52,7 +52,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
     def __init__(self):
         self.max_concurrency = None
         self.include_views = None
-        self._sample_probability = None
+        self._sample_percentage = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -64,10 +64,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
         self.max_concurrency = config.max_concurrency
         self.include_views = config.include_views
 
-        assert config.sample_probability is None or (
-            0 < config.sample_probability <= 100
-        ), f"Invalid sample probability ${config.sample_probability}, value must be between 0 and 100"
-        self._sample_probability = config.sample_probability
+        assert config.sample_percentage is None or (
+            0 < config.sample_percentage <= 100
+        ), f"Invalid sample probability ${config.sample_percentage}, value must be between 0 and 100"
+        self._sample_percentage = config.sample_percentage
 
         conn = connect(config)
 
@@ -161,7 +161,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                     dataset.schema,
                     dataset.name,
                     dataset.row_count,
-                    self._sample_probability,
+                    self._sample_percentage,
                 )
             )
 
@@ -182,7 +182,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
         schema: str,
         name: str,
         row_count: int,
-        sample_probability: Optional[float],
+        sample_percentage: Optional[float],
     ) -> str:
         query = ["SELECT COUNT(1) ROW_COUNT"]
 
@@ -203,8 +203,8 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         query.append(f' FROM "{schema}"."{name}"')
 
-        if row_count >= SAMPLING_THRESHOLD and sample_probability is not None:
-            query.append(f" SAMPLE SYSTEM ({sample_probability})")
+        if row_count >= SAMPLING_THRESHOLD and sample_percentage is not None:
+            query.append(f" SAMPLE SYSTEM ({sample_percentage})")
 
         return "".join(query)
 

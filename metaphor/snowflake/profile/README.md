@@ -21,7 +21,7 @@ The config file inherits all the required and optional fields from the general S
 
 ### Optional Configurations
 
-#### Exclude_views
+#### Exclude Views
 
 By default, the connector only profile Snowflake "base table", i.e. exclude views and temporary tables. The following config can enable profiling on all tables and views.
 
@@ -29,15 +29,15 @@ By default, the connector only profile Snowflake "base table", i.e. exclude view
 exclude_views: false
 ```
 
-#### Sample Probability
+#### Sampling
 
-For tables with large number of rows, profiling can be inefficient. To speed up the process, we can choose to do percentage based random sampling on the data by setting the config below:
+For tables with large number of rows, it can take a long time to profile. To speed up the process, we can choose to do percentage-based random sampling on the data by setting `sample_percentage`:
 
 ```yaml
-sample_probability: <number between 0 and 100>
+sample_percentage: <number between 0 and 100>
 ```
 
-For example, `sample_probability = 1` means random sampling of 1% rows in the table. Keep in mind that sampling won't apply to smaller tables (with less than 100K rows), in that case, we do complete table profiling.
+For example, `sample_percentage = 1` means random sampling of 1% rows in the table. Keep in mind that sampling won't apply to smaller tables (with less than 100K rows), in that case, we do complete table profiling.
 
 ## Testing
 
