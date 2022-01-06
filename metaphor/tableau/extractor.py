@@ -22,6 +22,7 @@ from metaphor.models.metadata_change_event import (
     Dashboard,
     DashboardInfo,
     DashboardLogicalID,
+    DashboardPlatform,
     MetadataChangeEvent,
 )
 
@@ -105,7 +106,9 @@ class TableauExtractor(BaseExtractor):
         )
 
         dashboard = Dashboard(
-            logical_id=DashboardLogicalID(dashboard_id=workbook.id),
+            logical_id=DashboardLogicalID(
+                dashboard_id=workbook.id, platform=DashboardPlatform.TABLEAU
+            ),
             dashboard_info=dashboard_info,
         )
 
