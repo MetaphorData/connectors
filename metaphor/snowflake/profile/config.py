@@ -14,4 +14,4 @@ class SnowflakeProfileRunConfig(SnowflakeRunConfig):
     include_views: bool = False
 
     # Sampling percentage, i.e. 1 means 1% of rows will be sampled. Value must be between 0 and 100
-    sample_percentage: Optional[float] = None
+    sampling_percentage: Optional[float] = None
