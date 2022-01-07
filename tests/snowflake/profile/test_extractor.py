@@ -26,7 +26,28 @@ def test_build_profiling_query():
     )
 
     assert (
-        SnowflakeProfileExtractor._build_profiling_query(columns, schema, name)
+        SnowflakeProfileExtractor._build_profiling_query(columns, schema, name, 0, None)
+        == expected
+    )
+
+
+def test_build_profiling_query_with_sampling():
+    columns = [
+        ("id", "STRING", False),
+        ("price", "FLOAT", True),
+    ]
+    schema, name = "schema", "table"
+
+    expected = (
+        'SELECT COUNT(1) ROW_COUNT, COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
+        'COUNT_IF("price" is NULL), MIN("price"), MAX("price"), AVG("price") '
+        'FROM "schema"."table" SAMPLE SYSTEM (1)'
+    )
+
+    assert (
+        SnowflakeProfileExtractor._build_profiling_query(
+            columns, schema, name, 100000000, 1
+        )
         == expected
     )
 

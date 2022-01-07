@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from snowflake.connector import SnowflakeConnection
 
@@ -39,6 +39,8 @@ logger = get_logger(__name__)
 
 logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
+SAMPLING_THRESHOLD = 100000  # the minimum number of rows in a table to do sampling. If row count smaller than this, sampling won't apply
+
 
 class SnowflakeProfileExtractor(BaseExtractor):
     """Snowflake data profile extractor"""
@@ -50,6 +52,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
     def __init__(self):
         self.max_concurrency = None
         self.include_views = None
+        self._sampling_percentage = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -60,6 +63,11 @@ class SnowflakeProfileExtractor(BaseExtractor):
         logger.info("Fetching data profile from Snowflake")
         self.max_concurrency = config.max_concurrency
         self.include_views = config.include_views
+
+        assert config.sampling_percentage is None or (
+            0 < config.sampling_percentage <= 100
+        ), f"Invalid sample probability ${config.sampling_percentage}, value must be between 0 and 100"
+        self._sampling_percentage = config.sampling_percentage
 
         conn = connect(config)
 
@@ -100,7 +108,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         tables: Dict[str, DatasetInfo] = {}
         for row in cursor:
-            schema, name, table_type = row[0], row[1], row[2]
+            schema, name, table_type, row_count = row[0], row[1], row[2], row[4]
             if (
                 not self.include_views
                 and table_type != SnowflakeTableType.BASE_TABLE.value
@@ -114,7 +122,9 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 continue
 
             self._datasets[full_name] = self._init_dataset(account, full_name)
-            tables[full_name] = DatasetInfo(database, schema, name, table_type)
+            tables[full_name] = DatasetInfo(
+                database, schema, name, table_type, int(row_count)
+            )
 
         return tables
 
@@ -147,7 +157,11 @@ class SnowflakeProfileExtractor(BaseExtractor):
             column_info_map[full_name] = column_info
             profile_queries[full_name] = QueryWithParam(
                 SnowflakeProfileExtractor._build_profiling_query(
-                    column_info, dataset.schema, dataset.name
+                    column_info,
+                    dataset.schema,
+                    dataset.name,
+                    dataset.row_count,
+                    self._sampling_percentage,
                 )
             )
 
@@ -164,7 +178,11 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     @staticmethod
     def _build_profiling_query(
-        columns: List[Tuple[str, str, bool]], schema: str, name: str
+        columns: List[Tuple[str, str, bool]],
+        schema: str,
+        name: str,
+        row_count: int,
+        sampling_percentage: Optional[float],
     ) -> str:
         query = ["SELECT COUNT(1) ROW_COUNT"]
 
@@ -184,6 +202,9 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 )
 
         query.append(f' FROM "{schema}"."{name}"')
+
+        if row_count >= SAMPLING_THRESHOLD and sampling_percentage is not None:
+            query.append(f" SAMPLE SYSTEM ({sampling_percentage})")
 
         return "".join(query)
 

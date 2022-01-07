@@ -29,6 +29,7 @@ class DatasetInfo:
     schema: str
     name: str
     type: str
+    row_count: Optional[int] = None
 
 
 @dataclass
