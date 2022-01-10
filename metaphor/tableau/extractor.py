@@ -127,6 +127,7 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_chart(self, workbook_name: str, view: ViewItem) -> Chart:
         original_view = self._views.get(view.id)
+        # encode preview image raw bytes into base64 string
         preview_base64_str = (
             base64.b64encode(original_view.preview_image).decode("ascii")
             if original_view and original_view.preview_image
