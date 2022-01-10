@@ -145,7 +145,7 @@ class TableauExtractor(BaseExtractor):
         if match:
             self._base_url = match.group(1)
 
-    def _build_view_url(self, workbook_name: str, view_name: str) -> str:
+    def _build_view_url(self, workbook_name: str, view_name: str) -> Optional[str]:
         return (
             f"{self._base_url}/views/{workbook_name}/{view_name}"
             if self._base_url
