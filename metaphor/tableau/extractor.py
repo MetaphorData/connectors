@@ -1,5 +1,6 @@
-import json
-from typing import Dict, List
+import base64
+import re
+from typing import Dict, List, Optional
 
 from metaphor.common.event_util import EventUtil
 
@@ -37,6 +38,8 @@ class TableauExtractor(BaseExtractor):
     """Tableau metadata extractor"""
 
     def __init__(self):
+        self._base_url: Optional[str] = None
+        self._views: Dict[str, ViewItem] = {}
         self._dashboards: Dict[str, Dashboard] = {}
 
     @staticmethod
@@ -77,6 +80,14 @@ class TableauExtractor(BaseExtractor):
             for item in data_sources:
                 server.datasources.populate_connections(item)
 
+            views: List[ViewItem] = [item for item in Pager(server.views, usage=True)]
+            logger.info(
+                f"\nThere are {len(views)} views on site: {[view.name for view in views]}"
+            )
+            for item in views:
+                server.views.populate_preview_image(item)
+                self._views[item.id] = item
+
             workbooks: List[WorkbookItem] = [item for item in Pager(server.workbooks)]
             logger.info(
                 f"\nThere are {len(workbooks)} work books on site: {[workbook.name for workbook in workbooks]}"
@@ -84,17 +95,17 @@ class TableauExtractor(BaseExtractor):
             for item in workbooks:
                 server.workbooks.populate_connections(item)
                 server.workbooks.populate_views(item, usage=True)
-            logger.info(
-                [json.dumps(workbook.__dict__, default=str) for workbook in workbooks]
-            )
-            for workbook in workbooks:
-                self.parse_dashboard(workbook)
+
+                if not self._base_url:
+                    self._get_base_url(item.webpage_url)
+
+                self._parse_dashboard(item)
 
         return [EventUtil.build_dashboard_event(d) for d in self._dashboards.values()]
 
-    def parse_dashboard(self, workbook: WorkbookItem) -> None:
+    def _parse_dashboard(self, workbook: WorkbookItem) -> None:
         views: List[ViewItem] = workbook.views
-        charts = [Chart(title=view.name) for view in views]
+        charts = [self._parse_chart(workbook.name, view) for view in views]
         total_views = sum([view.total_views for view in views])
 
         dashboard_info = DashboardInfo(
@@ -113,3 +124,34 @@ class TableauExtractor(BaseExtractor):
         )
 
         self._dashboards[workbook.id] = dashboard
+
+    def _parse_chart(self, workbook_name: str, view: ViewItem) -> Chart:
+        original_view = self._views.get(view.id)
+        # encode preview image raw bytes into data URL
+        preview_data_url = (
+            TableauExtractor._build_preview_data_url(original_view.preview_image)
+            if original_view and original_view.preview_image
+            else None
+        )
+
+        view_url = self._build_view_url(workbook_name, view.name)
+
+        return Chart(title=view.name, url=view_url, preview=preview_data_url)
+
+    _workbook_url_regex = r"(.+\/site\/\w+)\/workbooks\/(\w+)(\/.*)*"
+
+    def _get_base_url(self, workbook_url: str) -> None:
+        match = re.search(self._workbook_url_regex, workbook_url)
+        if match:
+            self._base_url = match.group(1)
+
+    def _build_view_url(self, workbook_name: str, view_name: str) -> Optional[str]:
+        return (
+            f"{self._base_url}/views/{workbook_name}/{view_name}"
+            if self._base_url
+            else None
+        )
+
+    @staticmethod
+    def _build_preview_data_url(preview: bytes) -> str:
+        return f"data:image/png;base64,{base64.b64encode(preview).decode('ascii')}"
