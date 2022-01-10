@@ -127,16 +127,16 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_chart(self, workbook_name: str, view: ViewItem) -> Chart:
         original_view = self._views.get(view.id)
-        # encode preview image raw bytes into base64 string
-        preview_base64_str = (
-            base64.b64encode(original_view.preview_image).decode("ascii")
+        # encode preview image raw bytes into data URL
+        preview_data_url = (
+            TableauExtractor._build_preview_data_url(original_view.preview_image)
             if original_view and original_view.preview_image
             else None
         )
 
         view_url = self._build_view_url(workbook_name, view.name)
 
-        return Chart(title=view.name, url=view_url, preview=preview_base64_str)
+        return Chart(title=view.name, url=view_url, preview=preview_data_url)
 
     _workbook_url_regex = r"(.+\/site\/\w+)\/workbooks\/(\w+)(\/.*)*"
 
@@ -151,3 +151,7 @@ class TableauExtractor(BaseExtractor):
             if self._base_url
             else None
         )
+
+    @staticmethod
+    def _build_preview_data_url(preview: bytes) -> str:
+        return f"data:image/png;base64,{base64.b64encode(preview).decode('ascii')}"
