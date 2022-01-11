@@ -3,7 +3,7 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -13,7 +13,6 @@ from metaphor.models.metadata_change_event import (
 
 try:
     from google.cloud import logging_v2
-    from google.cloud.logging_v2 import LogEntry
     from google.oauth2 import service_account
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
@@ -27,6 +26,14 @@ from metaphor.common.usage_util import UsageUtil
 
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
+
+
+# ProtobufEntry is a namedtuple and attribute assigned dynamically with different type, mypy fail here
+# See: https://googleapis.dev/python/logging/latest/client.html#google.cloud.logging_v2.client.Client.list_entries
+#
+# from google.cloud.logging_v2 import ProtobufEntry
+# LogEntry = ProtobufEntry
+LogEntry = Any
 
 
 def build_client(config: BigQueryUsageRunConfig):
