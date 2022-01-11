@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.8.21"
+version = "0.8.22"
 description = ""
 authors = ["Metaphor <dev@metaphor.io>"]
 packages = [
@@ -38,6 +38,7 @@ all = [
   "google-api-python-client",
   "google-auth-oauthlib",
   "google-cloud-bigquery",
+  "google-cloud-logging",
   "lkml",
   "looker-sdk",
   "slack-sdk",
