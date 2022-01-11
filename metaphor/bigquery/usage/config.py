@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from serde import deserialize
 
@@ -21,3 +21,6 @@ class BigQueryUsageRunConfig(RunConfig):
     batch_size: int = 1000
 
     dataset_filters: List[str] = dataclass_field(default_factory=lambda: [r".*"])
+
+    # Query filter to exclude certain usernames from the processing
+    excluded_usernames: Set[str] = dataclass_field(default_factory=lambda: set())

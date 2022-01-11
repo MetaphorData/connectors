@@ -3,7 +3,7 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -69,6 +69,7 @@ class TableReadEvent:
     timestamp: datetime
     resource: BigQueryResource
     columns: List[str]
+    username: str
 
     @staticmethod
     def can_parse(entry: LogEntry) -> bool:
@@ -87,9 +88,13 @@ class TableReadEvent:
         table_read = entry.payload["metadata"]["tableDataRead"]
         bq_resource = BigQueryResource.from_str(entry.payload["resourceName"])
         columns = table_read.get("fields", [])
+        username = entry.payload["authenticationInfo"].get("principalEmail", "")
 
         return TableReadEvent(
-            timestamp=timestamp, resource=bq_resource, columns=columns
+            timestamp=timestamp,
+            resource=bq_resource,
+            columns=columns,
+            username=username,
         )
 
 
@@ -104,6 +109,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         self._utc_now = datetime.now().replace(tzinfo=timezone.utc)
         self._datasets: Dict[str, Dataset] = {}
         self._datasets_pattern: List[re.Pattern[str]] = []
+        self._excluded_usernames: Set[str] = set()
 
     async def extract(
         self, config: BigQueryUsageRunConfig
@@ -138,6 +144,9 @@ class BigQueryUsageExtractor(BaseExtractor):
             return False
 
         if not match_patterns(read_event.resource.dataset_id, self._datasets_pattern):
+            return
+
+        if read_event.username in self._excluded_usernames:
             return
 
         table_name = read_event.resource.table_name()
