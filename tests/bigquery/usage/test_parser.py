@@ -1,15 +1,11 @@
 import re
 
+from google.cloud._helpers import _rfc3339_nanos_to_datetime
+from google.cloud.logging_v2 import ProtobufEntry
+
 from metaphor.bigquery.usage.extractor import BigQueryUsageExtractor
 from metaphor.common.event_util import EventUtil
 from tests.test_utils import load_json
-
-try:
-    from google.cloud._helpers import _rfc3339_nanos_to_datetime
-    from google.cloud.logging_v2 import ProtobufEntry
-except ImportError:
-    print("Please install metaphor[bigquery] extra\n")
-    raise
 
 
 def test_parse_access_log(test_root_dir):
