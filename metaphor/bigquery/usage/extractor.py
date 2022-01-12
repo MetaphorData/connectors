@@ -13,6 +13,7 @@ from metaphor.models.metadata_change_event import (
 
 try:
     from google.cloud import logging_v2
+    from google.cloud._helpers import _datetime_to_rfc3339
     from google.oauth2 import service_account
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
@@ -165,12 +166,8 @@ class BigQueryUsageExtractor(BaseExtractor):
 
     @staticmethod
     def build_filter(config: BigQueryUsageRunConfig, end_time):
-        def to_bq_format(t: datetime) -> str:
-            BQ_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
-            return t.strftime(BQ_DATETIME_FORMAT)
-
-        start = to_bq_format(end_time - timedelta(days=config.lookback_days))
-        end = to_bq_format(end_time)
+        start = _datetime_to_rfc3339(end_time - timedelta(days=config.lookback_days))
+        end = _datetime_to_rfc3339(end_time)
 
         return f"""
         resource.type="bigquery_dataset" AND
