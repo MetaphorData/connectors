@@ -9,7 +9,7 @@ from serde import deserialize
 from smart_open import open
 
 try:
-    from google.cloud import bigquery
+    import google.cloud.bigquery as bigquery
     from google.oauth2 import service_account
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")

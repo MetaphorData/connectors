@@ -1,0 +1,8 @@
+{
+  "key_path": "key_path",
+  "project_id": "project_id",
+  "dataset_filters": ["f1", "f2"],
+  "lookback_days": 365,
+  "batch_size": 100,
+  "output": null
+}
