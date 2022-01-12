@@ -4,7 +4,7 @@ from typing import Set
 
 from serde import deserialize
 
-from metaphor.bigquery.extractor import BigQueryRunConfig
+from metaphor.bigquery.config import BigQueryRunConfig
 
 
 @deserialize
