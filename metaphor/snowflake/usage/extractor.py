@@ -2,7 +2,7 @@ import logging
 import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Callable, Collection, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 from metaphor.models.metadata_change_event import (
     AspectType,
@@ -11,7 +11,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetUsage,
     EntityType,
-    FieldQueryCount,
     FieldQueryCounts,
     MetadataChangeEvent,
     QueryCount,
@@ -23,6 +22,7 @@ from serde.json import from_json
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
+from metaphor.common.usage_util import UsageUtil
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.filter import DatabaseFilter
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
@@ -144,7 +144,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
             )
 
         # calculate statistics based on the counts
-        self._calculate_statistics()
+        UsageUtil.calculate_statistics(self._datasets.values())
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
@@ -171,130 +171,13 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
                 columns = [column.columnName.lower() for column in obj.columns]
 
-                self._update_table_and_columns_usage(table_name, columns, start_time)
+                utc_now = datetime.now().replace(tzinfo=timezone.utc)
+                UsageUtil.update_table_and_columns_usage(
+                    self._datasets[table_name].usage, columns, start_time, utc_now
+                )
         except Exception as e:
             logger.error(f"access log error, objects: {accessed_objects}")
             logger.exception(e)
-
-    def _update_table_and_columns_usage(
-        self, table_name: str, columns: List[str], start_time: datetime
-    ) -> None:
-        utc_now = datetime.now().replace(tzinfo=timezone.utc)
-        if start_time > utc_now - timedelta(1):
-            self._datasets[table_name].usage.query_counts.last24_hours.count += 1
-
-        if start_time > utc_now - timedelta(7):
-            self._datasets[table_name].usage.query_counts.last7_days.count += 1
-
-        if start_time > utc_now - timedelta(30):
-            self._datasets[table_name].usage.query_counts.last30_days.count += 1
-
-        if start_time > utc_now - timedelta(90):
-            self._datasets[table_name].usage.query_counts.last90_days.count += 1
-
-        if start_time > utc_now - timedelta(365):
-            self._datasets[table_name].usage.query_counts.last365_days.count += 1
-
-        for column_name in columns:
-            if start_time > utc_now - timedelta(1):
-                self._update_field_query_count(
-                    self._datasets[table_name].usage.field_query_counts.last24_hours,
-                    column_name,
-                )
-
-            if start_time > utc_now - timedelta(7):
-                self._update_field_query_count(
-                    self._datasets[table_name].usage.field_query_counts.last7_days,
-                    column_name,
-                )
-
-            if start_time > utc_now - timedelta(30):
-                self._update_field_query_count(
-                    self._datasets[table_name].usage.field_query_counts.last30_days,
-                    column_name,
-                )
-
-            if start_time > utc_now - timedelta(90):
-                self._update_field_query_count(
-                    self._datasets[table_name].usage.field_query_counts.last90_days,
-                    column_name,
-                )
-
-            if start_time > utc_now - timedelta(365):
-                self._update_field_query_count(
-                    self._datasets[table_name].usage.field_query_counts.last365_days,
-                    column_name,
-                )
-
-    @staticmethod
-    def _update_field_query_count(query_counts: List[FieldQueryCount], column: str):
-        item = next((x for x in query_counts if x.field == column), None)
-        if item:
-            item.count += 1
-        else:
-            query_counts.append(FieldQueryCount(field=column, count=1.0))
-
-    def _calculate_statistics(self) -> None:
-        """Calculate statistics for the extracted usage info"""
-        datasets = self._datasets.values()
-
-        self.calculate_table_percentile(
-            datasets, lambda dataset: dataset.usage.query_counts.last24_hours
-        )
-
-        self.calculate_table_percentile(
-            datasets, lambda dataset: dataset.usage.query_counts.last7_days
-        )
-
-        self.calculate_table_percentile(
-            datasets, lambda dataset: dataset.usage.query_counts.last30_days
-        )
-
-        self.calculate_table_percentile(
-            datasets, lambda dataset: dataset.usage.query_counts.last90_days
-        )
-
-        self.calculate_table_percentile(
-            datasets, lambda dataset: dataset.usage.query_counts.last365_days
-        )
-
-        for dataset in datasets:
-            self.calculate_column_percentile(
-                dataset.usage.field_query_counts.last24_hours
-            )
-            self.calculate_column_percentile(
-                dataset.usage.field_query_counts.last7_days
-            )
-            self.calculate_column_percentile(
-                dataset.usage.field_query_counts.last30_days
-            )
-            self.calculate_column_percentile(
-                dataset.usage.field_query_counts.last90_days
-            )
-            self.calculate_column_percentile(
-                dataset.usage.field_query_counts.last365_days
-            )
-
-    @staticmethod
-    def calculate_table_percentile(
-        datasets: Collection[Dataset], get_query_count: Callable[[Dataset], QueryCount]
-    ) -> None:
-        counts = [get_query_count(dataset).count for dataset in datasets]
-        counts.sort(reverse=True)
-
-        for dataset in datasets:
-            query_count = get_query_count(dataset)
-            query_count.percentile = 1.0 - counts.index(query_count.count) / len(
-                datasets
-            )
-
-    @staticmethod
-    def calculate_column_percentile(columns: List[FieldQueryCount]) -> None:
-        counts = [column.count for column in columns]
-        counts.sort(reverse=True)
-
-        for column in columns:
-            column.percentile = 1.0 - counts.index(column.count) / len(columns)
 
     @staticmethod
     def _init_dataset(account: str, full_name: str) -> Dataset:
