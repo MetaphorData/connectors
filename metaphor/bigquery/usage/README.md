@@ -4,22 +4,18 @@ This connector extract BigQuery usage statistics from a Google cloud project usi
 
 ## Setup
 
-This connector need an account with permission of `Private Logs Viewers` to view BigQuery log entries.
+Create a [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) on the [Setup](../README.md#Setup) guide for the general BigQuery connector. You'll need to grant additional permissions to the account to view the [audit log](https://cloud.google.com/logging/docs/audit/services). You can add the `Private Logs Viewers` role to your service account or add the following permissions to the custom IAM role your service account bind with:
 
-1. Go to [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) in Google Cloud Console. Make sure the appropriate project is selected from the project dropdown.
-2. Click `Create Service Account` and use the following settings to create a new account:
-    - Enter a service account name, e.g. `metaphor-bigquery`.
-    - Enter a description, e.g. `Metadata collection for Metaphor app`
-    - Click `CREATE AND CONTINUE`.
-    - Select `Private Logs Viewers` as the role and click `CONTINUE`.
-    - Click `DONE` to complete the process as there's no need to grant user access to the service account.
+```text
+logging.logEntries.list
+logging.logs.list
+logging.logServiceIndexes.list
+logging.logServices.list
+logging.privateLogEntries.list
+resourcemanager.projects.get
+```
 
-Once the service account is created, you need to create a service account key for authentication:
-
-1. Click the newly created account from [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts), then choose `KEYS` tab.
-2. Click `ADD KEY` > `Create new key`.
-3. Select `JSON` key type and click `CREATE`.
-4. Save the generated key file to a secure location.
+For further permission, see [Access Control](https://cloud.google.com/logging/docs/access-control#console_permissions)
 
 ## Config File
 
