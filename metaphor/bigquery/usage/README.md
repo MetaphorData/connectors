@@ -1,6 +1,6 @@
 # BigQuery Usage Statistics Connector
 
-This connector extract BigQuery usage statistics from a Google cloud project using [Python Client for Cloud Logging](https://googleapis.dev/python/logging/latest/index.html). It calculate usage statistics from BigQuery data read event from [audit log](https://cloud.google.com/logging/docs/audit/services).
+This connector extract BigQuery usage statistics from a Google cloud project using [Python Client for Cloud Logging](https://googleapis.dev/python/logging/latest/index.html). It computes usage statistics from BigQuery data read event from the [audit log](https://cloud.google.com/logging/docs/audit/services).
 
 ## Setup
 
@@ -15,7 +15,7 @@ logging.privateLogEntries.list
 resourcemanager.projects.get
 ```
 
-For further permission, see [Access Control](https://cloud.google.com/logging/docs/access-control#console_permissions)
+See [Access Control](https://cloud.google.com/logging/docs/access-control#console_permissions) for more information.
 
 ## Config File
 
