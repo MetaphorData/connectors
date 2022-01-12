@@ -1,4 +1,5 @@
 import base64
+import json
 import re
 from typing import Dict, List, Optional
 
@@ -105,7 +106,7 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_dashboard(self, workbook: WorkbookItem) -> None:
         views: List[ViewItem] = workbook.views
-        charts = [self._parse_chart(workbook.name, view) for view in views]
+        charts = [self._parse_chart(view) for view in views]
         total_views = sum([view.total_views for view in views])
 
         dashboard_info = DashboardInfo(
@@ -125,7 +126,7 @@ class TableauExtractor(BaseExtractor):
 
         self._dashboards[workbook.id] = dashboard
 
-    def _parse_chart(self, workbook_name: str, view: ViewItem) -> Chart:
+    def _parse_chart(self, view: ViewItem) -> Chart:
         original_view = self._views.get(view.id)
         # encode preview image raw bytes into data URL
         preview_data_url = (
@@ -134,7 +135,7 @@ class TableauExtractor(BaseExtractor):
             else None
         )
 
-        view_url = self._build_view_url(workbook_name, view.name)
+        view_url = self._build_view_url(view.content_url)
 
         return Chart(title=view.name, url=view_url, preview=preview_data_url)
 
@@ -145,12 +146,14 @@ class TableauExtractor(BaseExtractor):
         if match:
             self._base_url = match.group(1)
 
-    def _build_view_url(self, workbook_name: str, view_name: str) -> Optional[str]:
-        return (
-            f"{self._base_url}/views/{workbook_name}/{view_name}"
-            if self._base_url
-            else None
-        )
+    def _build_view_url(self, content_url: str) -> Optional[str]:
+        """
+        Builds view URL from the API content_url field.
+        content_url is in the form of <workbook>/sheets/<view>, e.g. 'Superstore/sheets/WhatIfForecast'
+        """
+        workbook, _, view = content_url.split("/")
+
+        return f"{self._base_url}/views/{workbook}/{view}" if self._base_url else None
 
     @staticmethod
     def _build_preview_data_url(preview: bytes) -> str:
