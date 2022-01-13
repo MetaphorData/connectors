@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Callable, Collection, List, ValuesView
+from typing import Callable, Collection, List, Optional, ValuesView
 
 from metaphor.models.metadata_change_event import (
     AspectType,
@@ -17,11 +17,13 @@ from metaphor.models.metadata_change_event import (
 
 class UsageUtil:
     @staticmethod
-    def init_dataset(account: str, full_name: str, platform: DataPlatform) -> Dataset:
+    def init_dataset(
+        account: Optional[str], full_name: str, platform: DataPlatform
+    ) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, account=account, platform=DataPlatform.BIGQUERY
+            name=full_name, account=account, platform=platform
         )
 
         dataset.usage = DatasetUsage(aspect_type=AspectType.DATASET_USAGE)

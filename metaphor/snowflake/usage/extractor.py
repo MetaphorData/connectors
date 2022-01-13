@@ -5,16 +5,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Tuple
 
 from metaphor.models.metadata_change_event import (
-    AspectType,
     DataPlatform,
     Dataset,
-    DatasetLogicalID,
-    DatasetUsage,
-    EntityType,
-    FieldQueryCounts,
     MetadataChangeEvent,
-    QueryCount,
-    QueryCounts,
 )
 from serde import deserialize
 from serde.json import from_json
@@ -165,8 +158,8 @@ class SnowflakeUsageExtractor(BaseExtractor):
                     continue
 
                 if table_name not in self._datasets:
-                    self._datasets[table_name] = SnowflakeUsageExtractor._init_dataset(
-                        self.account, table_name
+                    self._datasets[table_name] = UsageUtil.init_dataset(
+                        self.account, table_name, DataPlatform.SNOWFLAKE
                     )
 
                 columns = [column.columnName.lower() for column in obj.columns]
@@ -178,31 +171,3 @@ class SnowflakeUsageExtractor(BaseExtractor):
         except Exception as e:
             logger.error(f"access log error, objects: {accessed_objects}")
             logger.exception(e)
-
-    @staticmethod
-    def _init_dataset(account: str, full_name: str) -> Dataset:
-        dataset = Dataset()
-        dataset.entity_type = EntityType.DATASET
-        dataset.logical_id = DatasetLogicalID(
-            name=full_name, account=account, platform=DataPlatform.SNOWFLAKE
-        )
-
-        dataset.usage = DatasetUsage(aspect_type=AspectType.DATASET_USAGE)
-        dataset.usage.query_counts = QueryCounts(
-            # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
-            # See https://github.com/quicktype/quicktype/issues/1375
-            last24_hours=QueryCount(count=0.0),
-            last7_days=QueryCount(count=0.0),
-            last30_days=QueryCount(count=0.0),
-            last90_days=QueryCount(count=0.0),
-            last365_days=QueryCount(count=0.0),
-        )
-        dataset.usage.field_query_counts = FieldQueryCounts(
-            last24_hours=[],
-            last7_days=[],
-            last30_days=[],
-            last90_days=[],
-            last365_days=[],
-        )
-
-        return dataset
