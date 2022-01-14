@@ -16,6 +16,7 @@ def test_json_config(test_root_dir):
             username="yi@metaphor.io",
             password="xyz",
         ),
+        snowflake_account=None,
         output=None,
     )
 
@@ -31,5 +32,6 @@ def test_yaml_config(test_root_dir):
             token_value="bar",
         ),
         user_password=None,
+        snowflake_account="snow",
         output=None,
     )
