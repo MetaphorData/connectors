@@ -5,11 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Set
 
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    MetadataChangeEvent,
-)
+from smart_open import open
 
 try:
     from google.cloud import logging_v2
@@ -17,6 +13,12 @@ try:
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
+
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    MetadataChangeEvent,
+)
 
 from metaphor.bigquery.usage.config import BigQueryUsageRunConfig
 from metaphor.common.event_util import EventUtil
