@@ -166,12 +166,12 @@ class TableauExtractor(BaseExtractor):
         database_name = table["database"]["name"]
 
         if None in (table_name, table_schema, database_name):
-            return
+            return None
 
         connection_type = table["database"]["connectionType"]
         if connection_type not in connection_type_map:
             # connection type not supported
-            return
+            return None
 
         platform = connection_type_map[connection_type]
 
