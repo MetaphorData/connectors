@@ -7,14 +7,10 @@ from metaphor.common.entity_id import EntityId, to_dataset_entity_id
 
 try:
     from tableauserverclient import (
-        ConnectionItem,
-        DatabaseItem,
-        DatasourceItem,
         Pager,
         PersonalAccessTokenAuth,
         Server,
         TableauAuth,
-        TableItem,
         ViewItem,
         WorkbookItem,
     )
@@ -101,9 +97,9 @@ class TableauExtractor(BaseExtractor):
 
                 try:
                     self._parse_dashboard(item)
-                except:
+                except Exception as error:
                     traceback.print_exc()
-                    logger.error(f"failed to parse workbook {item.name}")
+                    logger.error(f"failed to parse workbook {item.name}, error {error}")
 
             # fetch workbook upstreams
             # NOTE!!! the id (uuid) returned by graphql api for a particular entity is different with the one returned
@@ -113,9 +109,11 @@ class TableauExtractor(BaseExtractor):
             for item in resp_data["workbooks"]:
                 try:
                     self._parse_dashboard_upstream(item)
-                except:
+                except Exception as error:
                     traceback.print_exc()
-                    logger.error(f"failed to parse workbook upstream {item['vizportalUrlId']}")
+                    logger.error(
+                        f"failed to parse workbook upstream {item['vizportalUrlId']}, error {error}"
+                    )
 
         return [EventUtil.build_dashboard_event(d) for d in self._dashboards.values()]
 
@@ -198,9 +196,10 @@ class TableauExtractor(BaseExtractor):
                 if view.preview_image
                 else None
             )
-        except:
-            traceback.print_exc()
-            logger.error(f"failed to fetch preview for chart {view.name}")
+        except Exception as error:
+            logger.error(
+                f"failed to fetch preview for chart {view.name}, error {error}"
+            )
 
         view_url = self._build_view_url(view.content_url)
 
