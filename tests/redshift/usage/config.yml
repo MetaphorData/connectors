@@ -1,0 +1,10 @@
+---
+host: host
+database: database
+user: user
+password: password
+lookback_days: 365
+dataset_filters:
+    - f1
+    - f2
+output:

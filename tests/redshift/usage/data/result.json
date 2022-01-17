@@ -1,0 +1,90 @@
+[
+  {
+    "dataset": {
+      "entityType": "DATASET",
+      "logicalId": {
+        "name": "metaphor.public.lineorder",
+        "platform": "REDSHIFT"
+      },
+      "usage": {
+        "aspectType": "DATASET_USAGE",
+        "fieldQueryCounts": {
+          "last24Hours": [],
+          "last30Days": [],
+          "last365Days": [],
+          "last7Days": [],
+          "last90Days": []
+        },
+        "queryCounts": {
+          "last24Hours": {
+            "count": 2.0,
+            "percentile": 0.5
+          },
+          "last30Days": {
+            "count": 2.0,
+            "percentile": 0.5
+          },
+          "last365Days": {
+            "count": 2.0,
+            "percentile": 0.5
+          },
+          "last7Days": {
+            "count": 2.0,
+            "percentile": 0.5
+          },
+          "last90Days": {
+            "count": 2.0,
+            "percentile": 0.5
+          }
+        }
+      }
+    },
+    "eventHeader": {
+      "time": "2022-01-17T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "entityType": "DATASET",
+      "logicalId": {
+        "name": "metaphor.public.customer",
+        "platform": "REDSHIFT"
+      },
+      "usage": {
+        "aspectType": "DATASET_USAGE",
+        "fieldQueryCounts": {
+          "last24Hours": [],
+          "last30Days": [],
+          "last365Days": [],
+          "last7Days": [],
+          "last90Days": []
+        },
+        "queryCounts": {
+          "last24Hours": {
+            "count": 4.0,
+            "percentile": 1.0
+          },
+          "last30Days": {
+            "count": 4.0,
+            "percentile": 1.0
+          },
+          "last365Days": {
+            "count": 4.0,
+            "percentile": 1.0
+          },
+          "last7Days": {
+            "count": 4.0,
+            "percentile": 1.0
+          },
+          "last90Days": {
+            "count": 4.0,
+            "percentile": 1.0
+          }
+        }
+      }
+    },
+    "eventHeader": {
+      "time": "2022-01-17T00:00:00+00:00"
+    }
+  }
+]

@@ -1,0 +1,80 @@
+[
+  {
+    "userid": 100,
+    "query": 5200022,
+    "usename": "root",
+    "tbl": 137836,
+    "querytxt": "select * from lineorder l join customer c on c.c_custkey = l.lo_custkey limit 1;",
+    "database": "metaphor",
+    "schema": "public",
+    "table": "lineorder",
+    "starttime": "2022-01-17 06:40:13.391047",
+    "endtime": "2022-01-17 06:40:18.536658",
+    "aborted": 0
+  },
+  {
+    "userid": 100,
+    "query": 5200022,
+    "usename": "root",
+    "tbl": 137832,
+    "querytxt": "select * from lineorder l join customer c on c.c_custkey = l.lo_custkey limit 1;",
+    "database": "metaphor",
+    "schema": "public",
+    "table": "customer",
+    "starttime": "2022-01-17 06:40:13.391047",
+    "endtime": "2022-01-17 06:40:18.536658",
+    "aborted": 0
+  },
+  {
+    "userid": 100,
+    "query": 5199974,
+    "usename": "root",
+    "tbl": 137836,
+    "querytxt": "select * from lineorder limit 1;",
+    "database": "metaphor",
+    "schema": "public",
+    "table": "lineorder",
+    "starttime": "2022-01-17 06:38:35.789741",
+    "endtime": "2022-01-17 06:38:36.228910",
+    "aborted": 0
+  },
+  {
+    "userid": 100,
+    "query": 5198038,
+    "usename": "root",
+    "tbl": 137832,
+    "querytxt": "select count(c_custkey) from customer limit 1;",
+    "database": "metaphor",
+    "schema": "public",
+    "table": "customer",
+    "starttime": "2022-01-17 03:50:08.845086",
+    "endtime": "2022-01-17 03:50:08.972562",
+    "aborted": 0
+  },
+  {
+    "userid": 100,
+    "query": 5198034,
+    "usename": "root",
+    "tbl": 137832,
+    "querytxt": "select * from customer limit 1;",
+    "database": "metaphor",
+    "schema": "public",
+    "table": "customer",
+    "starttime": "2022-01-17 03:49:44.979027",
+    "endtime": "2022-01-17 03:49:45.096795",
+    "aborted": 0
+  },
+  {
+    "userid": 100,
+    "query": 5197968,
+    "usename": "root",
+    "tbl": 137832,
+    "querytxt": "select * from customer ;",
+    "database": "metaphor",
+    "schema": "public",
+    "table": "customer",
+    "starttime": "2022-01-17 03:44:17.435110",
+    "endtime": "2022-01-17 03:44:21.514874",
+    "aborted": 0
+  }
+]
