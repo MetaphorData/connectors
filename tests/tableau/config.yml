@@ -4,4 +4,5 @@ site_name: abc
 access_token:
   token_name: foo
   token_value: bar
+snowflake_account: snow
 output:

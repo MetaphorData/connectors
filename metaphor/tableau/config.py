@@ -31,3 +31,6 @@ class TableauRunConfig(RunConfig):
     site_name: str
     access_token: Optional[TableauTokenAuthConfig]
     user_password: Optional[TableauPasswordAuthConfig]
+
+    # snowflake data source account
+    snowflake_account: Optional[str]
