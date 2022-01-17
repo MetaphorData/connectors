@@ -8,7 +8,7 @@ Each connector ultimiately outpus a JSON file that contains an array of so-calle
 
 The file can be written to a local path during development or to a S3 bucket in production.
 
-The reamining of this doc describes the structure of the event and other detials. However, in general, you'll leverage the corresponding [Python Classes & Utility Methods](#ppython-classes--utility-methods) instead of handcrafting the JSON.
+The reamining of this doc describes the structure of the event and other detials. However, in general, you'll leverage the corresponding [Python Classes & Utility Methods](#python-classes--utility-methods) instead of handcrafting the JSON.
 
 ## MetadataChangeEvent
 
@@ -51,8 +51,9 @@ You use `logicalId` to specify which dataset the metadata aspects are associated
 
 ## Python Classes & Utility Methods
 
-Every 
+We generate Python [data classes](https://docs.python.org/3/library/dataclasses.html) for `MetadataChangeEvent` and all its subfields. Using these classes will ensure that the generated JSON file will conform to the expected schema. All the fields also include [type hints](https://www.python.org/dev/peps/pep-0484/) to prevent incorrect assingments.
 
+There are also several utilitiy methods defined in [event_utils.py](../blob/main/metaphor/common/event_util.py) and [entity_id.py](../blob/main/metaphor/common/entity_id.py) to simplify the building of `MetadataChangeEvent` and string-based entity IDs. 
 
 ## Example Events
 
@@ -61,7 +62,8 @@ Every
 Build an event that links `db.schema.src1` & `db.schema.src2` as the upstream lineage (sources) of `db.schema.dest` in Snowflake. 
 
 ```py
-
+from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
@@ -70,17 +72,16 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
 )
 
-from metaphor.common.entity_id import to_dataset_entity_id
-
 # Create string-based entity IDs for src1 & src2
 src1_id = str(to_dataset_entity_id('db.schema.src1', DataPlatform.SNOWFLAKE))
 src2_id = str(to_dataset_entity_id('db.schema.src2', DataPlatform.SNOWFLAKE))
 
-dest = Dataset(
+# Set the upstream aspect
+dataset = Dataset(
     logical_id = DatasetLogicalID(name='db.schema.dest', platform=DataPlatform.SNOWFLAKE),
     upstream = DatasetUpstream(source_datasets=[src1_id, src2_id]),
 )
 
-
-
+# Build the final list of MetadataChangeEvents
+events = [EventUtil.build_dataset_event(dataset)]
 ```
