@@ -47,13 +47,23 @@ You use `logicalId` to specify which dataset the metadata aspects are associated
 
 ## Entity ID
 
+The "logical ID" mentioned in the previous section is a JSON object can contain multiple fields. For example, the `DatasetLogicalID` has the following structure:
 
+```text
+{
+  name: "<dataset name>",
+  platform: "<dataset platlform>",
+  account: "<optional snowflake account>",
+}
+```
+
+However, when referencing another logical ID in a metadata aspect, it's more common to use a string-based ID know as "Entity ID". This is also the ID that's used internally as the database's primary & foreign keys. An Entity ID can be directly generated from the corresponding logical ID by taking the MD5 hash it canonical JSON string (see [RFC 8785](https://datatracker.ietf.org/doc/html/rfc8785) for more details). This is completely abstracted away by utility methods such as `to_dataset_entity_id`.
 
 ## Python Classes & Utility Methods
 
-We generate Python [data classes](https://docs.python.org/3/library/dataclasses.html) for `MetadataChangeEvent` and all its subfields. Using these classes will ensure that the generated JSON file will conform to the expected schema. All the fields also include [type hints](https://www.python.org/dev/peps/pep-0484/) to prevent incorrect assingments.
+We generate Python [data classes](https://docs.python.org/3/library/dataclasses.html) for `MetadataChangeEvent` and all its subfields and logical IDs. Using these classes will ensure that the generated JSON file will conform to the expected schema. All the fields also include [type hints](https://www.python.org/dev/peps/pep-0484/) to prevent incorrect assingments.
 
-There are also several utilitiy methods defined in [event_utils.py](../blob/main/metaphor/common/event_util.py) and [entity_id.py](../blob/main/metaphor/common/entity_id.py) to simplify the building of `MetadataChangeEvent` and string-based entity IDs. 
+There are also several utilitiy methods defined in [event_utils.py](../metaphor/common/event_util.py) and [entity_id.py](../metaphor/common/entity_id.py) to simplify the building of `MetadataChangeEvent` and string-based entity IDs. 
 
 ## Example Events
 
