@@ -1,14 +1,14 @@
 # Data Model
 
-Each connector ultimiately outpus a JSON file that contains an array of so-called `MetadataChangeEvent`:
+Each connector ultimately outputs a JSON file that contains an array of so-called `MetadataChangeEvent`:
 
 ```text
 [ event1, event2, ... ]
 ```
 
-The file can be written to a local path during development or to a S3 bucket in production.
+The file can be written to a local path during development or to an S3 bucket in production.
 
-The reamining of this doc describes the structure of the event and other detials. However, in general, you'll leverage the corresponding [Python Classes & Utility Methods](#python-classes--utility-methods) instead of handcrafting the JSON.
+The remaining of this doc describes the event's structure and other details. However, you'll generally leverage the corresponding [Python Classes & Utility Methods](#python-classes--utility-methods) instead of handcrafting the JSON.
 
 ## MetadataChangeEvent
 
@@ -26,7 +26,7 @@ Think of `MetadataChangeEvent` as a nested object that describes the metadata as
 
 Other than `eventHeader`, all other entity-specific fields (e.g. `dataset`, `dashboard`, etc) are optional. In fact, it is common for each `MetadataChangeEvent` to contain metadata on a single type of entity.
 
-Each entity-specific field is an object that copntains a required `logicalId`, and a list of optional "aspects". Using `dataset` as an example:
+Each entity-specific field is an object that contains a required `logicalId`, and a list of optional "aspects." Using `dataset` as an example:
 
 ```text
 {
@@ -43,11 +43,11 @@ Each entity-specific field is an object that copntains a required `logicalId`, a
 }
 ```
 
-You use `logicalId` to specify which dataset the metadata aspects are associated to, and the aspects in this case can be a combination of `properties`, `schema`, `statistics` etc. It is also quite common to have only one of the aspects specified.
+You use `logicalId` to specify which dataset the metadata aspects are associated with, and the aspects, in this case, can be a combination of `properties`, `schema`, `statistics` etc. It is also quite common to have only one of the aspects specified.
 
 ## Entity ID
 
-The "logical ID" mentioned in the previous section is a JSON object can contain multiple fields. For example, the `DatasetLogicalID` has the following structure:
+The "logical ID" mentioned in the previous section is a JSON object containing multiple fields. For example, the `DatasetLogicalID` has the following structure:
 
 ```text
 {
@@ -57,11 +57,11 @@ The "logical ID" mentioned in the previous section is a JSON object can contain 
 }
 ```
 
-However, when referencing another logical ID in a metadata aspect, it's more common to use a string-based ID know as "Entity ID". This is also the ID that's used internally as the database's primary & foreign keys. An Entity ID can be directly generated from the corresponding logical ID by taking the MD5 hash it canonical JSON string (see [RFC 8785](https://datatracker.ietf.org/doc/html/rfc8785) for more details). This is completely abstracted away by utility methods such as `to_dataset_entity_id`.
+However, when referencing another logical ID in a metadata aspect, it's more common to use a string-based ID known as "Entity ID." This ID is used internally as the database's primary & foreign keys. An Entity ID can be directly generated from the corresponding logical ID by taking the MD5 hash it canonical JSON string (see [RFC 8785](https://datatracker.ietf.org/doc/html/rfc8785) for more details). The actual implementation is hidden from the users through utility methods such as `to_dataset_entity_id`.
 
 ## Python Classes & Utility Methods
 
-We generate Python [data classes](https://docs.python.org/3/library/dataclasses.html) for `MetadataChangeEvent` and all its subfields and logical IDs. Using these classes will ensure that the generated JSON file will conform to the expected schema. All the fields also include [type hints](https://www.python.org/dev/peps/pep-0484/) to prevent incorrect assingments.
+We generate Python [data classes](https://docs.python.org/3/library/dataclasses.html) for `MetadataChangeEvent` and all its subfields and logical IDs. Using these classes will ensure that the generated JSON file will conform to the expected schema. All the fields also include [type hints](https://www.python.org/dev/peps/pep-0484/) to prevent incorrect assignments.
 
 There are also several utilitiy methods defined in [event_utils.py](../metaphor/common/event_util.py) and [entity_id.py](../metaphor/common/entity_id.py) to simplify the building of `MetadataChangeEvent` and string-based entity IDs. 
 
