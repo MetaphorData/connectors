@@ -1,6 +1,6 @@
 # Redshift Usage Statistics Connector
 
-This connector extract Redshift usage statistics from a Redshift database using [asyncpg](https://github.com/MagicStack/asyncpg) library.
+This connector extracts Redshift usage statistics from a Redshift database using [asyncpg](https://github.com/MagicStack/asyncpg) library.
 
 ## Setup
 
@@ -27,7 +27,7 @@ dataset_filters:
 
 ## Testing
 
-Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `bigquery` extra.
+Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `redshift` extra.
 
 To test the connector locally, change the config file to output to a local path and run the following command
 
