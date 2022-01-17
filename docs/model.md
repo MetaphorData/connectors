@@ -24,7 +24,7 @@ Think of `MetadataChangeEvent` as a nested object that describes the metadata as
 }
 ```
 
-Other than `eventHeader`, all other entity-specific fields (e.g. `dataset`, `dashboard`, etc) are optional. In fact, it is common for each `MetadataChangeEvent` to contain metadata on a single type of entity.
+Other than `eventHeader`, all entity-specific fields (e.g. `dataset`, `dashboard`, etc) are optional. In fact, it is common for each `MetadataChangeEvent` to contain metadata on a single type of entity.
 
 Each entity-specific field is an object that contains a required `logicalId`, and a list of optional "aspects." Using `dataset` as an example:
 
