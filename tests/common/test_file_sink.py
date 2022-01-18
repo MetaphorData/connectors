@@ -1,5 +1,7 @@
 import tempfile
+from datetime import datetime
 
+from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Status
 from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Person,
@@ -45,3 +47,21 @@ def test_file_sink_split(test_root_dir):
     assert messages[0:2] == events_from_json(f"{prefix}-1-of-3.json")
     assert messages[2:4] == events_from_json(f"{prefix}-2-of-3.json")
     assert messages[4:] == events_from_json(f"{prefix}-3-of-3.json")
+
+
+def test_sink_metadata(test_root_dir):
+    output = tempfile.mktemp(suffix=".json")
+    prefix = output[0:-5]
+
+    metadata = CrawlerRunMetadata(
+        crawler_name="foo",
+        start_time=datetime.now(),
+        end_time=datetime.now(),
+        status=Status.SUCCESS,
+        entity_count=1.0,
+    )
+
+    sink = FileSink(FileSinkConfig(path=output, bach_size=2))
+    sink.sink_metadata(metadata)
+
+    assert metadata.to_dict() == load_json(f"{prefix}-run-metadata.json")

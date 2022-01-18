@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional, Type
 
+from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Status
 from metaphor.models.metadata_change_event import MetadataChangeEvent
 from serde import deserialize
 from serde.json import from_json
@@ -15,7 +16,6 @@ from metaphor.common.logger import get_logger
 
 from .api_sink import ApiSink, ApiSinkConfig
 from .file_sink import FileSink, FileSinkConfig
-from .run_metadata import CrawlerRunMetadata
 
 logger = get_logger(__name__)
 
@@ -63,13 +63,13 @@ class BaseExtractor(ABC):
         start_time = datetime.now()
         logger.info(f"Starting extractor {self.__class__.__name__} at {start_time}")
 
-        run_status = "SUCCESS"
+        run_status = Status.SUCCESS
 
         events: List[MetadataChangeEvent] = []
         try:
             events = asyncio.run(self.extract(config))
         except Exception as ex:
-            run_status = "FAILURE"
+            run_status = Status.FAILURE
             logger.error(ex)
             traceback.format_exc()
 
@@ -78,9 +78,13 @@ class BaseExtractor(ABC):
             f"Extractor ended successfully at {end_time}, fetched {len(events)} entities, took {format((end_time - start_time).total_seconds(), '.1f')} s"
         )
 
-        fqcn = f"{self.__class__.__module__}.{self.__class__.__qualname__}"
+        crawler_name = f"{self.__class__.__module__}.{self.__class__.__qualname__}"
         run_metadata = CrawlerRunMetadata(
-            fqcn, start_time, end_time, run_status, len(events)
+            crawler_name=crawler_name,
+            start_time=start_time,
+            end_time=end_time,
+            status=run_status,
+            entity_count=float(len(events)),
         )
 
         if config.output.api is not None:
@@ -92,8 +96,8 @@ class BaseExtractor(ABC):
             file_sink.sink(events)
 
         if file_sink is not None:
-            file_sink.sink_logs()
             file_sink.sink_metadata(run_metadata)
+            file_sink.sink_logs()
 
         return events
 

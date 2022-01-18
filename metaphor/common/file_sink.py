@@ -9,10 +9,10 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 import boto3
 from aws_assume_role_lib import assume_role
+from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
 from serde import deserialize
 
 from .logger import LOG_FILE, get_logger
-from .run_metadata import CrawlerRunMetadata
 from .s3 import write_file
 from .sink import Sink
 
@@ -92,7 +92,7 @@ class FileSink(Sink):
 
         prefix = self.path[0:-5]
 
-        content = json.dumps(metadata.__dict__, default=str).encode()
+        content = json.dumps(metadata.to_dict()).encode()
 
         write_file(
             f"{prefix}-run-metadata.json", content, True, s3_session=self.s3_session
