@@ -1,5 +1,5 @@
 import asyncio
-import time
+import traceback
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
@@ -15,6 +15,7 @@ from metaphor.common.logger import get_logger
 
 from .api_sink import ApiSink, ApiSinkConfig
 from .file_sink import FileSink, FileSinkConfig
+from .run_metadata import CrawlerRunMetadata
 
 logger = get_logger(__name__)
 
@@ -59,13 +60,27 @@ class BaseExtractor(ABC):
 
     def run(self, config: RunConfig) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
-        start_time = time.time()
-        logger.info(f"Starting extractor {self.__class__.__name__} at {datetime.now()}")
+        start_time = datetime.now()
+        logger.info(f"Starting extractor {self.__class__.__name__} at {start_time}")
 
-        events: List[MetadataChangeEvent] = asyncio.run(self.extract(config))
+        run_status = "SUCCESS"
 
+        events: List[MetadataChangeEvent] = []
+        try:
+            events = asyncio.run(self.extract(config))
+        except Exception as ex:
+            run_status = "FAILURE"
+            logger.error(ex)
+            traceback.format_exc()
+
+        end_time = datetime.now()
         logger.info(
-            f"Fetched {len(events)} entities, took {format(time.time() - start_time, '.1f')} s"
+            f"Extractor ended successfully at {end_time}, fetched {len(events)} entities, took {format((end_time - start_time).total_seconds(), '.1f')} s"
+        )
+
+        fqcn = f"{self.__class__.__module__}.{self.__class__.__qualname__}"
+        run_metadata = CrawlerRunMetadata(
+            fqcn, start_time, end_time, run_status, len(events)
         )
 
         if config.output.api is not None:
@@ -76,10 +91,9 @@ class BaseExtractor(ABC):
             file_sink = FileSink(config.output.file)
             file_sink.sink(events)
 
-        logger.info(f"Extractor ended successfully at {datetime.now()}")
-
         if file_sink is not None:
             file_sink.sink_logs()
+            file_sink.sink_metadata(run_metadata)
 
         return events
 
