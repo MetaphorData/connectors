@@ -5,11 +5,11 @@ from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
 from metaphor.common.event_util import EventUtil
+from metaphor.common.filter import DatabaseFilter, include_table
 from metaphor.common.logger import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.config import SnowflakeRunConfig
-from metaphor.snowflake.filter import SnowflakeFilter
-from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType, include_table
+from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
 
 try:
     import snowflake.connector
@@ -105,7 +105,7 @@ class SnowflakeExtractor(BaseExtractor):
     """
 
     def _fetch_tables(
-        self, cursor: SnowflakeCursor, database: str, filter: SnowflakeFilter
+        self, cursor: SnowflakeCursor, database: str, filter: DatabaseFilter
     ) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)

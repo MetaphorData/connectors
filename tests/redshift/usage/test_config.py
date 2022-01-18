@@ -11,7 +11,6 @@ def test_json_config(test_root_dir):
         database="database",
         user="user",
         password="password",
-        dataset_filters=["f1", "f2"],
         lookback_days=365,
         output=None,
     )
@@ -27,7 +26,6 @@ def test_yaml_config(test_root_dir):
         database="database",
         user="user",
         password="password",
-        dataset_filters=["f1", "f2"],
         lookback_days=365,
         output=None,
     )

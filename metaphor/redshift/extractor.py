@@ -25,13 +25,19 @@ class RedshiftExtractor(PostgreSQLExtractor):
         assert isinstance(config, PostgreSQLExtractor.config_class())
         logger.info(f"Fetching metadata from redshift host {config.host}")
 
-        databases = await self._fetch_databases(config)
+        filter = config.filter.normalize()
+
+        databases = (
+            await self._fetch_databases(config)
+            if filter.includes is None
+            else list(filter.includes.keys())
+        )
 
         for db in databases:
             conn = await self._connect_database(config, db)
             try:
-                await self._fetch_tables(conn)
-                await self._fetch_columns(conn, db)
+                await self._fetch_tables(conn, filter)
+                await self._fetch_columns(conn, db, filter)
                 await self._fetch_redshift_table_stats(conn, db)
             finally:
                 await conn.close()

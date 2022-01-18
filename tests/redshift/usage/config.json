@@ -3,7 +3,6 @@
   "database": "database",
   "user": "user",
   "password": "password",
-  "dataset_filters": ["f1", "f2"],
   "lookback_days": 365,
   "output": null
 }

@@ -1,10 +1,9 @@
-from metaphor.snowflake.filter import SnowflakeFilter
-from metaphor.snowflake.utils import include_table
+from metaphor.common.filter import DatasetFilter, include_table
 
 
 def test_include_table_empty_filter():
 
-    filter = SnowflakeFilter(
+    filter = DatasetFilter(
         includes=None,
         excludes=None,
     )
@@ -15,7 +14,7 @@ def test_include_table_empty_filter():
 
 def test_include_table_includes_only():
 
-    filter = SnowflakeFilter(
+    filter = DatasetFilter(
         includes={
             "db1": None,
             "db2": {"schema1": None, "schema2": set(["table1", "table2"])},
@@ -36,7 +35,7 @@ def test_include_table_includes_only():
 
 def test_include_table_excludes_only():
 
-    filter = SnowflakeFilter(
+    filter = DatasetFilter(
         includes=None,
         excludes={
             "db1": None,
@@ -55,7 +54,7 @@ def test_include_table_excludes_only():
 
 def test_include_table_excludes_overrides_include():
 
-    filter = SnowflakeFilter(
+    filter = DatasetFilter(
         includes={
             "db1": None,
         },

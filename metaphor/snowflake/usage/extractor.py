@@ -14,12 +14,12 @@ from serde.json import from_json
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.filter import DatabaseFilter, include_table
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.snowflake.auth import connect
-from metaphor.snowflake.filter import DatabaseFilter
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
-from metaphor.snowflake.utils import QueryWithParam, async_execute, include_table
+from metaphor.snowflake.utils import QueryWithParam, async_execute
 
 logger = get_logger(__name__)
 
