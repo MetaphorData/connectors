@@ -18,11 +18,6 @@ lookback_days: <days>
 excluded_usernames:
   - <user_name1>
   - <user_name2>
-
-# (Optional) A list of regular expressions to limit the scan to selected datasets(schemas)
-dataset_filters:
-    - my_dataset
-    - prefix_.*
 ```
 
 ## Testing
