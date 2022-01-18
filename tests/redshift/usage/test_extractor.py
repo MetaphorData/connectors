@@ -62,11 +62,7 @@ async def test_extractor(test_root_dir):
     with patch(
         "metaphor.redshift.usage.extractor.RedshiftUsageExtractor._fetch_usage"
     ) as mock_fetch_usage:
-
-        def fake(config):
-            return AsyncIter(records)
-
-        mock_fetch_usage.side_effect = fake
+        mock_fetch_usage.side_effect = lambda config: AsyncIter(records)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
