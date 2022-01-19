@@ -73,7 +73,7 @@ output:
 
 The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.
 
-See [Common Configurations](../common/README.md) for more information on `output` and optional `filter`.
+See [Common Configurations](../common/README.md) for more information on `output` and see [Filter Configurations](../common/filter.md) for optional `filter` .
 
 ### Optional Configurations
 

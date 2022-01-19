@@ -26,7 +26,7 @@ output:
     path: <path_to_output_file>
 ```
 
-See [Common Configurations](../common/README.md) for more information on `output` and optional `filter`.
+See [Common Configurations](../common/README.md) for more information on `output` and see [Filter Configurations](../common/filter.md) for optional `filter` .
 
 ### Optional Configurations
 
