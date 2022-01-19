@@ -36,7 +36,7 @@ By default, the connector will connect using the default PostgreSQL port 5432. Y
 port: <port_number>
 ```
 
-See [Filter Configurations](../common/filter.md) for more information on optional `filter`
+See [Filter Configurations](../common/filter.md) for more information on the optional `filter` config.
 
 ## Testing
 

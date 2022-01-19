@@ -93,7 +93,7 @@ Each query issued by snowflake connectors can be tagged with a query tag. It can
 query_tag: <query_taqg> # Default to 'MetaphorData'
 ```
 
-See [Filter Configurations](../common/filter.md) for more information on optional `filter`
+See [Filter Configurations](../common/filter.md) for more information on the optional `filter` config.
 
 ## Testing
 
