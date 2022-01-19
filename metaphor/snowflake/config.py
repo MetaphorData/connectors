@@ -10,7 +10,7 @@ from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE
 
 @deserialize
 @dataclass
-class SnowflakeRunConfig(DatasetFilter, SnowflakeAuthConfig):
+class SnowflakeRunConfig(SnowflakeAuthConfig):
 
     # Include or exclude specific databases/schemas/tables
     filter: Optional[DatasetFilter] = field(default_factory=lambda: DatasetFilter())
