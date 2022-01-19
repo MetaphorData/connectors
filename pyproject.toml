@@ -48,7 +48,6 @@ all = [
 ]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging"]
 dbt = ["pydantic"]
-metabase = ["requests"]
 postgresql = ["asyncpg"]
 redshift = ["asyncpg"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]

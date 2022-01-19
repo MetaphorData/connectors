@@ -93,6 +93,7 @@ class MetabaseExtractor(BaseExtractor):
         if self._server_url.endswith("/"):
             self._server_url = self._server_url[:-1]
 
+        # fetch session token
         session_token_resp = requests.post(
             f"{self._server_url}/api/session",
             None,
@@ -101,10 +102,8 @@ class MetabaseExtractor(BaseExtractor):
                 "password": config.password,
             },
         )
-
         session_token_resp.raise_for_status()
         session_token = session_token_resp.json()["id"]
-        logger.info(f"session token {session_token}")
 
         self._session = requests.session()
         self._session.headers.update(
@@ -115,6 +114,7 @@ class MetabaseExtractor(BaseExtractor):
             }
         )
 
+        # fetch all databases
         all_databases_resp = self._session.get(f"{config.server_url}/api/database")
         all_databases_resp.raise_for_status()
         databases = all_databases_resp.json()["data"]
@@ -127,6 +127,7 @@ class MetabaseExtractor(BaseExtractor):
             except Exception as ex:
                 logger.error(f"error parsing database {database['id']}", ex)
 
+        # fetch all cards (charts)
         all_cards_resp = self._session.get(f"{config.server_url}/api/card")
         all_cards_resp.raise_for_status()
         cards = all_cards_resp.json()
@@ -137,6 +138,7 @@ class MetabaseExtractor(BaseExtractor):
             except Exception as ex:
                 logger.error(f"error parsing card {card['id']}", ex)
 
+        # fetch all dashboards
         all_dashboards_resp = self._session.get(f"{config.server_url}/api/dashboard")
         all_dashboards_resp.raise_for_status()
         dashboards = all_dashboards_resp.json()
@@ -165,9 +167,12 @@ class MetabaseExtractor(BaseExtractor):
             self._databases[database_id] = DatabaseInfo(
                 platform, details.get("project-id"), details.get("dataset-id"), None
             )
+        # only support snowflake and bigquery currently
 
     def _parse_dashboard(self, dashboard: Dict) -> None:
         dashboard_id = dashboard["id"]
+
+        # need to fetch the dashboard details, which contains the cards info
         dashboard_resp = self._session.get(
             f"{self._server_url}/api/dashboard/{dashboard_id}"
         )
@@ -177,7 +182,7 @@ class MetabaseExtractor(BaseExtractor):
         cards = dashboard_details.get("ordered_cards", [])
         charts, table_ids = [], set()
         for card in cards:
-            card_id = card["id"]
+            card_id = card.get("card_id")
             if card_id not in self._charts:
                 logger.error(f"card {card_id} not found")
             else:
@@ -230,7 +235,6 @@ class MetabaseExtractor(BaseExtractor):
 
         # TODO: parse native (raw) query
 
-        logger.info(f"chart {card_id} {card['name']} upstream {upstream_tables}")
         self._charts[card_id] = ChartInfo(chart, upstream_tables)
 
     def _get_table_by_id(self, table_id: int) -> None:
@@ -247,7 +251,7 @@ class MetabaseExtractor(BaseExtractor):
 
         database = self._databases.get(database_id)
         if database is None:
-            logger.error(f"database {database_id} not found")
+            logger.warning(f"database {database_id} not found")
             return
 
         dataset_id = to_dataset_entity_id(
