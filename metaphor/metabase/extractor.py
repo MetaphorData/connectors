@@ -157,7 +157,10 @@ class MetabaseExtractor(BaseExtractor):
     def _parse_database(self, database: Dict) -> None:
         database_id = database["id"]
         platform = self._db_engine_mapping.get(database["engine"])
-        details = database.get("details", {})
+        details = database.get("details")
+        if details is None:
+            # not able to get connection details, possibly due to lack of Admin permission
+            return
 
         if platform == DataPlatform.SNOWFLAKE:
             self._databases[database_id] = DatabaseInfo(
