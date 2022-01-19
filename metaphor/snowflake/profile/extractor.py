@@ -4,17 +4,16 @@ from typing import Dict, List, Optional, Tuple
 from snowflake.connector import SnowflakeConnection
 
 from metaphor.common.event_util import EventUtil
+from metaphor.common.filter import DatasetFilter, include_table
 from metaphor.common.logger import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
-from metaphor.snowflake.filter import SnowflakeFilter
 from metaphor.snowflake.profile.config import SnowflakeProfileRunConfig
 from metaphor.snowflake.utils import (
     DatasetInfo,
     QueryWithParam,
     SnowflakeTableType,
     async_execute,
-    include_table,
 )
 
 try:
@@ -97,7 +96,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
         cursor,
         database: str,
         account: str,
-        filter: SnowflakeFilter,
+        filter: DatasetFilter,
     ) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)

@@ -1,4 +1,4 @@
-from metaphor.snowflake.filter import SnowflakeFilter
+from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.profile.config import SnowflakeProfileRunConfig
 
 
@@ -12,7 +12,7 @@ def test_json_config(test_root_dir):
         user="user",
         password="password",
         default_database="database",
-        filter=SnowflakeFilter(),
+        filter=DatasetFilter(),
         output=None,
     )
 
@@ -27,6 +27,6 @@ def test_yaml_config(test_root_dir):
         user="user",
         password="password",
         default_database="database",
-        filter=SnowflakeFilter(includes={"foo": None, "bar": None}, excludes=None),
+        filter=DatasetFilter(includes={"foo": None, "bar": None}, excludes=None),
         output=None,
     )

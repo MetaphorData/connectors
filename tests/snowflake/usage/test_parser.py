@@ -9,7 +9,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.event_util import EventUtil
-from metaphor.snowflake.filter import SnowflakeFilter
+from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.usage.extractor import SnowflakeUsageExtractor
 from tests.test_utils import load_json
 
@@ -29,7 +29,7 @@ def make_dataset_with_usage(counts: List[int]):
 
 def test_parse_access_log(test_root_dir):
     extractor = SnowflakeUsageExtractor()
-    extractor.filter = SnowflakeFilter()
+    extractor.filter = DatasetFilter()
 
     accessed_objects = """
     [
