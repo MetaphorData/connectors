@@ -1,0 +1,23 @@
+from metaphor.metabase.config import MetabaseRunConfig
+
+
+def test_json_config(test_root_dir):
+    config = MetabaseRunConfig.from_json_file(f"{test_root_dir}/metabase/config.json")
+
+    assert config == MetabaseRunConfig(
+        server_url="https://metaphor.metabaseapp.com",
+        username="yi@metaphor.io",
+        password="xyz",
+        output=None,
+    )
+
+
+def test_yaml_config(test_root_dir):
+    config = MetabaseRunConfig.from_yaml_file(f"{test_root_dir}/metabase/config.yml")
+
+    assert config == MetabaseRunConfig(
+        server_url="https://metaphor.metabaseapp.com",
+        username="foo",
+        password="bar",
+        output=None,
+    )
