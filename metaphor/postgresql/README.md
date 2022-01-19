@@ -26,7 +26,7 @@ output:
     path: <path_to_output_file>
 ```
 
-See [Common Configurations](../common/README.md) for more information on `output` and see [Filter Configurations](../common/filter.md) for optional `filter` .
+See [Common Configurations](../common/README.md) for more information on `output`.
 
 ### Optional Configurations
 
@@ -35,6 +35,8 @@ By default, the connector will connect using the default PostgreSQL port 5432. Y
 ```yaml
 port: <port_number>
 ```
+
+See [Filter Configurations](../common/filter.md) for more information on optional `filter`
 
 ## Testing
 

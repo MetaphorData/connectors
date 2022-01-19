@@ -73,7 +73,7 @@ output:
 
 The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.
 
-See [Common Configurations](../common/README.md) for more information on `output` and see [Filter Configurations](../common/filter.md) for optional `filter` .
+See [Common Configurations](../common/README.md) for more information on `output`.
 
 ### Optional Configurations
 
@@ -92,6 +92,8 @@ Each query issued by snowflake connectors can be tagged with a query tag. It can
 ```yaml
 query_tag: <query_taqg> # Default to 'MetaphorData'
 ```
+
+See [Filter Configurations](../common/filter.md) for more information on optional `filter`
 
 ## Testing
 
