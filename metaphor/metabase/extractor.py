@@ -186,6 +186,8 @@ class MetabaseExtractor(BaseExtractor):
         charts, table_ids = [], set()
         for card in cards:
             card_id = card.get("card_id")
+            if card_id is None:
+                continue
             if card_id not in self._charts:
                 logger.error(f"card {card_id} not found")
             else:
