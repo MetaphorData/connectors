@@ -27,6 +27,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.filter import DatasetFilter, include_table
 
 logger = get_logger(__name__)
 
@@ -54,13 +55,19 @@ class PostgreSQLExtractor(BaseExtractor):
         assert isinstance(config, PostgreSQLExtractor.config_class())
         logger.info(f"Fetching metadata from postgreSQL host {config.host}")
 
-        databases = await self._fetch_databases(config)
+        filter = config.filter.normalize()
+
+        databases = (
+            await self._fetch_databases(config)
+            if filter.includes is None
+            else list(filter.includes.keys())
+        )
 
         for db in databases:
             conn = await self._connect_database(config, db)
             try:
-                await self._fetch_tables(conn)
-                await self._fetch_columns(conn, db)
+                await self._fetch_tables(conn, filter)
+                await self._fetch_columns(conn, db, filter)
                 await self._fetch_constraints(conn, db)
             finally:
                 await conn.close()
@@ -99,7 +106,7 @@ class PostgreSQLExtractor(BaseExtractor):
     # Exclude schemas in WHERE clause, e.g. table_schema not in ($1, $2, ...)
     _excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
 
-    async def _fetch_tables(self, conn: Connection) -> None:
+    async def _fetch_tables(self, conn: Connection, filter: DatasetFilter) -> None:
 
         results = await conn.fetch(
             f"""
@@ -129,11 +136,16 @@ class PostgreSQLExtractor(BaseExtractor):
             row_count = table["row_count"]
             table_size = table["table_size"]
             full_name = self._dataset_name(catalog, schema, name)
+            if not include_table(catalog, schema, name, filter):
+                logger.info(f"Ignore {full_name} due to filter config")
+                continue
             self._init_dataset(
                 full_name, table_type, description, row_count, table_size
             )
 
-    async def _fetch_columns(self, conn: Connection, catalog: str) -> None:
+    async def _fetch_columns(
+        self, conn: Connection, catalog: str, filter: DatasetFilter
+    ) -> None:
         columns = await conn.fetch(
             f"""
             SELECT table_schema, table_name, ordinal_position, column_name, data_type,
@@ -155,9 +167,11 @@ class PostgreSQLExtractor(BaseExtractor):
         )
 
         for column in columns:
-            full_name = self._dataset_name(
-                catalog, column["table_schema"], column["table_name"]
-            )
+            schema, name = column["table_schema"], column["table_name"]
+            full_name = self._dataset_name(catalog, schema, name)
+            if not include_table(catalog, schema, name, filter):
+                logger.info(f"Ignore {full_name} due to filter config")
+                continue
             dataset = self._datasets[full_name]
             assert dataset.schema is not None and dataset.schema.fields is not None
 

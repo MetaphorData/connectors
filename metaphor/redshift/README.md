@@ -36,6 +36,8 @@ By default, the connector will connect using the default Redshift port 5439. You
 port: <port_number>
 ```
 
+See [Filter Configurations](../common/filter.md) for more information on the optional `filter` config.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `redshift` extra.

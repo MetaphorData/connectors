@@ -1,4 +1,4 @@
-from metaphor.snowflake.filter import SnowflakeFilter
+from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 
 
@@ -11,7 +11,7 @@ def test_json_config(test_root_dir):
         account="account",
         user="user",
         password="password",
-        filter=SnowflakeFilter(
+        filter=DatasetFilter(
             includes={"DEMO_DB": None},
             excludes={"db1": {"schema1": set()}},
         ),
@@ -30,7 +30,7 @@ def test_yaml_config(test_root_dir):
         account="account",
         user="user",
         password="password",
-        filter=SnowflakeFilter(),
+        filter=DatasetFilter(),
         lookback_days=30,
         excluded_usernames=set(),
         output=None,

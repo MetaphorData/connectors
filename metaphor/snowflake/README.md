@@ -77,44 +77,6 @@ See [Common Configurations](../common/README.md) for more information on `output
 
 ### Optional Configurations
 
-#### Filter
-
-By default, the connector will extract metadata from all tables/views in all schemas and databases. You can optionally limit it by specifying the `filter` option. For example, the following config will only include tables/views from database `db1` and `db2`:
-
-```yaml
-filter:
-  includes:
-    db1:    
-    db2:
-```
-
-You can also exclude only specific databases, schemas, or tables/views. For example, the following will include all tables/views except `db1.*`, `db2.schema1.*`, and `db3.schema1.table1`:
-
-```yaml
-filter:
-  excludes:
-    db1:  
-    db2:
-      schema1:
-    db3:
-      schema1:
-        - table1
-```
-
-Note that when there's an overlap between `includes` and `excludes`, the latter will always take precedence. For instance, the following config will include all tables under `db1`, except `db1.schema1.table1` and `db1.schema1.table2`:
-
-```
-filter:
-  includes:
-    db1:
-  excludes:
-    db1:
-      schema1:  
-        - table1
-        - table2
-
-```
-
 #### Concurrency
 
 The max number of concurrent queries to the snowflake database can be configured as follows,
@@ -130,6 +92,8 @@ Each query issued by snowflake connectors can be tagged with a query tag. It can
 ```yaml
 query_tag: <query_taqg> # Default to 'MetaphorData'
 ```
+
+See [Filter Configurations](../common/filter.md) for more information on the optional `filter` config.
 
 ## Testing
 

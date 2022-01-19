@@ -1,5 +1,4 @@
 import logging
-import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import AsyncIterator, Dict, List, Set
@@ -12,6 +11,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.event_util import EventUtil
+from metaphor.common.filter import DatasetFilter, include_table
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.postgresql.extractor import PostgreSQLExtractor
@@ -89,7 +89,6 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
         super().__init__()
         self._utc_now = datetime.now().replace(tzinfo=timezone.utc)
         self._datasets: Dict[str, Dataset] = {}
-        self._datasets_pattern: List[re.Pattern[str]] = []
         self._excluded_usernames: Set[str] = set()
 
     async def extract(
@@ -97,12 +96,12 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
 
-        self._datasets_pattern = [re.compile(f) for f in config.dataset_filters]
-
         logger.info(f"Fetching metadata from redshift host {config.host}")
 
+        filter = DatasetFilter.normalize(config.filter)
+
         async for record in self._fetch_usage(config):
-            self._process_record(record)
+            self._process_record(record, filter)
 
         UsageUtil.calculate_statistics(self._datasets.values())
 
@@ -123,16 +122,12 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
         for record in results:
             yield record
 
-    def _process_record(self, record):
+    def _process_record(self, record: Record, filter: DatasetFilter):
         access_event = AccessEvent.from_record(record)
 
-        def match_patterns(dataset_id, patterns):
-            for pattern in patterns:
-                if re.fullmatch(pattern, dataset_id) is not None:
-                    return True
-            return False
-
-        if not match_patterns(access_event.schema, self._datasets_pattern):
+        if not include_table(
+            access_event.database, access_event.schema, access_event.table, filter
+        ):
             return
 
         if access_event.usename in self._excluded_usernames:
