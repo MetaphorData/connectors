@@ -13,7 +13,6 @@ from serde.yaml import from_yaml
 from smart_open import open
 
 from metaphor.common.logger import get_logger
-
 from .api_sink import ApiSink, ApiSinkConfig
 from .file_sink import FileSink, FileSinkConfig
 
@@ -74,8 +73,9 @@ class BaseExtractor(ABC):
             traceback.format_exc()
 
         end_time = datetime.now()
+        entity_count = len(events)
         logger.info(
-            f"Extractor ended successfully at {end_time}, fetched {len(events)} entities, took {format((end_time - start_time).total_seconds(), '.1f')} s"
+            f"Extractor ended with {run_status} at {end_time}, fetched {entity_count} entities, took {format((end_time - start_time).total_seconds(), '.1f')}s"
         )
 
         crawler_name = f"{self.__class__.__module__}.{self.__class__.__qualname__}"
@@ -84,7 +84,7 @@ class BaseExtractor(ABC):
             start_time=start_time,
             end_time=end_time,
             status=run_status,
-            entity_count=float(len(events)),
+            entity_count=float(entity_count),
         )
 
         if config.output.api is not None:
