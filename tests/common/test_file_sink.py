@@ -17,7 +17,7 @@ def events_from_json(file):
 
 
 def test_file_sink_no_split(test_root_dir):
-    output = tempfile.mktemp(suffix=".json")
+    _, output = tempfile.mkstemp(suffix=".json")
     prefix = output[0:-5]
 
     messages = [
@@ -31,7 +31,7 @@ def test_file_sink_no_split(test_root_dir):
 
 
 def test_file_sink_split(test_root_dir):
-    output = tempfile.mktemp(suffix=".json")
+    _, output = tempfile.mkstemp(suffix=".json")
     prefix = output[0:-5]
 
     messages = [
@@ -50,7 +50,7 @@ def test_file_sink_split(test_root_dir):
 
 
 def test_sink_metadata(test_root_dir):
-    output = tempfile.mktemp(suffix=".json")
+    _, output = tempfile.mkstemp(suffix=".json")
     prefix = output[0:-5]
 
     metadata = CrawlerRunMetadata(
