@@ -124,7 +124,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         )
         bq_table = client.get_table(table)
         row_count = bq_table.num_rows
-        schema = BigQueryExtractor._parse_schema(bq_table)
+        schema = self._parse_schema(bq_table)
 
         sql = self._build_profiling_query(
             schema, table, row_count, self._sampling_percentage
@@ -154,7 +154,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
                 query.append(f", COUNT(DISTINCT {column})")
 
             if nullable:
-                query.append(f", countif({column} is NULL)")
+                query.append(f", COUNTIF({column} is NULL)")
 
             if BigQueryProfileExtractor._is_numeric(data_type):
                 query.extend(

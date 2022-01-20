@@ -26,8 +26,8 @@ def test_build_profiling_query():
 
     expected = (
         "SELECT COUNT(1), COUNT(DISTINCT id), COUNT(DISTINCT price), "
-        "countif(price is NULL), MIN(price), MAX(price), AVG(price), "
-        "countif(json is NULL) "
+        "COUNTIF(price is NULL), MIN(price), MAX(price), AVG(price), "
+        "COUNTIF(json is NULL) "
         "FROM `project.dataset_id.table_id`"
     )
 
@@ -49,7 +49,7 @@ def test_build_profiling_query_with_sampling():
 
     expected = (
         "SELECT COUNT(1), COUNT(DISTINCT id), COUNT(DISTINCT price), "
-        "countif(price is NULL), MIN(price), MAX(price), AVG(price) "
+        "COUNTIF(price is NULL), MIN(price), MAX(price), AVG(price) "
         "FROM `project.dataset_id.table_id` TABLESAMPLE SYSTEM (50 PERCENT)"
     )
 
