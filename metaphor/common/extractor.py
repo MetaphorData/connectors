@@ -13,6 +13,7 @@ from serde.yaml import from_yaml
 from smart_open import open
 
 from metaphor.common.logger import get_logger
+
 from .api_sink import ApiSink, ApiSinkConfig
 from .file_sink import FileSink, FileSinkConfig
 
