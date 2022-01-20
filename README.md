@@ -41,6 +41,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 |--------------------------------------------------------------------|------------------------------------|  
 | [metaphor.bigquery](metaphor/bigquery/README.md)                   | Schema, Description                |
 | [metaphor.bigquery.usage](metaphor/bigquery/usage/README.md)       | Usage                              |
+| [metaphor.bigquery.profile](metaphor/bigquery/profile/README.md)   | Data Profile                       |
 | [metaphor.dbt](metaphor/dbt/README.md)                             | dbt models, tests, lineage         |
 | [metaphor.google_directory](metaphor/google_directory/README.md)   | User                               |
 | [metaphor.looker](metaphor/looker/README.md)                       | Looker views, explores, dashboards |
