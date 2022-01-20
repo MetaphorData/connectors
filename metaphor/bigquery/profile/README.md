@@ -4,7 +4,7 @@ This connector extracts column-level data profiles from a BigQuery project using
 
 ## Setup
 
-Create a [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) on the [Setup](../README.md#Setup) guide for the general BigQuery connector. You'll need to grant additional permissions to the account to perform profiling. You can add the `BigQuery Job User` and the `BigQuery Data Viewer` roles to your service account.
+Create a [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) on the [Setup](../README.md#Setup) guide for the general BigQuery connector. You'll need to grant additional permissions to the account to perform profiling. You can add the `BigQuery Job User` and `BigQuery Data Viewer` roles to your service account.
 
 ## Config File
 
