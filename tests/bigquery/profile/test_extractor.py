@@ -32,7 +32,8 @@ def test_build_profiling_query():
     )
 
     assert (
-        BigQueryProfileExtractor._build_profiling_query(schema, table, 1000) == expected
+        BigQueryProfileExtractor._build_profiling_query(schema, table, 1000, 50)
+        == expected
     )
 
 
@@ -49,11 +50,11 @@ def test_build_profiling_query_with_sampling():
     expected = (
         "SELECT COUNT(1), COUNT(DISTINCT id), COUNT(DISTINCT price), "
         "countif(price is NULL), MIN(price), MAX(price), AVG(price) "
-        "FROM `project.dataset_id.table_id` TABLESAMPLE SYSTEM (20 PERCENT)"
+        "FROM `project.dataset_id.table_id` TABLESAMPLE SYSTEM (50 PERCENT)"
     )
 
     assert (
-        BigQueryProfileExtractor._build_profiling_query(schema, table, 1000000)
+        BigQueryProfileExtractor._build_profiling_query(schema, table, 1000000, 50)
         == expected
     )
 

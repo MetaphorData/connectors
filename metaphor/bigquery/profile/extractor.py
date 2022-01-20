@@ -1,7 +1,7 @@
 import logging
 from functools import partial
 from time import sleep
-from typing import List, Set, Union
+from typing import List, Optional, Set, Union
 
 try:
     import google.cloud.bigquery as bigquery
@@ -42,8 +42,8 @@ class BigQueryProfileExtractor(BigQueryExtractor):
     def config_class():
         return BigQueryProfileRunConfig
 
-    def __init__(self):
-        self._excluded_usernames: Set[str] = set()
+    def __init__(self) -> None:
+        self._sampling_percentage = None
 
     async def extract(
         self, config: BigQueryProfileRunConfig
@@ -51,6 +51,11 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         assert isinstance(config, BigQueryProfileExtractor.config_class())
 
         logger.info("Fetching usage info from BigQuery")
+
+        assert config.sampling_percentage is None or (
+            0 < config.sampling_percentage <= 100
+        ), f"Invalid sample probability ${config.sampling_percentage}, value must be between 0 and 100"
+        self._sampling_percentage = config.sampling_percentage
 
         client = build_client(config)
         tables = self._fetch_tables(client, config)
@@ -100,8 +105,8 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         return datasets
 
-    @staticmethod
     def _profile_table(
+        self,
         client: bigquery.Client,
         table: TableReference,
         jobs: Set[QueryJob],
@@ -121,7 +126,9 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         row_count = bq_table.num_rows
         schema = BigQueryExtractor._parse_schema(bq_table)
 
-        sql = BigQueryProfileExtractor._build_profiling_query(schema, table, row_count)
+        sql = self._build_profiling_query(
+            schema, table, row_count, self._sampling_percentage
+        )
         job = client.query(sql)
 
         jobs.add(job.job_id)
@@ -134,6 +141,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         schema: DatasetSchema,
         table_ref: TableReference,
         row_count: Union[int, None],
+        sampling_percentage: Optional[int],
     ) -> str:
         query = ["SELECT COUNT(1)"]
 
@@ -159,9 +167,9 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         query.append(f" FROM `{table_ref}`")
 
-        if row_count and row_count >= SAMPLING_THRESHOLD:
+        if row_count and row_count >= SAMPLING_THRESHOLD and sampling_percentage:
             logger.info(f"Enable table sampling for table: {table_ref}")
-            query.append(" TABLESAMPLE SYSTEM (20 PERCENT)")
+            query.append(f" TABLESAMPLE SYSTEM ({int(sampling_percentage)} PERCENT)")
 
         return "".join(query)
 
