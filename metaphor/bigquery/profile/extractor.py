@@ -22,7 +22,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.bigquery.extractor import BigQueryExtractor, build_client
-from metaphor.bigquery.profile.config import BigQueryProfileRunConfig
+from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter, include_table
 from metaphor.common.logger import get_logger
@@ -32,7 +32,7 @@ logger.setLevel(logging.INFO)
 
 # The minimum number of rows in a table to do sampling.
 # If row count smaller than this, sampling won't apply
-SAMPLING_THRESHOLD = 100000
+DEFAULT_SAMPLING_THRESHOLD = 100000
 
 
 class BigQueryProfileExtractor(BigQueryExtractor):
@@ -43,7 +43,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         return BigQueryProfileRunConfig
 
     def __init__(self) -> None:
-        self._sampling_percentage = None
+        self._sampling = None
 
     async def extract(
         self, config: BigQueryProfileRunConfig
@@ -52,10 +52,12 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         logger.info("Fetching usage info from BigQuery")
 
-        assert config.sampling_percentage is None or (
-            0 < config.sampling_percentage <= 100
-        ), f"Invalid sample probability ${config.sampling_percentage}, value must be between 0 and 100"
-        self._sampling_percentage = config.sampling_percentage
+        assert config.sampling is None or (
+            0 < config.sampling.percentage <= 100
+        ), f"Invalid sample probability ${config.sampling.percentage}, value must be between 0 and 100"
+        self._sampling = config.sampling
+        if self._sampling and self._sampling.threshold is None:
+            self._sampling.threshold = DEFAULT_SAMPLING_THRESHOLD
 
         client = build_client(config)
         tables = self._fetch_tables(client, config)
@@ -126,9 +128,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         row_count = bq_table.num_rows
         schema = self._parse_schema(bq_table)
 
-        sql = self._build_profiling_query(
-            schema, table, row_count, self._sampling_percentage
-        )
+        sql = self._build_profiling_query(schema, table, row_count, self._sampling)
         job = client.query(sql)
 
         jobs.add(job.job_id)
@@ -141,7 +141,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         schema: DatasetSchema,
         table_ref: TableReference,
         row_count: Union[int, None],
-        sampling_percentage: Optional[int],
+        sampling: Optional[SamplingConfig],
     ) -> str:
         query = ["SELECT COUNT(1)"]
 
@@ -167,9 +167,9 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         query.append(f" FROM `{table_ref}`")
 
-        if row_count and row_count >= SAMPLING_THRESHOLD and sampling_percentage:
+        if row_count and sampling and row_count >= sampling.threshold:
             logger.info(f"Enable table sampling for table: {table_ref}")
-            query.append(f" TABLESAMPLE SYSTEM ({int(sampling_percentage)} PERCENT)")
+            query.append(f" TABLESAMPLE SYSTEM ({int(sampling.percentage)} PERCENT)")
 
         return "".join(query)
 

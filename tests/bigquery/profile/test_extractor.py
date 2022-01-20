@@ -10,6 +10,7 @@ from metaphor.models.metadata_change_event import (
     SchemaField,
 )
 
+from metaphor.bigquery.profile.config import SamplingConfig
 from metaphor.bigquery.profile.extractor import BigQueryProfileExtractor
 
 
@@ -32,7 +33,9 @@ def test_build_profiling_query():
     )
 
     assert (
-        BigQueryProfileExtractor._build_profiling_query(schema, table, 1000, 50)
+        BigQueryProfileExtractor._build_profiling_query(
+            schema, table, 1000, SamplingConfig(percentage=50, threshold=100000)
+        )
         == expected
     )
 
@@ -54,7 +57,9 @@ def test_build_profiling_query_with_sampling():
     )
 
     assert (
-        BigQueryProfileExtractor._build_profiling_query(schema, table, 1000000, 50)
+        BigQueryProfileExtractor._build_profiling_query(
+            schema, table, 1000000, SamplingConfig(percentage=50, threshold=100000)
+        )
         == expected
     )
 

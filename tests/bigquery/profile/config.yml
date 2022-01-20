@@ -6,4 +6,6 @@ filter:
         project_id:
             dataset_foo:
                 - table_bar
+sampling:
+    percentage: 20
 output:
