@@ -64,4 +64,4 @@ def test_sink_metadata(test_root_dir):
     sink = FileSink(FileSinkConfig(path=output, bach_size=2))
     sink.sink_metadata(metadata)
 
-    assert metadata.to_dict() == load_json(f"{prefix}-run-metadata.json")
+    assert metadata.to_dict() == load_json(f"{prefix}-run.metadata")

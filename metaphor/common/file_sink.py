@@ -94,6 +94,4 @@ class FileSink(Sink):
 
         content = json.dumps(metadata.to_dict()).encode()
 
-        write_file(
-            f"{prefix}-run-metadata.json", content, True, s3_session=self.s3_session
-        )
+        write_file(f"{prefix}-run.metadata", content, True, s3_session=self.s3_session)
