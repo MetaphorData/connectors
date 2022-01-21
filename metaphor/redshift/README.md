@@ -36,7 +36,7 @@ By default, the connector will connect using the default Redshift port 5439. You
 port: <port_number>
 ```
 
-See [Filter Configurations](../common/filter.md) for more information on the optional `filter` config.
+See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
 ## Testing
 

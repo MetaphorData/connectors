@@ -1,6 +1,6 @@
-from metaphor.bigquery.profile.config import SamplingConfig
 from metaphor.bigquery.profile.extractor import BigQueryProfileRunConfig
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.sampling import SamplingConfig
 
 
 def test_json_config(test_root_dir):

@@ -10,8 +10,8 @@ from metaphor.models.metadata_change_event import (
     SchemaField,
 )
 
-from metaphor.bigquery.profile.config import SamplingConfig
 from metaphor.bigquery.profile.extractor import BigQueryProfileExtractor
+from metaphor.common.sampling import SamplingConfig
 
 
 def test_build_profiling_query():
