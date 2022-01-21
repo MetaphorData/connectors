@@ -30,10 +30,6 @@ from metaphor.common.logger import get_logger
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
 
-# The minimum number of rows in a table to do sampling.
-# If row count smaller than this, sampling won't apply
-DEFAULT_SAMPLING_THRESHOLD = 100000
-
 
 class BigQueryProfileExtractor(BigQueryExtractor):
     """BigQuery data profile extractor"""
@@ -54,10 +50,8 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         assert config.sampling is not None and (
             0 < config.sampling.percentage <= 100
-        ), f"Invalid sample probability ${config.sampling.percentage}, value must be between 0 and 100"
+        ), f"Invalid sample probability ${config.sampling.percentage}, value must be between 1 and 100"
         self._sampling = config.sampling
-        if self._sampling and self._sampling.threshold is None:
-            self._sampling.threshold = DEFAULT_SAMPLING_THRESHOLD
 
         client = build_client(config)
         tables = self._fetch_tables(client, config)
