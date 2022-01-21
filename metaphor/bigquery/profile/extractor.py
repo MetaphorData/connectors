@@ -1,7 +1,7 @@
 import logging
 from functools import partial
 from time import sleep
-from typing import List, Optional, Set, Union
+from typing import List, Set, Union
 
 try:
     import google.cloud.bigquery as bigquery
@@ -52,7 +52,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         logger.info("Fetching usage info from BigQuery")
 
-        assert config.sampling is None or (
+        assert config.sampling is not None and (
             0 < config.sampling.percentage <= 100
         ), f"Invalid sample probability ${config.sampling.percentage}, value must be between 0 and 100"
         self._sampling = config.sampling
@@ -141,7 +141,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         schema: DatasetSchema,
         table_ref: TableReference,
         row_count: Union[int, None],
-        sampling: Optional[SamplingConfig],
+        sampling: SamplingConfig,
     ) -> str:
         query = ["SELECT COUNT(1)"]
 
@@ -167,7 +167,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         query.append(f" FROM `{table_ref}`")
 
-        if row_count and sampling and row_count >= sampling.threshold:
+        if row_count and sampling.percentage < 100 and row_count >= sampling.threshold:
             logger.info(f"Enable table sampling for table: {table_ref}")
             query.append(f" TABLESAMPLE SYSTEM ({int(sampling.percentage)} PERCENT)")
 

@@ -31,6 +31,6 @@ def test_yaml_config(test_root_dir):
             },
             includes=None,
         ),
-        sampling=SamplingConfig(percentage=20),
+        sampling=SamplingConfig(percentage=20, threshold=None),
         output=None,
     )

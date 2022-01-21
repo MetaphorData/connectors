@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
 
 from serde import deserialize
 
@@ -11,4 +10,4 @@ from metaphor.common.sampling import SamplingConfig
 @dataclass
 class BigQueryProfileRunConfig(BigQueryRunConfig):
 
-    sampling: Optional[SamplingConfig] = None
+    sampling: SamplingConfig = field(default_factory=lambda: SamplingConfig())
