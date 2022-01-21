@@ -3,12 +3,10 @@ import logging
 import os
 from typing import Type
 
-from .extractor import BaseExtractor, RunConfig
+from .extractor import BaseExtractor
 
 
-def cli_main(
-    description: str, config_cls: Type[RunConfig], extractor_cls: Type[BaseExtractor]
-):
+def cli_main(description: str, extractor_cls: Type[BaseExtractor]):
     logging.basicConfig(
         format="%(asctime)s %(levelname)s - %(message)s", level=logging.INFO
     )
@@ -18,6 +16,7 @@ def cli_main(
     args = parser.parse_args()
 
     extractor = extractor_cls()
+    config_cls = extractor.config_class()
 
     extension = os.path.splitext(args.config)[-1].lower()
 
