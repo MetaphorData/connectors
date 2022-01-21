@@ -10,7 +10,9 @@ Create a [Service Accounts](https://console.cloud.google.com/iam-admin/serviceac
 
 The config file inherits all the required and optional fields from the general BigQuery connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
-### Sampling
+### Optional Configurations
+
+#### Sampling
 
 See [Sampling Config](../../common/docs/sampling.md) for details.
 

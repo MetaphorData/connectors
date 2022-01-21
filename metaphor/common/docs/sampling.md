@@ -1,8 +1,6 @@
-# Sampling
+# Sampling Config
 
-For profiling connector
-
-For tables with large number of rows, it can take a long time to profile. To speed up the process, we can choose to do percentage-based random sampling on the data by setting `sampling.percentage` and `sampling.threshold`:
+For tables with a large number of rows, it can take a long time to profile. To speed up the process, we can choose to do a percentage-based random sampling on the data by setting `sampling.percentage` and `sampling.threshold`:
 
 ```yaml
 sampling:
@@ -10,8 +8,4 @@ sampling:
   threshold: <number of rows>
 ```
 
-For example, `sampling.percentage = 1` means random sampling of 1% rows in the table. And, `sampling.threshold = 100000` this means sampling won't apply to the table less than 100K rows, in that case, we do complete table profiling.
-
-## Supported Connectors
-
-- [metaphor.bigquery.profile](metaphor/bigquery/profile/README.md)
+For example, `sampling.percentage = 1` means random sampling of 1% of rows in the table, and `sampling.threshold = 100000` means sampling won't apply to tables less than 100K rows, i.e. profiling the whole table.
