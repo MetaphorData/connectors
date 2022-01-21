@@ -8,4 +8,4 @@ sampling:
   threshold: <number of rows>
 ```
 
-For example, `sampling.percentage = 1` means random sampling of 1% of rows in the table, and `sampling.threshold = 100000` means sampling won't apply to tables less than 100K rows, i.e. profiling the whole table.
+For example, `sampling.percentage = 1` means random sampling of 1% of rows in the table, and `sampling.threshold = 100000` means sampling won't apply to tables less than 100K rows, i.e., profiling the whole table.

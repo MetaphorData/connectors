@@ -8,7 +8,7 @@ We recommend creating a dedicated GCP service account with limited permissions f
 
 1. Go to [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) in Google Cloud Console. Make sure the appropriate project is selected from the project dropdown.
 2. Click `Create Service Account` and use the following settings to create a new account:
-    - Enter a service account name, e.g. `metaphor-bigquery`.
+    - Enter a service account name, e.g., `metaphor-bigquery`.
     - Enter a description, e.g. `Metadata collection for Metaphor app`
     - Click `CREATE AND CONTINUE`.
     - Select `BigQuery Metadata Viewer` as the role and click `CONTINUE`.
@@ -23,7 +23,7 @@ Once the service account is created, you need to create a service account key fo
 
 ## Config File
 
-Create a YAML config file based the following template.
+Create a YAML config file based on the following template.
 
 ### Required Configurations
 

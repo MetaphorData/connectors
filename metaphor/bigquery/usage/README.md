@@ -1,6 +1,6 @@
 # BigQuery Usage Statistics Connector
 
-This connector extract BigQuery usage statistics from a Google cloud project using [Python Client for Cloud Logging](https://googleapis.dev/python/logging/latest/index.html). It computes usage statistics from BigQuery data read event from the [audit log](https://cloud.google.com/logging/docs/audit/services).
+This connector extracts BigQuery usage statistics from a Google cloud project using [Python Client for Cloud Logging](https://googleapis.dev/python/logging/latest/index.html). It computes usage statistics from BigQuery data read event from the [audit log](https://cloud.google.com/logging/docs/audit/services).
 
 ## Setup
 
@@ -21,7 +21,7 @@ See [Access Control](https://cloud.google.com/logging/docs/access-control#consol
 
 The config file inherits all the required and optional fields from the general BigQuery connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
-```yaml
+```YAML
 # (Optional) Number of days to include in the usage analysis. Default to 30.
 lookback_days: <days>
 
