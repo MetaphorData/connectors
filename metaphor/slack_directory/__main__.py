@@ -1,6 +1,6 @@
 from metaphor.common.cli import cli_main
 
-from .extractor import SlackExtractor, SlackRunConfig
+from .extractor import SlackExtractor
 
 if __name__ == "__main__":
-    cli_main("Slack directory extractor", SlackRunConfig, SlackExtractor)
+    cli_main("Slack directory extractor", SlackExtractor)

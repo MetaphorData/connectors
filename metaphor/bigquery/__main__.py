@@ -1,6 +1,6 @@
 from metaphor.common.cli import cli_main
 
-from .extractor import BigQueryExtractor, BigQueryRunConfig
+from .extractor import BigQueryExtractor
 
 if __name__ == "__main__":
-    cli_main("BigQuery metadata extractor", BigQueryRunConfig, BigQueryExtractor)
+    cli_main("BigQuery metadata extractor", BigQueryExtractor)
