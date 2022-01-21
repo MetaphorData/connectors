@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def build_client(config: BigQueryRunConfig):
+def build_client(config: BigQueryRunConfig) -> bigquery.Client:
     with open(config.key_path) as fin:
         credentials = service_account.Credentials.from_service_account_info(
             json.load(fin),

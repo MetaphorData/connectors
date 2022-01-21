@@ -5,6 +5,7 @@ from typing import List, Optional
 from serde import deserialize
 
 from metaphor.common.extractor import RunConfig
+from metaphor.common.filter import DatasetFilter
 
 
 @deserialize
@@ -18,3 +19,8 @@ class BigQueryRunConfig(RunConfig):
 
     # Filters for dataset names (any match will be included)
     dataset_filters: List[str] = dataclass_field(default_factory=lambda: [r".*"])
+
+    # Include or exclude specific databases/schemas/tables
+    filter: Optional[DatasetFilter] = dataclass_field(
+        default_factory=lambda: DatasetFilter()
+    )

@@ -1,0 +1,11 @@
+---
+key_path: key_path
+project_id: project_id
+filter:
+    excludes:
+        project_id:
+            dataset_foo:
+                - table_bar
+sampling:
+    percentage: 20
+output:
