@@ -4,7 +4,7 @@ For tables with a large number of rows, it can take a long time to profile. To s
 
 ```yaml
 sampling:
-  percentage: <number between 0 and 100>
+  percentage: <number between 1 and 100>
   threshold: <number of rows>
 ```
 
