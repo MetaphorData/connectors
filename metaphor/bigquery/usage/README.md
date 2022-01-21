@@ -21,7 +21,7 @@ See [Access Control](https://cloud.google.com/logging/docs/access-control#consol
 
 The config file inherits all the required and optional fields from the general BigQuery connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
-```YAML
+```yaml
 # (Optional) Number of days to include in the usage analysis. Default to 30.
 lookback_days: <days>
 
