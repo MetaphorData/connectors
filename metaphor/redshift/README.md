@@ -4,9 +4,7 @@ This connector extracts technical metadata from a Redshift database using [async
 
 ## Setup
 
-Currently you must run the connector using a user with `SELECT` [privilege](https://docs.aws.amazon.com/redshift/latest/dg/r_Privileges.html) to all tables & views.
-
-> We're working on extracting the metadata from [system catalogs](https://docs.aws.amazon.com/redshift/latest/dg/c_intro_catalog_views.html), which greatly reduces the privileges required for the user.
+The connector extracts the metadata from [system catalogs](https://docs.aws.amazon.com/redshift/latest/dg/c_intro_catalog_views.html), with restricted access to system tables and additional `SELECT` [privilege](https://www.postgresql.org/docs/current/ddl-priv.html) to `pg_catalog.svv_table_info`. Use `GRANT SELECT ON pg_catalog.svv_table_info TO [User];` to grant permission.
 
 ## Config File
 

@@ -48,7 +48,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
         results = await conn.fetch(
             """
             SELECT "schema", "table", size, tbl_rows
-            FROM svv_table_info;
+            FROM pg_catalog.svv_table_info;
             """,
         )
 
