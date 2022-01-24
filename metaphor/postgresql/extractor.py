@@ -222,9 +222,6 @@ class PostgreSQLExtractor(BaseExtractor):
             WHERE c.contype IN ('f', 'p', 'u')
                   AND r.relkind IN ('r', 'p')
                   AND (NOT pg_is_other_temp_schema(nr.oid))
-                  AND (pg_has_role(r.relowner, 'USAGE')
-                       OR has_table_privilege(r.oid, 'INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER')
-                       OR has_any_column_privilege(r.oid, 'INSERT, UPDATE, REFERENCES') )
             GROUP BY table_schema, table_name, constraint_name, constraint_type,
                      constraint_db, constraint_schema, constraint_table;
             """
