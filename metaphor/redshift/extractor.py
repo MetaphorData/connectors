@@ -36,7 +36,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
         for db in databases:
             conn = await self._connect_database(config, db)
             try:
-                await self._fetch_tables(conn, filter)
+                await self._fetch_tables(conn, db, filter)
                 await self._fetch_columns(conn, db, filter)
                 await self._fetch_redshift_table_stats(conn, db)
             finally:
