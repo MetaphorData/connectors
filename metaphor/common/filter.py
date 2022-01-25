@@ -94,7 +94,7 @@ class DatasetFilter:
         database_lower = database.lower()
         schema_lower = schema.lower()
 
-        def covered_by_filter(database_filter: DatabaseFilter):
+        def covered_by_filter(database_filter: DatabaseFilter, partial: bool):
             if database_lower not in database_filter:
                 return False
 
@@ -107,18 +107,19 @@ class DatasetFilter:
             if schema_lower in schema_filter:
                 table_filter = schema_filter[schema_lower]
 
+                # fully covered
                 if table_filter is None or len(table_filter) == 0:
                     return True
 
-                return False
+                return partial
 
             return False
 
-        if self.includes is not None and not covered_by_filter(self.includes):
+        if self.includes is not None and not covered_by_filter(self.includes, True):
             return False
 
         # Filtered out by excludes
-        if self.excludes is not None and covered_by_filter(self.excludes):
+        if self.excludes is not None and covered_by_filter(self.excludes, False):
             return False
 
         return True
