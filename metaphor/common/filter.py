@@ -68,7 +68,15 @@ class DatasetFilter:
             if schema_filter is None or len(schema_filter) == 0:
                 return True
 
-            return schema_lower in schema_filter
+            if schema_lower in schema_filter:
+                table_filter = schema_filter[schema_lower]
+
+                if table_filter is None or len(table_filter) == 0:
+                    return True
+
+                return False
+
+            return False
 
         if self.includes is not None and not covered_by_filter(self.includes):
             return False
