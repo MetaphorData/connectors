@@ -1,5 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import field
 from typing import Dict, List, Set
+
+from pydantic.dataclasses import dataclass
 
 try:
     from slack_sdk import WebClient

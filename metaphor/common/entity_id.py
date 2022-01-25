@@ -1,5 +1,4 @@
 import hashlib
-from dataclasses import dataclass
 from typing import Optional, Union
 
 from canonicaljson import encode_canonical_json
@@ -14,6 +13,7 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
+from pydantic.dataclasses import dataclass
 
 from metaphor.common.event_util import EventUtil
 
@@ -44,7 +44,7 @@ def to_dataset_entity_id(
     """
     converts a dataset name, platform and account into a dataset entity ID
     """
-    return EntityId(
+    return EntityId(  # type: ignore
         EntityType.DATASET,
         DatasetLogicalID(name=full_name, platform=platform, account=account),
     )
@@ -54,7 +54,7 @@ def to_virtual_view_entity_id(name: str, virtualViewType: VirtualViewType) -> En
     """
     converts a virtual view name and type into a Virtual View entity ID
     """
-    return EntityId(
+    return EntityId(  # type: ignore
         EntityType.VIRTUAL_VIEW,
         VirtualViewLogicalID(name=name, type=virtualViewType),
     )

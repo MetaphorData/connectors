@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 from typing import Dict, Optional, Set, Union
 
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 
 TableFilter = Set[str]
@@ -49,7 +49,7 @@ class DatasetFilter:
             else None
         )
 
-        return DatasetFilter(includes=includes, excludes=excludes)
+        return DatasetFilter(includes=includes, excludes=excludes)  # type: ignore
 
 
 def include_table(

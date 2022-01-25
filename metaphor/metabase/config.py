@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 
 from metaphor.common.extractor import RunConfig

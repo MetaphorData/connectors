@@ -1,7 +1,7 @@
-from dataclasses import dataclass
 from typing import Dict, Optional
 
 from metaphor.models.metadata_change_event import DataPlatform
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 
 from metaphor.common.extractor import RunConfig

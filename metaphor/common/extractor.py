@@ -1,12 +1,12 @@
 import asyncio
 import traceback
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional, Type
 
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Status
 from metaphor.models.metadata_change_event import MetadataChangeEvent
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 from serde.json import from_json
 from serde.yaml import from_yaml
@@ -37,7 +37,7 @@ class RunConfig:
     All subclasses should add the @dataclass @deserialize decorators
     """
 
-    output: OutputConfig
+    output: Optional[OutputConfig]
 
     @classmethod
     def from_json_file(cls, path: str) -> "RunConfig":
@@ -87,6 +87,9 @@ class BaseExtractor(ABC):
             status=run_status,
             entity_count=float(entity_count),
         )
+
+        if config.output is None:
+            return events
 
         if config.output.api is not None:
             ApiSink(config.output.api).sink(events)
