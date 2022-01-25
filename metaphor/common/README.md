@@ -13,7 +13,7 @@ output:
   file:
     # Location of the output directory.
     # To output to S3 directly, use the format s3://<bucket> or s3://<bucket>/<path>
-    directory_path: <output_directory>
+    directory: <output_directory>
 
     # (Optional) Maximum number of messages in each output file split. Default to 200.
     bach_size: <messages_per_file>

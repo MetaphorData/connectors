@@ -7,4 +7,4 @@ output:
     timeout: 2
   file:
     assume_role_arn: arn
-    directory_path: path
+    directory: path

@@ -24,7 +24,7 @@ logger = get_logger(__name__)
 class FileSinkConfig:
     # Location of the sink directory, where the MCE file and logs will be output to.
     # Can be local file directory, s3://bucket/ or s3://bucket/path/
-    directory_path: str
+    directory: str
 
     # Output logs
     write_logs: bool = True
@@ -40,7 +40,7 @@ class FileSink(Sink):
     """File sink functions"""
 
     def __init__(self, config: FileSinkConfig):
-        self.path = config.directory_path.rstrip("/")
+        self.path = config.directory.rstrip("/")
         self.bach_size = config.bach_size
         self.write_logs = config.write_logs
 
