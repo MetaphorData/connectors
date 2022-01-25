@@ -12,7 +12,7 @@ You must run the connector using a user with `SELECT` [privilege](https://www.po
 - `pg_catalog.pg_attribute`
 - `pg_catalog.pg_description`
 
-Or, use the command below:
+Or, use the following command to grant the privileges:
 
 ```sql
 GRANT SELECT ON pg_catalog.pg_constraint, pg_catalog.pg_class, pg_catalog.pg_namespace, pg_catalog.pg_attribute, pg_catalog.pg_description TO [User]
