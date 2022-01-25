@@ -1,4 +1,4 @@
-from metaphor.common.filter import DatasetFilter, include_table
+from metaphor.common.filter import DatasetFilter
 
 
 def test_filter_normalization():
@@ -20,8 +20,8 @@ def test_include_table_empty_filter():
         excludes=None,
     )
 
-    assert include_table("db1", "boo", "bar", filter)
-    assert include_table("db2", "boo", "bar", filter)
+    assert filter.include_table("db1", "boo", "bar")
+    assert filter.include_table("db2", "boo", "bar")
 
 
 def test_include_table_includes_only():
@@ -34,15 +34,15 @@ def test_include_table_includes_only():
         excludes=None,
     )
 
-    assert include_table("db1", "foo", "bar", filter)
+    assert filter.include_table("db1", "foo", "bar")
 
-    assert include_table("db2", "schema1", "foo", filter)
-    assert include_table("db2", "schema2", "table1", filter)
-    assert include_table("db2", "schema2", "table2", filter)
-    assert not include_table("db2", "schema2", "foo", filter)
-    assert not include_table("db2", "schema3", "foo", filter)
+    assert filter.include_table("db2", "schema1", "foo")
+    assert filter.include_table("db2", "schema2", "table1")
+    assert filter.include_table("db2", "schema2", "table2")
+    assert not filter.include_table("db2", "schema2", "foo")
+    assert not filter.include_table("db2", "schema3", "foo")
 
-    assert not include_table("db3", "foo", "bar", filter)
+    assert not filter.include_table("db3", "foo", "bar")
 
 
 def test_include_table_excludes_only():
@@ -55,13 +55,13 @@ def test_include_table_excludes_only():
         },
     )
 
-    assert not include_table("db1", "foo", "bar", filter)
+    assert not filter.include_table("db1", "foo", "bar")
 
-    assert not include_table("db2", "schema1", "foo", filter)
-    assert not include_table("db2", "schema2", "table1", filter)
-    assert not include_table("db2", "schema2", "table2", filter)
+    assert not filter.include_table("db2", "schema1", "foo")
+    assert not filter.include_table("db2", "schema2", "table1")
+    assert not filter.include_table("db2", "schema2", "table2")
 
-    assert include_table("db3", "foo", "bar", filter)
+    assert filter.include_table("db3", "foo", "bar")
 
 
 def test_include_table_excludes_overrides_include():
@@ -73,8 +73,8 @@ def test_include_table_excludes_overrides_include():
         excludes={"db1": {"schema1": None, "schema2": set(["table1", "table2"])}},
     )
 
-    assert include_table("db1", "foo", "bar", filter)
-    assert not include_table("db1", "schema1", "foo", filter)
-    assert not include_table("db1", "schema2", "table1", filter)
-    assert not include_table("db1", "schema2", "table2", filter)
-    assert include_table("db1", "schema2", "foo", filter)
+    assert filter.include_table("db1", "foo", "bar")
+    assert not filter.include_table("db1", "schema1", "foo")
+    assert not filter.include_table("db1", "schema2", "table1")
+    assert not filter.include_table("db1", "schema2", "table2")
+    assert filter.include_table("db1", "schema2", "foo")
