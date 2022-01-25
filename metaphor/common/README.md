@@ -11,9 +11,9 @@ File-based output is the preferred way as it enables decoupling between the conn
 ```yaml
 output:
   file:
-    # Location of the output. Must have a ".json" extension.
-    # To output to S3 directly, use the format s3://<bucket>/<object>
-    path: <output_path>
+    # Location of the output directory.
+    # To output to S3 directly, use the format s3://<bucket> or s3://<bucket>/<path>
+    directory_path: <output_directory>
 
     # (Optional) Maximum number of messages in each output file split. Default to 200.
     bach_size: <messages_per_file>

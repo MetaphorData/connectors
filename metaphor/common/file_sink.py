@@ -22,8 +22,9 @@ logger = get_logger(__name__)
 @deserialize
 @dataclass
 class FileSinkConfig:
-    # Location of the sink file. Can be local file or s3://bucket/object
-    path: str
+    # Location of the sink directory, where the MCE file and logs will be output to.
+    # Can be local file directory, s3://bucket/ or s3://bucket/path/
+    directory_path: str
 
     # Output logs
     write_logs: bool = True
@@ -39,7 +40,7 @@ class FileSink(Sink):
     """File sink functions"""
 
     def __init__(self, config: FileSinkConfig):
-        self.path = config.path
+        self.path = config.directory_path.rstrip("/")
         self.bach_size = config.bach_size
         self.write_logs = config.write_logs
 
@@ -55,11 +56,10 @@ class FileSink(Sink):
 
         bach_size = self.bach_size
         parts = math.ceil(len(messages) / bach_size)
-        prefix = self.path[0:-5]
 
         for i in range(0, parts):
             write_file(
-                f"{prefix}-{i+1}-of-{parts}.json",
+                f"{self.path}/{i+1}-of-{parts}.json",
                 json.dumps(messages[i * bach_size : (i + 1) * bach_size]),
                 s3_session=self.s3_session,
             )
@@ -73,16 +73,14 @@ class FileSink(Sink):
 
         logging.shutdown()
 
-        prefix = self.path[0:-5]
-
         _, zip_file = tempfile.mkstemp(suffix=".zip")
-        arcname = f"{path.basename(prefix)}.log"
+        arcname = f"{path.basename(self.path)}.log"
         with ZipFile(zip_file, "w", ZIP_DEFLATED) as file:
             file.write(LOG_FILE, arcname=arcname)
 
         with open(zip_file, "rb") as file:
             write_file(
-                f"{prefix}-log.zip", file.read(), True, s3_session=self.s3_session
+                f"{self.path}/log.zip", file.read(), True, s3_session=self.s3_session
             )
 
     def sink_metadata(self, metadata: CrawlerRunMetadata):
@@ -90,8 +88,8 @@ class FileSink(Sink):
             logger.info("Skip writing metadata")
             return
 
-        prefix = self.path[0:-5]
-
         content = json.dumps(metadata.to_dict()).encode()
 
-        write_file(f"{prefix}-run.metadata", content, True, s3_session=self.s3_session)
+        write_file(
+            f"{self.path}/run.metadata", content, True, s3_session=self.s3_session
+        )

@@ -1,3 +1,4 @@
+---
 output:
   api:
     url: url
@@ -6,4 +7,4 @@ output:
     timeout: 2
   file:
     assume_role_arn: arn
-    path: path
+    directory_path: path

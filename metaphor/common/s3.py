@@ -1,3 +1,4 @@
+import os
 from typing import Union
 
 from smart_open import open
@@ -24,6 +25,8 @@ def write_file(
             # See https://github.com/RaRe-Technologies/smart_open#s3-credentials
             "client": None if s3_session is None else s3_session.client("s3"),
         }
+    else:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
 
     mode = "wb" if binary_mode else "w"
     with open(path, mode, transport_params=transport_params) as fp:
