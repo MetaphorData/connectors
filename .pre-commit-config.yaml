@@ -27,8 +27,8 @@ repos:
       hooks:
           - id: mypy
             additional_dependencies:
-                - types-requests
                 - types-freezegun
+                - types-requests
 
     - repo: local
       hooks:
