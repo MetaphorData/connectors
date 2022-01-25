@@ -78,3 +78,71 @@ def test_include_table_excludes_overrides_include():
     assert not filter.include_table("db1", "schema2", "table1")
     assert not filter.include_table("db1", "schema2", "table2")
     assert filter.include_table("db1", "schema2", "foo")
+
+
+def test_include_schema_empty_filter():
+
+    filter = DatasetFilter(
+        includes=None,
+        excludes=None,
+    )
+
+    assert filter.include_schema("db1", "boo")
+    assert filter.include_schema("db2", "boo")
+
+
+def test_include_schema_includes_only():
+
+    filter = DatasetFilter(
+        includes={
+            "db1": None,
+            "db2": {"schema1": None, "schema2": set(["table1", "table2"])},
+        },
+        excludes=None,
+    )
+
+    assert filter.include_schema("db1", "foo")
+
+    assert filter.include_schema("db2", "schema1")
+
+    # partial include
+    assert filter.include_schema("db2", "schema2")
+
+    assert not filter.include_schema("db2", "schema3")
+    assert not filter.include_schema("db3", "foo")
+
+
+def test_include_schema_excludes_only():
+
+    filter = DatasetFilter(
+        includes=None,
+        excludes={
+            "db1": None,
+            "db2": {"schema1": None, "schema2": set(["table1", "table2"])},
+        },
+    )
+
+    assert not filter.include_schema("db1", "foo")
+
+    assert not filter.include_schema("db2", "schema1")
+
+    # partial exclude
+    assert filter.include_schema("db2", "schema2")
+
+    assert filter.include_schema("db3", "foo")
+
+
+def test_include_schema_excludes_overrides_include():
+
+    filter = DatasetFilter(
+        includes={
+            "db1": None,
+        },
+        excludes={"db1": {"schema1": None, "schema2": set(["table1", "table2"])}},
+    )
+
+    assert filter.include_schema("db1", "foo")
+    assert not filter.include_schema("db1", "schema1")
+
+    # partial exclude
+    assert filter.include_schema("db1", "schema2")
