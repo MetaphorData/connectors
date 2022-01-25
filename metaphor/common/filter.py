@@ -51,6 +51,34 @@ class DatasetFilter:
 
         return DatasetFilter(includes=includes, excludes=excludes)
 
+    def include_table(self, database: str, schema: str, table: str) -> bool:
+        return include_table(database, schema, table, self)
+
+    def include_schema(self, database: str, schema: str) -> bool:
+        database_lower = database.lower()
+        schema_lower = schema.lower()
+
+        def covered_by_filter(database_filter: DatabaseFilter):
+            if database_lower not in database_filter:
+                return False
+
+            schema_filter = database_filter[database_lower]
+
+            # empty schema filter
+            if schema_filter is None or len(schema_filter) == 0:
+                return True
+
+            return schema_lower in schema_filter
+
+        if self.includes is not None and not covered_by_filter(self.includes):
+            return False
+
+        # Filtered out by excludes
+        if self.excludes is not None and covered_by_filter(self.excludes):
+            return False
+
+        return True
+
 
 def include_table(
     database: str, schema: str, table: str, filter: DatasetFilter

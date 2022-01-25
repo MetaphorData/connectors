@@ -1,6 +1,5 @@
 import json
 import logging
-import re
 from typing import Any, List, Mapping, Sequence, Union
 
 from smart_open import open
@@ -62,11 +61,13 @@ class BigQueryExtractor(BaseExtractor):
 
         client = build_client(config)
 
-        dataset_patterns = [re.compile(f) for f in config.dataset_filters]
+        dataset_filter = config.filter.normalize()
 
         datasets: List[Dataset] = []
         for bq_dataset in client.list_datasets():
-            if self._skip_dataset(bq_dataset.dataset_id, dataset_patterns):
+            if not dataset_filter.include_schema(
+                config.project_id, bq_dataset.dataset_id
+            ):
                 logger.info(f"Skipped dataset {bq_dataset.dataset_id}")
                 continue
 
@@ -78,20 +79,17 @@ class BigQueryExtractor(BaseExtractor):
 
             for bq_table in client.list_tables(bq_dataset.dataset_id):
                 table_ref = dataset_ref.table(bq_table.table_id)
+                if not dataset_filter.include_table(
+                    config.project_id, bq_dataset.dataset_id, bq_table.table_id
+                ):
+                    logger.info(f"Skipped table: {table_ref}")
+                    continue
                 logger.info(f"Found table {table_ref}")
 
                 bq_table = client.get_table(table_ref)
                 datasets.append(self._parse_table(client.project, bq_table))
 
         return [EventUtil.build_dataset_event(d) for d in datasets]
-
-    # True if dataset_id should be skipped as it doesn't match any of the patterns
-    def _skip_dataset(self, dataset_id, patterns):
-        for pattern in patterns:
-            if re.match(pattern, dataset_id) is not None:
-                return False
-
-        return True
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
     def _parse_table(self, project_id, bq_table: bigquery.table.Table) -> Dataset:

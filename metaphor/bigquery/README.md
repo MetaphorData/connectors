@@ -39,12 +39,23 @@ See [Common Configurations](../common/README.md) for more information on `output
 
 ### Optional Configurations
 
-You can also optionally specify a list of regular expressions to limit the scan to selected datasets. For example,
+See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+
+#### Notes
+
+Make sure to set `project_id` to `database` field in the filter configuration. For example:
 
 ```yaml
-dataset_filters:
-    - my_dataset
-    - prefix_.*
+project_id: <bigquery_project_id>
+filter:
+  includes:
+    <bigquery_project_id>:
+      schema1:
+      schema2:
+  excludes:
+    <bigquery_project_id>:
+      schema1:
+        - table1
 ```
 
 ## Testing
