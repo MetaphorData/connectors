@@ -45,13 +45,14 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [metaphor.dbt](metaphor/dbt/README.md)                             | dbt models, tests, lineage         |
 | [metaphor.google_directory](metaphor/google_directory/README.md)   | User                               |
 | [metaphor.looker](metaphor/looker/README.md)                       | Looker views, explores, dashboards |
+| [metaphor.metabase](metaphor/metabase/README.md)                   | Dashboards, lineage                |
 | [metaphor.postgresql](metaphor/postgresql/README.md)               | Schema, Description, Statistics    |
 | [metaphor.redshift](metaphor/redshift/README.md)                   | Schema, Description, Statistics    |
 | [metaphor.redshift.usage](metaphor/redshift/usage/README.md)       | Usage                              |
 | [metaphor.snowflake](metaphor/snowflake/README.md)                 | Schema, Description, Statistics    |
 | [metaphor.snowflake.profile](metaphor/snowflake/profile/README.md) | Data Profile                       |
 | [metaphor.snowflake.usage](metaphor/snowflake/usage/README.md)     | Usage                              |
-| [metaphor.tableau](metaphor/tableau/README.md)                     | Dashboard                          |
+| [metaphor.tableau](metaphor/tableau/README.md)                     | Dashboards, lineage                |
 
 ## Development
 
