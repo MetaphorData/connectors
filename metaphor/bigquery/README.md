@@ -43,7 +43,7 @@ See [Filter Configurations](../common/docs/filter.md) for more information on th
 
 #### Notes
 
-Make sure to set `project_id` to `database` field in the filter configuration. For example:
+Make sure to use BigQuery project ID when setting the `database` field in the filter configuration. For example:
 
 ```yaml
 project_id: <bigquery_project_id>
