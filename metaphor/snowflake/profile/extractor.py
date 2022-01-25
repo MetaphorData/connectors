@@ -1,11 +1,12 @@
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 from snowflake.connector import SnowflakeConnection
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter, include_table
 from metaphor.common.logger import get_logger
+from metaphor.common.sampling import SamplingConfig
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
 from metaphor.snowflake.profile.config import SnowflakeProfileRunConfig
@@ -38,8 +39,6 @@ logger = get_logger(__name__)
 
 logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
-SAMPLING_THRESHOLD = 100000  # the minimum number of rows in a table to do sampling. If row count smaller than this, sampling won't apply
-
 
 class SnowflakeProfileExtractor(BaseExtractor):
     """Snowflake data profile extractor"""
@@ -51,7 +50,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
     def __init__(self):
         self.max_concurrency = None
         self.include_views = None
-        self._sampling_percentage = None
+        self._sampling = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -63,10 +62,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
         self.max_concurrency = config.max_concurrency
         self.include_views = config.include_views
 
-        assert config.sampling_percentage is None or (
-            0 < config.sampling_percentage <= 100
-        ), f"Invalid sample probability ${config.sampling_percentage}, value must be between 0 and 100"
-        self._sampling_percentage = config.sampling_percentage
+        assert config.sampling is not None and (
+            0 < config.sampling.percentage <= 100
+        ), f"Invalid sample probability ${config.sampling.percentage}, value must be between 0 and 100"
+        self._sampling = config.sampling
 
         conn = connect(config)
 
@@ -160,7 +159,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                     dataset.schema,
                     dataset.name,
                     dataset.row_count,
-                    self._sampling_percentage,
+                    self._sampling,
                 )
             )
 
@@ -181,7 +180,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
         schema: str,
         name: str,
         row_count: int,
-        sampling_percentage: Optional[float],
+        sampling: SamplingConfig,
     ) -> str:
         query = ["SELECT COUNT(1) ROW_COUNT"]
 
@@ -202,8 +201,8 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         query.append(f' FROM "{schema}"."{name}"')
 
-        if row_count >= SAMPLING_THRESHOLD and sampling_percentage is not None:
-            query.append(f" SAMPLE SYSTEM ({sampling_percentage})")
+        if sampling.percentage < 100 and row_count >= sampling.threshold:
+            query.append(f" SAMPLE SYSTEM ({sampling.percentage})")
 
         return "".join(query)
 
