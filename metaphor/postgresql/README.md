@@ -4,9 +4,19 @@ This connector extracts technical metadata from a PostgreSQL database using [asy
 
 ## Setup
 
-Currently you must run the connector using a user with `SELECT` [privilege](https://www.postgresql.org/docs/current/ddl-priv.html) to all tables & views.
+You must run the connector using a user with `SELECT` [privilege](https://www.postgresql.org/docs/current/ddl-priv.html) to the following tables:
 
-> We're working on extracting the metadata from [system catalogs](https://www.postgresql.org/docs/current/catalogs.html), which greatly reduces the privileges required for the user.
+- `pg_catalog.pg_constraint`
+- `pg_catalog.pg_class`
+- `pg_catalog.pg_namespace`
+- `pg_catalog.pg_attribute`
+- `pg_catalog.pg_description`
+
+Or, use the following command to grant the privileges:
+
+```sql
+GRANT SELECT ON pg_catalog.pg_constraint, pg_catalog.pg_class, pg_catalog.pg_namespace, pg_catalog.pg_attribute, pg_catalog.pg_description TO [User]
+```
 
 ## Config File
 
