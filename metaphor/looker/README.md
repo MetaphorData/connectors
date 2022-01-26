@@ -64,7 +64,7 @@ connections:
     platform: SNOWFLAKE
 output:
   file:
-    directory: <output_file_directory>
+    directory: <output_directory>
 ```
 
 Note that `connections` is a mapping of database connection names to connection settings. You can find these settings under `Admin` > `Connections`. For now, the only platform supported is `SNOWFLAKE` with `account` set to the matching [Snowflake Account Identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier.html).

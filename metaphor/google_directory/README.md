@@ -43,7 +43,7 @@ Create a YAML config file based the following template.
 token_file: <path_to_token_file>
 output:
   file:
-    directory: <output_file_directory>
+    directory: <output_directory>
 ```
 
 See [Common Configurations](../common/README.md) for more information on `output`.
