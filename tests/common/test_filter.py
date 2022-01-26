@@ -132,7 +132,7 @@ def test_include_schema_excludes_only():
     assert filter.include_schema("db3", "foo")
 
 
-def test_include_schema_excludes_overrides_include():
+def test_include_schema_excludes_overrides_includes():
 
     filter = DatasetFilter(
         includes={
