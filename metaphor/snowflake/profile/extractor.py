@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple
 from snowflake.connector import SnowflakeConnection
 
 from metaphor.common.event_util import EventUtil
-from metaphor.common.filter import DatasetFilter, include_table
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
 from metaphor.snowflake.auth import connect
@@ -115,7 +115,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 continue
 
             full_name = SnowflakeExtractor.table_fullname(database, schema, name)
-            if not include_table(database, schema, name, filter):
+            if not filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
 

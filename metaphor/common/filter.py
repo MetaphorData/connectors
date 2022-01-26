@@ -51,44 +51,75 @@ class DatasetFilter:
 
         return DatasetFilter(includes=includes, excludes=excludes)
 
+    def include_table(self, database: str, schema: str, table: str) -> bool:
+        database_lower = database.lower()
+        schema_lower = schema.lower()
+        table_lower = table.lower()
 
-def include_table(
-    database: str, schema: str, table: str, filter: DatasetFilter
-) -> bool:
-    database_lower = database.lower()
-    schema_lower = schema.lower()
-    table_lower = table.lower()
+        def covered_by_filter(database_filter: DatabaseFilter):
+            # not covered by database filter
+            if database_lower not in database_filter:
+                return False
 
-    def covered_by_filter(database_filter: DatabaseFilter):
-        # not covered by database filter
-        if database_lower not in database_filter:
+            schema_filter = database_filter[database_lower]
+
+            # empty schema filter
+            if schema_filter is None or len(schema_filter) == 0:
+                return True
+
+            # not covered by schema filter
+            if schema_lower not in schema_filter:
+                return False
+
+            table_filter = schema_filter[schema_lower]
+
+            # empty table filter
+            if table_filter is None or len(table_filter) == 0:
+                return True
+
+            # covered by table filter?
+            return table_lower in table_filter
+
+        # Filtered out by includes
+        if self.includes is not None and not covered_by_filter(self.includes):
             return False
 
-        schema_filter = database_filter[database_lower]
-
-        # empty schema filter
-        if schema_filter is None or len(schema_filter) == 0:
-            return True
-
-        # not covered by schema filter
-        if schema_lower not in schema_filter:
+        # Filtered out by excludes
+        if self.excludes is not None and covered_by_filter(self.excludes):
             return False
 
-        table_filter = schema_filter[schema_lower]
+        return True
 
-        # empty table filter
-        if table_filter is None or len(table_filter) == 0:
-            return True
+    def include_schema(self, database: str, schema: str) -> bool:
+        database_lower = database.lower()
+        schema_lower = schema.lower()
 
-        # covered by table filter?
-        return table_lower in table_filter
+        def covered_by_filter(database_filter: DatabaseFilter, partial: bool):
+            if database_lower not in database_filter:
+                return False
 
-    # Filtered out by includes
-    if filter.includes is not None and not covered_by_filter(filter.includes):
-        return False
+            schema_filter = database_filter[database_lower]
 
-    # Filtered out by excludes
-    if filter.excludes is not None and covered_by_filter(filter.excludes):
-        return False
+            # empty schema filter
+            if schema_filter is None or len(schema_filter) == 0:
+                return True
 
-    return True
+            if schema_lower in schema_filter:
+                table_filter = schema_filter[schema_lower]
+
+                # fully covered
+                if table_filter is None or len(table_filter) == 0:
+                    return True
+
+                return partial
+
+            return False
+
+        if self.includes is not None and not covered_by_filter(self.includes, True):
+            return False
+
+        # Filtered out by excludes
+        if self.excludes is not None and covered_by_filter(self.excludes, False):
+            return False
+
+        return True

@@ -24,7 +24,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.bigquery.extractor import BigQueryExtractor, build_client
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.common.filter import DatasetFilter, include_table
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -75,11 +75,10 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             for bq_table in client.list_tables(bq_dataset.dataset_id):
 
                 table_ref = dataset_ref.table(bq_table.table_id)
-                if not include_table(
+                if not filter.include_table(
                     database=table_ref.project,
                     schema=table_ref.dataset_id,
                     table=table_ref.table_id,
-                    filter=filter,
                 ):
                     logger.info(f"Ignore {table_ref} due to filter config")
                     continue

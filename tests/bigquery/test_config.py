@@ -7,7 +7,6 @@ def test_json_config(test_root_dir):
     assert config == BigQueryRunConfig(
         key_path="key_path",
         project_id="project_id",
-        dataset_filters=["f1", "f2"],
         output=None,
     )
 
@@ -18,6 +17,5 @@ def test_yaml_config(test_root_dir):
     assert config == BigQueryRunConfig(
         key_path="key_path",
         project_id="project_id",
-        dataset_filters=["f1", "f2"],
         output=None,
     )

@@ -5,7 +5,7 @@ from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
 from metaphor.common.event_util import EventUtil
-from metaphor.common.filter import DatabaseFilter, include_table
+from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.config import SnowflakeRunConfig
@@ -117,7 +117,7 @@ class SnowflakeExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo] = {}
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
             full_name = self.table_fullname(database, schema, name)
-            if not include_table(database, schema, name, filter):
+            if not filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
 

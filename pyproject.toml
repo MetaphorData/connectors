@@ -95,5 +95,9 @@ pyflakes = ["+*"]
 pycodestyle = ["-*"]
 pyflakes = ["-*"]
 
+[tool.flakehell.exceptions."**/site-packages/*.py"]
+pycodestyle = ["-*"]
+pyflakes = ["-*"]
+
 [tool.mypy]
 ignore_missing_imports = true
