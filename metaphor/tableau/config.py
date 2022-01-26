@@ -3,7 +3,7 @@ from typing import Optional
 
 from serde import deserialize
 
-from metaphor.common.extractor import RunConfig
+from metaphor.common.base_config import BaseConfig
 
 
 @deserialize
@@ -26,7 +26,7 @@ class TableauPasswordAuthConfig:
 
 @deserialize
 @dataclass
-class TableauRunConfig(RunConfig):
+class TableauRunConfig(BaseConfig):
     server_url: str
     site_name: str
     access_token: Optional[TableauTokenAuthConfig]

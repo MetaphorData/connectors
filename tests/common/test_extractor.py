@@ -5,21 +5,22 @@ import pytest
 from metaphor.models.metadata_change_event import MetadataChangeEvent
 from serde import deserialize
 
-from metaphor.common.extractor import BaseExtractor, OutputConfig, RunConfig
+from metaphor.common.base_config import BaseConfig, OutputConfig
+from metaphor.common.extractor import BaseExtractor
 
 
 @deserialize
 @dataclass
-class DummyRunConfig(RunConfig):
+class DummyRunConfig(BaseConfig):
     dummy_events: List[MetadataChangeEvent]
 
 
 class DummyExtractor(BaseExtractor):
     @staticmethod
-    def config_class() -> Type[RunConfig]:
+    def config_class() -> Type[BaseConfig]:
         return DummyRunConfig
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: BaseConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, DummyExtractor.config_class())
         return config.dummy_events
 

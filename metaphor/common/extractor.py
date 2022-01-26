@@ -1,53 +1,19 @@
 import asyncio
 import traceback
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional, Type
+from typing import List, Type
 
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Status
 from metaphor.models.metadata_change_event import MetadataChangeEvent
-from serde import deserialize
-from serde.json import from_json
-from serde.yaml import from_yaml
-from smart_open import open
 
 from metaphor.common.logger import get_logger
 
-from .api_sink import ApiSink, ApiSinkConfig
-from .file_sink import FileSink, FileSinkConfig
+from .api_sink import ApiSink
+from .base_config import BaseConfig
+from .file_sink import FileSink
 
 logger = get_logger(__name__)
-
-
-@deserialize
-@dataclass
-class OutputConfig:
-    """Config for where to output the data"""
-
-    api: Optional[ApiSinkConfig] = None
-    file: Optional[FileSinkConfig] = None
-
-
-@deserialize
-@dataclass
-class RunConfig:
-    """Base class for runtime parameters
-
-    All subclasses should add the @dataclass @deserialize decorators
-    """
-
-    output: OutputConfig
-
-    @classmethod
-    def from_json_file(cls, path: str) -> "RunConfig":
-        with open(path, encoding="utf8") as fin:
-            return from_json(cls, fin.read())
-
-    @classmethod
-    def from_yaml_file(cls, path: str) -> "RunConfig":
-        with open(path, encoding="utf8") as fin:
-            return from_yaml(cls, fin.read())
 
 
 class BaseExtractor(ABC):
@@ -55,10 +21,10 @@ class BaseExtractor(ABC):
 
     @staticmethod
     @abstractmethod
-    def config_class() -> Type[RunConfig]:
+    def config_class() -> Type[BaseConfig]:
         """Returns the corresponding config class"""
 
-    def run(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    def run(self, config: BaseConfig) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
         start_time = datetime.now()
         logger.info(f"Starting extractor {self.__class__.__name__} at {start_time}")
@@ -103,5 +69,5 @@ class BaseExtractor(ABC):
         return events
 
     @abstractmethod
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: BaseConfig) -> List[MetadataChangeEvent]:
         """Extract metadata and build messages, should be overridden"""
