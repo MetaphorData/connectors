@@ -7,6 +7,7 @@ from metaphor.models.metadata_change_event import (
     FieldStatistics,
 )
 
+from metaphor.common.sampling import SamplingConfig
 from metaphor.snowflake.profile.extractor import SnowflakeProfileExtractor
 
 
@@ -26,7 +27,9 @@ def test_build_profiling_query():
     )
 
     assert (
-        SnowflakeProfileExtractor._build_profiling_query(columns, schema, name, 0, None)
+        SnowflakeProfileExtractor._build_profiling_query(
+            columns, schema, name, 0, SamplingConfig()
+        )
         == expected
     )
 
@@ -46,7 +49,11 @@ def test_build_profiling_query_with_sampling():
 
     assert (
         SnowflakeProfileExtractor._build_profiling_query(
-            columns, schema, name, 100000000, 1
+            columns,
+            schema,
+            name,
+            100000000,
+            SamplingConfig(percentage=1, threshold=100000000),
         )
         == expected
     )
