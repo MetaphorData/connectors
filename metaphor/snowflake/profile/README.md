@@ -31,13 +31,7 @@ exclude_views: false
 
 #### Sampling
 
-For tables with large number of rows, it can take a long time to profile. To speed up the process, we can choose to do percentage-based random sampling on the data by setting `sampling_percentage`:
-
-```yaml
-sampling_percentage: <number between 0 and 100>
-```
-
-For example, `sampling_percentage = 1` means random sampling of 1% rows in the table. Keep in mind that sampling won't apply to smaller tables (with less than 100K rows), in that case, we do complete table profiling.
+See [Sampling Config](../../common/docs/sampling.md) for details.
 
 ## Testing
 
