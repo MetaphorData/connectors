@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import List, Optional
+from typing import Optional
 
 from serde import deserialize
 
@@ -16,9 +16,6 @@ class BigQueryRunConfig(BaseConfig):
 
     # Project ID to use. Use the service account's default project if not set
     project_id: Optional[str] = None
-
-    # Filters for dataset names (any match will be included)
-    dataset_filters: List[str] = dataclass_field(default_factory=lambda: [r".*"])
 
     # Include or exclude specific databases/schemas/tables
     filter: Optional[DatasetFilter] = dataclass_field(

@@ -14,7 +14,7 @@ from serde.json import from_json
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatabaseFilter, include_table
+from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.snowflake.auth import connect
@@ -153,7 +153,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 table_name = obj.objectName.lower()
                 parts = table_name.split(".")
                 db, schema, table = parts[0], parts[1], parts[2]
-                if not include_table(db, schema, table, self.filter):
+                if not self.filter.include_table(db, schema, table):
                     logger.debug(f"Ignore {table_name} due to filter config")
                     continue
 

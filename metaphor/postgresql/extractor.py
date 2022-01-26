@@ -27,7 +27,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatasetFilter, include_table
+from metaphor.common.filter import DatasetFilter
 
 logger = get_logger(__name__)
 
@@ -142,7 +142,7 @@ class PostgreSQLExtractor(BaseExtractor):
             table_size = table["table_size"]
             table_type = table["table_type"]
             full_name = self._dataset_name(database, schema, name)
-            if not include_table(database, schema, name, filter):
+            if not filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
             self._init_dataset(
@@ -186,7 +186,7 @@ class PostgreSQLExtractor(BaseExtractor):
         for column in columns:
             schema, name = column["table_schema"], column["table_name"]
             full_name = self._dataset_name(catalog, schema, name)
-            if not include_table(catalog, schema, name, filter):
+            if not filter.include_table(catalog, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
             dataset = self._datasets[full_name]
