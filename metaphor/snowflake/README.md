@@ -54,7 +54,7 @@ password: <snowflake_password>
 default_database: <default_database_for_connections>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <path_to_output_file>
 ```
 
 If using key pair authentication:
@@ -68,7 +68,7 @@ private_key:
 default_database: <default_database_for_connections>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <path_to_output_file>
 ```
 
 The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.

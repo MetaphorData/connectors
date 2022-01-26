@@ -32,7 +32,7 @@ project_id: <bigquery_project_id>
 key_path: <path_to_JSON_key_file>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <path_to_output_file>
 ```
 
 See [Common Configurations](../common/README.md) for more information on `output`.

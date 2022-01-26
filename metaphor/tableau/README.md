@@ -31,7 +31,7 @@ access_token:
   token_value: <token_value>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <path_to_output_file>
 ```
 
 If authenticate via user password:
@@ -44,7 +44,7 @@ user_password:
   password: <password>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <path_to_output_file>
 ```
 
 ### Optional Configurations
