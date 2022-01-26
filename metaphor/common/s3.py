@@ -26,7 +26,7 @@ def write_file(
             "client": None if s3_session is None else s3_session.client("s3"),
         }
     else:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        os.makedirs(os.path.expanduser(os.path.dirname(path)), exist_ok=True)
 
     mode = "wb" if binary_mode else "w"
     with open(path, mode, transport_params=transport_params) as fp:
