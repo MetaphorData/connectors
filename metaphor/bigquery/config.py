@@ -4,13 +4,13 @@ from typing import List, Optional
 
 from serde import deserialize
 
-from metaphor.common.extractor import RunConfig
+from metaphor.common.base_config import BaseConfig
 from metaphor.common.filter import DatasetFilter
 
 
 @deserialize
 @dataclass
-class BigQueryRunConfig(RunConfig):
+class BigQueryRunConfig(BaseConfig):
     # Path to service account's JSON key file
     key_path: str
 

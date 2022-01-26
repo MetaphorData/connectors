@@ -15,8 +15,9 @@ from metaphor.models.metadata_change_event import (
 )
 from serde import deserialize
 
+from metaphor.common.base_config import BaseConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -24,7 +25,7 @@ logger = get_logger(__name__)
 
 @deserialize
 @dataclass
-class SlackRunConfig(RunConfig):
+class SlackRunConfig(BaseConfig):
     oauth_token: str
 
     # How many users to fetch per page

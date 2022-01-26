@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives import serialization
 from serde import deserialize
 from smart_open import open
 
-from metaphor.common.extractor import RunConfig
+from metaphor.common.base_config import BaseConfig
 
 try:
     import snowflake.connector
@@ -28,7 +28,7 @@ class SnowflakeKeyPairAuthConfig:
 
 @deserialize
 @dataclass
-class SnowflakeAuthConfig(RunConfig):
+class SnowflakeAuthConfig(BaseConfig):
     account: str
     user: str
 
