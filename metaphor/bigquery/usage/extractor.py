@@ -126,8 +126,11 @@ class BigQueryUsageExtractor(BaseExtractor):
         client = build_client(config)
         self._dataset_filter = config.filter.normalize()
 
+        log_filter = self.build_filter(config, end_time=self._utc_now)
         counter = 0
-        for entry in client.list_entries(page_size=config.batch_size, filter_=filter):
+        for entry in client.list_entries(
+            page_size=config.batch_size, filter_=log_filter
+        ):
             counter += 1
             if TableReadEvent.can_parse(entry):
                 self._parse_log_entry(entry)
