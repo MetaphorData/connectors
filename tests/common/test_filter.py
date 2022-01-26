@@ -102,7 +102,6 @@ def test_include_schema_includes_only():
     )
 
     assert filter.include_schema("db1", "foo")
-
     assert filter.include_schema("db2", "schema1")
 
     # partial include
