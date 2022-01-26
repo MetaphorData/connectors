@@ -23,7 +23,7 @@ username: <username>
 password: <password>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <output_file_directory>
 ```
 
 ## Testing

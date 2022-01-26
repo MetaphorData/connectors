@@ -54,7 +54,7 @@ password: <snowflake_password>
 default_database: <default_database_for_connections>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <output_file_directory>
 ```
 
 If using key pair authentication:

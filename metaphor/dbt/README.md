@@ -20,7 +20,7 @@ catalog: <path_to_catalog_json>
 account: <snowflake_account>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <output_file_directory>
 ```
 
 See [Common Configurations](../common/README.md) for more information on `output`.

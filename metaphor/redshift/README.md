@@ -27,7 +27,7 @@ password: <password>
 database: <default_database_for_connections>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <output_file_directory>
 ```
 
 See [Common Configurations](../common/README.md) for more information on `output`.

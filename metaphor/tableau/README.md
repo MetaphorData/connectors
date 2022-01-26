@@ -31,7 +31,7 @@ access_token:
   token_value: <token_value>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <output_file_directory>
 ```
 
 If authenticate via user password:
