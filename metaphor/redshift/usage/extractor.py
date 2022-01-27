@@ -122,6 +122,8 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
         for record in results:
             yield record
 
+        await conn.close()
+
     def _process_record(self, record: Record, filter: DatasetFilter):
         access_event = AccessEvent.from_record(record)
 
