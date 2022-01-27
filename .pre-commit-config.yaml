@@ -30,6 +30,7 @@ repos:
         additional_dependencies:
           - types-freezegun
           - types-requests
+          - types-pytz
 
   - repo: local
     hooks:

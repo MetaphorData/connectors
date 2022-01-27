@@ -4,7 +4,7 @@ from freezegun import freeze_time
 
 from metaphor.bigquery.usage.extractor import BigQueryUsageExtractor
 from metaphor.common.event_util import EventUtil
-from tests.bigquery.usage.load_entries import load_entries
+from tests.bigquery.load_entries import load_entries
 from tests.test_utils import load_json
 
 

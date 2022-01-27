@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 from dataclasses import dataclass
@@ -44,7 +45,7 @@ class JobChangeEvent:
     @classmethod
     def can_parse(cls, entry: LogEntry) -> bool:
         try:
-            assert entry.resource.type == "bigquery_dataset"
+            assert entry.resource.type == "bigquery_project"
             assert isinstance(entry.received_timestamp, datetime)
             assert entry.payload["metadata"]["jobChange"]["after"] == "DONE"
             # support only QUERY and COPY job currently, see https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata.JobConfig.Type
@@ -56,7 +57,7 @@ class JobChangeEvent:
             return False
 
     @classmethod
-    def from_entry(cls, entry: LogEntry) -> "JobChangeEvent":
+    def from_entry(cls, entry: LogEntry) -> Optional["JobChangeEvent"]:
         timestamp = entry.received_timestamp
         user_email = entry.payload["authenticationInfo"].get("principalEmail", "")
 
@@ -86,7 +87,19 @@ class JobChangeEvent:
                 for source in referenced_tables + referenced_views
             ]
         else:
-            raise ValueError(f"unsupported job type {job_type}")
+            logger.error(f"unsupported job type {job_type}")
+            return None
+
+        if (
+            destination_table.is_temporary()
+            or len(source_tables) == 0
+            or any([s.is_temporary() for s in source_tables])
+        ):
+            return None
+
+        destination_table.remove_extras()
+        for table in source_tables:
+            table.remove_extras()
 
         return cls(
             job_name=job_name,
@@ -123,22 +136,29 @@ class BigQueryLineageExtractor(BaseExtractor):
         client = build_logging_client(config.key_path, config.project_id)
         self._dataset_filter = config.filter.normalize()
 
-        logger.info("Fetching lineage info from jobChange log")
         log_filter = self._build_job_change_filter(config, end_time=self._utc_now)
-        counter = 0
+        fetched, parsed = 0, 0
         for entry in client.list_entries(
             page_size=config.batch_size, filter_=log_filter
         ):
-            counter += 1
+            fetched += 1
             if JobChangeEvent.can_parse(entry):
-                self._parse_job_change_entry(entry)
+                try:
+                    self._parse_job_change_entry(entry)
+                    parsed += 1
+                except Exception as ex:
+                    logger.error(ex)
 
-        logger.info(f"Number of jobChange log entries fetched: {counter}")
+        logger.info(f"Fetched {fetched} jobChange log entries, parsed {parsed}")
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     def _parse_job_change_entry(self, entry: LogEntry):
         job_change = JobChangeEvent.from_entry(entry)
+        if job_change is None:
+            return
+
+        logger.info(json.dumps(entry, default=str))
 
         destination = job_change.destination_table
         if not self._dataset_filter.include_schema(
@@ -175,7 +195,7 @@ class BigQueryLineageExtractor(BaseExtractor):
         end = end_time.isoformat()
 
         return f"""
-        resource.type="bigquery_dataset" AND
+        resource.type="bigquery_project" AND
         protoPayload.serviceName="bigquery.googleapis.com" AND
         protoPayload.metadata.jobChange.after="DONE" AND
         NOT protoPayload.metadata.jobChange.job.jobStatus.errorResult.code:* AND

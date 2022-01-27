@@ -75,12 +75,11 @@ class BigQueryUsageExtractor(BaseExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, BigQueryUsageExtractor.config_class())
 
-        logger.info("Fetching usage and lineage info from BigQuery")
+        logger.info("Fetching usage info from BigQuery")
 
         client = build_logging_client(config.key_path, config.project_id)
         self._dataset_filter = config.filter.normalize()
 
-        logger.info("Fetching usage info from tableDataRead log")
         log_filter = self._build_table_data_read_filter(config, end_time=self._utc_now)
         counter = 0
         for entry in client.list_entries(
@@ -130,7 +129,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         end = end_time.isoformat()
 
         return f"""
-        resource.type="bigquery_project" AND
+        resource.type="bigquery_dataset" AND
         protoPayload.serviceName="bigquery.googleapis.com" AND
         protoPayload.metadata.tableDataRead.reason = "JOB" AND
         timestamp >= "{start}" AND
