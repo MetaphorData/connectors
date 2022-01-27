@@ -50,7 +50,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
     def __init__(self):
         self.max_concurrency = None
         self.include_views = None
-        self._sampling = SamplingConfig()
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(

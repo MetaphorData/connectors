@@ -38,9 +38,6 @@ class BigQueryProfileExtractor(BigQueryExtractor):
     def config_class():
         return BigQueryProfileRunConfig
 
-    def __init__(self) -> None:
-        self._sampling = SamplingConfig()
-
     async def extract(
         self, config: BigQueryProfileRunConfig
     ) -> List[MetadataChangeEvent]:
