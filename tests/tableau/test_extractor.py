@@ -25,6 +25,25 @@ def test_view_url():
     )
 
 
+def test_parse_workbook_url():
+
+    extractor = TableauExtractor()
+
+    # Tableau Online
+    base_url, workbook_id = extractor._parse_workbook_url(
+        "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
+    )
+    assert base_url == "https://10ax.online.tableau.com/#/site/abc"
+    assert workbook_id == "123"
+
+    # Tableau Server with Default Site
+    base_url, workbook_id = extractor._parse_workbook_url(
+        "https://tableau01/#/workbooks/123"
+    )
+    assert base_url == "https://tableau01/#"
+    assert workbook_id == "123"
+
+
 def test_parse_dashboard():
     workbook = WorkbookItem("project1")
     workbook._set_values(
