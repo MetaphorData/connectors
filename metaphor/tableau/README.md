@@ -1,6 +1,6 @@
 # Tableau Connector
 
-This connector extracts technical metadata from a Tableau site using [Tableau Metadata REST API](https://help.tableau.com/current/api/rest_api/en-us/REST/rest_api_ref_metadata.htm).
+This connector extracts technical metadata from a Tableau site using [Tableau REST API](https://help.tableau.com/current/api/rest_api/en-us/REST/rest_api.htm) & [Tableau Metadata API](https://help.tableau.com/current/api/metadata_api/en-us/index.html).
 
 ## Setup
 
@@ -19,7 +19,7 @@ There are two ways to [authenticate against the REST API](https://tableau.github
 
 The REST API should be enabled by default. You can verify it under `Settings` > `Automatic Access to Metadata about Databases and Tables`.
 
-The connector also makes use of the [Tableau Metadata API](https://help.tableau.com/current/api/metadata_api/en-us/index.html), which must disabled by default on Tableau Server. Refer to [these instructions](https://help.tableau.com/current/api/metadata_api/en-us/docs/meta_api_start.html#enable-the-tableau-metadata-api-for-tableau-server) on how to enable it.
+T Tableau Metadata API is disabled by default on Tableau Server. Refer to [these instructions](https://help.tableau.com/current/api/metadata_api/en-us/docs/meta_api_start.html#enable-the-tableau-metadata-api-for-tableau-server) on how to enable it.
 
 ## Config File
 
