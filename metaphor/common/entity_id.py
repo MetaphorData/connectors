@@ -44,7 +44,7 @@ def to_dataset_entity_id(
     """
     converts a dataset name, platform and account into a dataset entity ID
     """
-    return EntityId(  # type: ignore
+    return EntityId(
         EntityType.DATASET,
         DatasetLogicalID(name=full_name, platform=platform, account=account),
     )
@@ -54,7 +54,7 @@ def to_virtual_view_entity_id(name: str, virtualViewType: VirtualViewType) -> En
     """
     converts a virtual view name and type into a Virtual View entity ID
     """
-    return EntityId(  # type: ignore
+    return EntityId(
         EntityType.VIRTUAL_VIEW,
         VirtualViewLogicalID(name=name, type=virtualViewType),
     )

@@ -49,7 +49,7 @@ class DatasetFilter:
             else None
         )
 
-        return DatasetFilter(includes=includes, excludes=excludes)  # type: ignore
+        return DatasetFilter(includes=includes, excludes=excludes)
 
     def include_table(self, database: str, schema: str, table: str) -> bool:
         database_lower = database.lower()
