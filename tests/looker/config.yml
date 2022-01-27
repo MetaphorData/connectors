@@ -4,12 +4,12 @@ client_id: client_id
 client_secret: client_secret
 lookml_dir: lookml_dir
 connections:
-    conn1:
-        database: db1
-        default_schema: schema1
-        platform: SNOWFLAKE
-        account: account1
+  conn1:
+    database: db1
+    default_schema: schema1
+    platform: SNOWFLAKE
+    account: account1
 project_source_url: http://foo.bar
 verify_ssl: true
 timeout: 1
-output:
+output: {}

@@ -1,3 +1,4 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.slack_directory.extractor import SlackRunConfig
 
 
@@ -12,5 +13,5 @@ def test_yaml_config(test_root_dir):
         include_deleted=True,
         include_restricted=True,
         excluded_ids=frozenset(["id1", "id2"]),
-        output=None,
+        output=OutputConfig(),
     )

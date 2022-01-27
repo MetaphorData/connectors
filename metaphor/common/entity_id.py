@@ -1,5 +1,4 @@
 import hashlib
-from dataclasses import dataclass
 from typing import Optional, Union
 
 from canonicaljson import encode_canonical_json
@@ -14,6 +13,7 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
+from pydantic.dataclasses import dataclass
 
 from metaphor.common.event_util import EventUtil
 

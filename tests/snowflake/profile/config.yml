@@ -4,7 +4,7 @@ user: user
 password: password
 default_database: database
 filter:
-    includes:
-        foo:
-        bar:
-output:
+  includes:
+    foo:
+    bar:
+output: {}

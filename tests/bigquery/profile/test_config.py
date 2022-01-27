@@ -1,4 +1,5 @@
 from metaphor.bigquery.profile.extractor import BigQueryProfileRunConfig
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.sampling import SamplingConfig
 
@@ -20,5 +21,5 @@ def test_yaml_config(test_root_dir):
             includes=None,
         ),
         sampling=SamplingConfig(percentage=20, threshold=100000),
-        output=None,
+        output=OutputConfig(),
     )

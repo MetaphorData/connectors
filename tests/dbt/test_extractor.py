@@ -3,6 +3,7 @@ import json
 import pytest
 from freezegun import freeze_time
 
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.extractor import DbtExtractor
@@ -53,7 +54,7 @@ async def _test_project(data_dir, docs_base_url=None, project_source_url=None):
     expected = data_dir + "/results.json"
 
     config = DbtRunConfig(
-        output=None,
+        output=OutputConfig(),
         account="metaphor",
         manifest=manifest,
         catalog=catalog,

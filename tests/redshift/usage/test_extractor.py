@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from freezegun import freeze_time
 
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.redshift.usage.config import RedshiftUsageRunConfig
 from metaphor.redshift.usage.extractor import RedshiftUsageExtractor
@@ -53,7 +54,7 @@ class AsyncIter:
 @freeze_time("2022-01-17")
 async def test_extractor(test_root_dir):
     config = RedshiftUsageRunConfig(
-        output=None, host="", database="", user="", password=""
+        output=OutputConfig(), host="", database="", user="", password=""
     )
     extractor = RedshiftUsageExtractor()
     records = load_records(test_root_dir + "/redshift/usage/data/sample_log.json")

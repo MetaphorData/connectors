@@ -1,8 +1,8 @@
-from dataclasses import dataclass
 from typing import Optional
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 from smart_open import open
 

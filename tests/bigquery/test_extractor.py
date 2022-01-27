@@ -6,6 +6,7 @@ from freezegun import freeze_time
 from google.cloud.bigquery.schema import SchemaField
 
 from metaphor.bigquery.extractor import BigQueryExtractor, BigQueryRunConfig
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from tests.test_utils import load_json
 
@@ -80,7 +81,7 @@ def mock_get_table(mock_build_client, tables):
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     config = BigQueryRunConfig(
-        output=None, key_path="fake_file", project_id="fake_project"
+        output=OutputConfig(), key_path="fake_file", project_id="fake_project"
     )
     extractor = BigQueryExtractor()
 

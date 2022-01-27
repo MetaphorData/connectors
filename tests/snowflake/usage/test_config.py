@@ -1,3 +1,4 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 
@@ -14,5 +15,5 @@ def test_yaml_config(test_root_dir):
         filter=DatasetFilter(),
         lookback_days=30,
         excluded_usernames=set(),
-        output=None,
+        output=OutputConfig(),
     )
