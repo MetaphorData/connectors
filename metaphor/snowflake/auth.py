@@ -46,11 +46,6 @@ class SnowflakeAuthConfig(BaseConfig):
 
 
 def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnection:
-    if config.password is None and config.private_key is None:
-        raise ValueError(
-            "Invalid Snowflake configuration, please set either password or private key"
-        )
-
     # default authenticator
     if config.password is not None:
         return snowflake.connector.connect(
@@ -91,3 +86,7 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
                 "QUERY_TAG": config.query_tag,
             },
         )
+
+    raise ValueError(
+        "Invalid Snowflake configuration, please set either password or private key"
+    )
