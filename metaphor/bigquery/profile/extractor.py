@@ -39,7 +39,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         return BigQueryProfileRunConfig
 
     def __init__(self) -> None:
-        self._sampling = None
+        self._sampling = SamplingConfig()
 
     async def extract(
         self, config: BigQueryProfileRunConfig
@@ -48,9 +48,6 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         logger.info("Fetching usage info from BigQuery")
 
-        assert config.sampling is not None and (
-            0 < config.sampling.percentage <= 100
-        ), f"Invalid sample probability ${config.sampling.percentage}, value must be between 1 and 100"
         self._sampling = config.sampling
 
         client = build_client(config)
