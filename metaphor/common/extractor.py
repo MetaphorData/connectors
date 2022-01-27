@@ -37,7 +37,7 @@ class BaseExtractor(ABC):
         except Exception as ex:
             run_status = Status.FAILURE
             logger.error(ex)
-            traceback.format_exc()
+            traceback.print_exc()
 
         end_time = datetime.now()
         entity_count = len(events)
