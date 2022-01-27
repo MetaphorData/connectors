@@ -3,10 +3,11 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 from smart_open import open
 
+from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.filter import DatasetFilter
 
 try:
@@ -19,6 +20,9 @@ except ImportError:
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
+    DatasetLogicalID,
+    DatasetUpstream,
+    EntityType,
     MetadataChangeEvent,
 )
 
@@ -30,7 +34,6 @@ from metaphor.common.usage_util import UsageUtil
 
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
-
 
 # ProtobufEntry is a namedtuple and attribute assigned dynamically with different type, mypy fail here
 # See: https://googleapis.dev/python/logging/latest/client.html#google.cloud.logging_v2.client.Client.list_entries
@@ -102,6 +105,80 @@ class TableReadEvent:
         )
 
 
+@dataclass
+class JobChangeEvent:
+    """
+    Container class for BigQueryAuditMetadata.JobChange, where the 'after' job status is 'DONE'
+    See https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata#bigqueryauditmetadata.jobchange
+    """
+
+    job_name: str
+    timestamp: datetime
+    user_email: str
+
+    query: Optional[str]
+    statementType: Optional[str]
+    source_tables: List[BigQueryResource]
+    destination_table: BigQueryResource
+
+    @classmethod
+    def can_parse(cls, entry: LogEntry) -> bool:
+        try:
+            assert entry.resource.type == "bigquery_dataset"
+            assert isinstance(entry.received_timestamp, datetime)
+            assert entry.payload["metadata"]["jobChange"]["after"] == "DONE"
+            # support only QUERY and COPY job currently, see https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata.JobConfig.Type
+            assert entry.payload["metadata"]["jobChange"]["job"]["jobConfig"][
+                "type"
+            ] in ("QUERY", "COPY")
+            return True
+        except (KeyError, TypeError, AssertionError):
+            return False
+
+    @classmethod
+    def from_entry(cls, entry: LogEntry) -> "JobChangeEvent":
+        timestamp = entry.received_timestamp
+        user_email = entry.payload["authenticationInfo"].get("principalEmail", "")
+
+        job = entry.payload["metadata"]["jobChange"]["job"]
+        job_name = job.get("jobName")  # Format: projects/<projectId>/jobs/<jobId>
+
+        job_type = job["jobConfig"]["type"]
+        query, query_statement_type = None, None
+
+        if job_type == "COPY":
+            copy_job = job["jobConfig"]["tableCopyConfig"]
+            source_tables = [
+                BigQueryResource.from_str(source) for source in copy_job["sourceTables"]
+            ]
+            destination_table = BigQueryResource.from_str(copy_job["destinationTable"])
+        elif job_type == "QUERY":
+            query_job = job["jobConfig"]["queryConfig"]
+            query = query_job["query"]
+            destination_table = BigQueryResource.from_str(query_job["destinationTable"])
+            query_statement_type = query_job.get("statementType")
+
+            query_stats = job["jobStats"].get("queryStats", {})
+            referenced_tables: List[str] = query_stats.get("referencedTables", [])
+            referenced_views: List[str] = query_stats.get("referencedViews", [])
+            source_tables = [
+                BigQueryResource.from_str(source)
+                for source in referenced_tables + referenced_views
+            ]
+        else:
+            raise ValueError(f"unsupported job type {job_type}")
+
+        return cls(
+            job_name=job_name,
+            timestamp=timestamp,
+            user_email=user_email,
+            query=query,
+            statementType=query_statement_type,
+            source_tables=source_tables,
+            destination_table=destination_table,
+        )
+
+
 class BigQueryUsageExtractor(BaseExtractor):
     """BigQuery usage metadata extractor"""
 
@@ -121,26 +198,39 @@ class BigQueryUsageExtractor(BaseExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, BigQueryUsageExtractor.config_class())
 
-        logger.info("Fetching usage info from BigQuery")
+        logger.info("Fetching usage and lineage info from BigQuery")
 
         client = build_client(config)
         self._dataset_filter = config.filter.normalize()
 
-        log_filter = self.build_filter(config, end_time=self._utc_now)
+        logger.info("Fetching usage info from tableDataRead log")
+        log_filter = self._build_table_data_read_filter(config, end_time=self._utc_now)
         counter = 0
         for entry in client.list_entries(
             page_size=config.batch_size, filter_=log_filter
         ):
             counter += 1
             if TableReadEvent.can_parse(entry):
-                self._parse_log_entry(entry)
+                self._parse_table_data_read_entry(entry)
 
-        logger.info(f"Number of log entries fetched: {counter}")
+        logger.info(f"Number of tableDataRead log entries fetched: {counter}")
         UsageUtil.calculate_statistics(self._datasets.values())
+
+        logger.info("Fetching lineage info from jobChange log")
+        log_filter = self._build_job_change_filter(config, end_time=self._utc_now)
+        counter = 0
+        for entry in client.list_entries(
+            page_size=config.batch_size, filter_=log_filter
+        ):
+            counter += 1
+            if JobChangeEvent.can_parse(entry):
+                self._parse_job_change_entry(entry)
+
+        logger.info(f"Number of jobChange log entries fetched: {counter}")
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
-    def _parse_log_entry(self, entry: LogEntry):
+    def _parse_table_data_read_entry(self, entry: LogEntry):
         read_event = TableReadEvent.from_entry(entry)
 
         resource = read_event.resource
@@ -155,7 +245,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         if read_event.username in self._excluded_usernames:
             return
 
-        table_name = read_event.resource.table_name()
+        table_name = resource.table_name()
         if table_name not in self._datasets:
             self._datasets[table_name] = UsageUtil.init_dataset(
                 None, table_name, DataPlatform.BIGQUERY
@@ -170,7 +260,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def build_filter(config: BigQueryUsageRunConfig, end_time):
+    def _build_table_data_read_filter(config: BigQueryUsageRunConfig, end_time):
         start = (end_time - timedelta(days=config.lookback_days)).isoformat()
         end = end_time.isoformat()
 
@@ -178,6 +268,53 @@ class BigQueryUsageExtractor(BaseExtractor):
         resource.type="bigquery_dataset" AND
         protoPayload.serviceName="bigquery.googleapis.com" AND
         protoPayload.metadata.tableDataRead.reason = "JOB" AND
+        timestamp >= "{start}" AND
+        timestamp < "{end}"
+        """
+
+    def _parse_job_change_entry(self, entry: LogEntry):
+        job_change = JobChangeEvent.from_entry(entry)
+
+        destination = job_change.destination_table
+        if not self._dataset_filter.include_schema(
+            destination.project_id, destination.dataset_id
+        ) or not self._dataset_filter.include_table(
+            destination.project_id, destination.dataset_id, destination.table_id
+        ):
+            logger.info(f"Skipped table: {destination.table_name()}")
+            return
+
+        if job_change.user_email in self._excluded_usernames:
+            return
+
+        table_name = destination.table_name()
+        if table_name not in self._datasets:
+            self._datasets[table_name] = Dataset(
+                entity_type=EntityType.DATASET,
+                logical_id=DatasetLogicalID(
+                    name=table_name, platform=DataPlatform.BIGQUERY
+                ),
+            )
+
+        self._datasets[table_name].upstream = DatasetUpstream(
+            source_datasets=[
+                str(to_dataset_entity_id(source.table_name(), DataPlatform.BIGQUERY))
+                for source in job_change.source_tables
+            ],
+            transformation=job_change.query,
+        )
+
+    @staticmethod
+    def _build_job_change_filter(config: BigQueryUsageRunConfig, end_time):
+        start = (end_time - timedelta(days=config.lookback_days)).isoformat()
+        end = end_time.isoformat()
+
+        return f"""
+        resource.type="bigquery_dataset" AND
+        protoPayload.serviceName="bigquery.googleapis.com" AND
+        protoPayload.metadata.jobChange.after="DONE" AND
+        NOT protoPayload.metadata.jobChange.job.jobStatus.errorResult.code:* AND
+        protoPayload.metadata.jobChange.job.jobConfig.type=("COPY" OR "QUERY") AND
         timestamp >= "{start}" AND
         timestamp < "{end}"
         """

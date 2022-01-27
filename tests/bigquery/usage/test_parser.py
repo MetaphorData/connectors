@@ -14,7 +14,7 @@ def test_parse_access_log(test_root_dir):
     extractor._datasets_pattern = [re.compile(".*")]
 
     for entry in load_entries(test_root_dir + "/bigquery/usage/data/sample_log.json"):
-        extractor._parse_log_entry(entry)
+        extractor._parse_table_data_read_entry(entry)
 
     results = {}
     for key, value in extractor._datasets.items():
