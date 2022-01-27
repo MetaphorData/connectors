@@ -60,7 +60,7 @@ def async_execute(
     queries: Dict[str, QueryWithParam],
     query_name: str = "",
     max_workers: Optional[int] = None,
-    results_processor: Optional[Callable[[str, List[Tuple]], None]] = None,
+    results_processor: Optional[Callable[[str, List], None]] = None,
 ) -> Dict[str, List]:
     """
     Executing snowflake query with a set of parameters using thread pool
