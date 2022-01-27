@@ -1,6 +1,5 @@
 import base64
 import json
-from dataclasses import dataclass
 from typing import Dict, List
 
 from google.auth.transport.requests import Request
@@ -14,6 +13,7 @@ from metaphor.models.metadata_change_event import (
     PersonOrganization,
     PersonProperties,
 )
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 from smart_open import open
 

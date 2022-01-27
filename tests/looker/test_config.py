@@ -1,5 +1,6 @@
 from metaphor.models.metadata_change_event import DataPlatform
 
+from metaphor.common.base_config import OutputConfig
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 
 
@@ -22,5 +23,5 @@ def test_yaml_config(test_root_dir):
         project_source_url="http://foo.bar",
         verify_ssl=True,
         timeout=1,
-        output=None,
+        output=OutputConfig(),
     )

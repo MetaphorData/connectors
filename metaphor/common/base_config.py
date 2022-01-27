@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 from typing import Optional
 
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 from serde.yaml import from_yaml
 from smart_open import open

@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 from freezegun import freeze_time
 
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.google_directory.extractor import (
     GoogleDirectoryExtractor,
@@ -32,7 +33,7 @@ def mock_users_photos_get(mock_build_service, value):
 @pytest.mark.asyncio
 @freeze_time("2000-01-01")
 async def test_extractor_user(test_root_dir):
-    config = GoogleDirectoryRunConfig(output=None, token_file="fake_file")
+    config = GoogleDirectoryRunConfig(output=OutputConfig(), token_file="fake_file")
     extractor = GoogleDirectoryExtractor()
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996

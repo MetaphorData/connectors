@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.10.2"
+version = "0.10.5"
 description = ""
 authors = ["Metaphor <dev@metaphor.io>"]
 packages = [
@@ -21,7 +21,7 @@ google-cloud-logging = { version = "^2.7.0", optional = true }
 lkml = { version = "^1.1.0", optional = true }
 looker-sdk = { version = "^21.4.1", optional = true }
 metaphor-models = "^0.6.15"
-pydantic = { version = "^1.8.2", optional = true }
+pydantic = { version = "^1.9.0" }
 pyserde = { extras = ["yaml"], version = "^0.4.0" }
 python = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
 python-dateutil = "~=2.8.1"
@@ -102,3 +102,4 @@ pyflakes = ["-*"]
 
 [tool.mypy]
 ignore_missing_imports = true
+plugins = ["pydantic.mypy"]

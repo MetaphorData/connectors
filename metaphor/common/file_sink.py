@@ -2,7 +2,6 @@ import json
 import logging
 import math
 import tempfile
-from dataclasses import dataclass
 from os import path
 from typing import List, Optional
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -10,6 +9,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 import boto3
 from aws_assume_role_lib import assume_role
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 
 from .logger import LOG_FILE, get_logger

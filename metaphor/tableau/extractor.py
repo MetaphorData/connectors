@@ -205,7 +205,7 @@ class TableauExtractor(BaseExtractor):
 
         return Chart(title=view.name, url=view_url, preview=preview_data_url)
 
-    _workbook_url_regex = r"(.+\/site\/\w+)\/workbooks\/(\d+)(\/.*)*"
+    _workbook_url_regex = r"(.+)\/workbooks\/(\d+)(\/.*)?"
 
     @staticmethod
     def _parse_workbook_url(workbook_url: str) -> Tuple[str, str]:

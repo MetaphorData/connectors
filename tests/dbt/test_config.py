@@ -1,3 +1,4 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.dbt.extractor import DbtRunConfig
 
 
@@ -9,5 +10,5 @@ def test_yaml_config(test_root_dir):
         catalog="catalog",
         docs_base_url="http://localhost",
         project_source_url="http://foo.bar",
-        output=None,
+        output=OutputConfig(),
     )

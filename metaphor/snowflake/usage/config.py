@@ -1,6 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import field
 from typing import Set
 
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 
 from metaphor.snowflake.config import SnowflakeRunConfig
