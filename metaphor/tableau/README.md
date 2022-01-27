@@ -51,6 +51,8 @@ output:
     directory: <output_directory>
 ```
 
+> When connecting to the [Default Site](https://help.tableau.com/current/server/en-us/sites_intro.htm#the-default-site) of a Tableau Server, set `site_name` to an empty string, i.e. `site_name: ''`.
+
 > Remember to prepend the domain name to `username` if you're using Active Directory to authenticate, i.e. `domain_name\username`.
 
 ### Optional Configurations
