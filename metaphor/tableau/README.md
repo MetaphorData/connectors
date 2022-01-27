@@ -15,9 +15,11 @@ There are two ways to [authenticate against the REST API](https://tableau.github
 
 5. Under `User Icon` > `Account Settings` > `Personal Access Tokens`, create a new token with name such as "metaphor-connector", store the generated token value.
 
-### Enabling REST API
+### Enabling APIs
 
 The REST API should be enabled by default. You can verify it under `Settings` > `Automatic Access to Metadata about Databases and Tables`.
+
+The connector also makes use of the [Tableau Metadata API](https://help.tableau.com/current/api/metadata_api/en-us/index.html), which must disabled by default on Tableau Server. Refer to [these instructions](https://help.tableau.com/current/api/metadata_api/en-us/docs/meta_api_start.html#enable-the-tableau-metadata-api-for-tableau-server) on how to enable it.
 
 ## Config File
 
