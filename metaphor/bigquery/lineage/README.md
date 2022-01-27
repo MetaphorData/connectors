@@ -1,6 +1,6 @@
 # BigQuery Usage Statistics Connector
 
-This connector extracts BigQuery lineage information from a Google cloud project using [Python Client for Cloud Logging](https://googleapis.dev/python/logging/latest/index.html). It computes dataset lineage from BigQuery jobChange event from the [audit log](https://cloud.google.com/logging/docs/audit/services).
+This connector extracts BigQuery lineage information from a Google cloud project using [Python Client for Cloud Logging](https://googleapis.dev/python/logging/latest/index.html). It computes dataset lineage from [jobChange event](https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata#BigQueryAuditMetadata.JobChange) from the [BigQuery audit logs](https://cloud.google.com/bigquery/docs/reference/auditlogs).
 
 ## Setup
 
@@ -24,11 +24,6 @@ The config file inherits all the required and optional fields from the general B
 ```yaml
 # (Optional) Number of days of logs to extract for lineage analysis. Default to 30.
 lookback_days: <days>
-
-# (Optional) A list of users whose queries will be excluded from the lineage extraction 
-excluded_usernames:
-  - <user_name1>
-  - <user_name2>
 
 # (Optional) The number of access logs fetched in a batch, default to 1000, value must be in range 0 - 1000
 batch_size: <batch_size>
