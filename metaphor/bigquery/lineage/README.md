@@ -1,6 +1,6 @@
 # BigQuery Usage Statistics Connector
 
-This connector extracts BigQuery lineage information from a Google cloud project using [Python Client for Cloud Logging](https://googleapis.dev/python/logging/latest/index.html). It computes usage statistics from BigQuery data read event from the [audit log](https://cloud.google.com/logging/docs/audit/services).
+This connector extracts BigQuery lineage information from a Google cloud project using [Python Client for Cloud Logging](https://googleapis.dev/python/logging/latest/index.html). It computes dataset lineage from BigQuery jobChange event from the [audit log](https://cloud.google.com/logging/docs/audit/services).
 
 ## Setup
 

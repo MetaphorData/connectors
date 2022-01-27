@@ -5,6 +5,7 @@ from freezegun import freeze_time
 
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
 from metaphor.bigquery.lineage.extractor import BigQueryLineageExtractor
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from tests.bigquery.load_entries import load_entries
 from tests.test_utils import load_json
@@ -18,9 +19,9 @@ def mock_list_entries(mock_build_client, entries):
 
 
 @pytest.mark.asyncio
-@freeze_time("2022-01-10")
+@freeze_time("2022-01-27")
 async def test_extractor(test_root_dir):
-    config = BigQueryLineageRunConfig(output=None, key_path="fake_file")
+    config = BigQueryLineageRunConfig(output=OutputConfig(), key_path="fake_file")
     extractor = BigQueryLineageExtractor()
 
     entries = load_entries(test_root_dir + "/bigquery/lineage/data/sample_log.json")

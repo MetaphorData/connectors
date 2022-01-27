@@ -1,4 +1,3 @@
-import json
 import logging
 import re
 from dataclasses import dataclass
@@ -131,7 +130,7 @@ class BigQueryLineageExtractor(BaseExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, BigQueryLineageExtractor.config_class())
 
-        logger.info("Fetching usage and lineage info from BigQuery")
+        logger.info("Fetching lineage info from BigQuery")
 
         client = build_logging_client(config.key_path, config.project_id)
         self._dataset_filter = config.filter.normalize()
@@ -157,8 +156,6 @@ class BigQueryLineageExtractor(BaseExtractor):
         job_change = JobChangeEvent.from_entry(entry)
         if job_change is None:
             return
-
-        logger.info(json.dumps(entry, default=str))
 
         destination = job_change.destination_table
         if not self._dataset_filter.include_schema(
