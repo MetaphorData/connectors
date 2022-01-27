@@ -1,4 +1,5 @@
 from metaphor.bigquery.usage.config import BigQueryUsageRunConfig
+from metaphor.common.base_config import OutputConfig
 
 
 def test_yaml_config(test_root_dir):
@@ -11,5 +12,5 @@ def test_yaml_config(test_root_dir):
         project_id="project_id",
         lookback_days=365,
         batch_size=1000,
-        output=None,
+        output=OutputConfig(),
     )

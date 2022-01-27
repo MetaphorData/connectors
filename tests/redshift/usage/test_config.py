@@ -1,3 +1,4 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.redshift.usage.config import RedshiftUsageRunConfig
 
 
@@ -12,5 +13,5 @@ def test_yaml_config(test_root_dir):
         user="user",
         password="password",
         lookback_days=365,
-        output=None,
+        output=OutputConfig(),
     )

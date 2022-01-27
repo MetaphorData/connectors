@@ -4,14 +4,15 @@ database: database
 user: user
 password: password
 filter:
-    includes:
-        db1:
-            schema1:
-        db2:
-            schema2:
-                - table1
-                - table2
-    excludes:
-        db3:
+  includes:
+    db1:
+      schema1:
+    db2:
+      schema2:
+        - table1
+        - table2
+  excludes:
+    db3:
 port: 1234
 output:
+  file:

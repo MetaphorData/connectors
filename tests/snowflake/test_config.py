@@ -1,3 +1,4 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.config import SnowflakeRunConfig
 
@@ -26,5 +27,5 @@ def test_yaml_config(test_root_dir):
             },
             excludes={"db3": None},
         ),
-        output=None,
+        output=OutputConfig(),
     )

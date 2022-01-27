@@ -1,3 +1,4 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 
 
@@ -13,5 +14,5 @@ def test_yaml_config(test_root_dir):
         ),
         user_password=None,
         snowflake_account="snow",
-        output=None,
+        output=OutputConfig(),
     )

@@ -3,3 +3,4 @@ server_url: https://metaphor.metabaseapp.com
 username: foo
 password: bar
 output:
+  file:

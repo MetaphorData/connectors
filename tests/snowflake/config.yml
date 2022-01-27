@@ -4,13 +4,14 @@ user: user
 password: password
 default_database: database
 filter:
-    includes:
-        db1:
-            schema1:
-        db2:
-            schema2:
-                - table1
-                - table2
-    excludes:
-        db3:
+  includes:
+    db1:
+      schema1:
+    db2:
+      schema2:
+        - table1
+        - table2
+  excludes:
+    db3:
 output:
+  file:

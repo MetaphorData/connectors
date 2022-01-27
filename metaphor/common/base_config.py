@@ -26,7 +26,7 @@ class BaseConfig:
     All subclasses should add the @dataclass @deserialize decorators
     """
 
-    output: Optional[OutputConfig]
+    output: OutputConfig
 
     @classmethod
     def from_yaml_file(cls, path: str) -> "BaseConfig":

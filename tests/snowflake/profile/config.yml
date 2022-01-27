@@ -4,7 +4,8 @@ user: user
 password: password
 default_database: database
 filter:
-    includes:
-        foo:
-        bar:
+  includes:
+    foo:
+    bar:
 output:
+  file:

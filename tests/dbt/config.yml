@@ -4,3 +4,4 @@ catalog: catalog
 docs_base_url: http://localhost
 project_source_url: http://foo.bar
 output:
+  file:

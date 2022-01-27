@@ -6,3 +6,4 @@ access_token:
   token_value: bar
 snowflake_account: snow
 output:
+  file:

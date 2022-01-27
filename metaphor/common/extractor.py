@@ -54,9 +54,6 @@ class BaseExtractor(ABC):
             entity_count=float(entity_count),
         )
 
-        if config.output is None:
-            return events
-
         if config.output.api is not None:
             ApiSink(config.output.api).sink(events)
 

@@ -1,6 +1,8 @@
+---
 key_path: key_path
 project_id: project_id
-dataset_filters: 
+dataset_filters:
   - f1
   - f2
 output:
+  file:

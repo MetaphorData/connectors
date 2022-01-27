@@ -3,6 +3,7 @@ key_path: key_path
 project_id: project_id
 lookback_days: 365
 dataset_filters:
-    - f1
-    - f2
+  - f1
+  - f2
 output:
+  file:
