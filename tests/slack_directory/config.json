@@ -1,8 +1,0 @@
-{
-  "oauth_token": "oauth_token",
-  "page_size": 1,
-  "include_deleted": true,
-  "include_restricted": true,
-  "excluded_ids": ["id1", "id2"],
-   "output": null
-}

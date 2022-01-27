@@ -32,19 +32,30 @@ project_id: <bigquery_project_id>
 key_path: <path_to_JSON_key_file>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <output_directory>
 ```
 
 See [Common Configurations](../common/README.md) for more information on `output`.
 
 ### Optional Configurations
 
-You can also optionally specify a list of regular expressions to limit the scan to selected datasets. For example,
+See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+
+#### Notes
+
+Make sure to use BigQuery project ID when setting the `database` field in the filter configuration. For example:
 
 ```yaml
-dataset_filters:
-    - my_dataset
-    - prefix_.*
+project_id: <bigquery_project_id>
+filter:
+  includes:
+    <bigquery_project_id>:
+      schema1:
+      schema2:
+  excludes:
+    <bigquery_project_id>:
+      schema1:
+        - table1
 ```
 
 ## Testing

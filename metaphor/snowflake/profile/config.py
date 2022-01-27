@@ -1,8 +1,9 @@
-from typing import Optional
+from dataclasses import field
 
 from pydantic.dataclasses import dataclass
 from serde import deserialize
 
+from metaphor.common.sampling import SamplingConfig
 from metaphor.snowflake.config import SnowflakeRunConfig
 
 
@@ -13,5 +14,4 @@ class SnowflakeProfileRunConfig(SnowflakeRunConfig):
     # Include views in profiling
     include_views: bool = False
 
-    # Sampling percentage, i.e. 1 means 1% of rows will be sampled. Value must be between 0 and 100
-    sampling_percentage: Optional[float] = None
+    sampling: SamplingConfig = field(default_factory=lambda: SamplingConfig())

@@ -5,12 +5,13 @@ from metaphor.models.metadata_change_event import MetadataChangeEvent
 from pydantic.dataclasses import dataclass
 from serde import deserialize
 
-from metaphor.common.extractor import BaseExtractor, OutputConfig, RunConfig
+from metaphor.common.base_config import BaseConfig, OutputConfig
+from metaphor.common.extractor import BaseExtractor
 
 
 @deserialize
 @dataclass
-class DummyRunConfig(RunConfig):
+class DummyRunConfig(BaseConfig):
     dummy_attr: int
 
 
@@ -19,10 +20,10 @@ class DummyExtractor(BaseExtractor):
         self._dummy_events = dummy_events
 
     @staticmethod
-    def config_class() -> Type[RunConfig]:
+    def config_class() -> Type[BaseConfig]:
         return DummyRunConfig
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: BaseConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, DummyExtractor.config_class())
         return self._dummy_events
 

@@ -37,21 +37,22 @@ Similarly, you can also install the package using `requirements.txt` or `pyproje
 
 Each connector is placed under its own directory under [metaphor](./metaphor) and extends the `metaphor.common.BaseExtractor` class.
 
-| Connector                                                          | Metadata                           |
-|--------------------------------------------------------------------|------------------------------------|  
-| [metaphor.bigquery](metaphor/bigquery/README.md)                   | Schema, Description                |
-| [metaphor.bigquery.profile](metaphor/bigquery/profile/README.md)   | Data Profile                       |
-| [metaphor.bigquery.usage](metaphor/bigquery/usage/README.md)       | Usage                              |
-| [metaphor.dbt](metaphor/dbt/README.md)                             | dbt models, tests, lineage         |
-| [metaphor.google_directory](metaphor/google_directory/README.md)   | User                               |
-| [metaphor.looker](metaphor/looker/README.md)                       | Looker views, explores, dashboards |
-| [metaphor.postgresql](metaphor/postgresql/README.md)               | Schema, Description, Statistics    |
-| [metaphor.redshift](metaphor/redshift/README.md)                   | Schema, Description, Statistics    |
-| [metaphor.redshift.usage](metaphor/redshift/usage/README.md)       | Usage                              |
-| [metaphor.snowflake](metaphor/snowflake/README.md)                 | Schema, Description, Statistics    |
-| [metaphor.snowflake.profile](metaphor/snowflake/profile/README.md) | Data Profile                       |
-| [metaphor.snowflake.usage](metaphor/snowflake/usage/README.md)     | Usage                              |
-| [metaphor.tableau](metaphor/tableau/README.md)                     | Dashboard                          |
+| Connector                                                          | Metadata                                    |
+|--------------------------------------------------------------------|---------------------------------------------|  
+| [metaphor.bigquery](metaphor/bigquery/README.md)                   | Schema, description, statistics             |
+| [metaphor.bigquery.profile](metaphor/bigquery/profile/README.md)   | Data profile                                |
+| [metaphor.bigquery.usage](metaphor/bigquery/usage/README.md)       | Data usage                                  |
+| [metaphor.dbt](metaphor/dbt/README.md)                             | dbt model, test, lineage                    |
+| [metaphor.google_directory](metaphor/google_directory/README.md)   | User profile                                |
+| [metaphor.looker](metaphor/looker/README.md)                       | Looker view, explore, dashboard, lineage    |
+| [metaphor.metabase](metaphor/metabase/README.md)                   | Dashboard, lineage                          |
+| [metaphor.postgresql](metaphor/postgresql/README.md)               | Schema, description, statistics             |
+| [metaphor.redshift](metaphor/redshift/README.md)                   | Schema, description, statistics             |
+| [metaphor.redshift.usage](metaphor/redshift/usage/README.md)       | Usage                                       |
+| [metaphor.snowflake](metaphor/snowflake/README.md)                 | Schema, description, statistics             |
+| [metaphor.snowflake.profile](metaphor/snowflake/profile/README.md) | Data profile                                |
+| [metaphor.snowflake.usage](metaphor/snowflake/usage/README.md)     | Data usage                                  |
+| [metaphor.tableau](metaphor/tableau/README.md)                     | Dashboard, lineage                          |
 
 ## Development
 

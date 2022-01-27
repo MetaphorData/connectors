@@ -11,7 +11,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.event_util import EventUtil
-from metaphor.common.filter import DatasetFilter, include_table
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.postgresql.extractor import PostgreSQLExtractor
@@ -122,11 +122,13 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
         for record in results:
             yield record
 
+        await conn.close()
+
     def _process_record(self, record: Record, filter: DatasetFilter):
         access_event = AccessEvent.from_record(record)
 
-        if not include_table(
-            access_event.database, access_event.schema, access_event.table, filter
+        if not filter.include_table(
+            access_event.database, access_event.schema, access_event.table
         ):
             return
 

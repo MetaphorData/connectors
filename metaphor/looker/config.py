@@ -4,7 +4,7 @@ from metaphor.models.metadata_change_event import DataPlatform
 from pydantic.dataclasses import dataclass
 from serde import deserialize
 
-from metaphor.common.extractor import RunConfig
+from metaphor.common.base_config import BaseConfig
 
 
 @deserialize
@@ -27,7 +27,7 @@ class LookerConnectionConfig:
 
 @deserialize
 @dataclass
-class LookerRunConfig(RunConfig):
+class LookerRunConfig(BaseConfig):
     base_url: str
     client_id: str
     client_secret: str

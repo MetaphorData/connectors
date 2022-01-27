@@ -17,8 +17,9 @@ from pydantic.dataclasses import dataclass
 from serde import deserialize
 from smart_open import open
 
+from metaphor.common.base_config import BaseConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.common.extractor import BaseExtractor, RunConfig
+from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -38,7 +39,7 @@ class InvalidTokenError(Exception):
 
 @deserialize
 @dataclass
-class GoogleDirectoryRunConfig(RunConfig):
+class GoogleDirectoryRunConfig(BaseConfig):
     token_file: str
 
 
@@ -66,7 +67,7 @@ class GoogleDirectoryExtractor(BaseExtractor):
     def __init__(self):
         self._users: List[Person] = []
 
-    async def extract(self, config: RunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: BaseConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, GoogleDirectoryExtractor.config_class())
 
         logger.info("Fetching metadata from Google Directory")

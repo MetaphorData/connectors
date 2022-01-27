@@ -7,6 +7,8 @@ from typing import Any, Dict, List, Set
 
 from smart_open import open
 
+from metaphor.common.filter import DatasetFilter
+
 try:
     from google.cloud import logging_v2
     from google.oauth2 import service_account
@@ -111,6 +113,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         self._utc_now = datetime.now().replace(tzinfo=timezone.utc)
         self._datasets: Dict[str, Dataset] = {}
         self._datasets_pattern: List[re.Pattern[str]] = []
+        self._dataset_filter: DatasetFilter = DatasetFilter()
         self._excluded_usernames: Set[str] = set()
 
     async def extract(
@@ -121,12 +124,13 @@ class BigQueryUsageExtractor(BaseExtractor):
         logger.info("Fetching usage info from BigQuery")
 
         client = build_client(config)
-        filter = self.build_filter(config, end_time=self._utc_now)
+        self._dataset_filter = config.filter.normalize()
 
-        self._datasets_pattern = [re.compile(f) for f in config.dataset_filters]
-
+        log_filter = self.build_filter(config, end_time=self._utc_now)
         counter = 0
-        for entry in client.list_entries(page_size=config.batch_size, filter_=filter):
+        for entry in client.list_entries(
+            page_size=config.batch_size, filter_=log_filter
+        ):
             counter += 1
             if TableReadEvent.can_parse(entry):
                 self._parse_log_entry(entry)
@@ -139,13 +143,13 @@ class BigQueryUsageExtractor(BaseExtractor):
     def _parse_log_entry(self, entry: LogEntry):
         read_event = TableReadEvent.from_entry(entry)
 
-        def match_patterns(dataset_id, patterns):
-            for pattern in patterns:
-                if re.fullmatch(pattern, dataset_id) is not None:
-                    return True
-            return False
-
-        if not match_patterns(read_event.resource.dataset_id, self._datasets_pattern):
+        resource = read_event.resource
+        if not self._dataset_filter.include_schema(
+            resource.project_id, resource.dataset_id
+        ) or not self._dataset_filter.include_table(
+            resource.project_id, resource.dataset_id, resource.table_id
+        ):
+            logger.info(f"Skipped table: {resource.table_name()}")
             return
 
         if read_event.username in self._excluded_usernames:

@@ -2,19 +2,6 @@ from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.config import SnowflakeRunConfig
 
 
-def test_json_config(test_root_dir):
-    config = SnowflakeRunConfig.from_json_file(f"{test_root_dir}/snowflake/config.json")
-
-    assert config == SnowflakeRunConfig(
-        account="account",
-        user="user",
-        password="password",
-        default_database="database",
-        filter=DatasetFilter(includes=None, excludes=None),
-        output=None,
-    )
-
-
 def test_yaml_config(test_root_dir):
     config = SnowflakeRunConfig.from_yaml_file(f"{test_root_dir}/snowflake/config.yml")
 

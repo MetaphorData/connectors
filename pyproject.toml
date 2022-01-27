@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.9.4"
+version = "0.10.2"
 description = ""
 authors = ["Metaphor <dev@metaphor.io>"]
 packages = [
@@ -92,6 +92,10 @@ pycodestyle = ["+*", "-E203", "-E501", "-W503"]
 pyflakes = ["+*"]
 
 [tool.flakehell.exceptions."metaphor/dbt/generated/"]
+pycodestyle = ["-*"]
+pyflakes = ["-*"]
+
+[tool.flakehell.exceptions."**/site-packages/*.py"]
 pycodestyle = ["-*"]
 pyflakes = ["-*"]
 
