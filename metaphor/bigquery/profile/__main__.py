@@ -4,6 +4,6 @@ from .extractor import BigQueryProfileExtractor
 
 if __name__ == "__main__":
     cli_main(
-        "BigQuery usage metadata extractor",
+        "BigQuery data profile extractor",
         BigQueryProfileExtractor,
     )
