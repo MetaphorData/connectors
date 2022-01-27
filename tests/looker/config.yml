@@ -12,5 +12,4 @@ connections:
 project_source_url: http://foo.bar
 verify_ssl: true
 timeout: 1
-output:
-  file:
+output: {}

@@ -7,5 +7,4 @@ filter:
   includes:
     foo:
     bar:
-output:
-  file:
+output: {}

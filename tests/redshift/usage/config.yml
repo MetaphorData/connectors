@@ -4,5 +4,4 @@ database: database
 user: user
 password: password
 lookback_days: 365
-output:
-  file:
+output: {}

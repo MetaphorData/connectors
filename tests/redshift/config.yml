@@ -14,5 +14,4 @@ filter:
   excludes:
     db3:
 port: 1234
-output:
-  file:
+output: {}

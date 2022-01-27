@@ -1,5 +1,4 @@
 ---
 key_path: key_path
 project_id: project_id
-output:
-  file:
+output: {}

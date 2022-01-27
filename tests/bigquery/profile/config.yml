@@ -8,5 +8,4 @@ filter:
         - table_bar
 sampling:
   percentage: 20
-output:
-  file:
+output: {}
