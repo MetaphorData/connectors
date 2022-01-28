@@ -36,7 +36,7 @@ projectSourceUrl: <project_dir_source_code_url>
 
 ## Testing
 
-Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `dbt` extra.
+Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). No optional dependency needed.
 
 To test the connector locally, change the config file to output to a local path and run the following command
 
