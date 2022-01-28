@@ -48,12 +48,14 @@ all = [
   "tableauserverclient",
 ]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging"]
-postgresql = ["asyncpg"]
-redshift = ["asyncpg"]
-snowflake = ["snowflake-connector-python", "sql-metadata"]
+dbt = []
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
+metabase = []
+postgresql = ["asyncpg"]
+redshift = ["asyncpg"]
 slack_directory = ["slack-sdk"]
+snowflake = ["snowflake-connector-python", "sql-metadata"]
 tableau = ["tableauserverclient"]
 
 [tool.poetry.dev-dependencies]
