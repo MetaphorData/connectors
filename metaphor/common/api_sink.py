@@ -1,8 +1,8 @@
 import json
 import logging
-from dataclasses import dataclass
 from typing import List
 
+from pydantic.dataclasses import dataclass
 from requests import HTTPError, post
 from serde import deserialize
 

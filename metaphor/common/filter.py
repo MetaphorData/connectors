@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 from typing import Dict, Optional, Set, Union
 
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 
 TableFilter = Set[str]

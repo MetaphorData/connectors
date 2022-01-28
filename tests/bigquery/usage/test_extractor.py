@@ -5,6 +5,7 @@ from freezegun import freeze_time
 
 from metaphor.bigquery.usage.config import BigQueryUsageRunConfig
 from metaphor.bigquery.usage.extractor import BigQueryUsageExtractor
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from tests.bigquery.usage.load_entries import load_entries
 from tests.test_utils import load_json
@@ -20,7 +21,7 @@ def mock_list_entries(mock_build_client, entries):
 @pytest.mark.asyncio
 @freeze_time("2022-01-10")
 async def test_extractor(test_root_dir):
-    config = BigQueryUsageRunConfig(output=None, key_path="fake_file")
+    config = BigQueryUsageRunConfig(output=OutputConfig(), key_path="fake_file")
     extractor = BigQueryUsageExtractor()
 
     entries = load_entries(test_root_dir + "/bigquery/usage/data/sample_log.json")

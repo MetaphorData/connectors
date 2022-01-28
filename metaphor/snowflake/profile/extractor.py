@@ -50,7 +50,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
     def __init__(self):
         self.max_concurrency = None
         self.include_views = None
-        self._sampling = None
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -61,10 +60,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
         logger.info("Fetching data profile from Snowflake")
         self.max_concurrency = config.max_concurrency
         self.include_views = config.include_views
-
-        assert config.sampling is not None and (
-            0 < config.sampling.percentage <= 100
-        ), f"Invalid sample probability ${config.sampling.percentage}, value must be between 0 and 100"
         self._sampling = config.sampling
 
         conn = connect(config)

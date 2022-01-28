@@ -1,5 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import field
 
+from pydantic.dataclasses import dataclass
 from serde import deserialize
 
 from metaphor.common.sampling import SamplingConfig

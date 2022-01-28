@@ -1,3 +1,4 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.postgresql.extractor import PostgreSQLRunConfig
 
@@ -29,5 +30,5 @@ def test_yaml_config(test_root_dir):
             excludes={"db3": None},
         ),
         port=1234,
-        output=None,
+        output=OutputConfig(),
     )

@@ -1,4 +1,5 @@
 from metaphor.bigquery.extractor import BigQueryRunConfig
+from metaphor.common.base_config import OutputConfig
 
 
 def test_yaml_config(test_root_dir):
@@ -7,5 +8,5 @@ def test_yaml_config(test_root_dir):
     assert config == BigQueryRunConfig(
         key_path="key_path",
         project_id="project_id",
-        output=None,
+        output=OutputConfig(),
     )

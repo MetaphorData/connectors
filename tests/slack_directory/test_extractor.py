@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 from freezegun import freeze_time
 
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.slack_directory.extractor import SlackExtractor, SlackRunConfig
 from tests.test_utils import load_json
@@ -12,7 +13,7 @@ from tests.test_utils import load_json
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     config = SlackRunConfig(
-        output=None,
+        output=OutputConfig(),
         oauth_token="fake_token",
         include_restricted=False,
     )
