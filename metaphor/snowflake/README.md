@@ -68,7 +68,7 @@ private_key:
 default_database: <default_database_for_connections>
 output:
   file:
-    path: <path_to_output_file>
+    directory: <output_directory>
 ```
 
 The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.
