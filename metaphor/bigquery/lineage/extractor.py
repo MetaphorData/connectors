@@ -69,36 +69,41 @@ class JobChangeEvent:
         if job_type == "COPY":
             copy_job = job["jobConfig"]["tableCopyConfig"]
             source_tables = [
-                BigQueryResource.from_str(source) for source in copy_job["sourceTables"]
+                BigQueryResource.from_str(source).remove_extras()
+                for source in copy_job["sourceTables"]
             ]
-            destination_table = BigQueryResource.from_str(copy_job["destinationTable"])
+            destination_table = BigQueryResource.from_str(
+                copy_job["destinationTable"]
+            ).remove_extras()
         elif job_type == "QUERY":
             query_job = job["jobConfig"]["queryConfig"]
             query = query_job["query"]
-            destination_table = BigQueryResource.from_str(query_job["destinationTable"])
+            destination_table = BigQueryResource.from_str(
+                query_job["destinationTable"]
+            ).remove_extras()
             query_statement_type = query_job.get("statementType")
 
             query_stats = job["jobStats"].get("queryStats", {})
             referenced_tables: List[str] = query_stats.get("referencedTables", [])
             referenced_views: List[str] = query_stats.get("referencedViews", [])
             source_tables = [
-                BigQueryResource.from_str(source)
+                BigQueryResource.from_str(source).remove_extras()
                 for source in referenced_tables + referenced_views
             ]
         else:
             logger.error(f"unsupported job type {job_type}")
             return None
 
-        if (
-            destination_table.is_temporary()
-            or len(source_tables) == 0
-            or any([s.is_temporary() for s in source_tables])
+        if destination_table.is_temporary() or any(
+            [s.is_temporary() for s in source_tables]
         ):
             return None
 
-        destination_table.remove_extras()
-        for table in source_tables:
-            table.remove_extras()
+        # remove duplicates in source datasets and self referencing
+        source_table_set = dict.fromkeys(source_tables)
+        source_table_set.pop(destination_table, None)
+        if len(source_table_set) == 0:
+            return None
 
         return cls(
             job_name=job_name,
@@ -106,7 +111,7 @@ class JobChangeEvent:
             user_email=user_email,
             query=query,
             statementType=query_statement_type,
-            source_tables=source_tables,
+            source_tables=list(source_table_set),
             destination_table=destination_table,
         )
 
