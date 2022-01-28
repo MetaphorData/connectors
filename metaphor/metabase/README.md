@@ -28,7 +28,7 @@ output:
 
 ## Testing
 
-Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Optional dependencies are not needed for this connector.
+Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `metabase` extra.
 
 To test the connector locally, change the config file to output to a local path and run the following command
 

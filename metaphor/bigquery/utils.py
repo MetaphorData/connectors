@@ -55,6 +55,17 @@ class BigQueryResource:
     dataset_id: str
     table_id: str
 
+    def __eq__(self, o: object) -> bool:
+        return (
+            isinstance(o, BigQueryResource)
+            and self.project_id == o.project_id
+            and self.dataset_id == o.dataset_id
+            and self.table_id == o.table_id
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.project_id, self.dataset_id, self.table_id))
+
     @staticmethod
     def from_str(resource_name: str) -> "BigQueryResource":
         (
@@ -75,7 +86,7 @@ class BigQueryResource:
     def is_temporary(self) -> bool:
         return self.dataset_id.startswith("_")
 
-    def remove_extras(self) -> None:
+    def remove_extras(self) -> "BigQueryResource":
         # Handle partitioned and sharded tables
         matches = PARTITIONED_TABLE_REGEX.match(self.table_id)
         if matches:
@@ -89,3 +100,5 @@ class BigQueryResource:
         # Handle invalid characters
         if any(ch in self.table_id for ch in INVALID_TABLE_NAME_CHAR):
             raise ValueError(f"Invalid table name {self.table_id}")
+
+        return self
