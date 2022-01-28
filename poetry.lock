@@ -1449,7 +1449,7 @@ secure-local-storage = ["keyring (!=16.1.0,<24.0.0)"]
 
 [[package]]
 name = "sql-metadata"
-version = "2.3.0"
+version = "2.2.2"
 description = "Uses tokenized query returned by python-sqlparse and generates query metadata"
 category = "main"
 optional = true
@@ -1603,7 +1603,6 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [extras]
 all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "slack-sdk", "snowflake-connector-python", "sql-metadata", "tableauserverclient"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging"]
-dbt = ["pydantic"]
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
 postgresql = ["asyncpg"]
@@ -1615,7 +1614,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "56f259d7465ecd569420679857f2265089444a1d6d558019f380891ab2acd48b"
+content-hash = "95262ca7fba1934ea7c3d6a605de3186bc6ec49120634e2e7209458d1d3ec61d"
 
 [metadata.files]
 anyio = [
@@ -2623,8 +2622,8 @@ snowflake-connector-python = [
     {file = "snowflake_connector_python-2.7.3-cp39-cp39-win_amd64.whl", hash = "sha256:167bdcd7c4a13c6b621168d9089edd58e8ba5899cc630759feeedc282eaf7bc6"},
 ]
 sql-metadata = [
-    {file = "sql_metadata-2.3.0-py3-none-any.whl", hash = "sha256:fdb62bd1aa44e37b30237fb992a68e9a0c01f9f69303590272c6861a27c4f59c"},
-    {file = "sql_metadata-2.3.0.tar.gz", hash = "sha256:eed8c98e7a1bb719ff1f78227c05e07ad61ddec5d5f81e5014179edd28b77cac"},
+    {file = "sql_metadata-2.2.2-py3-none-any.whl", hash = "sha256:eba267a433c1163968ccbc622d4ef24c1dd87f9417978d5b76420e55abbb7252"},
+    {file = "sql_metadata-2.2.2.tar.gz", hash = "sha256:c2ed1e0c6d2e454d7314a7138223d6644c31d213c404df7170bb990a233d9f2e"},
 ]
 sqlparse = [
     {file = "sqlparse-0.4.2-py3-none-any.whl", hash = "sha256:48719e356bb8b42991bdbb1e8b83223757b93789c00910a616a071910ca4a64d"},
