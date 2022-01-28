@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List, Mapping, Optional
 
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
 from metaphor.common.event_util import EventUtil
-from metaphor.common.filter import DatabaseFilter
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.config import SnowflakeRunConfig
@@ -105,7 +105,7 @@ class SnowflakeExtractor(BaseExtractor):
     """
 
     def _fetch_tables(
-        self, cursor: SnowflakeCursor, database: str, filter: DatabaseFilter
+        self, cursor: SnowflakeCursor, database: str, filter: DatasetFilter
     ) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)
@@ -191,6 +191,7 @@ class SnowflakeExtractor(BaseExtractor):
         cursor = conn.cursor(DictCursor)
         cursor.execute(f"SELECT {','.join(queries)}", tuple(params))
         results = cursor.fetchone()
+        assert isinstance(results, Mapping)
         cursor.close()
 
         for fullname in ddl_tables:

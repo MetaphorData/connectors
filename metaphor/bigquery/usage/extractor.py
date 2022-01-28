@@ -1,20 +1,8 @@
-import json
 import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Set
-
-from smart_open import open
-
-from metaphor.common.filter import DatasetFilter
-
-try:
-    from google.cloud import logging_v2
-    from google.oauth2 import service_account
-except ImportError:
-    print("Please install metaphor[bigquery] extra\n")
-    raise
+from typing import Dict, List, Set
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -23,49 +11,15 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.bigquery.usage.config import BigQueryUsageRunConfig
+from metaphor.bigquery.utils import BigQueryResource, LogEntry, build_logging_client
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
-
-
-# ProtobufEntry is a namedtuple and attribute assigned dynamically with different type, mypy fail here
-# See: https://googleapis.dev/python/logging/latest/client.html#google.cloud.logging_v2.client.Client.list_entries
-#
-# from google.cloud.logging_v2 import ProtobufEntry
-# LogEntry = ProtobufEntry
-LogEntry = Any
-
-
-def build_client(config: BigQueryUsageRunConfig):
-    with open(config.key_path) as fin:
-        credentials = service_account.Credentials.from_service_account_info(
-            json.load(fin),
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],
-        )
-
-        return logging_v2.Client(
-            credentials=credentials,
-            project=config.project_id if config.project_id else credentials.project_id,
-        )
-
-
-@dataclass
-class BigQueryResource:
-    project_id: str
-    dataset_id: str
-    table_id: str
-
-    @staticmethod
-    def from_str(resource_name: str) -> "BigQueryResource":
-        _, project_id, _, dataset_id, _, table_id = resource_name.split("/")
-        return BigQueryResource(project_id, dataset_id, table_id)
-
-    def table_name(self) -> str:
-        return f"{self.project_id}.{self.dataset_id}.{self.table_id}"
 
 
 @dataclass
@@ -123,24 +77,24 @@ class BigQueryUsageExtractor(BaseExtractor):
 
         logger.info("Fetching usage info from BigQuery")
 
-        client = build_client(config)
+        client = build_logging_client(config.key_path, config.project_id)
         self._dataset_filter = config.filter.normalize()
 
-        log_filter = self.build_filter(config, end_time=self._utc_now)
+        log_filter = self._build_table_data_read_filter(config, end_time=self._utc_now)
         counter = 0
         for entry in client.list_entries(
             page_size=config.batch_size, filter_=log_filter
         ):
             counter += 1
             if TableReadEvent.can_parse(entry):
-                self._parse_log_entry(entry)
+                self._parse_table_data_read_entry(entry)
 
-        logger.info(f"Number of log entries fetched: {counter}")
+        logger.info(f"Number of tableDataRead log entries fetched: {counter}")
         UsageUtil.calculate_statistics(self._datasets.values())
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
-    def _parse_log_entry(self, entry: LogEntry):
+    def _parse_table_data_read_entry(self, entry: LogEntry):
         read_event = TableReadEvent.from_entry(entry)
 
         resource = read_event.resource
@@ -155,7 +109,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         if read_event.username in self._excluded_usernames:
             return
 
-        table_name = read_event.resource.table_name()
+        table_name = resource.table_name()
         if table_name not in self._datasets:
             self._datasets[table_name] = UsageUtil.init_dataset(
                 None, table_name, DataPlatform.BIGQUERY
@@ -170,7 +124,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def build_filter(config: BigQueryUsageRunConfig, end_time):
+    def _build_table_data_read_filter(config: BigQueryUsageRunConfig, end_time):
         start = (end_time - timedelta(days=config.lookback_days)).isoformat()
         end = end_time.isoformat()
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.10.5"
+version = "0.10.6"
 description = ""
 authors = ["Metaphor <dev@metaphor.io>"]
 packages = [
@@ -67,6 +67,7 @@ mypy = "^0.931"
 pytest = "^6.2.2"
 pytest-asyncio = "^0.14.0"
 types-freezegun = "^0.1.4"
+types-pytz = "^2021.3.4"
 types-requests = "^2.25.0"
 
 [build-system]

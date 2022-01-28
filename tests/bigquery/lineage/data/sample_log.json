@@ -1,0 +1,150 @@
+[
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "status": {},
+      "authenticationInfo": {
+        "principalEmail": "yi@metaphor.io"
+      },
+      "requestMetadata": {
+        "callerIp": "98.47.208.216",
+        "callerSuppliedUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36,gzip(gfe),gzip(gfe)"
+      },
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "google.cloud.bigquery.v2.JobService.InsertJob",
+      "authorizationInfo": [
+        {
+          "resource": "projects/metaphor-data",
+          "permission": "bigquery.jobs.create",
+          "granted": true
+        }
+      ],
+      "resourceName": "projects/metaphor-data/jobs/bquxjob_616d0f38_17e9c8d8782",
+      "metadata": {
+        "jobChange": {
+          "after": "DONE",
+          "job": {
+            "jobName": "projects/metaphor-data/jobs/bquxjob_616d0f38_17e9c8d8782",
+            "jobConfig": {
+              "type": "COPY",
+              "tableCopyConfig": {
+                "sourceTables": [
+                  "projects/metaphor-data/datasets/test/tables/yi_tests1"
+                ],
+                "destinationTable": "projects/metaphor-data/datasets/test/tables/yi_tests2",
+                "createDisposition": "CREATE_IF_NEEDED",
+                "writeDisposition": "WRITE_EMPTY",
+                "destinationTableEncryption": {}
+              }
+            },
+            "jobStatus": {
+              "jobState": "DONE"
+            },
+            "jobStats": {
+              "createTime": "2022-01-27T17:20:28.272Z",
+              "startTime": "2022-01-27T17:20:28.366Z",
+              "endTime": "2022-01-27T17:20:29.093Z"
+            }
+          }
+        },
+        "@type": "type.googleapis.com/google.cloud.audit.BigQueryAuditMetadata"
+      }
+    },
+    "insertId": "-hqwgune51fy0",
+    "resource": {
+      "type": "bigquery_project",
+      "labels": {
+        "project_id": "metaphor-data",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2022-01-27T17:20:29.105490Z",
+    "severity": "INFO",
+    "logName": "projects/metaphor-data/logs/cloudaudit.googleapis.com%2Fdata_access",
+    "operation": {
+      "id": "1643304028272-metaphor-data:bquxjob_616d0f38_17e9c8d8782",
+      "producer": "bigquery.googleapis.com",
+      "last": true
+    },
+    "receiveTimestamp": "2022-01-27T17:20:29.214500692Z"
+  },
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "status": {},
+      "authenticationInfo": {
+        "principalEmail": "bigquery-crawler@metaphor-data.iam.gserviceaccount.com"
+      },
+      "requestMetadata": {
+        "callerIp": "114.34.243.191",
+        "callerSuppliedUserAgent": "gl-python/3.8.11 grpc/1.41.1 gax/2.2.2 gapic/2.30.1 gccl/2.30.1,gzip(gfe)"
+      },
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "google.cloud.bigquery.v2.JobService.InsertJob",
+      "authorizationInfo": [
+        {
+          "resource": "projects/metaphor-data",
+          "permission": "bigquery.jobs.create",
+          "granted": true
+        }
+      ],
+      "resourceName": "projects/metaphor-data/jobs/7526798f-8072-446d-bdf1-ac1acb4d8591",
+      "metadata": {
+        "jobChange": {
+          "after": "DONE",
+          "job": {
+            "jobName": "projects/metaphor-data/jobs/7526798f-8072-446d-bdf1-ac1acb4d8591",
+            "jobConfig": {
+              "type": "QUERY",
+              "queryConfig": {
+                "query": "INSERT INTO `metaphor-data.test.yi_test3` \nSELECT * from `metaphor-data.test.yi_tests1` \nUNION ALL \nSELECT * from `metaphor-data.test.yi_tests2`",
+                "destinationTable": "projects/metaphor-data/datasets/test/tables/yi_tests3",
+                "createDisposition": "CREATE_IF_NEEDED",
+                "writeDisposition": "WRITE_TRUNCATE",
+                "priority": "QUERY_INTERACTIVE",
+                "statementType": "SELECT"
+              }
+            },
+            "jobStatus": {
+              "jobState": "DONE"
+            },
+            "jobStats": {
+              "createTime": "2022-01-27T17:17:11.628Z",
+              "startTime": "2022-01-27T17:17:11.823Z",
+              "endTime": "2022-01-27T17:17:12.630Z",
+              "queryStats": {
+                "totalProcessedBytes": "52781",
+                "totalBilledBytes": "10485760",
+                "billingTier": 1,
+                "referencedTables": [
+                  "projects/metaphor-data/datasets/test/tables/yi_tests1",
+                  "projects/metaphor-data/datasets/test/tables/yi_tests2"
+                ],
+                "outputRowCount": "1"
+              },
+              "totalSlotMs": "538"
+            }
+          }
+        },
+        "@type": "type.googleapis.com/google.cloud.audit.BigQueryAuditMetadata"
+      }
+    },
+    "insertId": "chlxute6agi3",
+    "resource": {
+      "type": "bigquery_project",
+      "labels": {
+        "location": "US",
+        "project_id": "metaphor-data"
+      }
+    },
+    "timestamp": "2022-01-27T17:17:12.636773Z",
+    "severity": "INFO",
+    "logName": "projects/metaphor-data/logs/cloudaudit.googleapis.com%2Fdata_access",
+    "operation": {
+      "id": "1643303831628-metaphor-data:7526798f-8072-446d-bdf1-ac1acb4d8591",
+      "producer": "bigquery.googleapis.com",
+      "last": true
+    },
+    "receiveTimestamp": "2022-01-27T17:17:13.241208837Z"
+  }
+]
