@@ -1,0 +1,16 @@
+---
+host: host
+database: database
+user: user
+password: password
+port: 1234
+sampling:
+  percentage: 10
+filter:
+  includes:
+    db1:
+      schema1:
+  excludes:
+    db3:
+output: {}
+
