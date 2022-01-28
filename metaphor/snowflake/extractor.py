@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List, Mapping, Optional
 
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
@@ -190,7 +190,8 @@ class SnowflakeExtractor(BaseExtractor):
 
         cursor = conn.cursor(DictCursor)
         cursor.execute(f"SELECT {','.join(queries)}", tuple(params))
-        results: Dict = cursor.fetchone()
+        results = cursor.fetchone()
+        assert isinstance(results, Mapping)
         cursor.close()
 
         for fullname in ddl_tables:
