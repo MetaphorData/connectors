@@ -46,6 +46,7 @@ class TableauExtractor(BaseExtractor):
         self._views: Dict[str, ViewItem] = {}
         self._dashboards: Dict[str, Dashboard] = {}
         self._snowflake_account = None
+        self._preview_image = True
 
     @staticmethod
     def config_class():
@@ -57,6 +58,7 @@ class TableauExtractor(BaseExtractor):
         logger.info("Fetching metadata from Tableau")
 
         self._snowflake_account = config.snowflake_account
+        self._preview_image = not config.disable_preview_image
 
         assert (
             config.access_token or config.user_password
@@ -84,7 +86,8 @@ class TableauExtractor(BaseExtractor):
                 f"There are {len(views)} views on site: {[view.name for view in views]}\n"
             )
             for item in views:
-                server.views.populate_preview_image(item)
+                if self._preview_image:
+                    server.views.populate_preview_image(item)
                 self._views[item.id] = item
 
             # fetch all workbooks
@@ -189,17 +192,11 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_chart(self, view: ViewItem) -> Chart:
         # encode preview image raw bytes into data URL
-        preview_data_url = None
-        try:
-            preview_data_url = (
-                TableauExtractor._build_preview_data_url(view.preview_image)
-                if view.preview_image
-                else None
-            )
-        except Exception as error:
-            logger.error(
-                f"failed to fetch preview for chart {view.name}, error {error}"
-            )
+        preview_data_url = (
+            TableauExtractor._build_preview_data_url(view.preview_image, view.name)
+            if self._preview_image
+            else None
+        )
 
         view_url = self._build_view_url(view.content_url)
 
@@ -225,5 +222,11 @@ class TableauExtractor(BaseExtractor):
         return f"{self._base_url}/views/{workbook}/{view}" if self._base_url else None
 
     @staticmethod
-    def _build_preview_data_url(preview: bytes) -> str:
-        return f"data:image/png;base64,{base64.b64encode(preview).decode('ascii')}"
+    def _build_preview_data_url(preview: bytes, view_name: str) -> Optional[str]:
+        try:
+            return f"data:image/png;base64,{base64.b64encode(preview).decode('ascii')}"
+        except Exception as error:
+            logger.error(
+                f"Failed to encode preview data URL for {view_name}, error {error}"
+            )
+            return None
