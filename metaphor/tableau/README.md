@@ -67,6 +67,18 @@ If one of the data sources is using Snowflake dataset, please provide the Snowfl
 snowflake_account: <account_name>
 ```
 
+#### BigQuery project ID
+
+If one of the data sources is using BigQuery dataset, please provide the BigQuery project name to project ID map as follows,
+
+```yaml
+bigquery_project_name_to_id_map:
+  project_name1: prject_id1
+  project_name2: prject_id2
+```
+
+More information about BigQuery project name and project ID can be found [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects#before_you_begin) 
+
 #### Preview Images
 
 By default, the connector will request the server to generate a preview image for each view. This can take a significant amount of time for a large number of views. You can disable the feature by setting the following config,

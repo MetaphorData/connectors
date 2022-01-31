@@ -1,4 +1,5 @@
 import base64
+import json
 import re
 import traceback
 from typing import Dict, List, Optional, Tuple
@@ -45,7 +46,8 @@ class TableauExtractor(BaseExtractor):
         self._base_url: Optional[str] = None
         self._views: Dict[str, ViewItem] = {}
         self._dashboards: Dict[str, Dashboard] = {}
-        self._snowflake_account = None
+        self._snowflake_account: Optional[str] = None
+        self._bigquery_project_name_to_id_map: Dict[str, str] = dict()
 
     @staticmethod
     def config_class():
@@ -57,6 +59,7 @@ class TableauExtractor(BaseExtractor):
         logger.info("Fetching metadata from Tableau")
 
         self._snowflake_account = config.snowflake_account
+        self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
 
         assert (
             config.access_token or config.user_password
@@ -79,22 +82,24 @@ class TableauExtractor(BaseExtractor):
 
         with server.auth.sign_in(tableau_auth):
             # fetch all views, with preview image
-            views: List[ViewItem] = [item for item in Pager(server.views, usage=True)]
+            views: List[ViewItem] = list(Pager(server.views, usage=True))
             logger.info(
                 f"There are {len(views)} views on site: {[view.name for view in views]}\n"
             )
             for item in views:
+                logger.debug(json.dumps(item.__dict__, default=str))
                 if not config.disable_preview_image:
                     server.views.populate_preview_image(item)
                 self._views[item.id] = item
 
             # fetch all workbooks
-            workbooks: List[WorkbookItem] = [item for item in Pager(server.workbooks)]
+            workbooks: List[WorkbookItem] = list(Pager(server.workbooks))
             logger.info(
                 f"\nThere are {len(workbooks)} work books on site: {[workbook.name for workbook in workbooks]}"
             )
             for item in workbooks:
                 server.workbooks.populate_views(item, usage=True)
+                logger.debug(json.dumps(item.__dict__, default=str))
 
                 try:
                     self._parse_dashboard(item)
@@ -175,6 +180,15 @@ class TableauExtractor(BaseExtractor):
             return None
 
         platform = connection_type_map[connection_type]
+
+        # use BigQuery project ID to replace project name, to be consistent with the BigQuery crawler
+        if platform == DataPlatform.BIGQUERY:
+            if database_name not in self._bigquery_project_name_to_id_map:
+                logger.error(
+                    f"BigQuery project name {database_name} not defined in config 'bigquery_project_name_to_id_map'"
+                )
+                return None
+            database_name = self._bigquery_project_name_to_id_map[database_name]
 
         if "." in table_name:
             fullname = f"{database_name}.{table_name}"
