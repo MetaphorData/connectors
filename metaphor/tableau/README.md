@@ -69,10 +69,12 @@ snowflake_account: <account_name>
 
 #### BigQuery project ID
 
-If one of the data sources is using BigQuery dataset, please provide the BigQuery project ID (NOT project name) as follows,
+If one of the data sources is using BigQuery dataset, please provide the BigQuery project name to project ID map as follows,
 
 ```yaml
-bigquery_project_id: <project_id>
+bigquery_project_name_to_id_map:
+  project_name1: prject_id1
+  project_name2: prject_id2
 ```
 
 ## Testing

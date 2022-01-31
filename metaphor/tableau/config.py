@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, Optional
 
 from pydantic.dataclasses import dataclass
 from serde import deserialize
@@ -35,5 +35,5 @@ class TableauRunConfig(BaseConfig):
     # Snowflake data source account
     snowflake_account: Optional[str] = None
 
-    # BigQuery data source project ID
-    bigquery_project_id: Optional[str] = None
+    # BigQuery data source project name to project ID map
+    bigquery_project_name_to_id_map: Optional[Dict] = None

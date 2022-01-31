@@ -14,6 +14,6 @@ def test_yaml_config(test_root_dir):
         ),
         user_password=None,
         snowflake_account="snow",
-        bigquery_project_id="bq",
+        bigquery_project_name_to_id_map={"bq_name": "bq_id"},
         output=OutputConfig(),
     )
