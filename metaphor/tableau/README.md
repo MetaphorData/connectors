@@ -77,6 +77,8 @@ bigquery_project_name_to_id_map:
   project_name2: prject_id2
 ```
 
+More information about BigQuery project name and project ID can be found [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects#before_you_begin) 
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `tableau` extra.
