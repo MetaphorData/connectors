@@ -87,6 +87,7 @@ class TableauExtractor(BaseExtractor):
                 f"There are {len(views)} views on site: {[view.name for view in views]}\n"
             )
             for item in views:
+                # log view item detail for debugging purpose
                 logger.debug(json.dumps(item.__dict__, default=str))
                 server.views.populate_preview_image(item)
                 self._views[item.id] = item
@@ -98,6 +99,7 @@ class TableauExtractor(BaseExtractor):
             )
             for item in workbooks:
                 server.workbooks.populate_views(item, usage=True)
+                # log workbook item detail for debugging purpose
                 logger.debug(json.dumps(item.__dict__, default=str))
 
                 try:
@@ -111,7 +113,6 @@ class TableauExtractor(BaseExtractor):
             # by the REST api, can NOT use id to match entities.
             resp = server.metadata.query(workbooks_graphql_query)
             resp_data = resp["data"]
-            logger.debug(json.dumps(resp_data))
             for item in resp_data["workbooks"]:
                 try:
                     self._parse_dashboard_upstream(item)
