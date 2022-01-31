@@ -79,6 +79,14 @@ bigquery_project_name_to_id_map:
 
 More information about BigQuery project name and project ID can be found [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects#before_you_begin) 
 
+#### Preview Images
+
+By default, the connector will request the server to generate a preview image for each view. This can take a significant amount of time for a large number of views. You can disable the feature by setting the following config,
+
+```yaml
+disable_preview_image: true
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `tableau` extra.

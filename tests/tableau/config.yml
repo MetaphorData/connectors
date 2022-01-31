@@ -7,4 +7,5 @@ access_token:
 snowflake_account: snow
 bigquery_project_name_to_id_map:
   bq_name: bq_id
+disable_preview_image: true
 output: {}

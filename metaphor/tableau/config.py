@@ -40,3 +40,6 @@ class TableauRunConfig(BaseConfig):
     bigquery_project_name_to_id_map: Dict[str, str] = dataclasses.field(
         default_factory=dict
     )
+
+    # whether to disable Chart preview image
+    disable_preview_image: bool = False
