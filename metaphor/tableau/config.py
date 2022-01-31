@@ -32,5 +32,8 @@ class TableauRunConfig(BaseConfig):
     access_token: Optional[TableauTokenAuthConfig]
     user_password: Optional[TableauPasswordAuthConfig]
 
-    # snowflake data source account
-    snowflake_account: Optional[str]
+    # Snowflake data source account
+    snowflake_account: Optional[str] = None
+
+    # BigQuery data source project ID
+    bigquery_project_id: Optional[str] = None

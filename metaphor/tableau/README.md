@@ -67,6 +67,14 @@ If one of the data sources is using Snowflake dataset, please provide the Snowfl
 snowflake_account: <account_name>
 ```
 
+#### BigQuery project ID
+
+If one of the data sources is using BigQuery dataset, please provide the BigQuery project ID (NOT project name) as follows,
+
+```yaml
+bigquery_project_id: <project_id>
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `tableau` extra.

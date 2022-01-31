@@ -14,5 +14,6 @@ def test_yaml_config(test_root_dir):
         ),
         user_password=None,
         snowflake_account="snow",
+        bigquery_project_id="bq",
         output=OutputConfig(),
     )

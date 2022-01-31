@@ -5,4 +5,5 @@ access_token:
   token_name: foo
   token_value: bar
 snowflake_account: snow
+bigquery_project_id: bq
 output: {}

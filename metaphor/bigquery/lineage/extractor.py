@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -128,7 +128,6 @@ class BigQueryLineageExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self._datasets_pattern: List[re.Pattern[str]] = []
         self._dataset_filter: DatasetFilter = DatasetFilter()
-        self._excluded_usernames: Set[str] = set()
 
     async def extract(
         self, config: BigQueryLineageRunConfig
@@ -169,9 +168,6 @@ class BigQueryLineageExtractor(BaseExtractor):
             destination.project_id, destination.dataset_id, destination.table_id
         ):
             logger.info(f"Skipped table: {destination.table_name()}")
-            return
-
-        if job_change.user_email in self._excluded_usernames:
             return
 
         table_name = destination.table_name()
