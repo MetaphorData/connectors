@@ -46,7 +46,6 @@ class TableauExtractor(BaseExtractor):
         self._views: Dict[str, ViewItem] = {}
         self._dashboards: Dict[str, Dashboard] = {}
         self._snowflake_account = None
-        self._preview_image = True
 
     @staticmethod
     def config_class():
@@ -58,7 +57,6 @@ class TableauExtractor(BaseExtractor):
         logger.info("Fetching metadata from Tableau")
 
         self._snowflake_account = config.snowflake_account
-        self._preview_image = not config.disable_preview_image
 
         assert (
             config.access_token or config.user_password
@@ -86,7 +84,7 @@ class TableauExtractor(BaseExtractor):
                 f"There are {len(views)} views on site: {[view.name for view in views]}\n"
             )
             for item in views:
-                if self._preview_image:
+                if not config.disable_preview_image:
                     server.views.populate_preview_image(item)
                 self._views[item.id] = item
 
@@ -195,7 +193,7 @@ class TableauExtractor(BaseExtractor):
         try:
             preview_data_url = (
                 TableauExtractor._build_preview_data_url(view.preview_image)
-                if self._preview_image
+                if view.preview_image
                 else None
             )
         except Exception as error:
@@ -228,5 +226,5 @@ class TableauExtractor(BaseExtractor):
         return f"{self._base_url}/views/{workbook}/{view}" if self._base_url else None
 
     @staticmethod
-    def _build_preview_data_url(preview: bytes) -> Optional[str]:
+    def _build_preview_data_url(preview: bytes) -> str:
         return f"data:image/png;base64,{base64.b64encode(preview).decode('ascii')}"
