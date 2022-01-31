@@ -82,6 +82,7 @@ class MetabaseExtractor(BaseExtractor):
     _db_engine_mapping = {
         "bigquery-cloud-sdk": DataPlatform.BIGQUERY,
         "snowflake": DataPlatform.SNOWFLAKE,
+        "redshift": DataPlatform.REDSHIFT,
     }
 
     async def extract(self, config: MetabaseRunConfig) -> List[MetadataChangeEvent]:
@@ -170,7 +171,11 @@ class MetabaseExtractor(BaseExtractor):
             self._databases[database_id] = DatabaseInfo(
                 platform, details.get("project-id"), details.get("dataset-id"), None
             )
-        # only support snowflake and bigquery currently
+        elif platform == DataPlatform.REDSHIFT:
+            self._databases[database_id] = DatabaseInfo(
+                platform, details.get("db"), None, None
+            )
+        # platform not in _db_engine_mapping are not supported
 
     def _parse_dashboard(self, dashboard: Dict) -> None:
         dashboard_id = dashboard["id"]
