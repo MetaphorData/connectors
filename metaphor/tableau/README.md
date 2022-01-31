@@ -4,11 +4,11 @@ This connector extracts technical metadata from a Tableau site using [Tableau RE
 
 ## Setup
 
-We recommend creating a dedicated Tableau user and role with limited permission for the connector to use.
+We recommend creating a dedicated Tableau user and role with proper permission for the connector to use.
 
 1. Log into your Tableau site as Site Administrator.
 2. Go to `Leftside Bar` > `Users`, click `Add Users` > `Add Users by Email`.
-3. In the pop-up window, select `Tableau` as authentication method, and provide an email for metaphor connector, then choose the `Server Administrator` (Tableau Server) or `Site Administrator Explorer` (Tableau Online) role. This should generate an email containing a URL link to register the new user. The reason we need administrator role is to read all the workbook information through Tableau REST API.
+3. In the pop-up window, select `Tableau` as authentication method, and provide an email for metaphor connector, then choose the `Server Administrator` (Tableau Server) or `Site Administrator Explorer` (Tableau Online) role. This should generate an email containing a URL link to register the new user. The reason we need administrator role is to read all the database and table information to connect the lineage. https://help.tableau.com/current/server/en-us/dm_perms_assets.htm#permissions-on-metadata
 4. Follow the URL link to create user and password, and login to tableau.
 
 There are two ways to [authenticate against the REST API](https://tableau.github.io/server-client-python/docs/sign-in-out): using access token or user password. The former is recommended by Tableau as a more secure method. If you wish to use that, please also do the step below:
