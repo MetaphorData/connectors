@@ -192,11 +192,17 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_chart(self, view: ViewItem) -> Chart:
         # encode preview image raw bytes into data URL
-        preview_data_url = (
-            TableauExtractor._build_preview_data_url(view.preview_image, view.name)
-            if self._preview_image
-            else None
-        )
+        try:
+            preview_data_url = (
+                TableauExtractor._build_preview_data_url(view.preview_image)
+                if self._preview_image
+                else None
+            )
+        except Exception as error:
+            logger.error(
+                f"Failed to build preview data URL for {view.name}, error {error}"
+            )
+            return None
 
         view_url = self._build_view_url(view.content_url)
 
@@ -222,11 +228,5 @@ class TableauExtractor(BaseExtractor):
         return f"{self._base_url}/views/{workbook}/{view}" if self._base_url else None
 
     @staticmethod
-    def _build_preview_data_url(preview: bytes, view_name: str) -> Optional[str]:
-        try:
-            return f"data:image/png;base64,{base64.b64encode(preview).decode('ascii')}"
-        except Exception as error:
-            logger.error(
-                f"Failed to encode preview data URL for {view_name}, error {error}"
-            )
-            return None
+    def _build_preview_data_url(preview: bytes) -> Optional[str]:
+        return f"data:image/png;base64,{base64.b64encode(preview).decode('ascii')}"
