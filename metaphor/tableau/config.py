@@ -1,3 +1,4 @@
+import dataclasses
 from typing import Dict, Optional
 
 from pydantic.dataclasses import dataclass
@@ -36,4 +37,6 @@ class TableauRunConfig(BaseConfig):
     snowflake_account: Optional[str] = None
 
     # BigQuery data source project name to project ID map
-    bigquery_project_name_to_id_map: Optional[Dict] = None
+    bigquery_project_name_to_id_map: Dict[str, str] = dataclasses.field(
+        default_factory=dict
+    )

@@ -1,0 +1,7 @@
+---
+server_url: https://10ay.online.tableau.com
+site_name: abc
+access_token:
+  token_name: foo
+  token_value: bar
+output: {}

@@ -47,7 +47,7 @@ class TableauExtractor(BaseExtractor):
         self._views: Dict[str, ViewItem] = {}
         self._dashboards: Dict[str, Dashboard] = {}
         self._snowflake_account: Optional[str] = None
-        self._bigquery_project_name_to_id_map: Dict[str, str] = {}
+        self._bigquery_project_name_to_id_map: Dict[str, str] = dict()
 
     @staticmethod
     def config_class():
@@ -59,10 +59,7 @@ class TableauExtractor(BaseExtractor):
         logger.info("Fetching metadata from Tableau")
 
         self._snowflake_account = config.snowflake_account
-        if config.bigquery_project_name_to_id_map is not None:
-            self._bigquery_project_name_to_id_map = (
-                config.bigquery_project_name_to_id_map
-            )
+        self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
 
         assert (
             config.access_token or config.user_password
