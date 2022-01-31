@@ -84,7 +84,8 @@ class TableauExtractor(BaseExtractor):
                 f"There are {len(views)} views on site: {[view.name for view in views]}\n"
             )
             for item in views:
-                server.views.populate_preview_image(item)
+                if not config.disable_preview_image:
+                    server.views.populate_preview_image(item)
                 self._views[item.id] = item
 
             # fetch all workbooks
@@ -198,7 +199,7 @@ class TableauExtractor(BaseExtractor):
             )
         except Exception as error:
             logger.error(
-                f"failed to fetch preview for chart {view.name}, error {error}"
+                f"Failed to build preview data URL for {view.name}, error {error}"
             )
 
         view_url = self._build_view_url(view.content_url)

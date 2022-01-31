@@ -32,5 +32,7 @@ class TableauRunConfig(BaseConfig):
     access_token: Optional[TableauTokenAuthConfig]
     user_password: Optional[TableauPasswordAuthConfig]
 
-    # snowflake data source account
+    # Snowflake data source account
     snowflake_account: Optional[str]
+
+    disable_preview_image: bool = False

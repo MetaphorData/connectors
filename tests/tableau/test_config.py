@@ -13,6 +13,7 @@ def test_yaml_config(test_root_dir):
             token_value="bar",
         ),
         user_password=None,
+        disable_preview_image=True,
         snowflake_account="snow",
         output=OutputConfig(),
     )
