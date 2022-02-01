@@ -44,19 +44,15 @@ def test_table_percentile():
         count=1, percentile=0.33333333333333337
     )
     assert dataset2.usage.query_counts.last24_hours == QueryCount(
-        count=2, percentile=0.6666666666666667
+        count=2, percentile=0.6666666666666666
     )
     assert dataset3.usage.query_counts.last24_hours == QueryCount(
         count=10, percentile=1.0
     )
 
     # check the calculated percentile for 7 days
-    assert dataset1.usage.query_counts.last7_days == QueryCount(
-        count=3, percentile=0.6666666666666667
-    )
-    assert dataset2.usage.query_counts.last7_days == QueryCount(
-        count=3, percentile=0.6666666666666667
-    )
+    assert dataset1.usage.query_counts.last7_days == QueryCount(count=3, percentile=0.5)
+    assert dataset2.usage.query_counts.last7_days == QueryCount(count=3, percentile=0.5)
     assert dataset3.usage.query_counts.last7_days == QueryCount(
         count=20, percentile=1.0
     )
@@ -111,7 +107,61 @@ def test_column_percentile():
     UsageUtil.calculate_column_percentile(columns)
 
     assert columns == [
-        FieldQueryCount(count=3, percentile=0.6666666666666667),
+        FieldQueryCount(count=3, percentile=0.6666666666666666),
         FieldQueryCount(count=1, percentile=0.33333333333333337),
         FieldQueryCount(count=5, percentile=1.0),
+    ]
+
+
+def test_column_percentile_with_duplicate():
+    columns: List[FieldQueryCount] = [
+        FieldQueryCount(count=3),
+        FieldQueryCount(count=1),
+        FieldQueryCount(count=3),
+        FieldQueryCount(count=1),
+        FieldQueryCount(count=5),
+    ]
+
+    UsageUtil.calculate_column_percentile(columns)
+
+    assert columns == [
+        FieldQueryCount(count=3, field=None, percentile=0.7),
+        FieldQueryCount(count=1, field=None, percentile=0.3),
+        FieldQueryCount(count=3, field=None, percentile=0.7),
+        FieldQueryCount(count=1, field=None, percentile=0.3),
+        FieldQueryCount(count=5, field=None, percentile=1.0),
+    ]
+
+    columns: List[FieldQueryCount] = [
+        FieldQueryCount(count=1),
+        FieldQueryCount(count=1),
+        FieldQueryCount(count=1),
+        FieldQueryCount(count=1),
+        FieldQueryCount(count=5),
+    ]
+
+    UsageUtil.calculate_column_percentile(columns)
+
+    assert columns == [
+        FieldQueryCount(count=1, field=None, percentile=0.5),
+        FieldQueryCount(count=1, field=None, percentile=0.5),
+        FieldQueryCount(count=1, field=None, percentile=0.5),
+        FieldQueryCount(count=1, field=None, percentile=0.5),
+        FieldQueryCount(count=5, field=None, percentile=1.0),
+    ]
+
+
+def test_column_percentile_with_0():
+    columns: List[FieldQueryCount] = [
+        FieldQueryCount(count=0),
+        FieldQueryCount(count=0),
+        FieldQueryCount(count=1),
+    ]
+
+    UsageUtil.calculate_column_percentile(columns)
+
+    assert columns == [
+        FieldQueryCount(count=0, percentile=0),
+        FieldQueryCount(count=0, percentile=0),
+        FieldQueryCount(count=1, percentile=1.0),
     ]
