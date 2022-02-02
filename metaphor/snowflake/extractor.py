@@ -4,6 +4,7 @@ from typing import Dict, List, Mapping, Optional
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
+from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -92,11 +93,6 @@ class SnowflakeExtractor(BaseExtractor):
         )
         return [db[0] for db in cursor]
 
-    @staticmethod
-    def table_fullname(db: str, schema: str, name: str):
-        """The full table name including database, schema and name"""
-        return f"{db}.{schema}.{name}".lower()
-
     FETCH_TABLE_QUERY = """
     SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes
     FROM information_schema.tables
@@ -116,7 +112,7 @@ class SnowflakeExtractor(BaseExtractor):
 
         tables: Dict[str, DatasetInfo] = {}
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
-            full_name = self.table_fullname(database, schema, name)
+            full_name = dataset_fullname(database, schema, name)
             if not filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
@@ -150,7 +146,7 @@ class SnowflakeExtractor(BaseExtractor):
             default,
             comment,
         ) in cursor:
-            full_name = self.table_fullname(database, table_schema, table_name)
+            full_name = dataset_fullname(database, table_schema, table_name)
             if full_name not in self._datasets:
                 logger.warning(f"Table {full_name} not found")
                 continue
@@ -220,7 +216,7 @@ class SnowflakeExtractor(BaseExtractor):
                 entry[4],
                 entry[6],
             )
-            table = self.table_fullname(database, schema, table_name)
+            table = dataset_fullname(database, schema, table_name)
 
             dataset = self._datasets.get(table)
             if dataset is None or dataset.schema is None:
@@ -251,7 +247,7 @@ class SnowflakeExtractor(BaseExtractor):
                 entry[4],
                 entry[6],
             )
-            table = self.table_fullname(database, schema, table_name)
+            table = dataset_fullname(database, schema, table_name)
 
             dataset = self._datasets.get(table)
             if dataset is None or dataset.schema is None:
