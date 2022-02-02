@@ -1,47 +1,18 @@
 {
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/catalog/v1.json",
-    "dbt_version": "0.21.0",
-    "generated_at": "2021-11-10T23:31:27.290915Z",
-    "invocation_id": "0b176c00-3c65-42d5-955a-9eb8f1fb1277",
+    "dbt_version": "0.21.1",
+    "generated_at": "2022-02-02T05:39:34.711767Z",
+    "invocation_id": "84ae6500-6793-4812-921c-57ab04fd034d",
     "env": {}
   },
   "nodes": {
-    "seed.trial.my_first_dbt_model": {
-      "metadata": {
-        "type": "VIEW",
-        "schema": "DBT_DEV",
-        "name": "MY_FIRST_DBT_MODEL",
-        "database": "DEMO_DB",
-        "comment": "A starter dbt model, my_first_dbt_model",
-        "owner": "ACCOUNTADMIN"
-      },
-      "columns": {
-        "ID": {
-          "type": "NUMBER",
-          "index": 1,
-          "name": "ID",
-          "comment": null
-        }
-      },
-      "stats": {
-        "has_stats": {
-          "id": "has_stats",
-          "label": "Has Stats?",
-          "value": false,
-          "include": false,
-          "description": "Indicates whether there are statistics for this table"
-        }
-      },
-      "unique_id": "model.trial.my_first_dbt_model"
-    },
-
     "model.trial.my_first_dbt_model": {
       "metadata": {
         "type": "VIEW",
-        "schema": "DBT_DEV",
+        "schema": "DBT_YI",
         "name": "MY_FIRST_DBT_MODEL",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": "A starter dbt model, my_first_dbt_model",
         "owner": "ACCOUNTADMIN"
       },
@@ -67,9 +38,9 @@
     "model.trial.my_second_dbt_model": {
       "metadata": {
         "type": "VIEW",
-        "schema": "DBT_DEV",
+        "schema": "DBT_YI",
         "name": "MY_SECOND_DBT_MODEL",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": "A starter dbt model, my_second_dbt_model",
         "owner": "ACCOUNTADMIN"
       },
@@ -92,12 +63,85 @@
       },
       "unique_id": "model.trial.my_second_dbt_model"
     },
+    "model.trial.trial_model_2": {
+      "metadata": {
+        "type": "BASE TABLE",
+        "schema": "DBT_YI",
+        "name": "SALES_SUMMARY",
+        "database": "DEV_DB",
+        "comment": "Second trial model, get statistics from SALES_RECORDS table",
+        "owner": "ACCOUNTADMIN"
+      },
+      "columns": {
+        "COUNTRY": {
+          "type": "TEXT",
+          "index": 1,
+          "name": "COUNTRY",
+          "comment": "The country where the sales records are from"
+        },
+        "ITEM_TYPE": {
+          "type": "TEXT",
+          "index": 2,
+          "name": "ITEM_TYPE",
+          "comment": "The type of the item, e.g. clothes, household, etc"
+        },
+        "YEAR": {
+          "type": "NUMBER",
+          "index": 3,
+          "name": "YEAR",
+          "comment": "The year that the aggregated sales statistics is for"
+        },
+        "REVENUE": {
+          "type": "NUMBER",
+          "index": 4,
+          "name": "REVENUE",
+          "comment": "The total revenue aggregated over the country + item_type + year"
+        },
+        "PROFIT": {
+          "type": "NUMBER",
+          "index": 5,
+          "name": "PROFIT",
+          "comment": "The total profit aggregated over the country + item_type + year"
+        }
+      },
+      "stats": {
+        "bytes": {
+          "id": "bytes",
+          "label": "Approximate Size",
+          "value": 219136.0,
+          "include": true,
+          "description": "Approximate size of the table as reported by Snowflake"
+        },
+        "last_modified": {
+          "id": "last_modified",
+          "label": "Last Modified",
+          "value": "2022-02-02 00:33UTC",
+          "include": true,
+          "description": "The timestamp for last update/change"
+        },
+        "row_count": {
+          "id": "row_count",
+          "label": "Row Count",
+          "value": 17656.0,
+          "include": true,
+          "description": "An approximate count of rows in this table"
+        },
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "include": false,
+          "description": "Indicates whether there are statistics for this table"
+        }
+      },
+      "unique_id": "model.trial.trial_model_2"
+    },
     "model.trial.trial_model_1": {
       "metadata": {
         "type": "BASE TABLE",
-        "schema": "DBT_DEV",
+        "schema": "DBT_YI",
         "name": "TRIAL_MODEL_1",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": "First trial model, mapping columns from NETFLIX source table",
         "owner": "ACCOUNTADMIN"
       },
@@ -144,7 +188,7 @@
         "last_modified": {
           "id": "last_modified",
           "label": "Last Modified",
-          "value": "2021-11-10 23:22UTC",
+          "value": "2022-02-02 00:32UTC",
           "include": true,
           "description": "The timestamp for last update/change"
         },
@@ -164,79 +208,6 @@
         }
       },
       "unique_id": "model.trial.trial_model_1"
-    },
-    "model.trial.trial_model_2": {
-      "metadata": {
-        "type": "BASE TABLE",
-        "schema": "DBT_DEV",
-        "name": "TRIAL_MODEL_2",
-        "database": "DEMO_DB",
-        "comment": "Second trial model, get statistics from SALES_RECORDStable",
-        "owner": "ACCOUNTADMIN"
-      },
-      "columns": {
-        "COUNTRY": {
-          "type": "TEXT",
-          "index": 1,
-          "name": "COUNTRY",
-          "comment": "The country where the sales records are from"
-        },
-        "ITEM_TYPE": {
-          "type": "TEXT",
-          "index": 2,
-          "name": "ITEM_TYPE",
-          "comment": "The type of the item, e.g. clothes, household, etc"
-        },
-        "YEAR": {
-          "type": "NUMBER",
-          "index": 3,
-          "name": "YEAR",
-          "comment": "The year that the aggregated sales statistics is for"
-        },
-        "REVENUE": {
-          "type": "NUMBER",
-          "index": 4,
-          "name": "REVENUE",
-          "comment": "The total revenue aggregated over the country + item_type + year"
-        },
-        "PROFIT": {
-          "type": "NUMBER",
-          "index": 5,
-          "name": "PROFIT",
-          "comment": "The total profit aggregated over the country + item_type + year"
-        }
-      },
-      "stats": {
-        "bytes": {
-          "id": "bytes",
-          "label": "Approximate Size",
-          "value": 219136.0,
-          "include": true,
-          "description": "Approximate size of the table as reported by Snowflake"
-        },
-        "last_modified": {
-          "id": "last_modified",
-          "label": "Last Modified",
-          "value": "2021-11-10 23:22UTC",
-          "include": true,
-          "description": "The timestamp for last update/change"
-        },
-        "row_count": {
-          "id": "row_count",
-          "label": "Row Count",
-          "value": 17656.0,
-          "include": true,
-          "description": "An approximate count of rows in this table"
-        },
-        "has_stats": {
-          "id": "has_stats",
-          "label": "Has Stats?",
-          "value": true,
-          "include": false,
-          "description": "Indicates whether there are statistics for this table"
-        }
-      },
-      "unique_id": "model.trial.trial_model_2"
     }
   },
   "sources": {
@@ -245,7 +216,7 @@
         "type": "BASE TABLE",
         "schema": "DBT_DEV",
         "name": "NETFLIX",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": null,
         "owner": "ACCOUNTADMIN"
       },
@@ -360,7 +331,7 @@
         "type": "BASE TABLE",
         "schema": "DBT_DEV",
         "name": "SALES_RECORDS",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": null,
         "owner": "ACCOUNTADMIN"
       },
