@@ -58,3 +58,18 @@ def to_virtual_view_entity_id(name: str, virtualViewType: VirtualViewType) -> En
         EntityType.VIRTUAL_VIEW,
         VirtualViewLogicalID(name=name, type=virtualViewType),
     )
+
+
+def to_person_entity_id(email: str) -> EntityId:
+    """
+    converts an email to a person entity ID
+    """
+    return EntityId(
+        EntityType.PERSON,
+        PersonLogicalID(email=email),
+    )
+
+
+def dataset_fullname(db: str, schema: str, table: str) -> str:
+    """builds dataset fullname"""
+    return f"{db}.{schema}.{table}".lower()
