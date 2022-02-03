@@ -19,7 +19,7 @@ There are two ways to [authenticate against the REST API](https://tableau.github
 
 Tableau REST API should be enabled by default. You can verify it under `Settings` > `Automatic Access to Metadata about Databases and Tables`.
 
-Tableau Metadata API is disabled by default on Tableau Server. Refer to [these instructions](https://help.tableau.com/current/api/metadata_api/en-us/docs/meta_api_start.html#enable-the-tableau-metadata-api-for-tableau-server) on how to enable it.
+Tableau Metadata API is disabled by default on Tableau Server. Refer to [these instructions](https://help.tableau.com/current/api/metadata_api/en-us/docs/meta_api_start.html#enable-the-tableau-metadata-api-for-tableau-server) on how to enable it. Note that it may take some time for the initial backfill to complete after enabling the API. You can check the status using the [ingestion status API](https://help.tableau.com/current/server/en-us/dm_tools_backfill.htm).
 
 ## Config File
 
