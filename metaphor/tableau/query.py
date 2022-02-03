@@ -13,13 +13,10 @@ connection_type_map: Dict[str, DataPlatform] = {
 workbooks_graphql_query = """
 query {
   workbooks {
+    luid
     name
     projectName
     vizportalUrlId
-    views {
-      name
-      path
-    }
     upstreamTables {
       name
       fullName
@@ -27,10 +24,6 @@ query {
       database {
         name
         connectionType
-        downstreamDatasources {
-          name
-          vizportalUrlId
-        }
       }
     }
   }

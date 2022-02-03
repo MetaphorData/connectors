@@ -1,9 +1,9 @@
 {
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/catalog/v1.json",
-    "dbt_version": "0.21.0",
-    "generated_at": "2021-11-10T23:31:27.290915Z",
-    "invocation_id": "0b176c00-3c65-42d5-955a-9eb8f1fb1277",
+    "dbt_version": "0.21.1",
+    "generated_at": "2022-02-02T05:39:34.711767Z",
+    "invocation_id": "84ae6500-6793-4812-921c-57ab04fd034d",
     "env": {}
   },
   "nodes": {
@@ -35,13 +35,12 @@
       },
       "unique_id": "model.trial.my_first_dbt_model"
     },
-
     "model.trial.my_first_dbt_model": {
       "metadata": {
         "type": "VIEW",
-        "schema": "DBT_DEV",
+        "schema": "DBT_YI",
         "name": "MY_FIRST_DBT_MODEL",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": "A starter dbt model, my_first_dbt_model",
         "owner": "ACCOUNTADMIN"
       },
@@ -67,9 +66,9 @@
     "model.trial.my_second_dbt_model": {
       "metadata": {
         "type": "VIEW",
-        "schema": "DBT_DEV",
+        "schema": "DBT_YI",
         "name": "MY_SECOND_DBT_MODEL",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": "A starter dbt model, my_second_dbt_model",
         "owner": "ACCOUNTADMIN"
       },
@@ -95,9 +94,9 @@
     "model.trial.trial_model_1": {
       "metadata": {
         "type": "BASE TABLE",
-        "schema": "DBT_DEV",
+        "schema": "DBT_YI",
         "name": "TRIAL_MODEL_1",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": "First trial model, mapping columns from NETFLIX source table",
         "owner": "ACCOUNTADMIN"
       },
@@ -144,7 +143,7 @@
         "last_modified": {
           "id": "last_modified",
           "label": "Last Modified",
-          "value": "2021-11-10 23:22UTC",
+          "value": "2022-02-02 00:32UTC",
           "include": true,
           "description": "The timestamp for last update/change"
         },
@@ -168,10 +167,10 @@
     "model.trial.trial_model_2": {
       "metadata": {
         "type": "BASE TABLE",
-        "schema": "DBT_DEV",
-        "name": "TRIAL_MODEL_2",
-        "database": "DEMO_DB",
-        "comment": "Second trial model, get statistics from SALES_RECORDStable",
+        "schema": "DBT_YI",
+        "name": "SALES_SUMMARY",
+        "database": "DEV_DB",
+        "comment": "Second trial model, get statistics from SALES_RECORDS table",
         "owner": "ACCOUNTADMIN"
       },
       "columns": {
@@ -217,7 +216,7 @@
         "last_modified": {
           "id": "last_modified",
           "label": "Last Modified",
-          "value": "2021-11-10 23:22UTC",
+          "value": "2022-02-02 00:33UTC",
           "include": true,
           "description": "The timestamp for last update/change"
         },
@@ -245,7 +244,7 @@
         "type": "BASE TABLE",
         "schema": "DBT_DEV",
         "name": "NETFLIX",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": null,
         "owner": "ACCOUNTADMIN"
       },
@@ -360,7 +359,7 @@
         "type": "BASE TABLE",
         "schema": "DBT_DEV",
         "name": "SALES_RECORDS",
-        "database": "DEMO_DB",
+        "database": "DEV_DB",
         "comment": null,
         "owner": "ACCOUNTADMIN"
       },
