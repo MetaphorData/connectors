@@ -14,7 +14,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
 )
 
-from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
@@ -265,7 +265,7 @@ class MetabaseExtractor(BaseExtractor):
             return
 
         dataset_id = to_dataset_entity_id(
-            f"{database.database}.{schema or database.schema}.{name}".lower(),
+            dataset_fullname(database.database, schema or database.schema, name),
             database.platform,
             database.account,
         )

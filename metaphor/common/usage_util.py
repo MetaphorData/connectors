@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Callable, Collection, List, Optional, ValuesView
+from typing import Callable, Collection, List, Optional
 
 from metaphor.models.metadata_change_event import (
     AspectType,
@@ -108,7 +108,7 @@ class UsageUtil:
             query_counts.append(FieldQueryCount(field=column, count=1.0))
 
     @staticmethod
-    def calculate_statistics(datasets: ValuesView[Dataset]) -> None:
+    def calculate_statistics(datasets: Collection[Dataset]) -> None:
         """Calculate statistics for the extracted usage info"""
 
         UsageUtil.calculate_table_percentile(
