@@ -1,6 +1,6 @@
 # Tableau Connector
 
-This connector extracts technical metadata from a Tableau site using [Tableau REST API](https://help.tableau.com/current/api/rest_api/en-us/REST/rest_api.htm) & [Tableau Metadata API](https://help.tableau.com/current/api/metadata_api/en-us/index.html).
+This connector extracts technical metadata from a Tableau site using [Tableau REST API](https://help.tableau.com/current/api/rest_api/en-us/REST/rest_api.htm) & [Tableau Metadata API](https://help.tableau.com/current/api/metadata_api/en-us/index.html). It supports [API version 2.3 and above](https://tableau.github.io/server-client-python/docs/versions).
 
 ## Setup
 
