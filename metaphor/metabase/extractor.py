@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Set, Union
 
 import requests
 from metaphor.models.metadata_change_event import (
@@ -239,43 +239,14 @@ class MetabaseExtractor(BaseExtractor):
         query_type = dataset_query.get("type")
 
         if query_type == "query":
-            upstream_table_id = dataset_query.get("query", {}).get("source-table")
-            if upstream_table_id is not None:
-                dataset_id = self._get_table_by_id(upstream_table_id)
-                if dataset_id is not None:
-                    upstream_tables.add(dataset_id)
+            upstream_table_id = dataset_query.get("query", {}).get("source-table", 0)
+            dataset_id = self._get_table_by_id(upstream_table_id)
+            if dataset_id is not None:
+                upstream_tables.add(dataset_id)
 
         elif query_type == "native":
-            try:
-                native_query = dataset_query["native"]["query"]
-                tables = Parser(native_query).tables
-
-                database_id = dataset_query.get("database")
-                database = self._databases.get(database_id)
-                if database is None:
-                    raise ValueError(f"database {database_id} not found")
-
-                for table in tables:
-                    segments = table.count(".") + 1
-                    if segments == 3:
-                        dataset_name = table
-                    elif segments == 2:
-                        dataset_name = f"{database.database}.{table}"
-                    elif segments == 1:
-                        dataset_name = f"{database.database}.{database.schema}.{table}"
-                    else:
-                        raise ValueError(f"invalid table name {table}")
-
-                    dataset_id = str(
-                        to_dataset_entity_id(
-                            dataset_name.replace("`", "").lower(),
-                            database.platform,
-                            database.account,
-                        )
-                    )
-                    upstream_tables.add(dataset_id)
-            except Exception as e:
-                logger.error(f"SQL parsing error: {e}, query: {native_query}")
+            dataset_ids = self._parse_native_query(dataset_query)
+            upstream_tables.update(dataset_ids)
 
         else:
             logger.error(f"Unsupported query type {query_type}")
@@ -312,3 +283,40 @@ class MetabaseExtractor(BaseExtractor):
 
         self._tables[table_id] = dataset_id
         return dataset_id
+
+    def _parse_native_query(self, dataset_query: Dict) -> Set[str]:
+        try:
+            native_query = dataset_query["native"]["query"]
+            tables = Parser(native_query).tables
+
+            database_id = dataset_query.get("database", 0)
+            database = self._databases.get(database_id)
+            if database is None:
+                raise ValueError(f"database {database_id} not found")
+
+            dataset_ids = set()
+            for table in tables:
+                segments = table.count(".") + 1
+                if segments == 3:
+                    dataset_name = table
+                elif segments == 2:
+                    dataset_name = f"{database.database}.{table}"
+                elif segments == 1:
+                    dataset_name = f"{database.database}.{database.schema}.{table}"
+                else:
+                    raise ValueError(f"invalid table name {table}")
+
+                dataset_ids.add(
+                    str(
+                        to_dataset_entity_id(
+                            dataset_name.replace("`", "").lower(),
+                            database.platform,
+                            database.account,
+                        )
+                    )
+                )
+
+            return dataset_ids
+        except Exception as e:
+            logger.error(f"SQL parsing error: {e}, query: {native_query}")
+            return set()
