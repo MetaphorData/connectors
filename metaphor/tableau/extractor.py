@@ -157,7 +157,7 @@ class TableauExtractor(BaseExtractor):
         upstream_datasets = [
             self._parse_dataset_id(table) for table in workbook["upstreamTables"]
         ]
-        source_datasets = dict.fromkeys(
+        source_datasets = set(
             [
                 str(dataset_id)
                 for dataset_id in upstream_datasets
