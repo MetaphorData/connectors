@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.10.18"
+version = "0.10.19"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -51,7 +51,7 @@ bigquery = ["google-cloud-bigquery", "google-cloud-logging"]
 dbt = []
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
-metabase = []
+metabase = ["sql-metadata"]
 postgresql = ["asyncpg"]
 redshift = ["asyncpg"]
 slack_directory = ["slack-sdk"]
