@@ -157,18 +157,18 @@ class TableauExtractor(BaseExtractor):
         upstream_datasets = [
             self._parse_dataset_id(table) for table in workbook["upstreamTables"]
         ]
-        source_datasets = set(
-            [
-                str(dataset_id)
-                for dataset_id in upstream_datasets
-                if dataset_id is not None
-            ]
+        source_datasets = list(
+            set(
+                [
+                    str(dataset_id)
+                    for dataset_id in upstream_datasets
+                    if dataset_id is not None
+                ]
+            )
         )
 
         if source_datasets:
-            dashboard.upstream = DashboardUpstream(
-                source_datasets=list(source_datasets)
-            )
+            dashboard.upstream = DashboardUpstream(source_datasets=source_datasets)
 
     def _parse_dataset_id(self, table: Dict) -> Optional[EntityId]:
         table_name = table["name"]
