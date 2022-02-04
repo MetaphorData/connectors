@@ -253,7 +253,7 @@ class DbtExtractor(BaseExtractor):
         for key, source in sources.items():
             assert source.database is not None
             source_map[key] = self._get_dataset_entity_id(
-                source.database, source.schema_, source.name
+                source.database, source.schema_, source.identifier
             )
 
         macro_map = {}
