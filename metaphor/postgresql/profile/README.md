@@ -1,52 +1,26 @@
-# PostgreSQL Connector
+# PostgreSQL Data Profiling Connector
 
 This connector extracts column-level data profiles from a PostgreSQL database using [asyncpg](https://github.com/MagicStack/asyncpg) library.
 
 ## Setup
 
-You must run the connector using a user with `SELECT` [privilege](https://www.postgresql.org/docs/current/ddl-priv.html) to the following tables:
+You must run the connector using a user with `SELECT` [privilege](https://www.postgresql.org/docs/current/ddl-priv.html) to all tables.
 
-- `pg_catalog.pg_constraint`
-- `pg_catalog.pg_class`
-- `pg_catalog.pg_namespace`
-- `pg_catalog.pg_attribute`
-- `pg_catalog.pg_description`
-
-Or, use the following command to grant the privileges:
+You can use the following command against all schemas:
 
 ```sql
-GRANT SELECT ON pg_catalog.pg_constraint, pg_catalog.pg_class, pg_catalog.pg_namespace, pg_catalog.pg_attribute, pg_catalog.pg_description TO [User]
+GRANT SELECT ON ALL TABLES IN SCHEMA [Schema] TO [User]
 ```
 
 ## Config File
 
-Create a YAML config file based on the following template.
-
-### Required Configurations
-
-If using user password authentication:
-
-```yaml
-host: <databse_hostname>
-user: <username>
-password: <password>
-database: <default_database_for_connections>
-output:
-  file:
-    directory: <output_directory>
-```
-
-See [Common Configurations](../common/README.md) for more information on `output`.
+The config file inherits all the required and optional fields from the general PostgreSQL connector [Config File](../README.md#config-file).
 
 ### Optional Configurations
 
-By default, the connector will connect using the default PostgreSQL port 5432. You can change it using the following config:
+#### Sampling
 
-```yaml
-port: <port_number>
-```
-
-See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+See [Sampling Config](../../common/docs/sampling.md) for details.
 
 ## Testing
 
@@ -55,7 +29,7 @@ Follow the [Installation](../../README.md) instructions to install `metaphor-con
 To test the connector locally, change the config file to output to a local path and run the following command
 
 ```shell
-python -m metaphor.postgresql <config_file>
+python -m metaphor.postgresql.profile <config_file>
 ```
 
 Manually verify the output after the run finishes.
