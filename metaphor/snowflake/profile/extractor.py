@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 
 from snowflake.connector import SnowflakeConnection
 
+from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -109,7 +110,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 # exclude both view and temporary table
                 continue
 
-            full_name = SnowflakeExtractor.table_fullname(database, schema, name)
+            full_name = dataset_fullname(database, schema, name)
             if not filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
