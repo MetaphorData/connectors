@@ -17,10 +17,8 @@ from metaphor.models.metadata_change_event import (
     DbtMaterializationType,
     DbtModel,
     DbtTest,
-    EntityType,
     FieldDocumentation,
     MetadataChangeEvent,
-    PersonLogicalID,
     SchemaField,
     SchemaType,
     VirtualView,
@@ -28,7 +26,13 @@ from metaphor.models.metadata_change_event import (
     VirtualViewType,
 )
 
-from metaphor.common.entity_id import EntityId, to_virtual_view_entity_id
+from metaphor.common.entity_id import (
+    EntityId,
+    dataset_fullname,
+    to_dataset_entity_id,
+    to_person_entity_id,
+    to_virtual_view_entity_id,
+)
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
@@ -46,7 +50,6 @@ from .generated.dbt_manifest_v3 import (
 )
 
 logger = get_logger(__name__)
-
 
 # compiled node has 'compiled_sql' field
 MODEL_NODE_TYPE = Union[CompiledModelNode, ParsedModelNode]
@@ -250,7 +253,7 @@ class DbtExtractor(BaseExtractor):
         for key, source in sources.items():
             assert source.database is not None
             source_map[key] = self._get_dataset_entity_id(
-                source.database, source.schema_, source.name
+                source.database, source.schema_, source.identifier
             )
 
         macro_map = {}
@@ -311,7 +314,7 @@ class DbtExtractor(BaseExtractor):
                     type=materialization_type,
                     target_dataset=str(
                         self._get_dataset_entity_id(
-                            model.database, model.schema_, model.name
+                            model.database, model.schema_, model.alias or model.name
                         )
                     ),
                 )
@@ -371,20 +374,9 @@ class DbtExtractor(BaseExtractor):
 
             self._init_dbt_tests(model_unique_id).append(dbt_test)
 
-    def _get_dataset_logical_id(
-        self, db: str, schema: str, table: str
-    ) -> DatasetLogicalID:
-        full_name = f"{db}.{schema}.{table}".lower()
-
-        return DatasetLogicalID(
-            name=full_name,
-            platform=self.platform,
-            account=self.account,
-        )
-
     def _get_dataset_entity_id(self, db: str, schema: str, table: str) -> EntityId:
-        return EntityId(
-            EntityType.DATASET, self._get_dataset_logical_id(db, schema, table)
+        return to_dataset_entity_id(
+            dataset_fullname(db, schema, table), self.platform, self.account
         )
 
     @staticmethod
@@ -410,11 +402,7 @@ class DbtExtractor(BaseExtractor):
 
         parts = re.split(r"(\s|,)", owners.strip())
         return DbtExtractor._unique_list(
-            [
-                str(EntityId(EntityType.PERSON, PersonLogicalID(email=p)))
-                for p in parts
-                if "@" in parseaddr(p)[1]
-            ]
+            [str(to_person_entity_id(p)) for p in parts if "@" in parseaddr(p)[1]]
         )
 
     def _init_dataset(
@@ -422,7 +410,11 @@ class DbtExtractor(BaseExtractor):
     ) -> Dataset:
         if unique_id not in self._datasets:
             self._datasets[unique_id] = Dataset(
-                logical_id=self._get_dataset_logical_id(database, schema, name)
+                logical_id=DatasetLogicalID(
+                    name=dataset_fullname(database, schema, name),
+                    platform=self.platform,
+                    account=self.account,
+                )
             )
         return self._datasets[unique_id]
 

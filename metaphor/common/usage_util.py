@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Callable, Collection, List, Optional, ValuesView
+from typing import Callable, Collection, List, Optional
 
 from metaphor.models.metadata_change_event import (
     AspectType,
@@ -108,7 +108,7 @@ class UsageUtil:
             query_counts.append(FieldQueryCount(field=column, count=1.0))
 
     @staticmethod
-    def calculate_statistics(datasets: ValuesView[Dataset]) -> None:
+    def calculate_statistics(datasets: Collection[Dataset]) -> None:
         """Calculate statistics for the extracted usage info"""
 
         UsageUtil.calculate_table_percentile(
@@ -152,19 +152,37 @@ class UsageUtil:
     def calculate_table_percentile(
         datasets: Collection[Dataset], get_query_count: Callable[[Dataset], QueryCount]
     ) -> None:
-        counts = [get_query_count(dataset).count for dataset in datasets]
-        counts.sort(reverse=True)
+        counts = [
+            get_query_count(dataset).count
+            for dataset in datasets
+            if get_query_count(dataset).count > 0
+        ]
+        counts.sort()
+        reverse_counts = counts[::-1]
 
         for dataset in datasets:
             query_count = get_query_count(dataset)
-            query_count.percentile = 1.0 - counts.index(query_count.count) / len(
-                datasets
+            query_count.percentile = UsageUtil._calculate_percentile(
+                counts, reverse_counts, query_count.count
             )
 
     @staticmethod
     def calculate_column_percentile(columns: List[FieldQueryCount]) -> None:
-        counts = [column.count for column in columns]
-        counts.sort(reverse=True)
+        counts = [column.count for column in columns if column.count > 0]
+        counts.sort()
+        reverse_counts = counts[::-1]
 
         for column in columns:
-            column.percentile = 1.0 - counts.index(column.count) / len(columns)
+            column.percentile = UsageUtil._calculate_percentile(
+                counts, reverse_counts, column.count
+            )
+
+    @staticmethod
+    def _calculate_percentile(
+        sorted_list: List[float], reverse_sorted_list: List[float], score: float
+    ) -> float:
+        if score == 0:
+            return 0.0
+        left = sorted_list.index(score)
+        right = reverse_sorted_list.index(score)
+        return 0.5 + (left - right + 1) / 2 / len(sorted_list)

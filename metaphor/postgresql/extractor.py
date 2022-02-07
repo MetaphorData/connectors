@@ -2,6 +2,7 @@ from typing import Dict, List, Optional, Tuple
 
 from asyncpg import Connection
 
+from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logger import get_logger
 from metaphor.postgresql.config import PostgreSQLRunConfig
@@ -75,11 +76,6 @@ class PostgreSQLExtractor(BaseExtractor):
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     @staticmethod
-    def _dataset_name(db: str, schema: str, table: str) -> str:
-        """The full table name including database, schema and name"""
-        return f"{db}.{schema}.{table}".lower()
-
-    @staticmethod
     async def _connect_database(
         config: PostgreSQLRunConfig, database: str
     ) -> Connection:
@@ -143,7 +139,7 @@ class PostgreSQLExtractor(BaseExtractor):
             row_count = table["row_count"]
             table_size = table["table_size"]
             table_type = table["table_type"]
-            full_name = self._dataset_name(database, schema, name)
+            full_name = dataset_fullname(database, schema, name)
             if not filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
@@ -194,7 +190,7 @@ class PostgreSQLExtractor(BaseExtractor):
 
         for column in columns:
             schema, name = column["table_schema"], column["table_name"]
-            full_name = self._dataset_name(catalog, schema, name)
+            full_name = dataset_fullname(catalog, schema, name)
             if not filter.include_table(catalog, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
@@ -245,7 +241,7 @@ class PostgreSQLExtractor(BaseExtractor):
             return
 
         for constraint in constraints:
-            full_name = self._dataset_name(
+            full_name = dataset_fullname(
                 catalog, constraint["table_schema"], constraint["table_name"]
             )
             if full_name not in self._datasets:
@@ -337,7 +333,7 @@ class PostgreSQLExtractor(BaseExtractor):
             foreign_key = ForeignKey()
             foreign_key.field_path = constraint["key_columns"]
             foreign_key.parent = DatasetLogicalID()
-            foreign_key.parent.name = PostgreSQLExtractor._dataset_name(
+            foreign_key.parent.name = dataset_fullname(
                 constraint["constraint_db"],
                 constraint["constraint_schema"],
                 constraint["constraint_table"],

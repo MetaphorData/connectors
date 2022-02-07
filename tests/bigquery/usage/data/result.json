@@ -14,55 +14,55 @@
             {
               "count": 2.0,
               "field": "event_dimensions.hostname",
-              "percentile": 1.0
+              "percentile": 0.75
             },
             {
               "count": 2.0,
               "field": "event_name",
-              "percentile": 1.0
+              "percentile": 0.75
             }
           ],
           "last365Days": [
             {
               "count": 2.0,
               "field": "event_dimensions.hostname",
-              "percentile": 1.0
+              "percentile": 0.75
             },
             {
               "count": 2.0,
               "field": "event_name",
-              "percentile": 1.0
+              "percentile": 0.75
             }
           ],
           "last7Days": [
             {
               "count": 2.0,
               "field": "event_dimensions.hostname",
-              "percentile": 1.0
+              "percentile": 0.75
             },
             {
               "count": 2.0,
               "field": "event_name",
-              "percentile": 1.0
+              "percentile": 0.75
             }
           ],
           "last90Days": [
             {
               "count": 2.0,
               "field": "event_dimensions.hostname",
-              "percentile": 1.0
+              "percentile": 0.75
             },
             {
               "count": 2.0,
               "field": "event_name",
-              "percentile": 1.0
+              "percentile": 0.75
             }
           ]
         },
         "queryCounts": {
           "last24Hours": {
             "count": 0.0,
-            "percentile": 1.0
+            "percentile": 0.0
           },
           "last30Days": {
             "count": 2.0,
@@ -102,55 +102,55 @@
             {
               "count": 3.0,
               "field": "description",
-              "percentile": 1.0
+              "percentile": 0.75
             },
             {
               "count": 3.0,
               "field": "event_name",
-              "percentile": 1.0
+              "percentile": 0.75
             }
           ],
           "last365Days": [
             {
               "count": 3.0,
               "field": "description",
-              "percentile": 1.0
+              "percentile": 0.75
             },
             {
               "count": 3.0,
               "field": "event_name",
-              "percentile": 1.0
+              "percentile": 0.75
             }
           ],
           "last7Days": [
             {
               "count": 3.0,
               "field": "description",
-              "percentile": 1.0
+              "percentile": 0.75
             },
             {
               "count": 3.0,
               "field": "event_name",
-              "percentile": 1.0
+              "percentile": 0.75
             }
           ],
           "last90Days": [
             {
               "count": 3.0,
               "field": "description",
-              "percentile": 1.0
+              "percentile": 0.75
             },
             {
               "count": 3.0,
               "field": "event_name",
-              "percentile": 1.0
+              "percentile": 0.75
             }
           ]
         },
         "queryCounts": {
           "last24Hours": {
             "count": 0.0,
-            "percentile": 1.0
+            "percentile": 0.0
           },
           "last30Days": {
             "count": 4.0,

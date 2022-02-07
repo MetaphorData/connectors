@@ -94,11 +94,17 @@ def test_parse_dashboard():
                 "database": {
                     "name": "DEV_DB",
                     "connectionType": "snowflake",
-                    "downstreamDatasources": [
-                        {"name": "Snowflake_test", "vizportalUrlId": "789"}
-                    ],
                 },
-            }
+            },
+            {
+                "name": "CYCLE",
+                "fullName": "[DEV_DB.LONDON].[CYCLE]",
+                "schema": "LONDON",
+                "database": {
+                    "name": "foo",
+                    "connectionType": "snowflake",
+                },
+            },
         ],
     }
 

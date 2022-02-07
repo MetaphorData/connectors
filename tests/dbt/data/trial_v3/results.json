@@ -56,7 +56,7 @@
       },
       "logicalId": {
         "account": "metaphor",
-        "name": "demo_db.dbt_dev.netflix",
+        "name": "dev_db.dbt_dev.netflix",
         "platform": "SNOWFLAKE"
       }
     },
@@ -129,7 +129,7 @@
       },
       "logicalId": {
         "account": "metaphor",
-        "name": "demo_db.dbt_dev.sales_records",
+        "name": "dev_db.dbt_dev.sales_records",
         "platform": "SNOWFLAKE"
       }
     },
@@ -148,7 +148,7 @@
         "docsUrl": "http://localhost:8080/#!/model/model.trial.my_first_dbt_model",
         "fields": [
           {
-            "description": "The primary key for this table, auto generated id.",
+            "description": "The primary key for this table, auto generated id",
             "fieldPath": "id",
             "nativeType": "Not Set"
           }
@@ -194,7 +194,7 @@
           }
         ],
         "materialization": {
-          "targetDataset": "DATASET~AF64AB4122CD383EA8360D20965ABB67",
+          "targetDataset": "DATASET~247B510D516CDED91920F071DFA249D3",
           "type": "VIEW"
         },
         "owners": [
@@ -239,7 +239,107 @@
     },
     "virtualView": {
       "dbtModel": {
-        "compiledSql": "\n\nselect show_id, type, title, country, release_year \nfrom DEMO_DB.DBT_DEV.NETFLIX",
+        "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEV_DB.DBT_YI.my_first_dbt_model\nwhere id = 1",
+        "description": "A starter dbt model, my_second_dbt_model",
+        "docsUrl": "http://localhost:8080/#!/model/model.trial.my_second_dbt_model",
+        "fields": [
+          {
+            "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'",
+            "fieldPath": "id",
+            "nativeType": "Not Set"
+          }
+        ],
+        "macros": [
+          {
+            "arguments": [],
+            "dependsOnMacros": [
+              "macro.dbt_snowflake.get_current_query_tag",
+              "macro.dbt.run_query"
+            ],
+            "description": "",
+            "name": "set_query_tag",
+            "packageName": "dbt_snowflake",
+            "sql": "{% macro set_query_tag() -%}\n  {% set new_query_tag = config.get('query_tag') %}\n  {% if new_query_tag %}\n    {% set original_query_tag = get_current_query_tag() %}\n    {{ log(\"Setting query_tag to '\" ~ new_query_tag ~ \"'. Will reset to '\" ~ original_query_tag ~ \"' after materialization.\") }}\n    {% do run_query(\"alter session set query_tag = '{}'\".format(new_query_tag)) %}\n    {{ return(original_query_tag)}}\n  {% endif %}\n  {{ return(none)}}\n{% endmacro %}",
+            "uniqueId": "macro.dbt_snowflake.set_query_tag"
+          },
+          {
+            "arguments": [],
+            "dependsOnMacros": [
+              "macro.dbt.run_hooks",
+              "macro.dbt.handle_existing_table",
+              "macro.dbt.should_full_refresh",
+              "macro.dbt.statement",
+              "macro.dbt.create_view_as"
+            ],
+            "description": "",
+            "name": "create_or_replace_view",
+            "packageName": "dbt",
+            "sql": "{% macro create_or_replace_view() %}\n  {%- set identifier = model['alias'] -%}\n\n  {%- set old_relation = adapter.get_relation(database=database, schema=schema, identifier=identifier) -%}\n\n  {%- set exists_as_view = (old_relation is not none and old_relation.is_view) -%}\n\n  {%- set target_relation = api.Relation.create(\n      identifier=identifier, schema=schema, database=database,\n      type='view') -%}\n\n  {{ run_hooks(pre_hooks) }}\n\n  -- If there's a table with the same name and we weren't told to full refresh,\n  -- that's an error. If we were told to full refresh, drop it. This behavior differs\n  -- for Snowflake and BigQuery, so multiple dispatch is used.\n  {%- if old_relation is not none and old_relation.is_table -%}\n    {{ handle_existing_table(should_full_refresh(), old_relation) }}\n  {%- endif -%}\n\n  -- build model\n  {% call statement('main') -%}\n    {{ create_view_as(target_relation, sql) }}\n  {%- endcall %}\n\n  {{ run_hooks(post_hooks) }}\n\n  {{ return({'relations': [target_relation]}) }}\n\n{% endmacro %}",
+            "uniqueId": "macro.dbt.create_or_replace_view"
+          },
+          {
+            "arguments": [],
+            "dependsOnMacros": [
+              "macro.dbt.default__persist_docs"
+            ],
+            "description": "",
+            "name": "persist_docs",
+            "packageName": "dbt",
+            "sql": "{% macro persist_docs(relation, model, for_relation=true, for_columns=true) -%}\n  {{ return(adapter.dispatch('persist_docs', 'dbt')(relation, model, for_relation, for_columns)) }}\n{% endmacro %}",
+            "uniqueId": "macro.dbt.persist_docs"
+          }
+        ],
+        "materialization": {
+          "targetDataset": "DATASET~B37021135716845A9E70E7DB38409493",
+          "type": "VIEW"
+        },
+        "owners": [
+          "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
+        ],
+        "packageName": "trial",
+        "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
+        "sourceDatasets": [],
+        "sourceModels": [
+          "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
+        ],
+        "tags": [],
+        "tests": [
+          {
+            "columns": [
+              "id"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_unique"
+            ],
+            "name": "unique_my_second_dbt_model_id",
+            "uniqueId": "test.trial.unique_my_second_dbt_model_id.57a0f8c493"
+          },
+          {
+            "columns": [
+              "id"
+            ],
+            "dependsOnMacros": [
+              "macro.dbt.test_not_null"
+            ],
+            "name": "not_null_my_second_dbt_model_id",
+            "uniqueId": "test.trial.not_null_my_second_dbt_model_id.151b76d778"
+          }
+        ],
+        "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
+      },
+      "logicalId": {
+        "name": "trial.my_second_dbt_model",
+        "type": "DBT_MODEL"
+      }
+    }
+  },
+  {
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    },
+    "virtualView": {
+      "dbtModel": {
+        "compiledSql": "\n\nselect show_id, type, title, country, release_year \nfrom DEV_DB.DBT_DEV.NETFLIX",
         "description": "First trial model, mapping columns from NETFLIX source table",
         "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_1",
         "fields": [
@@ -326,7 +426,7 @@
           }
         ],
         "materialization": {
-          "targetDataset": "DATASET~1712CB731B3A99B418D013CDD380ED96",
+          "targetDataset": "DATASET~5722262F1FBB214FFDCC55801C26B4C5",
           "type": "TABLE"
         },
         "owners": [
@@ -335,7 +435,7 @@
         "packageName": "trial",
         "rawSql": "{{ config(materialized='table') }}\n\nselect show_id, type, title, country, release_year \nfrom {{ source('DBT_DEV', 'NETFLIX') }}",
         "sourceDatasets": [
-          "DATASET~BDB320613577550E8EE6BE295054A8A0"
+          "DATASET~0A27263039022A2F145CAB8A63CB2D58"
         ],
         "sourceModels": [],
         "tags": [],
@@ -395,7 +495,7 @@
     },
     "virtualView": {
       "dbtModel": {
-        "compiledSql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+        "compiledSql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
         "description": "Second trial model, get statistics from SALES_RECORDS table",
         "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_2",
         "fields": [
@@ -482,16 +582,16 @@
           }
         ],
         "materialization": {
-          "targetDataset": "DATASET~193E378823E334188F097A104793663C",
+          "targetDataset": "DATASET~66B1D302AA901F954BC9BFE19824D86D",
           "type": "TABLE"
         },
         "owners": [
           "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
         ],
         "packageName": "trial",
-        "rawSql": "{{ config(materialized='table') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+        "rawSql": "{{ config(materialized='table', alias='sales_summary') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
         "sourceDatasets": [
-          "DATASET~88E2F99BE08491C03619AC3FF0FF07BC"
+          "DATASET~C931554DBA0604DA498A2E772F3D6FEF"
         ],
         "sourceModels": [],
         "tags": [],
@@ -551,106 +651,6 @@
       },
       "logicalId": {
         "name": "trial.trial_model_2",
-        "type": "DBT_MODEL"
-      }
-    }
-  },
-  {
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    },
-    "virtualView": {
-      "dbtModel": {
-        "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
-        "description": "A starter dbt model, my_second_dbt_model",
-        "docsUrl": "http://localhost:8080/#!/model/model.trial.my_second_dbt_model",
-        "fields": [
-          {
-            "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'.",
-            "fieldPath": "id",
-            "nativeType": "Not Set"
-          }
-        ],
-        "macros": [
-          {
-            "arguments": [],
-            "dependsOnMacros": [
-              "macro.dbt_snowflake.get_current_query_tag",
-              "macro.dbt.run_query"
-            ],
-            "description": "",
-            "name": "set_query_tag",
-            "packageName": "dbt_snowflake",
-            "sql": "{% macro set_query_tag() -%}\n  {% set new_query_tag = config.get('query_tag') %}\n  {% if new_query_tag %}\n    {% set original_query_tag = get_current_query_tag() %}\n    {{ log(\"Setting query_tag to '\" ~ new_query_tag ~ \"'. Will reset to '\" ~ original_query_tag ~ \"' after materialization.\") }}\n    {% do run_query(\"alter session set query_tag = '{}'\".format(new_query_tag)) %}\n    {{ return(original_query_tag)}}\n  {% endif %}\n  {{ return(none)}}\n{% endmacro %}",
-            "uniqueId": "macro.dbt_snowflake.set_query_tag"
-          },
-          {
-            "arguments": [],
-            "dependsOnMacros": [
-              "macro.dbt.run_hooks",
-              "macro.dbt.handle_existing_table",
-              "macro.dbt.should_full_refresh",
-              "macro.dbt.statement",
-              "macro.dbt.create_view_as"
-            ],
-            "description": "",
-            "name": "create_or_replace_view",
-            "packageName": "dbt",
-            "sql": "{% macro create_or_replace_view() %}\n  {%- set identifier = model['alias'] -%}\n\n  {%- set old_relation = adapter.get_relation(database=database, schema=schema, identifier=identifier) -%}\n\n  {%- set exists_as_view = (old_relation is not none and old_relation.is_view) -%}\n\n  {%- set target_relation = api.Relation.create(\n      identifier=identifier, schema=schema, database=database,\n      type='view') -%}\n\n  {{ run_hooks(pre_hooks) }}\n\n  -- If there's a table with the same name and we weren't told to full refresh,\n  -- that's an error. If we were told to full refresh, drop it. This behavior differs\n  -- for Snowflake and BigQuery, so multiple dispatch is used.\n  {%- if old_relation is not none and old_relation.is_table -%}\n    {{ handle_existing_table(should_full_refresh(), old_relation) }}\n  {%- endif -%}\n\n  -- build model\n  {% call statement('main') -%}\n    {{ create_view_as(target_relation, sql) }}\n  {%- endcall %}\n\n  {{ run_hooks(post_hooks) }}\n\n  {{ return({'relations': [target_relation]}) }}\n\n{% endmacro %}",
-            "uniqueId": "macro.dbt.create_or_replace_view"
-          },
-          {
-            "arguments": [],
-            "dependsOnMacros": [
-              "macro.dbt.default__persist_docs"
-            ],
-            "description": "",
-            "name": "persist_docs",
-            "packageName": "dbt",
-            "sql": "{% macro persist_docs(relation, model, for_relation=true, for_columns=true) -%}\n  {{ return(adapter.dispatch('persist_docs', 'dbt')(relation, model, for_relation, for_columns)) }}\n{% endmacro %}",
-            "uniqueId": "macro.dbt.persist_docs"
-          }
-        ],
-        "materialization": {
-          "targetDataset": "DATASET~C2E3AFBF33CD1595EE25A57D02B4F04A",
-          "type": "VIEW"
-        },
-        "owners": [
-          "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
-        ],
-        "packageName": "trial",
-        "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
-        "sourceDatasets": [],
-        "sourceModels": [
-          "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
-        ],
-        "tags": [],
-        "tests": [
-          {
-            "columns": [
-              "id"
-            ],
-            "dependsOnMacros": [
-              "macro.dbt.test_unique"
-            ],
-            "name": "unique_my_second_dbt_model_id",
-            "uniqueId": "test.trial.unique_my_second_dbt_model_id.57a0f8c493"
-          },
-          {
-            "columns": [
-              "id"
-            ],
-            "dependsOnMacros": [
-              "macro.dbt.test_not_null"
-            ],
-            "name": "not_null_my_second_dbt_model_id",
-            "uniqueId": "test.trial.not_null_my_second_dbt_model_id.151b76d778"
-          }
-        ],
-        "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
-      },
-      "logicalId": {
-        "name": "trial.my_second_dbt_model",
         "type": "DBT_MODEL"
       }
     }

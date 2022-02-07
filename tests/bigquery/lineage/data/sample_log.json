@@ -118,6 +118,8 @@
                 "billingTier": 1,
                 "referencedTables": [
                   "projects/metaphor-data/datasets/test/tables/yi_tests1",
+                  "projects/metaphor-data/datasets/test/tables/yi_tests2",
+                  "projects/metaphor-data/datasets/test/tables/yi_tests3",
                   "projects/metaphor-data/datasets/test/tables/yi_tests2"
                 ],
                 "outputRowCount": "1"
