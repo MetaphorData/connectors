@@ -59,6 +59,7 @@ snowflake = ["snowflake-connector-python", "sql-metadata"]
 tableau = ["tableauserverclient"]
 
 [tool.poetry.dev-dependencies]
+bandit = "^1.7.2"
 black = "^22.1"
 datamodel-code-generator = { extras = ["http"], version = "^0.11.14" }
 flakehell = "^0.9.0"
@@ -105,3 +106,7 @@ pyflakes = ["-*"]
 [tool.mypy]
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
+
+[tool.bandit]
+exclude_dirs = ["venv"]
+skips = ['B101', 'B303', 'B608']

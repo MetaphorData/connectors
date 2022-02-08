@@ -45,6 +45,7 @@ jobs:
           poetry run black --check .
           poetry run isort --check .
           poetry run mypy .
+          poetry run bandit -r metaphor -c pyproject.toml
 
       - name: Test
         run: |
