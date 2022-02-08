@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.10.25"
+version = "0.10.26"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -62,8 +62,7 @@ tableau = ["tableauserverclient"]
 bandit = "^1.7.2"
 black = "^22.1"
 datamodel-code-generator = { extras = ["http"], version = "^0.11.14" }
-flakehell = "^0.9.0"
-flake8 = "3.9.0"
+flake8 = "^4.0.1"
 freezegun = "^1.1.0"
 isort = "^5.8.0"
 mypy = "^0.931"
@@ -77,6 +76,9 @@ types-requests = "^2.25.0"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+
 [tool.black]
 exclude = "^/(metaphor/dbt/generated/.+)"
 
@@ -88,25 +90,10 @@ extend_skip = [
   "dbt_catalog.py"
 ]
 
-[tool.flakehell]
-format = "colored"
-
-[tool.flakehell.plugins]
-pycodestyle = ["+*", "-E203", "-E501", "-W503"]
-pyflakes = ["+*"]
-
-[tool.flakehell.exceptions."metaphor/dbt/generated/"]
-pycodestyle = ["-*"]
-pyflakes = ["-*"]
-
-[tool.flakehell.exceptions."**/site-packages/*.py"]
-pycodestyle = ["-*"]
-pyflakes = ["-*"]
-
 [tool.mypy]
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
 
 [tool.bandit]
 exclude_dirs = ["venv"]
-skips = ['B101', 'B303', 'B608']
+skips = ['B101', 'B608']
