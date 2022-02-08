@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
 
@@ -289,38 +289,10 @@ class PostgreSQLExtractor(BaseExtractor):
 
     @staticmethod
     def _build_field(column) -> SchemaField:
-        def parse_format_type(
-            native_type: str,
-            type_str: str,
-        ) -> Tuple[Optional[float], Optional[float]]:
-            precision, max_length = None, None
-
-            if native_type == "integer":
-                precision = 32.0
-            elif native_type == "smallint":
-                precision = 16.0
-            elif native_type == "bigint":
-                precision = 64.0
-            elif native_type == "real":
-                precision = 24.0
-            elif native_type == "double precision":
-                precision = 53.0
-            elif native_type == "numeric" and type_str != "numeric":
-                try:
-                    precision = float(type_str.split("(")[1].split(",")[0])
-                except IndexError:
-                    logger.warning(f"Failed to parse precision from {type_str}.")
-
-            if native_type == "character varying" or native_type == "character":
-                try:
-                    max_length = float(type_str.split("(")[1].strip(")"))
-                except IndexError:
-                    logger.warning(f"Failed to parse max_length from {type_str}.")
-
-            return precision, max_length
-
         native_type = column["data_type"]
-        precision, max_length = parse_format_type(native_type, column["format"])
+        precision, max_length = PostgreSQLExtractor._parse_format_type(
+            native_type, column["format"]
+        )
 
         return SchemaField(
             field_path=column["column_name"],
@@ -350,3 +322,56 @@ class PostgreSQLExtractor(BaseExtractor):
             if not schema.foreign_key:
                 schema.foreign_key = []
             schema.foreign_key.append(foreign_key)
+
+    @staticmethod
+    def _safe_parse(
+        type_str: str, parse: Callable[[str], str], name: str
+    ) -> Optional[float]:
+        try:
+            field = parse(type_str)
+            return float(field)
+        except IndexError:
+            logger.warning(f"Failed to parse {name} from {type_str}.")
+        except ValueError:
+            logger.warning(f"Failed to convert {field} to float, type_str: {type_str}")
+        return None
+
+    @staticmethod
+    def _parse_precision(type_str: str) -> Optional[float]:
+        def extract(type_str: str) -> str:
+            return type_str.split("(")[1].split(",")[0]
+
+        return PostgreSQLExtractor._safe_parse(type_str, extract, "precision")
+
+    @staticmethod
+    def _parse_max_length(type_str: str) -> Optional[float]:
+        def extract(type_str: str) -> str:
+            return type_str.split("(")[1].strip(")")
+
+        return PostgreSQLExtractor._safe_parse(type_str, extract, "max_length")
+
+    @staticmethod
+    def _parse_format_type(
+        native_type: str,
+        type_str: str,
+    ) -> Tuple[Optional[float], Optional[float]]:
+        precision, max_length = None, None
+
+        if native_type == "integer":
+            precision = 32.0
+        elif native_type == "smallint":
+            precision = 16.0
+        elif native_type == "bigint":
+            precision = 64.0
+        elif native_type == "real":
+            precision = 24.0
+        elif native_type == "double precision":
+            precision = 53.0
+        elif native_type == "numeric" and type_str != "numeric":
+            precision = PostgreSQLExtractor._parse_precision(type_str)
+        elif native_type == "character varying" or native_type == "character":
+            max_length = PostgreSQLExtractor._parse_max_length(type_str)
+        else:
+            logger.warning(f"Not supported native type: {native_type}")
+
+        return precision, max_length
