@@ -9,8 +9,14 @@ The connector extracts the metadata from [system catalogs](https://docs.aws.amaz
 Use the following command to grant the permission:
 
 ```sql
-GRANT SELECT ON pg_catalog.svv_table_info TO <User>;
+# Create a new user called "metaphor"
+CREATE USER metaphor PASSWORD <password>;
+
+# Grant minimally required privleages to the user
+GRANT SELECT ON pg_catalog.svv_table_info TO metaphor;
 ```
+
+> Note: If the Redshift cluster contains more than one database, you must grant the permission in all databases. Alternatively, you can limit the connector to a subset of databases using the [filter configuration](../common/docs/filter.md).
 
 ## Config File
 
