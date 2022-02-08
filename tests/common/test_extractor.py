@@ -1,6 +1,5 @@
 from typing import List, Type
 
-import pytest
 from metaphor.models.metadata_change_event import MetadataChangeEvent
 from pydantic.dataclasses import dataclass
 from serde import deserialize
@@ -28,7 +27,6 @@ class DummyExtractor(BaseExtractor):
         return self._dummy_events
 
 
-@pytest.mark.asyncio
 def test_dummy_extractor():
     events = [MetadataChangeEvent()]
     config = DummyRunConfig(dummy_attr=0, output=OutputConfig())
