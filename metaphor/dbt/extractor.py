@@ -68,6 +68,7 @@ class DbtExtractor(BaseExtractor):
             manifest_parser = ManifestParserV3(
                 self.platform,
                 self.account,
+                self.docs_base_url,
                 self.project_source_url,
                 self._datasets,
                 self._virtual_views,
@@ -76,6 +77,7 @@ class DbtExtractor(BaseExtractor):
             manifest_parser = ManifestParserV4(
                 self.platform,
                 self.account,
+                self.docs_base_url,
                 self.project_source_url,
                 self._datasets,
                 self._virtual_views,
@@ -83,17 +85,20 @@ class DbtExtractor(BaseExtractor):
         else:
             raise ValueError(f"unsupported manifest schema '{schema_version}'")
 
+        logger.info(f"parsing manifest.json {schema_version} ...")
         manifest_parser.parse(manifest_json)
 
-        catalog_parser = CatalogParserV1(
-            self.platform,
-            self.account,
-            self.docs_base_url,
-            self._datasets,
-            self._virtual_views,
-        )
+        if config.catalog:
+            catalog_parser = CatalogParserV1(
+                self.platform,
+                self.account,
+                self.docs_base_url,
+                self._datasets,
+                self._virtual_views,
+            )
 
-        catalog_parser.parse(config.catalog)
+            logger.info("parsing catalog.json ...")
+            catalog_parser.parse(config.catalog)
 
         dataset_events = [
             EventUtil.build_dataset_event(d) for d in self._datasets.values()

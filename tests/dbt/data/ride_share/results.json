@@ -3,7 +3,12 @@
     "dataset": {
       "documentation": {
         "datasetDocumentations": [],
-        "fieldDocumentations": []
+        "fieldDocumentations": [
+          {
+            "documentation": "Duration of the bike trip in seconds.",
+            "fieldPath": "duration"
+          }
+        ]
       },
       "logicalId": {
         "account": "metaphor",

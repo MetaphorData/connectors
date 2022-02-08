@@ -2,120 +2,275 @@
   {
     "dataset": {
       "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
-      },
-      "logicalId": {
-        "account": "metaphor",
-        "name": "dev_db.shopify.transaction",
-        "platform": "SNOWFLAKE"
-      }
-    },
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    }
-  },
-  {
-    "dataset": {
-      "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
-      },
-      "logicalId": {
-        "account": "metaphor",
-        "name": "dev_db.shopify.refund",
-        "platform": "SNOWFLAKE"
-      }
-    },
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    }
-  },
-  {
-    "dataset": {
-      "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
-      },
-      "logicalId": {
-        "account": "metaphor",
-        "name": "dev_db.shopify.product_variant",
-        "platform": "SNOWFLAKE"
-      }
-    },
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    }
-  },
-  {
-    "dataset": {
-      "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
-      },
-      "logicalId": {
-        "account": "metaphor",
-        "name": "dev_db.shopify.product",
-        "platform": "SNOWFLAKE"
-      }
-    },
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    }
-  },
-  {
-    "dataset": {
-      "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
-      },
-      "logicalId": {
-        "account": "metaphor",
-        "name": "dev_db.shopify.order_line_refund",
-        "platform": "SNOWFLAKE"
-      }
-    },
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    }
-  },
-  {
-    "dataset": {
-      "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
-      },
-      "logicalId": {
-        "account": "metaphor",
-        "name": "dev_db.shopify.order_line",
-        "platform": "SNOWFLAKE"
-      }
-    },
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    }
-  },
-  {
-    "dataset": {
-      "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
-      },
-      "logicalId": {
-        "account": "metaphor",
-        "name": "dev_db.shopify.order_adjustment",
-        "platform": "SNOWFLAKE"
-      }
-    },
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    }
-  },
-  {
-    "dataset": {
-      "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
+        "datasetDocumentations": [
+          "Each record represents an order in Shopify."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "documentation": "The ID of the app that created the order.",
+            "fieldPath": "app_id"
+          },
+          {
+            "documentation": "The street address of the billing address.",
+            "fieldPath": "billing_address_address_1"
+          },
+          {
+            "documentation": "An optional additional field for the street address of the billing address.",
+            "fieldPath": "billing_address_address_2"
+          },
+          {
+            "documentation": "The city, town, or village of the billing address.",
+            "fieldPath": "billing_address_city"
+          },
+          {
+            "documentation": "The company of the person associated with the billing address.",
+            "fieldPath": "billing_address_company"
+          },
+          {
+            "documentation": "The name of the country of the billing address.",
+            "fieldPath": "billing_address_country"
+          },
+          {
+            "documentation": "The two-letter code (ISO 3166-1 format) for the country of the billing address.",
+            "fieldPath": "billing_address_country_code"
+          },
+          {
+            "documentation": "The first name of the person associated with the payment method.",
+            "fieldPath": "billing_address_first_name"
+          },
+          {
+            "documentation": "The last name of the person associated with the payment method.",
+            "fieldPath": "billing_address_last_name"
+          },
+          {
+            "documentation": "The latitude of the billing address.",
+            "fieldPath": "billing_address_latitude"
+          },
+          {
+            "documentation": "The longitude of the billing address.",
+            "fieldPath": "billing_address_longitude"
+          },
+          {
+            "documentation": "The full name of the person associated with the payment method.",
+            "fieldPath": "billing_address_name"
+          },
+          {
+            "documentation": "The phone number at the billing address.",
+            "fieldPath": "billing_address_phone"
+          },
+          {
+            "documentation": "The name of the region (province, state, prefecture, \u2026) of the billing address.",
+            "fieldPath": "billing_address_province"
+          },
+          {
+            "documentation": "The two-letter abbreviation of the region of the billing address.",
+            "fieldPath": "billing_address_province_code"
+          },
+          {
+            "documentation": "The postal code (zip, postcode, Eircode, \u2026) of the billing address.",
+            "fieldPath": "billing_address_zip"
+          },
+          {
+            "documentation": "The IP address of the browser used by the customer when they placed the order.",
+            "fieldPath": "browser_ip"
+          },
+          {
+            "documentation": "Whether the customer consented to receive email updates from the shop.",
+            "fieldPath": "buyer_accepts_marketing"
+          },
+          {
+            "documentation": "The reason why the order was canceled.",
+            "fieldPath": "cancel_reason"
+          },
+          {
+            "documentation": "The date and time when the order was canceled.",
+            "fieldPath": "cancelled_at"
+          },
+          {
+            "documentation": "The ID of the cart that's associated with the order.",
+            "fieldPath": "cart_token"
+          },
+          {
+            "documentation": "The date and time when the order was closed.",
+            "fieldPath": "closed_at"
+          },
+          {
+            "documentation": "The autogenerated date and time when the order was created in Shopify.",
+            "fieldPath": "created_at"
+          },
+          {
+            "documentation": "The three-letter code for the shop currency.",
+            "fieldPath": "currency"
+          },
+          {
+            "documentation": "The ID of the order's customer.",
+            "fieldPath": "customer_id"
+          },
+          {
+            "documentation": "The customer's email address.",
+            "fieldPath": "email"
+          },
+          {
+            "documentation": "The status of payments associated with the order. Can only be set when the order is created",
+            "fieldPath": "financial_status"
+          },
+          {
+            "documentation": "The order's status in terms of fulfilled line items.",
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "documentation": "The ID of the order, used for API purposes. This is different from the order_number property, which is the ID used by the shop owner and customer.",
+            "fieldPath": "id"
+          },
+          {
+            "documentation": "The URL for the page where the buyer landed when they entered the shop.",
+            "fieldPath": "landing_site_base_url"
+          },
+          {
+            "documentation": "The ID of the physical location where the order was processed.",
+            "fieldPath": "location_id"
+          },
+          {
+            "documentation": "The order name, generated by combining the order_number property with the order prefix and suffix that are set in the merchant's general settings.",
+            "fieldPath": "name"
+          },
+          {
+            "documentation": "An optional note that a shop owner can attach to the order.",
+            "fieldPath": "note"
+          },
+          {
+            "documentation": "The order's position in the shop's count of orders. Numbers are sequential and start at 1.",
+            "fieldPath": "number"
+          },
+          {
+            "documentation": "The order 's position in the shop's count of orders starting at 1001. Order numbers are sequential and start at 1001.",
+            "fieldPath": "order_number"
+          },
+          {
+            "documentation": "The date and time when an order was processed. This value is the date that appears on your orders and that's used in the analytic reports.",
+            "fieldPath": "processed_at"
+          },
+          {
+            "documentation": "How the payment was processed.",
+            "fieldPath": "processing_method"
+          },
+          {
+            "documentation": "The website where the customer clicked a link to the shop.",
+            "fieldPath": "referring_site"
+          },
+          {
+            "documentation": "The street address of the shipping address.",
+            "fieldPath": "shipping_address_address_1"
+          },
+          {
+            "documentation": "An optional additional field for the street address of the shipping address.",
+            "fieldPath": "shipping_address_address_2"
+          },
+          {
+            "documentation": "The city, town, or village of the shipping address.",
+            "fieldPath": "shipping_address_city"
+          },
+          {
+            "documentation": "The company of the person associated with the shipping address.",
+            "fieldPath": "shipping_address_company"
+          },
+          {
+            "documentation": "The name of the country of the shipping address.",
+            "fieldPath": "shipping_address_country"
+          },
+          {
+            "documentation": "The two-letter code (ISO 3166-1 format) for the country of the shipping address.",
+            "fieldPath": "shipping_address_country_code"
+          },
+          {
+            "documentation": "The first name of the person associated with the shipping address.",
+            "fieldPath": "shipping_address_first_name"
+          },
+          {
+            "documentation": "The last name of the person associated with the shipping address.",
+            "fieldPath": "shipping_address_last_name"
+          },
+          {
+            "documentation": "The latitude of the shipping address.",
+            "fieldPath": "shipping_address_latitude"
+          },
+          {
+            "documentation": "The longitude of the shipping address.",
+            "fieldPath": "shipping_address_longitude"
+          },
+          {
+            "documentation": "The full name of the person associated with the payment method.",
+            "fieldPath": "shipping_address_name"
+          },
+          {
+            "documentation": "The phone number at the shipping address.",
+            "fieldPath": "shipping_address_phone"
+          },
+          {
+            "documentation": "The name of the region (province, state, prefecture, \u2026) of the shipping address.",
+            "fieldPath": "shipping_address_province"
+          },
+          {
+            "documentation": "The two-letter abbreviation of the region of the shipping address.",
+            "fieldPath": "shipping_address_province_code"
+          },
+          {
+            "documentation": "The postal code (zip, postcode, Eircode, \u2026) of the shipping address.",
+            "fieldPath": "shipping_address_zip"
+          },
+          {
+            "documentation": "Where the order originated. Can be set only during order creation, and is not writeable afterwards.",
+            "fieldPath": "source_name"
+          },
+          {
+            "documentation": "The price of the order in the shop currency after discounts but before shipping, taxes, and tips.",
+            "fieldPath": "subtotal_price"
+          },
+          {
+            "documentation": "Whether taxes are included in the order subtotal.",
+            "fieldPath": "taxes_included"
+          },
+          {
+            "documentation": "Whether this is a test order.",
+            "fieldPath": "test"
+          },
+          {
+            "documentation": "A unique token for the order.",
+            "fieldPath": "token"
+          },
+          {
+            "documentation": "The total discounts applied to the price of the order in the shop currency.",
+            "fieldPath": "total_discounts"
+          },
+          {
+            "documentation": "The sum of all line item prices in the shop currency.",
+            "fieldPath": "total_line_items_price"
+          },
+          {
+            "documentation": "The sum of all line item prices, discounts, shipping, taxes, and tips in the shop currency. Must be positive.",
+            "fieldPath": "total_price"
+          },
+          {
+            "documentation": "The sum of all the taxes applied to the order in th shop currency. Must be positive).",
+            "fieldPath": "total_tax"
+          },
+          {
+            "documentation": "The sum of all line item weights in grams.",
+            "fieldPath": "total_weight"
+          },
+          {
+            "documentation": "The date and time (ISO 8601 format) when the order was last modified.",
+            "fieldPath": "updated_at"
+          },
+          {
+            "documentation": "The ID of the user logged into Shopify POS who processed the order, if applicable.",
+            "fieldPath": "user_id"
+          }
+        ]
       },
       "logicalId": {
         "account": "metaphor",
@@ -130,12 +285,684 @@
   {
     "dataset": {
       "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": []
+        "datasetDocumentations": [
+          "Each record represents a customer in Shopify."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "documentation": "Whether the customer has consented to receive marketing material via email.",
+            "fieldPath": "accepts_marketing"
+          },
+          {
+            "documentation": "The date and time when the customer was created.",
+            "fieldPath": "created_at"
+          },
+          {
+            "documentation": "The default address for the customer.",
+            "fieldPath": "default_address_id"
+          },
+          {
+            "documentation": "The unique email address of the customer. Attempting to assign the same email address to multiple customers returns an error.",
+            "fieldPath": "email"
+          },
+          {
+            "documentation": "The customer's first name.",
+            "fieldPath": "first_name"
+          },
+          {
+            "documentation": "A unique identifier for the customer.",
+            "fieldPath": "id"
+          },
+          {
+            "documentation": "The customer's last name.",
+            "fieldPath": "last_name"
+          },
+          {
+            "documentation": "The number of orders associated with this customer.",
+            "fieldPath": "orders_count"
+          },
+          {
+            "documentation": "The unique phone number (E.164 format) for this customer. Attempting to assign the same phone number to multiple customers returns an error.",
+            "fieldPath": "phone"
+          },
+          {
+            "documentation": "The state of the customer's account with a shop.",
+            "fieldPath": "state"
+          },
+          {
+            "documentation": "Whether the customer is exempt from paying taxes on their order. If true, then taxes won't be applied to an order at checkout. If false, then taxes will be applied at checkout.",
+            "fieldPath": "tax_exempt"
+          },
+          {
+            "documentation": "The total amount of money that the customer has spent across their order history.",
+            "fieldPath": "total_spent"
+          },
+          {
+            "documentation": "The date and time when the customer information was last updated.",
+            "fieldPath": "updated_at"
+          },
+          {
+            "documentation": "Whether the customer has verified their email address.",
+            "fieldPath": "verified_email"
+          }
+        ]
       },
       "logicalId": {
         "account": "metaphor",
         "name": "dev_db.shopify.customer",
+        "platform": "SNOWFLAKE"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "Each record represents a line item for an order in Shopify."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "documentation": "The amount available to fulfill, calculated as follows: quantity - max(refunded_quantity, fulfilled_quantity) - pending_fulfilled_quantity - open_fulfilled_quantity",
+            "fieldPath": "fulfillable_quantity"
+          },
+          {
+            "documentation": "The service provider that's fulfilling the item.",
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "documentation": "How far along an order is in terms line items fulfilled.",
+            "fieldPath": "fulfillment_status"
+          },
+          {
+            "documentation": "Whether the item is a gift card. If true, then the item is not taxed or considered for shipping charges.",
+            "fieldPath": "gift_card"
+          },
+          {
+            "documentation": "The weight of the item in grams.",
+            "fieldPath": "grams"
+          },
+          {
+            "documentation": "The ID of the line item.",
+            "fieldPath": "id"
+          },
+          {
+            "documentation": "The name of the product variant.",
+            "fieldPath": "name"
+          },
+          {
+            "documentation": "The ID of the related order.",
+            "fieldPath": "order_id"
+          },
+          {
+            "documentation": "The price of the item before discounts have been applied in the shop currency.",
+            "fieldPath": "price"
+          },
+          {
+            "documentation": "The ID of the product that the line item belongs to. Can be null if the original product associated with the order is deleted at a later date.",
+            "fieldPath": "product_id"
+          },
+          {
+            "documentation": "The number of items that were purchased.",
+            "fieldPath": "quantity"
+          },
+          {
+            "documentation": "Whether the item requires shipping.",
+            "fieldPath": "requires_shipping"
+          },
+          {
+            "documentation": "The item's SKU (stock keeping unit).",
+            "fieldPath": "sku"
+          },
+          {
+            "documentation": "Whether the item was taxable.",
+            "fieldPath": "taxable"
+          },
+          {
+            "documentation": "The title of the product.",
+            "fieldPath": "title"
+          },
+          {
+            "documentation": "The total amount of the discount allocated to the line item in the shop currency.",
+            "fieldPath": "total_discount"
+          },
+          {
+            "documentation": "The ID of the product variant.",
+            "fieldPath": "variant_id"
+          },
+          {
+            "documentation": "The name of the item's supplier.",
+            "fieldPath": "vendor"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.order_line",
+        "platform": "SNOWFLAKE"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "Each record represents a line item refund in Shopify."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "documentation": "The unique identifier of the line item in the refund.",
+            "fieldPath": "id"
+          },
+          {
+            "documentation": "TThe unique identifier of the location where the items will be restockedBD",
+            "fieldPath": "location_id"
+          },
+          {
+            "documentation": "The ID of the related line item in the order.",
+            "fieldPath": "order_line_id"
+          },
+          {
+            "documentation": "The quantity of the associated line item that was returned.",
+            "fieldPath": "quantity"
+          },
+          {
+            "documentation": "The ID of the related refund.",
+            "fieldPath": "refund_id"
+          },
+          {
+            "documentation": "How this refund line item affects inventory levels.",
+            "fieldPath": "restock_type"
+          },
+          {
+            "documentation": "Subtotal amount of the order line refund",
+            "fieldPath": "subtotal"
+          },
+          {
+            "documentation": "The total tax applied to the refund.",
+            "fieldPath": "total_tax"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.order_line_refund",
+        "platform": "SNOWFLAKE"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "Each record represents a product in Shopify."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "Whether the record has been deleted in the source system.",
+            "fieldPath": "_fivetran_deleted"
+          },
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "documentation": "The date and time when the product was created.",
+            "fieldPath": "created_at"
+          },
+          {
+            "documentation": "A unique human-friendly string for the product. Automatically generated from the product's title.",
+            "fieldPath": "handle"
+          },
+          {
+            "documentation": "An unsigned 64-bit integer that's used as a unique identifier for the product. Each id is unique across the Shopify system. No two products will have the same id, even if they're from different shops.",
+            "fieldPath": "id"
+          },
+          {
+            "documentation": "A categorization for the product used for filtering and searching products.",
+            "fieldPath": "product_type"
+          },
+          {
+            "documentation": "The date and time (ISO 8601 format) when the product was published. Can be set to null to unpublish the product from the Online Store channel.",
+            "fieldPath": "published_at"
+          },
+          {
+            "documentation": "Whether the product is published to the Point of Sale channel.",
+            "fieldPath": "published_scope"
+          },
+          {
+            "documentation": "The name of the product.",
+            "fieldPath": "title"
+          },
+          {
+            "documentation": "The date and time when the product was last modified.",
+            "fieldPath": "updated_at"
+          },
+          {
+            "documentation": "The name of the product's vendor.",
+            "fieldPath": "vendor"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.product",
+        "platform": "SNOWFLAKE"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "Each record represents a product variant in Shopify"
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "The barcode, UPC, or ISBN number for the product.",
+            "fieldPath": "barcode"
+          },
+          {
+            "documentation": "The original price of the item before an adjustment or a sale.",
+            "fieldPath": "compare_at_price"
+          },
+          {
+            "documentation": "The date and time (ISO 8601 format) when the product variant was created.",
+            "fieldPath": "created_at"
+          },
+          {
+            "documentation": "The fulfillment service associated with the product variant.",
+            "fieldPath": "fulfillment_service"
+          },
+          {
+            "documentation": "The weight of the product variant in grams.",
+            "fieldPath": "grams"
+          },
+          {
+            "documentation": "The unique numeric identifier for the product variant.",
+            "fieldPath": "id"
+          },
+          {
+            "documentation": "The unique numeric identifier for a product's image. The image must be associated to the same product as the variant.",
+            "fieldPath": "image_id"
+          },
+          {
+            "documentation": "The unique identifier for the inventory item, which is used in the Inventory API to query for inventory information.",
+            "fieldPath": "inventory_item_id"
+          },
+          {
+            "documentation": "The fulfillment service that tracks the number of items in stock for the product variant.",
+            "fieldPath": "inventory_management"
+          },
+          {
+            "documentation": "Whether customers are allowed to place an order for the product variant when it's out of stock.",
+            "fieldPath": "inventory_policy"
+          },
+          {
+            "documentation": "An aggregate of inventory across all locations. To adjust inventory at a specific location, use the InventoryLevel resource.",
+            "fieldPath": "inventory_quantity"
+          },
+          {
+            "documentation": "This property is deprecated. Use the InventoryLevel resource instead.",
+            "fieldPath": "old_inventory_quantity"
+          },
+          {
+            "documentation": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+            "fieldPath": "option_1"
+          },
+          {
+            "documentation": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+            "fieldPath": "option_2"
+          },
+          {
+            "documentation": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+            "fieldPath": "option_3"
+          },
+          {
+            "documentation": "The order of the product variant in the list of product variants. The first position in the list is 1. The position of variants is indicated by the order in which they are listed.",
+            "fieldPath": "position"
+          },
+          {
+            "documentation": "The price of the product variant.",
+            "fieldPath": "price"
+          },
+          {
+            "documentation": "The unique numeric identifier for the product.",
+            "fieldPath": "product_id"
+          },
+          {
+            "documentation": "This property is deprecated. Use the `requires_shipping` property on the InventoryItem resource instead.",
+            "fieldPath": "requires_shipping"
+          },
+          {
+            "documentation": "A unique identifier for the product variant in the shop. Required in order to connect to a FulfillmentService.",
+            "fieldPath": "sku"
+          },
+          {
+            "documentation": "Whether a tax is charged when the product variant is sold.",
+            "fieldPath": "taxable"
+          },
+          {
+            "documentation": "This parameter applies only to the stores that have the Avalara AvaTax app installed. Specifies the Avalara tax code for the product variant.",
+            "fieldPath": "tax_code"
+          },
+          {
+            "documentation": "The title of the product variant. The title field is a concatenation of the option1, option2, and option3 fields. You can only update title indirectly using the option fields.",
+            "fieldPath": "title"
+          },
+          {
+            "documentation": "The date and time when the product variant was last modified. Gets returned in ISO 8601 format.",
+            "fieldPath": "updated_at"
+          },
+          {
+            "documentation": "The weight of the product variant in the unit system specified with weight_unit.",
+            "fieldPath": "weight"
+          },
+          {
+            "documentation": "The unit of measurement that applies to the product variant's weight. If you don't specify a value for weight_unit, then the shop's default unit of measurement is applied. Valid values: g, kg, oz, and lb.",
+            "fieldPath": "weight_unit"
+          },
+          {
+            "documentation": "The total shipping price set for the order.",
+            "fieldPath": "total_shipping_price_set"
+          },
+          {
+            "documentation": "The index associated with the order.",
+            "fieldPath": "index"
+          },
+          {
+            "documentation": "The total pre tax price of the order.",
+            "fieldPath": "pre_tax_price"
+          },
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.product_variant",
+        "platform": "SNOWFLAKE"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "Each record represents a transaction in Shopify."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "The ID for the transaction.",
+            "fieldPath": "transaction_id"
+          },
+          {
+            "documentation": "The ID for the order that the transaction is associated with.",
+            "fieldPath": "order_id"
+          },
+          {
+            "documentation": "The ID associated with a refund in the refund table.",
+            "fieldPath": "refund_id"
+          },
+          {
+            "documentation": "The amount of money included in the transaction.",
+            "fieldPath": "amount"
+          },
+          {
+            "documentation": "The authorization code associated with the transaction.",
+            "fieldPath": "authorization"
+          },
+          {
+            "documentation": "The date and time when the transaction was created.",
+            "fieldPath": "created_timestamp"
+          },
+          {
+            "documentation": "The date and time when a transaction was processed.",
+            "fieldPath": "processed_timestamp"
+          },
+          {
+            "documentation": "The ID for the device.",
+            "fieldPath": "device_id"
+          },
+          {
+            "documentation": "The name of the gateway the transaction was issued through.",
+            "fieldPath": "gateway"
+          },
+          {
+            "documentation": "The origin of the transaction.",
+            "fieldPath": "source_name"
+          },
+          {
+            "documentation": "A string generated by the payment provider with additional information about why the transaction succeeded or failed.",
+            "fieldPath": "message"
+          },
+          {
+            "documentation": "The three-letter code (ISO 4217 format) for the currency used for the payment.",
+            "fieldPath": "currency"
+          },
+          {
+            "documentation": "The ID of the physical location where the transaction was processed.",
+            "fieldPath": "location_id"
+          },
+          {
+            "documentation": "The ID of an associated transaction.",
+            "fieldPath": "parent_id"
+          },
+          {
+            "documentation": "The response code from the address verification system.",
+            "fieldPath": "payment_avs_result_code"
+          },
+          {
+            "documentation": "The issuer identification number (IIN), formerly known as bank identification number (BIN) of the customer's credit card.",
+            "fieldPath": "payment_credit_card_bin"
+          },
+          {
+            "documentation": "The response code from the credit card company indicating whether the customer entered the card security code, or card verification value, correctly.",
+            "fieldPath": "payment_cvv_result_code"
+          },
+          {
+            "documentation": "The customer's credit card number, with most of the leading digits redacted.",
+            "fieldPath": "payment_credit_card_number"
+          },
+          {
+            "documentation": "The name of the company that issued the customer's credit card.",
+            "fieldPath": "payment_credit_card_company"
+          },
+          {
+            "documentation": "The transaction's type.",
+            "fieldPath": "kind"
+          },
+          {
+            "documentation": "A transaction receipt attached to the transaction by the gateway.",
+            "fieldPath": "receipt"
+          },
+          {
+            "documentation": "The ID of the adjustment.",
+            "fieldPath": "currency_exchange_id"
+          },
+          {
+            "documentation": "The difference between the amounts on the associated transaction and the parent transaction.",
+            "fieldPath": "currency_exchange_adjustment"
+          },
+          {
+            "documentation": "The amount of the parent transaction in the shop currency.",
+            "fieldPath": "currency_exchange_original_amount"
+          },
+          {
+            "documentation": "The amount of the associated transaction in the shop currency.",
+            "fieldPath": "currency_exchange_final_amount"
+          },
+          {
+            "documentation": "The shop currency.",
+            "fieldPath": "currency_exchange_currency"
+          },
+          {
+            "documentation": "A standardized error code, independent of the payment provider.",
+            "fieldPath": "error_code"
+          },
+          {
+            "documentation": "The status of the transaction.",
+            "fieldPath": "status"
+          },
+          {
+            "documentation": "Whether the transaction is a test transaction.",
+            "fieldPath": "test"
+          },
+          {
+            "documentation": "The ID for the user who was logged into the Shopify POS device when the order was processed, if applicable.",
+            "fieldPath": "user_id"
+          },
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.transaction",
+        "platform": "SNOWFLAKE"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "Each record represents a refund within Shopify."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "The unique numeric identifier for the refund.",
+            "fieldPath": "id"
+          },
+          {
+            "documentation": "Timestamp of the date when the refund was created.",
+            "fieldPath": "created_at"
+          },
+          {
+            "documentation": "Timestamp of the date when the refund was processed.",
+            "fieldPath": "processed_at"
+          },
+          {
+            "documentation": "User generated note attached to the refund.",
+            "fieldPath": "note"
+          },
+          {
+            "documentation": "Boolean indicating if the refund is a result of a restock.",
+            "fieldPath": "restock"
+          },
+          {
+            "documentation": "Reference to the user id which generated the refund.",
+            "fieldPath": "user_id"
+          },
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          },
+          {
+            "documentation": "Record representing total duties set for the refund.",
+            "fieldPath": "total_duties_set"
+          },
+          {
+            "documentation": "Reference to the order which the refund is associated.",
+            "fieldPath": "order_id"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.refund",
+        "platform": "SNOWFLAKE"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "Each record represents and adjustment to and order within Shopify."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "The unique numeric identifier for the order adjustment.",
+            "fieldPath": "id"
+          },
+          {
+            "documentation": "Reference to the order which the adjustment is associated.",
+            "fieldPath": "order_id"
+          },
+          {
+            "documentation": "Reference to the refund which the adjustment is associated.",
+            "fieldPath": "refund_id"
+          },
+          {
+            "documentation": "Amount of the adjustment.",
+            "fieldPath": "amount"
+          },
+          {
+            "documentation": "Tax amount applied to the order adjustment.",
+            "fieldPath": "tax_amount"
+          },
+          {
+            "documentation": "The kind of order adjustment (eg. refund, restock, etc.).",
+            "fieldPath": "kind"
+          },
+          {
+            "documentation": "The reason for the order adjustment.",
+            "fieldPath": "reason"
+          },
+          {
+            "documentation": "Amount set towards the order adjustment",
+            "fieldPath": "amount_set"
+          },
+          {
+            "documentation": "Tax amount set towards the order adjustment.",
+            "fieldPath": "tax_amount_set"
+          },
+          {
+            "documentation": "The time when a record was last updated by Fivetran.",
+            "fieldPath": "_fivetran_synced"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.shopify.order_adjustment",
         "platform": "SNOWFLAKE"
       }
     },
@@ -1619,7 +2446,6 @@
     "virtualView": {
       "dbtModel": {
         "compiledSql": "with orders as (\n\n    select *\n    from DEV_DB.DBT_DEV_stg_shopify.stg_shopify__order\n\n), transactions as (\n\n    select *\n    from DEV_DB.DBT_DEV_shopify.shopify__transactions\n    where lower(status) = 'success'\n/*\n), transaction_refund_adjustment as (\n\n    select\n        *,\n        case when lower(kind) = 'refund'\n            then currency_exchange_calculated_amount * -1\n            else currency_exchange_calculated_amount\n                end as adjusted_amount\n    from transactions\n*/\n\n), aggregated as (\n\n    select\n        orders.customer_id,\n        orders.source_relation,\n        min(orders.created_timestamp) as first_order_timestamp,\n        max(orders.created_timestamp) as most_recent_order_timestamp,\n        avg(case when lower(transactions.kind) in ('sale','capture') then transactions.currency_exchange_calculated_amount end) as average_order_value,\n        sum(case when lower(transactions.kind) in ('sale','capture') then transactions.currency_exchange_calculated_amount end) as lifetime_total_spent,\n        sum(case when lower(transactions.kind) in ('refund') then transactions.currency_exchange_calculated_amount end) as lifetime_total_refunded,\n        count(distinct orders.order_id) as lifetime_count_orders\n    from orders\n    left join transactions\n        using (order_id, source_relation)\n    where customer_id is not null\n    group by 1,2\n\n)\n\nselect *\nfrom aggregated",
-        "description": "",
         "fields": [],
         "materialization": {
           "targetDataset": "DATASET~700E7494AC9B1A4B04773DCD189D92DF",
@@ -1659,7 +2485,6 @@
     "virtualView": {
       "dbtModel": {
         "compiledSql": "with order_line as (\n\n    select *\n    from DEV_DB.DBT_DEV_stg_shopify.stg_shopify__order_line\n\n), aggregated as (\n\n    select \n        order_id,\n        source_relation,\n        count(*) as line_item_count\n    from order_line\n    group by 1,2\n\n)\n\nselect *\nfrom aggregated",
-        "description": "",
         "fields": [],
         "materialization": {
           "targetDataset": "DATASET~C9CDC635626C959DC4D26BE4F9683DD7",
@@ -1698,7 +2523,6 @@
     "virtualView": {
       "dbtModel": {
         "compiledSql": "\n\nwith refunds as (\n\n    select *\n    from DEV_DB.DBT_DEV_stg_shopify.stg_shopify__refund\n\n), order_line_refunds as (\n\n    select *\n    from DEV_DB.DBT_DEV_stg_shopify.stg_shopify__order_line_refund\n    \n), refund_join as (\n\n    select \n        refunds.refund_id,\n        refunds.created_at,\n        refunds.order_id,\n        refunds.user_id,\n        refunds.source_relation,\n        order_line_refunds.order_line_refund_id,\n        order_line_refunds.order_line_id,\n        order_line_refunds.restock_type,\n        order_line_refunds.quantity,\n        order_line_refunds.subtotal,\n        order_line_refunds.total_tax\n    from refunds\n    left join order_line_refunds\n        on refunds.refund_id = order_line_refunds.refund_id\n        and refunds.source_relation = order_line_refunds.source_relation\n\n)\n\nselect *\nfrom refund_join",
-        "description": "",
         "fields": [],
         "macros": [
           {
