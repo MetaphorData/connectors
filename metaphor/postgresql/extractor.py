@@ -104,7 +104,7 @@ class PostgreSQLExtractor(BaseExtractor):
 
     async def _fetch_tables(
         self, conn: Connection, database: str, filter: DatasetFilter
-    ) -> None:
+    ) -> List[Dataset]:
         results = await conn.fetch(
             """
             SELECT schemaname, tablename AS name, pgd.description, pgc.reltuples::bigint AS row_count,
@@ -130,6 +130,8 @@ class PostgreSQLExtractor(BaseExtractor):
             """
         )
 
+        datasets = []
+
         for table in results:
             schema = table["schemaname"]
             name = table["name"]
@@ -141,13 +143,17 @@ class PostgreSQLExtractor(BaseExtractor):
             if not filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
-            self._init_dataset(
-                full_name, table_type, description, row_count, table_size
+            datasets.append(
+                self._init_dataset(
+                    full_name, table_type, description, row_count, table_size
+                )
             )
+
+        return datasets
 
     async def _fetch_columns(
         self, conn: Connection, catalog: str, filter: DatasetFilter
-    ) -> None:
+    ) -> List[Dataset]:
         columns = await conn.fetch(
             """
             SELECT nc.nspname AS table_schema, c.relname AS table_name,
@@ -179,6 +185,9 @@ class PostgreSQLExtractor(BaseExtractor):
             """
         )
 
+        datasets = []
+        seen = set()
+
         for column in columns:
             schema, name = column["table_schema"], column["table_name"]
             full_name = dataset_fullname(catalog, schema, name)
@@ -189,6 +198,11 @@ class PostgreSQLExtractor(BaseExtractor):
             assert dataset.schema is not None and dataset.schema.fields is not None
 
             dataset.schema.fields.append(PostgreSQLExtractor._build_field(column))
+            if full_name not in seen:
+                datasets.append(dataset)
+                seen.add(full_name)
+
+        return datasets
 
     async def _fetch_constraints(self, conn: Connection, catalog: str) -> None:
         constraints = await conn.fetch(
@@ -246,7 +260,7 @@ class PostgreSQLExtractor(BaseExtractor):
         description: str,
         row_count: int,
         table_size: int,
-    ) -> None:
+    ) -> Dataset:
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
         dataset.logical_id.platform = self._platform
@@ -270,6 +284,8 @@ class PostgreSQLExtractor(BaseExtractor):
         # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 
         self._datasets[full_name] = dataset
+
+        return dataset
 
     @staticmethod
     def _build_field(column) -> SchemaField:
