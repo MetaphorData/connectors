@@ -34,19 +34,16 @@ repos:
           - types-pytz
 
   - repo: https://github.com/pycqa/bandit
-    rev: 1.7.0
+    rev: 1.7.2
     hooks:
       - id: bandit
         args: ['--skip=B101,B303,B608']
 
-  - repo: local
+  - repo: https://github.com/pycqa/flake8
+    rev: 4.0.1
     hooks:
-      - id: flakehell
-        name: flakehell
-        entry: flakehell lint
-        language: python
-        pass_filenames: false
-        always_run: true
+      - id: flake8
+        args: ['--ignore=E203,E501,W503']
 
   - repo: local
     hooks:
