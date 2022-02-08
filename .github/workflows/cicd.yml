@@ -2,127 +2,127 @@
 name: CI/CD
 
 env:
-    PYTHON_VERSION: 3.7
-    POETRY_VERSION: 1.1.7
-    NODE_VERSION: 14
+  PYTHON_VERSION: 3.7
+  POETRY_VERSION: 1.1.12
+  NODE_VERSION: 14
 
 # Run this build workflow every time a new PR or push is made to the main branch
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [main]
 
-    pull_request:
-        branches: [main]
+  pull_request:
+    branches: [main]
 
-    workflow_dispatch:
+  workflow_dispatch:
 
 defaults:
-    run:
-        shell: bash
+  run:
+    shell: bash
 
 jobs:
-    check-py:
-        name: Check Python code
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
+  check-py:
+    name: Check Python code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-            - name: Setup python
-              uses: actions/setup-python@v2
-              with:
-                  python-version: ${{ env.PYTHON_VERSION }}
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-            - name: Setup Poetry
-              uses: abatilo/actions-poetry@v2.0.0
-              with:
-                  poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
 
-            - name: Lint & Type Check
-              run: |
-                  poetry install -E all
-                  poetry run flakehell lint
-                  poetry run black --check .
-                  poetry run isort --check .
-                  poetry run mypy .
+      - name: Lint & Type Check
+        run: |
+          poetry install -E all
+          poetry run flakehell lint
+          poetry run black --check .
+          poetry run isort --check .
+          poetry run mypy .
 
-            - name: Test
-              run: |
-                  poetry run pytest
+      - name: Test
+        run: |
+          poetry run pytest
 
     # Only publish to PyPI when PR merged or manually triggered
-    publish:
-        if: ${{ (github.ref == 'refs/heads/main' && github.event_name == 'push') ||  github.event_name == 'workflow_dispatch' }}
-        needs:
-            - check-py
-        name: Publish to PyPI
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
+  publish:
+    if: ${{ (github.ref == 'refs/heads/main' && github.event_name == 'push') ||  github.event_name == 'workflow_dispatch' }}
+    needs:
+      - check-py
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-            - name: Setup python
-              uses: actions/setup-python@v2
-              with:
-                  python-version: ${{ env.PYTHON_VERSION }}
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-            - name: Setup Poetry
-              uses: abatilo/actions-poetry@v2.0.0
-              with:
-                  poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
 
-            - name: Publish to PyPI
-              run: >
-                  poetry publish --build
-                  -u ${{ secrets.PYPI_USERNAME }}
-                  -p ${{ secrets.PYPI_PASSWORD }}
-                  2>&1 | tee ${{ runner.temp }}/logs
-                  || grep -qiE 'File already exists' ${{ runner.temp }}/logs
+      - name: Publish to PyPI
+        run: >
+          poetry publish --build
+          -u ${{ secrets.PYPI_USERNAME }}
+          -p ${{ secrets.PYPI_PASSWORD }}
+          2>&1 | tee ${{ runner.temp }}/logs
+          || grep -qiE 'File already exists' ${{ runner.temp }}/logs
 
             # Tag release
-            - uses: actions/setup-node@v2
-              with:
-                  node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
-            - run: npm install toml
+      - run: npm install toml
 
-            - id: get-version
-              name: Get version
-              uses: actions/github-script@v5
-              with:
-                  script: |
-                      const fs = require('fs');
+      - id: get-version
+        name: Get version
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
 
-                      const logs = fs.readFileSync('${{ runner.temp }}/logs').toString('utf8');
-                      if (logs.search(/File already exists/ig) >= 0) {
-                        core.notice('No new version was published to PyPI.');
-                        process.exit(0);
-                      }
+            const logs = fs.readFileSync('${{ runner.temp }}/logs').toString('utf8');
+            if (logs.search(/File already exists/ig) >= 0) {
+              core.notice('No new version was published to PyPI.');
+              process.exit(0);
+            }
 
-                      const toml = require('toml');
-                      const pyproject = toml.parse(fs.readFileSync('pyproject.toml')); 
-                      core.setOutput('version', pyproject.tool.poetry.version);
+            const toml = require('toml');
+            const pyproject = toml.parse(fs.readFileSync('pyproject.toml')); 
+            core.setOutput('version', pyproject.tool.poetry.version);
 
-            - name: Create tag
-              if: ${{ steps.get-version.outputs.version }}
-              uses: actions/github-script@v5
-              with:
-                  github-token: ${{ github.token }}
-                  script: |
-                      const version = '${{ steps.get-version.outputs.version }}';
-                      core.notice(`Tagging ${{ github.sha }} as ${version}`);
+      - name: Create tag
+        if: ${{ steps.get-version.outputs.version }}
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const version = '${{ steps.get-version.outputs.version }}';
+            core.notice(`Tagging ${{ github.sha }} as ${version}`);
 
-                      try {
-                        await github.rest.git.deleteRef({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          ref: `tags/${ version }`
-                        });
-                      } catch (err) {}
+            try {
+              await github.rest.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `tags/${ version }`
+              });
+            } catch (err) {}
 
-                      github.rest.git.createRef({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        ref: `refs/tags/${ version }`,
-                        sha: "${{ github.sha }}"
-                      })
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${ version }`,
+              sha: "${{ github.sha }}"
+            })

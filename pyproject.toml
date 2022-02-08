@@ -59,7 +59,7 @@ snowflake = ["snowflake-connector-python", "sql-metadata"]
 tableau = ["tableauserverclient"]
 
 [tool.poetry.dev-dependencies]
-black = "^20.8b1"
+black = "^22.1"
 datamodel-code-generator = { extras = ["http"], version = "^0.11.14" }
 flakehell = "^0.9.0"
 flake8 = "3.9.0"
@@ -67,7 +67,7 @@ freezegun = "^1.1.0"
 isort = "^5.8.0"
 mypy = "^0.931"
 pytest = "^6.2.2"
-pytest-asyncio = "^0.14.0"
+pytest-asyncio = "^0.18.0"
 types-freezegun = "^0.1.4"
 types-pytz = "^2021.3.4"
 types-requests = "^2.25.0"
