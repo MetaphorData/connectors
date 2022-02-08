@@ -108,7 +108,7 @@ class PostgreSQLExtractor(BaseExtractor):
         results = await conn.fetch(
             """
             SELECT schemaname, tablename AS name, pgd.description, pgc.reltuples::bigint AS row_count,
-                pg_total_relation_size('"' || schemaname || '"."' || tablename || '"') AS table_size,
+                pg_total_relation_size(pgc.oid) AS table_size,
                 'TABLE' as table_type
             FROM pg_catalog.pg_tables t
             LEFT JOIN pg_class pgc
@@ -118,7 +118,7 @@ class PostgreSQLExtractor(BaseExtractor):
             WHERE schemaname !~ '^pg_' AND schemaname != 'information_schema'
             UNION
             SELECT schemaname, viewname AS name, pgd.description, pgc.reltuples::bigint AS row_count,
-                pg_total_relation_size('"' || schemaname || '"."' || viewname || '"') AS table_size,
+                pg_total_relation_size(pgc.oid) AS table_size,
                 'VIEW' as table_type
             FROM pg_catalog.pg_views v
             LEFT JOIN pg_class pgc
