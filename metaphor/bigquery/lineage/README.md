@@ -22,6 +22,12 @@ See [Access Control](https://cloud.google.com/logging/docs/access-control#consol
 The config file inherits all the required and optional fields from the general BigQuery connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
 ```yaml
+# # (Optional) Whether to enable parsing view definition to build view lineage, default True
+enable_view_lineage: <boolean>
+
+# (Optional) Whether to enable parsing audit log to find table lineage information, default True
+enable_lineage_from_log: <boolean>
+
 # (Optional) Number of days of logs to extract for lineage analysis. Default to 30.
 lookback_days: <days>
 
@@ -31,7 +37,7 @@ batch_size: <batch_size>
 
 ## Testing
 
-Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `bigquery` extra.
+Follow the [Installation](../../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `bigquery` extra.
 
 To test the connector locally, change the config file to output to a local path and run the following command
 

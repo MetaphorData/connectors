@@ -5,7 +5,10 @@ from typing import Any, Optional
 
 from smart_open import open
 
+from metaphor.bigquery.config import BigQueryRunConfig
+
 try:
+    import google.cloud.bigquery as bigquery
     from google.cloud import logging_v2
     from google.oauth2 import service_account
 except ImportError:
@@ -19,6 +22,19 @@ except ImportError:
 # from google.cloud.logging_v2 import ProtobufEntry
 # LogEntry = ProtobufEntry
 LogEntry = Any
+
+
+def build_client(config: BigQueryRunConfig) -> bigquery.Client:
+    with open(config.key_path) as fin:
+        credentials = service_account.Credentials.from_service_account_info(
+            json.load(fin),
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )
+
+        return bigquery.Client(
+            credentials=credentials,
+            project=config.project_id if config.project_id else credentials.project_id,
+        )
 
 
 def build_logging_client(key_path: str, project_id: Optional[str]) -> logging_v2.Client:

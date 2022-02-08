@@ -1,12 +1,8 @@
-import json
 import logging
 from typing import Any, List, Mapping, Sequence, Union
 
-from smart_open import open
-
 try:
     import google.cloud.bigquery as bigquery
-    from google.oauth2 import service_account
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
@@ -25,24 +21,12 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.bigquery.config import BigQueryRunConfig
+from metaphor.bigquery.utils import build_client
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-def build_client(config: BigQueryRunConfig) -> bigquery.Client:
-    with open(config.key_path) as fin:
-        credentials = service_account.Credentials.from_service_account_info(
-            json.load(fin),
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],
-        )
-
-        return bigquery.Client(
-            credentials=credentials,
-            project=config.project_id if config.project_id else credentials.project_id,
-        )
 
 
 class BigQueryExtractor(BaseExtractor):
