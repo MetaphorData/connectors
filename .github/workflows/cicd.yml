@@ -41,7 +41,7 @@ jobs:
       - name: Lint & Type Check
         run: |
           poetry install -E all
-          poetry run flakehell lint
+          poetry run flake8
           poetry run black --check .
           poetry run isort --check .
           poetry run mypy .
