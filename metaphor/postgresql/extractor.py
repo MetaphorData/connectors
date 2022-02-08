@@ -302,9 +302,9 @@ class PostgreSQLExtractor(BaseExtractor):
             elif native_type == "bigint":
                 precision = 64.0
             elif native_type == "real":
-                precision = 24
+                precision = 24.0
             elif native_type == "double precision":
-                precision = 53
+                precision = 53.0
             elif native_type == "numeric" and type_str != "numeric":
                 try:
                     precision = float(type_str.split("(")[1].split(",")[0])
