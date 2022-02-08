@@ -1,0 +1,20 @@
+[
+  {
+    "dataset": {
+      "entityType": "DATASET",
+      "logicalId": {
+        "name": "project1.dataset1.table1",
+        "platform": "BIGQUERY"
+      },
+      "upstream": {
+        "sourceDatasets": [
+          "DATASET~A6BA6F986B360A57CF65200F29F5B251"
+        ],
+        "transformation": "select * from FOO"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  }
+]

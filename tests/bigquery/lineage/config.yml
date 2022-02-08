@@ -1,5 +1,7 @@
 ---
 key_path: key_path
 project_id: project_id
+enable_view_lineage: true
+enable_lineage_from_log: false
 lookback_days: 10
 output: {}
