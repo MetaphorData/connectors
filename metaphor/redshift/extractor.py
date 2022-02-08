@@ -1,5 +1,6 @@
 from typing import List
 
+from asyncpg import Connection
 from metaphor.models.metadata_change_event import DataPlatform, MetadataChangeEvent
 
 from metaphor.common.entity_id import dataset_fullname
@@ -45,7 +46,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
-    async def _fetch_redshift_table_stats(self, conn, catalog: str) -> None:
+    async def _fetch_redshift_table_stats(self, conn: Connection, db: str) -> None:
         results = await conn.fetch(
             """
             SELECT "schema", "table", size, tbl_rows
@@ -54,7 +55,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
         )
 
         for result in results:
-            full_name = dataset_fullname(catalog, result["schema"], result["table"])
+            full_name = dataset_fullname(db, result["schema"], result["table"])
             if full_name not in self._datasets:
                 logger.warning(f"table {full_name} not found")
                 continue

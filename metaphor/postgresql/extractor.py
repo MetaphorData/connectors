@@ -32,14 +32,6 @@ from metaphor.common.filter import DatasetFilter
 
 logger = get_logger(__name__)
 
-_ignored_dbs = ["template0", "template1", "rdsadmin"]
-_ignored_schemas = [
-    "pg_catalog",
-    "information_schema",
-    "pg_internal",
-    "catalog_history",
-]
-
 
 class PostgreSQLExtractor(BaseExtractor):
     """PostgreSQL metadata extractor"""
@@ -93,14 +85,11 @@ class PostgreSQLExtractor(BaseExtractor):
         conn = await PostgreSQLExtractor._connect_database(config, config.database)
         try:
             results = await conn.fetch("SELECT datname FROM pg_database")
-            databases = [r[0] for r in results if r[0] not in _ignored_dbs]
+            databases = [r[0] for r in results if r[0] not in config.ignored_dbs]
             logger.info(f"Databases: {databases}")
             return databases
         finally:
             await conn.close()
-
-    # Exclude schemas in WHERE clause, e.g. table_schema not in ($1, $2, ...)
-    _excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
 
     async def _fetch_tables(
         self, conn: Connection, database: str, filter: DatasetFilter

@@ -20,3 +20,8 @@ class PostgreSQLRunConfig(BaseConfig):
     filter: Optional[DatasetFilter] = field(default_factory=lambda: DatasetFilter())
 
     port: int = 5432
+
+    # Ignore RDS Postgres system databases
+    ignored_dbs: set[str] = field(
+        default_factory=lambda: set(["template0", "template1", "rdsadmin"])
+    )
