@@ -185,12 +185,18 @@ class BigQueryLineageExtractor(BaseExtractor):
                 logger.debug(f"Found table {table_ref}")
 
                 bq_table = client.get_table(table_ref)
-                self._parse_view_lineage(client.project, bq_table)
+                try:
+                    self._parse_view_lineage(client.project, bq_table)
+                except Exception as ex:
+                    logger.error(ex)
 
     def _parse_view_lineage(self, project_id, bq_table: bigquery.table.Table) -> None:
         view_query = bq_table.view_query or bq_table.mview_query
         if not view_query:
             return
+
+        view_name = f"{project_id}.{bq_table.dataset_id}.{bq_table.table_id}"
+        logger.info(f"Found view {view_name}")
 
         tables = Parser(view_query).tables
 
@@ -217,8 +223,7 @@ class BigQueryLineageExtractor(BaseExtractor):
             )
 
         if dataset_ids:
-            table_name = f"{project_id}.{bq_table.dataset_id}.{bq_table.table_id}"
-            dataset = self._init_dataset(table_name)
+            dataset = self._init_dataset(view_name)
             dataset.upstream = DatasetUpstream(
                 source_datasets=list(dataset_ids), transformation=view_query
             )
@@ -235,12 +240,12 @@ class BigQueryLineageExtractor(BaseExtractor):
             page_size=config.batch_size, filter_=log_filter
         ):
             fetched += 1
-            if JobChangeEvent.can_parse(entry):
-                try:
+            try:
+                if JobChangeEvent.can_parse(entry):
                     self._parse_job_change_entry(entry)
                     parsed += 1
-                except Exception as ex:
-                    logger.error(ex)
+            except Exception as ex:
+                logger.error(ex)
 
             if fetched % 1000 == 0:
                 logger.info(f"Fetched {fetched} audit logs")
