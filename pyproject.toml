@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.10.19"
+version = "0.10.20"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -47,7 +47,7 @@ all = [
   "sql-metadata",
   "tableauserverclient",
 ]
-bigquery = ["google-cloud-bigquery", "google-cloud-logging"]
+bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 dbt = []
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]

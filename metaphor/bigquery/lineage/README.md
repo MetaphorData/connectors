@@ -22,6 +22,12 @@ See [Access Control](https://cloud.google.com/logging/docs/access-control#consol
 The config file inherits all the required and optional fields from the general BigQuery connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
 ```yaml
+# (Optional) Whether to enable parsing view query to find upstream of the view, default True
+enable_view_lineage: <boolean>
+
+# (Optional) Whether to enable parsing audit log to find table lineage information, default True
+enable_lineage_from_log: <boolean>
+
 # (Optional) Number of days of logs to extract for lineage analysis. Default to 30.
 lookback_days: <days>
 

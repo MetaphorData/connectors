@@ -4,6 +4,14 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
+from sql_metadata import Parser
+
+try:
+    import google.cloud.bigquery as bigquery
+except ImportError:
+    print("Please install metaphor[bigquery] extra\n")
+    raise
+
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -14,7 +22,12 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
-from metaphor.bigquery.utils import BigQueryResource, LogEntry, build_logging_client
+from metaphor.bigquery.utils import (
+    BigQueryResource,
+    LogEntry,
+    build_client,
+    build_logging_client,
+)
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.extractor import BaseExtractor
@@ -134,7 +147,84 @@ class BigQueryLineageExtractor(BaseExtractor):
     ) -> List[MetadataChangeEvent]:
         assert isinstance(config, BigQueryLineageExtractor.config_class())
 
-        logger.info("Fetching lineage info from BigQuery")
+        if config.enable_view_lineage:
+            self._fetch_view_upstream(config)
+
+        if config.enable_lineage_from_log:
+            self._fetch_audit_log(config)
+
+        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+
+    def _fetch_view_upstream(self, config: BigQueryLineageRunConfig) -> None:
+        logger.info("Fetching lineage info from BigQuery API")
+
+        client = build_client(config)
+
+        dataset_filter = config.filter.normalize()
+
+        for bq_dataset in client.list_datasets():
+            if not dataset_filter.include_schema(
+                config.project_id, bq_dataset.dataset_id
+            ):
+                logger.info(f"Skipped dataset {bq_dataset.dataset_id}")
+                continue
+
+            dataset_ref = bigquery.DatasetReference(
+                client.project, bq_dataset.dataset_id
+            )
+
+            logger.info(f"Found dataset {dataset_ref}")
+
+            for bq_table in client.list_tables(bq_dataset.dataset_id):
+                table_ref = dataset_ref.table(bq_table.table_id)
+                if not dataset_filter.include_table(
+                    config.project_id, bq_dataset.dataset_id, bq_table.table_id
+                ):
+                    logger.info(f"Skipped table: {table_ref}")
+                    continue
+                logger.debug(f"Found table {table_ref}")
+
+                bq_table = client.get_table(table_ref)
+                self._parse_view_lineage(client.project, bq_table)
+
+    def _parse_view_lineage(self, project_id, bq_table: bigquery.table.Table) -> None:
+        view_query = bq_table.view_query or bq_table.mview_query
+        if not view_query:
+            return
+
+        tables = Parser(view_query).tables
+
+        dataset_ids = set()
+        for table in tables:
+            segments = table.count(".") + 1
+            if segments == 3:
+                dataset_name = table
+            elif segments == 2:
+                dataset_name = f"{project_id}.{table}"
+            elif segments == 1:
+                dataset_name = f"{project_id}.{bq_table.dataset_id}.{table}"
+            else:
+                raise ValueError(f"invalid table name {table}")
+
+            dataset_ids.add(
+                str(
+                    to_dataset_entity_id(
+                        dataset_name.replace("`", "").lower(),
+                        DataPlatform.BIGQUERY,
+                        None,
+                    )
+                )
+            )
+
+        if dataset_ids:
+            table_name = f"{project_id}.{bq_table.dataset_id}.{bq_table.table_id}"
+            dataset = self._init_dataset(table_name)
+            dataset.upstream = DatasetUpstream(
+                source_datasets=list(dataset_ids), transformation=view_query
+            )
+
+    def _fetch_audit_log(self, config: BigQueryLineageRunConfig):
+        logger.info("Fetching lineage info from BigQuery Audit log")
 
         client = build_logging_client(config.key_path, config.project_id)
         self._dataset_filter = config.filter.normalize()
@@ -152,9 +242,10 @@ class BigQueryLineageExtractor(BaseExtractor):
                 except Exception as ex:
                     logger.error(ex)
 
-        logger.info(f"Fetched {fetched} jobChange log entries, parsed {parsed}")
+            if fetched % 1000 == 0:
+                logger.info(f"Fetched {fetched} audit logs")
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        logger.info(f"Fetched {fetched} jobChange log entries, parsed {parsed}")
 
     def _parse_job_change_entry(self, entry: LogEntry):
         job_change = JobChangeEvent.from_entry(entry)
@@ -171,15 +262,8 @@ class BigQueryLineageExtractor(BaseExtractor):
             return
 
         table_name = destination.table_name()
-        if table_name not in self._datasets:
-            self._datasets[table_name] = Dataset(
-                entity_type=EntityType.DATASET,
-                logical_id=DatasetLogicalID(
-                    name=table_name, platform=DataPlatform.BIGQUERY
-                ),
-            )
-
-        self._datasets[table_name].upstream = DatasetUpstream(
+        dataset = self._init_dataset(table_name)
+        dataset.upstream = DatasetUpstream(
             source_datasets=[
                 str(to_dataset_entity_id(source.table_name(), DataPlatform.BIGQUERY))
                 for source in job_change.source_tables
@@ -201,3 +285,14 @@ class BigQueryLineageExtractor(BaseExtractor):
         timestamp >= "{start}" AND
         timestamp < "{end}"
         """
+
+    def _init_dataset(self, table_name: str) -> Dataset:
+        if table_name not in self._datasets:
+            self._datasets[table_name] = Dataset(
+                entity_type=EntityType.DATASET,
+                logical_id=DatasetLogicalID(
+                    name=table_name, platform=DataPlatform.BIGQUERY
+                ),
+            )
+
+        return self._datasets[table_name]
