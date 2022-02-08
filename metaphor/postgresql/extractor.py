@@ -306,10 +306,16 @@ class PostgreSQLExtractor(BaseExtractor):
             elif native_type == "double precision":
                 precision = 53
             elif native_type == "numeric" and type_str != "numeric":
-                precision = float(type_str.split("(")[1].split(",")[0])
+                try:
+                    precision = float(type_str.split("(")[1].split(",")[0])
+                except IndexError:
+                    logger.warning(f"Failed to parse precision from {type_str}.")
 
             if native_type == "character varying" or native_type == "character":
-                max_length = float(type_str.split("(")[1].strip(")"))
+                try:
+                    max_length = float(type_str.split("(")[1].strip(")"))
+                except IndexError:
+                    logger.warning(f"Failed to parse max_length from {type_str}.")
 
             return precision, max_length
 
