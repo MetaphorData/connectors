@@ -4,7 +4,13 @@ This connector extracts Redshift usage statistics from a Redshift database using
 
 ## Setup
 
-Follow the [Setup](../README.md#Setup) guide for the general Redshift connector.
+Follow the [Setup](../README.md#Setup) guide for the general Redshift connector to create the dedicated `metaphor` user. As the usage connector extracts information from system tables such as `STL_SCAN` & `STL_QUERY`, it needs to be given additional permissions using the following commands:
+
+```sql
+ALTER USER metaphor WITH SYSLOG ACCESS UNRESTRICTED;
+
+GRANT SELECT ON pg_catalog.svl_user_info TO metaphor;
+```
 
 ## Config File
 
