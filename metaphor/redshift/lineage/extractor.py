@@ -90,7 +90,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         """
         results = await conn.fetch(stl_scan_based_lineage_query)
 
-        upstream_map: Dict[str, Tuple[list[str], str]] = {}
+        upstream_map: Dict[str, Tuple[List[str], str]] = {}
 
         for row in results:
             source_table_name = f"{db}.{row['source_schema']}.{row['source_table']}"
@@ -145,7 +145,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         """
         results = await conn.fetch(view_lineage_query)
 
-        upstream_map: Dict[str, list[str]] = {}
+        upstream_map: Dict[str, List[str]] = {}
 
         for row in results:
             source_table_name = f"{db}.{row['source_schema']}.{row['source_table']}"

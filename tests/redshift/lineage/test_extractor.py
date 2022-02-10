@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 from freezegun import freeze_time
@@ -21,7 +21,7 @@ async def test_extractor(test_root_dir):
         password="",
         enable_view_lineage=False,
     )
-    mock_conn = AsyncMock()
+
     records = [
         {
             "target_schema": "private",
@@ -45,17 +45,16 @@ async def test_extractor(test_root_dir):
             "querytxt": "q2",
         },
     ]
-    mock_conn.fetch.side_effect = lambda sql: records
+    params = {"return_value.fetch.side_effect": lambda sql: records}
 
     patcher = patch(
         "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
         return_value=["test"],
     )
-    patcher.start()
     patcher2 = patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
-        return_value=mock_conn,
+        "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database", **params
     )
+    patcher.start()
     patcher2.start()
 
     extractor = RedshiftLineageExtractor()
@@ -76,7 +75,6 @@ async def test_extractor_view(test_root_dir):
         password="",
         enable_lineage_from_stl_scan=False,
     )
-    mock_conn = AsyncMock()
     records = [
         {
             "target_schema": "private",
@@ -97,7 +95,7 @@ async def test_extractor_view(test_root_dir):
             "source_table": "s1",
         },
     ]
-    mock_conn.fetch.side_effect = lambda sql: records
+    params = {"return_value.fetch.side_effect": lambda sql: records}
 
     patcher = patch(
         "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
@@ -105,8 +103,7 @@ async def test_extractor_view(test_root_dir):
     )
     patcher.start()
     patcher2 = patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
-        return_value=mock_conn,
+        "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database", **params
     )
     patcher2.start()
 

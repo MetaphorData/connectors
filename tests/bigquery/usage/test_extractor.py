@@ -1,4 +1,3 @@
-import json
 from unittest.mock import patch
 
 import pytest
@@ -36,5 +35,4 @@ async def test_extractor(test_root_dir):
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
-    print(json.dumps(events))
     assert events == load_json(test_root_dir + "/bigquery/usage/data/result.json")
