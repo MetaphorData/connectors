@@ -102,10 +102,13 @@ class BigQueryProfileExtractor(BigQueryExtractor):
     ) -> Dataset:
         def job_callback(job: QueryJob, schema: DatasetSchema, dataset: Dataset):
             # The profiling result should only have one row
-            assert job.result().total_rows == 1
-
-            results = [res for res in next(job.result())]
-            BigQueryProfileExtractor._parse_result(results, schema, dataset)
+            if job.result().total_rows != 1:
+                logger.warning(
+                    f"Skip {table}, the profiling result is more than one row"
+                )
+            else:
+                results = [res for res in next(job.result())]
+                BigQueryProfileExtractor._parse_result(results, schema, dataset)
             jobs.remove(job.job_id)
 
         dataset = BigQueryProfileExtractor._init_dataset(
