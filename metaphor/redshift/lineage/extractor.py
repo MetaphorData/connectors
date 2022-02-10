@@ -89,8 +89,6 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             USING (query)
         """
         results = await conn.fetch(stl_scan_based_lineage_query)
-        print("hello")
-        print(results)
 
         upstream_map: Dict[str, Tuple[List[str], str]] = {}
 
