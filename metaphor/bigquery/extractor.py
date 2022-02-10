@@ -131,11 +131,18 @@ class BigQueryExtractor(BaseExtractor):
             if not isinstance(field, bigquery.schema.SchemaField):
                 raise ValueError(f"Field type not supported: {field}")
 
+            # mode REPEATED means ARRAY
+            field_type = (
+                f"ARRAY<{field.field_type}>"
+                if field.mode == "REPEATED"
+                else field.field_type
+            )
+
             fields.append(
                 SchemaField(
                     field_path=field.name,
                     description=field.description,
-                    native_type=field.field_type,
+                    native_type=field_type,
                     nullable=field.is_nullable,
                 )
             )

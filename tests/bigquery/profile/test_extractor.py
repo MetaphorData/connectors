@@ -26,9 +26,9 @@ def test_build_profiling_query():
     table = TableReference(DatasetReference("project", "dataset_id"), "table_id")
 
     expected = (
-        "SELECT COUNT(1), COUNT(DISTINCT id), COUNT(DISTINCT price), "
-        "COUNTIF(price is NULL), MIN(price), MAX(price), AVG(price), "
-        "COUNTIF(json is NULL) "
+        "SELECT COUNT(1), COUNT(DISTINCT `id`), COUNT(DISTINCT `price`), "
+        "COUNTIF(`price` is NULL), MIN(`price`), MAX(`price`), AVG(`price`), "
+        "COUNTIF(`json` is NULL) "
         "FROM `project.dataset_id.table_id`"
     )
 
@@ -51,8 +51,8 @@ def test_build_profiling_query_with_sampling():
     table = TableReference(DatasetReference("project", "dataset_id"), "table_id")
 
     expected = (
-        "SELECT COUNT(1), COUNT(DISTINCT id), COUNT(DISTINCT price), "
-        "COUNTIF(price is NULL), MIN(price), MAX(price), AVG(price) "
+        "SELECT COUNT(1), COUNT(DISTINCT `id`), COUNT(DISTINCT `price`), "
+        "COUNTIF(`price` is NULL), MIN(`price`), MAX(`price`), AVG(`price`) "
         "FROM `project.dataset_id.table_id` TABLESAMPLE SYSTEM (50 PERCENT)"
     )
 
