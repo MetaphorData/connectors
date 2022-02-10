@@ -47,7 +47,7 @@
         "fields": [{
           "fieldPath": "f1",
           "description": "d1",
-          "nativeType": "FLOAT",
+          "nativeType": "ARRAY<FLOAT>",
           "nullable": false
         }],
         "schemaType": "SQL",

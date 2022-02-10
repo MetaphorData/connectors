@@ -181,7 +181,8 @@ class SnowflakeProfileExtractor(BaseExtractor):
         query = ["SELECT COUNT(1) ROW_COUNT"]
 
         for column, data_type, nullable in columns:
-            query.append(f', COUNT(DISTINCT "{column}")')
+            if not SnowflakeProfileExtractor._is_complex(data_type):
+                query.append(f', COUNT(DISTINCT "{column}")')
 
             if nullable:
                 query.append(f', COUNT_IF("{column}" is NULL)')
@@ -217,8 +218,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         index = 1
         for column, data_type, nullable in columns:
-            unique_values = float(results[index])
-            index += 1
+            unique_values = None
+            if not SnowflakeProfileExtractor._is_complex(data_type):
+                unique_values = float(results[index])
+                index += 1
 
             if nullable:
                 nulls = float(results[index]) if results[index] else 0.0
@@ -252,7 +255,12 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     @staticmethod
     def _is_numeric(data_type: str) -> bool:
-        return data_type in ["NUMBER", "FLOAT"]
+        return data_type in ("NUMBER", "FLOAT")
+
+    @staticmethod
+    def _is_complex(data_type: str) -> bool:
+        # https://docs.snowflake.com/en/sql-reference/intro-summary-data-types.html
+        return data_type in ("VARIANT", "ARRAY", "OBJECT", "GEOGRAPHY")
 
     @staticmethod
     def _init_dataset(account: str, full_name: str) -> Dataset:
