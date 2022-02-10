@@ -113,6 +113,7 @@ class SnowflakeExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo] = {}
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
             full_name = dataset_fullname(database, schema, name)
+            logger.info(f"{database} {schema} {name} {table_type}")
             if not filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue

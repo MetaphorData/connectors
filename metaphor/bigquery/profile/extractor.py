@@ -31,9 +31,6 @@ logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
 
 
-TYPES_WITHOUT_DISTINCT_VALUES = ("RECORD", "STRUCT", "ARRAY")
-
-
 class BigQueryProfileExtractor(BigQueryExtractor):
     """BigQuery data profile extractor"""
 
@@ -141,7 +138,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             data_type = field.native_type
             nullable = field.nullable
 
-            if data_type not in TYPES_WITHOUT_DISTINCT_VALUES:
+            if not BigQueryProfileExtractor._is_complex(data_type):
                 query.append(f", COUNT(DISTINCT `{column}`)")
 
             if nullable:
@@ -175,7 +172,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             nullable = field.nullable
 
             unique_values = None
-            if data_type not in TYPES_WITHOUT_DISTINCT_VALUES:
+            if not BigQueryProfileExtractor._is_complex(data_type):
                 unique_values = float(results[index])
                 index += 1
 
@@ -227,6 +224,13 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             "FLOAT64",
         ]
         return data_type in numeric_types
+
+    @staticmethod
+    def _is_complex(data_type: str) -> bool:
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#groupable_data_types
+        return data_type in ("RECORD", "JSON", "GEOGRAPHY") or data_type.startswith(
+            "ARRAY"
+        )
 
     @staticmethod
     def _init_dataset(full_name: str) -> Dataset:
