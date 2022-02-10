@@ -12,5 +12,7 @@ def test_yaml_config(test_root_dir):
         database="database",
         user="user",
         password="password",
+        enable_view_lineage=False,
+        enable_lineage_from_stl_scan=False,
         output=OutputConfig(),
     )

@@ -3,5 +3,6 @@ host: host
 database: database
 user: user
 password: password
-enable_lineage_from_log: false
+enable_view_lineage: false
+enable_lineage_from_stl_scan: false
 output: {}

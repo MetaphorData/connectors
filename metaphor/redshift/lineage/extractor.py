@@ -51,6 +51,9 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             if config.enable_lineage_from_stl_scan:
                 await self._fetch_upstream_from_stl_scan(conn, db)
 
+            if config.enable_view_lineage:
+                await self._fetch_view_upstream(conn, db)
+
             await conn.close()
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
@@ -103,6 +106,58 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             sources, query = upstream_map[target_table_name]
             dataset.upstream = DatasetUpstream(
                 source_datasets=list(dict.fromkeys(sources)), transformation=query
+            )
+
+    async def _fetch_view_upstream(self, conn: Connection, db: str) -> None:
+        view_lineage_query: str = """
+            SELECT DISTINCT
+                snsp.nspname AS source_schema, spgc.relname AS source_table,
+                tnsp.nspname AS target_schema, tpgc.relname AS target_table
+            FROM
+                pg_catalog.pg_class AS spgc
+            INNER JOIN
+                pg_catalog.pg_depend AS spgd
+                    ON
+                spgc.oid = spgd.refobjid
+            INNER JOIN
+                pg_catalog.pg_depend AS tpgd
+                    ON
+                spgd.objid = tpgd.objid
+            JOIN
+                pg_catalog.pg_class AS tpgc
+                    ON
+                tpgd.refobjid = tpgc.oid
+                AND spgc.oid <> tpgc.oid
+            LEFT OUTER JOIN
+                pg_catalog.pg_namespace AS snsp
+                    ON
+                spgc.relnamespace = snsp.oid
+            LEFT OUTER JOIN
+                pg_catalog.pg_namespace tnsp
+                    ON
+                tpgc.relnamespace = tnsp.oid
+            WHERE
+                tpgd.deptype = 'i'
+                AND tpgc.relkind = 'v'
+                AND tnsp.nspname != 'information_schema'
+                AND tnsp.nspname !~ '^pg_'
+                ORDER BY target_schema, target_table ASC;
+        """
+        results = await conn.fetch(view_lineage_query)
+
+        upstream_map: Dict[str, list[str]] = {}
+
+        for row in results:
+            source_table_name = f"{db}.{row['source_schema']}.{row['source_table']}"
+            target_table_name = f"{db}.{row['target_schema']}.{row['target_table']}"
+
+            upstream_map.setdefault(target_table_name, list()).append(source_table_name)
+
+        for target_table_name in upstream_map.keys():
+            dataset = self._init_dataset(target_table_name)
+            sources = upstream_map[target_table_name]
+            dataset.upstream = DatasetUpstream(
+                source_datasets=list(dict.fromkeys(sources))
             )
 
     def _init_dataset(self, table_name: str) -> Dataset:
