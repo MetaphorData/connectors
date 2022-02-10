@@ -1,0 +1,7 @@
+---
+host: host
+database: database
+user: user
+password: password
+enable_lineage_from_log: false
+output: {}

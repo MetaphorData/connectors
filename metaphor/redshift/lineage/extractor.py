@@ -1,0 +1,117 @@
+from typing import Dict, List, Tuple
+
+from asyncpg import Connection
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
+    DatasetUpstream,
+    EntityType,
+    MetadataChangeEvent,
+)
+
+from metaphor.common.event_util import EventUtil
+from metaphor.common.filter import DatasetFilter
+from metaphor.common.logger import get_logger
+from metaphor.postgresql.extractor import PostgreSQLExtractor
+from metaphor.redshift.lineage.config import RedshiftLineageRunConfig
+
+logger = get_logger(__name__)
+
+
+class RedshiftLineageExtractor(PostgreSQLExtractor):
+    """Redshift lineage metadata extractor"""
+
+    @staticmethod
+    def config_class():
+        return RedshiftLineageRunConfig
+
+    def __init__(self):
+        super().__init__()
+        self._platform = DataPlatform.REDSHIFT
+        self._dataset_filter: DatasetFilter = DatasetFilter()
+
+    async def extract(
+        self, config: RedshiftLineageRunConfig
+    ) -> List[MetadataChangeEvent]:
+        assert isinstance(config, PostgreSQLExtractor.config_class())
+        logger.info(f"Fetching lineage info from redshift host {config.host}")
+
+        self._dataset_filter = config.filter.normalize()
+
+        databases = (
+            await self._fetch_databases(config)
+            if self._dataset_filter.includes is None
+            else list(self._dataset_filter.includes.keys())
+        )
+
+        for db in databases:
+            conn = await PostgreSQLExtractor._connect_database(config, db)
+
+            if config.enable_lineage_from_stl_scan:
+                await self._fetch_upstream_from_stl_scan(conn, db)
+
+            await conn.close()
+
+        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+
+    async def _fetch_upstream_from_stl_scan(self, conn: Connection, db: str) -> None:
+        stl_scan_based_lineage_query: str = f"""
+            SELECT DISTINCT
+                target_schema, target_table, source_schema, source_table, querytxt
+            FROM
+                    (
+                SELECT
+                    sti.schema as target_schema, sti.table as target_table,
+                    sti.database as cluster, query
+                FROM
+                    stl_insert
+                JOIN svv_table_info sti
+                    ON sti.table_id = tbl
+                WHERE cluster = '{db}'
+                    ) AS target
+            JOIN
+                    (
+                SELECT
+                    sti.schema as source_schema, sti.table as source_table,
+                    sq.query as query, trim(sq.querytxt) as querytxt
+                FROM stl_scan ss
+                JOIN svv_table_info sti
+                    ON sti.table_id = ss.tbl
+                LEFT JOIN stl_query sq
+                    ON ss.query = sq.query
+                WHERE
+                    ss.userid > 1 AND ss.type in (1, 2, 3)
+                    ) AS source
+            USING (query)
+        """
+        results = await conn.fetch(stl_scan_based_lineage_query)
+
+        upstream_map: Dict[str, Tuple[list[str], str]] = {}
+
+        for row in results:
+            source_table_name = f"{db}.{row['source_schema']}.{row['source_table']}"
+            target_table_name = f"{db}.{row['target_schema']}.{row['target_table']}"
+            query = row["querytxt"].rstrip()
+
+            upstream_map.setdefault(target_table_name, (list(), query))[0].append(
+                source_table_name
+            )
+
+        for target_table_name in upstream_map.keys():
+            dataset = self._init_dataset(target_table_name)
+            sources, query = upstream_map[target_table_name]
+            dataset.upstream = DatasetUpstream(
+                source_datasets=list(dict.fromkeys(sources)), transformation=query
+            )
+
+    def _init_dataset(self, table_name: str) -> Dataset:
+        if table_name not in self._datasets:
+            self._datasets[table_name] = Dataset(
+                entity_type=EntityType.DATASET,
+                logical_id=DatasetLogicalID(
+                    name=table_name, platform=DataPlatform.REDSHIFT
+                ),
+            )
+
+        return self._datasets[table_name]
