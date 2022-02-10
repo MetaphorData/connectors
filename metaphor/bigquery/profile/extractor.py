@@ -115,12 +115,13 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         row_count = bq_table.num_rows
         schema = self._parse_schema(bq_table)
 
+        logger.debug(f"building query for {table}")
         sql = self._build_profiling_query(schema, table, row_count, self._sampling)
         job = client.query(sql)
 
         jobs.add(job.job_id)
         job.add_done_callback(partial(job_callback, schema=schema, dataset=dataset))
-        logger.info(f"Job dispatch for {table}")
+        logger.info(f"Job dispatched for {table}")
         return dataset
 
     @staticmethod
@@ -138,17 +139,17 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             nullable = field.nullable
 
             if data_type != "RECORD":
-                query.append(f", COUNT(DISTINCT {column})")
+                query.append(f", COUNT(DISTINCT `{column}`)")
 
             if nullable:
-                query.append(f", COUNTIF({column} is NULL)")
+                query.append(f", COUNTIF(`{column}` is NULL)")
 
             if BigQueryProfileExtractor._is_numeric(data_type):
                 query.extend(
                     [
-                        f", MIN({column})",
-                        f", MAX({column})",
-                        f", AVG({column})",
+                        f", MIN(`{column}`)",
+                        f", MAX(`{column}`)",
+                        f", AVG(`{column}`)",
                     ]
                 )
 
@@ -158,6 +159,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             logger.info(f"Enable table sampling for table: {table_ref}")
             query.append(f" TABLESAMPLE SYSTEM ({int(sampling.percentage)} PERCENT)")
 
+        logger.debug(query)
         return "".join(query)
 
     @staticmethod
