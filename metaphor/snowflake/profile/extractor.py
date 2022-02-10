@@ -41,6 +41,9 @@ logger = get_logger(__name__)
 logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 
+TYPES_WITHOUT_DISTINCT_VALUES = ("VARIANT", "ARRAY", "OBJECT")
+
+
 class SnowflakeProfileExtractor(BaseExtractor):
     """Snowflake data profile extractor"""
 
@@ -181,7 +184,8 @@ class SnowflakeProfileExtractor(BaseExtractor):
         query = ["SELECT COUNT(1) ROW_COUNT"]
 
         for column, data_type, nullable in columns:
-            query.append(f', COUNT(DISTINCT "{column}")')
+            if data_type not in TYPES_WITHOUT_DISTINCT_VALUES:
+                query.append(f', COUNT(DISTINCT "{column}")')
 
             if nullable:
                 query.append(f', COUNT_IF("{column}" is NULL)')
@@ -217,8 +221,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         index = 1
         for column, data_type, nullable in columns:
-            unique_values = float(results[index])
-            index += 1
+            unique_values = None
+            if data_type not in TYPES_WITHOUT_DISTINCT_VALUES:
+                unique_values = float(results[index])
+                index += 1
 
             if nullable:
                 nulls = float(results[index]) if results[index] else 0.0

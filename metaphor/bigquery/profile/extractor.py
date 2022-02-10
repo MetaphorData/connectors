@@ -31,6 +31,9 @@ logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
 
 
+TYPES_WITHOUT_DISTINCT_VALUES = ("RECORD", "STRUCT", "ARRAY")
+
+
 class BigQueryProfileExtractor(BigQueryExtractor):
     """BigQuery data profile extractor"""
 
@@ -137,7 +140,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             data_type = field.native_type
             nullable = field.nullable
 
-            if data_type != "RECORD":
+            if data_type not in TYPES_WITHOUT_DISTINCT_VALUES:
                 query.append(f", COUNT(DISTINCT {column})")
 
             if nullable:
@@ -170,7 +173,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             nullable = field.nullable
 
             unique_values = None
-            if data_type != "RECORD":
+            if data_type not in TYPES_WITHOUT_DISTINCT_VALUES:
                 unique_values = float(results[index])
                 index += 1
 
