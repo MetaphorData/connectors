@@ -137,7 +137,7 @@ def _extract_upstream_datasets_from_sql(
 ) -> Set[EntityId]:
     upstreams: Set[EntityId] = set()
     try:
-        # replace the referenced view name with real view name
+        # strip the brackets around referenced view name
         sql = re.sub(r"\${(.+\.SQL_TABLE_NAME)}", r"\1", sql)
 
         # parse SQL tables
