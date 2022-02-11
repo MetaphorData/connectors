@@ -119,7 +119,6 @@ class BigQueryProfileExtractor(BigQueryExtractor):
                 try:
                     results = [res for res in next(job.result())]
                     BigQueryProfileExtractor._parse_result(results, schema, dataset)
-                    1 / 0
                 except AssertionError as error:
                     logger.error(f"Assertion failed during process results, {error}")
                 except StopIteration as error:
