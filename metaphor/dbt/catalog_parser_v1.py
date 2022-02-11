@@ -42,10 +42,7 @@ class CatalogParserV1:
         self._datasets = datasets
         self._virtual_views = virtual_views
 
-    def parse(self, catalog_file: Optional[str]) -> None:
-        if not catalog_file:
-            return
-
+    def parse(self, catalog_file: str) -> None:
         try:
             catalog = DbtCatalog.parse_file(Path(catalog_file))
         except Exception as e:
@@ -70,7 +67,9 @@ class CatalogParserV1:
         dbt_model = virtual_view.dbt_model
 
         dbt_model.description = dbt_model.description or model.metadata.comment
-        dbt_model.docs_url = build_docs_url(self._docs_base_url, model.unique_id)
+        dbt_model.docs_url = dbt_model.docs_url or build_docs_url(
+            self._docs_base_url, model.unique_id
+        )
 
         for col in model.columns.values():
             column_name = col.name.lower()
@@ -80,10 +79,8 @@ class CatalogParserV1:
 
     def _parse_catalog_source(self, model: CatalogTable) -> None:
         meta = model.metadata
-        columns = model.columns
-
-        assert model.unique_id is not None
-        assert meta.database is not None
+        if not meta.database or not model.unique_id:
+            return
 
         dataset = init_dataset(
             self._datasets,
@@ -102,13 +99,15 @@ class CatalogParserV1:
 
         init_documentation(dataset)
         if meta.comment:
-            dataset.documentation.dataset_documentations = [meta.comment]
+            dataset.documentation.dataset_documentations = (
+                dataset.documentation.dataset_documentations or [meta.comment]
+            )
 
-        for col in columns.values():
+        for col in model.columns.values():
             if col.comment:
                 column_name = col.name.lower()
                 field_doc = init_field_doc(dataset, column_name)
-                field_doc.documentation = col.comment
+                field_doc.documentation = field_doc.documentation or col.comment
 
     @staticmethod
     def _parse_catalog_statistics(dataset: Dataset, model: CatalogTable) -> None:

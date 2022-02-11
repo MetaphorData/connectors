@@ -12,12 +12,11 @@ The remaining sections are for those who intend to run the connector manually as
 
 Create a YAML config file based the following template.
 
-# Required Configurations
+### Required Configurations
 
 ```yaml
 manifest: <path_to_manifest_json>
 catalog: <path_to_catalog_json>
-account: <snowflake_account>
 output:
   file:
     directory: <output_directory>
@@ -25,13 +24,23 @@ output:
 
 See [Common Configurations](../common/README.md) for more information on `output`.
 
-# Optional Configurations
+### Optional Configurations
 
-You can optionally provide the `docsBaseUrl` (base URL serving the dbt generated docs) and `projectSourceUrl` (source code URL pointing to the project root directory). Those will help us to generate links to a model's docs and source code.
+#### Snowflake Account
+
+If the dbt project is using Snowflake, please provide the Snowflake account as follows,
 
 ```yaml
-docsBaseUrl: <docs_base_url>
-projectSourceUrl: <project_dir_source_code_url>
+account: <snowflake_account_name>
+```
+
+#### URLs
+
+You can optionally provide the `docs_base_url` (base URL serving the dbt generated docs) and `project_source_url` (source code URL pointing to the project root directory). Those will help us to generate links to a model's docs and source code.
+
+```yaml
+docs_base_url: <docs_base_url>
+project_source_url: <project_dir_source_code_url>
 ```
 
 ## Testing
