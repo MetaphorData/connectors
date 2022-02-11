@@ -13,7 +13,7 @@ from pydantic.dataclasses import dataclass
 from serde import deserialize
 
 from .logger import LOG_FILE, get_logger
-from .s3 import write_file
+from .s3 import delete_files, list_files, write_file
 from .sink import Sink
 
 logger = get_logger(__name__)
@@ -54,6 +54,11 @@ class FileSink(Sink):
     def _sink(self, messages: List[dict]) -> bool:
         """Write records to file with auto-splitting"""
 
+        # purge existing MCE json files
+        existing = list_files(self.path, ".json", self.s3_session)
+        delete_files(existing, self.s3_session)
+
+        # split MCE into batches and write to files
         bach_size = self.bach_size
         parts = math.ceil(len(messages) / bach_size)
 
