@@ -1,8 +1,9 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v4.1.0
     hooks:
+      - id: check-toml
       - id: check-yaml
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
@@ -37,7 +38,7 @@ repos:
     rev: 1.7.2
     hooks:
       - id: bandit
-        args: ['--skip=B101,B303,B608']
+        args: ['--skip=B101,B608']
 
   - repo: https://github.com/pycqa/flake8
     rev: 4.0.1

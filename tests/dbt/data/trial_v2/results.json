@@ -2,61 +2,71 @@
   {
     "dataset": {
       "documentation": {
-        "datasetDocumentations": [],
+        "datasetDocumentations": [
+          "Sample data of 100K sales records."
+        ],
         "fieldDocumentations": [
           {
-            "documentation": "SHOW_ID. SALES_RECORDS",
-            "fieldPath": "show_id"
+            "documentation": "REGION of SALES_RECORDS",
+            "fieldPath": "region"
           },
           {
-            "documentation": "TYPE. SALES_RECORDS",
-            "fieldPath": "type"
-          },
-          {
-            "documentation": "TITLE. SALES_RECORDS",
-            "fieldPath": "title"
-          },
-          {
-            "documentation": "DIRECTOR. SALES_RECORDS",
-            "fieldPath": "director"
-          },
-          {
-            "documentation": "CAST. SALES_RECORDS",
-            "fieldPath": "cast"
-          },
-          {
-            "documentation": "COUNTRY. SALES_RECORDS",
+            "documentation": "COUNTRY of SALES_RECORDS",
             "fieldPath": "country"
           },
           {
-            "documentation": "DATE_ADDED. SALES_RECORDS",
-            "fieldPath": "date_added"
+            "documentation": "ITEM_TYPE of SALES_RECORDS",
+            "fieldPath": "item_type"
           },
           {
-            "documentation": "RELEASE_YEAR. SALES_RECORDS",
-            "fieldPath": "release_year"
+            "documentation": "SALES_CHANNEL of SALES_RECORDS",
+            "fieldPath": "sales_channel"
           },
           {
-            "documentation": "RATING. SALES_RECORDS",
-            "fieldPath": "rating"
+            "documentation": "ORDER_PRIORITY of SALES_RECORDS",
+            "fieldPath": "order_priority"
           },
           {
-            "documentation": "DURATION. SALES_RECORDS",
-            "fieldPath": "duration"
+            "documentation": "ORDER_DATE of SALES_RECORDS",
+            "fieldPath": "order_date"
           },
           {
-            "documentation": "LISTED_IN. SALES_RECORDS",
-            "fieldPath": "listed_in"
+            "documentation": "ORDER_ID of SALES_RECORDS",
+            "fieldPath": "order_id"
           },
           {
-            "documentation": "DESCRIPTION. SALES_RECORDS",
-            "fieldPath": "description"
+            "documentation": "SHIP_DATE of SALES_RECORDS",
+            "fieldPath": "ship_date"
+          },
+          {
+            "documentation": "UNITS_SOLD of SALES_RECORDS",
+            "fieldPath": "units_sold"
+          },
+          {
+            "documentation": "UNIT_PRICE of SALES_RECORDS",
+            "fieldPath": "unit_price"
+          },
+          {
+            "documentation": "UNIT_COST of SALES_RECORDS",
+            "fieldPath": "unit_cost"
+          },
+          {
+            "documentation": "TOTAL_REVENUE of SALES_RECORDS",
+            "fieldPath": "total_revenue"
+          },
+          {
+            "documentation": "TOTAL_COST of SALES_RECORDS",
+            "fieldPath": "total_cost"
+          },
+          {
+            "documentation": "TOTAL_PROFIT of SALES_RECORDS",
+            "fieldPath": "total_profit"
           }
         ]
       },
       "logicalId": {
         "account": "metaphor",
-        "name": "demo_db.dbt_dev.netflix",
+        "name": "demo_db.dbt_dev.sales_records",
         "platform": "SNOWFLAKE"
       }
     },
@@ -67,69 +77,63 @@
   {
     "dataset": {
       "documentation": {
-        "datasetDocumentations": [],
+        "datasetDocumentations": [
+          "Sample data of Netflix shows."
+        ],
         "fieldDocumentations": [
           {
-            "documentation": "REGION. SALES_RECORDS",
-            "fieldPath": "region"
+            "documentation": "SHOW_ID of NETFLIX",
+            "fieldPath": "show_id"
           },
           {
-            "documentation": "COUNTRY. SALES_RECORDS",
+            "documentation": "TYPE of NETFLIX",
+            "fieldPath": "type"
+          },
+          {
+            "documentation": "TITLE of NETFLIX",
+            "fieldPath": "title"
+          },
+          {
+            "documentation": "DIRECTOR of NETFLIX",
+            "fieldPath": "director"
+          },
+          {
+            "documentation": "CAST of NETFLIX",
+            "fieldPath": "cast"
+          },
+          {
+            "documentation": "COUNTRY of NETFLIX",
             "fieldPath": "country"
           },
           {
-            "documentation": "ITEM_TYPE. SALES_RECORDS",
-            "fieldPath": "item_type"
+            "documentation": "DATE_ADDED of NETFLIX",
+            "fieldPath": "date_added"
           },
           {
-            "documentation": "SALES_CHANNEL. SALES_RECORDS",
-            "fieldPath": "sales_channel"
+            "documentation": "RELEASE_YEAR of NETFLIX",
+            "fieldPath": "release_year"
           },
           {
-            "documentation": "ORDER_PRIORITY. SALES_RECORDS",
-            "fieldPath": "order_priority"
+            "documentation": "RATING of NETFLIX",
+            "fieldPath": "rating"
           },
           {
-            "documentation": "ORDER_DATE. SALES_RECORDS",
-            "fieldPath": "order_date"
+            "documentation": "DURATION of NETFLIX",
+            "fieldPath": "duration"
           },
           {
-            "documentation": "ORDER_ID. SALES_RECORDS",
-            "fieldPath": "order_id"
+            "documentation": "LISTED_IN of NETFLIX",
+            "fieldPath": "listed_in"
           },
           {
-            "documentation": "SHIP_DATE. SALES_RECORDS",
-            "fieldPath": "ship_date"
-          },
-          {
-            "documentation": "UNITS_SOLD. SALES_RECORDS",
-            "fieldPath": "units_sold"
-          },
-          {
-            "documentation": "UNIT_PRICE. SALES_RECORDS",
-            "fieldPath": "unit_price"
-          },
-          {
-            "documentation": "UNIT_COST. SALES_RECORDS",
-            "fieldPath": "unit_cost"
-          },
-          {
-            "documentation": "TOTAL_REVENUE. SALES_RECORDS",
-            "fieldPath": "total_revenue"
-          },
-          {
-            "documentation": "TOTAL_COST. SALES_RECORDS",
-            "fieldPath": "total_cost"
-          },
-          {
-            "documentation": "TOTAL_PROFIT. SALES_RECORDS",
-            "fieldPath": "total_profit"
+            "documentation": "DESCRIPTION of NETFLIX",
+            "fieldPath": "description"
           }
         ]
       },
       "logicalId": {
         "account": "metaphor",
-        "name": "demo_db.dbt_dev.sales_records",
+        "name": "demo_db.dbt_dev.netflix",
         "platform": "SNOWFLAKE"
       }
     },

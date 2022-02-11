@@ -48,18 +48,20 @@ async def test_trial_project_v4(test_root_dir):
 
 @pytest.mark.asyncio
 async def test_ride_share_project(test_root_dir):
-    await _test_project(test_root_dir + "/dbt/data/ride_share")
+    await _test_project(test_root_dir + "/dbt/data/ride_share", None, None, True)
 
 
 @pytest.mark.asyncio
 async def test_shopify_project(test_root_dir):
-    await _test_project(test_root_dir + "/dbt/data/shopify")
+    await _test_project(test_root_dir + "/dbt/data/shopify", None, None, True)
 
 
 @freeze_time("2000-01-01")
-async def _test_project(data_dir, docs_base_url=None, project_source_url=None):
+async def _test_project(
+    data_dir, docs_base_url=None, project_source_url=None, useCatalog=False
+):
     manifest = data_dir + "/manifest.json"
-    catalog = data_dir + "/catalog.json"
+    catalog = data_dir + "/catalog.json" if useCatalog else None
     expected = data_dir + "/results.json"
 
     config = DbtRunConfig(

@@ -2,80 +2,17 @@
   {
     "dataset": {
       "documentation": {
-        "datasetDocumentations": [],
+        "datasetDocumentations": [
+          "Sample data of 100K sales records."
+        ],
         "fieldDocumentations": [
-          {
-            "documentation": "SHOW_ID. SALES_RECORDS",
-            "fieldPath": "show_id"
-          },
-          {
-            "documentation": "TYPE. SALES_RECORDS",
-            "fieldPath": "type"
-          },
-          {
-            "documentation": "TITLE. SALES_RECORDS",
-            "fieldPath": "title"
-          },
-          {
-            "documentation": "DIRECTOR. SALES_RECORDS",
-            "fieldPath": "director"
-          },
-          {
-            "documentation": "CAST. SALES_RECORDS",
-            "fieldPath": "cast"
-          },
           {
             "documentation": "COUNTRY. SALES_RECORDS",
             "fieldPath": "country"
           },
-          {
-            "documentation": "DATE_ADDED. SALES_RECORDS",
-            "fieldPath": "date_added"
-          },
-          {
-            "documentation": "RELEASE_YEAR. SALES_RECORDS",
-            "fieldPath": "release_year"
-          },
-          {
-            "documentation": "RATING. SALES_RECORDS",
-            "fieldPath": "rating"
-          },
-          {
-            "documentation": "DURATION. SALES_RECORDS",
-            "fieldPath": "duration"
-          },
-          {
-            "documentation": "LISTED_IN. SALES_RECORDS",
-            "fieldPath": "listed_in"
-          },
-          {
-            "documentation": "DESCRIPTION. SALES_RECORDS",
-            "fieldPath": "description"
-          }
-        ]
-      },
-      "logicalId": {
-        "account": "metaphor",
-        "name": "dev_db.dbt_dev.netflix",
-        "platform": "SNOWFLAKE"
-      }
-    },
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
-    }
-  },
-  {
-    "dataset": {
-      "documentation": {
-        "datasetDocumentations": [],
-        "fieldDocumentations": [
           {
             "documentation": "REGION. SALES_RECORDS",
             "fieldPath": "region"
-          },
-          {
-            "documentation": "COUNTRY. SALES_RECORDS",
-            "fieldPath": "country"
           },
           {
             "documentation": "ITEM_TYPE. SALES_RECORDS",
@@ -130,6 +67,73 @@
       "logicalId": {
         "account": "metaphor",
         "name": "dev_db.dbt_dev.sales_records",
+        "platform": "SNOWFLAKE"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "documentation": {
+        "datasetDocumentations": [
+          "Sample data of Netflix shows."
+        ],
+        "fieldDocumentations": [
+          {
+            "documentation": "SHOW_ID. NETFLIX",
+            "fieldPath": "show_id"
+          },
+          {
+            "documentation": "TYPE. NETFLIX",
+            "fieldPath": "type"
+          },
+          {
+            "documentation": "TITLE. NETFLIX",
+            "fieldPath": "title"
+          },
+          {
+            "documentation": "DIRECTOR. NETFLIX",
+            "fieldPath": "director"
+          },
+          {
+            "documentation": "CAST. NETFLIX",
+            "fieldPath": "cast"
+          },
+          {
+            "documentation": "COUNTRY. NETFLIX",
+            "fieldPath": "country"
+          },
+          {
+            "documentation": "DATE_ADDED. NETFLIX",
+            "fieldPath": "date_added"
+          },
+          {
+            "documentation": "RELEASE_YEAR. NETFLIX",
+            "fieldPath": "release_year"
+          },
+          {
+            "documentation": "RATING. NETFLIX",
+            "fieldPath": "rating"
+          },
+          {
+            "documentation": "DURATION. NETFLIX",
+            "fieldPath": "duration"
+          },
+          {
+            "documentation": "LISTED_IN. NETFLIX",
+            "fieldPath": "listed_in"
+          },
+          {
+            "documentation": "DESCRIPTION. NETFLIX",
+            "fieldPath": "description"
+          }
+        ]
+      },
+      "logicalId": {
+        "account": "metaphor",
+        "name": "dev_db.dbt_dev.netflix",
         "platform": "SNOWFLAKE"
       }
     },

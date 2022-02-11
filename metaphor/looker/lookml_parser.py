@@ -1,6 +1,7 @@
 import glob
 import logging
 import os
+import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
 
@@ -102,46 +103,59 @@ def _get_upstream_datasets(
         logger.error(f"Refer to non-existing view {view_name}")
         return set()
 
+    if "upstream_dataset_ids" in raw_view:
+        return raw_view["upstream_dataset_ids"]
+
+    upstreams = set()
     if "derived_table" in raw_view:
         # https://docs.looker.com/data-modeling/learning-lookml/derived-tables
         derived_table = raw_view["derived_table"]
 
         if "sql" in derived_table:
-            return _extract_upstream_datasets_from_sql(
-                derived_table["sql"], raw_views, connection
+            upstreams.update(
+                _extract_upstream_datasets_from_sql(
+                    derived_table["sql"], raw_views, connection
+                )
             )
 
         if "explore_source" in derived_table:
-            return _get_upstream_datasets(
-                derived_table["explore_source"]["name"], raw_views, connection
+            upstreams.update(
+                _get_upstream_datasets(
+                    derived_table["explore_source"]["name"], raw_views, connection
+                )
             )
+    else:
+        source_name = raw_view.get("sql_table_name", view_name)
+        upstreams.add(_to_dataset_id(source_name, connection))
 
-        return set()
-
-    source_name = raw_view.get("sql_table_name", view_name)
-    return {_to_dataset_id(source_name, connection)}
+    raw_view["upstream_dataset_ids"] = upstreams
+    return upstreams
 
 
 def _extract_upstream_datasets_from_sql(
     sql: str, raw_views: Dict[str, Dict], connection: LookerConnectionConfig
 ) -> Set[EntityId]:
-    upstream: Set[EntityId] = set()
+    upstreams: Set[EntityId] = set()
     try:
+        # strip the brackets around referenced view name
+        sql = re.sub(r"\${(.+\.SQL_TABLE_NAME)}", r"\1", sql)
+
+        # parse SQL tables
         tables = sql_metadata.Parser(sql).tables
+        for table in tables:
+            if table.endswith(".SQL_TABLE_NAME"):
+                # Selecting from another derived table
+                # https://docs.looker.com/data-modeling/learning-lookml/sql-and-referring-to-lookml
+                view_name = table.split(".")[0]
+                upstreams.update(
+                    _get_upstream_datasets(view_name, raw_views, connection)
+                )
+            else:
+                upstreams.add(_to_dataset_id(table, connection))
     except Exception as e:
         logger.warning(f"Failed to parse SQL:\n{sql}\n\nError:{e}")
-        return upstream
 
-    for table in tables:
-        if table.endswith(".SQL_TABLE_NAME"):
-            # Selecting from another derived table
-            # https://docs.looker.com/data-modeling/learning-lookml/sql-and-referring-to-lookml
-            view_name = table.split(".")[0]
-            upstream.update(_get_upstream_datasets(view_name, raw_views, connection))
-        else:
-            upstream.add(_to_dataset_id(table, connection))
-
-    return upstream
+    return upstreams
 
 
 def fullname(model: str, name: str) -> str:

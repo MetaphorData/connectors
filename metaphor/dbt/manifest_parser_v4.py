@@ -26,11 +26,15 @@ from .generated.dbt_manifest_v4 import (
     ParsedSourceDefinition,
 )
 from .util import (
+    build_docs_url,
     build_source_code_url,
     get_model_owner_ids,
     get_virtual_view_id,
+    init_dataset,
     init_dbt_tests,
+    init_documentation,
     init_field,
+    init_field_doc,
     init_virtual_view,
 )
 
@@ -50,12 +54,14 @@ class ManifestParserV4:
         self,
         platform: DataPlatform,
         account: Optional[str],
+        docs_base_url: Optional[str],
         project_source_url: Optional[str],
         datasets: Dict[str, Dataset],
         virtual_views: Dict[str, VirtualView],
     ):
         self._platform = platform
         self._account = account
+        self._docs_base_url = docs_base_url
         self._project_source_url = project_source_url
         self._datasets = datasets
         self._virtual_views = virtual_views
@@ -100,6 +106,8 @@ class ManifestParserV4:
                 self._platform,
                 self._account,
             )
+
+            self._parse_source(source)
 
         macro_map: Dict[str, DbtMacro] = {}
         for key, macro in macros.items():
@@ -169,10 +177,11 @@ class ManifestParserV4:
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
         virtual_view.dbt_model = DbtModel(
             package_name=model.package_name,
-            description=model.description,
+            description=model.description or None,
             url=build_source_code_url(
                 self._project_source_url, model.original_file_path
             ),
+            docs_url=build_docs_url(self._docs_base_url, model.unique_id),
             tags=model.tags,
             raw_sql=model.raw_sql,
             fields=[],
@@ -233,3 +242,27 @@ class ManifestParserV4:
 
             if model.depends_on.macros:
                 dbt_model.macros = [macro_map[n] for n in model.depends_on.macros]
+
+    def _parse_source(self, source: ParsedSourceDefinition) -> None:
+        if not source.database or not source.columns:
+            return
+
+        dataset = init_dataset(
+            self._datasets,
+            source.database,
+            source.schema_,
+            source.identifier,
+            self._platform,
+            self._account,
+            source.unique_id,
+        )
+
+        init_documentation(dataset)
+        if source.description:
+            dataset.documentation.dataset_documentations = [source.description]
+
+        for col in source.columns.values():
+            if col.description:
+                column_name = col.name.lower()
+                field_doc = init_field_doc(dataset, column_name)
+                field_doc.documentation = col.description

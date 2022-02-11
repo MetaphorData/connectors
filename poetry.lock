@@ -1468,7 +1468,7 @@ secure-local-storage = ["keyring (!=16.1.0,<24.0.0)"]
 
 [[package]]
 name = "sql-metadata"
-version = "2.2.2"
+version = "2.3.0"
 description = "Uses tokenized query returned by python-sqlparse and generates query metadata"
 category = "main"
 optional = true
@@ -1647,7 +1647,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "ac0ccb0b2af3af3126ae870f76cbca803e4902e6530d7c2065a27dd543459223"
+content-hash = "dc0db3b68fa7869fdced636bb2987f15a3c468dda1d858c558a6055d029046fc"
 
 [metadata.files]
 anyio = [
@@ -2626,8 +2626,8 @@ snowflake-connector-python = [
     {file = "snowflake_connector_python-2.7.4-cp39-cp39-win_amd64.whl", hash = "sha256:345f08b90cf460ab96c7aaef316f5c3ba4cba23ba37514efbd811a20a4818752"},
 ]
 sql-metadata = [
-    {file = "sql_metadata-2.2.2-py3-none-any.whl", hash = "sha256:eba267a433c1163968ccbc622d4ef24c1dd87f9417978d5b76420e55abbb7252"},
-    {file = "sql_metadata-2.2.2.tar.gz", hash = "sha256:c2ed1e0c6d2e454d7314a7138223d6644c31d213c404df7170bb990a233d9f2e"},
+    {file = "sql_metadata-2.3.0-py3-none-any.whl", hash = "sha256:fdb62bd1aa44e37b30237fb992a68e9a0c01f9f69303590272c6861a27c4f59c"},
+    {file = "sql_metadata-2.3.0.tar.gz", hash = "sha256:eed8c98e7a1bb719ff1f78227c05e07ad61ddec5d5f81e5014179edd28b77cac"},
 ]
 sqlparse = [
     {file = "sqlparse-0.4.2-py3-none-any.whl", hash = "sha256:48719e356bb8b42991bdbb1e8b83223757b93789c00910a616a071910ca4a64d"},
