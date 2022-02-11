@@ -59,34 +59,30 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
     async def _fetch_upstream_from_stl_scan(self, conn: Connection, db: str) -> None:
-        stl_scan_based_lineage_query: str = f"""
+        stl_scan_based_lineage_query: str = """
             SELECT DISTINCT
-                target_schema, target_table, source_schema, source_table, querytxt
+                target_schema, target_table, source_schema, source_table, trim(sq.querytxt) as querytxt
             FROM
                     (
                 SELECT
-                    sti.schema as target_schema, sti.table as target_table,
-                    sti.database as cluster, query
+                    trim(nspname) AS target_schema, trim(relname) AS target_table, query
                 FROM
                     stl_insert
-                JOIN svv_table_info sti
-                    ON sti.table_id = tbl
-                WHERE cluster = '{db}'
+                JOIN pg_class ON pg_class.oid = tbl
+                JOIN pg_namespace ON pg_namespace.oid = relnamespace
                     ) AS target
             JOIN
                     (
                 SELECT
-                    sti.schema as source_schema, sti.table as source_table,
-                    sq.query as query, trim(sq.querytxt) as querytxt
-                FROM stl_scan ss
-                JOIN svv_table_info sti
-                    ON sti.table_id = ss.tbl
-                LEFT JOIN stl_query sq
-                    ON ss.query = sq.query
+                    trim(nspname) AS source_schema, trim(relname) AS source_table, query
+                FROM stl_scan
+                JOIN pg_class ON pg_class.oid = tbl
+                JOIN pg_namespace ON pg_namespace.oid = relnamespace
                 WHERE
-                    ss.userid > 1 AND ss.type in (1, 2, 3)
+                    userid > 1 AND type in (1, 2, 3)
                     ) AS source
             USING (query)
+            LEFT JOIN stl_query sq ON target.query = sq.query
         """
         results = await conn.fetch(stl_scan_based_lineage_query)
 
