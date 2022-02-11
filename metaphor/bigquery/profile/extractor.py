@@ -93,7 +93,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             finished = len(datasets) - len(jobs)
             if counter % 10 == 0:
                 logger.info(
-                    f"{finished} job done, waiting for {len(jobs)} jobs to finish ..."
+                    f"{finished} jobs done, waiting for {len(jobs)} jobs to finish ..."
                 )
             counter += 1
             sleep(1)
@@ -108,13 +108,13 @@ class BigQueryProfileExtractor(BigQueryExtractor):
     ) -> Dataset:
         def job_callback(job: QueryJob, schema: DatasetSchema, dataset: Dataset):
             exception = job.exception()
-            # The profiling result should only have one row
-            if job.result().total_rows != 1:
-                logger.warning(
-                    f"Skip {table}, the profiling result is more than one row"
-                )
-            elif exception:
+            if exception:
                 logger.error(f"Skip {table}, Google Client error: {exception}")
+            # The profiling result should only have one row
+            elif job.result().total_rows != 1:
+                logger.warning(
+                    f"Skip {table}, the profiling result has more than one row"
+                )
             else:
                 try:
                     results = [res for res in next(job.result())]
