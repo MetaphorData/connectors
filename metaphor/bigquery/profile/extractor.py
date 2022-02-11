@@ -113,7 +113,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
             # The profiling result should only have one row
             elif job.result().total_rows != 1:
                 logger.warning(
-                    f"Skip {table}, the profiling result is more than one row"
+                    f"Skip {table}, the profiling result has more than one row"
                 )
             else:
                 try:
