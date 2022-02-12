@@ -53,6 +53,7 @@ class FileSink(Sink):
         # purge existing MCE json files
         existing = self._storage.list_files(self.path, ".json")
         self._storage.delete_files(existing)
+        logger.info(f"deleted {len(existing)} MCE files")
 
         # split MCE into batches and write to files
         bach_size = self.bach_size
@@ -63,6 +64,7 @@ class FileSink(Sink):
                 f"{self.path}/{i + 1}-of-{parts}.json",
                 json.dumps(messages[i * bach_size : (i + 1) * bach_size]),
             )
+        logger.info(f"written {parts} MCE files")
 
         return True
 
