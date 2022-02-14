@@ -1,0 +1,39 @@
+[
+  {
+    "dataset": {
+      "entityType": "DATASET",
+      "logicalId": {
+        "name": "test.private.t1",
+        "platform": "REDSHIFT"
+      },
+      "upstream": {
+        "sourceDatasets": [
+          "test.public.s1",
+          "test.public.s2"
+        ],
+        "transformation": "q1"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  },
+  {
+    "dataset": {
+      "entityType": "DATASET",
+      "logicalId": {
+        "name": "test.foo.t2",
+        "platform": "REDSHIFT"
+      },
+      "upstream": {
+        "sourceDatasets": [
+          "test.public.s1"
+        ],
+        "transformation": "q2"
+      }
+    },
+    "eventHeader": {
+      "time": "2000-01-01T00:00:00+00:00"
+    }
+  }
+]

@@ -1,0 +1,8 @@
+---
+host: host
+database: database
+user: user
+password: password
+enable_view_lineage: false
+enable_lineage_from_stl_scan: false
+output: {}
