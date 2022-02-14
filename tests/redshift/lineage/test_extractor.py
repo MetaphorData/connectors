@@ -12,9 +12,9 @@ from tests.test_utils import load_json
 
 
 # python3.7 do not have AsyncMock
-class MyAsyncMock(MagicMock):
+class AsyncMock(MagicMock):
     async def __call__(self, *args, **kwargs):
-        return super(MyAsyncMock, self).__call__(*args, **kwargs)
+        return super(AsyncMock, self).__call__(*args, **kwargs)
 
 
 def mock_databases(mock: MagicMock, databases: List[str]):
@@ -22,7 +22,7 @@ def mock_databases(mock: MagicMock, databases: List[str]):
 
 
 def mock_records(mock: MagicMock, records: List):
-    mock_conn = MyAsyncMock()
+    mock_conn = AsyncMock()
     mock_conn.fetch.return_value = records
     mock_conn.close.return_value = None
     mock.return_value = mock_conn
@@ -66,11 +66,11 @@ async def test_extractor(test_root_dir):
 
     with patch(
         "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
-        new_callable=MyAsyncMock,
+        new_callable=AsyncMock,
     ) as mock_fetch_databases:
         with patch(
             "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
-            new_callable=MyAsyncMock,
+            new_callable=AsyncMock,
         ) as mock_connect_database:
             mock_databases(mock_fetch_databases, ["test"])
             mock_records(mock_connect_database, records)
@@ -116,11 +116,11 @@ async def test_extractor_view(test_root_dir):
 
     with patch(
         "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
-        new_callable=MyAsyncMock,
+        new_callable=AsyncMock,
     ) as mock_fetch_databases:
         with patch(
             "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
-            new_callable=MyAsyncMock,
+            new_callable=AsyncMock,
         ) as mock_connect_database:
             mock_databases(mock_fetch_databases, ["test"])
             mock_records(mock_connect_database, records)
