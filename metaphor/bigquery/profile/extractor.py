@@ -88,8 +88,14 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         datasets = [self._profile_table(client, table, jobs) for table in tables]
 
+        counter = 0
         while jobs:
-            logger.info("waiting for jobs to finish ... sleeping for 1s")
+            finished = len(datasets) - len(jobs)
+            if counter % 10 == 0:
+                logger.info(
+                    f"{finished} jobs done, waiting for {len(jobs)} jobs to finish ..."
+                )
+            counter += 1
             sleep(1)
 
         return datasets
@@ -101,14 +107,29 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         jobs: Set[QueryJob],
     ) -> Dataset:
         def job_callback(job: QueryJob, schema: DatasetSchema, dataset: Dataset):
+            exception = job.exception()
+            if exception:
+                logger.error(f"Skip {table}, Google Client error: {exception}")
             # The profiling result should only have one row
-            if job.result().total_rows != 1:
+            elif job.result().total_rows != 1:
                 logger.warning(
-                    f"Skip {table}, the profiling result is more than one row"
+                    f"Skip {table}, the profiling result has more than one row"
                 )
             else:
-                results = [res for res in next(job.result())]
-                BigQueryProfileExtractor._parse_result(results, schema, dataset)
+                try:
+                    results = [res for res in next(job.result())]
+                    BigQueryProfileExtractor._parse_result(results, schema, dataset)
+                except AssertionError as error:
+                    logger.error(f"Assertion failed during process results, {error}")
+                except StopIteration as error:
+                    logger.error(f"Invalid result, {error}")
+                except (IndexError, ValueError, TypeError) as error:
+                    logger.error(f"Unknown error during process results, {error}")
+                except BaseException as error:
+                    jobs.remove(job.job_id)
+                    raise error
+
+            # Always remove job from the set, because the job(future) is fulfill
             jobs.remove(job.job_id)
 
         dataset = BigQueryProfileExtractor._init_dataset(
@@ -207,7 +228,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
                 )
             )
 
-        assert index == len(results)
+        assert index == len(results), "index should match number of results"
 
     # See https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#numeric_types
     @staticmethod
