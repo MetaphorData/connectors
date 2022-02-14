@@ -98,9 +98,16 @@ class S3Storage(BaseStorage):
             Bucket=bucket,
             Prefix=key,
         )
-        # TODO: handle pagination
-
         objects = resp.get("Contents", [])
+
+        while resp["IsTruncated"]:
+            resp = self._client.list_objects_v2(
+                Bucket=bucket,
+                Prefix=key,
+                ContinuationToken=resp["NextContinuationToken"],
+            )
+            objects.extend(resp.get("Contents", []))
+
         return [
             f"s3://{bucket}/{file['Key']}"
             for file in objects
