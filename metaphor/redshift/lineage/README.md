@@ -4,7 +4,7 @@ This connector extracts lineage information from a Redshift database using [asyn
 
 ## Setup
 
-Follow the [Setup](../README.md#Setup) guide for the general Redshift connector to create the dedicated `metaphor` user. As the usage connector extracts information from system tables such as `STL_SCAN` & `STL_INSERT`, it needs to be given additional permissions using the following commands:
+Follow the [Setup](../README.md#Setup) guide for the general Redshift connector to create the dedicated `metaphor` user. As the usage connector extracts information from system tables such as `STL_SCAN` & `STL_INSERT`, it needs to be given additional permissions using the following command:
 
 ```sql
 ALTER USER metaphor WITH SYSLOG ACCESS UNRESTRICTED;
