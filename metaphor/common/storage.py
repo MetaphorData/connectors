@@ -94,13 +94,21 @@ class S3Storage(BaseStorage):
     def list_files(self, path: str, suffix: Optional[str]) -> List[str]:
         bucket, key = S3Storage.parse_s3_uri(path)
 
+        objects = []
         resp = self._client.list_objects_v2(
             Bucket=bucket,
             Prefix=key,
         )
-        # TODO: handle pagination
+        objects.extend(resp.get("Contents", []))
 
-        objects = resp.get("Contents", [])
+        while resp["IsTruncated"]:
+            resp = self._client.list_objects_v2(
+                Bucket=bucket,
+                Prefix=key,
+                ContinuationToken=resp["NextContinuationToken"],
+            )
+            objects.extend(resp.get("Contents", []))
+
         return [
             f"s3://{bucket}/{file['Key']}"
             for file in objects
