@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from asyncpg import Connection
 from metaphor.models.metadata_change_event import (
@@ -10,6 +10,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
 )
 
+from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -84,25 +85,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             USING (query)
             LEFT JOIN stl_query sq ON target.query = sq.query
         """
-        results = await conn.fetch(stl_scan_based_lineage_query)
-
-        upstream_map: Dict[str, Tuple[List[str], str]] = {}
-
-        for row in results:
-            source_table_name = f"{db}.{row['source_schema']}.{row['source_table']}"
-            target_table_name = f"{db}.{row['target_schema']}.{row['target_table']}"
-            query = row["querytxt"].rstrip()
-
-            upstream_map.setdefault(target_table_name, (list(), query))[0].append(
-                source_table_name
-            )
-
-        for target_table_name in upstream_map.keys():
-            dataset = self._init_dataset(target_table_name)
-            sources, query = upstream_map[target_table_name]
-            dataset.upstream = DatasetUpstream(
-                source_datasets=list(dict.fromkeys(sources)), transformation=query
-            )
+        await self._fetch_lineage(stl_scan_based_lineage_query, conn, db)
 
     async def _fetch_view_upstream(self, conn: Connection, db: str) -> None:
         view_lineage_query: str = """
@@ -139,21 +122,30 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                 AND tnsp.nspname !~ '^pg_'
                 ORDER BY target_schema, target_table ASC;
         """
-        results = await conn.fetch(view_lineage_query)
+        await self._fetch_lineage(view_lineage_query, conn, db)
 
-        upstream_map: Dict[str, List[str]] = {}
+    async def _fetch_lineage(self, sql, conn, db):
+        results = await conn.fetch(sql)
+
+        upstream_map: Dict[str, Tuple[List[str], Optional[str]]] = {}
 
         for row in results:
             source_table_name = f"{db}.{row['source_schema']}.{row['source_table']}"
             target_table_name = f"{db}.{row['target_schema']}.{row['target_table']}"
+            query = row["querytxt"].rstrip() if "querytxt" in row else None
 
-            upstream_map.setdefault(target_table_name, list()).append(source_table_name)
+            source_id = str(
+                to_dataset_entity_id(source_table_name, DataPlatform.REDSHIFT)
+            )
+            upstream_map.setdefault(target_table_name, (list(), query))[0].append(
+                source_id
+            )
 
         for target_table_name in upstream_map.keys():
             dataset = self._init_dataset(target_table_name)
-            sources = upstream_map[target_table_name]
+            sources, query = upstream_map[target_table_name]
             dataset.upstream = DatasetUpstream(
-                source_datasets=list(dict.fromkeys(sources))
+                source_datasets=list(dict.fromkeys(sources)), transformation=query
             )
 
     def _init_dataset(self, table_name: str) -> Dataset:

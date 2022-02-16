@@ -8,8 +8,8 @@
       },
       "upstream": {
         "sourceDatasets": [
-          "test.public.s1",
-          "test.public.s2"
+          "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC",
+          "DATASET~B077275BCBF5E69AD0DBFCAE3F7E47E4"
         ]
       }
     },
@@ -26,7 +26,7 @@
       },
       "upstream": {
         "sourceDatasets": [
-          "test.public.s1"
+          "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
         ]
       }
     },
