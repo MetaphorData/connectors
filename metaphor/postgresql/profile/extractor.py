@@ -1,3 +1,4 @@
+import traceback
 from typing import Iterable, List
 
 from black import asyncio
@@ -91,9 +92,15 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
     async def _profile_dataset(self, pool: asyncpg.Pool, dataset: Dataset) -> None:
         async with pool.acquire() as conn:
             sql = self._build_profiling_query(dataset, self._sampling)
-            res = await conn.fetch(sql)
-            assert len(res) == 1
-            self._parse_result(res[0], dataset)
+            try:
+                res = await conn.fetch(sql)
+                assert len(res) == 1
+                self._parse_result(res[0], dataset)
+            except asyncpg.exceptions.InternalServerError as ex:
+                logger.error(
+                    f"Error when processing {dataset.logical_id.name}, err: {ex}"
+                )
+                traceback.print_exc()
             dataset.statistics = None
             dataset.schema = None
 
@@ -121,7 +128,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
                     [
                         f", MIN({column})",
                         f", MAX({column})",
-                        f", AVG({column})",
+                        f", AVG({column}::double precision)",
                     ]
                 )
 
