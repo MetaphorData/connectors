@@ -39,8 +39,8 @@ def test_build_profiling_query():
 
     expected = (
         'SELECT COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-        'COUNT("price"), MIN("price"), MAX("price"), AVG("price"), '
-        'COUNT(DISTINCT "year"), COUNT("year"), MIN("year"), MAX("year"), AVG("year") '
+        'COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision), '
+        'COUNT(DISTINCT "year"), COUNT("year"), MIN("year"), MAX("year"), AVG("year"::double precision) '
         "FROM foo"
     )
 
@@ -59,7 +59,7 @@ def test_build_profiling_query_with_sampling():
 
     expected = (
         'SELECT COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-        'COUNT("price"), MIN("price"), MAX("price"), AVG("price") '
+        'COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision) '
         "FROM foo WHERE random() < 0.01"
     )
 
