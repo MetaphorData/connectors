@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -41,10 +41,15 @@ class TableReadEvent:
             return False
 
     @staticmethod
-    def from_entry(entry: LogEntry) -> "TableReadEvent":
+    def from_entry(entry: LogEntry) -> Optional["TableReadEvent"]:
+        bq_resource = BigQueryResource.from_str(
+            entry.payload["resourceName"]
+        ).remove_extras()
+        if bq_resource.is_temporary():
+            return None
+
         timestamp = entry.received_timestamp
         table_read = entry.payload["metadata"]["tableDataRead"]
-        bq_resource = BigQueryResource.from_str(entry.payload["resourceName"])
         columns = table_read.get("fields", [])
         username = entry.payload["authenticationInfo"].get("principalEmail", "")
 
@@ -89,13 +94,18 @@ class BigQueryUsageExtractor(BaseExtractor):
             if TableReadEvent.can_parse(entry):
                 self._parse_table_data_read_entry(entry)
 
+            if counter % 1000 == 0:
+                logger.info(f"Fetched {counter} audit logs")
+
         logger.info(f"Number of tableDataRead log entries fetched: {counter}")
         UsageUtil.calculate_statistics(self._datasets.values())
 
         return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
 
-    def _parse_table_data_read_entry(self, entry: LogEntry):
+    def _parse_table_data_read_entry(self, entry: LogEntry) -> None:
         read_event = TableReadEvent.from_entry(entry)
+        if read_event is None:
+            return
 
         resource = read_event.resource
         if not self._dataset_filter.include_schema(
@@ -124,7 +134,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def _build_table_data_read_filter(config: BigQueryUsageRunConfig, end_time):
+    def _build_table_data_read_filter(config: BigQueryUsageRunConfig, end_time) -> str:
         start = (end_time - timedelta(days=config.lookback_days)).isoformat()
         end = end_time.isoformat()
 
