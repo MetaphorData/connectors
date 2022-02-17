@@ -84,6 +84,11 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                     ) AS source
             USING (query)
             LEFT JOIN stl_query sq ON target.query = sq.query
+            WHERE
+                target_schema != 'information_schema'
+                AND target_schema !~ '^pg_'
+                AND source_schema != 'information_schema'
+                AND source_schema !~ '^pg_'
         """
         await self._fetch_lineage(stl_scan_based_lineage_query, conn, db)
 
@@ -120,6 +125,8 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                 AND tpgc.relkind = 'v'
                 AND tnsp.nspname != 'information_schema'
                 AND tnsp.nspname !~ '^pg_'
+                AND snsp.nspname != 'information_schema'
+                AND snsp.nspname !~ '^pg_'
                 ORDER BY target_schema, target_table ASC;
         """
         await self._fetch_lineage(view_lineage_query, conn, db)
