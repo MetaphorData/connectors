@@ -52,9 +52,14 @@ class LocalStorage(BaseStorage):
             fp.write(payload)
 
     def list_files(self, path: str, suffix: Optional[str]) -> List[str]:
+        directory = os.path.expanduser(path)
+        if not os.path.isdir(directory):
+            logger.error(f"path {path} is not a directory")
+            return []
+
         return [
-            os.path.join(path, file)
-            for file in os.listdir(path)
+            os.path.join(directory, file)
+            for file in os.listdir(directory)
             if suffix is None or file.endswith(suffix)
         ]
 
