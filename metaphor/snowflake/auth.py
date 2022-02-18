@@ -87,6 +87,7 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
             user=config.user,
             private_key=pkb,
             database=config.default_database,
+            application=METAPHOR_DATA_SNOWFLAKE_CONNECTOR,
             session_parameters={
                 "QUERY_TAG": config.query_tag,
             },
