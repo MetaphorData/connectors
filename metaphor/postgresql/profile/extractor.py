@@ -96,7 +96,11 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
                 res = await conn.fetch(sql)
                 assert len(res) == 1
                 self._parse_result(res[0], dataset)
-            except asyncpg.exceptions.InternalServerError as ex:
+            except asyncpg.exceptions.ProgramLimitExceededError as ex:
+                logger.warn(
+                    f"Skip {dataset.logical_id.name}, too many column to profile, err: {ex}"
+                )
+            except asyncpg.exceptions.PostgresError as ex:
                 logger.error(
                     f"Error when processing {dataset.logical_id.name}, err: {ex}"
                 )
