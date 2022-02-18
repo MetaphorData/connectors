@@ -15,6 +15,10 @@ except ImportError:
     raise
 
 
+METAPHOR_DATA = "MetaphorData"
+METAPHOR_DATA_SNOWFLAKE_CONNECTOR = "MetaphorData_SnowflakeConnector"
+
+
 @deserialize
 @dataclass
 class SnowflakeKeyPairAuthConfig:
@@ -42,7 +46,7 @@ class SnowflakeAuthConfig(BaseConfig):
     default_database: Optional[str] = None
 
     # the query tags for each snowflake query the connector issues
-    query_tag: Optional[str] = "MetaphorData"
+    query_tag: Optional[str] = METAPHOR_DATA
 
 
 def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnection:
@@ -53,6 +57,7 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
             user=config.user,
             password=config.password,
             database=config.default_database,
+            application=METAPHOR_DATA_SNOWFLAKE_CONNECTOR,
             session_parameters={
                 "QUERY_TAG": config.query_tag,
             },
