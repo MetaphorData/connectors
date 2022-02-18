@@ -357,13 +357,13 @@ class PostgreSQLExtractor(BaseExtractor):
     ) -> Tuple[Optional[float], Optional[float]]:
         precision, max_length = None, None
 
-        excluded_types = [
+        excluded_types = (
             "timestamp with time zone",
             "timestamp without time zone",
             "boolean",
             "date",
             "text",
-        ]
+        )
 
         if native_type in excluded_types:
             return precision, max_length
