@@ -1,0 +1,18 @@
+[
+  {
+    "logicalId": {
+      "name": "foo",
+      "platform": "BIGQUERY"
+    },
+    "upstream": {
+      "sourceDatasets": ["DATASET~E510765F56A9CE88E0F974E274437FCF"]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "bar",
+      "account": "account",
+      "platform": "BIGQUERY"
+    }
+  }
+]

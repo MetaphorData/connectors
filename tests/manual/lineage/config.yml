@@ -1,0 +1,10 @@
+---
+lineages:
+  - dataset:
+      name: foo
+      platform: BIGQUERY
+    upstreams:
+      - name: bar
+        platform: BIGQUERY
+        account: account
+output: {}
