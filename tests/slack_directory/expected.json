@@ -1,18 +1,13 @@
 [
   {
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
+    "logicalId": {
+      "email": "foo@bar.com"
     },
-    "person": {
-      "logicalId": {
-        "email": "foo@bar.com"
-      },
-      "slackProfile": {
-        "slackId": "slack_id",
-        "teamId": "team_id",
-        "username": "foo",
-        "deleted": false
-      }
+    "slackProfile": {
+      "slackId": "slack_id",
+      "teamId": "team_id",
+      "username": "foo",
+      "deleted": false
     }
   }
 ]

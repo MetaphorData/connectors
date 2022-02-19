@@ -1,7 +1,10 @@
 import logging
 from functools import partial
 from time import sleep
-from typing import List, Set, Union
+from typing import Collection, List, Set, Union
+
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
 
 try:
     import google.cloud.bigquery as bigquery
@@ -18,12 +21,10 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     EntityType,
     FieldStatistics,
-    MetadataChangeEvent,
 )
 
 from metaphor.bigquery.extractor import BigQueryExtractor, build_client
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
-from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 
@@ -31,16 +32,19 @@ logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class BigQueryProfileExtractor(BigQueryExtractor):
+class BigQueryProfileExtractor(BaseExtractor):
     """BigQuery data profile extractor"""
 
     @staticmethod
     def config_class():
         return BigQueryProfileRunConfig
 
+    def __init__(self):
+        self._sampling = None
+
     async def extract(
         self, config: BigQueryProfileRunConfig
-    ) -> List[MetadataChangeEvent]:
+    ) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, BigQueryProfileExtractor.config_class())
 
         logger.info("Fetching usage info from BigQuery")
@@ -49,12 +53,11 @@ class BigQueryProfileExtractor(BigQueryExtractor):
 
         client = build_client(config)
         tables = self._fetch_tables(client, config)
-        datasets = self.profile(client, tables)
+        return self.profile(client, tables)
 
-        return [EventUtil.build_dataset_event(d) for d in datasets]
-
+    @staticmethod
     def _fetch_tables(
-        self, client: bigquery.Client, config: BigQueryProfileRunConfig
+        client: bigquery.Client, config: BigQueryProfileRunConfig
     ) -> List[TableReference]:
 
         filter = DatasetFilter.normalize(config.filter)
@@ -137,7 +140,7 @@ class BigQueryProfileExtractor(BigQueryExtractor):
         )
         bq_table = client.get_table(table)
         row_count = bq_table.num_rows
-        schema = self._parse_schema(bq_table)
+        schema = BigQueryExtractor.parse_schema(bq_table)
 
         logger.debug(f"building query for {table}")
         sql = self._build_profiling_query(schema, table, row_count, self._sampling)

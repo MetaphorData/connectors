@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Union
+from typing import Collection, Dict, List, Optional, Set, Union
 
 import requests
 from metaphor.models.metadata_change_event import (
@@ -12,12 +12,11 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DashboardUpstream,
     DataPlatform,
-    MetadataChangeEvent,
 )
 from sql_metadata import Parser
 
 from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.metabase.config import MetabaseRunConfig
@@ -88,7 +87,7 @@ class MetabaseExtractor(BaseExtractor):
         "redshift": DataPlatform.REDSHIFT,
     }
 
-    async def extract(self, config: MetabaseRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: MetabaseRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, MetabaseExtractor.config_class())
 
         logger.info("Fetching metadata from Metabase")
@@ -140,7 +139,7 @@ class MetabaseExtractor(BaseExtractor):
             except Exception as ex:
                 logger.error(f"error parsing dashboard {dashboard['id']}", ex)
 
-        return [EventUtil.build_dashboard_event(d) for d in self._dashboards.values()]
+        return self._dashboards.values()
 
     def _fetch_assets(self, asset_type: str, withData=False) -> List[Dict]:
         resp = self._session.get(f"{self._server_url}/api/{asset_type}")

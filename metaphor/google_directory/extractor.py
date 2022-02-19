@@ -1,13 +1,12 @@
 import base64
 import json
-from typing import Dict, List
+from typing import Collection, Dict, List
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from metaphor.models.metadata_change_event import (
-    MetadataChangeEvent,
     Person,
     PersonLogicalID,
     PersonOrganization,
@@ -18,7 +17,7 @@ from serde import deserialize
 from smart_open import open
 
 from metaphor.common.base_config import BaseConfig
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 
@@ -34,7 +33,7 @@ class InvalidTokenError(Exception):
     """Thrown when the OAuth token is no longer valid"""
 
     def __init__(self):
-        super.__init__(self, "Token is no longer valid. Please authenticate again")
+        super().__init__("Token is no longer valid. Please authenticate again")
 
 
 @deserialize
@@ -67,7 +66,9 @@ class GoogleDirectoryExtractor(BaseExtractor):
     def __init__(self):
         self._users: List[Person] = []
 
-    async def extract(self, config: BaseConfig) -> List[MetadataChangeEvent]:
+    async def extract(
+        self, config: GoogleDirectoryRunConfig
+    ) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, GoogleDirectoryExtractor.config_class())
 
         logger.info("Fetching metadata from Google Directory")
@@ -86,9 +87,10 @@ class GoogleDirectoryExtractor(BaseExtractor):
 
         logger.debug(json.dumps([p.to_dict() for p in self._users]))
 
-        return [EventUtil.build_person_event(p) for p in self._users]
+        return self._users
 
-    def _get_photo(self, service, user_id) -> Dict:
+    @staticmethod
+    def _get_photo(service, user_id) -> Dict:
         try:
             return service.users().photos().get(userKey=user_id).execute()
         except HttpError as error:

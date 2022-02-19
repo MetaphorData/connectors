@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
 from metaphor.models.metadata_change_event import (
@@ -7,11 +7,10 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetUpstream,
     EntityType,
-    MetadataChangeEvent,
 )
 
 from metaphor.common.entity_id import to_dataset_entity_id
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.postgresql.extractor import PostgreSQLExtractor
@@ -34,7 +33,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
 
     async def extract(
         self, config: RedshiftLineageRunConfig
-    ) -> List[MetadataChangeEvent]:
+    ) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
         logger.info(f"Fetching lineage info from redshift host {config.host}")
 
@@ -57,7 +56,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
 
             await conn.close()
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     async def _fetch_upstream_from_stl_scan(self, conn: Connection, db: str) -> None:
         stl_scan_based_lineage_query: str = """

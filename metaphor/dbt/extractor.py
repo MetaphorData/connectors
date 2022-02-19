@@ -1,14 +1,9 @@
 import json
-from typing import Dict, List, Optional, Union
+from typing import Collection, Dict, List, Optional, Union
 
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    MetadataChangeEvent,
-    VirtualView,
-)
+from metaphor.models.metadata_change_event import DataPlatform, Dataset, VirtualView
 
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.dbt.config import DbtRunConfig
@@ -40,7 +35,7 @@ class DbtExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
 
-    async def extract(self, config: DbtRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: DbtRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, DbtExtractor.config_class())
 
         logger.info("Fetching metadata from DBT repo")
@@ -100,10 +95,7 @@ class DbtExtractor(BaseExtractor):
             logger.info("parsing catalog.json ...")
             catalog_parser.parse(config.catalog)
 
-        dataset_events = [
-            EventUtil.build_dataset_event(d) for d in self._datasets.values()
-        ]
-        virtual_view_events = [
-            EventUtil.build_virtual_view_event(d) for d in self._virtual_views.values()
-        ]
-        return dataset_events + virtual_view_events
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(self._datasets.values())
+        entities.extend(self._virtual_views.values())
+        return entities

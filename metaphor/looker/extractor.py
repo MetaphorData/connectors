@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Iterable, List, Sequence, Set, Tuple
+from typing import Collection, Dict, Iterable, List, Sequence, Set, Tuple
 
 try:
     import looker_sdk
@@ -17,12 +17,11 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
-    MetadataChangeEvent,
     VirtualViewType,
 )
 
 from metaphor.common.entity_id import to_virtual_view_entity_id
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
@@ -67,7 +66,7 @@ class LookerExtractor(BaseExtractor):
         os.environ["LOOKERSDK_TIMEOUT"] = str(config.timeout)
         return looker_sdk.init31()
 
-    async def extract(self, config: LookerRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: LookerRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, LookerExtractor.config_class())
 
         logger.info("Fetching metadata from Looker")
@@ -85,11 +84,10 @@ class LookerExtractor(BaseExtractor):
 
         dashboards = self._fetch_dashboards(config, sdk, model_map)
 
-        dashboard_events = [EventUtil.build_dashboard_event(d) for d in dashboards]
-        virtual_view_events = [
-            EventUtil.build_virtual_view_event(d) for d in virtual_views
-        ]
-        return dashboard_events + virtual_view_events
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(dashboards)
+        entities.extend(virtual_views)
+        return entities
 
     def _fetch_dashboards(
         self, config: LookerRunConfig, sdk: Looker31SDK, model_map: Dict[str, Model]

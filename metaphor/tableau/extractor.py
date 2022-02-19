@@ -2,7 +2,7 @@ import base64
 import json
 import re
 import traceback
-from typing import Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 from metaphor.common.entity_id import EntityId, to_dataset_entity_id
 
@@ -27,10 +27,9 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DashboardUpstream,
     DataPlatform,
-    MetadataChangeEvent,
 )
 
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.tableau.config import TableauRunConfig
@@ -53,7 +52,7 @@ class TableauExtractor(BaseExtractor):
     def config_class():
         return TableauRunConfig
 
-    async def extract(self, config: TableauRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: TableauRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, TableauExtractor.config_class())
 
         logger.info("Fetching metadata from Tableau")
@@ -121,7 +120,7 @@ class TableauExtractor(BaseExtractor):
                         f"failed to parse workbook upstream {item['vizportalUrlId']}, error {error}"
                     )
 
-        return [EventUtil.build_dashboard_event(d) for d in self._dashboards.values()]
+        return self._dashboards.values()
 
     def _parse_dashboard(self, workbook: WorkbookItem) -> None:
         base_url, workbook_id = TableauExtractor._parse_workbook_url(
