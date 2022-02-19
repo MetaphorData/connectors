@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional
+from typing import Collection, Dict, List, Optional
 
 from sql_metadata import Parser
 
@@ -18,7 +18,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetUpstream,
     EntityType,
-    MetadataChangeEvent,
 )
 
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
@@ -29,7 +28,7 @@ from metaphor.bigquery.utils import (
     build_logging_client,
 )
 from metaphor.common.entity_id import to_dataset_entity_id
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -144,7 +143,7 @@ class BigQueryLineageExtractor(BaseExtractor):
 
     async def extract(
         self, config: BigQueryLineageRunConfig
-    ) -> List[MetadataChangeEvent]:
+    ) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, BigQueryLineageExtractor.config_class())
 
         if config.enable_view_lineage:
@@ -153,7 +152,7 @@ class BigQueryLineageExtractor(BaseExtractor):
         if config.enable_lineage_from_log:
             self._fetch_audit_log(config)
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     def _fetch_view_upstream(self, config: BigQueryLineageRunConfig) -> None:
         logger.info("Fetching lineage info from BigQuery API")

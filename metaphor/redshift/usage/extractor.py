@@ -1,16 +1,12 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import AsyncIterator, Dict, List, Set
+from typing import AsyncIterator, Collection, Dict, Set
 
 from asyncpg import Record
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    MetadataChangeEvent,
-)
+from metaphor.models.metadata_change_event import DataPlatform, Dataset
 
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
@@ -91,9 +87,7 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self._excluded_usernames: Set[str] = set()
 
-    async def extract(
-        self, config: RedshiftUsageRunConfig
-    ) -> List[MetadataChangeEvent]:
+    async def extract(self, config: RedshiftUsageRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
 
         logger.info(f"Fetching metadata from redshift host {config.host}")
@@ -105,7 +99,7 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
 
         UsageUtil.calculate_statistics(self._datasets.values())
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     async def _fetch_usage(
         self, config: RedshiftUsageRunConfig

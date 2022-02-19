@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
-from typing import Dict, List, Mapping, Optional
+from typing import Collection, Dict, List, Mapping, Optional
 
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
 from metaphor.common.entity_id import dataset_fullname
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.snowflake.auth import connect
@@ -27,7 +27,6 @@ from metaphor.models.metadata_change_event import (
     DatasetStatistics,
     EntityType,
     MaterializationType,
-    MetadataChangeEvent,
     SchemaField,
     SchemaType,
     SourceInfo,
@@ -51,7 +50,7 @@ class SnowflakeExtractor(BaseExtractor):
         self.max_concurrency = None
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(self, config: SnowflakeRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: SnowflakeRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, SnowflakeExtractor.config_class())
 
         logger.info("Fetching metadata from Snowflake")
@@ -84,7 +83,7 @@ class SnowflakeExtractor(BaseExtractor):
 
         logger.debug(self._datasets)
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     @staticmethod
     def fetch_databases(cursor: SnowflakeCursor) -> List[str]:

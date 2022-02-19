@@ -1,4 +1,3 @@
-import json
 import logging
 from abc import ABC, abstractmethod
 from typing import Generator, List
@@ -18,7 +17,6 @@ class Sink(ABC):
         """Sink MCE messages to the destination"""
         records = [EventUtil.trim_event(e) for e in events]
         valid_records = [r for r in records if EventUtil.validate_message(r)]
-        logger.debug(f"Records: {json.dumps(valid_records)}")
         if len(valid_records) == 0:
             return False
 

@@ -1,7 +1,8 @@
-from typing import List
+from typing import Collection
 
-from metaphor.models.metadata_change_event import DataPlatform, MetadataChangeEvent
+from metaphor.models.metadata_change_event import DataPlatform
 
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.postgresql.profile.extractor import PostgreSQLProfileExtractor
@@ -23,7 +24,7 @@ class RedshiftProfileExtractor(PostgreSQLProfileExtractor):
 
     async def extract(
         self, config: RedshiftProfileRunConfig
-    ) -> List[MetadataChangeEvent]:
+    ) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
         logger.info(f"Fetching data profile from redshift host {config.host}")
         return await self._extract(config)

@@ -1,36 +1,26 @@
 [
   {
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
+    "logicalId": {
+      "email": "foo@bar.com"
     },
-    "person": {
-      "logicalId": {
-        "email": "foo@bar.com"
-      },
-      "properties": {
-        "firstName": "Foo",
-        "lastName": "Bar",
-        "avatarUrl": "data:image/jpeg;base64,1111"
-      }
+    "properties": {
+      "avatarUrl": "data:image/jpeg;base64,1111",
+      "firstName": "Foo",
+      "lastName": "Bar"
     }
   },
   {
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
+    "logicalId": {
+      "email": "foo2@bar.com"
     },
-    "person": {
-      "logicalId": {
-        "email": "foo2@bar.com"
-      },
-      "properties": {
-        "firstName": "Foo2",
-        "lastName": "Bar2",
-        "avatarUrl": "data:image/jpeg;base64,1111"
-      },
-      "organization": {
-        "title": "software engineer",
-        "department": "engineering"
-      }
+    "organization": {
+      "department": "engineering",
+      "title": "software engineer"
+    },
+    "properties": {
+      "avatarUrl": "data:image/jpeg;base64,1111",
+      "firstName": "Foo2",
+      "lastName": "Bar2"
     }
   }
 ]

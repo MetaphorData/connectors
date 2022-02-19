@@ -1,178 +1,168 @@
 [
   {
-    "dataset": {
-      "entityType": "DATASET",
-      "logicalId": {
-        "name": "metaphor-data.foo_1.bar_1",
-        "platform": "BIGQUERY"
-      },
-      "usage": {
-        "aspectType": "DATASET_USAGE",
-        "fieldQueryCounts": {
-          "last24Hours": [],
-          "last30Days": [
-            {
-              "count": 2.0,
-              "field": "event_dimensions.hostname",
-              "percentile": 0.75
-            },
-            {
-              "count": 2.0,
-              "field": "event_name",
-              "percentile": 0.75
-            }
-          ],
-          "last365Days": [
-            {
-              "count": 2.0,
-              "field": "event_dimensions.hostname",
-              "percentile": 0.75
-            },
-            {
-              "count": 2.0,
-              "field": "event_name",
-              "percentile": 0.75
-            }
-          ],
-          "last7Days": [
-            {
-              "count": 2.0,
-              "field": "event_dimensions.hostname",
-              "percentile": 0.75
-            },
-            {
-              "count": 2.0,
-              "field": "event_name",
-              "percentile": 0.75
-            }
-          ],
-          "last90Days": [
-            {
-              "count": 2.0,
-              "field": "event_dimensions.hostname",
-              "percentile": 0.75
-            },
-            {
-              "count": 2.0,
-              "field": "event_name",
-              "percentile": 0.75
-            }
-          ]
-        },
-        "queryCounts": {
-          "last24Hours": {
-            "count": 0.0,
-            "percentile": 0.0
-          },
-          "last30Days": {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "metaphor-data.foo_1.bar_1",
+      "platform": "BIGQUERY"
+    },
+    "usage": {
+      "aspectType": "DATASET_USAGE",
+      "fieldQueryCounts": {
+        "last24Hours": [],
+        "last30Days": [
+          {
             "count": 2.0,
-            "percentile": 0.5
+            "field": "event_dimensions.hostname",
+            "percentile": 0.75
           },
-          "last365Days": {
+          {
             "count": 2.0,
-            "percentile": 0.5
-          },
-          "last7Days": {
-            "count": 2.0,
-            "percentile": 0.5
-          },
-          "last90Days": {
-            "count": 2.0,
-            "percentile": 0.5
+            "field": "event_name",
+            "percentile": 0.75
           }
+        ],
+        "last365Days": [
+          {
+            "count": 2.0,
+            "field": "event_dimensions.hostname",
+            "percentile": 0.75
+          },
+          {
+            "count": 2.0,
+            "field": "event_name",
+            "percentile": 0.75
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 2.0,
+            "field": "event_dimensions.hostname",
+            "percentile": 0.75
+          },
+          {
+            "count": 2.0,
+            "field": "event_name",
+            "percentile": 0.75
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 2.0,
+            "field": "event_dimensions.hostname",
+            "percentile": 0.75
+          },
+          {
+            "count": 2.0,
+            "field": "event_name",
+            "percentile": 0.75
+          }
+        ]
+      },
+      "queryCounts": {
+        "last24Hours": {
+          "count": 0.0,
+          "percentile": 0.0
+        },
+        "last30Days": {
+          "count": 2.0,
+          "percentile": 0.5
+        },
+        "last365Days": {
+          "count": 2.0,
+          "percentile": 0.5
+        },
+        "last7Days": {
+          "count": 2.0,
+          "percentile": 0.5
+        },
+        "last90Days": {
+          "count": 2.0,
+          "percentile": 0.5
         }
       }
-    },
-    "eventHeader": {
-      "time": "2022-01-10T00:00:00+00:00"
     }
   },
   {
-    "dataset": {
-      "entityType": "DATASET",
-      "logicalId": {
-        "name": "metaphor-data.foo_1.event_desc",
-        "platform": "BIGQUERY"
-      },
-      "usage": {
-        "aspectType": "DATASET_USAGE",
-        "fieldQueryCounts": {
-          "last24Hours": [],
-          "last30Days": [
-            {
-              "count": 3.0,
-              "field": "description",
-              "percentile": 0.75
-            },
-            {
-              "count": 3.0,
-              "field": "event_name",
-              "percentile": 0.75
-            }
-          ],
-          "last365Days": [
-            {
-              "count": 3.0,
-              "field": "description",
-              "percentile": 0.75
-            },
-            {
-              "count": 3.0,
-              "field": "event_name",
-              "percentile": 0.75
-            }
-          ],
-          "last7Days": [
-            {
-              "count": 3.0,
-              "field": "description",
-              "percentile": 0.75
-            },
-            {
-              "count": 3.0,
-              "field": "event_name",
-              "percentile": 0.75
-            }
-          ],
-          "last90Days": [
-            {
-              "count": 3.0,
-              "field": "description",
-              "percentile": 0.75
-            },
-            {
-              "count": 3.0,
-              "field": "event_name",
-              "percentile": 0.75
-            }
-          ]
-        },
-        "queryCounts": {
-          "last24Hours": {
-            "count": 0.0,
-            "percentile": 0.0
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "metaphor-data.foo_1.event_desc",
+      "platform": "BIGQUERY"
+    },
+    "usage": {
+      "aspectType": "DATASET_USAGE",
+      "fieldQueryCounts": {
+        "last24Hours": [],
+        "last30Days": [
+          {
+            "count": 3.0,
+            "field": "description",
+            "percentile": 0.75
           },
-          "last30Days": {
-            "count": 4.0,
-            "percentile": 1.0
-          },
-          "last365Days": {
-            "count": 4.0,
-            "percentile": 1.0
-          },
-          "last7Days": {
-            "count": 4.0,
-            "percentile": 1.0
-          },
-          "last90Days": {
-            "count": 4.0,
-            "percentile": 1.0
+          {
+            "count": 3.0,
+            "field": "event_name",
+            "percentile": 0.75
           }
+        ],
+        "last365Days": [
+          {
+            "count": 3.0,
+            "field": "description",
+            "percentile": 0.75
+          },
+          {
+            "count": 3.0,
+            "field": "event_name",
+            "percentile": 0.75
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 3.0,
+            "field": "description",
+            "percentile": 0.75
+          },
+          {
+            "count": 3.0,
+            "field": "event_name",
+            "percentile": 0.75
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 3.0,
+            "field": "description",
+            "percentile": 0.75
+          },
+          {
+            "count": 3.0,
+            "field": "event_name",
+            "percentile": 0.75
+          }
+        ]
+      },
+      "queryCounts": {
+        "last24Hours": {
+          "count": 0.0,
+          "percentile": 0.0
+        },
+        "last30Days": {
+          "count": 4.0,
+          "percentile": 1.0
+        },
+        "last365Days": {
+          "count": 4.0,
+          "percentile": 1.0
+        },
+        "last7Days": {
+          "count": 4.0,
+          "percentile": 1.0
+        },
+        "last90Days": {
+          "count": 4.0,
+          "percentile": 1.0
         }
       }
-    },
-    "eventHeader": {
-      "time": "2022-01-10T00:00:00+00:00"
     }
   }
 ]

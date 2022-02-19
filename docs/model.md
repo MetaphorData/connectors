@@ -77,9 +77,8 @@ from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
-    DatasetPlatform,
+    DataPlatform,
     DatasetUpstream,
-    MetadataChangeEvent,
 )
 
 # Create string-based entity IDs for src1 & src2
@@ -93,5 +92,6 @@ dataset = Dataset(
 )
 
 # Build the final list of MetadataChangeEvents
-events = [EventUtil.build_dataset_event(dataset)]
+event_util = EventUtil()
+events = [event_util.build_event(dataset)]
 ```

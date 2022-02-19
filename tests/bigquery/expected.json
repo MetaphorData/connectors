@@ -1,66 +1,61 @@
 [
   {
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
+    "logicalId": {
+      "name": "project1.dataset1.table1",
+      "platform": "BIGQUERY"
     },
-    "dataset": {
-      "logicalId": {
-        "platform": "BIGQUERY",
-        "name": "project1.dataset1.table1"
-      },
-      "schema": {
-        "description": "description",
-        "fields": [{
-          "fieldPath": "f1",
+    "schema": {
+      "description": "description",
+      "fields": [
+        {
           "description": "d1",
+          "fieldPath": "f1",
           "nativeType": "STRING",
           "nullable": true
-        }, {
-          "fieldPath": "f2",
+        },
+        {
           "description": "d2",
+          "fieldPath": "f2",
           "nativeType": "INTEGER",
           "nullable": false
-        }],
-        "schemaType": "SQL",
-        "sqlSchema": {
-          "materialization": "TABLE"
         }
-      },
-      "statistics": {
-        "dataSize": 5.0,
-        "recordCount": 100.0,
-        "lastUpdated": "2000-01-02T00:00:00+00:00"
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
       }
+    },
+    "statistics": {
+      "dataSize": 5.0,
+      "recordCount": 100.0,
+      "lastUpdated": "2000-01-02T00:00:00+00:00"
     }
   },
   {
-    "eventHeader": {
-      "time": "2000-01-01T00:00:00+00:00"
+    "logicalId": {
+      "name": "project1.dataset1.table2",
+      "platform": "BIGQUERY"
     },
-    "dataset": {
-      "logicalId": {
-        "platform": "BIGQUERY",
-        "name": "project1.dataset1.table2"
-      },
-      "schema": {
-        "description": "description",
-        "fields": [{
-          "fieldPath": "f1",
+    "schema": {
+      "description": "description",
+      "fields": [
+        {
           "description": "d1",
+          "fieldPath": "f1",
           "nativeType": "ARRAY<FLOAT>",
           "nullable": false
-        }],
-        "schemaType": "SQL",
-        "sqlSchema": {
-          "materialization": "VIEW",
-          "tableSchema": "select * from FOO"
         }
-      },
-      "statistics": {
-        "dataSize": 0.5,
-        "recordCount": 1000.0,
-        "lastUpdated": "2000-01-02T00:00:00+00:00"
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "select * from FOO"
       }
+    },
+    "statistics": {
+      "dataSize": 0.5,
+      "recordCount": 1000.0,
+      "lastUpdated": "2000-01-02T00:00:00+00:00"
     }
-  }  
+  }
 ]

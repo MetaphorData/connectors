@@ -2,17 +2,13 @@ import logging
 import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Tuple
+from typing import Collection, Dict, List, Tuple
 
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    MetadataChangeEvent,
-)
+from metaphor.models.metadata_change_event import DataPlatform, Dataset
 from serde import deserialize
 from serde.json import from_json
 
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
@@ -62,7 +58,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
     async def extract(
         self, config: SnowflakeUsageRunConfig
-    ) -> List[MetadataChangeEvent]:
+    ) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, SnowflakeUsageExtractor.config_class())
 
         logger.info("Fetching usage info from Snowflake")
@@ -139,7 +135,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
         # calculate statistics based on the counts
         UsageUtil.calculate_statistics(self._datasets.values())
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
         logger.info(f"access logs batch #{batch_number}")
