@@ -1,7 +1,7 @@
+import asyncio
 import traceback
 from typing import Collection, Iterable, List
 
-from black import asyncio
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetFieldStatistics,
