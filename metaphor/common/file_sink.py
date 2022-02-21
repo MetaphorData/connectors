@@ -91,3 +91,12 @@ class FileSink(Sink):
         content = json.dumps(metadata.to_dict()).encode()
 
         self._storage.write_file(f"{self.path}/run.metadata", content, True)
+
+    def sink_lineage(self, lineage: List[dict], filename: str) -> None:
+        existing = self._storage.list_files(self.path, ".lineage")
+        path = f"{self.path}/{filename}.lineage"
+        if path in existing:
+            self._storage.delete_files([path])
+
+        content = json.dumps(lineage).encode()
+        self._storage.write_file(path, content, True)
