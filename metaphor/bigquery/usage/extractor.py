@@ -2,17 +2,13 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional, Set
+from typing import Collection, Dict, List, Optional, Set
 
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    MetadataChangeEvent,
-)
+from metaphor.models.metadata_change_event import DataPlatform, Dataset
 
 from metaphor.bigquery.usage.config import BigQueryUsageRunConfig
 from metaphor.bigquery.utils import BigQueryResource, LogEntry, build_logging_client
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -75,9 +71,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         self._dataset_filter: DatasetFilter = DatasetFilter()
         self._excluded_usernames: Set[str] = set()
 
-    async def extract(
-        self, config: BigQueryUsageRunConfig
-    ) -> List[MetadataChangeEvent]:
+    async def extract(self, config: BigQueryUsageRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, BigQueryUsageExtractor.config_class())
 
         logger.info("Fetching usage info from BigQuery")
@@ -100,7 +94,7 @@ class BigQueryUsageExtractor(BaseExtractor):
         logger.info(f"Number of tableDataRead log entries fetched: {counter}")
         UsageUtil.calculate_statistics(self._datasets.values())
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     def _parse_table_data_read_entry(self, entry: LogEntry) -> None:
         read_event = TableReadEvent.from_entry(entry)

@@ -1,16 +1,15 @@
+import asyncio
 import traceback
-from typing import Iterable, List
+from typing import Collection, Iterable, List
 
-from black import asyncio
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetFieldStatistics,
     FieldStatistics,
     MaterializationType,
-    MetadataChangeEvent,
 )
 
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
@@ -35,7 +34,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
     async def extract(
         self, config: PostgreSQLProfileRunConfig
-    ) -> List[MetadataChangeEvent]:
+    ) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
         logger.info(f"Fetching data profile from PostgreSQL host {config.host}")
 
@@ -43,7 +42,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
     async def _extract(
         self, config: PostgreSQLProfileRunConfig
-    ) -> List[MetadataChangeEvent]:
+    ) -> Collection[ENTITY_TYPES]:
 
         self._include_views = config.include_views
         self._sampling = config.sampling
@@ -63,7 +62,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
         await asyncio.gather(*coroutines)
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     async def _profile_database(
         self,

@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import Dict, List, Set
+from typing import Collection, Dict, List, Set
 
 from pydantic.dataclasses import dataclass
 
@@ -10,7 +10,6 @@ except ImportError:
     raise
 
 from metaphor.models.metadata_change_event import (
-    MetadataChangeEvent,
     Person,
     PersonLogicalID,
     PersonSlackProfile,
@@ -18,7 +17,7 @@ from metaphor.models.metadata_change_event import (
 from serde import deserialize
 
 from metaphor.common.base_config import BaseConfig
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 
@@ -62,7 +61,7 @@ class SlackExtractor(BaseExtractor):
     def config_class():
         return SlackRunConfig
 
-    async def extract(self, config: SlackRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: SlackRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, SlackExtractor.config_class())
 
         logger.info("Fetching directory data from Slack")
@@ -103,4 +102,4 @@ class SlackExtractor(BaseExtractor):
                 )
             )
 
-        return [EventUtil.build_person_event(p) for p in persons]
+        return persons

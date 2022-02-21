@@ -1,10 +1,10 @@
 import logging
-from typing import Dict, List, Tuple
+from typing import Collection, Dict, List, Tuple
 
 from snowflake.connector import SnowflakeConnection
 
 from metaphor.common.entity_id import dataset_fullname
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
@@ -31,7 +31,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     EntityType,
     FieldStatistics,
-    MetadataChangeEvent,
 )
 
 from metaphor.common.extractor import BaseExtractor
@@ -52,10 +51,11 @@ class SnowflakeProfileExtractor(BaseExtractor):
         self.max_concurrency = None
         self.include_views = None
         self._datasets: Dict[str, Dataset] = {}
+        self._sampling = None
 
     async def extract(
         self, config: SnowflakeProfileRunConfig
-    ) -> List[MetadataChangeEvent]:
+    ) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, SnowflakeProfileExtractor.config_class())
 
         logger.info("Fetching data profile from Snowflake")
@@ -84,7 +84,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         logger.debug(self._datasets)
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     def _fetch_tables(
         self,

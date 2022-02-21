@@ -1,9 +1,9 @@
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Collection, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
 
 from metaphor.common.entity_id import dataset_fullname
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.postgresql.config import PostgreSQLRunConfig
 
@@ -21,7 +21,6 @@ from metaphor.models.metadata_change_event import (
     DatasetStatistics,
     ForeignKey,
     MaterializationType,
-    MetadataChangeEvent,
     SchemaField,
     SchemaType,
     SQLSchema,
@@ -52,7 +51,7 @@ class PostgreSQLExtractor(BaseExtractor):
         self._platform = DataPlatform.POSTGRESQL
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(self, config: PostgreSQLRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: PostgreSQLRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
         logger.info(f"Fetching metadata from postgreSQL host {config.host}")
 
@@ -73,7 +72,7 @@ class PostgreSQLExtractor(BaseExtractor):
             finally:
                 await conn.close()
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     @staticmethod
     async def _connect_database(

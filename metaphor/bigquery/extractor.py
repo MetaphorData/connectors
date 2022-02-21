@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Mapping, Sequence, Union
+from typing import Any, Collection, List, Mapping, Sequence, Union
 
 try:
     import google.cloud.bigquery as bigquery
@@ -14,7 +14,6 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     DatasetStatistics,
     MaterializationType,
-    MetadataChangeEvent,
     SchemaField,
     SchemaType,
     SQLSchema,
@@ -22,7 +21,7 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.bigquery.config import BigQueryRunConfig
 from metaphor.bigquery.utils import build_client
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 
 logger = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ class BigQueryExtractor(BaseExtractor):
 
     BYTES_PER_MEGABYTES = 1024 * 1024
 
-    async def extract(self, config: BigQueryRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: BigQueryRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, BigQueryExtractor.config_class())
 
         logger.info("Fetching metadata from BigQuery")
@@ -73,17 +72,18 @@ class BigQueryExtractor(BaseExtractor):
                 bq_table = client.get_table(table_ref)
                 datasets.append(self._parse_table(client.project, bq_table))
 
-        return [EventUtil.build_dataset_event(d) for d in datasets]
+        return datasets
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
-    def _parse_table(self, project_id, bq_table: bigquery.table.Table) -> Dataset:
+    @staticmethod
+    def _parse_table(project_id, bq_table: bigquery.table.Table) -> Dataset:
         dataset_id = DatasetLogicalID(
             platform=DataPlatform.BIGQUERY,
             name=f"{project_id}.{bq_table.dataset_id}.{bq_table.table_id}",
         )
 
-        schema = self._parse_schema(bq_table)
-        statistics = self._parse_statistics(bq_table)
+        schema = BigQueryExtractor.parse_schema(bq_table)
+        statistics = BigQueryExtractor._parse_statistics(bq_table)
 
         return Dataset(
             logical_id=dataset_id,
@@ -92,7 +92,8 @@ class BigQueryExtractor(BaseExtractor):
         )
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
-    def _parse_schema(self, bq_table: bigquery.table.Table) -> DatasetSchema:
+    @staticmethod
+    def parse_schema(bq_table: bigquery.table.Table) -> DatasetSchema:
         schema = DatasetSchema(
             description=bq_table.description, schema_type=SchemaType.SQL
         )
@@ -114,13 +115,14 @@ class BigQueryExtractor(BaseExtractor):
         else:
             raise ValueError(f"Unexpected table type {bq_table.table_type}")
 
-        schema.fields = self._parse_fields(bq_table.schema)
+        schema.fields = BigQueryExtractor._parse_fields(bq_table.schema)
 
         return schema
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.schema.SchemaField.html#google.cloud.bigquery.schema.SchemaField
+    @staticmethod
     def _parse_fields(
-        self, schema: Sequence[Union[bigquery.schema.SchemaField, Mapping[str, Any]]]
+        schema: Sequence[Union[bigquery.schema.SchemaField, Mapping[str, Any]]]
     ) -> List[SchemaField]:
 
         fields: List[SchemaField] = []
@@ -150,7 +152,8 @@ class BigQueryExtractor(BaseExtractor):
         return fields
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
-    def _parse_statistics(self, bq_table: bigquery.table.Table) -> DatasetStatistics:
+    @staticmethod
+    def _parse_statistics(bq_table: bigquery.table.Table) -> DatasetStatistics:
         return DatasetStatistics(
             data_size=float(bq_table.num_bytes / BigQueryExtractor.BYTES_PER_MEGABYTES),
             record_count=float(bq_table.num_rows),

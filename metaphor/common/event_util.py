@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import datetime, timezone
 from importlib import resources
+from typing import Union
 
 import fastjsonschema
 from metaphor.models.metadata_change_event import (
@@ -19,6 +20,8 @@ from metaphor import models
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+ENTITY_TYPES = Union[Dashboard, Dataset, Person, KnowledgeCard, VirtualView]
+
 
 class EventUtil:
     """Event utilities"""
@@ -26,37 +29,35 @@ class EventUtil:
     with resources.open_text(models, "metadata_change_event.json") as f:
         validate = fastjsonschema.compile(json.load(f))
 
-    @staticmethod
-    def _build_event(**kwargs) -> MetadataChangeEvent:
+    def __init__(self, extractor_class="", server=""):
+        self._extractor_class = extractor_class
+        self._server = server
+
+    def _build_event(self, **kwargs) -> MetadataChangeEvent:
         """Create an MCE"""
         return MetadataChangeEvent(
-            event_header=EventHeader(time=datetime.now(timezone.utc)), **kwargs
+            event_header=EventHeader(
+                time=datetime.now(timezone.utc),
+                app_name=self._extractor_class,
+                server=self._server,
+            ),
+            **kwargs,
         )
 
-    @staticmethod
-    def build_dashboard_event(entity: Dashboard) -> MetadataChangeEvent:
-        """Build MCE given a dashboard"""
-        return EventUtil._build_event(dashboard=entity)
-
-    @staticmethod
-    def build_dataset_event(entity: Dataset) -> MetadataChangeEvent:
-        """Build MCE given a dataset"""
-        return EventUtil._build_event(dataset=entity)
-
-    @staticmethod
-    def build_person_event(entity: Person) -> MetadataChangeEvent:
-        """Build MCE given a person"""
-        return EventUtil._build_event(person=entity)
-
-    @staticmethod
-    def build_knowledge_card_event(entity: KnowledgeCard) -> MetadataChangeEvent:
-        """Build MCE given a knowledge card"""
-        return EventUtil._build_event(knowledge_card=entity)
-
-    @staticmethod
-    def build_virtual_view_event(entity: VirtualView) -> MetadataChangeEvent:
-        """Build MCE given a virtual view"""
-        return EventUtil._build_event(virtual_view=entity)
+    def build_event(self, entity: ENTITY_TYPES):
+        """Build MCE given an entity"""
+        if type(entity) is Dashboard:
+            return self._build_event(dashboard=entity)
+        elif type(entity) is Dataset:
+            return self._build_event(dataset=entity)
+        elif type(entity) is Person:
+            return self._build_event(person=entity)
+        elif type(entity) is KnowledgeCard:
+            return self._build_event(knowledge_card=entity)
+        elif type(entity) is VirtualView:
+            return self._build_event(virtual_view=entity)
+        else:
+            raise TypeError(f"invalid entity type {type(entity)}")
 
     @staticmethod
     def validate_message(message: dict) -> bool:
@@ -86,11 +87,11 @@ class EventUtil:
             return value
 
     @staticmethod
-    def trim_event(event: MetadataChangeEvent) -> dict:
+    def trim_event(event: Union[MetadataChangeEvent, ENTITY_TYPES]) -> dict:
         """Cast event to dict and remove all None values"""
         return EventUtil.clean_nones(event.to_dict())
 
     @staticmethod
-    def serialize_event(event: MetadataChangeEvent) -> str:
-        """Serialize event to json string"""
-        return json.dumps(EventUtil.trim_event(event))
+    def class_fqcn(clazz) -> str:
+        """Get the fully qualified class name"""
+        return f"{clazz.__module__}.{clazz.__qualname__}"

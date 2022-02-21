@@ -1,9 +1,9 @@
-from typing import List
+from typing import Collection
 
-from metaphor.models.metadata_change_event import DataPlatform, MetadataChangeEvent
+from metaphor.models.metadata_change_event import DataPlatform
 
 from metaphor.common.entity_id import dataset_fullname
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.config import RedshiftRunConfig
@@ -22,7 +22,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
         super().__init__()
         self._platform = DataPlatform.REDSHIFT
 
-    async def extract(self, config: RedshiftRunConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: RedshiftRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, PostgreSQLExtractor.config_class())
         logger.info(f"Fetching metadata from redshift host {config.host}")
 
@@ -43,7 +43,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
             finally:
                 await conn.close()
 
-        return [EventUtil.build_dataset_event(d) for d in self._datasets.values()]
+        return self._datasets.values()
 
     async def _fetch_redshift_table_stats(self, conn, catalog: str) -> None:
         results = await conn.fetch(
