@@ -1,14 +1,12 @@
 from typing import Dict, Optional, Set, Union
 
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 TableFilter = Set[str]
 SchemaFilter = Dict[str, Union[None, TableFilter]]
 DatabaseFilter = Dict[str, Union[None, SchemaFilter]]
 
 
-@deserialize
 @dataclass
 class DatasetFilter:
     # A list of databases/schemas/tables to include

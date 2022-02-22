@@ -139,7 +139,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
     def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
         logger.info(f"access logs batch #{batch_number}")
-        for query_id, start_time, accessed_objects in access_logs:
+        for _, start_time, accessed_objects in access_logs:
             self._parse_access_log(start_time, accessed_objects)
 
     def _parse_access_log(self, start_time: datetime, accessed_objects: str) -> None:

@@ -13,7 +13,6 @@ from metaphor.models.metadata_change_event import (
     PersonProperties,
 )
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 from smart_open import open
 
 from metaphor.common.base_config import BaseConfig
@@ -36,7 +35,6 @@ class InvalidTokenError(Exception):
         super().__init__("Token is no longer valid. Please authenticate again")
 
 
-@deserialize
 @dataclass
 class GoogleDirectoryRunConfig(BaseConfig):
     token_file: str

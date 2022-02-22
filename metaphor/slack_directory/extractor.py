@@ -14,7 +14,6 @@ from metaphor.models.metadata_change_event import (
     PersonLogicalID,
     PersonSlackProfile,
 )
-from serde import deserialize
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.event_util import ENTITY_TYPES
@@ -24,7 +23,6 @@ from metaphor.common.logger import get_logger
 logger = get_logger(__name__)
 
 
-@deserialize
 @dataclass
 class SlackRunConfig(BaseConfig):
     oauth_token: str

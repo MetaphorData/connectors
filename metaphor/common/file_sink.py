@@ -8,7 +8,6 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from .logger import LOG_FILE, get_logger
 from .sink import Sink
@@ -17,7 +16,6 @@ from .storage import BaseStorage, LocalStorage, S3Storage
 logger = get_logger(__name__)
 
 
-@deserialize
 @dataclass
 class FileSinkConfig:
     # Location of the sink directory, where the MCE file and logs will be output to.

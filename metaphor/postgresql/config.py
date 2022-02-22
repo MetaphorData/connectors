@@ -2,13 +2,11 @@ from dataclasses import field
 from typing import Optional
 
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.filter import DatasetFilter
 
 
-@deserialize
 @dataclass
 class PostgreSQLRunConfig(BaseConfig):
     host: str
