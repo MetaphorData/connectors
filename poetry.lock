@@ -1189,7 +1189,6 @@ python-versions = ">=3.6"
 
 [package.dependencies]
 jinja2 = "*"
-pyyaml = {version = "*", optional = true, markers = "extra == \"yaml\""}
 stringcase = "*"
 typing-inspect = ">=0.4.0"
 
@@ -1271,7 +1270,7 @@ python-versions = "*"
 name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -1655,7 +1654,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "1bacb38a7661ab3ff49606d471403982b4cc4a4917a9a3ef0f3465ad9fd01047"
+content-hash = "2736d344f881b9e8c4538353cb9e21e65419988a4fa694c014d874c417b47833"
 
 [metadata.files]
 anyio = [
