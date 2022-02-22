@@ -3,7 +3,6 @@ from typing import Optional
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 from smart_open import open
 
 from metaphor.common.base_config import BaseConfig
@@ -19,7 +18,6 @@ METAPHOR_DATA = "MetaphorData"
 METAPHOR_DATA_SNOWFLAKE_CONNECTOR = "MetaphorData_SnowflakeConnector"
 
 
-@deserialize
 @dataclass
 class SnowflakeKeyPairAuthConfig:
     """Config for key pair authentication"""
@@ -30,7 +28,6 @@ class SnowflakeKeyPairAuthConfig:
     passphrase: Optional[str] = None
 
 
-@deserialize
 @dataclass
 class SnowflakeAuthConfig(BaseConfig):
     account: str

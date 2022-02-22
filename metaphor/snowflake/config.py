@@ -2,14 +2,12 @@ from dataclasses import field
 from typing import Optional
 
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.auth import SnowflakeAuthConfig
 from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE
 
 
-@deserialize
 @dataclass
 class SnowflakeRunConfig(SnowflakeAuthConfig):
 

@@ -1,10 +1,8 @@
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.redshift.config import RedshiftRunConfig
 
 
-@deserialize
 @dataclass
 class RedshiftLineageRunConfig(RedshiftRunConfig):
 

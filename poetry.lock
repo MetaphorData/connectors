@@ -1181,22 +1181,20 @@ six = "*"
 
 [[package]]
 name = "pyserde"
-version = "0.4.0"
-description = "Serialization library on top of dataclasses."
+version = "0.7.0"
+description = "Yet another serialization library on top of dataclasses"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.6.1,<4.0.0"
 
 [package.dependencies]
 jinja2 = "*"
-pyyaml = {version = "*", optional = true, markers = "extra == \"yaml\""}
 stringcase = "*"
-typing-inspect = ">=0.4.0"
+typing_inspect = ">=0.4.0"
 
 [package.extras]
-all = ["msgpack", "toml", "pyyaml"]
 msgpack = ["msgpack"]
-test = ["coverage", "pytest", "pytest-cov", "pytest-flake8", "mypy", "flake8", "pre-commit"]
+all = ["msgpack", "toml", "pyyaml"]
 toml = ["toml"]
 yaml = ["pyyaml"]
 
@@ -1271,7 +1269,7 @@ python-versions = "*"
 name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -1560,6 +1558,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "types-pyyaml"
+version = "6.0.4"
+description = "Typing stubs for PyYAML"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "types-requests"
 version = "2.27.8"
 description = "Typing stubs for requests"
@@ -1647,7 +1653,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "dc0db3b68fa7869fdced636bb2987f15a3c468dda1d858c558a6055d029046fc"
+content-hash = "5b0da48f7089b3f5ad757d49f7b49bb7b309168f39d846f6012acfe6d21bec31"
 
 [metadata.files]
 anyio = [
@@ -2411,8 +2417,8 @@ pyrsistent = [
     {file = "pyrsistent-0.16.1.tar.gz", hash = "sha256:aa2ae1c2e496f4d6777f869ea5de7166a8ccb9c2e06ebcf6c7ff1b670c98c5ef"},
 ]
 pyserde = [
-    {file = "pyserde-0.4.0-py3-none-any.whl", hash = "sha256:72edcfcec4f083b78bd9fd9f6146889a699c9b9046c15d5980406aaa9ecaa5f7"},
-    {file = "pyserde-0.4.0.tar.gz", hash = "sha256:5f9fee6fe9289ecd3a10a0084380900f4ffb1c9cd9121a74db516a45186fa6dc"},
+    {file = "pyserde-0.7.0-py3-none-any.whl", hash = "sha256:2693c2bd53212d5d6a7d44be697a6c51b88225ae0b37391be9488b0a99cd0309"},
+    {file = "pyserde-0.7.0.tar.gz", hash = "sha256:3150e36f125f4dcb66a1569d934f41dfdc5593f0081142c021f109dbf42ff487"},
 ]
 pysnooper = [
     {file = "PySnooper-1.1.0-py2.py3-none-any.whl", hash = "sha256:985c0dddf701e1d69d25534ffd45fc02f2877b58bcb5788fb017077c65896bfa"},
@@ -2685,6 +2691,10 @@ types-freezegun = [
 types-pytz = [
     {file = "types-pytz-2021.3.4.tar.gz", hash = "sha256:101da53091013bb07403468c20d36930d749d3918054ac46f9c1bfc607dadf7d"},
     {file = "types_pytz-2021.3.4-py3-none-any.whl", hash = "sha256:ccfa2ed29f816e3de2f882541c06ad2791f808a79cfe38265411820190999f0f"},
+]
+types-pyyaml = [
+    {file = "types-PyYAML-6.0.4.tar.gz", hash = "sha256:6252f62d785e730e454dfa0c9f0fb99d8dae254c5c3c686903cf878ea27c04b7"},
+    {file = "types_PyYAML-6.0.4-py3-none-any.whl", hash = "sha256:693b01c713464a6851f36ff41077f8adbc6e355eda929addfb4a97208aea9b4b"},
 ]
 types-requests = [
     {file = "types-requests-2.27.8.tar.gz", hash = "sha256:c2f4e4754d07ca0a88fd8a89bbc6c8a9f90fb441f9c9b572fd5c484f04817486"},

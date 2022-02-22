@@ -2,12 +2,10 @@ import dataclasses
 from typing import Dict, Optional
 
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.common.base_config import BaseConfig
 
 
-@deserialize
 @dataclass
 class TableauTokenAuthConfig:
     """Config for Personal Access Token authentication"""
@@ -16,7 +14,6 @@ class TableauTokenAuthConfig:
     token_value: str
 
 
-@deserialize
 @dataclass
 class TableauPasswordAuthConfig:
     """Config for Username Password authentication"""
@@ -25,13 +22,12 @@ class TableauPasswordAuthConfig:
     password: str
 
 
-@deserialize
 @dataclass
 class TableauRunConfig(BaseConfig):
     server_url: str
     site_name: str
-    access_token: Optional[TableauTokenAuthConfig]
-    user_password: Optional[TableauPasswordAuthConfig]
+    access_token: Optional[TableauTokenAuthConfig] = None
+    user_password: Optional[TableauPasswordAuthConfig] = None
 
     # Snowflake data source account
     snowflake_account: Optional[str] = None
