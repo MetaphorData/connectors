@@ -1181,20 +1181,22 @@ six = "*"
 
 [[package]]
 name = "pyserde"
-version = "0.7.0"
-description = "Yet another serialization library on top of dataclasses"
+version = "0.4.0"
+description = "Serialization library on top of dataclasses."
 category = "main"
-optional = false
-python-versions = ">=3.6.1,<4.0.0"
+optional = true
+python-versions = ">=3.6"
 
 [package.dependencies]
 jinja2 = "*"
+pyyaml = {version = "*", optional = true, markers = "extra == \"yaml\""}
 stringcase = "*"
-typing_inspect = ">=0.4.0"
+typing-inspect = ">=0.4.0"
 
 [package.extras]
-msgpack = ["msgpack"]
 all = ["msgpack", "toml", "pyyaml"]
+msgpack = ["msgpack"]
+test = ["coverage", "pytest", "pytest-cov", "pytest-flake8", "mypy", "flake8", "pre-commit"]
 toml = ["toml"]
 yaml = ["pyyaml"]
 
@@ -1269,7 +1271,7 @@ python-versions = "*"
 name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1500,7 +1502,7 @@ name = "stringcase"
 version = "1.2.0"
 description = "String case converter."
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [[package]]
@@ -1597,7 +1599,7 @@ name = "typing-inspect"
 version = "0.7.1"
 description = "Runtime inspection utilities for typing module."
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [package.dependencies]
@@ -1638,7 +1640,7 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
-all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "slack-sdk", "snowflake-connector-python", "sql-metadata", "tableauserverclient"]
+all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "pyserde", "slack-sdk", "snowflake-connector-python", "sql-metadata", "tableauserverclient"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 dbt = []
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
@@ -1647,13 +1649,13 @@ metabase = ["sql-metadata"]
 postgresql = ["asyncpg"]
 redshift = ["asyncpg"]
 slack_directory = ["slack-sdk"]
-snowflake = ["snowflake-connector-python", "sql-metadata"]
+snowflake = ["pyserde", "snowflake-connector-python", "sql-metadata"]
 tableau = ["tableauserverclient"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "5b0da48f7089b3f5ad757d49f7b49bb7b309168f39d846f6012acfe6d21bec31"
+content-hash = "1bacb38a7661ab3ff49606d471403982b4cc4a4917a9a3ef0f3465ad9fd01047"
 
 [metadata.files]
 anyio = [
@@ -2417,8 +2419,8 @@ pyrsistent = [
     {file = "pyrsistent-0.16.1.tar.gz", hash = "sha256:aa2ae1c2e496f4d6777f869ea5de7166a8ccb9c2e06ebcf6c7ff1b670c98c5ef"},
 ]
 pyserde = [
-    {file = "pyserde-0.7.0-py3-none-any.whl", hash = "sha256:2693c2bd53212d5d6a7d44be697a6c51b88225ae0b37391be9488b0a99cd0309"},
-    {file = "pyserde-0.7.0.tar.gz", hash = "sha256:3150e36f125f4dcb66a1569d934f41dfdc5593f0081142c021f109dbf42ff487"},
+    {file = "pyserde-0.4.0-py3-none-any.whl", hash = "sha256:72edcfcec4f083b78bd9fd9f6146889a699c9b9046c15d5980406aaa9ecaa5f7"},
+    {file = "pyserde-0.4.0.tar.gz", hash = "sha256:5f9fee6fe9289ecd3a10a0084380900f4ffb1c9cd9121a74db516a45186fa6dc"},
 ]
 pysnooper = [
     {file = "PySnooper-1.1.0-py2.py3-none-any.whl", hash = "sha256:985c0dddf701e1d69d25534ffd45fc02f2877b58bcb5788fb017077c65896bfa"},
