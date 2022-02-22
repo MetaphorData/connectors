@@ -1,12 +1,11 @@
 import logging
 import math
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Collection, Dict, List, Tuple
 
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
-from serde import deserialize
-from serde.json import from_json
+from pydantic import parse_raw_as
+from pydantic.dataclasses import dataclass
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
@@ -23,14 +22,12 @@ logger = get_logger(__name__)
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
 
 
-@deserialize
 @dataclass
 class AccessedObjectColumn:
     columnId: int
     columnName: str
 
 
-@deserialize
 @dataclass
 class AccessedObject:
     objectDomain: str
@@ -144,7 +141,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
     def _parse_access_log(self, start_time: datetime, accessed_objects: str) -> None:
         try:
-            objects = from_json(List[AccessedObject], accessed_objects)
+            objects = parse_raw_as(List[AccessedObject], accessed_objects)
             for obj in objects:
                 table_name = obj.objectName.lower()
                 parts = table_name.split(".")
