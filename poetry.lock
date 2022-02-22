@@ -1531,6 +1531,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "types-pyyaml"
+version = "6.0.4"
+description = "Typing stubs for PyYAML"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "types-requests"
 version = "2.27.8"
 description = "Typing stubs for requests"
@@ -1606,7 +1614,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "411b56985954dfaa1ee16004e53572fa5e150552e584ee7f3b1dd14d35121416"
+content-hash = "6605656d3fa882e5878a92723ac198a1dfd4e74836763c6a3efed2325340edeb"
 
 [metadata.files]
 anyio = [
@@ -2616,6 +2624,10 @@ types-freezegun = [
 types-pytz = [
     {file = "types-pytz-2021.3.4.tar.gz", hash = "sha256:101da53091013bb07403468c20d36930d749d3918054ac46f9c1bfc607dadf7d"},
     {file = "types_pytz-2021.3.4-py3-none-any.whl", hash = "sha256:ccfa2ed29f816e3de2f882541c06ad2791f808a79cfe38265411820190999f0f"},
+]
+types-pyyaml = [
+    {file = "types-PyYAML-6.0.4.tar.gz", hash = "sha256:6252f62d785e730e454dfa0c9f0fb99d8dae254c5c3c686903cf878ea27c04b7"},
+    {file = "types_PyYAML-6.0.4-py3-none-any.whl", hash = "sha256:693b01c713464a6851f36ff41077f8adbc6e355eda929addfb4a97208aea9b4b"},
 ]
 types-requests = [
     {file = "types-requests-2.27.8.tar.gz", hash = "sha256:c2f4e4754d07ca0a88fd8a89bbc6c8a9f90fb441f9c9b572fd5c484f04817486"},
