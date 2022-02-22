@@ -140,12 +140,12 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
         where_clause = ""
         if row_count and sampling.percentage < 100 and row_count >= sampling.threshold:
             logger.info(f"Enable table sampling for table: {table_name}")
-            where_clause = f" WHERE random() < 0.{sampling.percentage:02}"
+            where_clause = f"WHERE random() < 0.{sampling.percentage:02}"
 
         queries = []
         for start in range(0, len(entities), max_entities_per_query):
             targets = ", ".join(entities[start : start + max_entities_per_query])
-            query = f"SELECT {targets} FROM {table_name}{where_clause}"
+            query = f"SELECT {targets} FROM {table_name} {where_clause}".strip()
             queries.append(query)
 
         return queries
