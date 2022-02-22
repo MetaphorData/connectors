@@ -1,6 +1,7 @@
 from typing import Optional
 
 import yaml
+from pydantic import parse_obj_as
 from pydantic.dataclasses import dataclass
 from smart_open import open
 
@@ -29,4 +30,4 @@ class BaseConfig:
     def from_yaml_file(cls, path: str) -> "BaseConfig":
         with open(path, encoding="utf8") as fin:
             obj = yaml.safe_load(fin.read())
-            return cls(**obj)
+            return parse_obj_as(cls, obj)
