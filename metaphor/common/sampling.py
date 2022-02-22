@@ -1,9 +1,7 @@
 from pydantic import validator
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 
-@deserialize
 @dataclass
 class SamplingConfig:
     """Config for profile connector"""

@@ -1,13 +1,11 @@
 from dataclasses import field
 
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.common.sampling import SamplingConfig
 from metaphor.snowflake.config import SnowflakeRunConfig
 
 
-@deserialize
 @dataclass
 class SnowflakeProfileRunConfig(SnowflakeRunConfig):
 

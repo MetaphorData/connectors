@@ -10,14 +10,12 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.common.base_config import BaseConfig, OutputConfig
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 
 
-@deserialize
 @dataclass
 class DummyRunConfig(BaseConfig):
     dummy_attr: int

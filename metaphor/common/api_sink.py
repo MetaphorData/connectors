@@ -4,7 +4,6 @@ from typing import List
 
 from pydantic.dataclasses import dataclass
 from requests import HTTPError, post
-from serde import deserialize
 
 from .sink import Sink
 
@@ -12,7 +11,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-@deserialize
 @dataclass
 class ApiSinkConfig:
     url: str
