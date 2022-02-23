@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Collection, Dict, List, Optional
 from airflow.configuration import conf
 
 from metaphor.common.api_sink import ApiSink, ApiSinkConfig
-from metaphor.common.event_util import EventUtil
+from metaphor.common.event_util import ENTITY_TYPES, EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig, S3AuthConfig
 
 if TYPE_CHECKING:
@@ -13,12 +13,7 @@ if TYPE_CHECKING:
     from airflow.models.baseoperator import BaseOperator
 
 from airflow.lineage.backend import LineageBackend
-from metaphor.models.metadata_change_event import (
-    Dataset,
-    DatasetUpstream,
-    EntityType,
-    MetadataChangeEvent,
-)
+from metaphor.models.metadata_change_event import Dataset, DatasetUpstream, EntityType
 from pydantic.dataclasses import dataclass
 
 from metaphor.airflow_plugin.lineage.entity import MetaphorDataset
@@ -151,7 +146,7 @@ class MetaphorBackend(LineageBackend):
     @staticmethod
     def sink_lineage(
         config: MetaphorBackendConfig,
-        entities: Collection[MetadataChangeEvent],
+        entities: Collection[ENTITY_TYPES],
         target_name: str,
     ) -> None:
         event_util = EventUtil()
