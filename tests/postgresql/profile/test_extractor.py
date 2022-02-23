@@ -37,15 +37,54 @@ def test_build_profiling_query():
         SchemaField(field_path="year", nullable=True, precision=32.0),
     ]
 
-    expected = (
-        'SELECT COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-        'COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision), '
-        'COUNT(DISTINCT "year"), COUNT("year"), MIN("year"), MAX("year"), AVG("year"::double precision) '
-        "FROM foo"
-    )
+    expected = [
+        (
+            'SELECT COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
+            'COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision), '
+            'COUNT(DISTINCT "year"), COUNT("year"), MIN("year"), MAX("year"), AVG("year"::double precision) '
+            "FROM foo"
+        )
+    ]
 
     assert (
         PostgreSQLProfileExtractor._build_profiling_query(dataset, SamplingConfig())
+        == expected
+    )
+
+
+def test_build_profiling_query_multiple_sql():
+    dataset = init_dataset(name="foo", row_count=1000)
+    dataset.schema.fields = [
+        SchemaField(field_path="id", nullable=False),
+        SchemaField(field_path="price", nullable=True, precision=22.0),
+        SchemaField(field_path="year", nullable=True, precision=32.0),
+        SchemaField(field_path="name", nullable=True),
+    ]
+
+    expected = [
+        (
+            "SELECT "
+            'COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
+            'COUNT("price"), MIN("price") '
+            "FROM foo"
+        ),
+        (
+            "SELECT "
+            'MAX("price"), AVG("price"::double precision), COUNT(DISTINCT "year"), '
+            'COUNT("year"), MIN("year") '
+            "FROM foo"
+        ),
+        (
+            "SELECT "
+            'MAX("year"), AVG("year"::double precision), COUNT(DISTINCT "name"), COUNT("name") '
+            "FROM foo"
+        ),
+    ]
+
+    assert (
+        PostgreSQLProfileExtractor._build_profiling_query(
+            dataset, SamplingConfig(), max_entities_per_query=5
+        )
         == expected
     )
 
@@ -57,11 +96,13 @@ def test_build_profiling_query_with_sampling():
         SchemaField(field_path="price", nullable=True, precision=22.0),
     ]
 
-    expected = (
-        'SELECT COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-        'COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision) '
-        "FROM foo WHERE random() < 0.01"
-    )
+    expected = [
+        (
+            'SELECT COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
+            'COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision) '
+            "FROM foo WHERE random() < 0.01"
+        )
+    ]
 
     assert (
         PostgreSQLProfileExtractor._build_profiling_query(
