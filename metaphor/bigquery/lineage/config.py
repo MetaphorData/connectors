@@ -1,10 +1,8 @@
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.bigquery.config import BigQueryRunConfig
 
 
-@deserialize
 @dataclass
 class BigQueryLineageRunConfig(BigQueryRunConfig):
     # Whether to enable parsing view query to find upstream of the view, default True

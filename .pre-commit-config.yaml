@@ -34,6 +34,7 @@ repos:
           - types-freezegun
           - types-requests
           - types-pytz
+          - types-PyYAML
 
   - repo: https://github.com/pycqa/bandit
     rev: 1.7.2

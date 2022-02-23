@@ -2,12 +2,10 @@ from typing import Dict, Optional
 
 from metaphor.models.metadata_change_event import DataPlatform
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.common.base_config import BaseConfig
 
 
-@deserialize
 @dataclass
 class LookerConnectionConfig:
 
@@ -25,7 +23,6 @@ class LookerConnectionConfig:
     platform: Optional[DataPlatform] = DataPlatform.SNOWFLAKE
 
 
-@deserialize
 @dataclass
 class LookerRunConfig(BaseConfig):
     base_url: str

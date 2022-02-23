@@ -2,14 +2,12 @@ from dataclasses import field
 from typing import Set
 
 from pydantic.dataclasses import dataclass
-from serde import deserialize
 
 from metaphor.snowflake.config import SnowflakeRunConfig
 
 DEFAULT_BATCH_SIZE = 100000
 
 
-@deserialize
 @dataclass
 class SnowflakeUsageRunConfig(SnowflakeRunConfig):
 
