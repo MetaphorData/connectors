@@ -2,6 +2,7 @@ import json
 import logging
 import math
 import tempfile
+from dataclasses import asdict
 from os import path
 from typing import List, Optional
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -14,6 +15,13 @@ from .sink import Sink
 from .storage import BaseStorage, LocalStorage, S3Storage
 
 logger = get_logger(__name__)
+
+
+@dataclass
+class S3AuthConfig:
+    aws_access_key_id: Optional[str] = None
+    aws_secret_access_key: Optional[str] = None
+    aws_session_token: Optional[str] = None
 
 
 @dataclass
@@ -31,6 +39,9 @@ class FileSinkConfig:
     # IAM role to assume before writing to file
     assume_role_arn: Optional[str] = None
 
+    # IAM credential
+    s3_auth_config: Optional[S3AuthConfig] = None
+
 
 class FileSink(Sink):
     """File sink functions"""
@@ -41,7 +52,10 @@ class FileSink(Sink):
         self.write_logs = config.write_logs
 
         if config.directory.startswith("s3://"):
-            self._storage: BaseStorage = S3Storage(config.assume_role_arn)
+            credential = {}
+            if config.s3_auth_config is not None:
+                credential = asdict(config.s3_auth_config)
+            self._storage: BaseStorage = S3Storage(config.assume_role_arn, credential)
         else:
             self._storage = LocalStorage()
 

@@ -1,10 +1,12 @@
+import time
+from datetime import datetime
 from typing import TYPE_CHECKING, Collection, Dict, List, Optional
 
 from airflow.configuration import conf
 
 from metaphor.common.api_sink import ApiSink, ApiSinkConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.common.file_sink import FileSink, FileSinkConfig
+from metaphor.common.file_sink import FileSink, FileSinkConfig, S3AuthConfig
 
 if TYPE_CHECKING:
     from airflow import DAG
@@ -17,12 +19,63 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     MetadataChangeEvent,
 )
+from pydantic.dataclasses import dataclass
 
 from metaphor.airflow_plugin.lineage.entity import MetaphorDataset
 from metaphor.common.entity_id import EntityId
 
+INGESTION_API_MODE = "ingestion-api"
+S3_MODE = "s3"
+
+
+@dataclass
+class MetaphorBackendConfig:
+    mode: str
+    ingestion_url: Optional[str] = None
+    ingestion_key: Optional[str] = None
+    s3_url: Optional[str] = None
+    aws_access_key_id: Optional[str] = None
+    aws_secret_access_key: Optional[str] = None
+    aws_session_token: Optional[str] = None
+
+    @staticmethod
+    def from_config() -> "MetaphorBackendConfig":
+        mode = conf.get("lineage", "metaphor_backend_mode", fallback=None)
+        s3_url = conf.get("lineage", "metaphor_s3_url", fallback=None)
+        aws_access_key_id = conf.get(
+            "lineage", "metaphor_aws_access_key_id", fallback=None
+        )
+        aws_secret_access_key = conf.get(
+            "lineage", "metaphor_aws_secret_access_key", fallback=None
+        )
+        aws_session_token = conf.get(
+            "lineage", "metaphor_aws_session_token", fallback=None
+        )
+        ingestion_url = conf.get("lineage", "metaphor_ingestion_url", fallback=None)
+        ingestion_key = conf.get("lineage", "metaphor_ingestion_key", fallback=None)
+
+        return MetaphorBackendConfig(
+            mode=mode,
+            ingestion_url=ingestion_url,
+            ingestion_key=ingestion_key,
+            s3_url=s3_url,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token,
+        )
+
+
+class MetaphorError(Exception):
+    pass
+
 
 class MetaphorBackend(LineageBackend):
+    def __init__(self) -> None:
+        super().__init__()
+
+        # Try to load config when initialize Airflow
+        _ = MetaphorBackendConfig.from_config()
+
     def send_lineage(
         self,
         operator: "BaseOperator",
@@ -45,6 +98,8 @@ class MetaphorBackend(LineageBackend):
             transformation = operator.sql  # type: ignore
         else:
             transformation = None
+
+        config = MetaphorBackendConfig.from_config()
 
         upstream = DatasetUpstream(
             source_datasets=[
@@ -73,12 +128,18 @@ class MetaphorBackend(LineageBackend):
         dag: "DAG" = context["dag"]
         dag_id = dag.dag_id
 
-        target_name = f"{task_id}_{dag_id}"
+        execution_date: datetime = context["execution_date"]
+        timestamp = int(time.mktime(execution_date.timetuple()))
 
-        operator.log.info(target_name)
+        lineage_name = f"{timestamp}_{task_id}_{dag_id}"
 
-        MetaphorBackend.sink_lineage(entities, target_name)
-        operator.log.info("Done. Created lineage")
+        operator.log.info(f"Lineage name: ${lineage_name}")
+
+        try:
+            MetaphorBackend.sink_lineage(config, entities, lineage_name)
+            operator.log.info("Done. Created lineage")
+        except MetaphorError as ex:
+            operator.log.error(ex)
 
     @staticmethod
     def is_list_of_dataset(source: Optional[List]) -> bool:
@@ -89,20 +150,29 @@ class MetaphorBackend(LineageBackend):
 
     @staticmethod
     def sink_lineage(
-        entities: Collection[MetadataChangeEvent], target_name: str
+        config: MetaphorBackendConfig,
+        entities: Collection[MetadataChangeEvent],
+        target_name: str,
     ) -> None:
         event_util = EventUtil()
         entities = [event_util.build_event(entity) for entity in entities]
 
-        s3_url = conf.get("lineage", "metaphor_s3_url", fallback="")
-        # access_key = conf.get("lineage", "metaphor_aws_access_key_id", fallback="")
-        # secreet = conf.get("lineage", "metaphor_aws_secret_access_key", fallback="")
-        # session_token = conf.get("lineage", "metaphor_aws_session_token", fallback="")
-        ingestion_url = conf.get("lineage", "metaphor_ingestion_url", fallback="")
-        ingestion_key = conf.get("lineage", "metaphor_ingestion_key", fallback="")
-
-        if ingestion_key:
-            sink = ApiSink(ApiSinkConfig(url=ingestion_url, api_key=ingestion_key))
+        if config.mode == INGESTION_API_MODE:
+            sink = ApiSink(
+                ApiSinkConfig(url=config.ingestion_url, api_key=config.ingestion_key)
+            )
         else:
-            sink = FileSink(FileSinkConfig(directory=s3_url))
+            if config.s3_url is None:
+                raise MetaphorError("s3_url is not set")
+            directory = f'{config.s3_url.rstrip("/")}/{target_name}'
+            sink = FileSink(
+                FileSinkConfig(
+                    directory=directory,
+                    s3_auth_config=S3AuthConfig(
+                        aws_access_key_id=config.aws_access_key_id,
+                        aws_secret_access_key=config.aws_secret_access_key,
+                        aws_session_token=config.aws_session_token,
+                    ),
+                )
+            )
         sink.sink(entities)

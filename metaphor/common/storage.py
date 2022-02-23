@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import boto3
@@ -71,14 +71,14 @@ class LocalStorage(BaseStorage):
 class S3Storage(BaseStorage):
     """Storage implementation for S3"""
 
-    def __init__(self, assume_role_arn: Optional[str] = None):
+    def __init__(self, assume_role_arn: Optional[str] = None, credential: Dict = {}):
         if assume_role_arn is not None:
-            self._session = assume_role(boto3.Session(), assume_role_arn)
+            self._session = assume_role(boto3.Session(**credential), assume_role_arn)
             logger.info(
                 f"Assumed role: {self._session.client('sts').get_caller_identity()}"
             )
         else:
-            self._session = boto3.Session()
+            self._session = boto3.Session(**credential)
 
         self._client = self._session.client("s3")
 

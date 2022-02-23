@@ -10,12 +10,25 @@ This connector provides an Airflow lineage backend to extract lineage informatio
 pip install metaphor-connector
 ```
 
-2. Add lineage config in `airflow.cfg`
+2. Add lineage config in `airflow.cfg` and send lineage information via API.
 
 ``` cfg
 [lineage]
 backend = metaphor.airflow_plugin.lineage.backend.MetaphorBackend
-metaphor_output_directory = /usr/local/airflow/metaphor_lineage
+metaphor_backend_mode = ingestion-api
+metaphor_ingestion_url = [URL]
+metaphor_ingestion_key = [KEY]
+```
+
+Or, you can send lineage information to s3 bucket.
+``` cfg
+[lineage]
+backend = metaphor.airflow_plugin.lineage.backend.MetaphorBackend
+metaphor_backend_mode = s3
+metaphor_s3_url = s3://[bucket]
+metaphor_aws_access_key_id = [AWS_ACCESS_KEY]
+metaphor_aws_secret_access_key = [AWS_SECRET_KEY]
+metaphor_aws_session_token = [AWS_SESSION_TOKEN]
 ```
 
 3. Configure inlets and outlets for your Airflow operators.
