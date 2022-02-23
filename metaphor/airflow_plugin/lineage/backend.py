@@ -2,7 +2,8 @@ from typing import TYPE_CHECKING, Collection, Dict, List, Optional
 
 from airflow.configuration import conf
 
-from metaphor.common.event_util import ENTITY_TYPES, EventUtil
+from metaphor.common.api_sink import ApiSink, ApiSinkConfig
+from metaphor.common.event_util import EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig
 
 if TYPE_CHECKING:
@@ -10,7 +11,12 @@ if TYPE_CHECKING:
     from airflow.models.baseoperator import BaseOperator
 
 from airflow.lineage.backend import LineageBackend
-from metaphor.models.metadata_change_event import Dataset, DatasetUpstream, EntityType
+from metaphor.models.metadata_change_event import (
+    Dataset,
+    DatasetUpstream,
+    EntityType,
+    MetadataChangeEvent,
+)
 
 from metaphor.airflow_plugin.lineage.entity import MetaphorDataset
 from metaphor.common.entity_id import EntityId
@@ -61,10 +67,6 @@ class MetaphorBackend(LineageBackend):
             for outlet in outlets
         ]
 
-        # This is necessary to avoid issues with circular imports.
-        # from airflow.serialization.serialized_objects import (
-        #     SerializedBaseOperator,
-        # )
         task: "BaseOperator" = context["task"]
         task_id = task.task_id
 
@@ -75,7 +77,7 @@ class MetaphorBackend(LineageBackend):
 
         operator.log.info(target_name)
 
-        MetaphorBackend.sink_event(entities, target_name)
+        MetaphorBackend.sink_lineage(entities, target_name)
         operator.log.info("Done. Created lineage")
 
     @staticmethod
@@ -86,11 +88,21 @@ class MetaphorBackend(LineageBackend):
         )
 
     @staticmethod
-    def sink_event(entities: Collection[ENTITY_TYPES], target_name: str) -> None:
-        entities = [EventUtil.trim_event(entity) for entity in entities]
-        valid_entities = [r for r in entities if EventUtil.validate_message(r)]
-        if len(valid_entities) == 0:
-            return
-        output_directory = conf.get("lineage", "metaphor_output_directory", fallback="")
-        file_sink = FileSink(FileSinkConfig(directory=output_directory))
-        file_sink.sink_lineage(entities, target_name)
+    def sink_lineage(
+        entities: Collection[MetadataChangeEvent], target_name: str
+    ) -> None:
+        event_util = EventUtil()
+        entities = [event_util.build_event(entity) for entity in entities]
+
+        s3_url = conf.get("lineage", "metaphor_s3_url", fallback="")
+        # access_key = conf.get("lineage", "metaphor_aws_access_key_id", fallback="")
+        # secreet = conf.get("lineage", "metaphor_aws_secret_access_key", fallback="")
+        # session_token = conf.get("lineage", "metaphor_aws_session_token", fallback="")
+        ingestion_url = conf.get("lineage", "metaphor_ingestion_url", fallback="")
+        ingestion_key = conf.get("lineage", "metaphor_ingestion_key", fallback="")
+
+        if ingestion_key:
+            sink = ApiSink(ApiSinkConfig(url=ingestion_url, api_key=ingestion_key))
+        else:
+            sink = FileSink(FileSinkConfig(directory=s3_url))
+        sink.sink(entities)
