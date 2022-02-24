@@ -356,6 +356,17 @@ class PostgreSQLExtractor(BaseExtractor):
     ) -> Tuple[Optional[float], Optional[float]]:
         precision, max_length = None, None
 
+        excluded_types = (
+            "timestamp with time zone",
+            "timestamp without time zone",
+            "boolean",
+            "date",
+            "text",
+        )
+
+        if native_type in excluded_types:
+            return precision, max_length
+
         if native_type == "integer":
             precision = 32.0
         elif native_type == "smallint":

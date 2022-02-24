@@ -90,12 +90,15 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
     async def _profile_dataset(self, pool: asyncpg.Pool, dataset: Dataset) -> None:
         async with pool.acquire() as conn:
-            sql = self._build_profiling_query(dataset, self._sampling)
+            queries = self._build_profiling_query(dataset, self._sampling)
             try:
-                res = await conn.fetch(sql)
-                assert len(res) == 1
-                self._parse_result(res[0], dataset)
-            except asyncpg.exceptions.InternalServerError as ex:
+                results = []
+                for query in queries:
+                    res = await conn.fetch(query)
+                    assert len(res) == 1
+                    results += res[0]
+                self._parse_result(results, dataset)
+            except asyncpg.exceptions.PostgresError as ex:
                 logger.error(
                     f"Error when processing {dataset.logical_id.name}, err: {ex}"
                 )
@@ -107,39 +110,45 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
     def _build_profiling_query(
         dataset: Dataset,
         sampling: SamplingConfig,
-    ) -> str:
+        max_entities_per_query: int = 100,  # more than 400 will get sql compile error
+    ) -> List[str]:
 
         table_name = dataset.logical_id.name
 
-        query = ["SELECT COUNT(1)"]
+        entities = ["COUNT(1)"]
         for field in dataset.schema.fields:
             column = f'"{field.field_path}"'
             nullable = field.nullable
             is_numeric = field.precision is not None
 
-            query.append(f", COUNT(DISTINCT {column})")
+            entities.append(f"COUNT(DISTINCT {column})")
 
             if nullable:
-                query.append(f", COUNT({column})")
+                entities.append(f"COUNT({column})")
 
             if is_numeric:
-                query.extend(
+                entities.extend(
                     [
-                        f", MIN({column})",
-                        f", MAX({column})",
-                        f", AVG({column}::double precision)",
+                        f"MIN({column})",
+                        f"MAX({column})",
+                        f"AVG({column}::double precision)",
                     ]
                 )
 
-        query.append(f" FROM {table_name}")
-
         row_count = dataset.statistics.record_count
 
+        where_clause = ""
         if row_count and sampling.percentage < 100 and row_count >= sampling.threshold:
             logger.info(f"Enable table sampling for table: {table_name}")
-            query.append(f" WHERE random() < 0.{sampling.percentage:02}")
+            where_clause = f"WHERE random() < 0.{sampling.percentage:02}"
 
-        return "".join(query)
+        queries = []
+        for start in range(0, len(entities), max_entities_per_query):
+            targets = ", ".join(entities[start : start + max_entities_per_query])
+            query = f"SELECT {targets} FROM {table_name} {where_clause}".strip()
+            queries.append(query)
+
+        return queries
 
     @staticmethod
     def _parse_result(results: List, dataset: Dataset):
