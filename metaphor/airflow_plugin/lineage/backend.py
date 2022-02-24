@@ -1,11 +1,10 @@
-import time
 from datetime import datetime
 from typing import TYPE_CHECKING, Collection, Dict, List, Optional
 
 from airflow.configuration import conf
 
 from metaphor.common.api_sink import ApiSink, ApiSinkConfig
-from metaphor.common.event_util import ENTITY_TYPES, EventUtil
+from metaphor.common.event_util import EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig, S3AuthConfig
 
 if TYPE_CHECKING:
@@ -89,12 +88,43 @@ class MetaphorBackend(LineageBackend):
         if context is None:
             return
 
+        config = MetaphorBackendConfig.from_config()
+        entities = MetaphorBackend._populate_lineage(operator, inlets, outlets)
+        lineage_name = MetaphorBackend._populate_lineage_name(context)
+
+        operator.log.info(f"Lineage name: ${lineage_name}")
+
+        try:
+            MetaphorBackend.sink_lineage(config, entities, lineage_name)
+            operator.log.info("Done. Created lineage")
+        except MetaphorError as ex:
+            operator.log.error(ex)
+
+    @staticmethod
+    def _populate_lineage_name(context: Dict) -> str:
+        task: "BaseOperator" = context["task"]
+        task_id = task.task_id
+
+        dag: "DAG" = context["dag"]
+        dag_id = dag.dag_id
+
+        execution_date: datetime = context["execution_date"]
+        timestamp = int(datetime.timestamp(execution_date))
+
+        lineage_name = f"{timestamp}_{dag_id}_{task_id}"
+
+        return lineage_name
+
+    @staticmethod
+    def _populate_lineage(
+        operator: "BaseOperator",
+        inlets: List[MetaphorDataset],
+        outlets: List[MetaphorDataset],
+    ) -> Collection[Dataset]:
         if hasattr(operator, "sql"):
             transformation = operator.sql  # type: ignore
         else:
             transformation = None
-
-        config = MetaphorBackendConfig.from_config()
 
         upstream = DatasetUpstream(
             source_datasets=[
@@ -117,24 +147,7 @@ class MetaphorBackend(LineageBackend):
             for outlet in outlets
         ]
 
-        task: "BaseOperator" = context["task"]
-        task_id = task.task_id
-
-        dag: "DAG" = context["dag"]
-        dag_id = dag.dag_id
-
-        execution_date: datetime = context["execution_date"]
-        timestamp = int(time.mktime(execution_date.timetuple()))
-
-        lineage_name = f"{timestamp}_{task_id}_{dag_id}"
-
-        operator.log.info(f"Lineage name: ${lineage_name}")
-
-        try:
-            MetaphorBackend.sink_lineage(config, entities, lineage_name)
-            operator.log.info("Done. Created lineage")
-        except MetaphorError as ex:
-            operator.log.error(ex)
+        return entities
 
     @staticmethod
     def is_list_of_dataset(source: Optional[List]) -> bool:
@@ -146,7 +159,7 @@ class MetaphorBackend(LineageBackend):
     @staticmethod
     def sink_lineage(
         config: MetaphorBackendConfig,
-        entities: Collection[ENTITY_TYPES],
+        entities: Collection[Dataset],
         target_name: str,
     ) -> None:
         event_util = EventUtil()
@@ -160,6 +173,7 @@ class MetaphorBackend(LineageBackend):
             if config.s3_url is None:
                 raise MetaphorError("s3_url is not set")
             directory = f'{config.s3_url.rstrip("/")}/{target_name}'
+            print(directory)
             sink = FileSink(
                 FileSinkConfig(
                     directory=directory,
