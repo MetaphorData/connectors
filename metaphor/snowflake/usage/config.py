@@ -10,8 +10,10 @@ DEFAULT_BATCH_SIZE = 100000
 
 @dataclass
 class SnowflakeUsageRunConfig(SnowflakeRunConfig):
+    # whether to write to dataset usage history or dataset usage aspect
+    use_history: bool = True
 
-    # Number of days back in the query log to process
+    # Number of days back in the query log to process if use_history = False, otherwise, it's locked to 1 day
     lookback_days: int = 30
 
     # Query filter to exclude certain usernames from the processing

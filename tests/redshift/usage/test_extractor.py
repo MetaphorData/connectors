@@ -54,7 +54,12 @@ class AsyncIter:
 @freeze_time("2022-01-17")
 async def test_extractor(test_root_dir):
     config = RedshiftUsageRunConfig(
-        output=OutputConfig(), host="", database="", user="", password=""
+        output=OutputConfig(),
+        host="",
+        database="",
+        user="",
+        password="",
+        use_history=False,
     )
     extractor = RedshiftUsageExtractor()
     records = load_records(test_root_dir + "/redshift/usage/data/sample_log.json")
