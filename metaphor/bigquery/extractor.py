@@ -1,11 +1,15 @@
 import logging
-from typing import Any, Collection, List, Mapping, Sequence, Union
+from typing import Any, Collection, Iterable, List, Mapping, Sequence, Union
+
+from metaphor.common.filter import DatasetFilter
 
 try:
     import google.cloud.bigquery as bigquery
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
+
+from concurrent.futures import ThreadPoolExecutor
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -43,14 +47,40 @@ class BigQueryExtractor(BaseExtractor):
         logger.info("Fetching metadata from BigQuery")
 
         client = build_client(config)
-
         dataset_filter = config.filter.normalize()
 
-        datasets: List[Dataset] = []
+        with ThreadPoolExecutor(max_workers=config.max_concurrency) as executor:
+
+            def list_table(dataset_ref) -> Iterable[Dataset]:
+                def get_table(table) -> Dataset:
+                    bq_table = client.get_table(table)
+                    return self._parse_table(client.project, bq_table)
+
+                return executor.map(
+                    get_table,
+                    BigQueryExtractor._list_tables_with_filter(
+                        dataset_ref, client, dataset_filter
+                    ),
+                )
+
+            def flaten(result: Iterable[Iterable[Dataset]]) -> List[Dataset]:
+                return [d for datasets in result for d in datasets]
+
+            return flaten(
+                executor.map(
+                    list_table,
+                    BigQueryExtractor._list_datasets_with_filter(
+                        client, dataset_filter
+                    ),
+                )
+            )
+
+    @staticmethod
+    def _list_datasets_with_filter(
+        client: bigquery.Client, dataset_filter: DatasetFilter
+    ) -> Iterable[bigquery.DatasetReference]:
         for bq_dataset in client.list_datasets():
-            if not dataset_filter.include_schema(
-                config.project_id, bq_dataset.dataset_id
-            ):
+            if not dataset_filter.include_schema(client.project, bq_dataset.dataset_id):
                 logger.info(f"Skipped dataset {bq_dataset.dataset_id}")
                 continue
 
@@ -59,20 +89,23 @@ class BigQueryExtractor(BaseExtractor):
             )
 
             logger.info(f"Found dataset {dataset_ref}")
+            yield dataset_ref
 
-            for bq_table in client.list_tables(bq_dataset.dataset_id):
-                table_ref = dataset_ref.table(bq_table.table_id)
-                if not dataset_filter.include_table(
-                    config.project_id, bq_dataset.dataset_id, bq_table.table_id
-                ):
-                    logger.info(f"Skipped table: {table_ref}")
-                    continue
-                logger.info(f"Found table {table_ref}")
-
-                bq_table = client.get_table(table_ref)
-                datasets.append(self._parse_table(client.project, bq_table))
-
-        return datasets
+    @staticmethod
+    def _list_tables_with_filter(
+        dataset_ref: bigquery.DatasetReference,
+        client: bigquery.Client,
+        dataset_filter: DatasetFilter,
+    ) -> Iterable[bigquery.TableReference]:
+        for bq_table in client.list_tables(dataset_ref.dataset_id):
+            table_ref = dataset_ref.table(bq_table.table_id)
+            if not dataset_filter.include_table(
+                client.project, dataset_ref.dataset_id, bq_table.table_id
+            ):
+                logger.info(f"Skipped table: {table_ref}")
+                continue
+            logger.info(f"Found table {table_ref}")
+            yield table_ref
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
     @staticmethod
