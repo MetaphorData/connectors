@@ -99,4 +99,4 @@ plugins = ["pydantic.mypy"]
 
 [tool.bandit]
 exclude_dirs = ["venv"]
-skips = ['B101', 'B608']
+skips = ['B101', 'B106', 'B608']
