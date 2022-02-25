@@ -28,7 +28,7 @@ metaphor_backend_mode = s3
 metaphor_s3_url = s3://[bucket]
 metaphor_aws_access_key_id = [AWS_ACCESS_KEY]
 metaphor_aws_secret_access_key = [AWS_SECRET_KEY]
-metaphor_aws_session_token = [AWS_SESSION_TOKEN]
+metaphor_assume_role_arn = [AWS_ROLE_ARN]
 ```
 
 3. Configure inlets and outlets for your Airflow operators.
