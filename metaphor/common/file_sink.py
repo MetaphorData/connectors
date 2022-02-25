@@ -2,7 +2,7 @@ import json
 import logging
 import math
 import tempfile
-from dataclasses import asdict
+from dataclasses import field
 from os import path
 from typing import List, Optional
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -12,16 +12,9 @@ from pydantic.dataclasses import dataclass
 
 from .logger import LOG_FILE, get_logger
 from .sink import Sink
-from .storage import BaseStorage, LocalStorage, S3Storage
+from .storage import BaseStorage, LocalStorage, S3Storage, S3StorageConfig
 
 logger = get_logger(__name__)
-
-
-@dataclass
-class S3AuthConfig:
-    aws_access_key_id: Optional[str] = None
-    aws_secret_access_key: Optional[str] = None
-    aws_session_token: Optional[str] = None
 
 
 @dataclass
@@ -39,8 +32,8 @@ class FileSinkConfig:
     # IAM role to assume before writing to file
     assume_role_arn: Optional[str] = None
 
-    # IAM credential
-    s3_auth_config: Optional[S3AuthConfig] = None
+    # IAM credential to access S3 bucket
+    s3_auth_config: S3StorageConfig = field(default_factory=lambda: S3StorageConfig())
 
 
 class FileSink(Sink):
@@ -52,10 +45,9 @@ class FileSink(Sink):
         self.write_logs = config.write_logs
 
         if config.directory.startswith("s3://"):
-            credential = {}
-            if config.s3_auth_config is not None:
-                credential = asdict(config.s3_auth_config)
-            self._storage: BaseStorage = S3Storage(config.assume_role_arn, credential)
+            self._storage: BaseStorage = S3Storage(
+                config.assume_role_arn, config.s3_auth_config
+            )
         else:
             self._storage = LocalStorage()
 

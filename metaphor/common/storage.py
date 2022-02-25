@@ -1,10 +1,11 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import boto3
 from aws_assume_role_lib import assume_role
+from pydantic.dataclasses import dataclass
 from smart_open import open
 
 from metaphor.common.logger import get_logger
@@ -68,17 +69,31 @@ class LocalStorage(BaseStorage):
             os.remove(path)
 
 
+@dataclass
+class S3StorageConfig:
+    aws_access_key_id: Optional[str] = None
+    aws_secret_access_key: Optional[str] = None
+
+
 class S3Storage(BaseStorage):
     """Storage implementation for S3"""
 
-    def __init__(self, assume_role_arn: Optional[str] = None, credential: Dict = {}):
+    def __init__(
+        self,
+        assume_role_arn: Optional[str] = None,
+        config: S3StorageConfig = S3StorageConfig(),
+    ):
+        session = boto3.Session(
+            aws_access_key_id=config.aws_access_key_id,
+            aws_secret_access_key=config.aws_secret_access_key,
+        )
         if assume_role_arn is not None:
-            self._session = assume_role(boto3.Session(**credential), assume_role_arn)
+            self._session = assume_role(session, assume_role_arn)
             logger.info(
                 f"Assumed role: {self._session.client('sts').get_caller_identity()}"
             )
         else:
-            self._session = boto3.Session(**credential)
+            self._session = session
 
         self._client = self._session.client("s3")
 

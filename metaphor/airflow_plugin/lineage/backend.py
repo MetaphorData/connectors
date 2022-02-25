@@ -5,7 +5,8 @@ from airflow.configuration import conf
 
 from metaphor.common.api_sink import ApiSink, ApiSinkConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.common.file_sink import FileSink, FileSinkConfig, S3AuthConfig
+from metaphor.common.file_sink import FileSink, FileSinkConfig
+from metaphor.common.storage import S3StorageConfig
 
 if TYPE_CHECKING:
     from airflow import DAG
@@ -30,7 +31,7 @@ class MetaphorBackendConfig:
     s3_url: Optional[str] = None
     aws_access_key_id: Optional[str] = None
     aws_secret_access_key: Optional[str] = None
-    aws_session_token: Optional[str] = None
+    assume_role_arn: Optional[str] = None
 
     @staticmethod
     def from_config() -> "MetaphorBackendConfig":
@@ -42,9 +43,7 @@ class MetaphorBackendConfig:
         aws_secret_access_key = conf.get(
             "lineage", "metaphor_aws_secret_access_key", fallback=None
         )
-        aws_session_token = conf.get(
-            "lineage", "metaphor_aws_session_token", fallback=None
-        )
+        assume_role_arn = conf.get("lineage", "metaphor_assume_role_arn", fallback=None)
         ingestion_url = conf.get("lineage", "metaphor_ingestion_url", fallback=None)
         ingestion_key = conf.get("lineage", "metaphor_ingestion_key", fallback=None)
 
@@ -55,7 +54,7 @@ class MetaphorBackendConfig:
             s3_url=s3_url,
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
-            aws_session_token=aws_session_token,
+            assume_role_arn=assume_role_arn,
         )
 
 
@@ -177,10 +176,10 @@ class MetaphorBackend(LineageBackend):
             sink = FileSink(
                 FileSinkConfig(
                     directory=directory,
-                    s3_auth_config=S3AuthConfig(
+                    assume_role_arn=config.assume_role_arn,
+                    s3_auth_config=S3StorageConfig(
                         aws_access_key_id=config.aws_access_key_id,
                         aws_secret_access_key=config.aws_secret_access_key,
-                        aws_session_token=config.aws_session_token,
                     ),
                 )
             )
