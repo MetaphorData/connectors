@@ -63,10 +63,10 @@ class BigQueryExtractor(BaseExtractor):
                     ),
                 )
 
-            def flaten(result: Iterable[Iterable[Dataset]]) -> List[Dataset]:
+            def flatten(result: Iterable[Iterable[Dataset]]) -> List[Dataset]:
                 return [d for datasets in result for d in datasets]
 
-            return flaten(
+            return flatten(
                 executor.map(
                     list_table,
                     BigQueryExtractor._list_datasets_with_filter(
