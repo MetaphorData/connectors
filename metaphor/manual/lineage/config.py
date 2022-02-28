@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 from pydantic.dataclasses import dataclass
@@ -27,9 +27,9 @@ class DeserializableDatasetLogicalID:
 @dataclass
 class Lineage:
     dataset: DeserializableDatasetLogicalID
-    upstreams: list[DeserializableDatasetLogicalID]
+    upstreams: List[DeserializableDatasetLogicalID]
 
 
 @dataclass
 class ManualLienageConfig(BaseConfig):
-    lineages: list[Lineage]
+    lineages: List[Lineage]
