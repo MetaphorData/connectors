@@ -1,4 +1,5 @@
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from time import sleep
 from typing import Collection, List, Set, Union
@@ -53,7 +54,7 @@ class BigQueryProfileExtractor(BaseExtractor):
 
         client = build_client(config)
         tables = self._fetch_tables(client, config)
-        return self.profile(client, tables)
+        return self.profile(client, tables, config)
 
     @staticmethod
     def _fetch_tables(
@@ -85,11 +86,18 @@ class BigQueryProfileExtractor(BaseExtractor):
         return tables
 
     def profile(
-        self, client: bigquery.Client, tables: List[TableReference]
+        self,
+        client: bigquery.Client,
+        tables: List[TableReference],
+        config: BigQueryProfileRunConfig,
     ) -> List[Dataset]:
         jobs: Set[QueryJob] = set()
 
-        datasets = [self._profile_table(client, table, jobs) for table in tables]
+        def profile(table: TableReference):
+            return self._profile_table(client, table, jobs)
+
+        with ThreadPoolExecutor(max_workers=config.max_concurrency) as executor:
+            datasets = [dataset for dataset in executor.map(profile, tables)]
 
         counter = 0
         while jobs:
