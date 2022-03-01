@@ -49,7 +49,13 @@ jobs:
 
       - name: Test
         run: |
-          poetry run pytest
+          poetry run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=metaphor tests/ | tee pytest-coverage.txt
+
+      - name: Pytest coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
 
     # Only publish to PyPI when PR merged or manually triggered
   publish:
