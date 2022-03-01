@@ -62,7 +62,6 @@ tableau = ["tableauserverclient"]
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.2"
 black = "^22.1"
-coverage = "^6.3.2"
 datamodel-code-generator = { extras = ["http"], version = "^0.11.14" }
 flake8 = "^4.0.1"
 freezegun = "^1.1.0"
@@ -70,11 +69,11 @@ isort = "^5.8.0"
 mypy = "^0.931"
 pytest = "^6.2.2"
 pytest-asyncio = "^0.18.0"
+pytest-cov = "^3.0.0"
 types-freezegun = "^0.1.4"
 types-pytz = "^2021.3.4"
 types-PyYAML = "^6.0.4"
 types-requests = "^2.25.0"
-pytest-cov = "^3.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
