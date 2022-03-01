@@ -23,7 +23,7 @@ from .generated.dbt_manifest_v4 import (
     ParsedGenericTestNode,
     ParsedMacro,
     ParsedModelNode,
-    ParsedSourceDefinition,
+    ParsedSourceDefinition, ParsedMetric,
 )
 from .util import (
     build_docs_url,
@@ -76,6 +76,7 @@ class ManifestParserV4:
         nodes = manifest.nodes
         sources = manifest.sources
         macros = manifest.macros
+        metrics = manifest.metrics
 
         models = {
             k: v
@@ -96,6 +97,7 @@ class ManifestParserV4:
         sources: Dict[str, ParsedSourceDefinition],
         macros: Dict[str, ParsedMacro],
         tests: Dict[str, TEST_NODE_TYPE],
+        metrics: Dict[str, ParsedMetric],
         models: Dict[str, MODEL_NODE_TYPE],
     ) -> None:
         source_map: Dict[str, EntityId] = {}

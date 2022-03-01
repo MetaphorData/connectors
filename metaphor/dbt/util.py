@@ -115,6 +115,9 @@ def init_dbt_tests(
     return dbt_model.tests
 
 
+def init_metric(virtual_views: Dict[str, VirtualView], dbt_model_unique_id: str) -> DbtMetric:
+
+
 def init_schema(dataset: Dataset) -> None:
     if not dataset.schema:
         dataset.schema = DatasetSchema()
