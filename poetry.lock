@@ -1643,7 +1643,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "cdc676242cce08f0e3e1a63a97151b283a5ea797f5ed61f1c001d2b971321542"
+content-hash = "4381e0d60d4b698250fea65def3d466b012cff667dee33c31185438edc5ff3da"
 
 [metadata.files]
 anyio = [
