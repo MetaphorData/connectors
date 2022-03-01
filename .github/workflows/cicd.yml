@@ -49,7 +49,10 @@ jobs:
 
       - name: Test
         run: |
-          poetry run pytest
+          poetry run pytest --cache-clear --cov=metaphor . > pytest-coverage.txt
+
+      - name: Comment coverage
+        uses: coroo/pytest-coverage-commentator@v1.0.2
 
     # Only publish to PyPI when PR merged or manually triggered
   publish:
