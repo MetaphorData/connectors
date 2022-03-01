@@ -47,8 +47,9 @@ class UsageUtil:
         return dataset
 
     @staticmethod
-    def update_table_usage(
+    def update_table_and_columns_usage(
         usage: DatasetUsage,
+        columns: List[str],
         start_time: datetime,
         utc_now: datetime,
     ):
@@ -66,15 +67,6 @@ class UsageUtil:
 
         if start_time > utc_now - timedelta(365):
             usage.query_counts.last365_days.count += 1
-
-    @staticmethod
-    def update_table_and_columns_usage(
-        usage: DatasetUsage,
-        columns: List[str],
-        start_time: datetime,
-        utc_now: datetime,
-    ):
-        UsageUtil.update_table_usage(usage, start_time, utc_now)
 
         for column_name in columns:
             if start_time > utc_now - timedelta(1):
@@ -116,7 +108,9 @@ class UsageUtil:
             query_counts.append(FieldQueryCount(field=column, count=1.0))
 
     @staticmethod
-    def calculate_table_statstics(datasets: Collection[Dataset]) -> None:
+    def calculate_statistics(datasets: Collection[Dataset]) -> None:
+        """Calculate statistics for the extracted usage info"""
+
         UsageUtil.calculate_table_percentile(
             datasets, lambda dataset: dataset.usage.query_counts.last24_hours
         )
@@ -136,11 +130,6 @@ class UsageUtil:
         UsageUtil.calculate_table_percentile(
             datasets, lambda dataset: dataset.usage.query_counts.last365_days
         )
-
-    @staticmethod
-    def calculate_statistics(datasets: Collection[Dataset]) -> None:
-        """Calculate statistics for the extracted usage info"""
-        UsageUtil.calculate_table_statstics(datasets)
 
         for dataset in datasets:
             UsageUtil.calculate_column_percentile(

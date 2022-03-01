@@ -57,10 +57,12 @@ class PostgreSQLUsageExtractor(PostgreSQLExtractor):
                     dataset = UsageUtil.init_dataset(
                         None, full_name, DataPlatform.POSTGRESQL
                     )
+                    dataset.usage.query_counts.last30_days.count = float(read_count)
+                    dataset.usage.query_counts.last90_days.count = float(read_count)
                     dataset.usage.query_counts.last365_days.count = float(read_count)
                     datasets.append(dataset)
             finally:
                 await conn.close()
 
-        UsageUtil.calculate_table_statstics(datasets)
+        UsageUtil.calculate_statistics(datasets)
         return datasets
