@@ -27,6 +27,8 @@ output:
     directory: <output_directory>
 ```
 
+Note: You'll also need to specify `account` if the platform is `SNOWFLAKE`.
+
 See [Common Configurations](../common/README.md) for more information on `output`.
 
 ### Examples

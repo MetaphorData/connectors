@@ -16,9 +16,10 @@ def test_yaml_config(test_root_dir):
             Lineage(
                 dataset=DeserializableDatasetLogicalID(name="foo", platform="BIGQUERY"),
                 upstreams=[
+                    DeserializableDatasetLogicalID(name="foo", platform="BIGQUERY"),
                     DeserializableDatasetLogicalID(
-                        name="bar", platform="BIGQUERY", account="account"
-                    )
+                        name="bar", platform="SNOWFLAKE", account="account"
+                    ),
                 ],
             )
         ],

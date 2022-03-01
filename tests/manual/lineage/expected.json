@@ -5,14 +5,17 @@
       "platform": "BIGQUERY"
     },
     "upstream": {
-      "sourceDatasets": ["DATASET~E510765F56A9CE88E0F974E274437FCF"]
+      "sourceDatasets": [
+        "DATASET~856FE6D6B85A5758921110D2A1FC5E60",
+        "DATASET~2C268725B528CB0203E0F1AA22B95D65"
+      ]
     }
   },
   {
     "logicalId": {
       "name": "bar",
       "account": "account",
-      "platform": "BIGQUERY"
+      "platform": "SNOWFLAKE"
     }
   }
 ]

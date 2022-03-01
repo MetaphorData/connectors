@@ -4,7 +4,9 @@ lineages:
       name: foo
       platform: BIGQUERY
     upstreams:
-      - name: bar
+      - name: foo
         platform: BIGQUERY
+      - name: bar
+        platform: SNOWFLAKE
         account: account
 output: {}

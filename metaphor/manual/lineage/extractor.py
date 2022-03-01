@@ -3,10 +3,13 @@ from typing import List
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetUpstream,
+    EntityType,
     MetadataChangeEvent,
 )
 
+from metaphor.common.entity_id import EntityId
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.list_util import unique_list
 from metaphor.common.logger import get_logger
 
 from .config import ManualLienageConfig
@@ -30,9 +33,9 @@ class ManualLineageExtractor(BaseExtractor):
 
         datasets = []
         for lineage in config.lineages:
-            source_datasets = set()
+            source_datasets = []
             for id in lineage.upstreams:
-                source_datasets.add(str(id.to_entity_id()))
+                source_datasets.append(str(id.to_entity_id()))
                 extra_datasets[id.to_entity_id()] = Dataset(
                     logical_id=id.to_logical_id()
                 )
@@ -40,9 +43,15 @@ class ManualLineageExtractor(BaseExtractor):
             datasets.append(
                 Dataset(
                     logical_id=lineage.dataset.to_logical_id(),
-                    upstream=DatasetUpstream(source_datasets=list(source_datasets)),
+                    upstream=DatasetUpstream(
+                        source_datasets=unique_list(source_datasets)
+                    ),
                 )
             )
+
+        # Remove existing datasets
+        for dataset in datasets:
+            extra_datasets.pop(EntityId(EntityType.DATASET, dataset.logical_id), None)
 
         datasets.extend(extra_datasets.values())
 
