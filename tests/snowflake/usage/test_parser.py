@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from typing import List
 
 from metaphor.models.metadata_change_event import (
@@ -10,6 +9,7 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.utils import start_of_day
 from metaphor.snowflake.usage.extractor import SnowflakeUsageExtractor
 from tests.test_utils import load_json
 
@@ -29,6 +29,8 @@ def make_dataset_with_usage(counts: List[int]):
 
 def test_parse_access_log(test_root_dir):
     extractor = SnowflakeUsageExtractor()
+    extractor._utc_now = start_of_day()
+    extractor._use_history = False
     extractor.filter = DatasetFilter()
 
     accessed_objects = """
@@ -70,9 +72,7 @@ def test_parse_access_log(test_root_dir):
     ]
     """
 
-    extractor._parse_access_log(
-        datetime.now().replace(tzinfo=timezone.utc), accessed_objects
-    )
+    extractor._parse_access_log(start_of_day(), accessed_objects)
 
     results = {}
     for key, value in extractor._datasets.items():

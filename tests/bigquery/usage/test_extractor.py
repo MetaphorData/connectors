@@ -21,7 +21,9 @@ def mock_list_entries(mock_build_client, entries):
 @pytest.mark.asyncio
 @freeze_time("2022-01-10")
 async def test_extractor(test_root_dir):
-    config = BigQueryUsageRunConfig(output=OutputConfig(), key_path="fake_file")
+    config = BigQueryUsageRunConfig(
+        use_history=False, output=OutputConfig(), key_path="fake_file"
+    )
     extractor = BigQueryUsageExtractor()
 
     entries = load_entries(test_root_dir + "/bigquery/usage/data/sample_log.json")
@@ -36,3 +38,25 @@ async def test_extractor(test_root_dir):
         events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
     assert events == load_json(test_root_dir + "/bigquery/usage/data/result.json")
+
+
+@pytest.mark.asyncio
+@freeze_time("2022-01-10")
+async def test_extractor_use_history(test_root_dir):
+    config = BigQueryUsageRunConfig(output=OutputConfig(), key_path="fake_file")
+    extractor = BigQueryUsageExtractor()
+
+    entries = load_entries(test_root_dir + "/bigquery/usage/data/sample_log.json")
+
+    # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
+    with patch(
+        "metaphor.bigquery.usage.extractor.build_logging_client"
+    ) as mock_build_client:
+        mock_build_client.return_value.project = "project1"
+        mock_list_entries(mock_build_client, entries)
+
+        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+
+    assert events == load_json(
+        test_root_dir + "/bigquery/usage/data/history_result.json"
+    )
