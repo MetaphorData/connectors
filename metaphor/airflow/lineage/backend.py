@@ -9,14 +9,14 @@ from metaphor.common.file_sink import FileSink, FileSinkConfig
 from metaphor.common.storage import S3StorageConfig
 
 if TYPE_CHECKING:
-    from airflow import DAG
+    from airflow import DAG  # type: ignore
     from airflow.models.baseoperator import BaseOperator
 
-from airflow.lineage.backend import LineageBackend
+from airflow.lineage.backend import LineageBackend  # type: ignore
 from metaphor.models.metadata_change_event import Dataset, DatasetUpstream, EntityType
 from pydantic.dataclasses import dataclass
 
-from metaphor.airflow_plugin.lineage.entity import MetaphorDataset
+from metaphor.airflow.lineage.entity import MetaphorDataset
 from metaphor.common.entity_id import EntityId
 
 INGESTION_API_MODE = "ingestion-api"

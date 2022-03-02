@@ -2,15 +2,12 @@ import tempfile
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from airflow import DAG
+from airflow import DAG  # type: ignore
 from airflow.models.baseoperator import BaseOperator
 from freezegun import freeze_time
 
-from metaphor.airflow_plugin.lineage.backend import (
-    MetaphorBackend,
-    MetaphorBackendConfig,
-)
-from metaphor.airflow_plugin.lineage.entity import DataPlatform, MetaphorDataset
+from metaphor.airflow.lineage.backend import MetaphorBackend, MetaphorBackendConfig
+from metaphor.airflow.lineage.entity import DataPlatform, MetaphorDataset
 from tests.test_utils import load_json
 
 
@@ -23,7 +20,7 @@ class OperatorWithSQL(BaseOperator):
 
 
 @freeze_time("2000-01-01")
-@patch("metaphor.airflow_plugin.lineage.backend.MetaphorBackendConfig.from_config")
+@patch("metaphor.airflow.lineage.backend.MetaphorBackendConfig.from_config")
 def test_metaphor_lineage_backend(mock_from_config: MagicMock):
     with tempfile.TemporaryDirectory() as temp_directory:
         mock_from_config.return_value = MetaphorBackendConfig(
