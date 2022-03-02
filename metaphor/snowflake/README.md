@@ -13,6 +13,7 @@ set db = '<database>';
 -- Create metaphor_role
 create role metaphor_role comment = 'Limited access role for Metaphor connector';
 grant usage on warehouse identifier($warehouse) to role metaphor_role;
+grant usage on database identifier($db) to role metaphor_role;
 grant usage on all schemas in database identifier($db) to role metaphor_role;
 grant usage on future schemas in database identifier($db) to role metaphor_role;
 grant references on all tables in database identifier($db) to role metaphor_role;
