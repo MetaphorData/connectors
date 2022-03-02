@@ -57,6 +57,7 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
             application=METAPHOR_DATA_SNOWFLAKE_CONNECTOR,
             session_parameters={
                 "QUERY_TAG": config.query_tag,
+                "quoted_identifiers_ignore_case": False,
             },
         )
 
