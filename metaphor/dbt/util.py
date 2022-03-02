@@ -10,6 +10,9 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     DbtTest,
     FieldDocumentation,
+    Metric,
+    MetricLogicalID,
+    MetricType,
     SchemaField,
     SchemaType,
     VirtualView,
@@ -52,6 +55,11 @@ def get_virtual_view_id(logical_id: VirtualViewLogicalID) -> str:
 def get_model_name_from_unique_id(unique_id: str) -> str:
     assert unique_id.startswith("model."), f"invalid model id {unique_id}"
     return unique_id[6:]
+
+
+def get_metric_name_from_unique_id(unique_id: str) -> str:
+    assert unique_id.startswith("metric."), f"invalid metric id {unique_id}"
+    return unique_id[7:]
 
 
 def get_model_owner_ids(
@@ -115,7 +123,15 @@ def init_dbt_tests(
     return dbt_model.tests
 
 
-def init_metric(virtual_views: Dict[str, VirtualView], dbt_model_unique_id: str) -> DbtMetric:
+def init_metric(metrics: Dict[str, Metric], unique_id: str) -> Metric:
+    if unique_id not in metrics:
+        metrics[unique_id] = Metric(
+            logical_id=MetricLogicalID(
+                name=get_metric_name_from_unique_id(unique_id),
+                type=MetricType.DBT_METRIC,
+            )
+        )
+    return metrics[unique_id]
 
 
 def init_schema(dataset: Dataset) -> None:

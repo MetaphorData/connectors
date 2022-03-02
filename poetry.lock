@@ -875,7 +875,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.6.19"
+version = "0.6.20"
 description = ""
 category = "main"
 optional = false
@@ -1643,7 +1643,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "4381e0d60d4b698250fea65def3d466b012cff667dee33c31185438edc5ff3da"
+content-hash = "2b5690421d6f19482fffc0c89df56aff57d0e53fc235985f21c5d6a77d1f5e83"
 
 [metadata.files]
 anyio = [
@@ -2205,8 +2205,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.6.19.tar.gz", hash = "sha256:a851de315c0037c910178ebc05f91268332afa09b9d56039b11ffc35e8a16399"},
-    {file = "metaphor_models-0.6.19-py3-none-any.whl", hash = "sha256:c3373f5d77c73d36ddb41ce742de37af041645a547c1461cba91ecb0c84c762d"},
+    {file = "metaphor-models-0.6.20.tar.gz", hash = "sha256:3c1afdedf7ffb58e5fbca27b5925f758b181f7463ac44f551d31a6f75faa72cf"},
+    {file = "metaphor_models-0.6.20-py3-none-any.whl", hash = "sha256:4a2564ba8806cd76980be11d3df7b3b2e34cdbd4b554c588f6b945733a014cee"},
 ]
 mypy = [
     {file = "mypy-0.931-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:3c5b42d0815e15518b1f0990cff7a705805961613e701db60387e6fb663fe78a"},
