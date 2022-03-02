@@ -7,9 +7,11 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUsage,
+    DatasetUsageHistory,
     EntityType,
     FieldQueryCount,
     FieldQueryCounts,
+    HistoryType,
     QueryCount,
     QueryCounts,
 )
@@ -18,7 +20,11 @@ from metaphor.models.metadata_change_event import (
 class UsageUtil:
     @staticmethod
     def init_dataset(
-        account: Optional[str], full_name: str, platform: DataPlatform
+        account: Optional[str],
+        full_name: str,
+        platform: DataPlatform,
+        useHistory: bool,
+        utc_now: datetime,
     ) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
@@ -26,6 +32,17 @@ class UsageUtil:
             name=full_name, account=account, platform=platform
         )
 
+        # write to dataset usage history
+        if useHistory:
+            dataset.usage_history = DatasetUsageHistory(
+                history_type=HistoryType.DATASET_USAGE_HISTORY,
+                history_date=utc_now,
+                query_count=QueryCount(count=0.0, percentile=0.0),
+                field_query_counts=[],
+            )
+            return dataset
+
+        # write to dataset usage aspect
         dataset.usage = DatasetUsage(aspect_type=AspectType.DATASET_USAGE)
         dataset.usage.query_counts = QueryCounts(
             # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
@@ -98,6 +115,15 @@ class UsageUtil:
                     usage.field_query_counts.last365_days,
                     column_name,
                 )
+
+    @staticmethod
+    def update_table_and_columns_usage_history(
+        history: DatasetUsageHistory,
+        columns: List[str],
+    ):
+        history.query_count.count += 1
+        for column_name in columns:
+            UsageUtil.update_field_query_count(history.field_query_counts, column_name)
 
     @staticmethod
     def update_field_query_count(query_counts: List[FieldQueryCount], column: str):

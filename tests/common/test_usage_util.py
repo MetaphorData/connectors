@@ -1,9 +1,17 @@
+from datetime import datetime
 from typing import List
 
 from metaphor.models.metadata_change_event import (
+    AspectType,
+    DataPlatform,
     Dataset,
+    DatasetLogicalID,
     DatasetUsage,
+    DatasetUsageHistory,
+    EntityType,
     FieldQueryCount,
+    FieldQueryCounts,
+    HistoryType,
     QueryCount,
     QueryCounts,
 )
@@ -22,6 +30,45 @@ def make_dataset_with_usage(counts: List[int]):
         last365_days=QueryCount(count=counts[4]),
     )
     return dataset
+
+
+def test_init_dataset():
+    now = datetime.now()
+    dataset1 = UsageUtil.init_dataset(None, "foo", DataPlatform.S3, False, now)
+    assert dataset1 == Dataset(
+        entity_type=EntityType.DATASET,
+        logical_id=DatasetLogicalID(name="foo", platform=DataPlatform.S3),
+        usage=DatasetUsage(
+            aspect_type=AspectType.DATASET_USAGE,
+            field_query_counts=FieldQueryCounts(
+                last24_hours=[],
+                last30_days=[],
+                last365_days=[],
+                last7_days=[],
+                last90_days=[],
+            ),
+            query_counts=QueryCounts(
+                last24_hours=QueryCount(count=0.0, percentile=None),
+                last30_days=QueryCount(count=0.0, percentile=None),
+                last365_days=QueryCount(count=0.0, percentile=None),
+                last7_days=QueryCount(count=0.0, percentile=None),
+                last90_days=QueryCount(count=0.0, percentile=None),
+            ),
+        ),
+        usage_history=None,
+    )
+
+    dataset2 = UsageUtil.init_dataset(None, "bar", DataPlatform.S3, True, now)
+    assert dataset2 == Dataset(
+        entity_type=EntityType.DATASET,
+        logical_id=DatasetLogicalID(name="bar", platform=DataPlatform.S3),
+        usage_history=DatasetUsageHistory(
+            field_query_counts=[],
+            history_date=now,
+            history_type=HistoryType.DATASET_USAGE_HISTORY,
+            query_count=QueryCount(count=0.0, percentile=0.0),
+        ),
+    )
 
 
 def test_table_percentile():
