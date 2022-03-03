@@ -1,12 +1,10 @@
 import logging
 import math
-from dataclasses import field
 from datetime import datetime
-from typing import Collection, Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Tuple
 
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
-from pydantic import parse_raw_as
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel, Field, parse_raw_as
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
@@ -24,21 +22,16 @@ logger = get_logger(__name__)
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
 
 
-@dataclass
-class AccessedObjectColumn:
+class AccessedObjectColumn(BaseModel):
     columnId: int
     columnName: str
 
 
-@dataclass
-class AccessedObject:
+class AccessedObject(BaseModel):
     objectDomain: str = ""
     objectName: str = ""
     objectId: int = 0
-    stageKind: Optional[str] = None
-    columns: List[AccessedObjectColumn] = field(default_factory=lambda: list())
-    location: Optional[str] = None
-    locations: Optional[List[str]] = None
+    columns: List[AccessedObjectColumn] = Field(default_factory=lambda: list())
 
 
 DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
