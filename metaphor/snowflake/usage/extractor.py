@@ -1,7 +1,8 @@
 import logging
 import math
+from dataclasses import field
 from datetime import datetime
-from typing import Collection, Dict, List, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
 from pydantic import parse_raw_as
@@ -31,10 +32,13 @@ class AccessedObjectColumn:
 
 @dataclass
 class AccessedObject:
-    objectDomain: str
-    objectName: str
-    objectId: int
-    columns: List[AccessedObjectColumn]
+    objectDomain: str = ""
+    objectName: str = "None"
+    objectId: int = 0
+    stageKind: Optional[str] = None
+    columns: List[AccessedObjectColumn] = field(default_factory=lambda: list())
+    location: Optional[str] = None
+    locations: Optional[List[str]] = None
 
 
 DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
@@ -148,6 +152,13 @@ class SnowflakeUsageExtractor(BaseExtractor):
         try:
             objects = parse_raw_as(List[AccessedObject], accessed_objects)
             for obj in objects:
+                if not obj.objectDomain or obj.objectDomain.upper() not in (
+                    "TABLE",
+                    "VIEW",
+                    "MATERIALIZED VIEW",
+                ):
+                    continue
+
                 table_name = obj.objectName.lower()
                 parts = table_name.split(".")
                 db, schema, table = parts[0], parts[1], parts[2]
