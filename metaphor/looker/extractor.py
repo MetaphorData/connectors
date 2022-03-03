@@ -17,6 +17,7 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
+    SourceInfo,
     VirtualViewType,
 )
 
@@ -97,18 +98,21 @@ class LookerExtractor(BaseExtractor):
             assert basic_dashboard.id is not None
             dashboard = sdk.dashboard(dashboard_id=basic_dashboard.id)
 
-            dashboard_info = DashboardInfo()
-            dashboard_info.title = dashboard.title
-            dashboard_info.description = dashboard.description
-            dashboard_info.url = (
-                f"{config.base_url}/{dashboard.preferred_viewer}/{dashboard.id}"
+            dashboard_info = DashboardInfo(
+                title=dashboard.title,
+                description=dashboard.description,
+                url=f"{config.base_url}/{dashboard.preferred_viewer}/{dashboard.id}",
+                charts=[],
+            )
+
+            source_info = SourceInfo(
+                main_url=dashboard_info.url,
             )
 
             # All numeric fields must be converted to "float" to meet quicktype's expectation
             if dashboard.view_count is not None:
                 dashboard_info.view_count = float(dashboard.view_count)
 
-            dashboard_info.charts = []
             upstream = None
             if dashboard.dashboard_elements is not None:
                 (dashboard_info.charts, upstream) = self._extract_charts(
@@ -121,6 +125,7 @@ class LookerExtractor(BaseExtractor):
                         dashboard.id, DashboardPlatform.LOOKER
                     ),
                     dashboard_info=dashboard_info,
+                    source_info=source_info,
                     upstream=upstream,
                 )
             )
