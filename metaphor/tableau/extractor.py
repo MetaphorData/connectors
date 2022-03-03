@@ -27,6 +27,7 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DashboardUpstream,
     DataPlatform,
+    SourceInfo,
 )
 
 from metaphor.common.event_util import ENTITY_TYPES
@@ -141,11 +142,16 @@ class TableauExtractor(BaseExtractor):
             view_count=float(total_views),
         )
 
+        source_info = SourceInfo(
+            main_url=dashboard_info.url,
+        )
+
         dashboard = Dashboard(
             logical_id=DashboardLogicalID(
                 dashboard_id=workbook_id, platform=DashboardPlatform.TABLEAU
             ),
             dashboard_info=dashboard_info,
+            source_info=source_info,
         )
 
         self._dashboards[workbook_id] = dashboard
