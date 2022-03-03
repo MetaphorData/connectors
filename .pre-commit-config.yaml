@@ -30,6 +30,7 @@ repos:
       - id: mypy
         additional_dependencies:
           - pydantic
+          - types-attrs
           - types-freezegun
           - types-requests
           - types-pytz
