@@ -4,8 +4,7 @@ from datetime import datetime
 from typing import Collection, Dict, List, Tuple
 
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
-from pydantic import parse_raw_as
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel, Field, parse_raw_as
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
@@ -23,18 +22,16 @@ logger = get_logger(__name__)
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
 
 
-@dataclass
-class AccessedObjectColumn:
+class AccessedObjectColumn(BaseModel):
     columnId: int
     columnName: str
 
 
-@dataclass
-class AccessedObject:
-    objectDomain: str
-    objectName: str
-    objectId: int
-    columns: List[AccessedObjectColumn]
+class AccessedObject(BaseModel):
+    objectDomain: str = ""
+    objectName: str = ""
+    objectId: int = 0
+    columns: List[AccessedObjectColumn] = Field(default_factory=lambda: list())
 
 
 DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
@@ -148,6 +145,13 @@ class SnowflakeUsageExtractor(BaseExtractor):
         try:
             objects = parse_raw_as(List[AccessedObject], accessed_objects)
             for obj in objects:
+                if not obj.objectDomain or obj.objectDomain.upper() not in (
+                    "TABLE",
+                    "VIEW",
+                    "MATERIALIZED VIEW",
+                ):
+                    continue
+
                 table_name = obj.objectName.lower()
                 parts = table_name.split(".")
                 db, schema, table = parts[0], parts[1], parts[2]
