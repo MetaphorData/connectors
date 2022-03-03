@@ -14,7 +14,7 @@ pip install metaphor-connector
 
 ``` cfg
 [lineage]
-backend = metaphor.airflow.lineage.backend.MetaphorBackend
+backend = metaphor.airflow_plugin.lineage.backend.MetaphorBackend
 metaphor_backend_mode = ingestion-api
 metaphor_ingestion_url = [URL]
 metaphor_ingestion_key = [KEY]
@@ -23,7 +23,7 @@ metaphor_ingestion_key = [KEY]
 Or, you can send lineage information to s3 bucket.
 ``` cfg
 [lineage]
-backend = metaphor.airflow.lineage.backend.MetaphorBackend
+backend = metaphor.airflow_plugin.lineage.backend.MetaphorBackend
 metaphor_backend_mode = s3
 metaphor_s3_url = s3://[bucket]
 metaphor_aws_access_key_id = [AWS_ACCESS_KEY]
@@ -38,7 +38,7 @@ from airflow.operators.bash import BashOperator
 from airflow.lineage import AUTO
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
-from metaphor.airflow.lineage.entity import MetaphorDataset, DataPlatform
+from metaphor.airflow_plugin.lineage.entity import MetaphorDataset, DataPlatform
 
 args = {"owner": "airflow", "start_date": days_ago(2)}
 

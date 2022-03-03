@@ -39,7 +39,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 
 | Connector                                                             | Metadata                                 |
 |-----------------------------------------------------------------------|------------------------------------------|  
-| [metaphor.airflow](metaphor/airflow/README.md)                        | Lineage                                  |
+| [metaphor.airflow_plugin](metaphor/airflow_plugin/README.md)       | Lineage                                  |
 | [metaphor.bigquery](metaphor/bigquery/README.md)                      | Schema, description, statistics          |
 | [metaphor.bigquery.lineage](metaphor/bigquery/lineage/README.md)      | Lineage                                  |
 | [metaphor.bigquery.profile](metaphor/bigquery/profile/README.md)      | Data profile                             |

@@ -1,6 +1,6 @@
 from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 
-from metaphor.airflow.lineage.entity import MetaphorDataset
+from metaphor.airflow_plugin.lineage.entity import MetaphorDataset
 
 
 def test_metaphor_dataset():
