@@ -33,7 +33,7 @@ class AccessedObjectColumn:
 @dataclass
 class AccessedObject:
     objectDomain: str = ""
-    objectName: str = "None"
+    objectName: str = ""
     objectId: int = 0
     stageKind: Optional[str] = None
     columns: List[AccessedObjectColumn] = field(default_factory=lambda: list())
