@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -7,8 +7,11 @@ from metaphor.models.metadata_change_event import (
     DbtMacroArgument,
     DbtMaterialization,
     DbtMaterializationType,
+    DbtMetric,
     DbtModel,
     DbtTest,
+    Metric,
+    MetricFilter,
     VirtualView,
 )
 from pydantic.utils import unique_list
@@ -20,8 +23,10 @@ from .generated.dbt_manifest_v4 import (
     CompiledGenericTestNode,
     CompiledModelNode,
     DbtManifest,
+    DependsOn,
     ParsedGenericTestNode,
     ParsedMacro,
+    ParsedMetric,
     ParsedModelNode,
     ParsedSourceDefinition,
 )
@@ -35,6 +40,7 @@ from .util import (
     init_documentation,
     init_field,
     init_field_doc,
+    init_metric,
     init_virtual_view,
 )
 
@@ -58,6 +64,7 @@ class ManifestParserV4:
         project_source_url: Optional[str],
         datasets: Dict[str, Dataset],
         virtual_views: Dict[str, VirtualView],
+        metrics: Dict[str, Metric],
     ):
         self._platform = platform
         self._account = account
@@ -65,6 +72,7 @@ class ManifestParserV4:
         self._project_source_url = project_source_url
         self._datasets = datasets
         self._virtual_views = virtual_views
+        self._metrics = metrics
 
     def parse(self, manifest_json: dict) -> None:
         try:
@@ -76,6 +84,7 @@ class ManifestParserV4:
         nodes = manifest.nodes
         sources = manifest.sources
         macros = manifest.macros
+        metrics = manifest.metrics
 
         models = {
             k: v
@@ -89,7 +98,7 @@ class ManifestParserV4:
             if isinstance(v, (CompiledGenericTestNode, ParsedGenericTestNode))
         }
 
-        self._parse_manifest_nodes(sources, macros, tests, models)
+        self._parse_manifest_nodes(sources, macros, tests, models, metrics)
 
     def _parse_manifest_nodes(
         self,
@@ -97,6 +106,7 @@ class ManifestParserV4:
         macros: Dict[str, ParsedMacro],
         tests: Dict[str, TEST_NODE_TYPE],
         models: Dict[str, MODEL_NODE_TYPE],
+        metrics: Dict[str, ParsedMetric],
     ) -> None:
         source_map: Dict[str, EntityId] = {}
         for key, source in sources.items():
@@ -168,6 +178,9 @@ class ManifestParserV4:
 
             init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
 
+        for _, metric in metrics.items():
+            self._parse_metric(metric, source_map, macro_map)
+
     def _parse_model(
         self,
         model: MODEL_NODE_TYPE,
@@ -222,26 +235,71 @@ class ManifestParserV4:
                 field.description = col.description
                 field.native_type = col.data_type or "Not Set"
 
-        if model.depends_on is not None:
-            if model.depends_on.nodes:
-                dbt_model.source_models = unique_list(
-                    [
-                        get_virtual_view_id(self._virtual_views[n].logical_id)
-                        for n in model.depends_on.nodes
-                        if n.startswith("model.")
-                    ]
-                )
+        (
+            dbt_model.source_datasets,
+            dbt_model.source_models,
+            dbt_model.macros,
+        ) = self._parse_depends_on(model.depends_on, source_map, macro_map)
 
-                dbt_model.source_datasets = unique_list(
-                    [
-                        str(source_map[n])
-                        for n in model.depends_on.nodes
-                        if n.startswith("source.")
-                    ]
-                )
+    def _parse_metric(
+        self,
+        metric: ParsedMetric,
+        source_map: Dict[str, EntityId],
+        macro_map: Dict[str, DbtMacro],
+    ) -> None:
+        metric_entity = init_metric(self._metrics, metric.unique_id)
+        metric_entity.dbt_metric = DbtMetric(
+            package_name=metric.package_name,
+            type=metric.type,
+            description=metric.description or None,
+            label=metric.label,
+            tags=metric.tags,
+            time_grains=metric.time_grains,
+            dimensions=metric.dimensions,
+            filters=[
+                MetricFilter(field=f.field, operator=f.operator, value=f.value)
+                for f in metric.filters
+            ],
+        )
 
-            if model.depends_on.macros:
-                dbt_model.macros = [macro_map[n] for n in model.depends_on.macros]
+        dbt_metric = metric_entity.dbt_metric
+        (
+            dbt_metric.source_datasets,
+            dbt_metric.source_models,
+            _,
+        ) = self._parse_depends_on(metric.depends_on, source_map, macro_map)
+
+    def _parse_depends_on(
+        self,
+        depends_on: Optional[DependsOn],
+        source_map: Dict[str, EntityId],
+        macro_map: Dict[str, DbtMacro],
+    ) -> Tuple[Optional[List], Optional[List], Optional[List]]:
+        datasets, models, macros = None, None, None
+        if not depends_on:
+            return datasets, models, macros
+
+        if depends_on.nodes:
+            datasets = unique_list(
+                [
+                    str(source_map[n])
+                    for n in depends_on.nodes
+                    if n.startswith("source.")
+                ]
+            )
+
+            models = unique_list(
+                [
+                    get_virtual_view_id(self._virtual_views[n].logical_id)
+                    for n in depends_on.nodes
+                    if n.startswith("model.")
+                ]
+            )
+
+        if depends_on.macros:
+            macros = [macro_map[n] for n in depends_on.macros]
+
+        return datasets, models, macros
 
     def _parse_source(self, source: ParsedSourceDefinition) -> None:
         if not source.database or not source.columns:

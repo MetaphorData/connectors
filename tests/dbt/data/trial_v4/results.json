@@ -462,5 +462,36 @@
       "name": "trial.trial_model_2",
       "type": "DBT_MODEL"
     }
+  },
+  {
+    "dbtMetric": {
+      "description": "number of movies",
+      "dimensions": [
+        "country",
+        "type"
+      ],
+      "filters": [
+        {
+          "field": "title",
+          "operator": "!=",
+          "value": ""
+        }
+      ],
+      "label": "trial metrics",
+      "packageName": "trial",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~B2A1F1A79091280F72E9B65C53786E52"
+      ],
+      "tags": [],
+      "timeGrains": [
+        "year"
+      ],
+      "type": "count"
+    },
+    "logicalId": {
+      "name": "trial.trial_metric_1",
+      "type": "DBT_METRIC"
+    }
   }
 ]

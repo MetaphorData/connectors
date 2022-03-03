@@ -1,6 +1,6 @@
 import logging
 import math
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Collection, Dict, List, Tuple
 
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
@@ -12,6 +12,7 @@ from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
+from metaphor.common.utils import start_of_day
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 from metaphor.snowflake.utils import QueryWithParam, async_execute
@@ -51,6 +52,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
         self.filter = None
         self.max_concurrency = None
         self.batch_size = None
+        self._use_history = True
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
@@ -63,6 +65,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
         self.account = config.account
         self.max_concurrency = config.max_concurrency
         self.batch_size = config.batch_size
+        self._use_history = config.use_history
 
         self.filter = config.filter.normalize()
 
@@ -78,7 +81,8 @@ class SnowflakeUsageExtractor(BaseExtractor):
             else ""
         )
 
-        start_date = datetime.utcnow().date() - timedelta(config.lookback_days)
+        lookback_days = 1 if config.use_history else config.lookback_days
+        start_date = start_of_day(lookback_days)
 
         conn = connect(config)
 
@@ -129,8 +133,9 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 self._parse_access_logs,
             )
 
-        # calculate statistics based on the counts
-        UsageUtil.calculate_statistics(self._datasets.values())
+        if not self._use_history:
+            # calculate statistics based on the counts
+            UsageUtil.calculate_statistics(self._datasets.values())
 
         return self._datasets.values()
 
@@ -150,17 +155,27 @@ class SnowflakeUsageExtractor(BaseExtractor):
                     logger.debug(f"Ignore {table_name} due to filter config")
                     continue
 
+                utc_now = start_of_day()
+
                 if table_name not in self._datasets:
                     self._datasets[table_name] = UsageUtil.init_dataset(
-                        self.account, table_name, DataPlatform.SNOWFLAKE
+                        self.account,
+                        table_name,
+                        DataPlatform.SNOWFLAKE,
+                        self._use_history,
+                        utc_now,
                     )
 
                 columns = [column.columnName.lower() for column in obj.columns]
 
-                utc_now = datetime.now().replace(tzinfo=timezone.utc)
-                UsageUtil.update_table_and_columns_usage(
-                    self._datasets[table_name].usage, columns, start_time, utc_now
-                )
+                if self._use_history:
+                    UsageUtil.update_table_and_columns_usage_history(
+                        self._datasets[table_name].usage_history, columns
+                    )
+                else:
+                    UsageUtil.update_table_and_columns_usage(
+                        self._datasets[table_name].usage, columns, start_time, utc_now
+                    )
         except Exception as e:
             logger.error(f"access log error, objects: {accessed_objects}")
             logger.exception(e)
