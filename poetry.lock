@@ -1550,7 +1550,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.6.20"
+version = "0.6.21"
 description = ""
 category = "main"
 optional = false
@@ -3431,8 +3431,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.6.20.tar.gz", hash = "sha256:3c1afdedf7ffb58e5fbca27b5925f758b181f7463ac44f551d31a6f75faa72cf"},
-    {file = "metaphor_models-0.6.20-py3-none-any.whl", hash = "sha256:4a2564ba8806cd76980be11d3df7b3b2e34cdbd4b554c588f6b945733a014cee"},
+    {file = "metaphor-models-0.6.21.tar.gz", hash = "sha256:61b38f11712e5cfa02aef4998a21ea8f9058e86baf3e89a6cb030f29ec617726"},
+    {file = "metaphor_models-0.6.21-py3-none-any.whl", hash = "sha256:20c18f57d4e8fc9f4458a76cdff9d0335b69d4300854c047b8565dd243c70d50"},
 ]
 msal = [
     {file = "msal-1.17.0-py2.py3-none-any.whl", hash = "sha256:5a52d78e70d2c451e267c1e8c2342e4c06f495c75c859aeafd9260d3974f09fe"},

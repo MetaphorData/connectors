@@ -32,9 +32,6 @@ from metaphor.common.extractor import BaseExtractor
 
 logger = get_logger(__name__)
 
-AUTHORITY = "https://login.microsoftonline.com/{tenant_id}"
-SCOPES = ["https://analysis.windows.net/powerbi/api/.default"]
-
 
 class PowerBIDataSource(BaseModel):
     datasourceType: str
@@ -132,6 +129,114 @@ class WorkspaceInfo(BaseModel):
     dashboards: List[WorkspaceInfoDashboard]
 
 
+class PowerBIClient:
+    AUTHORITY = "https://login.microsoftonline.com/{tenant_id}"
+    SCOPES = ["https://analysis.windows.net/powerbi/api/.default"]
+    API_ENDPOINT = "https://api.powerbi.com/v1.0/myorg"
+
+    def __init__(self, config: PowerBIRunConfig):
+        self._headers = {"Authorization": self.retrieve_access_token(config)}
+
+    def retrieve_access_token(self, config: PowerBIRunConfig) -> str:
+        app = msal.ConfidentialClientApplication(
+            config.client_id,
+            authority=self.AUTHORITY.format(tenant_id=config.tenant_id),
+            client_credential=config.secret,
+        )
+        token = None
+        token = app.acquire_token_silent(self.SCOPES, account=None)
+        if not token:
+            logger.info(
+                "No suitable token exists in cache. Let's get a new one from AAD."
+            )
+            token = app.acquire_token_for_client(scopes=self.SCOPES)
+
+        return f"Bearer {token['access_token']}"
+
+    def get_groups(self) -> List[PowerBIWorkspace]:
+        url = f"{self.API_ENDPOINT}/groups"
+        return self._call_get(
+            url, List[PowerBIWorkspace], transform_response=lambda r: r.json()["value"]
+        )
+
+    def get_tiles(self, group_id: str, dashboard_id: str) -> List[PowerBITile]:
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/dashboards/{dashboard_id}/tiles"
+        return self._call_get(
+            url, List[PowerBITile], transform_response=lambda r: r.json()["value"]
+        )
+
+    def get_dataset(self, group_id: str, dataset_id: str) -> PowerBIDataset:
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}"
+        return self._call_get(url, PowerBIDataset)
+
+    def get_report(self, group_id: str, report_id: str) -> PowerBIReport:
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/reports/{report_id}"
+        return self._call_get(url, PowerBIReport)
+
+    def get_datasource(
+        self, group_id: str, dashboard_id: str
+    ) -> List[PowerBIDataSource]:
+        url = (
+            f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dashboard_id}/datasources"
+        )
+        return self._call_get(url, List[PowerBIDataSource])
+
+    def get_workspace_info(self, workspace_id: str) -> WorkspaceInfo:
+        def create_scan() -> str:
+            url = f"{self.API_ENDPOINT}/admin/workspaces/getInfo"
+            request_body = {"workspaces": [workspace_id]}
+            result = requests.post(
+                url,
+                headers=self._headers,
+                params={
+                    "datasetExpressions": True,
+                    "datasetSchema": True,
+                    "datasourceDetails": True,
+                    "getArtifactUsers": True,
+                    "lineage": True,
+                },
+                data=request_body,
+            )
+
+            return result.json()["id"]
+
+        def wait_for_scan_result(scan_id: str, max_timeout_in_secs: int = 30) -> bool:
+            url = f"{self.API_ENDPOINT}/admin/workspaces/scanStatus/{scan_id}"
+
+            waiting_time = 0
+            while True:
+                result = requests.get(url, headers=self._headers)
+                if result.status_code != 200:
+                    return False
+                if result.json()["status"] == "Succeeded":
+                    return True
+                if waiting_time >= max_timeout_in_secs:
+                    break
+                waiting_time += 1
+                sleep(1)
+            return False
+
+        scan_id = create_scan()
+        wait_for_scan_result(scan_id)
+        url = f"{self.API_ENDPOINT}/admin/workspaces/scanResult/{scan_id}"
+
+        def get_first_workspace(response: requests.Response) -> Any:
+            return response.json()["workspaces"][0]
+
+        return self._call_get(url, WorkspaceInfo, get_first_workspace)
+
+    T = TypeVar("T")
+
+    def _call_get(
+        self,
+        url: str,
+        type_: Type[T],
+        transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
+    ) -> T:
+        result = requests.get(url, headers=self._headers)
+        return parse_obj_as(type_, transform_response(result))
+
+
 class PowerBIExtractor(BaseExtractor):
     """Power BI metadata extractor"""
 
@@ -146,37 +251,21 @@ class PowerBIExtractor(BaseExtractor):
         assert isinstance(config, PowerBIExtractor.config_class())
         logger.info(f"Fetching metadata from Power BI tenant ID: {config.tenant_id}")
 
-        self._headers = {"Authorization": self.retrieve_access_token(config)}
+        self.client = PowerBIClient(config)
 
         workspace_ids = []
         if config.workspace_id:
             workspace_ids = [config.workspace_id]
         else:
-            workspace_ids = [w.id for w in self.get_groups()]
+            workspace_ids = [w.id for w in self.client.get_groups()]
 
         for workspace_id in workspace_ids:
-            info = self.get_workspace_info(workspace_id)
+            info = self.client.get_workspace_info(workspace_id)
             self.map_wi_datasets_to_dashboard(workspace_id, info.datasets)
             self.map_wi_reports_to_dashboard(workspace_id, info.reports)
             self.map_wi_dashboards_to_dashboard(workspace_id, info.dashboards)
 
         return self._dashboards.values()
-
-    def retrieve_access_token(self, config: PowerBIRunConfig) -> str:
-        app = msal.ConfidentialClientApplication(
-            config.client_id,
-            authority=AUTHORITY.format(tenant_id=config.tenant_id),
-            client_credential=config.secret,
-        )
-        token = None
-        token = app.acquire_token_silent(SCOPES, account=None)
-        if not token:
-            logger.info(
-                "No suitable token exists in cache. Let's get a new one from AAD."
-            )
-            token = app.acquire_token_for_client(scopes=SCOPES)
-
-        return f"Bearer {token['access_token']}"
 
     def map_wi_datasets_to_dashboard(
         self, workspace_id: str, wi_datasets: List[WorkspaceInfoDataset]
@@ -198,7 +287,7 @@ class PowerBIExtractor(BaseExtractor):
                         logger.warning(
                             f"Parsing upstream fail, exp: {power_query_text}"
                         )
-            ds = self.get_dataset(workspace_id, wds.id)
+            ds = self.client.get_dataset(workspace_id, wds.id)
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -225,7 +314,7 @@ class PowerBIExtractor(BaseExtractor):
                     self._dashboards[wi_report.datasetId].logical_id,
                 )
             )
-            report = self.get_report(workspace_id, wi_report.id)
+            report = self.client.get_report(workspace_id, wi_report.id)
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_report.id,
@@ -244,7 +333,7 @@ class PowerBIExtractor(BaseExtractor):
         self, workspace_id: str, wi_dashboards: List[WorkspaceInfoDashboard]
     ) -> None:
         for wi_dashboard in wi_dashboards:
-            tiles = self.get_tiles(workspace_id, wi_dashboard.id)
+            tiles = self.client.get_tiles(workspace_id, wi_dashboard.id)
             upstream = set()
             for tile in tiles:
                 upstream.add(
@@ -320,80 +409,3 @@ class PowerBIExtractor(BaseExtractor):
     @staticmethod
     def transform_tiles_to_charts(tiles: List[PowerBITile]) -> List[Chart]:
         return [Chart(title=t.title, url=t.embedUrl) for t in tiles]
-
-    def get_dataset(self, group_id: str, dataset_id: str) -> PowerBIDataset:
-        url = f"https://api.powerbi.com/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}"
-        return self._call_get(url, PowerBIDataset, getter=lambda r: r.json())
-
-    def get_groups(self) -> List[PowerBIWorkspace]:
-        url = "https://api.powerbi.com/v1.0/myorg/groups"
-        return self._call_get(url, List[PowerBIWorkspace])
-
-    def get_report(self, group_id: str, report_id: str) -> PowerBIReport:
-        url = (
-            f"https://api.powerbi.com/v1.0/myorg/groups/{group_id}/reports/{report_id}"
-        )
-        return self._call_get(url, PowerBIReport, getter=lambda r: r.json())
-
-    def get_tiles(self, group_id: str, dashboard_id: str) -> List[PowerBITile]:
-        url = f"https://api.powerbi.com/v1.0/myorg/groups/{group_id}/dashboards/{dashboard_id}/tiles"
-        return self._call_get(url, List[PowerBITile])
-
-    def get_datasource(
-        self, group_id: str, dashboard_id: str
-    ) -> List[PowerBIDataSource]:
-        url = f"https://api.powerbi.com/v1.0/myorg/groups/{group_id}/datasets/{dashboard_id}/datasources"
-        return self._call_get(url, List[PowerBIDataSource])
-
-    def get_workspace_info(self, workspace_id: str) -> WorkspaceInfo:
-        def create_scan() -> str:
-            url = "https://api.powerbi.com/v1.0/myorg/admin/workspaces/getInfo"
-            request_body = {"workspaces": [workspace_id]}
-            result = requests.post(
-                url,
-                headers=self._headers,
-                params={
-                    "datasetExpressions": True,
-                    "datasetSchema": True,
-                    "datasourceDetails": True,
-                    "getArtifactUsers": True,
-                    "lineage": True,
-                },
-                data=request_body,
-            )
-
-            return result.json()["id"]
-
-        def wait_for_scan_result(scan_id: str, max_timeout_in_secs: int = 30) -> bool:
-            url = f"https://api.powerbi.com/v1.0/myorg/admin/workspaces/scanStatus/{scan_id}"
-
-            waiting_time = 0
-            while True:
-                result = requests.get(url, headers=self._headers)
-                if result.status_code != 200:
-                    return False
-                if result.json()["status"] == "Succeeded":
-                    return True
-                if waiting_time >= max_timeout_in_secs:
-                    break
-                waiting_time += 1
-                sleep(1)
-            return False
-
-        scan_id = create_scan()
-        wait_for_scan_result(scan_id)
-        url = (
-            f"https://api.powerbi.com/v1.0/myorg/admin/workspaces/scanResult/{scan_id}"
-        )
-        return self._call_get(url, WorkspaceInfo, lambda r: r.json()["workspaces"][0])
-
-    T = TypeVar("T")
-
-    def _call_get(
-        self,
-        url: str,
-        type_: Type[T],
-        getter: Callable[[requests.Response], Any] = lambda r: r.json()["value"],
-    ) -> T:
-        result = requests.get(url, headers=self._headers)
-        return parse_obj_as(type_, getter(result))
