@@ -227,6 +227,7 @@ class PowerBIClient:
         scan_success = wait_for_scan_result(scan_id)
         assert scan_success, f"Workspace scan failed, scan_id: {scan_id}"
 
+        # Since we only request one workspace per scan, result should contain one workspace
         def get_first_workspace(response: requests.Response) -> Any:
             return response.json()["workspaces"][0]
 
