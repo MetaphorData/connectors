@@ -1,12 +1,12 @@
 # PowerBI Connector
 
-This connector extracts technical metadata from PowerBI workspaces using [Power BI REST APIs](https://docs.microsoft.com/en-us/rest/api/power-bi/)
+This connector extracts technical metadata from PowerBI workspaces using [Power BI REST APIs](https://docs.microsoft.com/en-us/rest/api/power-bi/).
 
 ## Setup
 
 We recommend creating a dedicated Azure AD Application and a dedicated security group for the connector to use.
 
-1. Follow [Microsoft doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal) to create an app and a security group. And add the service principal to the security group.
+1. Follow [Microsoft doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal) to create an app and a security group. Add the app's [service principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals#service-principal-object) to the security group.
 
 2. Login to PowerBI as Admin ane enable the following setting.
     - Allow service principles to use Power BI APIs
@@ -17,7 +17,7 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 
 1. Make sure you add either service principal or security group to your workspaces.
 
-2. Make sure your app did not have any extra permission granted just simply add service principal to your workspace. See: [Enable service principal authentication for read-only admin APIs](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication).
+2. Make sure your app did not have any extra permission granted. Simply add the service principal to your workspace. See [Enable service principal authentication for read-only admin APIs](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication) for more details.
 
 ## Config File
 
