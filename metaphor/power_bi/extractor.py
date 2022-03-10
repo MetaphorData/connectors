@@ -25,6 +25,7 @@ from metaphor.models.metadata_change_event import (
     DashboardUpstream,
     DataPlatform,
     EntityType,
+    PowerBIDashboardType,
 )
 from pydantic import BaseModel, parse_obj_as
 
@@ -198,6 +199,12 @@ class PowerBIClient:
                 data=request_body,
             )
 
+            assert result.status_code == 202, (
+                "Workspace scan create failed, "
+                f"workspace_id: {workspace_id}, "
+                f"response: [{result.status_code}] {result.content.decode()}"
+            )
+
             return result.json()["id"]
 
         def wait_for_scan_result(scan_id: str, max_timeout_in_secs: int = 30) -> bool:
@@ -217,12 +224,13 @@ class PowerBIClient:
             return False
 
         scan_id = create_scan()
-        wait_for_scan_result(scan_id)
-        url = f"{self.API_ENDPOINT}/admin/workspaces/scanResult/{scan_id}"
+        scan_success = wait_for_scan_result(scan_id)
+        assert scan_success, f"Workspace scan failed, scan_id: {scan_id}"
 
         def get_first_workspace(response: requests.Response) -> Any:
             return response.json()["workspaces"][0]
 
+        url = f"{self.API_ENDPOINT}/admin/workspaces/scanResult/{scan_id}"
         return self._call_get(url, WorkspaceInfo, get_first_workspace)
 
     T = TypeVar("T")
@@ -234,6 +242,7 @@ class PowerBIClient:
         transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
     ) -> T:
         result = requests.get(url, headers=self._headers)
+        assert result.status_code == 200, f"GET {url} failed, {result.content.decode()}"
         return parse_obj_as(type_, transform_response(result))
 
 
@@ -277,6 +286,9 @@ class PowerBIExtractor(BaseExtractor):
                     power_query_text = source["expression"]
 
                     if "Value.NativeQuery(" in power_query_text:
+                        logger.warning(
+                            f"Skip {table.name}, because it is created from Custom SQL"
+                        )
                         continue
                     try:
                         entity_id = str(
@@ -296,6 +308,7 @@ class PowerBIExtractor(BaseExtractor):
                 dashboard_info=DashboardInfo(
                     created_at=ds.createdDate,
                     description=wds.description,
+                    power_bi_dashboard_type=PowerBIDashboardType.DATASET,
                     title=wds.name,
                     url=ds.webUrl,
                 ),
@@ -322,6 +335,7 @@ class PowerBIExtractor(BaseExtractor):
                 ),
                 dashboard_info=DashboardInfo(
                     description=wi_report.description,
+                    power_bi_dashboard_type=PowerBIDashboardType.REPORT,
                     title=wi_report.name,
                     url=report.webUrl,
                 ),
@@ -352,6 +366,7 @@ class PowerBIExtractor(BaseExtractor):
                 dashboard_info=DashboardInfo(
                     title=wi_dashboard.displayName,
                     charts=self.transform_tiles_to_charts(tiles),
+                    power_bi_dashboard_type=PowerBIDashboardType.DASHBOARD,
                 ),
                 upstream=DashboardUpstream(source_datasets=list(upstream)),
             )
