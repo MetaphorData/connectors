@@ -205,12 +205,16 @@ class PowerBIClient:
                 f"response: [{result.status_code}] {result.content.decode()}"
             )
 
+            scan_id = result.json()["id"]
+            logger.info(f"Create a scan, id: {scan_id}")
+
             return result.json()["id"]
 
         def wait_for_scan_result(scan_id: str, max_timeout_in_secs: int = 30) -> bool:
             url = f"{self.API_ENDPOINT}/admin/workspaces/scanStatus/{scan_id}"
 
             waiting_time = 0
+            sleep_time = 1
             while True:
                 result = requests.get(url, headers=self._headers)
                 if result.status_code != 200:
@@ -219,8 +223,9 @@ class PowerBIClient:
                     return True
                 if waiting_time >= max_timeout_in_secs:
                     break
-                waiting_time += 1
-                sleep(1)
+                waiting_time += sleep_time
+                logger.info(f"Sleep {sleep_time} sec, wait for scan_id: {scan_id}")
+                sleep(sleep_time)
             return False
 
         scan_id = create_scan()
@@ -263,13 +268,12 @@ class PowerBIExtractor(BaseExtractor):
 
         self.client = PowerBIClient(config)
 
-        workspace_ids = []
-        if config.workspace_id:
-            workspace_ids = [config.workspace_id]
-        else:
-            workspace_ids = [w.id for w in self.client.get_groups()]
+        if len(config.workspaces) == 0:
+            config.workspaces = [w.id for w in self.client.get_groups()]
 
-        for workspace_id in workspace_ids:
+        for workspace_id in config.workspaces:
+            logger.info(f"Fetching metadata from Power BI workspace ID: {workspace_id}")
+
             info = self.client.get_workspace_info(workspace_id)
             self.map_wi_datasets_to_dashboard(workspace_id, info.datasets)
             self.map_wi_reports_to_dashboard(workspace_id, info.reports)

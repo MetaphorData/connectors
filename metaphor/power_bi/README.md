@@ -28,8 +28,6 @@ Create a YAML config file based on the following template.
 ```yaml
 tenant_id: <tenant_id>  # The PowerBI tenant ID
 
-workspace_id: <workspace_id>  # The workspace the connector will connect to
-
 client_id: <client_id>  # The Azure Application client id
 
 secret: <secret>  # The client secret
@@ -37,6 +35,16 @@ secret: <secret>  # The client secret
 output:
   file:
     directory: <output_directory>
+```
+
+### Optional Configurations
+
+By default, the connector will connect all workspaces under a tenant (organization). You can explicit configure workspaces you want to connect.
+
+```yaml
+workspaces:
+  - <workspace_id>  # The workspace id
+  - <workspace_id>  # The workspace id
 ```
 
 ## Testing
