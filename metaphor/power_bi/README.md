@@ -8,16 +8,16 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 
 1. Follow [Microsoft doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal) to create an app and a security group. Add the app's [service principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals#service-principal-object) to the security group.
 
-2. Log into PowerBI as Admin and enable the following setting, some of them can be granted across the organization and some can only be granted to security groups. We recommend to grant these permission to the security group which service principal belong to. See [Enable service principal authentication for read-only admin APIs](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication) for more details.
+2. Log into PowerBI as Admin and enable the following setting. We recommend to enable these permission to the security group which service principal belong to. See [Enable service principal authentication for read-only admin APIs](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication) for more details.
     - Allow service principles to use Power BI APIs
     - Allow service principals to use read-only Power BI admin APIs
     - Enhance admin APIs responses with detailed metadata
 
+3. Add security group or service principal to all workspaces of interest. See: [Add the service principal to your workspace](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-4---add-the-service-principal-to-your-workspace)
+
 ### Note
 
-1. When you grant your security group to access APIs doesn't mean you give service principal the accessability to you workspaces. Make sure you add either the service principal or security group to your workspaces.
-
-2. Make sure your app did not have any extra Power BI permission granted. Simply add the service principal or security group to your workspace.
+Make sure your app did not have any extra Power BI permission granted. See step 3 of this [doc](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication#method) for more details.
 
 ## Config File
 
