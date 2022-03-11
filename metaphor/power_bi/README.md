@@ -15,9 +15,8 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 
 3. Add security group or service principal to all workspaces of interest. See: [Add the service principal to your workspace](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-4---add-the-service-principal-to-your-workspace)
 
-### Note
 
-Make sure your app did not have any extra Power BI permission granted. See step 3 of this [doc](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication#method) for more details.
+> Note: Make sure your app did not have any extra Power BI permission granted. See step 3 of this [doc](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication#method) for more details.
 
 ## Config File
 
