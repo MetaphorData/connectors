@@ -51,6 +51,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [metaphor.postgresql](metaphor/postgresql/README.md)                  | Schema, description, statistics          |
 | [metaphor.postgresql.profile](metaphor/postgresql/profile/README.md)  | Data profile                             |
 | [metaphor.postgresql.usage](metaphor/postgresql/usage/README.md)      | Usage                                    |
+| [metaphor.power_bi](metaphor/power_bi/README.md)                      | Dashboard, lineage                       |
 | [metaphor.redshift](metaphor/redshift/README.md)                      | Schema, description, statistics          |
 | [metaphor.redshift.lineage](metaphor/redshift/lineage/README.md)      | Lineage                                  |
 | [metaphor.redshift.profile](metaphor/redshift/profile/README.md)      | Data profile                             |
