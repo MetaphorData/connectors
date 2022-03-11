@@ -1550,11 +1550,24 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.6.20"
+version = "0.6.21"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
+
+[[package]]
+name = "msal"
+version = "1.17.0"
+description = "The Microsoft Authentication Library (MSAL) for Python library enables your app to access the Microsoft Cloud by supporting authentication of users with Microsoft Azure Active Directory accounts (AAD) and Microsoft Accounts (MSA) using industry standard OAuth2 and OpenID Connect."
+category = "main"
+optional = true
+python-versions = "*"
+
+[package.dependencies]
+cryptography = ">=0.6,<39"
+PyJWT = {version = ">=1.0.0,<3", extras = ["crypto"]}
+requests = ">=2.0.0,<3"
 
 [[package]]
 name = "mypy"
@@ -1868,6 +1881,9 @@ description = "JSON Web Token implementation in Python"
 category = "main"
 optional = false
 python-versions = "*"
+
+[package.dependencies]
+cryptography = {version = ">=1.4", optional = true, markers = "extra == \"crypto\""}
 
 [package.extras]
 crypto = ["cryptography (>=1.4)"]
@@ -2602,13 +2618,14 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
-all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "slack-sdk", "snowflake-connector-python", "sql-metadata", "tableauserverclient"]
+all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "msal", "requests", "slack-sdk", "snowflake-connector-python", "sql-metadata", "tableauserverclient"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 dbt = []
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
 metabase = ["sql-metadata"]
 postgresql = ["asyncpg"]
+power_bi = ["msal", "requests"]
 redshift = ["asyncpg"]
 slack_directory = ["slack-sdk"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
@@ -2617,7 +2634,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "f1f28c55d590b12c3fdc7519b5697641f7cda0e458b6f1052e1e10cb49b928b8"
+content-hash = "44f553dff5fda0d1a78e87ae91265547584af4482b9afbcd931f5fb900cd2be4"
 
 [metadata.files]
 alembic = [
@@ -3414,8 +3431,12 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.6.20.tar.gz", hash = "sha256:3c1afdedf7ffb58e5fbca27b5925f758b181f7463ac44f551d31a6f75faa72cf"},
-    {file = "metaphor_models-0.6.20-py3-none-any.whl", hash = "sha256:4a2564ba8806cd76980be11d3df7b3b2e34cdbd4b554c588f6b945733a014cee"},
+    {file = "metaphor-models-0.6.21.tar.gz", hash = "sha256:61b38f11712e5cfa02aef4998a21ea8f9058e86baf3e89a6cb030f29ec617726"},
+    {file = "metaphor_models-0.6.21-py3-none-any.whl", hash = "sha256:20c18f57d4e8fc9f4458a76cdff9d0335b69d4300854c047b8565dd243c70d50"},
+]
+msal = [
+    {file = "msal-1.17.0-py2.py3-none-any.whl", hash = "sha256:5a52d78e70d2c451e267c1e8c2342e4c06f495c75c859aeafd9260d3974f09fe"},
+    {file = "msal-1.17.0.tar.gz", hash = "sha256:04e3cb7bb75c51f56d290381f23056207df1f3eb594ed03d38551f3b16d2a36e"},
 ]
 mypy = [
     {file = "mypy-0.931-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:3c5b42d0815e15518b1f0990cff7a705805961613e701db60387e6fb663fe78a"},
@@ -3810,6 +3831,10 @@ rsa = [
     {file = "ruamel.yaml-0.17.21.tar.gz", hash = "sha256:8b7ce697a2f212752a35c1ac414471dc16c424c9573be4926b56ff3f5d23b7af"},
 ]
 "ruamel.yaml.clib" = [
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:6e7be2c5bcb297f5b82fee9c665eb2eb7001d1050deaba8471842979293a80b0"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:221eca6f35076c6ae472a531afa1c223b9c29377e62936f61bc8e6e8bdc5f9e7"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-win32.whl", hash = "sha256:1070ba9dd7f9370d0513d649420c3b362ac2d687fe78c6e888f5b12bf8bc7bee"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-win_amd64.whl", hash = "sha256:77df077d32921ad46f34816a9a16e6356d8100374579bc35e15bab5d4e9377de"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-macosx_10_6_intel.whl", hash = "sha256:cfdb9389d888c5b74af297e51ce357b800dd844898af9d4a547ffc143fa56751"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:7b2927e92feb51d830f531de4ccb11b320255ee95e791022555971c466af4527"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-win32.whl", hash = "sha256:ada3f400d9923a190ea8b59c8f60680c4ef8a4b0dfae134d2f2ff68429adfab5"},
