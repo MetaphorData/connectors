@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.10.59"
+version = "0.10.60"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -45,7 +45,6 @@ all = [
   "looker-sdk",
   "msal",
   "pyserde",
-  "requests",
   "slack-sdk",
   "snowflake-connector-python",
   "sql-metadata",
@@ -61,7 +60,7 @@ redshift = ["asyncpg"]
 slack_directory = ["slack-sdk"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 tableau = ["tableauserverclient"]
-power_bi = ["msal", "requests"]
+power_bi = ["msal"]
 
 [tool.poetry.dev-dependencies]
 apache-airflow = "^2.0.2"
