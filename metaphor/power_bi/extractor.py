@@ -1,5 +1,4 @@
 import re
-from datetime import datetime
 from time import sleep
 from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
 
@@ -44,7 +43,6 @@ class PowerBIDataSource(BaseModel):
 class PowerBIDataset(BaseModel):
     id: str
     name: str
-    createdDate: Optional[datetime] = None
     configuredBy: str
     targetStorageMode: str
     webUrl: str = ""
@@ -311,7 +309,6 @@ class PowerBIExtractor(BaseExtractor):
                     dashboard_id=wds.id, platform=DashboardPlatform.POWER_BI
                 ),
                 dashboard_info=DashboardInfo(
-                    created_at=ds.createdDate,
                     description=wds.description,
                     power_bi_dashboard_type=PowerBIDashboardType.DATASET,
                     title=wds.name,
