@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Collection, Dict, List, Tuple
 
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
-from pydantic import BaseModel, Field, parse_raw_as
+from pydantic import parse_raw_as
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
@@ -12,6 +12,7 @@ from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.common.utils import start_of_day
+from metaphor.snowflake.accessed_object import AccessedObject
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 from metaphor.snowflake.utils import QueryWithParam, async_execute
@@ -20,18 +21,6 @@ logger = get_logger(__name__)
 
 # disable logging from sql_metadata
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
-
-
-class AccessedObjectColumn(BaseModel):
-    columnId: int
-    columnName: str
-
-
-class AccessedObject(BaseModel):
-    objectDomain: str = ""
-    objectName: str = ""
-    objectId: int = 0
-    columns: List[AccessedObjectColumn] = Field(default_factory=lambda: list())
 
 
 DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}

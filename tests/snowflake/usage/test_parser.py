@@ -1,4 +1,3 @@
-import json
 from typing import List
 
 from metaphor.models.metadata_change_event import (
@@ -7,12 +6,11 @@ from metaphor.models.metadata_change_event import (
     QueryCount,
     QueryCounts,
 )
-from pydantic import parse_raw_as
 
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.utils import start_of_day
-from metaphor.snowflake.usage.extractor import AccessedObject, SnowflakeUsageExtractor
+from metaphor.snowflake.usage.extractor import SnowflakeUsageExtractor
 from tests.test_utils import load_json
 
 
@@ -83,28 +81,3 @@ def test_parse_access_log(test_root_dir):
     assert results == load_json(
         test_root_dir + "/snowflake/usage/data/parse_query_log_result.json"
     )
-
-
-def test_pydantic_dataclass():
-    data = [
-        {
-            "objectDomain": "Stage",
-            "objectId": 1,
-            "objectName": "DEV.SANDBOX.FOO",
-            "stageKind": "Internal Named",
-        },
-        {
-            "locations": [
-                "s3://datawriterprd-us-east-1/ad46b6f2-3966-404d-8c4f-b1011db05aaa/"
-            ]
-        },
-        {
-            "columns": [{"columnId": 12, "columnName": "BAR"}],
-            "objectDomain": "Table",
-            "objectId": 111,
-            "objectName": "DEV.GO.GATORS",
-        },
-    ]
-
-    result = parse_raw_as(List[AccessedObject], json.dumps(data))
-    assert len(result) == 3
