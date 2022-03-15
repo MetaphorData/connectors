@@ -116,6 +116,13 @@ class SnowflakeExtractor(BaseExtractor):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
 
+            # TODO: Support dots in database/schema/table name
+            if "." in database or "." in schema or "." in name:
+                logger.info(
+                    f"Ignore {full_name} due to dot in database, schema, or table name"
+                )
+                continue
+
             self._datasets[full_name] = self._init_dataset(
                 full_name, table_type, comment, row_count, table_bytes
             )
