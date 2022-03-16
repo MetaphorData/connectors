@@ -150,7 +150,7 @@ class MetabaseExtractor(BaseExtractor):
         logger.info(
             f"\nFound {len(resp_json)} {asset_type}s: {[d['name'] for d in resp_json]}"
         )
-        logger.info(json.dumps(resp_json))
+        logger.debug(json.dumps(resp_json))
 
         return resp_json
 
@@ -159,7 +159,7 @@ class MetabaseExtractor(BaseExtractor):
         resp.raise_for_status()
         resp_json = resp.json()
 
-        logger.info(json.dumps(resp_json))
+        logger.debug(json.dumps(resp_json))
         return resp_json
 
     def _parse_database(self, database: Dict) -> None:
