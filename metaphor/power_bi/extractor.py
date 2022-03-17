@@ -7,6 +7,7 @@ import requests
 from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import unique_list
 from metaphor.power_bi.config import PowerBIRunConfig
 
 try:
@@ -303,7 +304,7 @@ class PowerBIExtractor(BaseExtractor):
         self, workspace_id: str, wi_datasets: List[WorkspaceInfoDataset]
     ) -> None:
         for wds in wi_datasets:
-            source_datasets = set()
+            source_datasets = []
             tables = []
             for table in wds.tables:
                 tables.append(
@@ -332,7 +333,7 @@ class PowerBIExtractor(BaseExtractor):
                         entity_id = str(
                             PowerBIExtractor.parse_power_query(power_query_text)
                         )
-                        source_datasets.add(entity_id)
+                        source_datasets.append(entity_id)
                     except AssertionError:
                         logger.warning(
                             f"Parsing upstream fail, exp: {power_query_text}"
@@ -347,7 +348,7 @@ class PowerBIExtractor(BaseExtractor):
                     tables=tables,
                     name=wds.name,
                     url=ds.webUrl,
-                    source_datasets=list(source_datasets),
+                    source_datasets=unique_list(source_datasets),
                 ),
             )
 
@@ -384,7 +385,7 @@ class PowerBIExtractor(BaseExtractor):
     ) -> None:
         for wi_dashboard in wi_dashboards:
             tiles = self.client.get_tiles(workspace_id, wi_dashboard.id)
-            upstream = set()
+            upstream = []
             for tile in tiles:
                 dataset_id = tile.datasetId
 
@@ -392,7 +393,7 @@ class PowerBIExtractor(BaseExtractor):
                 if dataset_id == "":
                     continue
 
-                upstream.add(
+                upstream.append(
                     str(
                         EntityId(
                             EntityType.VIRTUAL_VIEW,
@@ -412,7 +413,7 @@ class PowerBIExtractor(BaseExtractor):
                     power_bi_dashboard_type=PowerBIDashboardType.DASHBOARD,
                     url=pbi_dashboard.webUrl,
                 ),
-                upstream=DashboardUpstream(source_virtual_views=list(upstream)),
+                upstream=DashboardUpstream(source_virtual_views=unique_list(upstream)),
             )
             self._dashboards[wi_dashboard.id] = dashboard
 

@@ -25,8 +25,8 @@
     "powerBIDataset": {
       "name": "Bar Dataset",
       "sourceDatasets": [
-        "DATASET~16C07C11C73EF917CC2C728B240ABDDA",
-        "DATASET~6D79656CAC3AB97C1FC567A817F7D611"
+        "DATASET~6D79656CAC3AB97C1FC567A817F7D611",
+        "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
       ],
       "tables": [
         {
