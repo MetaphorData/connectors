@@ -54,15 +54,12 @@ class PowerBIDataSource(BaseModel):
 class PowerBIDataset(BaseModel):
     id: str
     name: str
-    configuredBy: str
-    targetStorageMode: str
     webUrl: str = ""
 
 
 class PowerBIDashboard(BaseModel):
     id: str
     displayName: str
-    appId: str = ""
     webUrl: str = ""
 
 
@@ -181,6 +178,10 @@ class PowerBIClient:
     def get_dataset(self, group_id: str, dataset_id: str) -> PowerBIDataset:
         url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}"
         return self._call_get(url, PowerBIDataset)
+
+    def get_dashboard(self, group_id: str, dashboard_id: str) -> PowerBIDashboard:
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/dashboards/{dashboard_id}"
+        return self._call_get(url, PowerBIDashboard)
 
     def get_report(self, group_id: str, report_id: str) -> PowerBIReport:
         url = f"{self.API_ENDPOINT}/groups/{group_id}/reports/{report_id}"
@@ -315,6 +316,7 @@ class PowerBIExtractor(BaseExtractor):
                             PbiMeasure(field=m.name, expression=m.expression)
                             for m in table.measures
                         ],
+                        name=table.name,
                     )
                 )
 
@@ -373,7 +375,7 @@ class PowerBIExtractor(BaseExtractor):
                     title=wi_report.name,
                     url=report.webUrl,
                 ),
-                upstream=DashboardUpstream(source_datasets=[upstream_id]),
+                upstream=DashboardUpstream(source_virtual_views=[upstream_id]),
             )
             self._dashboards[wi_report.id] = dashboard
 
@@ -398,6 +400,7 @@ class PowerBIExtractor(BaseExtractor):
                         )
                     )
                 )
+            pbi_dashboard = self.client.get_dashboard(workspace_id, wi_dashboard.id)
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_dashboard.id,
@@ -407,8 +410,9 @@ class PowerBIExtractor(BaseExtractor):
                     title=wi_dashboard.displayName,
                     charts=self.transform_tiles_to_charts(tiles),
                     power_bi_dashboard_type=PowerBIDashboardType.DASHBOARD,
+                    url=pbi_dashboard.webUrl,
                 ),
-                upstream=DashboardUpstream(source_datasets=list(upstream)),
+                upstream=DashboardUpstream(source_virtual_views=list(upstream)),
             )
             self._dashboards[wi_dashboard.id] = dashboard
 

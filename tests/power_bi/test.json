@@ -1,0 +1,83 @@
+[
+  {
+    "logicalId": { "name": "dataset-100", "type": "POWER_BI_DATASET" },
+    "powerBIDataset": {
+      "name": "Foo Dataset",
+      "sourceDatasets": ["DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"],
+      "tables": [
+        {
+          "columns": [
+            { "field": "col1", "type": "string" },
+            { "field": "col2", "type": "int" }
+          ],
+          "measures": [
+            { "expression": "avg(col1)", "field": "exp1" },
+            { "expression": "max(col1)", "field": "exp2" }
+          ]
+        }
+      ],
+      "url": "https://powerbi.com/dataset-100"
+    }
+  },
+  {
+    "logicalId": { "name": "dataset-101", "type": "POWER_BI_DATASET" },
+    "powerBIDataset": {
+      "name": "Bar Dataset",
+      "sourceDatasets": [
+        "DATASET~16C07C11C73EF917CC2C728B240ABDDA",
+        "DATASET~6D79656CAC3AB97C1FC567A817F7D611"
+      ],
+      "tables": [
+        {
+          "columns": [
+            { "field": "col1", "type": "string" },
+            { "field": "col2", "type": "int" }
+          ],
+          "measures": []
+        },
+        {
+          "columns": [
+            { "field": "col1", "type": "string" },
+            { "field": "col2", "type": "int" }
+          ],
+          "measures": []
+        }
+      ],
+      "url": "https://powerbi.com/dataset-101"
+    }
+  },
+  {
+    "dashboardInfo": {
+      "description": "This is a report about foo",
+      "powerBiDashboardType": "REPORT",
+      "title": "Foo Report",
+      "url": "https://powerbi.com/report/report-1"
+    },
+    "logicalId": { "dashboardId": "report-1", "platform": "POWER_BI" },
+    "upstream": {
+      "sourceVirtualViews": ["VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3"]
+    }
+  },
+  {
+    "dashboardInfo": {
+      "description": "This is a report about bar",
+      "powerBiDashboardType": "REPORT",
+      "title": "Bar Report",
+      "url": "https://powerbi.com/report/report-2"
+    },
+    "logicalId": { "dashboardId": "report-2", "platform": "POWER_BI" },
+    "upstream": {
+      "sourceVirtualViews": ["VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"]
+    }
+  },
+  {
+    "dashboardInfo": {
+      "charts": [],
+      "powerBiDashboardType": "DASHBOARD",
+      "title": "Dashboard A",
+      "url": "https://powerbi.com/dashboard/dashboard-1"
+    },
+    "logicalId": { "dashboardId": "dashboard-1", "platform": "POWER_BI" },
+    "upstream": { "sourceVirtualViews": [] }
+  }
+]
