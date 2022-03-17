@@ -615,7 +615,7 @@ test = ["pytest (>=6.2.0)", "pytest-cov", "pytest-subtests", "pytest-xdist", "pr
 
 [[package]]
 name = "datamodel-code-generator"
-version = "0.11.19"
+version = "0.11.20"
 description = "Datamodel Code Generator"
 category = "dev"
 optional = false
@@ -1550,7 +1550,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.6.21"
+version = "0.7.0"
 description = ""
 category = "main"
 optional = false
@@ -2634,7 +2634,7 @@ tableau = ["tableauserverclient"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "5dc437f225382ad1f6a14fb09f6b072d64eff42f6e8fe507d36bb09b70c998dd"
+content-hash = "cc15b1604776b1481a96ca4008d80503b134b5f91795aed27baed5b7178f93a9"
 
 [metadata.files]
 alembic = [
@@ -2931,8 +2931,8 @@ cryptography = [
     {file = "cryptography-36.0.1.tar.gz", hash = "sha256:53e5c1dc3d7a953de055d77bef2ff607ceef7a2aac0353b5d630ab67f7423638"},
 ]
 datamodel-code-generator = [
-    {file = "datamodel-code-generator-0.11.19.tar.gz", hash = "sha256:39874c017bbedc5fc9b93c332f3f213d299c9af2995e3870aaa2db8a661098e2"},
-    {file = "datamodel_code_generator-0.11.19-py3-none-any.whl", hash = "sha256:26a62a1f99c7c8148b808e3e67e82c762cc9f7bbe036fb4c2798352460d68e38"},
+    {file = "datamodel-code-generator-0.11.20.tar.gz", hash = "sha256:aac5a5afa9a3170dbdca0fbdd3cdb5bf372d60f506c624af0699fb8d8c06c8cc"},
+    {file = "datamodel_code_generator-0.11.20-py3-none-any.whl", hash = "sha256:ee2e29cd8be3e15deb6d588f6d1b5bff785a765c72b9d2755bd8ea7affb862b7"},
 ]
 defusedxml = [
     {file = "defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61"},
@@ -3431,8 +3431,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.6.21.tar.gz", hash = "sha256:61b38f11712e5cfa02aef4998a21ea8f9058e86baf3e89a6cb030f29ec617726"},
-    {file = "metaphor_models-0.6.21-py3-none-any.whl", hash = "sha256:20c18f57d4e8fc9f4458a76cdff9d0335b69d4300854c047b8565dd243c70d50"},
+    {file = "metaphor-models-0.7.0.tar.gz", hash = "sha256:01cd2f4bcd2c29b54b7fecd24190c5d64836fb2a33b5c4c81203ab8b3a4a44a4"},
+    {file = "metaphor_models-0.7.0-py3-none-any.whl", hash = "sha256:70cb2d2453426daafc87ccbf1eb8379919a0c9e592c47f16646d3e8beecae070"},
 ]
 msal = [
     {file = "msal-1.17.0-py2.py3-none-any.whl", hash = "sha256:5a52d78e70d2c451e267c1e8c2342e4c06f495c75c859aeafd9260d3974f09fe"},
@@ -3831,6 +3831,10 @@ rsa = [
     {file = "ruamel.yaml-0.17.21.tar.gz", hash = "sha256:8b7ce697a2f212752a35c1ac414471dc16c424c9573be4926b56ff3f5d23b7af"},
 ]
 "ruamel.yaml.clib" = [
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:6e7be2c5bcb297f5b82fee9c665eb2eb7001d1050deaba8471842979293a80b0"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:221eca6f35076c6ae472a531afa1c223b9c29377e62936f61bc8e6e8bdc5f9e7"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-win32.whl", hash = "sha256:1070ba9dd7f9370d0513d649420c3b362ac2d687fe78c6e888f5b12bf8bc7bee"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-win_amd64.whl", hash = "sha256:77df077d32921ad46f34816a9a16e6356d8100374579bc35e15bab5d4e9377de"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-macosx_10_6_intel.whl", hash = "sha256:cfdb9389d888c5b74af297e51ce357b800dd844898af9d4a547ffc143fa56751"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:7b2927e92feb51d830f531de4ccb11b320255ee95e791022555971c466af4527"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-win32.whl", hash = "sha256:ada3f400d9923a190ea8b59c8f60680c4ef8a4b0dfae134d2f2ff68429adfab5"},
