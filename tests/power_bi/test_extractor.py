@@ -26,11 +26,8 @@ from tests.test_utils import load_json
 
 @pytest.mark.asyncio
 @freeze_time("2000-01-01")
-@patch("metaphor.power_bi.extractor.PowerBIClient")
-async def test_extractor(mock_client, test_root_dir):
+async def test_extractor(test_root_dir):
     mock_instance = MagicMock()
-    mock_client.return_value = mock_instance
-
     dataset1_id = "dataset-100"
     dataset2_id = "dataset-101"
     dataset1 = PowerBIDataset(
@@ -207,18 +204,18 @@ async def test_extractor(mock_client, test_root_dir):
     mock_instance.get_dashboard.side_effect = fake_get_dashboard
     mock_instance.get_tile.side_effect = fake_get_tiles
 
-    config = PowerBIRunConfig(
-        output=OutputConfig(),
-        tenant_id="fake",
-        client_id="fake_client_id",
-        secret="fake_secret",
-        workspaces=["bar"],
-    )
-    extractor = PowerBIExtractor()
+    with patch("metaphor.power_bi.extractor.PowerBIClient") as mock_client:
+        mock_client.return_value = mock_instance
 
-    events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
-    import json
+        config = PowerBIRunConfig(
+            output=OutputConfig(),
+            tenant_id="fake",
+            client_id="fake_client_id",
+            secret="fake_secret",
+            workspaces=["bar"],
+        )
+        extractor = PowerBIExtractor()
 
-    print(json.dumps(events))
+        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")
