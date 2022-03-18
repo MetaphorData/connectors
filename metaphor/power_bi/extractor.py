@@ -1,13 +1,13 @@
 import re
-from datetime import datetime
 from time import sleep
-from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
+from typing import Any, Callable, Collection, Dict, List, Type, TypeVar
 
 import requests
 
 from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import unique_list
 from metaphor.power_bi.config import PowerBIRunConfig
 
 try:
@@ -25,7 +25,18 @@ from metaphor.models.metadata_change_event import (
     DashboardUpstream,
     DataPlatform,
     EntityType,
-    PowerBIDashboardType,
+)
+from metaphor.models.metadata_change_event import PowerBIColumn as PbiColumn
+from metaphor.models.metadata_change_event import PowerBIDashboardType
+from metaphor.models.metadata_change_event import (
+    PowerBIDataset as VirtualViewPowerBIDataset,
+)
+from metaphor.models.metadata_change_event import PowerBIDatasetTable
+from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
+from metaphor.models.metadata_change_event import (
+    VirtualView,
+    VirtualViewLogicalID,
+    VirtualViewType,
 )
 from pydantic import BaseModel, parse_obj_as
 
@@ -44,16 +55,12 @@ class PowerBIDataSource(BaseModel):
 class PowerBIDataset(BaseModel):
     id: str
     name: str
-    createdDate: Optional[datetime] = None
-    configuredBy: str
-    targetStorageMode: str
     webUrl: str = ""
 
 
 class PowerBIDashboard(BaseModel):
     id: str
     displayName: str
-    appId: str = ""
     webUrl: str = ""
 
 
@@ -82,15 +89,18 @@ class PowerBITile(BaseModel):
 
 class PowerBITableColumn(BaseModel):
     name: str
-    datatype: Optional[str] = None
-    isHidden: bool
-    columnType: str
+    datatype: str = "unknown"
+
+
+class PowerBITableMeasure(BaseModel):
+    name: str
+    expression: str = ""
 
 
 class PowerBITable(BaseModel):
     name: str
     columns: List[PowerBITableColumn]
-    measures: List[Any]
+    measures: List[PowerBITableMeasure]
     source: List[Any]
 
 
@@ -169,6 +179,10 @@ class PowerBIClient:
     def get_dataset(self, group_id: str, dataset_id: str) -> PowerBIDataset:
         url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}"
         return self._call_get(url, PowerBIDataset)
+
+    def get_dashboard(self, group_id: str, dashboard_id: str) -> PowerBIDashboard:
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/dashboards/{dashboard_id}"
+        return self._call_get(url, PowerBIDashboard)
 
     def get_report(self, group_id: str, report_id: str) -> PowerBIReport:
         url = f"{self.API_ENDPOINT}/groups/{group_id}/reports/{report_id}"
@@ -261,6 +275,7 @@ class PowerBIExtractor(BaseExtractor):
 
     def __init__(self):
         self._dashboards: Dict[str, Dashboard] = {}
+        self._virtual_views: Dict[str, VirtualView] = {}
 
     async def extract(self, config: PowerBIRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, PowerBIExtractor.config_class())
@@ -275,18 +290,37 @@ class PowerBIExtractor(BaseExtractor):
             logger.info(f"Fetching metadata from Power BI workspace ID: {workspace_id}")
 
             info = self.client.get_workspace_info(workspace_id)
-            self.map_wi_datasets_to_dashboard(workspace_id, info.datasets)
+            self.map_wi_datasets_to_virtual_views(workspace_id, info.datasets)
             self.map_wi_reports_to_dashboard(workspace_id, info.reports)
             self.map_wi_dashboards_to_dashboard(workspace_id, info.dashboards)
 
-        return self._dashboards.values()
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(self._virtual_views.values())
+        entities.extend(self._dashboards.values())
 
-    def map_wi_datasets_to_dashboard(
+        return entities
+
+    def map_wi_datasets_to_virtual_views(
         self, workspace_id: str, wi_datasets: List[WorkspaceInfoDataset]
     ) -> None:
         for wds in wi_datasets:
-            source_datasets = set()
+            source_datasets = []
+            tables = []
             for table in wds.tables:
+                tables.append(
+                    PowerBIDatasetTable(
+                        columns=[
+                            PbiColumn(field=c.name, type=c.datatype)
+                            for c in table.columns
+                        ],
+                        measures=[
+                            PbiMeasure(field=m.name, expression=m.expression)
+                            for m in table.measures
+                        ],
+                        name=table.name,
+                    )
+                )
+
                 for source in table.source:
                     power_query_text = source["expression"]
 
@@ -299,28 +333,26 @@ class PowerBIExtractor(BaseExtractor):
                         entity_id = str(
                             PowerBIExtractor.parse_power_query(power_query_text)
                         )
-                        source_datasets.add(entity_id)
+                        source_datasets.append(entity_id)
                     except AssertionError:
                         logger.warning(
                             f"Parsing upstream fail, exp: {power_query_text}"
                         )
             ds = self.client.get_dataset(workspace_id, wds.id)
 
-            dashboard = Dashboard(
-                logical_id=DashboardLogicalID(
-                    dashboard_id=wds.id, platform=DashboardPlatform.POWER_BI
+            virtual_view = VirtualView(
+                logical_id=VirtualViewLogicalID(
+                    name=wds.id, type=VirtualViewType.POWER_BI_DATASET
                 ),
-                dashboard_info=DashboardInfo(
-                    created_at=ds.createdDate,
-                    description=wds.description,
-                    power_bi_dashboard_type=PowerBIDashboardType.DATASET,
-                    title=wds.name,
+                power_bi_dataset=VirtualViewPowerBIDataset(
+                    tables=tables,
+                    name=wds.name,
                     url=ds.webUrl,
+                    source_datasets=unique_list(source_datasets),
                 ),
-                upstream=DashboardUpstream(source_datasets=list(source_datasets)),
             )
 
-            self._dashboards[wds.id] = dashboard
+            self._virtual_views[wds.id] = virtual_view
 
     def map_wi_reports_to_dashboard(
         self, workspace_id: str, wi_reports: List[WorkspaceInfoReport]
@@ -328,8 +360,8 @@ class PowerBIExtractor(BaseExtractor):
         for wi_report in wi_reports:
             upstream_id = str(
                 EntityId(
-                    EntityType.DASHBOARD,
-                    self._dashboards[wi_report.datasetId].logical_id,
+                    EntityType.VIRTUAL_VIEW,
+                    self._virtual_views[wi_report.datasetId].logical_id,
                 )
             )
             report = self.client.get_report(workspace_id, wi_report.id)
@@ -344,7 +376,7 @@ class PowerBIExtractor(BaseExtractor):
                     title=wi_report.name,
                     url=report.webUrl,
                 ),
-                upstream=DashboardUpstream(source_datasets=[upstream_id]),
+                upstream=DashboardUpstream(source_virtual_views=[upstream_id]),
             )
             self._dashboards[wi_report.id] = dashboard
 
@@ -353,16 +385,23 @@ class PowerBIExtractor(BaseExtractor):
     ) -> None:
         for wi_dashboard in wi_dashboards:
             tiles = self.client.get_tiles(workspace_id, wi_dashboard.id)
-            upstream = set()
+            upstream = []
             for tile in tiles:
-                upstream.add(
+                dataset_id = tile.datasetId
+
+                # skip tile not depends on a dataset
+                if dataset_id == "":
+                    continue
+
+                upstream.append(
                     str(
                         EntityId(
-                            EntityType.DASHBOARD,
-                            self._dashboards[tile.reportId].logical_id,
+                            EntityType.VIRTUAL_VIEW,
+                            self._virtual_views[dataset_id].logical_id,
                         )
                     )
                 )
+            pbi_dashboard = self.client.get_dashboard(workspace_id, wi_dashboard.id)
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_dashboard.id,
@@ -372,8 +411,9 @@ class PowerBIExtractor(BaseExtractor):
                     title=wi_dashboard.displayName,
                     charts=self.transform_tiles_to_charts(tiles),
                     power_bi_dashboard_type=PowerBIDashboardType.DASHBOARD,
+                    url=pbi_dashboard.webUrl,
                 ),
-                upstream=DashboardUpstream(source_datasets=list(upstream)),
+                upstream=DashboardUpstream(source_virtual_views=unique_list(upstream)),
             )
             self._dashboards[wi_dashboard.id] = dashboard
 
