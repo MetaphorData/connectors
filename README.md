@@ -43,6 +43,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [metaphor.bigquery](metaphor/bigquery/README.md)                      | Schema, description, statistics          |
 | [metaphor.bigquery.lineage](metaphor/bigquery/lineage/README.md)      | Lineage                                  |
 | [metaphor.bigquery.profile](metaphor/bigquery/profile/README.md)      | Data profile                             |
+| [metaphor.bigquery.query](metaphor/bigquery/query/README.md)          | Queries                                  |
 | [metaphor.bigquery.usage](metaphor/bigquery/usage/README.md)          | Data usage                               |
 | [metaphor.dbt](metaphor/dbt/README.md)                                | dbt model, test, lineage                 |
 | [metaphor.google_directory](metaphor/google_directory/README.md)      | User profile                             |
