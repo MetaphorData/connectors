@@ -10,7 +10,8 @@ def test_yaml_config(test_root_dir):
     assert config == BigQueryUsageRunConfig(
         key_path="key_path",
         project_id="project_id",
-        lookback_days=365,
+        use_history=False,
+        lookback_days=10,
         batch_size=1000,
         output=OutputConfig(),
     )

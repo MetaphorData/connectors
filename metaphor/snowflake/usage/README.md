@@ -15,6 +15,9 @@ grant imported privileges on database snowflake to role metaphor_role;
 The config file inherits all the required and optional fields from the general Snowflake connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
 ```yaml
+# (Optional) whether to do day-by-day log parsing and keep the metadata history, or fetch log for <lookback_days> and not keep history, default to True. 
+use_history: bool = True
+
 # (Optional) Number of days to include in the usage analysis. Default to 30.
 lookback_days: <days>
 

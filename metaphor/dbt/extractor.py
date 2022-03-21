@@ -1,7 +1,12 @@
 import json
 from typing import Collection, Dict, List, Optional, Union
 
-from metaphor.models.metadata_change_event import DataPlatform, Dataset, VirtualView
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    Metric,
+    VirtualView,
+)
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
@@ -34,6 +39,7 @@ class DbtExtractor(BaseExtractor):
         self._catalog: Optional[DbtCatalog] = None
         self._datasets: Dict[str, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
+        self._metrics: Dict[str, Metric] = {}
 
     async def extract(self, config: DbtRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, DbtExtractor.config_class())
@@ -76,6 +82,7 @@ class DbtExtractor(BaseExtractor):
                 self.project_source_url,
                 self._datasets,
                 self._virtual_views,
+                self._metrics,
             )
         else:
             raise ValueError(f"unsupported manifest schema '{schema_version}'")
@@ -98,4 +105,5 @@ class DbtExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
         entities.extend(self._virtual_views.values())
+        entities.extend(self._metrics.values())
         return entities

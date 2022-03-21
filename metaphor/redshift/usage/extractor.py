@@ -10,6 +10,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
+from metaphor.common.utils import start_of_day
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.usage.config import RedshiftUsageRunConfig
 
@@ -83,7 +84,7 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
 
     def __init__(self):
         super().__init__()
-        self._utc_now = datetime.now().replace(tzinfo=timezone.utc)
+        self._utc_now = start_of_day()
         self._datasets: Dict[str, Dataset] = {}
         self._excluded_usernames: Set[str] = set()
 
@@ -95,9 +96,10 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
         filter = DatasetFilter.normalize(config.filter)
 
         async for record in self._fetch_usage(config):
-            self._process_record(record, filter)
+            self._process_record(record, filter, config.use_history)
 
-        UsageUtil.calculate_statistics(self._datasets.values())
+        if not config.use_history:
+            UsageUtil.calculate_statistics(self._datasets.values())
 
         return self._datasets.values()
 
@@ -106,9 +108,10 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
     ) -> AsyncIterator[Record]:
         conn = await PostgreSQLExtractor._connect_database(config, config.database)
 
-        end_time = self._utc_now
-        start = (end_time - timedelta(days=30)).isoformat()
-        end = end_time.isoformat()
+        lookback_days = 1 if config.use_history else config.lookback_days
+        start = (self._utc_now - timedelta(lookback_days)).isoformat()
+        end = self._utc_now.isoformat()
+
         results = await conn.fetch(
             REDSHIFT_USAGE_SQL_TEMPLATE.format(start_time=start, end_time=end)
         )
@@ -118,7 +121,7 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
 
         await conn.close()
 
-    def _process_record(self, record: Record, filter: DatasetFilter):
+    def _process_record(self, record: Record, filter: DatasetFilter, use_history: bool):
         access_event = AccessEvent.from_record(record)
 
         if not filter.include_table(
@@ -132,13 +135,17 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
         table_name = access_event.table_name()
         if table_name not in self._datasets:
             self._datasets[table_name] = UsageUtil.init_dataset(
-                None, table_name, DataPlatform.REDSHIFT
+                None, table_name, DataPlatform.REDSHIFT, use_history, self._utc_now
             )
 
-        usage = self._datasets[table_name].usage
-        UsageUtil.update_table_and_columns_usage(
-            usage=usage,
-            columns=[],
-            start_time=access_event.starttime,
-            utc_now=self._utc_now,
-        )
+        if use_history:
+            UsageUtil.update_table_and_columns_usage_history(
+                self._datasets[table_name].usage_history, []
+            )
+        else:
+            UsageUtil.update_table_and_columns_usage(
+                usage=self._datasets[table_name].usage,
+                columns=[],
+                start_time=access_event.starttime,
+                utc_now=self._utc_now,
+            )

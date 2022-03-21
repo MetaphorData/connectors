@@ -12,6 +12,7 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DashboardUpstream,
     DataPlatform,
+    SourceInfo,
 )
 from sql_metadata import Parser
 
@@ -149,7 +150,7 @@ class MetabaseExtractor(BaseExtractor):
         logger.info(
             f"\nFound {len(resp_json)} {asset_type}s: {[d['name'] for d in resp_json]}"
         )
-        logger.info(json.dumps(resp_json))
+        logger.debug(json.dumps(resp_json))
 
         return resp_json
 
@@ -158,7 +159,7 @@ class MetabaseExtractor(BaseExtractor):
         resp.raise_for_status()
         resp_json = resp.json()
 
-        logger.info(json.dumps(resp_json))
+        logger.debug(json.dumps(resp_json))
         return resp_json
 
     def _parse_database(self, database: Dict) -> None:
@@ -208,6 +209,10 @@ class MetabaseExtractor(BaseExtractor):
             url=f"{self._server_url}/dashboard/{dashboard_id}",
         )
 
+        source_info = SourceInfo(
+            main_url=dashboard_info.url,
+        )
+
         dashboard_upstream = (
             DashboardUpstream(source_datasets=list(upstream_datasets))
             if upstream_datasets
@@ -219,6 +224,7 @@ class MetabaseExtractor(BaseExtractor):
                 dashboard_id=str(dashboard_id), platform=DashboardPlatform.METABASE
             ),
             dashboard_info=dashboard_info,
+            source_info=source_info,
             upstream=dashboard_upstream,
         )
 

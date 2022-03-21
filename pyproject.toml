@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.10.50"
+version = "0.10.67"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -10,7 +10,7 @@ packages = [
 
 [tool.poetry.dependencies]
 asyncpg = { version = "^0.25.0", optional = true }
-aws-assume-role-lib = "^1.3.0"
+aws-assume-role-lib = "^2.9.0"
 boto3 = "^1.20.45"
 botocore = "^1.23.45"
 canonicaljson = "^1.4.0"
@@ -21,12 +21,13 @@ google-cloud-bigquery = { version = "^2.21.0", optional = true }
 google-cloud-logging = { version = "^2.7.0", optional = true }
 lkml = { version = "^1.1.0", optional = true }
 looker-sdk = { version = "^21.4.1", optional = true }
-metaphor-models = "^0.6.15"
+metaphor-models = "^0.7.1"
+msal = { version = "^1.17.0", optional = true }
 pydantic = "^1.9.0"
 python = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
 python-dateutil = "^2.8.1"
 PyYAML = "^6.0"
-requests = "^2.25.1"
+requests = "^2.27.1"
 slack-sdk = { version = "^3.5.1", optional = true }
 smart-open = "^5.0.0"
 snowflake-connector-python = { version = "~=2.7.0", optional = true }
@@ -42,6 +43,7 @@ all = [
   "google-cloud-logging",
   "lkml",
   "looker-sdk",
+  "msal",
   "pyserde",
   "slack-sdk",
   "snowflake-connector-python",
@@ -58,8 +60,10 @@ redshift = ["asyncpg"]
 slack_directory = ["slack-sdk"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 tableau = ["tableauserverclient"]
+power_bi = ["msal"]
 
 [tool.poetry.dev-dependencies]
+apache-airflow = "^2.0.2"
 bandit = "^1.7.2"
 black = "^22.1"
 datamodel-code-generator = { extras = ["http"], version = "^0.11.14" }
@@ -69,6 +73,8 @@ isort = "^5.8.0"
 mypy = "^0.931"
 pytest = "^6.2.2"
 pytest-asyncio = "^0.18.0"
+pytest-cov = "^3.0.0"
+types-attrs = "^19.1.0"
 types-freezegun = "^0.1.4"
 types-pytz = "^2021.3.4"
 types-PyYAML = "^6.0.4"
@@ -99,4 +105,4 @@ plugins = ["pydantic.mypy"]
 
 [tool.bandit]
 exclude_dirs = ["venv"]
-skips = ['B101', 'B608']
+skips = ['B101', 'B106', 'B608']

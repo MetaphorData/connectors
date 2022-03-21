@@ -8,6 +8,10 @@ from metaphor.bigquery.config import BigQueryRunConfig
 
 @dataclass
 class BigQueryUsageRunConfig(BigQueryRunConfig):
+    # whether to write to dataset usage history or dataset usage aspect
+    use_history: bool = True
+
+    # the number of days' logs to fetch if use_history = False, otherwise, it's locked to 1 day
     lookback_days: int = 30
 
     batch_size: int = 1000

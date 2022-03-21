@@ -1,5 +1,6 @@
 ---
 key_path: key_path
 project_id: project_id
-lookback_days: 365
+use_history: false
+lookback_days: 10
 output: {}

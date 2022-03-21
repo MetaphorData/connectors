@@ -13,6 +13,7 @@ from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import unique_list
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.lineage.config import RedshiftLineageRunConfig
 
@@ -151,7 +152,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             dataset = self._init_dataset(target_table_name)
             sources, query = upstream_map[target_table_name]
             dataset.upstream = DatasetUpstream(
-                source_datasets=list(dict.fromkeys(sources)), transformation=query
+                source_datasets=unique_list(sources), transformation=query
             )
 
     def _init_dataset(self, table_name: str) -> Dataset:

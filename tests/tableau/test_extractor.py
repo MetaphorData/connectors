@@ -5,6 +5,7 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DashboardUpstream,
     DataPlatform,
+    SourceInfo,
 )
 from tableauserverclient import WorkbookItem
 
@@ -79,6 +80,9 @@ def test_parse_dashboard():
             title="project1.wb",
             url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
             view_count=0.0,
+        ),
+        source_info=SourceInfo(
+            main_url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
         ),
     )
 
