@@ -9,8 +9,8 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.extractor import BaseExtractor
-from metaphor.common.list_util import unique_list
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import unique_list
 
 from .config import ManualLienageConfig
 

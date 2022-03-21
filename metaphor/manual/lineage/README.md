@@ -20,6 +20,7 @@ lineages:
     upstreams:
       - platform: <dataset_platform>
         name: <dataset_name>
+        account: <snowflake_account> # only for Snowflake
       ...
   ...
 output:
@@ -43,8 +44,9 @@ lineages:
     upstreams:
       - platform: BIGQUERY
         name: project.db.table2
-      - platform: BIGQUERY
-        name: project.db.table3
+      - platform: SNOWFLAKE
+        name: db.schema.table3
+        account: snowflake_account
 output:
   file:
     directory: /output
