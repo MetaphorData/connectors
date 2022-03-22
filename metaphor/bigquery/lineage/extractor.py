@@ -1,5 +1,4 @@
 import logging
-import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Collection, Dict, List, Optional
@@ -138,7 +137,6 @@ class BigQueryLineageExtractor(BaseExtractor):
     def __init__(self):
         self._utc_now = datetime.now().replace(tzinfo=timezone.utc)
         self._datasets: Dict[str, Dataset] = {}
-        self._datasets_pattern: List[re.Pattern[str]] = []
         self._dataset_filter: DatasetFilter = DatasetFilter()
 
     async def extract(
@@ -280,12 +278,14 @@ class BigQueryLineageExtractor(BaseExtractor):
         start = (end_time - timedelta(days=config.lookback_days)).isoformat()
         end = end_time.isoformat()
 
+        # See https://cloud.google.com/logging/docs/view/logging-query-language for query syntax
         return f"""
         resource.type="bigquery_project" AND
         protoPayload.serviceName="bigquery.googleapis.com" AND
         protoPayload.metadata.jobChange.after="DONE" AND
         NOT protoPayload.metadata.jobChange.job.jobStatus.errorResult.code:* AND
         protoPayload.metadata.jobChange.job.jobConfig.type=("COPY" OR "QUERY") AND
+        NOT protoPayload.metadata.jobChange.job.jobConfig.queryConfig.destinationTable:"/datasets/_" AND
         timestamp >= "{start}" AND
         timestamp < "{end}"
         """
