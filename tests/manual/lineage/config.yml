@@ -1,0 +1,12 @@
+---
+lineages:
+  - dataset:
+      name: foo
+      platform: BIGQUERY
+    upstreams:
+      - name: foo
+        platform: BIGQUERY
+      - name: bar
+        platform: SNOWFLAKE
+        account: account
+output: {}
