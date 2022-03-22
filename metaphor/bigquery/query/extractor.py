@@ -1,6 +1,5 @@
 import json
 import logging
-import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from hashlib import sha256
@@ -99,7 +98,6 @@ class BigQueryQueryExtractor(BaseExtractor):
     def __init__(self):
         self._utc_now = start_of_day()
         self._datasets: Dict[str, Dataset] = {}
-        self._datasets_pattern: List[re.Pattern[str]] = []
         self._dataset_filter: DatasetFilter = DatasetFilter()
         self._max_queries_per_table = 0
         self._excluded_usernames: Set[str] = set()
