@@ -1,0 +1,47 @@
+[
+  {
+    "logicalId": {
+      "name": "metaphor-data.test.yi_tests2",
+      "platform": "BIGQUERY"
+    },
+    "queryHistory": {
+      "recentQueries": [
+        {
+          "issuedAt": "2022-03-04T23:40:56.595154+00:00",
+          "issuedBy": "mars@metaphor.io",
+          "query": "select * from `metaphor-data.test.yi_tests2`"
+        }
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "metaphor-data.test.yi_test3",
+      "platform": "BIGQUERY"
+    },
+    "queryHistory": {
+      "recentQueries": [
+        {
+          "issuedAt": "2022-03-07T10:29:01.625893+00:00",
+          "issuedBy": "scott@metaphor.io",
+          "query": "select `id`,\r\n    `name`\r\nfrom `metaphor-data`.`test`.`yi_test_view1`\r\nLIMIT 200 OFFSET 0"
+        }
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "metaphor-data.test.yi_test_view1",
+      "platform": "BIGQUERY"
+    },
+    "queryHistory": {
+      "recentQueries": [
+        {
+          "issuedAt": "2022-03-07T10:29:01.625893+00:00",
+          "issuedBy": "scott@metaphor.io",
+          "query": "select `id`,\r\n    `name`\r\nfrom `metaphor-data`.`test`.`yi_test_view1`\r\nLIMIT 200 OFFSET 0"
+        }
+      ]
+    }
+  }
+]
