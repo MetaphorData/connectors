@@ -86,7 +86,6 @@ def async_execute(
 
             if results_processor is None:
                 results_map[key] = results
-                print(f"result for {key}")
             else:
                 results_processor(key, results)
 
