@@ -10,7 +10,10 @@ from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.extractor import SnowflakeExtractor
-from metaphor.snowflake.profile.config import SnowflakeProfileRunConfig
+from metaphor.snowflake.profile.config import (
+    ColumnStatistics,
+    SnowflakeProfileRunConfig,
+)
 from metaphor.snowflake.utils import (
     DatasetInfo,
     QueryWithParam,
@@ -51,6 +54,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
         self.max_concurrency = None
         self.include_views = None
         self._datasets: Dict[str, Dataset] = {}
+        self._column_statistics = None
         self._sampling = None
 
     async def extract(
@@ -61,6 +65,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
         logger.info("Fetching data profile from Snowflake")
         self.max_concurrency = config.max_concurrency
         self.include_views = config.include_views
+        self._column_statistics = config.column_statistics
         self._sampling = config.sampling
 
         conn = connect(config)
@@ -123,38 +128,46 @@ class SnowflakeProfileExtractor(BaseExtractor):
         return tables
 
     FETCH_COLUMNS_QUERY = """
-        SELECT column_name, data_type, is_nullable
+        SELECT table_catalog, table_schema, table_name, column_name, data_type
         FROM information_schema.columns
-        WHERE table_schema = %s AND table_name = %s
         ORDER BY ordinal_position
         """
 
     def _fetch_columns_async(
         self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
     ) -> None:
-        queries = {
-            fullname: QueryWithParam(
-                self.FETCH_COLUMNS_QUERY, (dataset.schema, dataset.name)
-            )
-            for fullname, dataset in tables.items()
-        }
-        results = async_execute(conn, queries, "fetch_columns", self.max_concurrency)
 
-        column_info_map = {}
+        # Create a map of full_name => [column_info] from information_schema.columns
+        cursor = conn.cursor()
+        cursor.execute(self.FETCH_COLUMNS_QUERY)
+        column_info_map: Dict[str, List[Tuple[str, str]]] = {}
+        for row in cursor:
+            (
+                table_catalog,
+                table_schema,
+                table_name,
+                column_name,
+                data_type,
+            ) = row
+            full_name = dataset_fullname(table_catalog, table_schema, table_name)
+            if full_name not in tables:
+                continue
+
+            column_info_map.setdefault(full_name, []).append((column_name, data_type))
+
+        # Build profile query for each table
         profile_queries = {}
-        for full_name, columns in results.items():
-            dataset = tables[full_name]
-            column_info = [
-                (name, data_type, nullable == "YES")
-                for name, data_type, nullable in columns
-            ]
-            column_info_map[full_name] = column_info
+        for full_name, column_info in column_info_map.items():
+            dataset_info = tables.get(full_name)
+            assert dataset_info is not None
+
             profile_queries[full_name] = QueryWithParam(
                 SnowflakeProfileExtractor._build_profiling_query(
                     column_info,
-                    dataset.schema,
-                    dataset.name,
-                    dataset.row_count,
+                    dataset_info.schema,
+                    dataset_info.name,
+                    dataset_info.row_count,
+                    self._column_statistics,
                     self._sampling,
                 )
             )
@@ -167,34 +180,39 @@ class SnowflakeProfileExtractor(BaseExtractor):
             dataset = self._datasets[full_name]
 
             SnowflakeProfileExtractor._parse_profiling_result(
-                column_info_map[full_name], profile[0], dataset
+                column_info_map[full_name], profile[0], dataset, self._column_statistics
             )
 
     @staticmethod
     def _build_profiling_query(
-        columns: List[Tuple[str, str, bool]],
+        columns: List[Tuple[str, str]],
         schema: str,
         name: str,
         row_count: int,
+        column_statistics: ColumnStatistics,
         sampling: SamplingConfig,
     ) -> str:
-        query = ["SELECT COUNT(1) ROW_COUNT"]
+        query = ["SELECT COUNT(1)"]
 
-        for column, data_type, nullable in columns:
-            if not SnowflakeProfileExtractor._is_complex(data_type):
+        for column, data_type in columns:
+            if (
+                column_statistics.unique_count
+                and not SnowflakeProfileExtractor._is_complex(data_type)
+            ):
                 query.append(f', COUNT(DISTINCT "{column}")')
 
-            if nullable:
-                query.append(f', COUNT_IF("{column}" is NULL)')
+            if column_statistics.null_count:
+                query.append(f', COUNT(1) - COUNT("{column}")')
 
             if SnowflakeProfileExtractor._is_numeric(data_type):
-                query.extend(
-                    [
-                        f', MIN("{column}")',
-                        f', MAX("{column}")',
-                        f', AVG("{column}")',
-                    ]
-                )
+                if column_statistics.min_value:
+                    query.append(f', MIN("{column}")')
+                if column_statistics.max_value:
+                    query.append(f', MAX("{column}")')
+                if column_statistics.avg_value:
+                    query.append(f', AVG("{column}")')
+                if column_statistics.std_dev:
+                    query.append(f', STDDEV(CAST("{column}" as DOUBLE))')
 
         query.append(f' FROM "{schema}"."{name}"')
 
@@ -205,7 +223,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     @staticmethod
     def _parse_profiling_result(
-        columns: List[Tuple[str, str, bool]], results: Tuple, dataset: Dataset
+        columns: List[Tuple[str, str]],
+        results: Tuple,
+        dataset: Dataset,
+        column_statistics: ColumnStatistics,
     ) -> None:
         assert (
             dataset.field_statistics is not None
@@ -213,45 +234,65 @@ class SnowflakeProfileExtractor(BaseExtractor):
         )
         fields = dataset.field_statistics.field_statistics
 
-        assert len(results) > 1
+        assert len(results) > 0, f"Empty result for ${dataset.logical_id}"
         row_count = int(results[0])
 
         index = 1
-        for column, data_type, nullable in columns:
-            unique_values = None
-            if not SnowflakeProfileExtractor._is_complex(data_type):
-                unique_values = float(results[index])
+        for column, data_type in columns:
+
+            unique_count = None
+            if (
+                column_statistics.unique_count
+                and not SnowflakeProfileExtractor._is_complex(data_type)
+            ):
+                unique_count = float(results[index])
                 index += 1
 
-            if nullable:
-                nulls = float(results[index]) if results[index] else 0.0
+            nulls, non_nulls = None, None
+            if column_statistics.null_count:
+                nulls = float(results[index])
+                non_nulls = row_count - nulls
                 index += 1
-            else:
-                nulls = 0.0
 
+            min_value, max_value, avg, std_dev = None, None, None, None
             if SnowflakeProfileExtractor._is_numeric(data_type):
-                min_value = float(results[index]) if results[index] else None
-                index += 1
-                max_value = float(results[index]) if results[index] else None
-                index += 1
-                avg = float(results[index]) if results[index] else None
-                index += 1
-            else:
-                min_value, max_value, avg = None, None, None
+                if column_statistics.min_value:
+                    min_value = (
+                        None if results[index] is None else float(results[index])
+                    )
+                    index += 1
+
+                if column_statistics.max_value:
+                    max_value = (
+                        None if results[index] is None else float(results[index])
+                    )
+                    index += 1
+
+                if column_statistics.avg_value:
+                    avg = None if results[index] is None else float(results[index])
+                    index += 1
+
+                if column_statistics.std_dev:
+                    std_dev = None if results[index] is None else float(results[index])
+                    index += 1
 
             fields.append(
                 FieldStatistics(
                     field_path=column,
-                    distinct_value_count=unique_values,
+                    distinct_value_count=unique_count,
                     null_value_count=nulls,
-                    nonnull_value_count=(row_count - nulls),
+                    nonnull_value_count=non_nulls,
                     min_value=min_value,
                     max_value=max_value,
                     average=avg,
+                    std_dev=std_dev,
                 )
             )
 
-        assert index == len(results)
+        # Verify that we've consumed all the elements from results
+        assert index == len(
+            results
+        ), f"Unconsumed elements from results for {dataset.logical_id}"
 
     @staticmethod
     def _is_numeric(data_type: str) -> bool:
