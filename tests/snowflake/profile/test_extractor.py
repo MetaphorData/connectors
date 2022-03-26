@@ -8,27 +8,40 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.sampling import SamplingConfig
+from metaphor.snowflake.profile.config import ColumnStatistics
 from metaphor.snowflake.profile.extractor import SnowflakeProfileExtractor
+
+
+def column_statistics_config():
+    return ColumnStatistics(
+        null_count=True,
+        unique_count=True,
+        min_value=True,
+        max_value=True,
+        avg_value=True,
+        std_dev=True,
+    )
 
 
 def test_build_profiling_query():
     columns = [
-        ("id", "STRING", False),
-        ("price", "FLOAT", True),
-        ("year", "NUMBER", True),
+        ("id", "STRING"),
+        ("price", "FLOAT"),
+        ("year", "NUMBER"),
     ]
     schema, name = "schema", "table"
 
     expected = (
-        'SELECT COUNT(1) ROW_COUNT, COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-        'COUNT_IF("price" is NULL), MIN("price"), MAX("price"), AVG("price"), '
-        'COUNT(DISTINCT "year"), COUNT_IF("year" is NULL), MIN("year"), MAX("year"), AVG("year") '
+        "SELECT COUNT(1), "
+        'COUNT(DISTINCT "id"), COUNT(1) - COUNT("id"), '
+        'COUNT(DISTINCT "price"), COUNT(1) - COUNT("price"), MIN("price"), MAX("price"), AVG("price"), STDDEV(CAST("price" as DOUBLE)), '
+        'COUNT(DISTINCT "year"), COUNT(1) - COUNT("year"), MIN("year"), MAX("year"), AVG("year"), STDDEV(CAST("year" as DOUBLE)) '
         'FROM "schema"."table"'
     )
 
     assert (
         SnowflakeProfileExtractor._build_profiling_query(
-            columns, schema, name, 0, SamplingConfig()
+            columns, schema, name, 0, column_statistics_config(), SamplingConfig()
         )
         == expected
     )
@@ -36,14 +49,15 @@ def test_build_profiling_query():
 
 def test_build_profiling_query_with_sampling():
     columns = [
-        ("id", "STRING", False),
-        ("price", "FLOAT", True),
+        ("id", "STRING"),
+        ("price", "FLOAT"),
     ]
     schema, name = "schema", "table"
 
     expected = (
-        'SELECT COUNT(1) ROW_COUNT, COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-        'COUNT_IF("price" is NULL), MIN("price"), MAX("price"), AVG("price") '
+        "SELECT COUNT(1), "
+        'COUNT(DISTINCT "id"), COUNT(1) - COUNT("id"), '
+        'COUNT(DISTINCT "price"), COUNT(1) - COUNT("price"), MIN("price"), MAX("price"), AVG("price"), STDDEV(CAST("price" as DOUBLE)) '
         'FROM "schema"."table" SAMPLE SYSTEM (1)'
     )
 
@@ -53,6 +67,7 @@ def test_build_profiling_query_with_sampling():
             schema,
             name,
             100000000,
+            column_statistics_config(),
             SamplingConfig(percentage=1, threshold=100000000),
         )
         == expected
@@ -61,42 +76,66 @@ def test_build_profiling_query_with_sampling():
 
 def test_parse_profiling_result():
     columns = [
-        ("id", "STRING", False),
-        ("price", "FLOAT", True),
-        ("year", "NUMBER", True),
+        ("id", "STRING"),
+        ("price", "FLOAT"),
+        ("year", "NUMBER"),
     ]
-    results = (5, 5, 4, 0, 3, 8, 5, 2, 1, 2000, 2020, 2015)
+    results = (
+        # row count
+        10,
+        # id
+        1,
+        2,
+        # price
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        # year
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+    )
     dataset = SnowflakeProfileExtractor._init_dataset(account="a", full_name="foo")
 
-    SnowflakeProfileExtractor._parse_profiling_result(columns, results, dataset)
+    SnowflakeProfileExtractor._parse_profiling_result(
+        columns, results, dataset, column_statistics_config()
+    )
 
     assert dataset == Dataset(
         entity_type=EntityType.DATASET,
         field_statistics=DatasetFieldStatistics(
             field_statistics=[
                 FieldStatistics(
-                    distinct_value_count=5.0,
+                    distinct_value_count=1.0,
                     field_path="id",
-                    nonnull_value_count=5.0,
-                    null_value_count=0.0,
+                    nonnull_value_count=8.0,
+                    null_value_count=2.0,
                 ),
                 FieldStatistics(
-                    average=5.0,
-                    distinct_value_count=4.0,
+                    average=7.0,
+                    distinct_value_count=3.0,
                     field_path="price",
-                    max_value=8.0,
-                    min_value=3.0,
-                    nonnull_value_count=5.0,
-                    null_value_count=0.0,
+                    max_value=6.0,
+                    min_value=5.0,
+                    nonnull_value_count=6.0,
+                    null_value_count=4.0,
+                    std_dev=8.0,
                 ),
                 FieldStatistics(
-                    average=2015.0,
-                    distinct_value_count=2.0,
+                    average=13.0,
+                    distinct_value_count=9.0,
                     field_path="year",
-                    max_value=2020.0,
-                    min_value=2000.0,
-                    nonnull_value_count=4.0,
-                    null_value_count=1.0,
+                    max_value=12.0,
+                    min_value=11.0,
+                    nonnull_value_count=0.0,
+                    null_value_count=10.0,
+                    std_dev=14.0,
                 ),
             ]
         ),

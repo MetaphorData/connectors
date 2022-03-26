@@ -3,6 +3,13 @@ account: account
 user: user
 password: password
 default_database: database
+column_statistics:
+  null_count: true
+  unique_count: true
+  min_value: true
+  max_value: true
+  avg_value: true
+  std_dev: true
 filter:
   includes:
     foo:
