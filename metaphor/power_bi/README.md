@@ -9,8 +9,8 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 1. Follow [Microsoft doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal) to create an app and a security group. Add the app's [service principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals#service-principal-object) to the security group.
 
 2. Log into PowerBI as Admin and enable the following setting. We recommend to enable these permission to the security group which service principal belong to. See [Enable service principal authentication for read-only admin APIs](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication) for more details.
-    - Allow service principles to use Power BI APIs
-    - Allow service principals to use read-only Power BI admin APIs
+    - Allow the service principal to use Power BI APIs
+    - Allow the service principal to use read-only Power BI admin APIs
     - Enhance admin APIs responses with detailed metadata
 
 3. Add security group or service principal to all workspaces of interest. See: [Add the service principal to your workspace](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-4---add-the-service-principal-to-your-workspace)
