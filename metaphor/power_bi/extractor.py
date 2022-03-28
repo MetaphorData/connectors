@@ -286,13 +286,18 @@ class PowerBIExtractor(BaseExtractor):
         if len(config.workspaces) == 0:
             config.workspaces = [w.id for w in self.client.get_groups()]
 
+        logger.info(f"Process {len(config.workspaces)} workspaces: {config.workspaces}")
+
         for workspace_id in config.workspaces:
             logger.info(f"Fetching metadata from Power BI workspace ID: {workspace_id}")
 
-            info = self.client.get_workspace_info(workspace_id)
-            self.map_wi_datasets_to_virtual_views(workspace_id, info.datasets)
-            self.map_wi_reports_to_dashboard(workspace_id, info.reports)
-            self.map_wi_dashboards_to_dashboard(workspace_id, info.dashboards)
+            try:
+                info = self.client.get_workspace_info(workspace_id)
+                self.map_wi_datasets_to_virtual_views(workspace_id, info.datasets)
+                self.map_wi_reports_to_dashboard(workspace_id, info.reports)
+                self.map_wi_dashboards_to_dashboard(workspace_id, info.dashboards)
+            except Exception as e:
+                logger.exception(e)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._virtual_views.values())
