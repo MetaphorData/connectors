@@ -94,16 +94,19 @@ class SnowflakeUsageExtractor(BaseExtractor):
             queries = {
                 x: QueryWithParam(
                     f"""
-                    SELECT q.QUERY_ID, START_TIME, DIRECT_OBJECTS_ACCESSED
+                    SELECT START_TIME, DIRECT_OBJECTS_ACCESSED
                     FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                     JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                       ON a.QUERY_ID = q.QUERY_ID
-                    WHERE EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
+                    WHERE EXECUTION_STATUS = 'SUCCESS'
+                      AND START_TIME > %s
+                      AND QUERY_START_TIME > %s
                       {excluded_usernames_clause}
                     ORDER BY q.QUERY_ID
                     LIMIT {self.batch_size} OFFSET %s
                     """,
                     (
+                        start_date,
                         start_date,
                         *config.excluded_usernames,
                         x * self.batch_size,
@@ -127,7 +130,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
     def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
         logger.info(f"access logs batch #{batch_number}")
-        for _, start_time, accessed_objects in access_logs:
+        for start_time, accessed_objects in access_logs:
             self._parse_access_log(start_time, accessed_objects)
 
     def _parse_access_log(self, start_time: datetime, accessed_objects: str) -> None:
