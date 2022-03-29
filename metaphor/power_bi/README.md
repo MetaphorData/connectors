@@ -1,22 +1,23 @@
-# PowerBI Connector
+# Power BI Connector
 
-This connector extracts technical metadata from PowerBI workspaces using [Power BI REST APIs](https://docs.microsoft.com/en-us/rest/api/power-bi/).
+This connector extracts technical metadata from Power BI workspaces using [Read-only Power BI admin APIs](https://docs.microsoft.com/en-us/power-bi/enterprise/read-only-apis-service-principal-authentication).
 
 ## Setup
 
 We recommend creating a dedicated Azure AD Application and a dedicated security group for the connector to use.
 
-1. Follow [Microsoft doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal) to create an app and a security group. Add the app's [service principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals#service-principal-object) to the security group.
+1. Follow Step 1 & 2 in [this doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal) to create an Azure AD app, the client secret, and add the app's service principal to a new security group.
 
-> Note: Make sure the app did not have any extra Power BI permission granted. See Step 3 of this [doc](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication#method) for more details.
+> Note: Make sure to NOT add any Power BI Service permissions to the app. Doing so will lead to authentication errors when calling the APIs. See [this notice](https://docs.microsoft.com/en-us/power-bi/enterprise/read-only-apis-service-principal-authentication#:~:text=Make%20sure%20there%20are%20no%20Power%20BI%20admin%2Dconsent%2Drequired%20permissions%20set%20on%20this%20application.%20For%20more%20information%2C%20see%20Managing%20consent%20to%20applications%20and%20evaluating%20consent%20requests.) for more details.
 
-2. Log into [PowerBI Admin Poral](https://app.powerbi.com/admin-portal/tenantSettings), enable the following settings for the security group created in the previous step: 
-    - Allow service principals to use Power BI APIs
+2. Log into [Power BI Admin Portal](https://app.powerbi.com/admin-portal/tenantSettings) as a Power BI admin, enable the following settings under **Admin API settings** for the security group created in the previous step:
     - Allow service principals to use read-only Power BI admin APIs
     - Enhance admin APIs responses with detailed metadata
+    - Enhance admin APIs responses with DAX and mashup expressions
 
-3. Add the security group or service principal to all workspaces of interest. See: [Add the service principal to your workspace](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-4---add-the-service-principal-to-your-workspace)
+For example,
 
+![](https://docs.microsoft.com/en-us/power-bi/enterprise/media/read-only-apis-service-principal-auth/allow-service-principals-tenant-setting.png)
 
 ## Config File
 
@@ -25,7 +26,7 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 ```yaml
-tenant_id: <tenant_id>  # The PowerBI tenant ID
+tenant_id: <tenant_id>  # The Power BI tenant ID
 
 client_id: <client_id>  # The Azure Application client id
 
@@ -38,7 +39,7 @@ output:
 
 ### Optional Configurations
 
-By default, the connector will connect all workspaces under a tenant (organization). You can explicit configure workspaces you want to connect.
+By default, the connector will connect all workspaces under a tenant (organization). You can explicitly configure workspaces you want to connect.
 
 ```yaml
 workspaces:
@@ -57,9 +58,3 @@ python -m metaphor.power_bi <config_file>
 ```
 
 Manually verify the output after the command finishes.
-
-## Troubleshooting
-
-1. `GET https://api.powerbi.com/v1.0/myorg/groups failed`: Make sure the security group is given access to "Power BI APIs" in Power BI Admin Portal.
-2. `API is not accessible for application`: Make sure the security group is given access to "Read-only Power BI admin APIs" in Power BI Admin Portal.
-3. `PowerBINotAuthorizedException`: Make sure to add the security principal to the Power BI workspaces.
