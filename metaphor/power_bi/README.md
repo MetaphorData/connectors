@@ -6,7 +6,7 @@ This connector extracts technical metadata from Power BI workspaces using [Read-
 
 We recommend creating a dedicated Azure AD Application and a dedicated security group for the connector to use.
 
-1. Follow Step 1 of [this doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-1---create-an-azure-ad-app) to create an Azure AD app and a client secret.
+1. Follow [Step 1 of this doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-1---create-an-azure-ad-app) to create an Azure AD app and a client secret.
 
 > Note: Make sure to NOT add any Power BI Service permissions to the app. Doing so will lead to authentication errors when calling the APIs. See [this notice](https://docs.microsoft.com/en-us/power-bi/enterprise/read-only-apis-service-principal-authentication#:~:text=Make%20sure%20there%20are%20no%20Power%20BI%20admin%2Dconsent%2Drequired%20permissions%20set%20on%20this%20application.%20For%20more%20information%2C%20see%20Managing%20consent%20to%20applications%20and%20evaluating%20consent%20requests.) for more details.
 
