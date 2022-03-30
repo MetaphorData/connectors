@@ -99,16 +99,16 @@ class PowerBITableMeasure(BaseModel):
 
 class PowerBITable(BaseModel):
     name: str
-    columns: List[PowerBITableColumn]
-    measures: List[PowerBITableMeasure]
-    source: List[Any]
+    columns: List[PowerBITableColumn] = []
+    measures: List[PowerBITableMeasure] = []
+    source: List[Any] = []
 
 
 class WorkspaceInfoDataset(BaseModel):
     configuredBy: str
     id: str
     name: str
-    tables: List[PowerBITable]
+    tables: List[PowerBITable] = []
 
     description: str = ""
     ContentProviderType: str = ""
@@ -135,9 +135,9 @@ class WorkspaceInfo(BaseModel):
     name: str
     type: str
     state: str
-    reports: List[WorkspaceInfoReport]
-    datasets: List[WorkspaceInfoDataset]
-    dashboards: List[WorkspaceInfoDashboard]
+    reports: List[WorkspaceInfoReport] = []
+    datasets: List[WorkspaceInfoDataset] = []
+    dashboards: List[WorkspaceInfoDashboard] = []
 
 
 class PowerBIClient:
@@ -165,39 +165,43 @@ class PowerBIClient:
         return f"Bearer {token['access_token']}"
 
     def get_groups(self) -> List[PowerBIWorkspace]:
-        url = f"{self.API_ENDPOINT}/groups"
+        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/groups-get-groups-as-admin
+        url = f"{self.API_ENDPOINT}/admin/groups?$top=5000&$filter=state eq 'Active'"
         return self._call_get(
             url, List[PowerBIWorkspace], transform_response=lambda r: r.json()["value"]
         )
 
-    def get_tiles(self, group_id: str, dashboard_id: str) -> List[PowerBITile]:
-        url = f"{self.API_ENDPOINT}/groups/{group_id}/dashboards/{dashboard_id}/tiles"
+    def get_tiles(self, dashboard_id: str) -> List[PowerBITile]:
+        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-tiles-as-admin
+        url = f"{self.API_ENDPOINT}/admin/dashboards/{dashboard_id}/tiles"
         return self._call_get(
             url, List[PowerBITile], transform_response=lambda r: r.json()["value"]
         )
 
-    def get_dataset(self, group_id: str, dataset_id: str) -> PowerBIDataset:
-        url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}"
-        return self._call_get(url, PowerBIDataset)
-
-    def get_dashboard(self, group_id: str, dashboard_id: str) -> PowerBIDashboard:
-        url = f"{self.API_ENDPOINT}/groups/{group_id}/dashboards/{dashboard_id}"
-        return self._call_get(url, PowerBIDashboard)
-
-    def get_report(self, group_id: str, report_id: str) -> PowerBIReport:
-        url = f"{self.API_ENDPOINT}/groups/{group_id}/reports/{report_id}"
-        return self._call_get(url, PowerBIReport)
-
-    def get_datasource(
-        self, group_id: str, dashboard_id: str
-    ) -> List[PowerBIDataSource]:
-        url = (
-            f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dashboard_id}/datasources"
+    def get_datasets(self, group_id: str) -> List[PowerBIDataset]:
+        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-in-group-as-admin
+        url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/datasets"
+        return self._call_get(
+            url, List[PowerBIDataset], transform_response=lambda r: r.json()["value"]
         )
-        return self._call_get(url, List[PowerBIDataSource])
+
+    def get_dashboards(self, group_id: str) -> List[PowerBIDashboard]:
+        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-dashboards-in-group-as-admin
+        url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/dashboards"
+        return self._call_get(
+            url, List[PowerBIDashboard], transform_response=lambda r: r.json()["value"]
+        )
+
+    def get_reports(self, group_id: str) -> List[PowerBIReport]:
+        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-in-group-as-admin
+        url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/reports"
+        return self._call_get(
+            url, List[PowerBIReport], transform_response=lambda r: r.json()["value"]
+        )
 
     def get_workspace_info(self, workspace_id: str) -> WorkspaceInfo:
         def create_scan() -> str:
+            # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/workspace-info-post-workspace-info
             url = f"{self.API_ENDPOINT}/admin/workspaces/getInfo"
             request_body = {"workspaces": [workspace_id]}
             result = requests.post(
@@ -225,6 +229,7 @@ class PowerBIClient:
             return result.json()["id"]
 
         def wait_for_scan_result(scan_id: str, max_timeout_in_secs: int = 30) -> bool:
+            # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/workspace-info-get-scan-status
             url = f"{self.API_ENDPOINT}/admin/workspaces/scanStatus/{scan_id}"
 
             waiting_time = 0
@@ -250,6 +255,7 @@ class PowerBIClient:
         def get_first_workspace(response: requests.Response) -> Any:
             return response.json()["workspaces"][0]
 
+        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/workspace-info-get-scan-result
         url = f"{self.API_ENDPOINT}/admin/workspaces/scanResult/{scan_id}"
         return self._call_get(url, WorkspaceInfo, get_first_workspace)
 
@@ -262,6 +268,10 @@ class PowerBIClient:
         transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
     ) -> T:
         result = requests.get(url, headers=self._headers)
+        assert (
+            result.status_code != 401
+        ), "Authentication error. Please enable read-only Power BI admin API access for the app."
+
         assert result.status_code == 200, f"GET {url} failed, {result.content.decode()}"
         return parse_obj_as(type_, transform_response(result))
 
@@ -308,6 +318,9 @@ class PowerBIExtractor(BaseExtractor):
     def map_wi_datasets_to_virtual_views(
         self, workspace_id: str, wi_datasets: List[WorkspaceInfoDataset]
     ) -> None:
+
+        dataset_map = {d.id: d for d in self.client.get_datasets(workspace_id)}
+
         for wds in wi_datasets:
             source_datasets = []
             tables = []
@@ -343,7 +356,11 @@ class PowerBIExtractor(BaseExtractor):
                         logger.warning(
                             f"Parsing upstream fail, exp: {power_query_text}"
                         )
-            ds = self.client.get_dataset(workspace_id, wds.id)
+
+            ds = dataset_map.get(wds.id, None)
+            if ds is None:
+                logger.warn(f"Skipping invalid dataset {wds.id}")
+                continue
 
             virtual_view = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -362,6 +379,9 @@ class PowerBIExtractor(BaseExtractor):
     def map_wi_reports_to_dashboard(
         self, workspace_id: str, wi_reports: List[WorkspaceInfoReport]
     ) -> None:
+
+        report_map = {r.id: r for r in self.client.get_reports(workspace_id)}
+
         for wi_report in wi_reports:
             upstream_id = str(
                 EntityId(
@@ -369,7 +389,12 @@ class PowerBIExtractor(BaseExtractor):
                     self._virtual_views[wi_report.datasetId].logical_id,
                 )
             )
-            report = self.client.get_report(workspace_id, wi_report.id)
+
+            report = report_map.get(wi_report.id, None)
+            if report is None:
+                logger.warn(f"Skipping invalid report {wi_report.id}")
+                continue
+
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_report.id,
@@ -388,8 +413,11 @@ class PowerBIExtractor(BaseExtractor):
     def map_wi_dashboards_to_dashboard(
         self, workspace_id: str, wi_dashboards: List[WorkspaceInfoDashboard]
     ) -> None:
+
+        dashboard_map = {d.id: d for d in self.client.get_dashboards(workspace_id)}
+
         for wi_dashboard in wi_dashboards:
-            tiles = self.client.get_tiles(workspace_id, wi_dashboard.id)
+            tiles = self.client.get_tiles(wi_dashboard.id)
             upstream = []
             for tile in tiles:
                 dataset_id = tile.datasetId
@@ -406,7 +434,12 @@ class PowerBIExtractor(BaseExtractor):
                         )
                     )
                 )
-            pbi_dashboard = self.client.get_dashboard(workspace_id, wi_dashboard.id)
+
+            pbi_dashboard = dashboard_map.get(wi_dashboard.id, None)
+            if pbi_dashboard is None:
+                logger.warn(f"Skipping invalid dashboard {wi_dashboard.id}")
+                continue
+
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_dashboard.id,

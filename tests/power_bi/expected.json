@@ -75,12 +75,50 @@
   },
   {
     "dashboardInfo": {
-      "charts": [],
+      "charts": [
+        {
+          "title": "First Chart",
+          "url": ""
+        },
+        {
+          "title": "Third Chart",
+          "url": ""
+        }
+      ],
       "powerBiDashboardType": "DASHBOARD",
       "title": "Dashboard A",
       "url": "https://powerbi.com/dashboard/dashboard-1"
     },
     "logicalId": { "dashboardId": "dashboard-1", "platform": "POWER_BI" },
-    "upstream": { "sourceVirtualViews": [] }
-  }
+    "upstream": {
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3",
+        "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
+      ]
+    }
+  },
+  {
+    "dashboardInfo": {
+      "charts": [
+        {
+          "title": "Second Chart",
+          "url": ""
+        },
+        {
+          "title": "Third Chart",
+          "url": ""
+        }
+      ],
+      "powerBiDashboardType": "DASHBOARD",
+      "title": "Dashboard B",
+      "url": "https://powerbi.com/dashboard/dashboard-2"
+    },
+    "logicalId": { "dashboardId": "dashboard-2", "platform": "POWER_BI" },
+    "upstream": {
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3",
+        "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
+      ]
+    }
+  }  
 ]
