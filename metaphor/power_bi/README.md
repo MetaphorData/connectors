@@ -6,11 +6,13 @@ This connector extracts technical metadata from Power BI workspaces using [Read-
 
 We recommend creating a dedicated Azure AD Application and a dedicated security group for the connector to use.
 
-1. Follow Step 1 & 2 in [this doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal) to create an Azure AD app, the client secret, and add the app's service principal to a new security group.
+1. Follow Step 1 of [this doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-1---create-an-azure-ad-app) to create an Azure AD app and a client secret.
 
 > Note: Make sure to NOT add any Power BI Service permissions to the app. Doing so will lead to authentication errors when calling the APIs. See [this notice](https://docs.microsoft.com/en-us/power-bi/enterprise/read-only-apis-service-principal-authentication#:~:text=Make%20sure%20there%20are%20no%20Power%20BI%20admin%2Dconsent%2Drequired%20permissions%20set%20on%20this%20application.%20For%20more%20information%2C%20see%20Managing%20consent%20to%20applications%20and%20evaluating%20consent%20requests.) for more details.
 
-2. Log into [Power BI Admin Portal](https://app.powerbi.com/admin-portal/tenantSettings) as a Power BI admin, enable the following settings under **Admin API settings** for the security group created in the previous step:
+2. Follow [this doc](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal#create-a-basic-group-and-add-members) to create a security group and add the app's service principal as a member.
+
+3. Log into [Power BI Admin Portal](https://app.powerbi.com/admin-portal/tenantSettings) as a Power BI admin, enable the following settings under **Admin API settings** for the security group created in the previous step:
     - Allow service principals to use read-only Power BI admin APIs
     - Enhance admin APIs responses with detailed metadata
     - Enhance admin APIs responses with DAX and mashup expressions
