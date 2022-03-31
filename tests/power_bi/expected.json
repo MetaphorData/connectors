@@ -53,8 +53,10 @@
     "dashboardInfo": {
       "description": "This is a report about foo",
       "powerBiDashboardType": "REPORT",
-      "title": "Foo Report",
-      "url": "https://powerbi.com/report/report-1"
+      "title": "Foo Report"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/report/report-1"
     },
     "logicalId": { "dashboardId": "report-1", "platform": "POWER_BI" },
     "upstream": {
@@ -65,8 +67,10 @@
     "dashboardInfo": {
       "description": "This is a report about bar",
       "powerBiDashboardType": "REPORT",
-      "title": "Bar Report",
-      "url": "https://powerbi.com/report/report-2"
+      "title": "Bar Report"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/report/report-2"
     },
     "logicalId": { "dashboardId": "report-2", "platform": "POWER_BI" },
     "upstream": {
@@ -86,8 +90,10 @@
         }
       ],
       "powerBiDashboardType": "DASHBOARD",
-      "title": "Dashboard A",
-      "url": "https://powerbi.com/dashboard/dashboard-1"
+      "title": "Dashboard A"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/dashboard/dashboard-1"
     },
     "logicalId": { "dashboardId": "dashboard-1", "platform": "POWER_BI" },
     "upstream": {
@@ -110,8 +116,10 @@
         }
       ],
       "powerBiDashboardType": "DASHBOARD",
-      "title": "Dashboard B",
-      "url": "https://powerbi.com/dashboard/dashboard-2"
+      "title": "Dashboard B"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/dashboard/dashboard-2"
     },
     "logicalId": { "dashboardId": "dashboard-2", "platform": "POWER_BI" },
     "upstream": {

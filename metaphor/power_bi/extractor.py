@@ -34,6 +34,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.models.metadata_change_event import PowerBIDatasetTable
 from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
 from metaphor.models.metadata_change_event import (
+    SourceInfo,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
@@ -404,7 +405,9 @@ class PowerBIExtractor(BaseExtractor):
                     description=wi_report.description,
                     power_bi_dashboard_type=PowerBIDashboardType.REPORT,
                     title=wi_report.name,
-                    url=report.webUrl,
+                ),
+                source_info=SourceInfo(
+                    main_url=report.webUrl,
                 ),
                 upstream=DashboardUpstream(source_virtual_views=[upstream_id]),
             )
@@ -449,7 +452,9 @@ class PowerBIExtractor(BaseExtractor):
                     title=wi_dashboard.displayName,
                     charts=self.transform_tiles_to_charts(tiles),
                     power_bi_dashboard_type=PowerBIDashboardType.DASHBOARD,
-                    url=pbi_dashboard.webUrl,
+                ),
+                source_info=SourceInfo(
+                    main_url=pbi_dashboard.webUrl,
                 ),
                 upstream=DashboardUpstream(source_virtual_views=unique_list(upstream)),
             )
