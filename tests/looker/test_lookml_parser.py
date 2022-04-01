@@ -23,7 +23,12 @@ connection_map = {
         default_schema="schema",
         platform=DataPlatform.SNOWFLAKE,
         account="account",
-    )
+    ),
+    "bigquery": LookerConnectionConfig(
+        database="db",
+        default_schema="schema",
+        platform=DataPlatform.BIGQUERY,
+    ),
 }
 
 
@@ -384,3 +389,52 @@ def test_derived_table(test_root_dir):
             ),
         ],
     )
+
+
+def test_sql_table_name(test_root_dir):
+    models_map, virtual_views = parse_project(
+        f"{test_root_dir}/looker/sql_table_name", connection_map
+    )
+
+    virtual_view_id1 = EntityId(
+        EntityType.VIRTUAL_VIEW,
+        VirtualViewLogicalID(name="model.view1", type=VirtualViewType.LOOKER_VIEW),
+    )
+
+    dataset_id1 = EntityId(
+        EntityType.DATASET,
+        DatasetLogicalID(
+            name="db.schema1.table1",
+            platform=DataPlatform.BIGQUERY,
+        ),
+    )
+
+    assert models_map == {
+        "model": Model(
+            explores={
+                "explore1": Explore(
+                    name="explore1",
+                ),
+            }
+        )
+    }
+
+    assert virtual_views == [
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view1", type=VirtualViewType.LOOKER_VIEW
+            ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id1)],
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.explore1", type=VirtualViewType.LOOKER_EXPLORE
+            ),
+            looker_explore=LookerExplore(
+                model_name="model",
+                base_view=str(virtual_view_id1),
+            ),
+        ),
+    ]

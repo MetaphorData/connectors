@@ -87,7 +87,7 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
         raise ValueError(f"Invalid source name {source_name}")
 
     # Normalize dataset name by lower casing & dropping the quotation marks
-    full_name = full_name.replace('"', "").lower()
+    full_name = full_name.replace('"', "").replace("`", "").lower()
 
     return to_dataset_entity_id(full_name, connection.platform, connection.account)
 
