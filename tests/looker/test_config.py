@@ -18,7 +18,12 @@ def test_yaml_config(test_root_dir):
                 default_schema="schema1",
                 platform=DataPlatform.SNOWFLAKE,
                 account="account1",
-            )
+            ),
+            "conn2": LookerConnectionConfig(
+                database="db2",
+                default_schema="schema2",
+                platform=DataPlatform.BIGQUERY,
+            ),
         },
         project_source_url="http://foo.bar",
         verify_ssl=True,

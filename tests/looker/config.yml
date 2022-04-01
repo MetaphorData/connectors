@@ -9,6 +9,10 @@ connections:
     default_schema: schema1
     platform: SNOWFLAKE
     account: account1
+  conn2:
+    database: db2
+    default_schema: schema2
+    platform: BIGQUERY
 project_source_url: http://foo.bar
 verify_ssl: true
 timeout: 1
