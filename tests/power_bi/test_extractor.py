@@ -64,7 +64,7 @@ async def test_extractor(test_root_dir):
         webUrl=f"https://powerbi.com/dashboard/{dashboard1_id}",
     )
     dashboard2 = PowerBIDashboard(
-        id=dashboard1_id,
+        id=dashboard2_id,
         displayName="Dashboard B",
         webUrl=f"https://powerbi.com/dashboard/{dashboard2_id}",
     )
@@ -182,27 +182,27 @@ async def test_extractor(test_root_dir):
             ],
             dashboards=[
                 WorkspaceInfoDashboard(displayName="Dashboard A", id="dashboard-1"),
-                WorkspaceInfoDashboard(displayName="Dashboard A", id="dashboard-1"),
+                WorkspaceInfoDashboard(displayName="Dashboard B", id="dashboard-2"),
             ],
         )
     )
 
-    def fake_get_dataset(workspace_id, dataset_id) -> PowerBIDataset:
-        return datasets.get(dataset_id)
+    def fake_get_datasets(workspace_id) -> List[PowerBIDataset]:
+        return datasets.values()
 
-    def fake_get_report(workspace_id, report_id) -> PowerBIReport:
-        return reports.get(report_id)
+    def fake_get_reports(workspace_id) -> List[PowerBIReport]:
+        return reports.values()
 
-    def fake_get_dashboard(workspace_id, dashboard_id) -> PowerBIReport:
-        return dashboards.get(dashboard_id)
+    def fake_get_dashboards(workspace_id) -> List[PowerBIReport]:
+        return dashboards.values()
 
-    def fake_get_tiles(workspace_id, dashboard_id) -> List[PowerBITile]:
+    def fake_get_tiles(dashboard_id) -> List[PowerBITile]:
         return tiles.get(dashboard_id)
 
-    mock_instance.get_dataset.side_effect = fake_get_dataset
-    mock_instance.get_report.side_effect = fake_get_report
-    mock_instance.get_dashboard.side_effect = fake_get_dashboard
-    mock_instance.get_tile.side_effect = fake_get_tiles
+    mock_instance.get_datasets.side_effect = fake_get_datasets
+    mock_instance.get_reports.side_effect = fake_get_reports
+    mock_instance.get_dashboards.side_effect = fake_get_dashboards
+    mock_instance.get_tiles.side_effect = fake_get_tiles
 
     with patch("metaphor.power_bi.extractor.PowerBIClient") as mock_client:
         mock_client.return_value = mock_instance

@@ -53,8 +53,10 @@
     "dashboardInfo": {
       "description": "This is a report about foo",
       "powerBiDashboardType": "REPORT",
-      "title": "Foo Report",
-      "url": "https://powerbi.com/report/report-1"
+      "title": "Foo Report"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/report/report-1"
     },
     "logicalId": { "dashboardId": "report-1", "platform": "POWER_BI" },
     "upstream": {
@@ -65,8 +67,10 @@
     "dashboardInfo": {
       "description": "This is a report about bar",
       "powerBiDashboardType": "REPORT",
-      "title": "Bar Report",
-      "url": "https://powerbi.com/report/report-2"
+      "title": "Bar Report"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/report/report-2"
     },
     "logicalId": { "dashboardId": "report-2", "platform": "POWER_BI" },
     "upstream": {
@@ -75,12 +79,54 @@
   },
   {
     "dashboardInfo": {
-      "charts": [],
+      "charts": [
+        {
+          "title": "First Chart",
+          "url": ""
+        },
+        {
+          "title": "Third Chart",
+          "url": ""
+        }
+      ],
       "powerBiDashboardType": "DASHBOARD",
-      "title": "Dashboard A",
-      "url": "https://powerbi.com/dashboard/dashboard-1"
+      "title": "Dashboard A"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/dashboard/dashboard-1"
     },
     "logicalId": { "dashboardId": "dashboard-1", "platform": "POWER_BI" },
-    "upstream": { "sourceVirtualViews": [] }
-  }
+    "upstream": {
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3",
+        "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
+      ]
+    }
+  },
+  {
+    "dashboardInfo": {
+      "charts": [
+        {
+          "title": "Second Chart",
+          "url": ""
+        },
+        {
+          "title": "Third Chart",
+          "url": ""
+        }
+      ],
+      "powerBiDashboardType": "DASHBOARD",
+      "title": "Dashboard B"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/dashboard/dashboard-2"
+    },
+    "logicalId": { "dashboardId": "dashboard-2", "platform": "POWER_BI" },
+    "upstream": {
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3",
+        "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
+      ]
+    }
+  }  
 ]
