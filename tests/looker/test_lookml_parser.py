@@ -438,3 +438,82 @@ def test_sql_table_name(test_root_dir):
             ),
         ),
     ]
+
+
+def test_view_extension(test_root_dir):
+    models_map, virtual_views = parse_project(
+        f"{test_root_dir}/looker/view_extension", connection_map
+    )
+
+    virtual_view_id1 = EntityId(
+        EntityType.VIRTUAL_VIEW,
+        VirtualViewLogicalID(name="model.view1", type=VirtualViewType.LOOKER_VIEW),
+    )
+
+    dataset_id1 = EntityId(
+        EntityType.DATASET,
+        DatasetLogicalID(
+            name="db.schema.table1",
+            platform=DataPlatform.BIGQUERY,
+        ),
+    )
+
+    dataset_id2 = EntityId(
+        EntityType.DATASET,
+        DatasetLogicalID(
+            name="db.schema.table2",
+            platform=DataPlatform.BIGQUERY,
+        ),
+    )
+
+    assert models_map == {
+        "model": Model(
+            explores={
+                "explore1": Explore(name="explore1"),
+            }
+        )
+    }
+
+    assert virtual_views == [
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view1", type=VirtualViewType.LOOKER_VIEW
+            ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id1)],
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view2", type=VirtualViewType.LOOKER_VIEW
+            ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id2)],
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view3", type=VirtualViewType.LOOKER_VIEW
+            ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id2)],
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.base_view2", type=VirtualViewType.LOOKER_VIEW
+            ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id2)],
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.explore1", type=VirtualViewType.LOOKER_EXPLORE
+            ),
+            looker_explore=LookerExplore(
+                model_name="model",
+                base_view=str(virtual_view_id1),
+            ),
+        ),
+    ]

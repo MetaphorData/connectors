@@ -1,5 +1,7 @@
+import functools
 import glob
 import logging
+import operator
 import os
 import re
 from dataclasses import dataclass
@@ -92,12 +94,47 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
     return to_dataset_entity_id(full_name, connection.platform, connection.account)
 
 
+def _get_extended_view_names(raw_view: Dict) -> Optional[List[str]]:
+    # Depending on the version of lkml, the "extends" field can be mapped to either "extends" or "extends__all"
+    extends = raw_view.get("extends", raw_view.get("extends__all", None))
+    if extends is None:
+        return None
+
+    # Flatten the nested list into a list of base view names
+    return functools.reduce(operator.concat, extends)
+
+
+def _sql_table_name_from_extended_views(
+    extended_view_names: List[str], raw_views: Dict[str, Dict]
+) -> Optional[str]:
+
+    sql_table_name = None
+    for extended_view_name in extended_view_names:
+        extended_view = raw_views.get(extended_view_name, None)
+        assert (
+            extended_view is not None
+        ), f"Extending non-existing view {extended_view_name}"
+
+        # It's possible to chain extends
+        # https://docs.looker.com/data-modeling/learning-lookml/extends#chaining_together_multiple_extends
+        chained_extended_view_names = _get_extended_view_names(extended_view)
+
+        # Priority is given to views in the order they're added to the list.
+        # https://docs.looker.com/data-modeling/learning-lookml/extends#extending_more_than_one_object_at_the_same_time
+        if "sql_table_name" in extended_view:
+            sql_table_name = extended_view.get("sql_table_name")
+        elif chained_extended_view_names is not None:
+            sql_table_name = _sql_table_name_from_extended_views(
+                chained_extended_view_names, raw_views
+            )
+
+    return sql_table_name
+
+
 def _get_upstream_datasets(
     view_name, raw_views: Dict[str, Dict], connection: LookerConnectionConfig
 ) -> Set[EntityId]:
-    # The source for a view can be specified via "sql_table_name" or "derived_table".
-    # When not specified, it's default to the same name as the view itself.
-    # https://docs.looker.com/reference/view-params/sql_table_name-for-view
+
     raw_view = raw_views.get(view_name)
     if raw_view is None:
         logger.error(f"Refer to non-existing view {view_name}")
@@ -107,26 +144,45 @@ def _get_upstream_datasets(
         return raw_view["upstream_dataset_ids"]
 
     upstreams = set()
-    if "derived_table" in raw_view:
-        # https://docs.looker.com/data-modeling/learning-lookml/derived-tables
-        derived_table = raw_view["derived_table"]
 
+    # Inheriting the upstream from extended views
+    # https://docs.looker.com/reference/view-params/extends-for-view
+    extended_view_names = _get_extended_view_names(raw_view)
+    if extended_view_names is not None:
+        sql_table_name = _sql_table_name_from_extended_views(
+            extended_view_names, raw_views
+        )
+        if sql_table_name is not None:
+            upstreams = set([_to_dataset_id(sql_table_name, connection)])
+
+    # Set/override upstream via derived_table
+    # https://docs.looker.com/reference/view-params/derived_table
+    derived_table = raw_view.get("derived_table", None)
+    if derived_table is not None:
         if "sql" in derived_table:
-            upstreams.update(
+            upstreams = set(
                 _extract_upstream_datasets_from_sql(
                     derived_table["sql"], raw_views, connection
                 )
             )
 
         if "explore_source" in derived_table:
-            upstreams.update(
+            upstreams = set(
                 _get_upstream_datasets(
                     derived_table["explore_source"]["name"], raw_views, connection
                 )
             )
-    else:
-        source_name = raw_view.get("sql_table_name", view_name)
-        upstreams.add(_to_dataset_id(source_name, connection))
+
+    # Set/override upstream via sql_table_name
+    # https://docs.looker.com/reference/view-params/sql_table_name-for-view
+    sql_table_name = raw_view.get("sql_table_name", None)
+    if sql_table_name is not None:
+        upstreams = set([_to_dataset_id(sql_table_name, connection)])
+
+    # If none of the above was triggered, assume upstream is a table with the same name
+    # https://docs.looker.com/reference/view-params/sql_table_name-for-view
+    if len(upstreams) == 0:
+        upstreams.add(_to_dataset_id(view_name, connection))
 
     raw_view["upstream_dataset_ids"] = upstreams
     return upstreams
@@ -180,18 +236,8 @@ def _build_looker_view(
             str(ds) for ds in _get_upstream_datasets(name, raw_views, connection)
         ]
     except Exception as e:
-        logger.error(f"Can't fetch upstream datasets for view {name}")
+        logger.error(f"Can't determine upstream datasets for view {name}")
         logger.exception(e)
-
-    if "extends" in raw_view:
-        view.extends = [
-            str(
-                to_virtual_view_entity_id(
-                    fullname(model, view), VirtualViewType.LOOKER_VIEW
-                )
-            )
-            for view in raw_view["extends"]
-        ]
 
     if "dimensions" in raw_view:
         view.dimensions = [
@@ -390,8 +436,12 @@ def parse_project(
                     entity_urls.get(view["name"]),
                 )
                 for view in raw_views.values()
+                # Exclude views that require extension
+                # https://docs.looker.com/reference/view-params/extension-for-view
+                if view.get("extension", "") != "required"
             ]
         )
+
         virtual_views.extend(
             [
                 _build_looker_explore(
