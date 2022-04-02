@@ -1,5 +1,7 @@
+import functools
 import glob
 import logging
+import operator
 import os
 import re
 from dataclasses import dataclass
@@ -219,11 +221,57 @@ def _build_looker_view(
     )
 
 
+def _get_extended_explore_names(raw_explore: Dict) -> Optional[List[str]]:
+    # Depending on the version of lkml, the "extends" field can be mapped to either "extends" or "extends__all"
+    extends = raw_explore.get("extends", raw_explore.get("extends__all", None))
+    if extends is None:
+        return None
+
+    # Flatten the nested list into a list of base explore names
+    return functools.reduce(operator.concat, extends)
+
+
+def _get_base_view_name(
+    raw_explore: Dict, raw_explores: Dict[str, Dict]
+) -> Optional[str]:
+
+    # Any "from" or "view_name" defined for the explore will take the highest precedence
+    # https://docs.looker.com/reference/explore-params/from-for-explore
+    # https://docs.looker.com/reference/explore-params/view_name
+    if "from" in raw_explore:
+        return raw_explore["from"]
+    if "view_name" in raw_explore:
+        return raw_explore["view_name"]
+
+    extended_explore_names = _get_extended_explore_names(raw_explore)
+    if extended_explore_names is not None:
+        # Priority is given to explores in the order they're added to the list.
+        # https://docs.looker.com/data-modeling/learning-lookml/extends#extending_more_than_one_object_at_the_same_time
+        for extended_explore_name in reversed(extended_explore_names):
+            extended_explore = raw_explores.get(extended_explore_name, None)
+            assert (
+                extended_explore is not None
+            ), f"Extending invalid explore {extended_explore_name}"
+
+            # It's possible to chain extends
+            # https://docs.looker.com/data-modeling/learning-lookml/extends#chaining_together_multiple_extends
+            base_view_name = _get_base_view_name(extended_explore, raw_explores)
+            if base_view_name is not None:
+                return base_view_name
+
+    return None
+
+
 def _build_looker_explore(
-    model: str, raw_explore: Dict, url: Optional[str]
+    model: str, raw_explore: Dict, raw_explores: Dict[str, Dict], url: Optional[str]
 ) -> VirtualView:
     name = raw_explore["name"]
-    base_view_name = raw_explore.get("from", raw_explore.get("view_name", name))
+
+    base_view_name = _get_base_view_name(raw_explore, raw_explores)
+
+    # Default to the view with the same name if nothing is specified
+    if base_view_name is None:
+        base_view_name = name
 
     explore = LookerExplore(
         model_name=model,
@@ -395,9 +443,12 @@ def parse_project(
         virtual_views.extend(
             [
                 _build_looker_explore(
-                    model_name, explore, entity_urls.get(explore["name"])
+                    model_name, explore, raw_explores, entity_urls.get(explore["name"])
                 )
                 for explore in raw_explores.values()
+                # Exclude explores that require extension
+                # https://docs.looker.com/reference/view-params/extension-for-view
+                if explore.get("extension", "") != "required"
             ]
         )
 
