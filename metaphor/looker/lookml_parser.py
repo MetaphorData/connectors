@@ -334,19 +334,35 @@ def _get_entity_url(
 
 
 def _load_included_file(
-    include_path: str, base_dir: str, projectSourceUrl: Optional[str]
-) -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, Optional[str]]]:
+    include_path: str,
+    base_dir: str,
+    projectSourceUrl: Optional[str],
+    raw_views: Dict[str, Dict],
+    raw_explores: Dict[str, Dict],
+    entity_urls: Dict[str, Optional[str]],
+    processed_files: Set[str],
+):
+    """Load all files matched by the pattern defined in include_path
+
+    All parsed views and explores will be added to raw_views & raw_explores, along with a
+    corresponding URL in entity_urls. This function will also recursively load any additional
+    files includes by each file.
+    """
     glob_pattern = f"{base_dir}/{include_path}"
     if not glob_pattern.endswith(".lkml"):
         glob_pattern = glob_pattern + ".lkml"
 
-    raw_views = {}
-    raw_explores = {}
-    entity_urls = {}
-
     for path in glob.glob(glob_pattern, recursive=True):
+        # Skip processed files to avoid circular includes
+        normpath = os.path.normpath(path)
+        if normpath in processed_files:
+            continue
+        processed_files.add(normpath)
+
         url = _get_entity_url(path, base_dir, projectSourceUrl)
         with open(path) as f:
+            logger.info(f"Processing view file {normpath}")
+
             root = lkml.load(f)
             for view in root.get("views", []):
                 raw_views[view["name"]] = view
@@ -356,7 +372,24 @@ def _load_included_file(
                 raw_explores[explore["name"]] = explore
                 entity_urls[explore["name"]] = url
 
-    return raw_views, raw_explores, entity_urls
+            # A file can further include other files
+            # https://docs.looker.com/reference/model-params/include#using_include_in_a_view_file
+            for include_path in root.get("includes", []):
+
+                # Include using relative path
+                if not include_path.startswith("/"):
+                    rel_dir = os.path.relpath(os.path.dirname(path), base_dir)
+                    include_path = f"/{rel_dir}/{include_path}"
+
+                _load_included_file(
+                    include_path,
+                    base_dir,
+                    projectSourceUrl,
+                    raw_views,
+                    raw_explores,
+                    entity_urls,
+                    processed_files,
+                )
 
 
 def _load_model(
@@ -373,18 +406,24 @@ def _load_model(
     with open(model_path) as f:
         model = lkml.load(f)
 
-    raw_views = {}
-    raw_explores = {}
-    entity_urls = {}
+    logger.info(f"Processing model {model_path}")
+
+    raw_views: Dict[str, Dict] = {}
+    raw_explores: Dict[str, Dict] = {}
+    entity_urls: Dict[str, Optional[str]] = {}
 
     # Add explores & views defined in included files
+    # https://docs.looker.com/reference/model-params/include#using_include_in_a_model_file
     for include_path in model.get("includes", []):
-        views, explores, urls = _load_included_file(
-            include_path, base_dir, projectSourceUrl
+        _load_included_file(
+            include_path,
+            base_dir,
+            projectSourceUrl,
+            raw_views,
+            raw_explores,
+            entity_urls,
+            set(),
         )
-        raw_views.update(views)
-        raw_explores.update(explores)
-        entity_urls.update(urls)
 
     url = _get_entity_url(model_path, base_dir, projectSourceUrl)
 
