@@ -390,6 +390,16 @@ def _get_entity_url(
     return f"{projectSourceUrl}/{relative_path}"
 
 
+def _to_absolute_include(include_path: str, file_path: str, base_dir: str) -> str:
+    """Convert a relative include path into an absolute include"""
+
+    if include_path.startswith("/"):
+        return include_path
+
+    rel_dir = os.path.relpath(os.path.dirname(file_path), base_dir)
+    return f"/{rel_dir}/{include_path}"
+
+
 def _load_included_file(
     include_path: str,
     base_dir: str,
@@ -409,15 +419,15 @@ def _load_included_file(
     if not glob_pattern.endswith(".lkml"):
         glob_pattern = glob_pattern + ".lkml"
 
-    for path in glob.glob(glob_pattern, recursive=True):
+    for file_path in glob.glob(glob_pattern, recursive=True):
         # Skip processed files to avoid circular includes
-        normpath = os.path.normpath(path)
+        normpath = os.path.normpath(file_path)
         if normpath in processed_files:
             continue
         processed_files.add(normpath)
 
-        url = _get_entity_url(path, base_dir, projectSourceUrl)
-        with open(path) as f:
+        url = _get_entity_url(file_path, base_dir, projectSourceUrl)
+        with open(file_path) as f:
             logger.info(f"Processing view file {normpath}")
 
             root = lkml.load(f)
@@ -433,10 +443,8 @@ def _load_included_file(
             # https://docs.looker.com/reference/model-params/include#using_include_in_a_view_file
             for include_path in root.get("includes", []):
 
-                # Include using relative path
-                if not include_path.startswith("/"):
-                    rel_dir = os.path.relpath(os.path.dirname(path), base_dir)
-                    include_path = f"/{rel_dir}/{include_path}"
+                # Convert to absolute include
+                include_path = _to_absolute_include(include_path, file_path, base_dir)
 
                 _load_included_file(
                     include_path,
@@ -470,6 +478,9 @@ def _load_model(
     # Add explores & views defined in included files
     # https://docs.looker.com/reference/model-params/include#using_include_in_a_model_file
     for include_path in model.get("includes", []):
+        # Convert to absolute include
+        include_path = _to_absolute_include(include_path, model_path, base_dir)
+
         _load_included_file(
             include_path,
             base_dir,
