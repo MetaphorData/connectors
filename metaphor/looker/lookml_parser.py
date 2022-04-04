@@ -51,18 +51,24 @@ class Explore:
 
 
 @dataclass
+class RawModel:
+    raw_views: Dict[str, Dict]
+    raw_explores: Dict[str, Dict]
+
+
+@dataclass
 class Model:
     explores: Dict[str, Explore]
 
     @staticmethod
     def from_dict(
-        raw_explores: Dict[str, Dict],
+        raw_model: RawModel,
     ):
         explores = [
             # Ignore refinements since they don't change the sources
             # See https://docs.looker.com/data-modeling/learning-lookml/refinements
             Explore.from_dict(raw_explore)
-            for raw_explore in raw_explores.values()
+            for raw_explore in raw_model.raw_explores.values()
             if not raw_explore["name"].startswith("+")
         ]
 
@@ -132,9 +138,9 @@ def _sql_table_name_from_extended_views(
 
 
 def _get_upstream_datasets(
-    view_name, raw_views: Dict[str, Dict], connection: LookerConnectionConfig
+    view_name, raw_model: RawModel, connection: LookerConnectionConfig
 ) -> Set[EntityId]:
-
+    raw_views = raw_model.raw_views
     raw_view = raw_views.get(view_name)
     if raw_view is None:
         logger.error(f"Refer to non-existing view {view_name}")
@@ -162,15 +168,22 @@ def _get_upstream_datasets(
         if "sql" in derived_table:
             upstreams = set(
                 _extract_upstream_datasets_from_sql(
-                    derived_table["sql"], raw_views, connection
+                    derived_table["sql"], raw_model, connection
                 )
             )
 
+        # https://docs.looker.com/data-modeling/learning-lookml/creating-ndts
         if "explore_source" in derived_table:
-            upstreams = set(
-                _get_upstream_datasets(
-                    derived_table["explore_source"]["name"], raw_views, connection
-                )
+            explore_name = derived_table["explore_source"]["name"]
+            raw_explore = raw_model.raw_explores.get(explore_name, None)
+            assert raw_explore is not None, f"Invalid explore_source: {explore_name}"
+
+            base_view_name = _get_base_view_name(raw_explore, raw_model)
+            if base_view_name is None:
+                base_view_name = explore_name
+
+            upstreams.update(
+                _get_upstream_datasets(base_view_name, raw_model, connection)
             )
 
     # Set/override upstream via sql_table_name
@@ -189,7 +202,7 @@ def _get_upstream_datasets(
 
 
 def _extract_upstream_datasets_from_sql(
-    sql: str, raw_views: Dict[str, Dict], connection: LookerConnectionConfig
+    sql: str, raw_model: RawModel, connection: LookerConnectionConfig
 ) -> Set[EntityId]:
     upstreams: Set[EntityId] = set()
     try:
@@ -204,7 +217,7 @@ def _extract_upstream_datasets_from_sql(
                 # https://docs.looker.com/data-modeling/learning-lookml/sql-and-referring-to-lookml
                 view_name = table.split(".")[0]
                 upstreams.update(
-                    _get_upstream_datasets(view_name, raw_views, connection)
+                    _get_upstream_datasets(view_name, raw_model, connection)
                 )
             else:
                 upstreams.add(_to_dataset_id(table, connection))
@@ -221,7 +234,7 @@ def fullname(model: str, name: str) -> str:
 def _build_looker_view(
     model: str,
     raw_view: Dict,
-    raw_views: Dict[str, Dict],
+    raw_model: RawModel,
     connection: LookerConnectionConfig,
     url: Optional[str],
 ) -> VirtualView:
@@ -233,7 +246,7 @@ def _build_looker_view(
 
     try:
         view.source_datasets = [
-            str(ds) for ds in _get_upstream_datasets(name, raw_views, connection)
+            str(ds) for ds in _get_upstream_datasets(name, raw_model, connection)
         ]
     except Exception as e:
         logger.error(f"Can't determine upstream datasets for view {name}")
@@ -275,9 +288,7 @@ def _get_extended_explore_names(raw_explore: Dict) -> Optional[List[str]]:
     return functools.reduce(operator.concat, extends)
 
 
-def _get_base_view_name(
-    raw_explore: Dict, raw_explores: Dict[str, Dict]
-) -> Optional[str]:
+def _get_base_view_name(raw_explore: Dict, raw_model: RawModel) -> Optional[str]:
 
     # Any "from" or "view_name" defined for the explore will take the highest precedence
     # https://docs.looker.com/reference/explore-params/from-for-explore
@@ -292,14 +303,14 @@ def _get_base_view_name(
         # Priority is given to explores in the order they're added to the list.
         # https://docs.looker.com/data-modeling/learning-lookml/extends#extending_more_than_one_object_at_the_same_time
         for extended_explore_name in reversed(extended_explore_names):
-            extended_explore = raw_explores.get(extended_explore_name, None)
+            extended_explore = raw_model.raw_explores.get(extended_explore_name, None)
             assert (
                 extended_explore is not None
             ), f"Extending invalid explore {extended_explore_name}"
 
             # It's possible to chain extends
             # https://docs.looker.com/data-modeling/learning-lookml/extends#chaining_together_multiple_extends
-            base_view_name = _get_base_view_name(extended_explore, raw_explores)
+            base_view_name = _get_base_view_name(extended_explore, raw_model)
             if base_view_name is not None:
                 return base_view_name
 
@@ -307,11 +318,11 @@ def _get_base_view_name(
 
 
 def _build_looker_explore(
-    model: str, raw_explore: Dict, raw_explores: Dict[str, Dict], url: Optional[str]
+    model: str, raw_explore: Dict, raw_model: RawModel, url: Optional[str]
 ) -> VirtualView:
     name = raw_explore["name"]
 
-    base_view_name = _get_base_view_name(raw_explore, raw_explores)
+    base_view_name = _get_base_view_name(raw_explore, raw_model)
 
     # Default to the view with the same name if nothing is specified
     if base_view_name is None:
@@ -443,9 +454,7 @@ def _load_model(
     base_dir: str,
     connections: Dict[str, LookerConnectionConfig],
     projectSourceUrl: Optional[str],
-) -> Tuple[
-    Dict[str, Dict], Dict[str, Dict], Dict[str, Optional[str]], LookerConnectionConfig
-]:
+) -> Tuple[RawModel, Dict[str, Optional[str]], LookerConnectionConfig]:
     """
     Loads model file and extract raw Views and Explores
     """
@@ -489,7 +498,9 @@ def _load_model(
             f"Model {model_path} has an invalid connection {connection_name}"
         )
 
-    return raw_views, raw_explores, entity_urls, connection
+    raw_model = RawModel(raw_views=raw_views, raw_explores=raw_explores)
+
+    return raw_model, entity_urls, connection
 
 
 def parse_project(
@@ -507,7 +518,7 @@ def parse_project(
 
     for model_path in glob.glob(f"{base_dir}/**/*.model.lkml", recursive=True):
         model_name = os.path.basename(model_path)[0 : -len(".model.lkml")]
-        raw_views, raw_explores, entity_urls, connection = _load_model(
+        raw_model, entity_urls, connection = _load_model(
             model_path, base_dir, connections, projectSourceUrl
         )
 
@@ -516,11 +527,11 @@ def parse_project(
                 _build_looker_view(
                     model_name,
                     view,
-                    raw_views,
+                    raw_model,
                     connection,
                     entity_urls.get(view["name"]),
                 )
-                for view in raw_views.values()
+                for view in raw_model.raw_views.values()
                 # Exclude views that require extension
                 # https://docs.looker.com/reference/view-params/extension-for-view
                 if view.get("extension", "") != "required"
@@ -530,15 +541,15 @@ def parse_project(
         virtual_views.extend(
             [
                 _build_looker_explore(
-                    model_name, explore, raw_explores, entity_urls.get(explore["name"])
+                    model_name, explore, raw_model, entity_urls.get(explore["name"])
                 )
-                for explore in raw_explores.values()
+                for explore in raw_model.raw_explores.values()
                 # Exclude explores that require extension
                 # https://docs.looker.com/reference/view-params/extension-for-view
                 if explore.get("extension", "") != "required"
             ]
         )
 
-        model_map[model_name] = Model.from_dict(raw_explores)
+        model_map[model_name] = Model.from_dict(raw_model)
 
     return model_map, virtual_views

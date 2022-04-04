@@ -298,97 +298,67 @@ def test_derived_table(test_root_dir):
     expected = {
         "model": Model(
             explores={
-                "explore1": Explore(
-                    name="explore1",
-                ),
-                "explore2": Explore(
-                    name="explore2",
-                ),
-                "explore3": Explore(
-                    name="explore3",
-                ),
+                "explore1": Explore(name="explore1"),
+                "explore2": Explore(name="explore2"),
+                "explore3": Explore(name="explore3"),
             }
         )
     }
     assert models_map == expected
 
-    assert compare_list_ignore_order(
-        virtual_views,
-        [
-            VirtualView(
-                logical_id=VirtualViewLogicalID(
-                    name="model.view1", type=VirtualViewType.LOOKER_VIEW
-                ),
-                looker_view=LookerView(
-                    dimensions=[
-                        LookerViewDimension(data_type="string", field="country")
-                    ],
-                    measures=[
-                        LookerViewMeasure(field="average_measurement", type="average")
-                    ],
-                    source_datasets=[str(dataset_id)],
-                ),
+    assert virtual_views == [
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view1", type=VirtualViewType.LOOKER_VIEW
             ),
-            VirtualView(
-                logical_id=VirtualViewLogicalID(
-                    name="model.view2", type=VirtualViewType.LOOKER_VIEW
-                ),
-                looker_view=LookerView(
-                    dimensions=[
-                        LookerViewDimension(data_type="string", field="country")
-                    ],
-                    measures=[
-                        LookerViewMeasure(field="average_measurement", type="average")
-                    ],
-                    source_datasets=[str(dataset_id)],
-                ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id)],
             ),
-            VirtualView(
-                logical_id=VirtualViewLogicalID(
-                    name="model.view3", type=VirtualViewType.LOOKER_VIEW
-                ),
-                looker_view=LookerView(
-                    dimensions=[
-                        LookerViewDimension(data_type="string", field="country")
-                    ],
-                    source_datasets=["DATASET~22F73B93BC1BBDE2A552F0B23A83626B"],
-                ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view2", type=VirtualViewType.LOOKER_VIEW
             ),
-            VirtualView(
-                logical_id=VirtualViewLogicalID(
-                    name="model.explore1", type=VirtualViewType.LOOKER_EXPLORE
-                ),
-                looker_explore=LookerExplore(
-                    model_name="model",
-                    base_view=str(virtual_view_id1),
-                    description="description",
-                    label="label",
-                ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id)],
             ),
-            VirtualView(
-                logical_id=VirtualViewLogicalID(
-                    name="model.explore2", type=VirtualViewType.LOOKER_EXPLORE
-                ),
-                looker_explore=LookerExplore(
-                    model_name="model",
-                    base_view=str(virtual_view_id2),
-                    description="description",
-                    label="label",
-                ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view3", type=VirtualViewType.LOOKER_VIEW
             ),
-            VirtualView(
-                logical_id=VirtualViewLogicalID(
-                    name="model.explore3", type=VirtualViewType.LOOKER_EXPLORE
-                ),
-                looker_explore=LookerExplore(
-                    model_name="model",
-                    base_view=str(virtual_view_id3),
-                    description="description3",
-                    label="label3",
-                ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id)],
             ),
-        ],
-    )
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.explore1", type=VirtualViewType.LOOKER_EXPLORE
+            ),
+            looker_explore=LookerExplore(
+                model_name="model",
+                base_view=str(virtual_view_id1),
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.explore2", type=VirtualViewType.LOOKER_EXPLORE
+            ),
+            looker_explore=LookerExplore(
+                model_name="model",
+                base_view=str(virtual_view_id2),
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.explore3", type=VirtualViewType.LOOKER_EXPLORE
+            ),
+            looker_explore=LookerExplore(
+                model_name="model",
+                base_view=str(virtual_view_id3),
+            ),
+        ),
+    ]
 
 
 def test_sql_table_name(test_root_dir):
