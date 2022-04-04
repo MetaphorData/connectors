@@ -410,6 +410,47 @@ def test_sql_table_name(test_root_dir):
     ]
 
 
+def test_include_relative_to_model(test_root_dir):
+    models_map, virtual_views = parse_project(
+        f"{test_root_dir}/looker/include_relative_to_model", connection_map
+    )
+
+    dataset_id1 = EntityId(
+        EntityType.DATASET,
+        DatasetLogicalID(
+            name="db.schema.view1",
+            platform=DataPlatform.BIGQUERY,
+        ),
+    )
+
+    dataset_id2 = EntityId(
+        EntityType.DATASET,
+        DatasetLogicalID(
+            name="db.schema.view2",
+            platform=DataPlatform.BIGQUERY,
+        ),
+    )
+
+    assert virtual_views == [
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view1", type=VirtualViewType.LOOKER_VIEW
+            ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id1)],
+            ),
+        ),
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="model.view2", type=VirtualViewType.LOOKER_VIEW
+            ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_id2)],
+            ),
+        ),
+    ]
+
+
 def test_complex_includes(test_root_dir):
     models_map, virtual_views = parse_project(
         f"{test_root_dir}/looker/complex_includes", connection_map
