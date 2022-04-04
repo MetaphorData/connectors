@@ -36,6 +36,9 @@ from metaphor.common.entity_id import (
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+# lkml parser's debug log can be very noisy
+logging.getLogger("lkml.parser").setLevel(logging.WARNING)
+
 
 @dataclass
 class Explore:
