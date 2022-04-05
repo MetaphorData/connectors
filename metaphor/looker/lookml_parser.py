@@ -103,46 +103,10 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
     return to_dataset_entity_id(full_name, connection.platform, connection.account)
 
 
-def _get_extended_view_names(raw_view: Dict) -> Optional[List[str]]:
-    # Depending on the version of lkml, the "extends" field can be mapped to either "extends" or "extends__all"
-    extends = raw_view.get("extends", raw_view.get("extends__all", None))
-    if extends is None:
-        return None
-
-    # Flatten the nested list into a list of base view names
-    return functools.reduce(operator.concat, extends)
-
-
-def _sql_table_name_from_extended_views(
-    extended_view_names: List[str], raw_views: Dict[str, Dict]
-) -> Optional[str]:
-
-    sql_table_name = None
-    for extended_view_name in extended_view_names:
-        extended_view = raw_views.get(extended_view_name, None)
-        assert (
-            extended_view is not None
-        ), f"Extending non-existing view {extended_view_name}"
-
-        # It's possible to chain extends
-        # https://docs.looker.com/data-modeling/learning-lookml/extends#chaining_together_multiple_extends
-        chained_extended_view_names = _get_extended_view_names(extended_view)
-
-        # Priority is given to views in the order they're added to the list.
-        # https://docs.looker.com/data-modeling/learning-lookml/extends#extending_more_than_one_object_at_the_same_time
-        if "sql_table_name" in extended_view:
-            sql_table_name = extended_view.get("sql_table_name")
-        elif chained_extended_view_names is not None:
-            sql_table_name = _sql_table_name_from_extended_views(
-                chained_extended_view_names, raw_views
-            )
-
-    return sql_table_name
-
-
 def _get_upstream_datasets(
     view_name, raw_model: RawModel, connection: LookerConnectionConfig
 ) -> Set[EntityId]:
+
     raw_views = raw_model.raw_views
     raw_view = raw_views.get(view_name)
     if raw_view is None:
@@ -154,17 +118,7 @@ def _get_upstream_datasets(
 
     upstreams = set()
 
-    # Inheriting the upstream from extended views
-    # https://docs.looker.com/reference/view-params/extends-for-view
-    extended_view_names = _get_extended_view_names(raw_view)
-    if extended_view_names is not None:
-        sql_table_name = _sql_table_name_from_extended_views(
-            extended_view_names, raw_views
-        )
-        if sql_table_name is not None:
-            upstreams = set([_to_dataset_id(sql_table_name, connection)])
-
-    # Set/override upstream via derived_table
+    # Set upstream via derived_table
     # https://docs.looker.com/reference/view-params/derived_table
     derived_table = raw_view.get("derived_table", None)
     if derived_table is not None:
@@ -189,7 +143,7 @@ def _get_upstream_datasets(
                 _get_upstream_datasets(base_view_name, raw_model, connection)
             )
 
-    # Set/override upstream via sql_table_name
+    # Set upstream via sql_table_name
     # https://docs.looker.com/reference/view-params/sql_table_name-for-view
     sql_table_name = raw_view.get("sql_table_name", None)
     if sql_table_name is not None:
@@ -281,55 +235,26 @@ def _build_looker_view(
     )
 
 
-def _get_extended_explore_names(raw_explore: Dict) -> Optional[List[str]]:
-    # Depending on the version of lkml, the "extends" field can be mapped to either "extends" or "extends__all"
-    extends = raw_explore.get("extends", raw_explore.get("extends__all", None))
-    if extends is None:
-        return None
+def _get_base_view_name(raw_explore: Dict, raw_model: RawModel) -> str:
 
-    # Flatten the nested list into a list of base explore names
-    return functools.reduce(operator.concat, extends)
-
-
-def _get_base_view_name(raw_explore: Dict, raw_model: RawModel) -> Optional[str]:
-
-    # Any "from" or "view_name" defined for the explore will take the highest precedence
     # https://docs.looker.com/reference/explore-params/from-for-explore
-    # https://docs.looker.com/reference/explore-params/view_name
     if "from" in raw_explore:
         return raw_explore["from"]
+
+    # https://docs.looker.com/reference/explore-params/view_name
     if "view_name" in raw_explore:
         return raw_explore["view_name"]
 
-    extended_explore_names = _get_extended_explore_names(raw_explore)
-    if extended_explore_names is not None:
-        # Priority is given to explores in the order they're added to the list.
-        # https://docs.looker.com/data-modeling/learning-lookml/extends#extending_more_than_one_object_at_the_same_time
-        for extended_explore_name in reversed(extended_explore_names):
-            extended_explore = raw_model.raw_explores.get(extended_explore_name, None)
-            assert (
-                extended_explore is not None
-            ), f"Extending invalid explore {extended_explore_name}"
-
-            # It's possible to chain extends
-            # https://docs.looker.com/data-modeling/learning-lookml/extends#chaining_together_multiple_extends
-            base_view_name = _get_base_view_name(extended_explore, raw_model)
-            if base_view_name is not None:
-                return base_view_name
-
-    return None
+    # Default to the view with the same name if nothing is specified
+    return raw_explore["name"]
 
 
 def _build_looker_explore(
     model: str, raw_explore: Dict, raw_model: RawModel, url: Optional[str]
 ) -> VirtualView:
+
     name = raw_explore["name"]
-
     base_view_name = _get_base_view_name(raw_explore, raw_model)
-
-    # Default to the view with the same name if nothing is specified
-    if base_view_name is None:
-        base_view_name = name
 
     explore = LookerExplore(
         model_name=model,
@@ -380,6 +305,129 @@ def _build_looker_explore(
             name=fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
         ),
         looker_explore=explore,
+    )
+
+
+def _get_extended_names(raw_view_or_explore: Dict) -> Optional[List[str]]:
+    # Depending on the version of lkml, the "extends" field can be mapped to either "extends" or "extends__all"
+    extends = raw_view_or_explore.get(
+        "extends", raw_view_or_explore.get("extends__all", None)
+    )
+    if extends is None:
+        return None
+
+    # Flatten the nested list into a list of names
+    return functools.reduce(operator.concat, extends)
+
+
+def _extend_view(raw_view: Dict, raw_views: Dict[str, Dict]) -> Dict:
+    """Extends a view by merging parameters from extended views
+
+    See https://docs.looker.com/reference/view-params/extends-for-view
+    """
+
+    def merge_views(base: Dict, extension: Dict) -> Dict:
+        # Conflict resolution in LookML extensions is quite complicated.
+        # We're only approximating the behavior here for the metadata we care about.
+        # See https://docs.looker.com/data-modeling/learning-lookml/extends#combining_parameters
+
+        merged = dict(base)
+        for key, val in extension.items():
+            if key == "extension":
+                # "extension" should not get merged
+                pass
+            elif key == "sql_table_name":
+                # merging "sql_table_name" should also clear "derived_table"
+                merged.pop("derived_table", None)
+                merged[key] = val
+            elif key == "derived_table":
+                # merge "derived_table" only if "sql" or "explore_source" is set in value
+                # also clear "sql_table_name"
+                if "sql" in val or "explore_source" in val:
+                    merged.pop("sql_table_name", None)
+                    merged[key] = val
+            else:
+                merged[key] = val
+
+        return merged
+
+    extended_view_names = _get_extended_names(raw_view)
+    if extended_view_names is None:
+        return raw_view
+
+    # Priority is given to views based on the order in the list.
+    # https://docs.looker.com/data-modeling/learning-lookml/extends#extending_more_than_one_object_at_the_same_time
+    merged_view: Dict = {}
+    for view_name in extended_view_names:
+        extended_view = raw_views.get(view_name, None)
+        assert extended_view is not None, f"Extending non-existing view {view_name}"
+
+        # It's possible to chain extends
+        # https://docs.looker.com/data-modeling/learning-lookml/extends#chaining_together_multiple_extends
+        chained_extended_view = _extend_view(extended_view, raw_views)
+        merged_view = merge_views(merged_view, chained_extended_view)
+
+    return merge_views(merged_view, raw_view)
+
+
+def _extend_explore(raw_explore: Dict, raw_explores: Dict[str, Dict]) -> Dict:
+    """Extends a view by merging parameters from extended views
+
+    See https://docs.looker.com/reference/view-params/extends-for-view
+    """
+
+    def merge_explores(base: Dict, extension: Dict) -> Dict:
+        # Conflict resolution in LookML extensions is quite complicated.
+        # We're only approximating the behavior here for the metadata we care about.
+        # See https://docs.looker.com/data-modeling/learning-lookml/extends#combining_parameters
+
+        merged = dict(base)
+        for key, val in extension.items():
+            if key == "extension":
+                # "extension" should not get merged
+                # https://docs.looker.com/reference/view-params/extension-for-view
+                pass
+            elif key == "from" or key == "view_name":
+                # "from" & "view_name" are mutually exclusive when merging
+                merged.pop("view_name", None)
+                merged.pop("from", None)
+                merged[key] = val
+            else:
+                merged[key] = val
+
+        return merged
+
+    extended_explore_names = _get_extended_names(raw_explore)
+    if extended_explore_names is None:
+        return raw_explore
+
+    # Priority is given to explores based on the order in the list.
+    # https://docs.looker.com/data-modeling/learning-lookml/extends#extending_more_than_one_object_at_the_same_time
+    merged_explore: Dict = {}
+    for explore_name in extended_explore_names:
+        extended_explore = raw_explores.get(explore_name, None)
+        assert extended_explore is not None, f"Extending invalid explore {explore_name}"
+
+        # It's possible to chain extends
+        # https://docs.looker.com/data-modeling/learning-lookml/extends#chaining_together_multiple_extends
+        chained_extended_explore = _extend_explore(extended_explore, raw_explores)
+        merged_explore = merge_explores(merged_explore, chained_extended_explore)
+
+    return merge_explores(merged_explore, raw_explore)
+
+
+def _resolve_model(raw_model: RawModel) -> RawModel:
+    resolved_views = {}
+    for name, view in raw_model.raw_views.items():
+        resolved_views[name] = _extend_view(view, raw_model.raw_views)
+
+    resolved_explores = {}
+    for name, explore in raw_model.raw_explores.items():
+        resolved_explores[name] = _extend_explore(explore, raw_model.raw_explores)
+
+    return RawModel(
+        raw_views=resolved_views,
+        raw_explores=resolved_explores,
     )
 
 
@@ -536,16 +584,18 @@ def parse_project(
             model_path, base_dir, connections, projectSourceUrl
         )
 
+        resolved_model = _resolve_model(raw_model)
+
         virtual_views.extend(
             [
                 _build_looker_view(
                     model_name,
                     view,
-                    raw_model,
+                    resolved_model,
                     connection,
                     entity_urls.get(view["name"]),
                 )
-                for view in raw_model.raw_views.values()
+                for view in resolved_model.raw_views.values()
                 # Exclude views that require extension
                 # https://docs.looker.com/reference/view-params/extension-for-view
                 if view.get("extension", "") != "required"
@@ -555,9 +605,12 @@ def parse_project(
         virtual_views.extend(
             [
                 _build_looker_explore(
-                    model_name, explore, raw_model, entity_urls.get(explore["name"])
+                    model_name,
+                    explore,
+                    resolved_model,
+                    entity_urls.get(explore["name"]),
                 )
-                for explore in raw_model.raw_explores.values()
+                for explore in resolved_model.raw_explores.values()
                 # Exclude explores that require extension
                 # https://docs.looker.com/reference/view-params/extension-for-view
                 if explore.get("extension", "") != "required"

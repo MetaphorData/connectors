@@ -28,10 +28,15 @@ view: base_view1 {
 }
 
 view: base_view2 {
-  sql_table_name: table2 ;;
+  derived_table: {
+    sql:
+      SELECT * FROM table2 ;;
+  }
 }
 
 view: base_view3 {
+  derived_table: {
+  }
 }
 
 explore: explore1 {
