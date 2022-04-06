@@ -16,16 +16,19 @@ async def test_extractor(test_root_dir):
     mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
     mock_client.get_run_artifact = MagicMock(return_value="tempfile")
 
+    mock_dbt_extractor = MagicMock()
+
     async def fake_extract(config):
         return []
 
-    mock_dbt_extractor = MagicMock()
     mock_dbt_extractor.extract.side_effect = fake_extract
 
-    with (
-        patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient") as mock_client_class,
-        patch("metaphor.dbt.cloud.extractor.DbtExtractor") as mock_dbt_extractor_class,
-    ):
+    with patch(
+        "metaphor.dbt.cloud.extractor.DbtAdminAPIClient"
+    ) as mock_client_class, patch(
+        "metaphor.dbt.cloud.extractor.DbtExtractor"
+    ) as mock_dbt_extractor_class:
+
         mock_client_class.return_value = mock_client
         mock_dbt_extractor_class.return_value = mock_dbt_extractor
 
