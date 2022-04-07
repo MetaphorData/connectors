@@ -49,14 +49,20 @@ class DbtAdminAPIClient:
         while True:
             # https://docs.getdbt.com/dbt-cloud/api-v2#operation/listRunsForAccount
             resp = self._get(
-                "runs/", {"order_by": "-id", "limit": page_size, "offset": offset}
+                "runs/",
+                {
+                    "job_definition_id": job_id,
+                    "order_by": "-id",
+                    "limit": page_size,
+                    "offset": offset,
+                },
             )
 
             data = resp.get("data")
             assert len(data) > 0, "Unable to find any successful run"
 
             for run in data:
-                if run.get("status") == 10 and run.get("job_definition_id") == job_id:
+                if run.get("status") == 10:
                     return run.get("project_id"), run.get("id")
 
             offset += page_size
