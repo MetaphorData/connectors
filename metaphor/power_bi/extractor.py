@@ -304,7 +304,9 @@ class PowerBIExtractor(BaseExtractor):
 
             try:
                 info = self.client.get_workspace_info(workspace_id)
-                self.map_wi_datasets_to_virtual_views(workspace_id, info.datasets)
+                self.map_wi_datasets_to_virtual_views(
+                    workspace_id, info.datasets, info.name
+                )
                 self.map_wi_reports_to_dashboard(workspace_id, info.reports)
                 self.map_wi_dashboards_to_dashboard(workspace_id, info.dashboards)
             except Exception as e:
@@ -317,7 +319,10 @@ class PowerBIExtractor(BaseExtractor):
         return entities
 
     def map_wi_datasets_to_virtual_views(
-        self, workspace_id: str, wi_datasets: List[WorkspaceInfoDataset]
+        self,
+        workspace_id: str,
+        wi_datasets: List[WorkspaceInfoDataset],
+        workspace_name: str,
     ) -> None:
 
         dataset_map = {d.id: d for d in self.client.get_datasets(workspace_id)}
@@ -365,11 +370,12 @@ class PowerBIExtractor(BaseExtractor):
 
             virtual_view = VirtualView(
                 logical_id=VirtualViewLogicalID(
-                    name=wds.id, type=VirtualViewType.POWER_BI_DATASET
+                    name=wds.name,
+                    type=VirtualViewType.POWER_BI_DATASET,
+                    directory=workspace_name,
                 ),
                 power_bi_dataset=VirtualViewPowerBIDataset(
                     tables=tables,
-                    name=wds.name,
                     url=ds.webUrl,
                     source_datasets=unique_list(source_datasets),
                 ),

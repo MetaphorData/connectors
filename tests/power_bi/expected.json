@@ -1,8 +1,11 @@
 [
   {
-    "logicalId": { "name": "dataset-100", "type": "POWER_BI_DATASET" },
-    "powerBIDataset": {
+    "logicalId": {
       "name": "Foo Dataset",
+      "type": "POWER_BI_DATASET",
+      "directory": "foo"
+    },
+    "powerBIDataset": {
       "sourceDatasets": ["DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"],
       "tables": [
         {
@@ -21,9 +24,12 @@
     }
   },
   {
-    "logicalId": { "name": "dataset-101", "type": "POWER_BI_DATASET" },
-    "powerBIDataset": {
+    "logicalId": {
       "name": "Bar Dataset",
+      "type": "POWER_BI_DATASET",
+      "directory": "foo"
+    },
+    "powerBIDataset": {
       "sourceDatasets": [
         "DATASET~6D79656CAC3AB97C1FC567A817F7D611",
         "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
@@ -60,7 +66,7 @@
     },
     "logicalId": { "dashboardId": "report-1", "platform": "POWER_BI" },
     "upstream": {
-      "sourceVirtualViews": ["VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3"]
+      "sourceVirtualViews": ["VIRTUAL_VIEW~89EBEE433520AC5591CF9F57BA690C90"]
     }
   },
   {
@@ -74,7 +80,7 @@
     },
     "logicalId": { "dashboardId": "report-2", "platform": "POWER_BI" },
     "upstream": {
-      "sourceVirtualViews": ["VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"]
+      "sourceVirtualViews": ["VIRTUAL_VIEW~FEA1E00A707BE84D6F283400FB08E905"]
     }
   },
   {
@@ -98,8 +104,8 @@
     "logicalId": { "dashboardId": "dashboard-1", "platform": "POWER_BI" },
     "upstream": {
       "sourceVirtualViews": [
-        "VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3",
-        "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
+        "VIRTUAL_VIEW~89EBEE433520AC5591CF9F57BA690C90",
+        "VIRTUAL_VIEW~FEA1E00A707BE84D6F283400FB08E905"
       ]
     }
   },
@@ -124,9 +130,9 @@
     "logicalId": { "dashboardId": "dashboard-2", "platform": "POWER_BI" },
     "upstream": {
       "sourceVirtualViews": [
-        "VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3",
-        "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
+        "VIRTUAL_VIEW~89EBEE433520AC5591CF9F57BA690C90",
+        "VIRTUAL_VIEW~FEA1E00A707BE84D6F283400FB08E905"
       ]
     }
-  }  
+  }
 ]
