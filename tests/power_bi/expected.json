@@ -82,11 +82,13 @@
       "charts": [
         {
           "title": "First Chart",
-          "url": ""
+          "url": "",
+          "chartType": "OTHER"
         },
         {
           "title": "Third Chart",
-          "url": ""
+          "url": "",
+          "chartType": "OTHER"
         }
       ],
       "powerBiDashboardType": "DASHBOARD",
@@ -108,11 +110,13 @@
       "charts": [
         {
           "title": "Second Chart",
-          "url": ""
+          "url": "",
+          "chartType": "OTHER"
         },
         {
           "title": "Third Chart",
-          "url": ""
+          "url": "",
+          "chartType": "OTHER"
         }
       ],
       "powerBiDashboardType": "DASHBOARD",
@@ -128,5 +132,5 @@
         "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
       ]
     }
-  }  
+  }
 ]
