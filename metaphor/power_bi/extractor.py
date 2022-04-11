@@ -18,6 +18,7 @@ except ImportError:
 
 from metaphor.models.metadata_change_event import (
     Chart,
+    ChartType,
     Dashboard,
     DashboardInfo,
     DashboardLogicalID,
@@ -511,4 +512,7 @@ class PowerBIExtractor(BaseExtractor):
 
     @staticmethod
     def transform_tiles_to_charts(tiles: List[PowerBITile]) -> List[Chart]:
-        return [Chart(title=t.title, url=t.embedUrl) for t in tiles]
+        return [
+            Chart(title=t.title, url=t.embedUrl, chart_type=ChartType.OTHER)
+            for t in tiles
+        ]
