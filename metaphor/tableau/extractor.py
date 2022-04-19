@@ -137,13 +137,12 @@ class TableauExtractor(BaseExtractor):
         dashboard_info = DashboardInfo(
             title=f"{workbook.project_name}.{workbook.name}",
             description=workbook.description,
-            url=workbook.webpage_url,
             charts=charts,
             view_count=float(total_views),
         )
 
         source_info = SourceInfo(
-            main_url=dashboard_info.url,
+            main_url=workbook.webpage_url,
         )
 
         dashboard = Dashboard(

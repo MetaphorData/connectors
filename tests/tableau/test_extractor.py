@@ -78,7 +78,6 @@ def test_parse_dashboard():
             charts=[],
             description="d",
             title="project1.wb",
-            url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
             view_count=0.0,
         ),
         source_info=SourceInfo(
