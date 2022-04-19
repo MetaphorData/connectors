@@ -65,7 +65,7 @@ class LookerExtractor(BaseExtractor):
         os.environ["LOOKERSDK_CLIENT_SECRET"] = config.client_secret
         os.environ["LOOKERSDK_VERIFY_SSL"] = str(config.verify_ssl)
         os.environ["LOOKERSDK_TIMEOUT"] = str(config.timeout)
-        return looker_sdk.init31()
+        return looker_sdk.init40()
 
     async def extract(self, config: LookerRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, LookerExtractor.config_class())
