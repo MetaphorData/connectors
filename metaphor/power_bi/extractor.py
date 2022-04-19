@@ -373,6 +373,7 @@ class PowerBIExtractor(BaseExtractor):
                     name=wds.name,
                     url=ds.webUrl,
                     source_datasets=unique_list(source_datasets),
+                    description=wds.description,
                 ),
             )
 

@@ -17,7 +17,8 @@
           "name": "table1"
         }
       ],
-      "url": "https://powerbi.com/dataset-100"
+      "url": "https://powerbi.com/dataset-100",
+      "description":"This is a dataset"
     }
   },
   {
@@ -46,7 +47,8 @@
           "name": "table2"
         }
       ],
-      "url": "https://powerbi.com/dataset-101"
+      "url": "https://powerbi.com/dataset-101",
+      "description":"This is another dataset"
     }
   },
   {
