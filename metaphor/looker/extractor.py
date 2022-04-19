@@ -3,8 +3,8 @@ from typing import Collection, Dict, Iterable, List, Sequence, Set, Tuple
 
 try:
     import looker_sdk
-    from looker_sdk.sdk.api31.methods import Looker31SDK
-    from looker_sdk.sdk.api31.models import DashboardElement
+    from looker_sdk.sdk.api40.methods import Looker40SDK
+    from looker_sdk.sdk.api40.models import DashboardElement
 except ImportError:
     print("Please install metaphor[looker] extra\n")
     raise
@@ -57,7 +57,7 @@ class LookerExtractor(BaseExtractor):
         "text": ChartType.TEXT,
     }
 
-    def initSdk(self, config: LookerRunConfig) -> Looker31SDK:
+    def initSdk(self, config: LookerRunConfig) -> Looker40SDK:
         # Load config using environment variables instead from looker.ini file
         # See https://github.com/looker-open-source/sdk-codegen#environment-variable-configuration
         os.environ["LOOKERSDK_BASE_URL"] = config.base_url
@@ -91,7 +91,7 @@ class LookerExtractor(BaseExtractor):
         return entities
 
     def _fetch_dashboards(
-        self, config: LookerRunConfig, sdk: Looker31SDK, model_map: Dict[str, Model]
+        self, config: LookerRunConfig, sdk: Looker40SDK, model_map: Dict[str, Model]
     ) -> List[Dashboard]:
         dashboards: List[Dashboard] = []
         for basic_dashboard in sdk.all_dashboards():
