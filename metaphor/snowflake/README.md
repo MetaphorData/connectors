@@ -16,7 +16,7 @@ set user = 'metaphor_user';
 
 -- Create metaphor_role
 create role identifier($role) comment = 'Limited access role for Metaphor connector';
-grant usage on warehouse COMPUTE_WH to role identifier($role);
+grant usage on warehouse identifier($warehouse) to role identifier($role);
 grant usage on database identifier($db) to role identifier($role);
 grant usage on all schemas in database identifier($db) to role identifier($role);
 grant usage on future schemas in database identifier($db) to role identifier($role);
