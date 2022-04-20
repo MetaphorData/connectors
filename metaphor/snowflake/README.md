@@ -31,7 +31,7 @@ grant references on future materialized views in database identifier($db) to rol
 create user identifier($user) 
     password = '<password>'
     default_warehouse = $warehouse
-    default_role = metaphor_role
+    default_role = $role
     comment = 'User for Metaphor connector';
 grant role identifier($role) to user identifier($user);
 ```
