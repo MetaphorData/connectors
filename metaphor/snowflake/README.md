@@ -13,6 +13,7 @@ set warehouse = '<warehouse>';
 set db = '<database>';
 set role = 'metaphor_role';
 set user = 'metaphor_user';
+set password = '<password>';
 
 -- Create metaphor_role
 create role identifier($role) comment = 'Limited access role for Metaphor connector';
@@ -29,7 +30,7 @@ grant references on future materialized views in database identifier($db) to rol
 
 -- Create metaphor_user
 create user identifier($user) 
-    password = '<password>'
+    password = $password
     default_warehouse = $warehouse
     default_role = $role
     comment = 'User for Metaphor connector';
