@@ -7,29 +7,34 @@ This connector extracts technical metadata from a Snowflake account using [Snowf
 We recommend creating a dedicated Snowflake user with limited permissions for the connector to use by running the following statements using `ACCOUNTADMIN` role:
 
 ```sql
+use role ACCOUNTADMIN;
+
 set warehouse = '<warehouse>';
 set db = '<database>';
+set role = 'metaphor_role';
+set user = 'metaphor_user';
+set password = '<password>';
 
 -- Create metaphor_role
-create role metaphor_role comment = 'Limited access role for Metaphor connector';
-grant usage on warehouse identifier($warehouse) to role metaphor_role;
-grant usage on database identifier($db) to role metaphor_role;
-grant usage on all schemas in database identifier($db) to role metaphor_role;
-grant usage on future schemas in database identifier($db) to role metaphor_role;
-grant references on all tables in database identifier($db) to role metaphor_role;
-grant references on future tables in database identifier($db) to role metaphor_role;
-grant references on all views in database identifier($db) to role metaphor_role;
-grant references on future views in database identifier($db) to role metaphor_role;
-grant references on all materialized views in database identifier($db) to role metaphor_role;
-grant references on future materialized views in database identifier($db) to role metaphor_role;
+create role identifier($role) comment = 'Limited access role for Metaphor connector';
+grant usage on warehouse identifier($warehouse) to role identifier($role);
+grant usage on database identifier($db) to role identifier($role);
+grant usage on all schemas in database identifier($db) to role identifier($role);
+grant usage on future schemas in database identifier($db) to role identifier($role);
+grant references on all tables in database identifier($db) to role identifier($role);
+grant references on future tables in database identifier($db) to role identifier($role);
+grant references on all views in database identifier($db) to role identifier($role);
+grant references on future views in database identifier($db) to role identifier($role);
+grant references on all materialized views in database identifier($db) to role identifier($role);
+grant references on future materialized views in database identifier($db) to role identifier($role);
 
 -- Create metaphor_user
-create user metaphor_user
-    password = '<password>'
+create user identifier($user) 
+    password = $password
     default_warehouse = $warehouse
-    default_role = metaphor_role
+    default_role = $role
     comment = 'User for Metaphor connector';
-grant role metaphor_role to user metaphor_user;
+grant role identifier($role) to user identifier($user);
 ```
 
 ### Key Pair Authentication (Optional)
@@ -37,7 +42,7 @@ grant role metaphor_role to user metaphor_user;
 If you intend to use key pair authentication instead of password, follow the [Snowflake instruction](https://docs.snowflake.com/en/user-guide/key-pair-auth.html) to generate a key pair. After that, assign the public key to the user using the following command:
 
 ```sql
-alter user metaphor_user set rsa_public_key='<public_key_content>';
+alter user identifier($user) set rsa_public_key='<public_key_content>';
 ```
 
 ## Config File
