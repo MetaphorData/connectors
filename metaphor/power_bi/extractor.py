@@ -1,13 +1,13 @@
 import re
 from time import sleep
-from typing import Any, Callable, Collection, Dict, List, Type, TypeVar
+from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
 
 import requests
 
 from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import unique_list
+from metaphor.common.utils import chunks, unique_list
 from metaphor.power_bi.config import PowerBIRunConfig
 
 try:
@@ -76,14 +76,14 @@ class PowerBIWorkspace(BaseModel):
 class PowerBIReport(BaseModel):
     id: str
     name: str
-    datasetId: str
+    datasetId: Optional[str] = None
     reportType: str
     webUrl: str
 
 
 class PowerBITile(BaseModel):
     id: str
-    title: str
+    title: str = ""
     datasetId: str = ""
     reportId: str = ""
     embedUrl: str
@@ -107,7 +107,6 @@ class PowerBITable(BaseModel):
 
 
 class WorkspaceInfoDataset(BaseModel):
-    configuredBy: str
     id: str
     name: str
     tables: List[PowerBITable] = []
@@ -128,7 +127,7 @@ class WorkspaceInfoDashboard(BaseModel):
 class WorkspaceInfoReport(BaseModel):
     id: str
     name: str
-    datasetId: str
+    datasetId: Optional[str] = None
     description: str = ""
 
 
@@ -146,6 +145,12 @@ class PowerBIClient:
     AUTHORITY = "https://login.microsoftonline.com/{tenant_id}"
     SCOPES = ["https://analysis.windows.net/powerbi/api/.default"]
     API_ENDPOINT = "https://api.powerbi.com/v1.0/myorg"
+
+    # Only include active workspaces. Ignore personal workspaces & legacy workspaces.
+    GROUPS_FILTER = "state eq 'Active' and type eq 'Workspace'"
+
+    # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/workspace-info-post-workspace-info#request-body
+    MAX_WORKSPACES_PER_SCAN = 100
 
     def __init__(self, config: PowerBIRunConfig):
         self._headers = {"Authorization": self.retrieve_access_token(config)}
@@ -168,7 +173,7 @@ class PowerBIClient:
 
     def get_groups(self) -> List[PowerBIWorkspace]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/groups-get-groups-as-admin
-        url = f"{self.API_ENDPOINT}/admin/groups?$top=5000&$filter=state eq 'Active'"
+        url = f"{self.API_ENDPOINT}/admin/groups?$top=5000&$filter={PowerBIClient.GROUPS_FILTER}"
         return self._call_get(
             url, List[PowerBIWorkspace], transform_response=lambda r: r.json()["value"]
         )
@@ -201,11 +206,11 @@ class PowerBIClient:
             url, List[PowerBIReport], transform_response=lambda r: r.json()["value"]
         )
 
-    def get_workspace_info(self, workspace_id: str) -> WorkspaceInfo:
+    def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:
             # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/workspace-info-post-workspace-info
             url = f"{self.API_ENDPOINT}/admin/workspaces/getInfo"
-            request_body = {"workspaces": [workspace_id]}
+            request_body = {"workspaces": workspace_ids}
             result = requests.post(
                 url,
                 headers=self._headers,
@@ -221,7 +226,7 @@ class PowerBIClient:
 
             assert result.status_code == 202, (
                 "Workspace scan create failed, "
-                f"workspace_id: {workspace_id}, "
+                f"workspace_ids: {workspace_ids}, "
                 f"response: [{result.status_code}] {result.content.decode()}"
             )
 
@@ -253,13 +258,13 @@ class PowerBIClient:
         scan_success = wait_for_scan_result(scan_id)
         assert scan_success, f"Workspace scan failed, scan_id: {scan_id}"
 
-        # Since we only request one workspace per scan, result should contain one workspace
-        def get_first_workspace(response: requests.Response) -> Any:
-            return response.json()["workspaces"][0]
-
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/workspace-info-get-scan-result
         url = f"{self.API_ENDPOINT}/admin/workspaces/scanResult/{scan_id}"
-        return self._call_get(url, WorkspaceInfo, get_first_workspace)
+        return self._call_get(
+            url,
+            List[WorkspaceInfo],
+            transform_response=lambda r: r.json()["workspaces"],
+        )
 
     T = TypeVar("T")
 
@@ -300,16 +305,21 @@ class PowerBIExtractor(BaseExtractor):
 
         logger.info(f"Process {len(config.workspaces)} workspaces: {config.workspaces}")
 
-        for workspace_id in config.workspaces:
-            logger.info(f"Fetching metadata from Power BI workspace ID: {workspace_id}")
+        for workspace_ids in chunks(
+            config.workspaces, PowerBIClient.MAX_WORKSPACES_PER_SCAN
+        ):
+            for info in self.client.get_workspace_info(workspace_ids):
+                workspace_id = info.id
+                logger.info(
+                    f"Fetching metadata from Power BI workspace ID: {workspace_id}"
+                )
 
-            try:
-                info = self.client.get_workspace_info(workspace_id)
-                self.map_wi_datasets_to_virtual_views(workspace_id, info.datasets)
-                self.map_wi_reports_to_dashboard(workspace_id, info.reports)
-                self.map_wi_dashboards_to_dashboard(workspace_id, info.dashboards)
-            except Exception as e:
-                logger.exception(e)
+                try:
+                    self.map_wi_datasets_to_virtual_views(workspace_id, info.datasets)
+                    self.map_wi_reports_to_dashboard(workspace_id, info.reports)
+                    self.map_wi_dashboards_to_dashboard(workspace_id, info.dashboards)
+                except Exception as e:
+                    logger.exception(e)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._virtual_views.values())
@@ -386,6 +396,10 @@ class PowerBIExtractor(BaseExtractor):
         report_map = {r.id: r for r in self.client.get_reports(workspace_id)}
 
         for wi_report in wi_reports:
+            if wi_report.datasetId is None:
+                logger.warn(f"Skipping report without datasetId: {wi_report.id}")
+                continue
+
             upstream_id = str(
                 EntityId(
                     EntityType.VIRTUAL_VIEW,
@@ -506,6 +520,8 @@ class PowerBIExtractor(BaseExtractor):
             db = get_field(lines[2])
             schema = get_field(lines[3])
             table = get_field(lines[4])
+        else:
+            raise AssertionError(f"Unknown platform ${platform_str}")
 
         return to_dataset_entity_id(
             dataset_fullname(db, schema, table), platform, account
