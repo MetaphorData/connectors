@@ -97,94 +97,96 @@ async def test_extractor(test_root_dir):
     tiles = {dashboard1_id: [tile1, tile3], dashboard2_id: [tile2, tile3]}
 
     mock_instance.get_workspace_info = MagicMock(
-        return_value=WorkspaceInfo(
-            id="123",
-            name="foo",
-            type="normal",
-            state="",
-            reports=[
-                WorkspaceInfoReport(
-                    id=report1.id,
-                    name=report1.name,
-                    datasetId=report1.datasetId,
-                    description="This is a report about foo",
-                ),
-                WorkspaceInfoReport(
-                    id=report2.id,
-                    name=report2.name,
-                    datasetId=report2.datasetId,
-                    description="This is a report about bar",
-                ),
-            ],
-            datasets=[
-                WorkspaceInfoDataset(
-                    configuredBy="alice@foo.com",
-                    id=dataset1.id,
-                    name=dataset1.name,
-                    description="This is a dataset",
-                    tables=[
-                        PowerBITable(
-                            name="table1",
-                            columns=[
-                                PowerBITableColumn(name="col1", datatype="string"),
-                                PowerBITableColumn(name="col2", datatype="int"),
-                            ],
-                            measures=[
-                                PowerBITableMeasure(
-                                    name="exp1", expression="avg(col1)"
-                                ),
-                                PowerBITableMeasure(
-                                    name="exp2", expression="max(col1)"
-                                ),
-                            ],
-                            source=[
-                                {
-                                    "expression": 'let\n    Source = AmazonRedshift.Database("url:5439","db"),\n    public = Source{[Name="public"]}[Data],\n    table1 = public{[Name="table"]}[Data]\nin\n    table1'
-                                }
-                            ],
-                        )
-                    ],
-                ),
-                WorkspaceInfoDataset(
-                    configuredBy="bob@foo.com",
-                    id=dataset2.id,
-                    name=dataset2.name,
-                    description="This is another dataset",
-                    tables=[
-                        PowerBITable(
-                            name="table2",
-                            columns=[
-                                PowerBITableColumn(name="col1", datatype="string"),
-                                PowerBITableColumn(name="col2", datatype="int"),
-                            ],
-                            measures=[],
-                            source=[
-                                {
-                                    "expression": 'let\n    Source = Snowflake.Databases("some-account.snowflakecomputing.com","COMPUTE_WH"),\n    DB_Database = Source{[Name="DB",Kind="Database"]}[Data],\n    PUBLIC_Schema = DB_Database{[Name="PUBLIC",Kind="Schema"]}[Data],\n    TEST_Table = PUBLIC_Schema{[Name="TEST",Kind="Table"]}[Data]\nin\n    TEST_Table'
-                                }
-                            ],
-                        ),
-                        PowerBITable(
-                            name="table2",
-                            columns=[
-                                PowerBITableColumn(name="col1", datatype="string"),
-                                PowerBITableColumn(name="col2", datatype="int"),
-                            ],
-                            measures=[],
-                            source=[
-                                {
-                                    "expression": 'let\n    Source = GoogleBigQuery.Database(),\n    #"test-project" = Source{[Name="test-project"]}[Data],\n    test_Schema = #"test-project"{[Name="test",Kind="Schema"]}[Data],\n    example_Table = test_Schema{[Name="example",Kind="Table"]}[Data]\nin\n    example_Table'
-                                }
-                            ],
-                        ),
-                    ],
-                ),
-            ],
-            dashboards=[
-                WorkspaceInfoDashboard(displayName="Dashboard A", id="dashboard-1"),
-                WorkspaceInfoDashboard(displayName="Dashboard B", id="dashboard-2"),
-            ],
-        )
+        return_value=[
+            WorkspaceInfo(
+                id="123",
+                name="foo",
+                type="normal",
+                state="",
+                reports=[
+                    WorkspaceInfoReport(
+                        id=report1.id,
+                        name=report1.name,
+                        datasetId=report1.datasetId,
+                        description="This is a report about foo",
+                    ),
+                    WorkspaceInfoReport(
+                        id=report2.id,
+                        name=report2.name,
+                        datasetId=report2.datasetId,
+                        description="This is a report about bar",
+                    ),
+                ],
+                datasets=[
+                    WorkspaceInfoDataset(
+                        configuredBy="alice@foo.com",
+                        id=dataset1.id,
+                        name=dataset1.name,
+                        description="This is a dataset",
+                        tables=[
+                            PowerBITable(
+                                name="table1",
+                                columns=[
+                                    PowerBITableColumn(name="col1", datatype="string"),
+                                    PowerBITableColumn(name="col2", datatype="int"),
+                                ],
+                                measures=[
+                                    PowerBITableMeasure(
+                                        name="exp1", expression="avg(col1)"
+                                    ),
+                                    PowerBITableMeasure(
+                                        name="exp2", expression="max(col1)"
+                                    ),
+                                ],
+                                source=[
+                                    {
+                                        "expression": 'let\n    Source = AmazonRedshift.Database("url:5439","db"),\n    public = Source{[Name="public"]}[Data],\n    table1 = public{[Name="table"]}[Data]\nin\n    table1'
+                                    }
+                                ],
+                            )
+                        ],
+                    ),
+                    WorkspaceInfoDataset(
+                        configuredBy="bob@foo.com",
+                        id=dataset2.id,
+                        name=dataset2.name,
+                        description="This is another dataset",
+                        tables=[
+                            PowerBITable(
+                                name="table2",
+                                columns=[
+                                    PowerBITableColumn(name="col1", datatype="string"),
+                                    PowerBITableColumn(name="col2", datatype="int"),
+                                ],
+                                measures=[],
+                                source=[
+                                    {
+                                        "expression": 'let\n    Source = Snowflake.Databases("some-account.snowflakecomputing.com","COMPUTE_WH"),\n    DB_Database = Source{[Name="DB",Kind="Database"]}[Data],\n    PUBLIC_Schema = DB_Database{[Name="PUBLIC",Kind="Schema"]}[Data],\n    TEST_Table = PUBLIC_Schema{[Name="TEST",Kind="Table"]}[Data]\nin\n    TEST_Table'
+                                    }
+                                ],
+                            ),
+                            PowerBITable(
+                                name="table2",
+                                columns=[
+                                    PowerBITableColumn(name="col1", datatype="string"),
+                                    PowerBITableColumn(name="col2", datatype="int"),
+                                ],
+                                measures=[],
+                                source=[
+                                    {
+                                        "expression": 'let\n    Source = GoogleBigQuery.Database(),\n    #"test-project" = Source{[Name="test-project"]}[Data],\n    test_Schema = #"test-project"{[Name="test",Kind="Schema"]}[Data],\n    example_Table = test_Schema{[Name="example",Kind="Table"]}[Data]\nin\n    example_Table'
+                                    }
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+                dashboards=[
+                    WorkspaceInfoDashboard(displayName="Dashboard A", id="dashboard-1"),
+                    WorkspaceInfoDashboard(displayName="Dashboard B", id="dashboard-2"),
+                ],
+            )
+        ]
     )
 
     def fake_get_datasets(workspace_id) -> List[PowerBIDataset]:
