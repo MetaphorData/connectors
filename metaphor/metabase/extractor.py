@@ -206,11 +206,10 @@ class MetabaseExtractor(BaseExtractor):
             title=dashboard_details["name"],
             description=dashboard_details["description"],
             charts=charts,
-            url=f"{self._server_url}/dashboard/{dashboard_id}",
         )
 
         source_info = SourceInfo(
-            main_url=dashboard_info.url,
+            main_url=f"{self._server_url}/dashboard/{dashboard_id}",
         )
 
         dashboard_upstream = (
