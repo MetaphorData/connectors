@@ -101,12 +101,11 @@ class LookerExtractor(BaseExtractor):
             dashboard_info = DashboardInfo(
                 title=dashboard.title,
                 description=dashboard.description,
-                url=f"{config.base_url}/{dashboard.preferred_viewer}/{dashboard.id}",
                 charts=[],
             )
 
             source_info = SourceInfo(
-                main_url=dashboard_info.url,
+                main_url=f"{config.base_url}/{dashboard.preferred_viewer}/{dashboard.id}",
             )
 
             # All numeric fields must be converted to "float" to meet quicktype's expectation
