@@ -1,4 +1,5 @@
 import re
+import tempfile
 from time import sleep
 from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
 
@@ -57,13 +58,13 @@ class PowerBIDataSource(BaseModel):
 class PowerBIDataset(BaseModel):
     id: str
     name: str
-    webUrl: str = ""
+    webUrl: Optional[str]
 
 
 class PowerBIDashboard(BaseModel):
     id: str
     displayName: str
-    webUrl: str = ""
+    webUrl: Optional[str]
 
 
 class PowerBIWorkspace(BaseModel):
@@ -78,7 +79,7 @@ class PowerBIReport(BaseModel):
     name: str
     datasetId: Optional[str] = None
     reportType: str
-    webUrl: str
+    webUrl: Optional[str]
 
 
 class PowerBITile(BaseModel):
@@ -86,7 +87,7 @@ class PowerBITile(BaseModel):
     title: str = ""
     datasetId: str = ""
     reportId: str = ""
-    embedUrl: str
+    embedUrl: Optional[str]
 
 
 class PowerBITableColumn(BaseModel):
@@ -254,6 +255,15 @@ class PowerBIClient:
                 sleep(sleep_time)
             return False
 
+        def transform_scan_result(response: requests.Response) -> dict:
+            # Write output to file to help debug issues
+            fd, name = tempfile.mkstemp(suffix=".json")
+            with open(fd, "w") as fp:
+                fp.write(response.text)
+            logger.info(f"Scan result written to {name}")
+
+            return response.json()["workspaces"]
+
         scan_id = create_scan()
         scan_success = wait_for_scan_result(scan_id)
         assert scan_success, f"Workspace scan failed, scan_id: {scan_id}"
@@ -263,7 +273,7 @@ class PowerBIClient:
         return self._call_get(
             url,
             List[WorkspaceInfo],
-            transform_response=lambda r: r.json()["workspaces"],
+            transform_response=transform_scan_result,
         )
 
     T = TypeVar("T")
