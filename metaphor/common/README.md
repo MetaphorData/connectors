@@ -22,6 +22,8 @@ output:
     assume_role_arn: <iam_role_arn>
 ```
 
+To write the output to a S3 bucket, you must also set the AWS region & credentials using the [AWS CLI environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html), specifically, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY`.
+
 ### Output to API
 
 You can choose to output the results to an API using the following config:
