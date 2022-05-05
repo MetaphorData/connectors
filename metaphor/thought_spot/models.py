@@ -24,7 +24,8 @@ class Metadata(BaseModel):
 
 class DataSourceConfiguration(BaseModel):
     accountName: Optional[str]
-    user: str
+    user: Optional[str]
+    project_id: Optional[str]
 
 
 class DataSourceContent(BaseModel):
@@ -47,14 +48,14 @@ class LogicalTableContent(BaseModel):
 
 class ConnectionType(Enum):
     SNOWFLAKE = "RDBMS_SNOWFLAKE"
-    BIGQUERY = "RDBMS_BIGQUERY"
+    BIGQUERY = "RDBMS_GCP_BIGQUERY"
     REDSHIFT = "RDBMS_REDSHIFT"
 
 
 class DataSourceTypeEnum(Enum):
     DEFAULT = "DEFAULT"
     SNOWFLAKE = "RDBMS_SNOWFLAKE"
-    BIGQUERY = "RDBMS_BIGQUERY"
+    BIGQUERY = "RDBMS_GCP_BIGQUERY"
     REDSHIFT = "RDBMS_REDSHIFT"
 
 
