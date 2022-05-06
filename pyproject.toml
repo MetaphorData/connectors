@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.10.87"
+version = "0.10.88"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -21,7 +21,7 @@ google-cloud-bigquery = { version = "^2.21.0", optional = true }
 google-cloud-logging = { version = "^2.7.0", optional = true }
 lkml = { version = "^1.2.0", optional = true }
 looker-sdk = { version = "^22.4.0", optional = true }
-metaphor-models = "^0.7.4"
+metaphor-models = "^0.7.8"
 msal = { version = "^1.17.0", optional = true }
 pydantic = "^1.9.0"
 python = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
@@ -33,6 +33,7 @@ smart-open = "^5.0.0"
 snowflake-connector-python = { version = "~=2.7.0", optional = true }
 sql-metadata = { version = "2.3.0", optional = true }
 tableauserverclient = { version = "^0.17.0", optional = true }
+thoughtspot-rest-api-sdk = { version = "^1.9.0", optional = true }
 
 [tool.poetry.extras]
 all = [
@@ -49,6 +50,7 @@ all = [
   "snowflake-connector-python",
   "sql-metadata",
   "tableauserverclient",
+  "thoughtspot-rest-api-sdk",
 ]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 dbt = []
@@ -56,11 +58,12 @@ google_directory = ["google-api-python-client", "google-auth-oauthlib"]
 looker = ["lkml", "looker-sdk", "sql-metadata"]
 metabase = ["sql-metadata"]
 postgresql = ["asyncpg"]
+power_bi = ["msal"]
 redshift = ["asyncpg"]
 slack_directory = ["slack-sdk"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 tableau = ["tableauserverclient"]
-power_bi = ["msal"]
+throughtspot = ["thoughtspot-rest-api-sdk"]
 
 [tool.poetry.dev-dependencies]
 apache-airflow = "^2.0.2"
