@@ -1,6 +1,6 @@
 # ThoughtSpot
 
-This connector extracts technical metadata from ThoughtSpot using [ThoughtSpot API](https://try-everywhere.thoughtspot.cloud/v2/#/everywhere)
+This connector extracts technical metadata from ThoughtSpot using [ThoughtSpot API](https://try-everywhere.thoughtspot.cloud/v2/#/everywhere/api/rest/playgroundV2)
 
 ## Setup
 
