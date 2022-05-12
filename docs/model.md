@@ -57,7 +57,7 @@ The "logical ID" mentioned in the previous section is a JSON object containing m
 }
 ```
 
-However, when referencing another logical ID in a metadata aspect, it's more common to use a string-based ID known as "Entity ID." This ID is used internally as the database's primary & foreign keys. An Entity ID can be directly generated from the corresponding logical ID by taking the MD5 hash it canonical JSON string (see [RFC 8785](https://datatracker.ietf.org/doc/html/rfc8785) for more details). The actual implementation is hidden from the users through utility methods such as `to_dataset_entity_id`.
+However, when referencing another logical ID in a metadata aspect, it's more common to use a string-based ID known as "Entity ID." This ID is used internally as the database's primary & foreign keys. An Entity ID can be directly generated from the corresponding logical ID by taking the MD5 hash of its canonical JSON string (see [RFC 8785](https://datatracker.ietf.org/doc/html/rfc8785) for more details). The actual implementation is hidden from the users through utility methods such as `to_dataset_entity_id`.
 
 ## Python Classes & Utility Methods
 
