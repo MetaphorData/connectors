@@ -103,7 +103,7 @@ class BigQueryResource:
         return self.dataset_id.startswith("_")
 
     def is_information_schema(self) -> bool:
-        return self.table_id.startswith("INFORMATION_SCHEMA.")
+        return self.table_id.upper().startswith("INFORMATION_SCHEMA.")
 
     def remove_extras(self) -> "BigQueryResource":
         # Handle partitioned and sharded tables
