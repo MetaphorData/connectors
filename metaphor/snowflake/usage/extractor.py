@@ -146,6 +146,10 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
                 table_name = obj.objectName.lower()
                 parts = table_name.split(".")
+                if len(parts) != 3:
+                    logger.debug(f"Invalid table name {table_name}, skip")
+                    continue
+
                 db, schema, table = parts[0], parts[1], parts[2]
                 if not self.filter.include_table(db, schema, table):
                     logger.debug(f"Ignore {table_name} due to filter config")
