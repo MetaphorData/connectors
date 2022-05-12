@@ -98,7 +98,7 @@
               "type": "QUERY",
               "queryConfig": {
                 "query": "INSERT INTO `metaphor-data.test.yi_test3` \nSELECT * from `metaphor-data.test.yi_tests1` \nUNION ALL \nSELECT * from `metaphor-data.test.yi_tests2`",
-                "destinationTable": "projects/metaphor-data/datasets/test/tables/yi_tests3",
+                "destinationTable": "projects/metaphor-data/datasets/test/tables/yi_tests",
                 "createDisposition": "CREATE_IF_NEEDED",
                 "writeDisposition": "WRITE_TRUNCATE",
                 "priority": "QUERY_INTERACTIVE",

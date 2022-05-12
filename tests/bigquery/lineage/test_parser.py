@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytz
 
-from metaphor.bigquery.lineage.extractor import JobChangeEvent
+from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.bigquery.utils import BigQueryResource
 from tests.bigquery.load_entries import load_entries
 
@@ -41,9 +41,12 @@ def test_parse_log(test_root_dir):
                 BigQueryResource(
                     project_id="metaphor-data", dataset_id="test", table_id="yi_tests2"
                 ),
+                BigQueryResource(
+                    project_id="metaphor-data", dataset_id="test", table_id="yi_tests3"
+                ),
             ],
             destination_table=BigQueryResource(
-                project_id="metaphor-data", dataset_id="test", table_id="yi_tests3"
+                project_id="metaphor-data", dataset_id="test", table_id="yi_tests"
             ),
         ),
     ]
