@@ -102,6 +102,9 @@ class BigQueryResource:
     def is_temporary(self) -> bool:
         return self.dataset_id.startswith("_")
 
+    def is_information_schema(self) -> bool:
+        return self.table_id.startswith("INFORMATION_SCHEMA.")
+
     def remove_extras(self) -> "BigQueryResource":
         # Handle partitioned and sharded tables
         matches = PARTITIONED_TABLE_REGEX.match(self.table_id)
