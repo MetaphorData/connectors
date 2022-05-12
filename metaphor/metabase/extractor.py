@@ -122,7 +122,7 @@ class MetabaseExtractor(BaseExtractor):
             try:
                 self._parse_database(database)
             except Exception as ex:
-                logger.error(f"error parsing database {database['id']}", ex)
+                logger.error(f"error parsing database {database['id']}: {ex}")
 
         # fetch all cards (charts)
         cards = self._fetch_assets("card")
@@ -130,7 +130,7 @@ class MetabaseExtractor(BaseExtractor):
             try:
                 self._parse_chart(card)
             except Exception as ex:
-                logger.error(f"error parsing card {card['id']}", ex)
+                logger.error(f"error parsing card {card['id']}: {ex}")
 
         # fetch all dashboards
         dashboards = self._fetch_assets("dashboard")
@@ -138,7 +138,7 @@ class MetabaseExtractor(BaseExtractor):
             try:
                 self._parse_dashboard(dashboard)
             except Exception as ex:
-                logger.error(f"error parsing dashboard {dashboard['id']}", ex)
+                logger.error(f"error parsing dashboard {dashboard['id']}: {ex}")
 
         return self._dashboards.values()
 
