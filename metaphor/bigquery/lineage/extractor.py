@@ -1,7 +1,7 @@
+import json
 import logging
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Collection, Dict, List, Optional
+from typing import Collection, Dict
 
 from sql_metadata import Parser
 
@@ -20,12 +20,8 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
-from metaphor.bigquery.utils import (
-    BigQueryResource,
-    LogEntry,
-    build_client,
-    build_logging_client,
-)
+from metaphor.bigquery.logEvent import JobChangeEvent
+from metaphor.bigquery.utils import LogEntry, build_client, build_logging_client
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
@@ -34,97 +30,6 @@ from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
-
-
-@dataclass
-class JobChangeEvent:
-    """
-    Container class for BigQueryAuditMetadata.JobChange, where the 'after' job status is 'DONE'
-    See https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata#bigqueryauditmetadata.jobchange
-    """
-
-    job_name: str
-    timestamp: datetime
-    user_email: str
-
-    query: Optional[str]
-    statementType: Optional[str]
-    source_tables: List[BigQueryResource]
-    destination_table: BigQueryResource
-
-    @classmethod
-    def can_parse(cls, entry: LogEntry) -> bool:
-        try:
-            assert entry.resource.type == "bigquery_project"
-            assert isinstance(entry.received_timestamp, datetime)
-            assert entry.payload["metadata"]["jobChange"]["after"] == "DONE"
-            # support only QUERY and COPY job currently, see https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata.JobConfig.Type
-            assert entry.payload["metadata"]["jobChange"]["job"]["jobConfig"][
-                "type"
-            ] in ("QUERY", "COPY")
-            return True
-        except (KeyError, TypeError, AssertionError):
-            return False
-
-    @classmethod
-    def from_entry(cls, entry: LogEntry) -> Optional["JobChangeEvent"]:
-        timestamp = entry.received_timestamp
-        user_email = entry.payload["authenticationInfo"].get("principalEmail", "")
-
-        job = entry.payload["metadata"]["jobChange"]["job"]
-        job_name = job.get("jobName")  # Format: projects/<projectId>/jobs/<jobId>
-
-        job_type = job["jobConfig"]["type"]
-        query, query_statement_type = None, None
-
-        if job_type == "COPY":
-            copy_job = job["jobConfig"]["tableCopyConfig"]
-            source_tables = [
-                BigQueryResource.from_str(source).remove_extras()
-                for source in copy_job["sourceTables"]
-            ]
-            destination_table = BigQueryResource.from_str(
-                copy_job["destinationTable"]
-            ).remove_extras()
-        elif job_type == "QUERY":
-            query_job = job["jobConfig"]["queryConfig"]
-            query = query_job["query"]
-            destination_table = BigQueryResource.from_str(
-                query_job["destinationTable"]
-            ).remove_extras()
-            query_statement_type = query_job.get("statementType")
-
-            query_stats = job["jobStats"].get("queryStats", {})
-            referenced_tables: List[str] = query_stats.get("referencedTables", [])
-            referenced_views: List[str] = query_stats.get("referencedViews", [])
-            source_tables = [
-                BigQueryResource.from_str(source).remove_extras()
-                for source in referenced_tables + referenced_views
-            ]
-        else:
-            logger.error(f"unsupported job type {job_type}")
-            return None
-
-        if destination_table.is_temporary() or any(
-            [s.is_temporary() for s in source_tables]
-        ):
-            return None
-
-        # remove duplicates in source datasets and self referencing
-        source_table_set = dict.fromkeys(source_tables)
-        source_table_set.pop(destination_table, None)
-        if len(source_table_set) == 0:
-            return None
-
-        return cls(
-            job_name=job_name,
-            timestamp=timestamp,
-            user_email=user_email,
-            query=query,
-            statementType=query_statement_type,
-            source_tables=list(source_table_set),
-            destination_table=destination_table,
-        )
 
 
 class BigQueryLineageExtractor(BaseExtractor):
@@ -252,6 +157,12 @@ class BigQueryLineageExtractor(BaseExtractor):
     def _parse_job_change_entry(self, entry: LogEntry):
         job_change = JobChangeEvent.from_entry(entry)
         if job_change is None:
+            return
+
+        if job_change.destination_table in job_change.source_tables:
+            logger.warning(
+                f"self referencing tables in job {json.dumps(job_change.__dict__, default=str)}"
+            )
             return
 
         destination = job_change.destination_table

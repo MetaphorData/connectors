@@ -1,9 +1,8 @@
 import json
 import logging
-from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta
 from hashlib import sha256
-from typing import Collection, Dict, List, Optional, Set
+from typing import Collection, Dict, Set
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -13,79 +12,17 @@ from metaphor.models.metadata_change_event import (
     QueryInfo,
 )
 
+from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.bigquery.query.config import BigQueryQueryRunConfig
-from metaphor.bigquery.utils import BigQueryResource, LogEntry, build_logging_client
+from metaphor.bigquery.utils import LogEntry, build_logging_client
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import start_of_day, unique_list
+from metaphor.common.utils import start_of_day
 
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
-
-
-@dataclass
-class JobChangeEvent:
-    """
-    Container class for BigQueryAuditMetadata.JobChange, where the 'after' job status is 'DONE'
-    See https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata#bigqueryauditmetadata.jobchange
-    """
-
-    timestamp: datetime
-    user_email: str
-
-    query: str
-    statementType: str
-    queried_tables: List[BigQueryResource]
-
-    @classmethod
-    def can_parse(cls, entry: LogEntry) -> bool:
-        try:
-            assert entry.resource.type == "bigquery_project"
-            assert isinstance(entry.received_timestamp, datetime)
-            assert entry.payload["metadata"]["jobChange"]["after"] == "DONE"
-            assert (
-                entry.payload["metadata"]["jobChange"]["job"]["jobConfig"]["type"]
-                == "QUERY"
-            )
-            return True
-        except (KeyError, TypeError, AssertionError):
-            return False
-
-    @classmethod
-    def from_entry(cls, entry: LogEntry) -> Optional["JobChangeEvent"]:
-        timestamp = entry.received_timestamp
-        user_email = entry.payload["authenticationInfo"].get("principalEmail", "")
-
-        job = entry.payload["metadata"]["jobChange"]["job"]
-
-        query_config = job["jobConfig"]["queryConfig"]
-        query = query_config["query"]
-        query_statement_type = query_config.get("statementType")
-
-        query_stats = job["jobStats"].get("queryStats", {})
-        referenced_tables: List[str] = query_stats.get("referencedTables", [])
-        referenced_views: List[str] = query_stats.get("referencedViews", [])
-        queried_tables = [
-            BigQueryResource.from_str(source).remove_extras()
-            for source in referenced_tables + referenced_views
-        ]
-
-        # Remove temp tables & duplicates
-        queried_tables = unique_list(
-            [t for t in queried_tables if not t.is_temporary()]
-        )
-        if len(queried_tables) == 0:
-            return None
-
-        return cls(
-            timestamp=timestamp,
-            user_email=user_email,
-            query=query,
-            statementType=query_statement_type,
-            queried_tables=queried_tables,
-        )
 
 
 class BigQueryQueryExtractor(BaseExtractor):
@@ -133,14 +70,14 @@ class BigQueryQueryExtractor(BaseExtractor):
 
     def _parse_job_change_entry(self, entry: LogEntry) -> None:
         job_change = JobChangeEvent.from_entry(entry)
-        if job_change is None:
+        if job_change is None or job_change.query is None:
             return
 
         if job_change.user_email in self._excluded_usernames:
             logger.info(f"Skipped query issued by {job_change.user_email}")
             return
 
-        for queried_table in job_change.queried_tables:
+        for queried_table in job_change.source_tables:
             if not self._dataset_filter.include_schema(
                 queried_table.project_id, queried_table.dataset_id
             ) or not self._dataset_filter.include_table(
