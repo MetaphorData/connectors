@@ -95,7 +95,7 @@ class ThoughtspotExtractor(BaseExtractor):
             table_id = table.header.id
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
-                    name=table_id, type=VirtualViewType.THOUGHT_SPOT
+                    name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
                 ),
                 thought_spot=ThoughtSpotDataObject(
                     columns=[
@@ -145,7 +145,7 @@ class ThoughtspotExtractor(BaseExtractor):
                     str(
                         to_virtual_view_entity_id(
                             name=source.tableId,
-                            virtualViewType=VirtualViewType.THOUGHT_SPOT,
+                            virtualViewType=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT,
                         )
                     )
                     for column in table.columns
@@ -265,7 +265,7 @@ class ThoughtspotExtractor(BaseExtractor):
                 str(
                     to_virtual_view_entity_id(
                         name=reference.id,
-                        virtualViewType=VirtualViewType.THOUGHT_SPOT,
+                        virtualViewType=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT,
                     )
                 )
                 for viz, *_ in charts
