@@ -205,9 +205,8 @@ def _build_looker_view(
         view.source_datasets = [
             str(ds) for ds in _get_upstream_datasets(name, raw_model, connection)
         ]
-    except Exception as e:
-        logger.error(f"Can't determine upstream datasets for view {name}")
-        logger.exception(e)
+    except Exception:
+        logger.exception(f"Can't determine upstream datasets for view {name}")
 
     if "dimensions" in raw_view:
         view.dimensions = [

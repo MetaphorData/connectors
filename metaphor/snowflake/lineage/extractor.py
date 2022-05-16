@@ -127,11 +127,12 @@ class SnowflakeLineageExtractor(BaseExtractor):
         for base_objects_accessed, objects_modified, query in access_logs:
             try:
                 self._parse_access_log(base_objects_accessed, objects_modified, query)
-            except Exception as e:
-                logger.error("Failed to parse access log.")
-                logger.error(f"BASE_OBJECTS_ACCESSED: {base_objects_accessed}")
-                logger.error(f"OBJECTS_MODIFIED: {objects_modified}")
-                logger.exception(e)
+            except Exception:
+                logger.exception(
+                    "Failed to parse access log.\n"
+                    f"BASE_OBJECTS_ACCESSED: {base_objects_accessed}\n"
+                    f"OBJECTS_MODIFIED: {objects_modified}"
+                )
 
     def _parse_access_log(
         self, objects_accessed: str, objects_modified: str, query: str
