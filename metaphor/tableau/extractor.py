@@ -116,8 +116,7 @@ class TableauExtractor(BaseExtractor):
                 try:
                     self._parse_dashboard_upstream(item)
                 except Exception as error:
-                    traceback.print_exc()
-                    logger.error(
+                    logger.exception(
                         f"failed to parse workbook upstream {item['vizportalUrlId']}, error {error}"
                     )
 

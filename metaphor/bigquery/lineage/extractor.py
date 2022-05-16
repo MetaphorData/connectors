@@ -90,7 +90,7 @@ class BigQueryLineageExtractor(BaseExtractor):
                 try:
                     self._parse_view_lineage(client.project, bq_table)
                 except Exception as ex:
-                    logger.error(ex)
+                    logger.exception(ex)
 
     def _parse_view_lineage(self, project_id, bq_table: bigquery.table.Table) -> None:
         view_query = bq_table.view_query or bq_table.mview_query
@@ -147,7 +147,7 @@ class BigQueryLineageExtractor(BaseExtractor):
                     self._parse_job_change_entry(entry)
                     parsed += 1
             except Exception as ex:
-                logger.error(ex)
+                logger.exception(ex)
 
             if fetched % 1000 == 0:
                 logger.info(f"Fetched {fetched} audit logs")

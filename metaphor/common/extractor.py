@@ -1,5 +1,4 @@
 import asyncio
-import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Collection, List, Type
@@ -41,8 +40,7 @@ class BaseExtractor(ABC):
             entities = asyncio.run(self.extract(config))
         except Exception as ex:
             run_status = Status.FAILURE
-            logger.error(ex)
-            traceback.print_exc()
+            logger.exception(ex)
 
         end_time = datetime.now()
         entity_count = len(entities)
