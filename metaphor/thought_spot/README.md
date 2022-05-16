@@ -1,6 +1,6 @@
 # ThoughtSpot
 
-This connector extracts technical metadata from ThoughtSpot using [ThoughtSpot REST API v2](https://try-everywhere.thoughtspot.cloud/v2/#/everywhere/api/rest/playgroundV2), which will need the ThoughtSpot Everywhere Edition license. See this documentation [Difference between REST v1 and v2 APIs](https://try-everywhere.thoughtspot.cloud/v2/#/everywhere/documentation/en/?pageid=v1v2-comparison) for more detail.
+This connector extracts technical metadata from ThoughtSpot using [ThoughtSpot REST API v2](https://try-everywhere.thoughtspot.cloud/v2/#/everywhere/api/rest/playgroundV2), which will need the [ThoughtSpot Everywhere](https://www.thoughtspot.com/everywhere) Edition license. See this documentation [Difference between REST v1 and v2 APIs](https://try-everywhere.thoughtspot.cloud/v2/#/everywhere/documentation/en/?pageid=v1v2-comparison) for more detail.
 
 ## Setup
 
