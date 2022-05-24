@@ -100,7 +100,7 @@ class Visualization(Metadata):
 
 
 class SheetContent(BaseModel):
-    visualizations: List[Visualization]
+    visualizations: Optional[List[Visualization]] = []
 
 
 class Question(BaseModel):
