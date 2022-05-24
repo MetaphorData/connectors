@@ -3,6 +3,6 @@ ignore = E203,E501,W503
 exclude =
     venv,
     __pycache__,
-    metaphor/dbt/generated,
+    metaphor/dbt/generated/**,
     **/.pytest_cache
 max-complexity = 12

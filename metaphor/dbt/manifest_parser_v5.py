@@ -19,7 +19,7 @@ from pydantic.utils import unique_list
 from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
 from metaphor.common.logger import get_logger
 
-from .generated.dbt_manifest_v4 import (
+from .generated.dbt_manifest_v5 import (
     CompiledGenericTestNode,
     CompiledModelNode,
     DbtManifest,
@@ -51,9 +51,10 @@ MODEL_NODE_TYPE = Union[CompiledModelNode, ParsedModelNode]
 TEST_NODE_TYPE = Union[CompiledGenericTestNode, ParsedGenericTestNode]
 
 
-class ManifestParserV4:
+class ManifestParserV5:
     """
-    dbt manifest parser, using v4 schema https://schemas.getdbt.com/dbt/manifest/v4.json
+    dbt manifest parser, using v5 schema https://schemas.getdbt.com/dbt/manifest/v5.json
+    Backward compatible with v4
     """
 
     def __init__(
