@@ -23,8 +23,8 @@ class UsageUtil:
         account: Optional[str],
         full_name: str,
         platform: DataPlatform,
-        useHistory: bool,
-        utc_now: datetime,
+        useHistory: bool = False,
+        utc_now: Optional[datetime] = None,
     ) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
