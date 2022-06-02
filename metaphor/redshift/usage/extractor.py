@@ -140,7 +140,7 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
 
         if use_history:
             UsageUtil.update_table_and_columns_usage_history(
-                self._datasets[table_name].usage_history, []
+                self._datasets[table_name].usage_history, [], access_event.usename
             )
         else:
             UsageUtil.update_table_and_columns_usage(
@@ -148,4 +148,5 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
                 columns=[],
                 start_time=access_event.starttime,
                 utc_now=self._utc_now,
+                username=access_event.usename,
             )

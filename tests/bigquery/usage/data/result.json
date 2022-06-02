@@ -79,6 +79,33 @@
           "count": 2.0,
           "percentile": 0.5
         }
+      },
+      "userQueryCounts": {
+        "last24Hours": [],
+        "last30Days": [
+          {
+            "count": 2.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 2.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 2.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 2.0,
+            "user": "dev@metaphor.io"
+          }
+        ]
       }
     }
   },
@@ -162,6 +189,33 @@
           "count": 4.0,
           "percentile": 1.0
         }
+      },
+      "userQueryCounts": {
+        "last24Hours": [],
+        "last30Days": [
+          {
+            "count": 4.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 4.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 4.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 4.0,
+            "user": "dev@metaphor.io"
+          }
+        ]
       }
     }
   }

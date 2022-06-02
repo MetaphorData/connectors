@@ -72,7 +72,7 @@ def test_parse_access_log(test_root_dir):
     ]
     """
 
-    extractor._parse_access_log(start_of_day(), accessed_objects)
+    extractor._parse_access_log(start_of_day(), "tester", accessed_objects)
 
     results = {}
     for key, value in extractor._datasets.items():

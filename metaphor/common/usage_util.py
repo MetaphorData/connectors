@@ -14,6 +14,8 @@ from metaphor.models.metadata_change_event import (
     HistoryType,
     QueryCount,
     QueryCounts,
+    UserQueryCount,
+    UserQueryCounts,
 )
 
 
@@ -39,27 +41,36 @@ class UsageUtil:
                 history_date=utc_now,
                 query_count=QueryCount(count=0.0, percentile=0.0),
                 field_query_counts=[],
+                user_query_counts=[],
             )
-            return dataset
-
         # write to dataset usage aspect
-        dataset.usage = DatasetUsage(aspect_type=AspectType.DATASET_USAGE)
-        dataset.usage.query_counts = QueryCounts(
-            # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
-            # See https://github.com/quicktype/quicktype/issues/1375
-            last24_hours=QueryCount(count=0.0),
-            last7_days=QueryCount(count=0.0),
-            last30_days=QueryCount(count=0.0),
-            last90_days=QueryCount(count=0.0),
-            last365_days=QueryCount(count=0.0),
-        )
-        dataset.usage.field_query_counts = FieldQueryCounts(
-            last24_hours=[],
-            last7_days=[],
-            last30_days=[],
-            last90_days=[],
-            last365_days=[],
-        )
+        else:
+            dataset.usage = DatasetUsage(
+                aspect_type=AspectType.DATASET_USAGE,
+                query_counts=QueryCounts(
+                    # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
+                    # See https://github.com/quicktype/quicktype/issues/1375
+                    last24_hours=QueryCount(count=0.0),
+                    last7_days=QueryCount(count=0.0),
+                    last30_days=QueryCount(count=0.0),
+                    last90_days=QueryCount(count=0.0),
+                    last365_days=QueryCount(count=0.0),
+                ),
+                field_query_counts=FieldQueryCounts(
+                    last24_hours=[],
+                    last7_days=[],
+                    last30_days=[],
+                    last90_days=[],
+                    last365_days=[],
+                ),
+                user_query_counts=UserQueryCounts(
+                    last24_hours=[],
+                    last7_days=[],
+                    last30_days=[],
+                    last90_days=[],
+                    last365_days=[],
+                ),
+            )
 
         return dataset
 
@@ -69,6 +80,7 @@ class UsageUtil:
         columns: List[str],
         start_time: datetime,
         utc_now: datetime,
+        username: Optional[str],
     ):
         if start_time > utc_now - timedelta(1):
             usage.query_counts.last24_hours.count += 1
@@ -86,52 +98,116 @@ class UsageUtil:
             usage.query_counts.last365_days.count += 1
 
         for column_name in columns:
-            if start_time > utc_now - timedelta(1):
-                UsageUtil.update_field_query_count(
-                    usage.field_query_counts.last24_hours,
-                    column_name,
-                )
+            UsageUtil._update_field_query_counts(
+                usage.field_query_counts, column_name, start_time, utc_now
+            )
 
-            if start_time > utc_now - timedelta(7):
-                UsageUtil.update_field_query_count(
-                    usage.field_query_counts.last7_days,
-                    column_name,
-                )
-
-            if start_time > utc_now - timedelta(30):
-                UsageUtil.update_field_query_count(
-                    usage.field_query_counts.last30_days,
-                    column_name,
-                )
-
-            if start_time > utc_now - timedelta(90):
-                UsageUtil.update_field_query_count(
-                    usage.field_query_counts.last90_days,
-                    column_name,
-                )
-
-            if start_time > utc_now - timedelta(365):
-                UsageUtil.update_field_query_count(
-                    usage.field_query_counts.last365_days,
-                    column_name,
-                )
+        if username:
+            UsageUtil._update_user_query_counts(
+                usage.user_query_counts, username, start_time, utc_now
+            )
 
     @staticmethod
     def update_table_and_columns_usage_history(
         history: DatasetUsageHistory,
         columns: List[str],
+        username: Optional[str],
     ):
         history.query_count.count += 1
         for column_name in columns:
-            UsageUtil.update_field_query_count(history.field_query_counts, column_name)
+            UsageUtil._update_field_query_count(history.field_query_counts, column_name)
+        if username:
+            UsageUtil._update_user_query_count(history.user_query_counts, username)
 
     @staticmethod
-    def update_field_query_count(query_counts: List[FieldQueryCount], column: str):
+    def _update_field_query_counts(
+        field_query_counts: FieldQueryCounts,
+        column: str,
+        start_time: datetime,
+        utc_now: datetime,
+    ):
+        if start_time > utc_now - timedelta(1):
+            UsageUtil._update_field_query_count(
+                field_query_counts.last24_hours,
+                column,
+            )
+
+        if start_time > utc_now - timedelta(7):
+            UsageUtil._update_field_query_count(
+                field_query_counts.last7_days,
+                column,
+            )
+
+        if start_time > utc_now - timedelta(30):
+            UsageUtil._update_field_query_count(
+                field_query_counts.last30_days,
+                column,
+            )
+
+        if start_time > utc_now - timedelta(90):
+            UsageUtil._update_field_query_count(
+                field_query_counts.last90_days,
+                column,
+            )
+
+        if start_time > utc_now - timedelta(365):
+            UsageUtil._update_field_query_count(
+                field_query_counts.last365_days,
+                column,
+            )
+
+    @staticmethod
+    def _update_user_query_counts(
+        user_query_counts: UserQueryCounts,
+        username: str,
+        start_time: datetime,
+        utc_now: datetime,
+    ):
+        if start_time > utc_now - timedelta(1):
+            UsageUtil._update_user_query_count(
+                user_query_counts.last24_hours,
+                username,
+            )
+
+        if start_time > utc_now - timedelta(7):
+            UsageUtil._update_user_query_count(
+                user_query_counts.last7_days,
+                username,
+            )
+
+        if start_time > utc_now - timedelta(30):
+            UsageUtil._update_user_query_count(
+                user_query_counts.last30_days,
+                username,
+            )
+
+        if start_time > utc_now - timedelta(90):
+            UsageUtil._update_user_query_count(
+                user_query_counts.last90_days,
+                username,
+            )
+
+        if start_time > utc_now - timedelta(365):
+            UsageUtil._update_user_query_count(
+                user_query_counts.last365_days,
+                username,
+            )
+
+    @staticmethod
+    def _update_field_query_count(query_counts: List[FieldQueryCount], column: str):
         item = next((x for x in query_counts if x.field == column), None)
         if item:
             item.count += 1
         else:
             query_counts.append(FieldQueryCount(field=column, count=1.0))
+
+    @staticmethod
+    def _update_user_query_count(query_counts: List[UserQueryCount], username: str):
+        item = next((x for x in query_counts if x.user == username), None)
+        if item:
+            item.count += 1
+        else:
+            query_counts.append(UserQueryCount(user=username, count=1.0))
 
     @staticmethod
     def calculate_statistics(datasets: Collection[Dataset]) -> None:

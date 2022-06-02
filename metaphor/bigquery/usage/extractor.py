@@ -127,6 +127,7 @@ class BigQueryUsageExtractor(BaseExtractor):
             UsageUtil.update_table_and_columns_usage_history(
                 history=history,
                 columns=read_event.columns,
+                username=read_event.username,
             )
         else:
             usage = self._datasets[table_name].usage
@@ -135,6 +136,7 @@ class BigQueryUsageExtractor(BaseExtractor):
                 columns=read_event.columns,
                 start_time=read_event.timestamp,
                 utc_now=self._utc_now,
+                username=read_event.username,
             )
 
     @staticmethod
