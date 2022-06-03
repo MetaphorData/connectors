@@ -94,7 +94,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
             queries = {
                 x: QueryWithParam(
                     f"""
-                    SELECT START_TIME, DIRECT_OBJECTS_ACCESSED
+                    SELECT START_TIME, q.USER_NAME, DIRECT_OBJECTS_ACCESSED
                     FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                     JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                       ON a.QUERY_ID = q.QUERY_ID
@@ -130,10 +130,12 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
     def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
         logger.info(f"access logs batch #{batch_number}")
-        for start_time, accessed_objects in access_logs:
-            self._parse_access_log(start_time, accessed_objects)
+        for start_time, username, accessed_objects in access_logs:
+            self._parse_access_log(start_time, username, accessed_objects)
 
-    def _parse_access_log(self, start_time: datetime, accessed_objects: str) -> None:
+    def _parse_access_log(
+        self, start_time: datetime, username: str, accessed_objects: str
+    ) -> None:
         try:
             objects = parse_raw_as(List[AccessedObject], accessed_objects)
             for obj in objects:
@@ -170,11 +172,15 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
                 if self._use_history:
                     UsageUtil.update_table_and_columns_usage_history(
-                        self._datasets[table_name].usage_history, columns
+                        self._datasets[table_name].usage_history, columns, username
                     )
                 else:
                     UsageUtil.update_table_and_columns_usage(
-                        self._datasets[table_name].usage, columns, start_time, utc_now
+                        self._datasets[table_name].usage,
+                        columns,
+                        start_time,
+                        utc_now,
+                        username,
                     )
         except Exception:
             logger.exception(f"access log error, objects: {accessed_objects}")

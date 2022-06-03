@@ -57,6 +57,10 @@ class PostgreSQLUsageExtractor(PostgreSQLExtractor):
                     dataset = UsageUtil.init_dataset(
                         None, full_name, DataPlatform.POSTGRESQL
                     )
+
+                    # don't have exact time of query, so set all time window to be same query count
+                    dataset.usage.query_counts.last24_hours.count = float(read_count)
+                    dataset.usage.query_counts.last7_days.count = float(read_count)
                     dataset.usage.query_counts.last30_days.count = float(read_count)
                     dataset.usage.query_counts.last90_days.count = float(read_count)
                     dataset.usage.query_counts.last365_days.count = float(read_count)

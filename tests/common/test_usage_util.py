@@ -14,6 +14,7 @@ from metaphor.models.metadata_change_event import (
     HistoryType,
     QueryCount,
     QueryCounts,
+    UserQueryCounts,
 )
 
 from metaphor.common.usage_util import UsageUtil
@@ -54,6 +55,13 @@ def test_init_dataset():
                 last7_days=QueryCount(count=0.0, percentile=None),
                 last90_days=QueryCount(count=0.0, percentile=None),
             ),
+            user_query_counts=UserQueryCounts(
+                last24_hours=[],
+                last30_days=[],
+                last365_days=[],
+                last7_days=[],
+                last90_days=[],
+            ),
         ),
         usage_history=None,
     )
@@ -67,6 +75,7 @@ def test_init_dataset():
             history_date=now,
             history_type=HistoryType.DATASET_USAGE_HISTORY,
             query_count=QueryCount(count=0.0, percentile=0.0),
+            user_query_counts=[],
         ),
     )
 

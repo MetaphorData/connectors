@@ -12,7 +12,13 @@
       "queryCount": {
         "count": 2.0,
         "percentile": 0.0
-      }
+      },
+      "userQueryCounts": [
+        {
+          "count": 2.0,
+          "user": "root"
+        }
+      ]
     }
   },
   {
@@ -28,7 +34,13 @@
       "queryCount": {
         "count": 4.0,
         "percentile": 0.0
-      }
+      },
+      "userQueryCounts": [
+        {
+          "count": 4.0,
+          "user": "root"
+        }
+      ]
     }
   }
 ]

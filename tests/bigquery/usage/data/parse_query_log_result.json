@@ -10,28 +10,89 @@
       "fieldQueryCounts": {
         "last24Hours": [],
         "last30Days": [
-          { "count": 2.0, "field": "event_dimensions.hostname" },
-          { "count": 2.0, "field": "event_name" }
+          {
+            "count": 2.0,
+            "field": "event_dimensions.hostname"
+          },
+          {
+            "count": 2.0,
+            "field": "event_name"
+          }
         ],
         "last365Days": [
-          { "count": 2.0, "field": "event_dimensions.hostname" },
-          { "count": 2.0, "field": "event_name" }
+          {
+            "count": 2.0,
+            "field": "event_dimensions.hostname"
+          },
+          {
+            "count": 2.0,
+            "field": "event_name"
+          }
         ],
         "last7Days": [
-          { "count": 2.0, "field": "event_dimensions.hostname" },
-          { "count": 2.0, "field": "event_name" }
+          {
+            "count": 2.0,
+            "field": "event_dimensions.hostname"
+          },
+          {
+            "count": 2.0,
+            "field": "event_name"
+          }
         ],
         "last90Days": [
-          { "count": 2.0, "field": "event_dimensions.hostname" },
-          { "count": 2.0, "field": "event_name" }
+          {
+            "count": 2.0,
+            "field": "event_dimensions.hostname"
+          },
+          {
+            "count": 2.0,
+            "field": "event_name"
+          }
         ]
       },
       "queryCounts": {
-        "last24Hours": { "count": 0.0 },
-        "last30Days": { "count": 2.0 },
-        "last365Days": { "count": 2.0 },
-        "last7Days": { "count": 2.0 },
-        "last90Days": { "count": 2.0 }
+        "last24Hours": {
+          "count": 0.0
+        },
+        "last30Days": {
+          "count": 2.0
+        },
+        "last365Days": {
+          "count": 2.0
+        },
+        "last7Days": {
+          "count": 2.0
+        },
+        "last90Days": {
+          "count": 2.0
+        }
+      },
+      "userQueryCounts": {
+        "last24Hours": [],
+        "last30Days": [
+          {
+            "count": 2.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 2.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 2.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 2.0,
+            "user": "dev@metaphor.io"
+          }
+        ]
       }
     }
   },
@@ -46,28 +107,89 @@
       "fieldQueryCounts": {
         "last24Hours": [],
         "last30Days": [
-          { "count": 3.0, "field": "description" },
-          { "count": 3.0, "field": "event_name" }
+          {
+            "count": 3.0,
+            "field": "description"
+          },
+          {
+            "count": 3.0,
+            "field": "event_name"
+          }
         ],
         "last365Days": [
-          { "count": 3.0, "field": "description" },
-          { "count": 3.0, "field": "event_name" }
+          {
+            "count": 3.0,
+            "field": "description"
+          },
+          {
+            "count": 3.0,
+            "field": "event_name"
+          }
         ],
         "last7Days": [
-          { "count": 3.0, "field": "description" },
-          { "count": 3.0, "field": "event_name" }
+          {
+            "count": 3.0,
+            "field": "description"
+          },
+          {
+            "count": 3.0,
+            "field": "event_name"
+          }
         ],
         "last90Days": [
-          { "count": 3.0, "field": "description" },
-          { "count": 3.0, "field": "event_name" }
+          {
+            "count": 3.0,
+            "field": "description"
+          },
+          {
+            "count": 3.0,
+            "field": "event_name"
+          }
         ]
       },
       "queryCounts": {
-        "last24Hours": { "count": 0.0 },
-        "last30Days": { "count": 4.0 },
-        "last365Days": { "count": 4.0 },
-        "last7Days": { "count": 4.0 },
-        "last90Days": { "count": 4.0 }
+        "last24Hours": {
+          "count": 0.0
+        },
+        "last30Days": {
+          "count": 4.0
+        },
+        "last365Days": {
+          "count": 4.0
+        },
+        "last7Days": {
+          "count": 4.0
+        },
+        "last90Days": {
+          "count": 4.0
+        }
+      },
+      "userQueryCounts": {
+        "last24Hours": [],
+        "last30Days": [
+          {
+            "count": 4.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 4.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 4.0,
+            "user": "dev@metaphor.io"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 4.0,
+            "user": "dev@metaphor.io"
+          }
+        ]
       }
     }
   }

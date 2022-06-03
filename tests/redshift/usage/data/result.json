@@ -35,6 +35,38 @@
           "count": 2.0,
           "percentile": 0.5
         }
+      },
+      "userQueryCounts": {
+        "last24Hours": [
+          {
+            "count": 2.0,
+            "user": "root"
+          }
+        ],
+        "last30Days": [
+          {
+            "count": 2.0,
+            "user": "root"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 2.0,
+            "user": "root"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 2.0,
+            "user": "root"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 2.0,
+            "user": "root"
+          }
+        ]
       }
     }
   },
@@ -74,6 +106,38 @@
           "count": 4.0,
           "percentile": 1.0
         }
+      },
+      "userQueryCounts": {
+        "last24Hours": [
+          {
+            "count": 4.0,
+            "user": "root"
+          }
+        ],
+        "last30Days": [
+          {
+            "count": 4.0,
+            "user": "root"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 4.0,
+            "user": "root"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 4.0,
+            "user": "root"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 4.0,
+            "user": "root"
+          }
+        ]
       }
     }
   }

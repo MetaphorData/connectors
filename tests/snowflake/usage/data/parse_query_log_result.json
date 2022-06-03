@@ -95,6 +95,38 @@
         "last90Days": {
           "count": 1.0
         }
+      },
+      "userQueryCounts": {
+        "last24Hours": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ],
+        "last30Days": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ]
       }
     }
   },
@@ -174,6 +206,38 @@
         "last90Days": {
           "count": 1.0
         }
+      },
+      "userQueryCounts": {
+        "last24Hours": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ],
+        "last30Days": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ],
+        "last365Days": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ],
+        "last7Days": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ],
+        "last90Days": [
+          {
+            "count": 1.0,
+            "user": "tester"
+          }
+        ]
       }
     }
   }
