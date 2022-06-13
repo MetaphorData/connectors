@@ -90,12 +90,14 @@ class SnowflakeQueryExtractor(BaseExtractor):
                       ON a.QUERY_ID = q.QUERY_ID
                     WHERE
                       EXECUTION_STATUS = 'SUCCESS'
-                      AND START_TIME >= %s
+                      AND START_TIME > %s
+                      AND QUERY_START_TIME > %s
                       {excluded_usernames_clause}
                     ORDER BY q.QUERY_ID DESC
                     LIMIT {self.batch_size} OFFSET %s
                     """,
                     (
+                        start_date,
                         start_date,
                         *config.excluded_usernames,
                         x * self.batch_size,
