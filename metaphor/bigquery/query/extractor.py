@@ -18,7 +18,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import prepend, start_of_day
+from metaphor.common.utils import prepend_at_most_n, start_of_day
 
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
@@ -97,7 +97,7 @@ class BigQueryQueryExtractor(BaseExtractor):
 
             dataset = self._init_dataset(table_name)
             # Store recent queries in reverse chronological order by prepending the latest query
-            dataset.query_history.recent_queries = prepend(
+            dataset.query_history.recent_queries = prepend_at_most_n(
                 dataset.query_history.recent_queries,
                 self._max_queries_per_table,
                 QueryInfo(
