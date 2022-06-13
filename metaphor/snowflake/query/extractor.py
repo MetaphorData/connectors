@@ -35,7 +35,7 @@ DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 
 class SnowflakeQueryExtractor(BaseExtractor):
-    """Snowflake data profile extractor"""
+    """Snowflake query extractor"""
 
     @staticmethod
     def config_class():
