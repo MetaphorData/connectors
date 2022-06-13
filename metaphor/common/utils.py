@@ -20,5 +20,5 @@ def chunks(list, n):
 
 
 def prepend(list, n, ele):
-    """Prepend at most n item in a list"""
+    """Prepend and keep a list at most n items"""
     return [ele] + list[: n - 1]
