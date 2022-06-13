@@ -2,6 +2,7 @@ import logging
 import time
 from concurrent import futures
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -89,3 +90,33 @@ def async_execute(
                 results_processor(key, results)
 
         return results_map
+
+
+def fetch_query_history_count(
+    conn: SnowflakeConnection,
+    start_date: datetime,
+    excluded_usernames: List[str],
+):
+    """
+    Fetch query history count
+    """
+    excluded_usernames_clause = (
+        f"and USER_NAME NOT IN ({','.join(['%s'] * len(excluded_usernames))})"
+        if len(excluded_usernames) > 0
+        else ""
+    )
+
+    cursor = conn.cursor()
+    cursor.execute(
+        f"""
+        SELECT COUNT(1)
+        FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+        WHERE EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
+          {excluded_usernames_clause}
+        """,
+        (
+            start_date,
+            *excluded_usernames,
+        ),
+    )
+    return cursor.fetchone()[0]

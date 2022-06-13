@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import timedelta
 from hashlib import sha256
@@ -19,7 +18,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import start_of_day
+from metaphor.common.utils import prepend, start_of_day
 
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
@@ -57,8 +56,6 @@ class BigQueryQueryExtractor(BaseExtractor):
         ):
             counter += 1
             if JobChangeEvent.can_parse(entry):
-                print(json.dumps(entry.to_api_repr()))
-
                 self._parse_job_change_entry(entry)
 
             if counter % 1000 == 0:
@@ -89,7 +86,6 @@ class BigQueryQueryExtractor(BaseExtractor):
                 return
 
             table_name = queried_table.table_name()
-            dataset = self._init_dataset(table_name)
 
             # Skip identical queries
             hashes = self._query_hashes.setdefault(table_name, set())
@@ -99,16 +95,17 @@ class BigQueryQueryExtractor(BaseExtractor):
 
             hashes.add(query_hash)
 
-            query_info = QueryInfo(
-                query=job_change.query,
-                issued_by=job_change.user_email,
-                issued_at=job_change.timestamp,
-            )
-
+            dataset = self._init_dataset(table_name)
             # Store recent queries in reverse chronological order by prepending the latest query
-            dataset.query_history.recent_queries = [
-                query_info
-            ] + dataset.query_history.recent_queries[: self._max_queries_per_table - 1]
+            dataset.query_history.recent_queries = prepend(
+                dataset.query_history.recent_queries,
+                self._max_queries_per_table,
+                QueryInfo(
+                    query=job_change.query,
+                    issued_by=job_change.user_email,
+                    issued_at=job_change.timestamp,
+                ),
+            )
 
     def _init_dataset(self, table_name: str) -> Dataset:
         if table_name not in self._datasets:
