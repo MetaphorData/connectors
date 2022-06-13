@@ -96,7 +96,7 @@ def fetch_query_history_count(
     conn: SnowflakeConnection,
     start_date: datetime,
     excluded_usernames: List[str],
-):
+) -> int:
     """
     Fetch query history count
     """
@@ -119,4 +119,7 @@ def fetch_query_history_count(
             *excluded_usernames,
         ),
     )
-    return cursor.fetchone()[0]
+    result = cursor.fetchone()
+    if result is not None:
+        return result[0]
+    return 0
