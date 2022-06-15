@@ -1,5 +1,7 @@
+import heapq
 import logging
 import math
+from dataclasses import dataclass, field
 from datetime import datetime
 from hashlib import sha256
 from typing import Collection, Dict, List, Set, Tuple
@@ -17,7 +19,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import prepend_at_most_n, start_of_day
+from metaphor.common.utils import start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.query.config import SnowflakeQueryRunConfig
@@ -34,6 +36,12 @@ logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 
+@dataclass(order=True)
+class PrioritizedQueryInfo:
+    time: datetime
+    item: QueryInfo = field(compare=False)
+
+
 class SnowflakeQueryExtractor(BaseExtractor):
     """Snowflake query extractor"""
 
@@ -45,6 +53,7 @@ class SnowflakeQueryExtractor(BaseExtractor):
         self.max_concurrency = None
         self._datasets: Dict[str, Dataset] = {}
         self._query_hashes: Dict[str, Set[str]] = {}
+        self._dataset_query_histories: Dict[str, List[PrioritizedQueryInfo]] = {}
 
     async def extract(
         self, config: SnowflakeQueryRunConfig
@@ -116,6 +125,15 @@ class SnowflakeQueryExtractor(BaseExtractor):
 
             logger.debug(self._datasets)
 
+        datasets = []
+        for table_name, query_history in self._dataset_query_histories.items():
+            dataset = self._init_dataset(table_name)
+            dataset.query_history.recent_queries = [
+                ele.item
+                for ele in heapq.nlargest(self._max_queries_per_table, query_history)
+            ]
+            datasets.append(dataset)
+
         return self._datasets.values()
 
     def _parse_query_history(
@@ -162,17 +180,22 @@ class SnowflakeQueryExtractor(BaseExtractor):
 
                 hashes.add(query_hash)
 
-                dataset = self._init_dataset(table_name)
-                # Store recent queries in reverse chronological order by prepending the latest query
-                dataset.query_history.recent_queries = prepend_at_most_n(
-                    dataset.query_history.recent_queries,
-                    self._max_queries_per_table,
-                    QueryInfo(
-                        query=query_text,
-                        issued_by=username,
-                        issued_at=start_time,
+                histories_heap = self._dataset_query_histories.setdefault(
+                    table_name, []
+                )
+                heapq.heappush(
+                    histories_heap,
+                    PrioritizedQueryInfo(
+                        time=start_time,
+                        item=QueryInfo(
+                            query=query_text,
+                            issued_by=username,
+                            issued_at=start_time,
+                        ),
                     ),
                 )
+                if len(histories_heap) > self._max_queries_per_table:
+                    heapq.heappop(histories_heap)
         except Exception:
             logger.exception(f"access log error, objects: {accessed_objects}")
 
