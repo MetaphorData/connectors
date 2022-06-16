@@ -1,10 +1,8 @@
-import heapq
 import logging
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from hashlib import sha256
-from typing import Collection, Dict, List, Set, Tuple
+from typing import Collection, List, Tuple
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -19,6 +17,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
+from metaphor.common.query_history import TableQueryHistoryHeap
 from metaphor.common.utils import start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 from metaphor.snowflake.auth import connect
@@ -51,9 +50,6 @@ class SnowflakeQueryExtractor(BaseExtractor):
 
     def __init__(self):
         self.max_concurrency = None
-        self._datasets: Dict[str, Dataset] = {}
-        self._query_hashes: Dict[str, Set[str]] = {}
-        self._dataset_query_histories: Dict[str, List[PrioritizedQueryInfo]] = {}
 
     async def extract(
         self, config: SnowflakeQueryRunConfig
@@ -63,7 +59,7 @@ class SnowflakeQueryExtractor(BaseExtractor):
         logger.info("Fetching query history from Snowflake")
         self.max_concurrency = config.max_concurrency
         self.batch_size = config.batch_size
-        self._max_queries_per_table = config.max_queries_per_table
+        self._table_queries = TableQueryHistoryHeap(config.max_queries_per_table)
 
         conn = connect(config)
 
@@ -123,18 +119,10 @@ class SnowflakeQueryExtractor(BaseExtractor):
                 self._parse_query_history,
             )
 
-            logger.debug(self._datasets)
-
-        datasets = []
-        for table_name, query_history in self._dataset_query_histories.items():
-            dataset = self._init_dataset(table_name)
-            dataset.query_history.recent_queries = [
-                ele.item
-                for ele in heapq.nlargest(self._max_queries_per_table, query_history)
-            ]
-            datasets.append(dataset)
-
-        return self._datasets.values()
+        return [
+            self._init_dataset(table_name, recent_queries)
+            for table_name, recent_queries in self._table_queries.recent_queries()
+        ]
 
     def _parse_query_history(
         self, batch_number: str, query_history: List[Tuple]
@@ -171,41 +159,18 @@ class SnowflakeQueryExtractor(BaseExtractor):
                 if not self.filter.include_table(db, schema, table):
                     logger.debug(f"Ignore {table_name} due to filter config")
                     continue
-
-                # Skip identical queries
-                hashes = self._query_hashes.setdefault(table_name, set())
-                query_hash = sha256(query_text.encode("utf8")).hexdigest()
-                if query_hash in hashes:
-                    return
-
-                hashes.add(query_hash)
-
-                histories_heap = self._dataset_query_histories.setdefault(
-                    table_name, []
+                self._table_queries.store_recent_query(
+                    table_name, start_time, query_text, username
                 )
-                heapq.heappush(
-                    histories_heap,
-                    PrioritizedQueryInfo(
-                        time=start_time,
-                        item=QueryInfo(
-                            query=query_text,
-                            issued_by=username,
-                            issued_at=start_time,
-                        ),
-                    ),
-                )
-                if len(histories_heap) > self._max_queries_per_table:
-                    heapq.heappop(histories_heap)
         except Exception:
             logger.exception(f"access log error, objects: {accessed_objects}")
 
-    def _init_dataset(self, table_name: str) -> Dataset:
-        if table_name not in self._datasets:
-            self._datasets[table_name] = Dataset(
-                logical_id=DatasetLogicalID(
-                    name=table_name, platform=DataPlatform.SNOWFLAKE
-                ),
-                query_history=DatasetQueryHistory(recent_queries=[]),
-            )
-
-        return self._datasets[table_name]
+    def _init_dataset(
+        self, table_name: str, recent_queries: List[QueryInfo]
+    ) -> Dataset:
+        return Dataset(
+            logical_id=DatasetLogicalID(
+                name=table_name, platform=DataPlatform.SNOWFLAKE
+            ),
+            query_history=DatasetQueryHistory(recent_queries=recent_queries),
+        )

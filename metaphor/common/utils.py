@@ -17,9 +17,3 @@ def chunks(list, n):
     """Yield successive n-sized chunks from the list."""
     for i in range(0, len(list), n):
         yield list[i : i + n]
-
-
-def prepend_at_most_n(list, n, ele):
-    """Prepend and keep a list at most n items"""
-    assert n > 0, "n must greater than 0"
-    return [ele] + list[: n - 1]

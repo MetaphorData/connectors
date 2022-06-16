@@ -1,7 +1,6 @@
 import logging
 from datetime import timedelta
-from hashlib import sha256
-from typing import Collection, Dict, Set
+from typing import Collection, List, Set
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -18,7 +17,8 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import prepend_at_most_n, start_of_day
+from metaphor.common.query_history import TableQueryHistoryHeap
+from metaphor.common.utils import start_of_day
 
 logger = get_logger(__name__)
 logger.setLevel(logging.INFO)
@@ -33,11 +33,9 @@ class BigQueryQueryExtractor(BaseExtractor):
 
     def __init__(self):
         self._utc_now = start_of_day()
-        self._datasets: Dict[str, Dataset] = {}
         self._dataset_filter: DatasetFilter = DatasetFilter()
         self._max_queries_per_table = 0
         self._excluded_usernames: Set[str] = set()
-        self._query_hashes: Dict[str, Set[str]] = {}
 
     async def extract(self, config: BigQueryQueryRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, BigQueryQueryExtractor.config_class())
@@ -47,7 +45,7 @@ class BigQueryQueryExtractor(BaseExtractor):
         client = build_logging_client(config.key_path, config.project_id)
         self._dataset_filter = config.filter.normalize()
         self._excluded_usernames = config.excluded_usernames
-        self._max_queries_per_table = config.max_queries_per_table
+        self._table_queries = TableQueryHistoryHeap(config.max_queries_per_table)
 
         log_filter = self._build_job_change_filter(config, end_time=self._utc_now)
         counter = 0
@@ -63,7 +61,10 @@ class BigQueryQueryExtractor(BaseExtractor):
 
         logger.info(f"Number of queryConfig log entries fetched: {counter}")
 
-        return self._datasets.values()
+        return [
+            self._init_dataset(table_name, recent_queries)
+            for table_name, recent_queries in self._table_queries.recent_queries()
+        ]
 
     def _parse_job_change_entry(self, entry: LogEntry) -> None:
         job_change = JobChangeEvent.from_entry(entry)
@@ -87,36 +88,22 @@ class BigQueryQueryExtractor(BaseExtractor):
 
             table_name = queried_table.table_name()
 
-            # Skip identical queries
-            hashes = self._query_hashes.setdefault(table_name, set())
-            query_hash = sha256(job_change.query.encode("utf8")).hexdigest()
-            if query_hash in hashes:
-                return
-
-            hashes.add(query_hash)
-
-            dataset = self._init_dataset(table_name)
-            # Store recent queries in reverse chronological order by prepending the latest query
-            dataset.query_history.recent_queries = prepend_at_most_n(
-                dataset.query_history.recent_queries,
-                self._max_queries_per_table,
-                QueryInfo(
-                    query=job_change.query,
-                    issued_by=job_change.user_email,
-                    issued_at=job_change.timestamp,
-                ),
+            self._table_queries.store_recent_query(
+                table_name,
+                job_change.timestamp,
+                job_change.query,
+                job_change.user_email,
             )
 
-    def _init_dataset(self, table_name: str) -> Dataset:
-        if table_name not in self._datasets:
-            self._datasets[table_name] = Dataset(
-                logical_id=DatasetLogicalID(
-                    name=table_name, platform=DataPlatform.BIGQUERY
-                ),
-                query_history=DatasetQueryHistory(recent_queries=[]),
-            )
-
-        return self._datasets[table_name]
+    def _init_dataset(
+        self, table_name: str, recent_queries: List[QueryInfo]
+    ) -> Dataset:
+        return Dataset(
+            logical_id=DatasetLogicalID(
+                name=table_name, platform=DataPlatform.BIGQUERY
+            ),
+            query_history=DatasetQueryHistory(recent_queries=recent_queries),
+        )
 
     @staticmethod
     def _build_job_change_filter(config: BigQueryQueryRunConfig, end_time) -> str:
