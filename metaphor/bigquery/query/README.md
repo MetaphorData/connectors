@@ -29,7 +29,7 @@ lookback_days: <days>
 batch_size: <batch_size>
 
 # (Optional) Maximum number of recent queries to extract per table. Default to 100.
-max_queries_per_table: <days>
+max_queries_per_table: <number>
 
 # (Optional) Exclude queries issued by service accounts. Default to true.
 exclude_service_accounts: <boolean>

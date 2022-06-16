@@ -1,20 +1,27 @@
 import logging
 import math
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Collection, Dict, List, Tuple
+from typing import Collection, List, Tuple
 
-from metaphor.models.metadata_change_event import DataPlatform, Dataset
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
+    DatasetQueryHistory,
+    QueryInfo,
+)
 from pydantic import parse_raw_as
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
-from metaphor.common.usage_util import UsageUtil
+from metaphor.common.query_history import TableQueryHistoryHeap
 from metaphor.common.utils import start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 from metaphor.snowflake.auth import connect
-from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
+from metaphor.snowflake.query.config import SnowflakeQueryRunConfig
 from metaphor.snowflake.utils import (
     QueryWithParam,
     async_execute,
@@ -23,39 +30,38 @@ from metaphor.snowflake.utils import (
 
 logger = get_logger(__name__)
 
-# disable logging from sql_metadata
-logging.getLogger("Parser").setLevel(logging.CRITICAL)
-
+logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 
-class SnowflakeUsageExtractor(BaseExtractor):
-    """Snowflake usage metadata extractor"""
+@dataclass(order=True)
+class PrioritizedQueryInfo:
+    time: datetime
+    item: QueryInfo = field(compare=False)
+
+
+class SnowflakeQueryExtractor(BaseExtractor):
+    """Snowflake query extractor"""
 
     @staticmethod
     def config_class():
-        return SnowflakeUsageRunConfig
+        return SnowflakeQueryRunConfig
 
     def __init__(self):
-        self.account = None
-        self.filter = None
         self.max_concurrency = None
-        self.batch_size = None
-        self._use_history = True
-        self._datasets: Dict[str, Dataset] = {}
 
     async def extract(
-        self, config: SnowflakeUsageRunConfig
+        self, config: SnowflakeQueryRunConfig
     ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, SnowflakeUsageExtractor.config_class())
+        assert isinstance(config, SnowflakeQueryExtractor.config_class())
 
-        logger.info("Fetching usage info from Snowflake")
-
-        self.account = config.account
+        logger.info("Fetching query history from Snowflake")
         self.max_concurrency = config.max_concurrency
         self.batch_size = config.batch_size
-        self._use_history = config.use_history
+        self._table_queries = TableQueryHistoryHeap(config.max_queries_per_table)
+
+        conn = connect(config)
 
         self.filter = config.filter.normalize()
 
@@ -65,16 +71,13 @@ class SnowflakeUsageExtractor(BaseExtractor):
             else {**self.filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
         )
 
+        start_date = start_of_day(config.lookback_days)
+
         excluded_usernames_clause = (
-            f"and USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
+            f"and q.USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
             if len(config.excluded_usernames) > 0
             else ""
         )
-
-        lookback_days = 1 if config.use_history else config.lookback_days
-        start_date = start_of_day(lookback_days)
-
-        conn = connect(config)
 
         with conn:
             count = fetch_query_history_count(
@@ -86,15 +89,16 @@ class SnowflakeUsageExtractor(BaseExtractor):
             queries = {
                 x: QueryWithParam(
                     f"""
-                    SELECT START_TIME, q.USER_NAME, DIRECT_OBJECTS_ACCESSED
+                    SELECT START_TIME, QUERY_TEXT, q.USER_NAME, DIRECT_OBJECTS_ACCESSED
                     FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                     JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                       ON a.QUERY_ID = q.QUERY_ID
-                    WHERE EXECUTION_STATUS = 'SUCCESS'
+                    WHERE
+                      EXECUTION_STATUS = 'SUCCESS'
                       AND START_TIME > %s
                       AND QUERY_START_TIME > %s
                       {excluded_usernames_clause}
-                    ORDER BY q.QUERY_ID
+                    ORDER BY q.QUERY_ID DESC
                     LIMIT {self.batch_size} OFFSET %s
                     """,
                     (
@@ -106,30 +110,37 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 )
                 for x in range(batches)
             }
+
             async_execute(
                 conn,
                 queries,
-                "fetch_access_logs",
+                "fetch_query_history",
                 self.max_concurrency,
-                self._parse_access_logs,
+                self._parse_query_history,
             )
 
-        if not self._use_history:
-            # calculate statistics based on the counts
-            UsageUtil.calculate_statistics(self._datasets.values())
+        return [
+            self._init_dataset(table_name, recent_queries)
+            for table_name, recent_queries in self._table_queries.recent_queries()
+        ]
 
-        return self._datasets.values()
-
-    def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
+    def _parse_query_history(
+        self, batch_number: str, query_history: List[Tuple]
+    ) -> None:
         logger.info(f"access logs batch #{batch_number}")
-        for start_time, username, accessed_objects in access_logs:
-            self._parse_access_log(start_time, username, accessed_objects)
+        for start_time, query_text, username, accessed_objects in query_history:
+            self._parse_access_log(start_time, username, query_text, accessed_objects)
 
     def _parse_access_log(
-        self, start_time: datetime, username: str, accessed_objects: str
-    ) -> None:
+        self,
+        start_time: datetime,
+        username: str,
+        query_text: str,
+        accessed_objects: str,
+    ):
         try:
             objects = parse_raw_as(List[AccessedObject], accessed_objects)
+
             for obj in objects:
                 if not obj.objectDomain or obj.objectDomain.upper() not in (
                     "TABLE",
@@ -148,31 +159,18 @@ class SnowflakeUsageExtractor(BaseExtractor):
                 if not self.filter.include_table(db, schema, table):
                     logger.debug(f"Ignore {table_name} due to filter config")
                     continue
-
-                utc_now = start_of_day()
-
-                if table_name not in self._datasets:
-                    self._datasets[table_name] = UsageUtil.init_dataset(
-                        self.account,
-                        table_name,
-                        DataPlatform.SNOWFLAKE,
-                        self._use_history,
-                        utc_now,
-                    )
-
-                columns = [column.columnName.lower() for column in obj.columns]
-
-                if self._use_history:
-                    UsageUtil.update_table_and_columns_usage_history(
-                        self._datasets[table_name].usage_history, columns, username
-                    )
-                else:
-                    UsageUtil.update_table_and_columns_usage(
-                        self._datasets[table_name].usage,
-                        columns,
-                        start_time,
-                        utc_now,
-                        username,
-                    )
+                self._table_queries.store_recent_query(
+                    table_name, start_time, query_text, username
+                )
         except Exception:
             logger.exception(f"access log error, objects: {accessed_objects}")
+
+    def _init_dataset(
+        self, table_name: str, recent_queries: List[QueryInfo]
+    ) -> Dataset:
+        return Dataset(
+            logical_id=DatasetLogicalID(
+                name=table_name, platform=DataPlatform.SNOWFLAKE
+            ),
+            query_history=DatasetQueryHistory(recent_queries=recent_queries),
+        )
