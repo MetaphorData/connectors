@@ -15,7 +15,7 @@ class PrioritizedQueryInfo:
 
 class TableQueryHistoryHeap:
     """
-    A container class to store the N most recent queries for tables.
+    A container class to store the N most recent unique queries for each table.
     """
 
     def __init__(self, max_queries_per_table):
