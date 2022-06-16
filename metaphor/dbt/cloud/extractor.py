@@ -129,5 +129,7 @@ class DbtCloudExtractor(BaseExtractor):
                 account=account,
                 docs_base_url=DBT_DOC_BASE_URL % (self.account_id, run_id),
                 output=config.output,
+                meta_ownerships=config.meta_ownerships,
+                meta_tags=config.meta_tags,
             )
         )

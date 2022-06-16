@@ -33,9 +33,6 @@ class DbtExtractor(BaseExtractor):
 
     def __init__(self):
         self.platform: DataPlatform = DataPlatform.UNKNOWN
-        self.account: Optional[str] = None
-        self.docs_base_url: Optional[str] = None
-        self.project_source_url: Optional[str] = None
         self._catalog: Optional[DbtCatalog] = None
         self._datasets: Dict[str, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
@@ -45,9 +42,6 @@ class DbtExtractor(BaseExtractor):
         assert isinstance(config, DbtExtractor.config_class())
 
         logger.info("Fetching metadata from DBT repo")
-        self.account = config.account
-        self.docs_base_url = config.docs_base_url
-        self.project_source_url = config.project_source_url
 
         with open(config.manifest) as file:
             manifest_json = json.load(file)
@@ -67,19 +61,15 @@ class DbtExtractor(BaseExtractor):
         manifest_parser: Union[ManifestParserV3, ManifestParserV5]
         if schema_version in ("v1", "v2", "v3"):
             manifest_parser = ManifestParserV3(
+                config,
                 self.platform,
-                self.account,
-                self.docs_base_url,
-                self.project_source_url,
                 self._datasets,
                 self._virtual_views,
             )
         elif schema_version in ("v4", "v5"):
             manifest_parser = ManifestParserV5(
+                config,
                 self.platform,
-                self.account,
-                self.docs_base_url,
-                self.project_source_url,
                 self._datasets,
                 self._virtual_views,
                 self._metrics,
@@ -92,9 +82,8 @@ class DbtExtractor(BaseExtractor):
 
         if config.catalog:
             catalog_parser = CatalogParserV1(
+                config,
                 self.platform,
-                self.account,
-                self.docs_base_url,
                 self._datasets,
                 self._virtual_views,
             )

@@ -2,11 +2,11 @@
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v1.json",
     "dbt_version": "0.19.2",
-    "generated_at": "2022-06-17T03:10:04.340774Z",
-    "invocation_id": "432fceee-2dd5-4a70-9459-cb35cdfc3ff4",
+    "generated_at": "2022-06-17T14:01:07.063063Z",
+    "invocation_id": "f73bc1a8-9e10-44a7-a059-16fb2bcb20da",
     "env": {},
     "project_id": "58723627fcebc230ab0d53ddf5f16e34",
-    "user_id": "9af89c52-55a3-49c4-a0e8-5edc7452f4d0",
+    "user_id": "dc11e54b-2d7a-4ccb-beca-8ed0b96d6eee",
     "send_anonymous_usage_stats": true,
     "adapter_type": "snowflake"
   },
@@ -70,7 +70,8 @@
         }
       },
       "meta": {
-        "owner": "yi@metaphor.io"
+        "owner": "yi@metaphor.io",
+        "pii": true
       },
       "docs": {
         "show": true

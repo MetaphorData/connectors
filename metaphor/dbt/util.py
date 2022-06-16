@@ -1,5 +1,5 @@
 import re
-from email.utils import parseaddr
+from asyncio.log import logger
 from typing import Dict, List, Optional, Union
 
 from metaphor.models.metadata_change_event import (
@@ -13,13 +13,13 @@ from metaphor.models.metadata_change_event import (
     Metric,
     MetricLogicalID,
     MetricType,
+    Ownership,
     SchemaField,
     SchemaType,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
 )
-from pydantic.utils import unique_list
 
 from metaphor.common.entity_id import (
     EntityId,
@@ -28,6 +28,7 @@ from metaphor.common.entity_id import (
     to_person_entity_id,
     to_virtual_view_entity_id,
 )
+from metaphor.dbt.config import MetaOwnership, MetaTag
 from metaphor.dbt.generated.dbt_manifest_v3 import (
     CompiledModelNode as CompiledModelNode_v3,
 )
@@ -40,6 +41,9 @@ from metaphor.dbt.generated.dbt_manifest_v4 import ParsedModelNode as ParsedMode
 MODEL_NODE_TYPE = Union[
     CompiledModelNode_v3, ParsedModelNode_v3, CompiledModelNode_v4, ParsedModelNode_v4
 ]
+
+# Source: https://emailregex.com/
+EMAIL_REGEX = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
 
 def get_dataset_entity_id(self, db: str, schema: str, table: str) -> EntityId:
@@ -62,21 +66,54 @@ def get_metric_name_from_unique_id(unique_id: str) -> str:
     return unique_id[7:]
 
 
-def get_model_owner_ids(
-    model: MODEL_NODE_TYPE, owner_key="owner"
-) -> Optional[List[str]]:
-    # v3 use 'model.config.meta' while v1, v2 use 'model.meta'
-    if model.config and model.config.meta and owner_key in model.config.meta:
-        owners = model.config.meta[owner_key]
-    elif model.meta and owner_key in model.meta:
-        owners = model.meta[owner_key]
-    else:
-        return None
+def get_ownerships_from_meta(
+    meta: Dict, meta_ownerships: List[MetaOwnership]
+) -> List[Ownership]:
+    """Extracts ownership info from models' meta field"""
 
-    parts = re.split(r"(\s|,)", owners.strip())
-    return unique_list(
-        [str(to_person_entity_id(p)) for p in parts if "@" in parseaddr(p)[1]]
-    )
+    def to_owner(email_or_username: str, email_domain: Optional[str]) -> Optional[str]:
+        email = email_or_username
+        if "@" not in email_or_username and email_domain is not None:
+            email = f"{email_or_username}@{email_domain}"
+
+        if EMAIL_REGEX.match(email) is None:
+            logger.warn(f"Skipping invalid email address: {email}")
+            return None
+
+        return str(to_person_entity_id(email))
+
+    ownerships: List[Ownership] = []
+    for meta_ownership in meta_ownerships:
+        value = meta.get(meta_ownership.meta_key)
+        email_or_usernames = []
+        if isinstance(value, str):
+            email_or_usernames.append(value)
+        elif isinstance(value, list):
+            email_or_usernames.extend(value)
+
+        for email_or_username in email_or_usernames:
+            owner = to_owner(email_or_username, meta_ownership.email_domain)
+            if owner is not None:
+                ownerships.append(
+                    Ownership(
+                        contact_designation_name=meta_ownership.ownership_type,
+                        person=owner,
+                    )
+                )
+
+    return ownerships
+
+
+def get_tags_from_meta(meta: Dict, meta_tags: List[MetaTag]) -> List[str]:
+    """Extracts tag info from models' meta field"""
+
+    tags: List[str] = []
+    for meta_tag in meta_tags:
+        value = meta.get(meta_tag.meta_key)
+        if re.fullmatch(meta_tag.meta_value_matcher, str(value)):
+            tags.append(meta_tag.tag_type)
+
+    return tags
 
 
 def init_dataset(
