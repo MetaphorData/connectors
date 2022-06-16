@@ -81,6 +81,11 @@ class SnowflakeExtractor(BaseExtractor):
                 self._fetch_unique_keys(cursor, database)
                 self._fetch_table_info(conn, tables)
 
+            try:
+                self._fetch_tags(cursor)
+            except Exception as e:
+                logger.error(f"Fetch tags error: {e}")
+
         logger.debug(self._datasets)
 
         return self._datasets.values()
@@ -268,6 +273,34 @@ class SnowflakeExtractor(BaseExtractor):
             if sql_schema.primary_key is None:
                 sql_schema.primary_key = []
             sql_schema.primary_key.append(column)
+
+    def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
+        cursor.execute(
+            """
+            SELECT TAG_NAME, TAG_VALUE, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME
+            FROM snowflake.account_usage.tag_references
+            WHERE domain = 'TABLE'
+            ORDER BY OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME
+            """
+        )
+
+        for key, value, database, schema, table_name in cursor:
+            table = dataset_fullname(database, schema, table_name)
+
+            dataset = self._datasets.get(table)
+            if dataset is None or dataset.schema is None:
+                logger.error(
+                    f"Table {table} not found for tag {self._build_tag(key, value)}"
+                )
+                continue
+
+            if not dataset.schema.tags:
+                dataset.schema.tags = []
+            dataset.schema.tags.append(self._build_tag(key, value))
+
+    @staticmethod
+    def _build_tag(tag_key: str, tag_value: str):
+        return f"{tag_key}={tag_value}"
 
     def _init_dataset(
         self,
