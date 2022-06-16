@@ -14,6 +14,10 @@ class PrioritizedQueryInfo:
 
 
 class TableQueryHistoryHeap:
+    """
+    A container class to store the N most recent queries for tables.
+    """
+
     def __init__(self, max_queries_per_table):
         self._table_query_set: Dict[str, Set[str]] = {}
         self._table_queries: Dict[str, List[PrioritizedQueryInfo]] = {}
@@ -46,5 +50,6 @@ class TableQueryHistoryHeap:
             heapq.heappop(query_heap)
 
     def recent_queries(self):
+        """Yield each table with sorted recent queries"""
         for table_name, query_heap in self._table_queries.items():
             yield table_name, [q.item for q in sorted(query_heap)]
