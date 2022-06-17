@@ -65,7 +65,7 @@
     },
     "logicalId": {
       "account": "metaphor",
-      "name": "dev_db.dbt_dev.sales_records",
+      "name": "demo_db.dbt_dev.sales_records",
       "platform": "SNOWFLAKE"
     }
   },
@@ -127,7 +127,7 @@
     },
     "logicalId": {
       "account": "metaphor",
-      "name": "dev_db.dbt_dev.netflix",
+      "name": "demo_db.dbt_dev.netflix",
       "platform": "SNOWFLAKE"
     }
   },
@@ -144,7 +144,7 @@
         }
       ],
       "materialization": {
-        "targetDataset": "DATASET~247B510D516CDED91920F071DFA249D3",
+        "targetDataset": "DATASET~AF64AB4122CD383EA8360D20965ABB67",
         "type": "VIEW"
       },
       "owners": [
@@ -163,7 +163,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "unique_my_first_dbt_model_id",
-          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_YI.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
+          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.trial.unique_my_first_dbt_model_id.16e066b321"
         },
         {
@@ -175,7 +175,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_my_first_dbt_model_id",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.my_first_dbt_model\nwhere id is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
           "uniqueId": "test.trial.not_null_my_first_dbt_model_id.5fb22c2710"
         }
       ],
@@ -188,7 +188,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEV_DB.DBT_YI.my_first_dbt_model\nwhere id = 1",
+      "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
       "description": "A starter dbt model, my_second_dbt_model",
       "docsUrl": "http://localhost:8080/#!/model/model.trial.my_second_dbt_model",
       "fields": [
@@ -199,12 +199,9 @@
         }
       ],
       "materialization": {
-        "targetDataset": "DATASET~B37021135716845A9E70E7DB38409493",
+        "targetDataset": "DATASET~C2E3AFBF33CD1595EE25A57D02B4F04A",
         "type": "VIEW"
       },
-      "owners": [
-        "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
-      ],
       "packageName": "trial",
       "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
       "sourceDatasets": [],
@@ -222,7 +219,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "unique_my_second_dbt_model_id",
-          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_YI.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
+          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.trial.unique_my_second_dbt_model_id.57a0f8c493"
         },
         {
@@ -234,7 +231,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_my_second_dbt_model_id",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.my_second_dbt_model\nwhere id is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
           "uniqueId": "test.trial.not_null_my_second_dbt_model_id.151b76d778"
         }
       ],
@@ -247,7 +244,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "\n\nselect show_id, type, title, country, release_year \nfrom DEV_DB.DBT_DEV.NETFLIX",
+      "compiledSql": "\n\nselect show_id, type, title, country, release_year \nfrom DEMO_DB.DBT_DEV.NETFLIX",
       "description": "First trial model, mapping columns from NETFLIX source table",
       "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_1",
       "fields": [
@@ -278,19 +275,18 @@
         }
       ],
       "materialization": {
-        "targetDataset": "DATASET~5722262F1FBB214FFDCC55801C26B4C5",
+        "targetDataset": "DATASET~1712CB731B3A99B418D013CDD380ED96",
         "type": "TABLE"
       },
-      "owners": [
-        "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
-      ],
       "packageName": "trial",
       "rawSql": "{{ config(materialized='table') }}\n\nselect show_id, type, title, country, release_year \nfrom {{ source('DBT_DEV', 'NETFLIX') }}",
       "sourceDatasets": [
-        "DATASET~0A27263039022A2F145CAB8A63CB2D58"
+        "DATASET~BDB320613577550E8EE6BE295054A8A0"
       ],
       "sourceModels": [],
-      "tags": [],
+      "tags": [
+        "trial"
+      ],
       "tests": [
         {
           "columns": [
@@ -301,7 +297,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "unique_trial_model_1_show_id",
-          "sql": "\n    \n    \n\nselect\n    show_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_YI.trial_model_1\nwhere show_id is not null\ngroup by show_id\nhaving count(*) > 1\n\n\n",
+          "sql": "\n    \n    \n\nselect\n    show_id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is not null\ngroup by show_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.trial.unique_trial_model_1_show_id.6e142709e3"
         },
         {
@@ -313,7 +309,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_1_show_id",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.trial_model_1\nwhere show_id is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_1_show_id.210878cb19"
         },
         {
@@ -325,7 +321,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_1_type",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.trial_model_1\nwhere type is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_1_type.051dc613aa"
         },
         {
@@ -337,7 +333,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_1_title",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.trial_model_1\nwhere title is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_1_title.b49e531d6d"
         }
       ],
@@ -350,7 +346,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+      "compiledSql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
       "description": "Second trial model, get statistics from SALES_RECORDS table",
       "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_2",
       "fields": [
@@ -381,19 +377,18 @@
         }
       ],
       "materialization": {
-        "targetDataset": "DATASET~66B1D302AA901F954BC9BFE19824D86D",
+        "targetDataset": "DATASET~F337ED76B37690F4E9A07902BA78CA63",
         "type": "TABLE"
       },
-      "owners": [
-        "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
-      ],
       "packageName": "trial",
       "rawSql": "{{ config(materialized='table', alias='sales_summary') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
       "sourceDatasets": [
-        "DATASET~C931554DBA0604DA498A2E772F3D6FEF"
+        "DATASET~88E2F99BE08491C03619AC3FF0FF07BC"
       ],
       "sourceModels": [],
-      "tags": [],
+      "tags": [
+        "trial"
+      ],
       "tests": [
         {
           "columns": [
@@ -404,7 +399,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_country",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.sales_summary\nwhere country is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere country is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_country.8170348e7c"
         },
         {
@@ -416,7 +411,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_item_type",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.sales_summary\nwhere item_type is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere item_type is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_item_type.1e87bba840"
         },
         {
@@ -428,7 +423,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_year",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.sales_summary\nwhere year is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere year is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_year.eb13ae8f8b"
         },
         {
@@ -440,7 +435,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_revenue",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.sales_summary\nwhere revenue is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere revenue is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_revenue.c697e41758"
         },
         {
@@ -452,7 +447,7 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_profit",
-          "sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_YI.sales_summary\nwhere profit is null\n\n\n",
+          "sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere profit is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_profit.faa538228c"
         }
       ],
