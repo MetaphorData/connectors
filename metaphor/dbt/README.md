@@ -50,8 +50,9 @@ You can optionally specify the ownership for the materialized table or view usin
 ```yaml
 models:
   - name: users
-    meta:
-      owner: joe@test.com
+    config:
+      meta:
+        owner: joe@test.com
 ```
 
 To map `owner` to the corresponding ownership type defined in Metaphor, add the following to the config file:
@@ -73,13 +74,14 @@ meta_ownerships:
 
 #### Tags
 
-Similar to [Ownership](#ownership), you can optionally specify the tag in meta. For example:
+Similar to [Ownership](#ownership), you can optionally specify certain attributes in meta. For example:
 
 ```yaml
 models:
   - name: users
-    meta:
-      pii: true
+    config:
+      meta:
+        pii: true
 ```
 
 To map `pii` to the corresponding tag type defined in Metaphor, add the following to the config file:
@@ -95,8 +97,9 @@ You can optionally specify a regex in `meta_value_matcher` to match non-boolean 
 ```yaml
 models:
   - name: users
-    meta:
-      team: sales
+    config:
+      meta:
+        team: sales
 ```
 
 Use the following config to map it to the "SALES" tag on Metaphor:
