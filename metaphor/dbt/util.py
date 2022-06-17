@@ -1,5 +1,4 @@
 import re
-from asyncio.log import logger
 from typing import Dict, List, Optional, Union
 
 from metaphor.models.metadata_change_event import (
@@ -28,6 +27,7 @@ from metaphor.common.entity_id import (
     to_person_entity_id,
     to_virtual_view_entity_id,
 )
+from metaphor.common.logger import get_logger
 from metaphor.dbt.config import MetaOwnership, MetaTag
 from metaphor.dbt.generated.dbt_manifest_v3 import (
     CompiledModelNode as CompiledModelNode_v3,
@@ -37,6 +37,9 @@ from metaphor.dbt.generated.dbt_manifest_v4 import (
     CompiledModelNode as CompiledModelNode_v4,
 )
 from metaphor.dbt.generated.dbt_manifest_v4 import ParsedModelNode as ParsedModelNode_v4
+
+logger = get_logger(__name__)
+
 
 MODEL_NODE_TYPE = Union[
     CompiledModelNode_v3, ParsedModelNode_v3, CompiledModelNode_v4, ParsedModelNode_v4
