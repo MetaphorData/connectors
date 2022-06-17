@@ -92,7 +92,7 @@ meta_tags:
     tag_type: HAS_PII
 ```
 
-You can optionally specify a regex in `meta_value_matcher` to match non-boolean values. For example:
+By default, only attributes with a value of `true` will be mapped. You can optionally specify a regex in `meta_value_matcher` to match other types of values. For example:
 
 ```yaml
 models:
