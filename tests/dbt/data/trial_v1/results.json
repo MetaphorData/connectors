@@ -6,59 +6,59 @@
       ],
       "fieldDocumentations": [
         {
-          "documentation": "REGION of SALES_RECORDS",
-          "fieldPath": "region"
-        },
-        {
-          "documentation": "COUNTRY of SALES_RECORDS",
+          "documentation": "COUNTRY. SALES_RECORDS",
           "fieldPath": "country"
         },
         {
-          "documentation": "ITEM_TYPE of SALES_RECORDS",
+          "documentation": "REGION. SALES_RECORDS",
+          "fieldPath": "region"
+        },
+        {
+          "documentation": "ITEM_TYPE. SALES_RECORDS",
           "fieldPath": "item_type"
         },
         {
-          "documentation": "SALES_CHANNEL of SALES_RECORDS",
+          "documentation": "SALES_CHANNEL. SALES_RECORDS",
           "fieldPath": "sales_channel"
         },
         {
-          "documentation": "ORDER_PRIORITY of SALES_RECORDS",
+          "documentation": "ORDER_PRIORITY. SALES_RECORDS",
           "fieldPath": "order_priority"
         },
         {
-          "documentation": "ORDER_DATE of SALES_RECORDS",
+          "documentation": "ORDER_DATE. SALES_RECORDS",
           "fieldPath": "order_date"
         },
         {
-          "documentation": "ORDER_ID of SALES_RECORDS",
+          "documentation": "ORDER_ID. SALES_RECORDS",
           "fieldPath": "order_id"
         },
         {
-          "documentation": "SHIP_DATE of SALES_RECORDS",
+          "documentation": "SHIP_DATE. SALES_RECORDS",
           "fieldPath": "ship_date"
         },
         {
-          "documentation": "UNITS_SOLD of SALES_RECORDS",
+          "documentation": "UNITS_SOLD. SALES_RECORDS",
           "fieldPath": "units_sold"
         },
         {
-          "documentation": "UNIT_PRICE of SALES_RECORDS",
+          "documentation": "UNIT_PRICE. SALES_RECORDS",
           "fieldPath": "unit_price"
         },
         {
-          "documentation": "UNIT_COST of SALES_RECORDS",
+          "documentation": "UNIT_COST. SALES_RECORDS",
           "fieldPath": "unit_cost"
         },
         {
-          "documentation": "TOTAL_REVENUE of SALES_RECORDS",
+          "documentation": "TOTAL_REVENUE. SALES_RECORDS",
           "fieldPath": "total_revenue"
         },
         {
-          "documentation": "TOTAL_COST of SALES_RECORDS",
+          "documentation": "TOTAL_COST. SALES_RECORDS",
           "fieldPath": "total_cost"
         },
         {
-          "documentation": "TOTAL_PROFIT of SALES_RECORDS",
+          "documentation": "TOTAL_PROFIT. SALES_RECORDS",
           "fieldPath": "total_profit"
         }
       ]
@@ -76,51 +76,51 @@
       ],
       "fieldDocumentations": [
         {
-          "documentation": "SHOW_ID of NETFLIX",
+          "documentation": "SHOW_ID. NETFLIX",
           "fieldPath": "show_id"
         },
         {
-          "documentation": "TYPE of NETFLIX",
+          "documentation": "TYPE. NETFLIX",
           "fieldPath": "type"
         },
         {
-          "documentation": "TITLE of NETFLIX",
+          "documentation": "TITLE. NETFLIX",
           "fieldPath": "title"
         },
         {
-          "documentation": "DIRECTOR of NETFLIX",
+          "documentation": "DIRECTOR. NETFLIX",
           "fieldPath": "director"
         },
         {
-          "documentation": "CAST of NETFLIX",
+          "documentation": "CAST. NETFLIX",
           "fieldPath": "cast"
         },
         {
-          "documentation": "COUNTRY of NETFLIX",
+          "documentation": "COUNTRY. NETFLIX",
           "fieldPath": "country"
         },
         {
-          "documentation": "DATE_ADDED of NETFLIX",
+          "documentation": "DATE_ADDED. NETFLIX",
           "fieldPath": "date_added"
         },
         {
-          "documentation": "RELEASE_YEAR of NETFLIX",
+          "documentation": "RELEASE_YEAR. NETFLIX",
           "fieldPath": "release_year"
         },
         {
-          "documentation": "RATING of NETFLIX",
+          "documentation": "RATING. NETFLIX",
           "fieldPath": "rating"
         },
         {
-          "documentation": "DURATION of NETFLIX",
+          "documentation": "DURATION. NETFLIX",
           "fieldPath": "duration"
         },
         {
-          "documentation": "LISTED_IN of NETFLIX",
+          "documentation": "LISTED_IN. NETFLIX",
           "fieldPath": "listed_in"
         },
         {
-          "documentation": "DESCRIPTION of NETFLIX",
+          "documentation": "DESCRIPTION. NETFLIX",
           "fieldPath": "description"
         }
       ]
@@ -138,7 +138,7 @@
       "docsUrl": "http://localhost:8080/#!/model/model.trial.my_first_dbt_model",
       "fields": [
         {
-          "description": "The primary key for this table, auto generated id.",
+          "description": "The primary key for this table, auto generated id",
           "fieldPath": "id",
           "nativeType": "Not Set"
         }
@@ -191,7 +191,7 @@
       "docsUrl": "http://localhost:8080/#!/model/model.trial.my_second_dbt_model",
       "fields": [
         {
-          "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'.",
+          "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'",
           "fieldPath": "id",
           "nativeType": "Not Set"
         }
@@ -200,9 +200,6 @@
         "targetDataset": "DATASET~C2E3AFBF33CD1595EE25A57D02B4F04A",
         "type": "VIEW"
       },
-      "owners": [
-        "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
-      ],
       "packageName": "trial",
       "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
       "sourceDatasets": [],
@@ -277,9 +274,6 @@
         "targetDataset": "DATASET~1712CB731B3A99B418D013CDD380ED96",
         "type": "TABLE"
       },
-      "owners": [
-        "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
-      ],
       "packageName": "trial",
       "rawSql": "{{ config(materialized='table') }}\n\nselect show_id, type, title, country, release_year \nfrom {{ source('DBT_DEV', 'NETFLIX') }}",
       "sourceDatasets": [
@@ -343,7 +337,7 @@
   {
     "dbtModel": {
       "compiledSql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
-      "description": "Second trial model, get statistics from SALES_RECORDStable",
+      "description": "Second trial model, get statistics from SALES_RECORDS table",
       "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_2",
       "fields": [
         {
@@ -373,14 +367,11 @@
         }
       ],
       "materialization": {
-        "targetDataset": "DATASET~193E378823E334188F097A104793663C",
+        "targetDataset": "DATASET~F337ED76B37690F4E9A07902BA78CA63",
         "type": "TABLE"
       },
-      "owners": [
-        "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
-      ],
       "packageName": "trial",
-      "rawSql": "{{ config(materialized='table') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+      "rawSql": "{{ config(materialized='table', alias='sales_summary') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
       "sourceDatasets": [
         "DATASET~88E2F99BE08491C03619AC3FF0FF07BC"
       ],
@@ -395,7 +386,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_trial_model_2_country",
-          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere country is null\n\n\n",
+          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere country is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_country"
         },
         {
@@ -406,7 +397,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_trial_model_2_item_type",
-          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere item_type is null\n\n\n",
+          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere item_type is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_item_type"
         },
         {
@@ -417,7 +408,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_trial_model_2_year",
-          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere year is null\n\n\n",
+          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere year is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_year"
         },
         {
@@ -428,7 +419,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_trial_model_2_revenue",
-          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere revenue is null\n\n\n",
+          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere revenue is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_revenue"
         },
         {
@@ -439,7 +430,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_trial_model_2_profit",
-          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_2\nwhere profit is null\n\n\n",
+          "sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere profit is null\n\n\n",
           "uniqueId": "test.trial.not_null_trial_model_2_profit"
         }
       ],
