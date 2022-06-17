@@ -1654,7 +1654,7 @@ python-versions = "*"
 
 [[package]]
 name = "metaphor-models"
-version = "0.7.10"
+version = "0.7.13"
 description = ""
 category = "main"
 optional = false
@@ -2768,7 +2768,7 @@ throughtspot = ["thoughtspot-rest-api-sdk"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "1ee226772ccf21024386ca253a0b6381974f1ef081e3ba1a26adbad5a850ba36"
+content-hash = "dcc1c5d1513be23f2bbaacec799fb3088ca4994718b4b5e227914a67ac8b360a"
 
 [metadata.files]
 alembic = [
@@ -3599,8 +3599,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.7.10.tar.gz", hash = "sha256:46fe2244df57a2d9bffee336eda5253480b6cdd799d5438681d039a7bca5df23"},
-    {file = "metaphor_models-0.7.10-py3-none-any.whl", hash = "sha256:aa7b3fc572d27516679238d3c316f961fec99e5f63db6b3116f6ee6df003b596"},
+    {file = "metaphor-models-0.7.13.tar.gz", hash = "sha256:f8ccc3366a682dca41a117d485c35bcceb901bd27c90bdf32c7f316ab783cd02"},
+    {file = "metaphor_models-0.7.13-py3-none-any.whl", hash = "sha256:d49efab3791cfb6c77c9c8599ae0889e74af65a51ee1c3fd464185a2a03cb75a"},
 ]
 msal = [
     {file = "msal-1.17.0-py2.py3-none-any.whl", hash = "sha256:5a52d78e70d2c451e267c1e8c2342e4c06f495c75c859aeafd9260d3974f09fe"},
