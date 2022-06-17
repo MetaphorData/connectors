@@ -286,16 +286,16 @@ class SnowflakeExtractor(BaseExtractor):
             dataset = self._datasets.get(table)
             if dataset is None or dataset.schema is None:
                 logger.error(
-                    f"Table {table} not found for tag {self._build_tag(key, value)}"
+                    f"Table {table} not found for tag {self._build_tag_string(key, value)}"
                 )
                 continue
 
             if not dataset.schema.tags:
                 dataset.schema.tags = []
-            dataset.schema.tags.append(self._build_tag(key, value))
+            dataset.schema.tags.append(self._build_tag_string(key, value))
 
     @staticmethod
-    def _build_tag(tag_key: str, tag_value: str):
+    def _build_tag_string(tag_key: str, tag_value: str) -> str:
         return f"{tag_key}={tag_value}"
 
     def _init_dataset(
