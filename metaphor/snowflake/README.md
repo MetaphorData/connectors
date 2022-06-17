@@ -27,6 +27,8 @@ grant references on all views in database identifier($db) to role identifier($ro
 grant references on future views in database identifier($db) to role identifier($role);
 grant references on all materialized views in database identifier($db) to role identifier($role);
 grant references on future materialized views in database identifier($db) to role identifier($role);
+-- Grant permissions to access the snowflake "Account Usage" views:
+grant imported privileges on database snowflake to role identifier($role);
 
 -- Create metaphor_user
 create user identifier($user) 

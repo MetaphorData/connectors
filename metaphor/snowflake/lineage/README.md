@@ -4,15 +4,7 @@ This connector extracts linage from a Snowflake account using [Snowflake Connect
 
 ## Setup
 
-Create a dedicated user & role based on the [Setup](../README.md#Setup) guide for the general Snowflake connector. You'll need to grant additional permissions to the role in order to access the [Account Usage](https://docs.snowflake.com/en/sql-reference/account-usage.html#enabling-account-usage-for-other-roles) tables:
-
-```sql
-use role ACCOUNTADMIN;
-
-set role = 'metaphor_role';
-
-grant imported privileges on database snowflake to role role identifier($role);
-```
+Create a dedicated user & role based on the [Setup](../README.md#Setup) guide for the general Snowflake connector.
 
 ## Config File
 
