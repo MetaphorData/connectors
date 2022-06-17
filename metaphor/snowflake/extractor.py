@@ -80,11 +80,7 @@ class SnowflakeExtractor(BaseExtractor):
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
                 self._fetch_table_info(conn, tables)
-
-            try:
                 self._fetch_tags(cursor)
-            except Exception as e:
-                logger.error(f"Fetch tags error: {e}")
 
         logger.debug(self._datasets)
 
