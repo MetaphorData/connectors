@@ -3,4 +3,12 @@ manifest: manifest
 catalog: catalog
 docs_base_url: http://localhost
 project_source_url: http://foo.bar
+meta_ownerships:
+  - meta_key: owner
+    email_domain: metaphor.io
+    ownership_type: Maintainer
+meta_tags:
+  - meta_key: pii
+    meta_value_matcher: false
+    tag_type: no_pii
 output: {}

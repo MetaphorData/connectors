@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union
+from typing import Dict, Union
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -9,12 +9,15 @@ from metaphor.models.metadata_change_event import (
     DbtMaterializationType,
     DbtModel,
     DbtTest,
+    OwnershipAssignment,
+    TagAssignment,
     VirtualView,
 )
 from pydantic.utils import unique_list
 
 from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
 from metaphor.common.logger import get_logger
+from metaphor.dbt.config import DbtRunConfig
 
 from .generated.dbt_manifest_v3 import (
     CompiledModelNode,
@@ -28,7 +31,8 @@ from .generated.dbt_manifest_v3 import (
 from .util import (
     build_docs_url,
     build_source_code_url,
-    get_model_owner_ids,
+    get_ownerships_from_meta,
+    get_tags_from_meta,
     get_virtual_view_id,
     init_dataset,
     init_dbt_tests,
@@ -53,17 +57,17 @@ class ManifestParserV3:
 
     def __init__(
         self,
+        config: DbtRunConfig,
         platform: DataPlatform,
-        account: Optional[str],
-        docs_base_url: Optional[str],
-        project_source_url: Optional[str],
         datasets: Dict[str, Dataset],
         virtual_views: Dict[str, VirtualView],
     ):
         self._platform = platform
-        self._account = account
-        self._docs_base_url = docs_base_url
-        self._project_source_url = project_source_url
+        self._account = config.account
+        self._docs_base_url = config.docs_base_url
+        self._project_source_url = config.project_source_url
+        self._meta_ownerships = config.meta_ownerships
+        self._meta_tags = config.meta_tags
         self._datasets = datasets
         self._virtual_views = virtual_views
 
@@ -175,6 +179,10 @@ class ManifestParserV3:
         source_map: Dict[str, EntityId],
         macro_map: Dict[str, DbtMacro],
     ):
+        if model.config is None or model.database is None:
+            logger.warn("Skipping model without config or database")
+            return
+
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
         virtual_view.dbt_model = DbtModel(
             package_name=model.package_name,
@@ -192,11 +200,12 @@ class ManifestParserV3:
         if isinstance(model, CompiledModelNode):
             dbt_model.compiled_sql = model.compiled_sql
 
-        dbt_model.owners = get_model_owner_ids(model)
+        # v3 use 'model.config.meta' while v1, v2 use 'model.meta'
+        meta = model.config.meta if model.config.meta else model.meta
+        if meta:
+            self._parse_model_meta(meta, model)
 
-        assert model.config is not None and model.database is not None
         materialized = model.config.materialized
-
         if materialized:
             try:
                 materialization_type = DbtMaterializationType[materialized.upper()]
@@ -243,6 +252,36 @@ class ManifestParserV3:
 
             if model.depends_on.macros:
                 dbt_model.macros = [macro_map[n] for n in model.depends_on.macros]
+
+    def _parse_model_meta(self, meta: Dict, model: MODEL_NODE_TYPE) -> None:
+        if (
+            not model.config
+            or not model.config.materialized
+            or model.config.materialized.upper() in ["EPHEMERAL", "OTHER"]
+        ):
+            return
+
+        def get_dataset():
+            return init_dataset(
+                self._datasets,
+                model.database,
+                model.schema_,
+                model.alias or model.name,
+                self._platform,
+                self._account,
+                model.unique_id,
+            )
+
+        # Assign ownership & tags to materialized table/view
+        ownerships = get_ownerships_from_meta(meta, self._meta_ownerships)
+        if len(ownerships) > 0:
+            get_dataset().ownership_assignment = OwnershipAssignment(
+                ownerships=ownerships
+            )
+
+        tag_names = get_tags_from_meta(meta, self._meta_tags)
+        if len(tag_names) > 0:
+            get_dataset().tag_assignment = TagAssignment(tag_names=tag_names)
 
     def _parse_source(self, source: ParsedSourceDefinition) -> None:
         if not source.database or not source.columns:

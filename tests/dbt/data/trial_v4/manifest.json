@@ -2,11 +2,11 @@
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v4.json",
     "dbt_version": "1.0.1",
-    "generated_at": "2022-06-17T04:11:46.365053Z",
-    "invocation_id": "5884416d-6696-48c3-88d3-f213425d2b1a",
+    "generated_at": "2022-06-17T14:17:54.651873Z",
+    "invocation_id": "0bfc278b-652c-4d20-8a50-475fde0b2b10",
     "env": {},
     "project_id": "58723627fcebc230ab0d53ddf5f16e34",
-    "user_id": "3caef290-f483-4b6c-a187-bcb514201b60",
+    "user_id": "151868d7-baf5-49d5-851d-8e6ef2946305",
     "send_anonymous_usage_stats": true,
     "adapter_type": "snowflake"
   },
@@ -26,7 +26,8 @@
         "database": null,
         "tags": [],
         "meta": {
-          "owner": "yi@metaphor.io"
+          "owner": "yi@metaphor.io",
+          "pii": true
         },
         "materialized": "view",
         "persist_docs": {
@@ -87,7 +88,7 @@
         },
         "materialized": "view"
       },
-      "created_at": 1655439106.8601134,
+      "created_at": 1655475474.9992483,
       "compiled_sql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -173,7 +174,7 @@
         },
         "materialized": "view"
       },
-      "created_at": 1655439106.860636,
+      "created_at": 1655475474.9997346,
       "compiled_sql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -296,7 +297,7 @@
         },
         "materialized": "table"
       },
-      "created_at": 1655439106.8623023,
+      "created_at": 1655475475.0015907,
       "compiled_sql": "\n\nselect show_id, type, title, country, release_year \nfrom DEMO_DB.DBT_DEV.NETFLIX",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -420,7 +421,7 @@
         "materialized": "table",
         "alias": "sales_summary"
       },
-      "created_at": 1655439106.8655927,
+      "created_at": 1655475475.00472,
       "compiled_sql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -499,7 +500,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8694892,
+      "created_at": 1655475475.0087698,
       "compiled_sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -580,7 +581,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8717215,
+      "created_at": 1655475475.0107234,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -661,7 +662,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.874052,
+      "created_at": 1655475475.0127504,
       "compiled_sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -742,7 +743,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.876031,
+      "created_at": 1655475475.0150325,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -823,7 +824,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8778503,
+      "created_at": 1655475475.0172718,
       "compiled_sql": "\n    \n    \n\nselect\n    show_id as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is not null\ngroup by show_id\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -904,7 +905,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8795705,
+      "created_at": 1655475475.0194812,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -985,7 +986,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8817327,
+      "created_at": 1655475475.0217009,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1066,7 +1067,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8842716,
+      "created_at": 1655475475.023735,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1147,7 +1148,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8861852,
+      "created_at": 1655475475.0259109,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere country is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1228,7 +1229,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8882167,
+      "created_at": 1655475475.027824,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere item_type is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1309,7 +1310,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8933532,
+      "created_at": 1655475475.0298905,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere year is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1390,7 +1391,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8955345,
+      "created_at": 1655475475.0319188,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere revenue is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1471,7 +1472,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.8974583,
+      "created_at": 1655475475.0338373,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere profit is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1553,7 +1554,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9156206,
+      "created_at": 1655475475.0499115,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere COUNTRY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1635,7 +1636,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9192464,
+      "created_at": 1655475475.054359,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere REGION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1717,7 +1718,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9222267,
+      "created_at": 1655475475.0567117,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ITEM_TYPE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1799,7 +1800,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9254882,
+      "created_at": 1655475475.0588453,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere SALES_CHANNEL is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1881,7 +1882,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9306045,
+      "created_at": 1655475475.0609918,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_PRIORITY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1963,7 +1964,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9335427,
+      "created_at": 1655475475.063037,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_DATE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2045,7 +2046,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9363031,
+      "created_at": 1655475475.0654469,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_ID is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2127,7 +2128,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9388962,
+      "created_at": 1655475475.0673685,
       "compiled_sql": "\n    \n    \n\nselect\n    ORDER_ID as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_ID is not null\ngroup by ORDER_ID\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2209,7 +2210,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9414847,
+      "created_at": 1655475475.0699255,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere SHIP_DATE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2291,7 +2292,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.944133,
+      "created_at": 1655475475.0719645,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere UNITS_SOLD is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2373,7 +2374,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9468863,
+      "created_at": 1655475475.0752964,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere UNIT_PRICE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2455,7 +2456,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9495723,
+      "created_at": 1655475475.0772688,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere UNIT_COST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2537,7 +2538,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9519653,
+      "created_at": 1655475475.0804255,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_REVENUE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2619,7 +2620,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9548428,
+      "created_at": 1655475475.0824718,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_COST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2701,7 +2702,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9575994,
+      "created_at": 1655475475.0846117,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_PROFIT is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2783,7 +2784,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9603484,
+      "created_at": 1655475475.0867443,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere SHOW_ID is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2865,7 +2866,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9629812,
+      "created_at": 1655475475.0888484,
       "compiled_sql": "\n    \n    \n\nselect\n    SHOW_ID as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere SHOW_ID is not null\ngroup by SHOW_ID\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2947,7 +2948,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9654517,
+      "created_at": 1655475475.0910745,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere TYPE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3029,7 +3030,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.96839,
+      "created_at": 1655475475.0932193,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere TITLE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3111,7 +3112,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.970696,
+      "created_at": 1655475475.0953705,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere DIRECTOR is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3193,7 +3194,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9737449,
+      "created_at": 1655475475.0976884,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere CAST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3275,7 +3276,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.975969,
+      "created_at": 1655475475.0997024,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere COUNTRY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3357,7 +3358,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9799182,
+      "created_at": 1655475475.101783,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere DATE_ADDED is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3439,7 +3440,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9828796,
+      "created_at": 1655475475.1039934,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere RELEASE_YEAR is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3521,7 +3522,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9847794,
+      "created_at": 1655475475.1058729,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere RATING is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3603,7 +3604,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9865794,
+      "created_at": 1655475475.1081822,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere DURATION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3685,7 +3686,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9885716,
+      "created_at": 1655475475.110338,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere LISTED_IN is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3767,7 +3768,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1655439106.9917376,
+      "created_at": 1655475475.1128647,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere DESCRIPTION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3940,7 +3941,7 @@
       "patch_path": null,
       "unrendered_config": {},
       "relation_name": "DEMO_DB.DBT_DEV.SALES_RECORDS",
-      "created_at": 1655439106.9597712
+      "created_at": 1655475475.086243
     },
     "source.trial.DBT_DEV.NETFLIX": {
       "fqn": [
@@ -4089,7 +4090,7 @@
       "patch_path": null,
       "unrendered_config": {},
       "relation_name": "DEMO_DB.DBT_DEV.NETFLIX",
-      "created_at": 1655439106.9933987
+      "created_at": 1655475475.1151826
     }
   },
   "macros": {
@@ -4113,7 +4114,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4853392
+      "created_at": 1655475474.720581
     },
     "macro.dbt_snowflake.get_column_comment_sql": {
       "unique_id": "macro.dbt_snowflake.get_column_comment_sql",
@@ -4135,7 +4136,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4856937
+      "created_at": 1655475474.7209392
     },
     "macro.dbt_snowflake.get_persist_docs_column_list": {
       "unique_id": "macro.dbt_snowflake.get_persist_docs_column_list",
@@ -4159,7 +4160,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.486145
+      "created_at": 1655475474.7213914
     },
     "macro.dbt_snowflake.snowflake__create_view_as": {
       "unique_id": "macro.dbt_snowflake.snowflake__create_view_as",
@@ -4184,7 +4185,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4869075
+      "created_at": 1655475474.7221289
     },
     "macro.dbt_snowflake.snowflake__get_columns_in_relation": {
       "unique_id": "macro.dbt_snowflake.snowflake__get_columns_in_relation",
@@ -4208,7 +4209,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4876978
+      "created_at": 1655475474.7228928
     },
     "macro.dbt_snowflake.snowflake__list_schemas": {
       "unique_id": "macro.dbt_snowflake.snowflake__list_schemas",
@@ -4232,7 +4233,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4882326
+      "created_at": 1655475474.7236032
     },
     "macro.dbt_snowflake.snowflake__list_relations_without_caching": {
       "unique_id": "macro.dbt_snowflake.snowflake__list_relations_without_caching",
@@ -4256,7 +4257,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.488731
+      "created_at": 1655475474.7242095
     },
     "macro.dbt_snowflake.snowflake__check_schema_exists": {
       "unique_id": "macro.dbt_snowflake.snowflake__check_schema_exists",
@@ -4280,7 +4281,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4890578
+      "created_at": 1655475474.724563
     },
     "macro.dbt_snowflake.snowflake__current_timestamp": {
       "unique_id": "macro.dbt_snowflake.snowflake__current_timestamp",
@@ -4302,7 +4303,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4891312
+      "created_at": 1655475474.7246406
     },
     "macro.dbt_snowflake.snowflake__snapshot_string_as_time": {
       "unique_id": "macro.dbt_snowflake.snowflake__snapshot_string_as_time",
@@ -4324,7 +4325,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4893074
+      "created_at": 1655475474.7248168
     },
     "macro.dbt_snowflake.snowflake__snapshot_get_time": {
       "unique_id": "macro.dbt_snowflake.snowflake__snapshot_get_time",
@@ -4348,7 +4349,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4894218
+      "created_at": 1655475474.7249193
     },
     "macro.dbt_snowflake.snowflake__rename_relation": {
       "unique_id": "macro.dbt_snowflake.snowflake__rename_relation",
@@ -4372,7 +4373,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4896104
+      "created_at": 1655475474.7251248
     },
     "macro.dbt_snowflake.snowflake__alter_column_type": {
       "unique_id": "macro.dbt_snowflake.snowflake__alter_column_type",
@@ -4396,7 +4397,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4898665
+      "created_at": 1655475474.72537
     },
     "macro.dbt_snowflake.snowflake__alter_relation_comment": {
       "unique_id": "macro.dbt_snowflake.snowflake__alter_relation_comment",
@@ -4418,7 +4419,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4900603
+      "created_at": 1655475474.7255661
     },
     "macro.dbt_snowflake.snowflake__alter_column_comment": {
       "unique_id": "macro.dbt_snowflake.snowflake__alter_column_comment",
@@ -4442,7 +4443,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4905596
+      "created_at": 1655475474.7260928
     },
     "macro.dbt_snowflake.get_current_query_tag": {
       "unique_id": "macro.dbt_snowflake.get_current_query_tag",
@@ -4466,7 +4467,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4907358
+      "created_at": 1655475474.726284
     },
     "macro.dbt_snowflake.set_query_tag": {
       "unique_id": "macro.dbt_snowflake.set_query_tag",
@@ -4491,7 +4492,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4911892
+      "created_at": 1655475474.7267401
     },
     "macro.dbt_snowflake.unset_query_tag": {
       "unique_id": "macro.dbt_snowflake.unset_query_tag",
@@ -4515,7 +4516,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4917338
+      "created_at": 1655475474.7273147
     },
     "macro.dbt_snowflake.snowflake__alter_relation_add_remove_columns": {
       "unique_id": "macro.dbt_snowflake.snowflake__alter_relation_add_remove_columns",
@@ -4539,7 +4540,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.492477
+      "created_at": 1655475474.7280486
     },
     "macro.dbt_snowflake.snowflake_dml_explicit_transaction": {
       "unique_id": "macro.dbt_snowflake.snowflake_dml_explicit_transaction",
@@ -4561,7 +4562,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.492688
+      "created_at": 1655475474.7282605
     },
     "macro.dbt_snowflake.snowflake__truncate_relation": {
       "unique_id": "macro.dbt_snowflake.snowflake__truncate_relation",
@@ -4586,7 +4587,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4929209
+      "created_at": 1655475474.7284853
     },
     "macro.dbt_snowflake.snowflake__get_catalog": {
       "unique_id": "macro.dbt_snowflake.snowflake__get_catalog",
@@ -4610,7 +4611,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.495709
+      "created_at": 1655475474.7309208
     },
     "macro.dbt_snowflake.materialization_snapshot_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_snapshot_snowflake",
@@ -4636,7 +4637,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.4972434
+      "created_at": 1655475474.732513
     },
     "macro.dbt_snowflake.snowflake__load_csv_rows": {
       "unique_id": "macro.dbt_snowflake.snowflake__load_csv_rows",
@@ -4661,7 +4662,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5008433
+      "created_at": 1655475474.7359068
     },
     "macro.dbt_snowflake.materialization_seed_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_seed_snowflake",
@@ -4687,7 +4688,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5011451
+      "created_at": 1655475474.7362232
     },
     "macro.dbt_snowflake.materialization_view_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_view_snowflake",
@@ -4714,7 +4715,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5028749
+      "created_at": 1655475474.7379346
     },
     "macro.dbt_snowflake.materialization_table_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_table_snowflake",
@@ -4744,7 +4745,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5055113
+      "created_at": 1655475474.7405229
     },
     "macro.dbt_snowflake.snowflake__get_merge_sql": {
       "unique_id": "macro.dbt_snowflake.snowflake__get_merge_sql",
@@ -4770,7 +4771,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5078268
+      "created_at": 1655475474.7430477
     },
     "macro.dbt_snowflake.snowflake__get_delete_insert_merge_sql": {
       "unique_id": "macro.dbt_snowflake.snowflake__get_delete_insert_merge_sql",
@@ -4795,7 +4796,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.508117
+      "created_at": 1655475474.7433577
     },
     "macro.dbt_snowflake.snowflake__snapshot_merge_sql": {
       "unique_id": "macro.dbt_snowflake.snowflake__snapshot_merge_sql",
@@ -4820,7 +4821,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.508377
+      "created_at": 1655475474.74362
     },
     "macro.dbt_snowflake.dbt_snowflake_validate_get_incremental_strategy": {
       "unique_id": "macro.dbt_snowflake.dbt_snowflake_validate_get_incremental_strategy",
@@ -4842,7 +4843,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5108595
+      "created_at": 1655475474.7460938
     },
     "macro.dbt_snowflake.dbt_snowflake_get_incremental_sql": {
       "unique_id": "macro.dbt_snowflake.dbt_snowflake_get_incremental_sql",
@@ -4867,7 +4868,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5114286
+      "created_at": 1655475474.746647
     },
     "macro.dbt_snowflake.materialization_incremental_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_incremental_snowflake",
@@ -4904,7 +4905,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.513566
+      "created_at": 1655475474.7487795
     },
     "macro.dbt.generate_schema_name": {
       "unique_id": "macro.dbt.generate_schema_name",
@@ -4928,7 +4929,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5162683
+      "created_at": 1655475474.7506163
     },
     "macro.dbt.default__generate_schema_name": {
       "unique_id": "macro.dbt.default__generate_schema_name",
@@ -4950,7 +4951,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5166795
+      "created_at": 1655475474.750891
     },
     "macro.dbt.generate_schema_name_for_env": {
       "unique_id": "macro.dbt.generate_schema_name_for_env",
@@ -4972,7 +4973,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5169783
+      "created_at": 1655475474.7511961
     },
     "macro.dbt.generate_database_name": {
       "unique_id": "macro.dbt.generate_database_name",
@@ -4996,7 +4997,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.518466
+      "created_at": 1655475474.7529287
     },
     "macro.dbt.default__generate_database_name": {
       "unique_id": "macro.dbt.default__generate_database_name",
@@ -5018,7 +5019,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5187225
+      "created_at": 1655475474.7531996
     },
     "macro.dbt.generate_alias_name": {
       "unique_id": "macro.dbt.generate_alias_name",
@@ -5042,7 +5043,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5200036
+      "created_at": 1655475474.754885
     },
     "macro.dbt.default__generate_alias_name": {
       "unique_id": "macro.dbt.default__generate_alias_name",
@@ -5064,7 +5065,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5202472
+      "created_at": 1655475474.7551606
     },
     "macro.dbt.set_sql_header": {
       "unique_id": "macro.dbt.set_sql_header",
@@ -5086,7 +5087,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5217516
+      "created_at": 1655475474.7566721
     },
     "macro.dbt.should_full_refresh": {
       "unique_id": "macro.dbt.should_full_refresh",
@@ -5108,7 +5109,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5220573
+      "created_at": 1655475474.7569926
     },
     "macro.dbt.should_store_failures": {
       "unique_id": "macro.dbt.should_store_failures",
@@ -5130,7 +5131,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5223603
+      "created_at": 1655475474.757344
     },
     "macro.dbt.run_hooks": {
       "unique_id": "macro.dbt.run_hooks",
@@ -5154,7 +5155,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5244632
+      "created_at": 1655475474.7608428
     },
     "macro.dbt.make_hook_config": {
       "unique_id": "macro.dbt.make_hook_config",
@@ -5176,7 +5177,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5246725
+      "created_at": 1655475474.761071
     },
     "macro.dbt.before_begin": {
       "unique_id": "macro.dbt.before_begin",
@@ -5200,7 +5201,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.524815
+      "created_at": 1655475474.7612185
     },
     "macro.dbt.in_transaction": {
       "unique_id": "macro.dbt.in_transaction",
@@ -5224,7 +5225,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5249555
+      "created_at": 1655475474.7613604
     },
     "macro.dbt.after_commit": {
       "unique_id": "macro.dbt.after_commit",
@@ -5248,7 +5249,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5250912
+      "created_at": 1655475474.7615018
     },
     "macro.dbt.create_or_replace_view": {
       "unique_id": "macro.dbt.create_or_replace_view",
@@ -5276,7 +5277,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5274925
+      "created_at": 1655475474.7641125
     },
     "macro.dbt.materialization_view_default": {
       "unique_id": "macro.dbt.materialization_view_default",
@@ -5304,7 +5305,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.531777
+      "created_at": 1655475474.768379
     },
     "macro.dbt.handle_existing_table": {
       "unique_id": "macro.dbt.handle_existing_table",
@@ -5328,7 +5329,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.533526
+      "created_at": 1655475474.7700262
     },
     "macro.dbt.default__handle_existing_table": {
       "unique_id": "macro.dbt.default__handle_existing_table",
@@ -5350,7 +5351,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.533758
+      "created_at": 1655475474.7702713
     },
     "macro.dbt.get_create_view_as_sql": {
       "unique_id": "macro.dbt.get_create_view_as_sql",
@@ -5374,7 +5375,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5365126
+      "created_at": 1655475474.7716558
     },
     "macro.dbt.default__get_create_view_as_sql": {
       "unique_id": "macro.dbt.default__get_create_view_as_sql",
@@ -5398,7 +5399,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.536687
+      "created_at": 1655475474.7718132
     },
     "macro.dbt.create_view_as": {
       "unique_id": "macro.dbt.create_view_as",
@@ -5422,7 +5423,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5368705
+      "created_at": 1655475474.7719817
     },
     "macro.dbt.default__create_view_as": {
       "unique_id": "macro.dbt.default__create_view_as",
@@ -5444,7 +5445,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5371358
+      "created_at": 1655475474.7722573
     },
     "macro.dbt.get_quoted_csv": {
       "unique_id": "macro.dbt.get_quoted_csv",
@@ -5466,7 +5467,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5389595
+      "created_at": 1655475474.774335
     },
     "macro.dbt.diff_columns": {
       "unique_id": "macro.dbt.diff_columns",
@@ -5488,7 +5489,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5395107
+      "created_at": 1655475474.774871
     },
     "macro.dbt.diff_column_data_types": {
       "unique_id": "macro.dbt.diff_column_data_types",
@@ -5510,7 +5511,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.540124
+      "created_at": 1655475474.7754838
     },
     "macro.dbt.incremental_validate_on_schema_change": {
       "unique_id": "macro.dbt.incremental_validate_on_schema_change",
@@ -5532,7 +5533,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.545615
+      "created_at": 1655475474.7809024
     },
     "macro.dbt.check_for_schema_changes": {
       "unique_id": "macro.dbt.check_for_schema_changes",
@@ -5557,7 +5558,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.546918
+      "created_at": 1655475474.7822292
     },
     "macro.dbt.sync_column_schemas": {
       "unique_id": "macro.dbt.sync_column_schemas",
@@ -5582,7 +5583,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5481172
+      "created_at": 1655475474.7834482
     },
     "macro.dbt.process_schema_changes": {
       "unique_id": "macro.dbt.process_schema_changes",
@@ -5607,7 +5608,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5488286
+      "created_at": 1655475474.7841797
     },
     "macro.dbt.get_merge_sql": {
       "unique_id": "macro.dbt.get_merge_sql",
@@ -5631,7 +5632,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5530608
+      "created_at": 1655475474.78775
     },
     "macro.dbt.default__get_merge_sql": {
       "unique_id": "macro.dbt.default__get_merge_sql",
@@ -5655,7 +5656,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5545213
+      "created_at": 1655475474.788861
     },
     "macro.dbt.get_delete_insert_merge_sql": {
       "unique_id": "macro.dbt.get_delete_insert_merge_sql",
@@ -5679,7 +5680,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5547721
+      "created_at": 1655475474.7891078
     },
     "macro.dbt.default__get_delete_insert_merge_sql": {
       "unique_id": "macro.dbt.default__get_delete_insert_merge_sql",
@@ -5703,7 +5704,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5551887
+      "created_at": 1655475474.7895067
     },
     "macro.dbt.get_insert_overwrite_merge_sql": {
       "unique_id": "macro.dbt.get_insert_overwrite_merge_sql",
@@ -5727,7 +5728,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5554478
+      "created_at": 1655475474.7897534
     },
     "macro.dbt.default__get_insert_overwrite_merge_sql": {
       "unique_id": "macro.dbt.default__get_insert_overwrite_merge_sql",
@@ -5751,7 +5752,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5562773
+      "created_at": 1655475474.7903507
     },
     "macro.dbt.materialization_incremental_default": {
       "unique_id": "macro.dbt.materialization_incremental_default",
@@ -5787,7 +5788,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5695257
+      "created_at": 1655475474.7959275
     },
     "macro.dbt.is_incremental": {
       "unique_id": "macro.dbt.is_incremental",
@@ -5811,7 +5812,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5793355
+      "created_at": 1655475474.7974677
     },
     "macro.dbt.get_create_table_as_sql": {
       "unique_id": "macro.dbt.get_create_table_as_sql",
@@ -5835,7 +5836,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5822604
+      "created_at": 1655475474.7989233
     },
     "macro.dbt.default__get_create_table_as_sql": {
       "unique_id": "macro.dbt.default__get_create_table_as_sql",
@@ -5859,7 +5860,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5824947
+      "created_at": 1655475474.7991173
     },
     "macro.dbt.create_table_as": {
       "unique_id": "macro.dbt.create_table_as",
@@ -5883,7 +5884,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5827136
+      "created_at": 1655475474.7993052
     },
     "macro.dbt.default__create_table_as": {
       "unique_id": "macro.dbt.default__create_table_as",
@@ -5905,7 +5906,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5831532
+      "created_at": 1655475474.7996938
     },
     "macro.dbt.materialization_table_default": {
       "unique_id": "macro.dbt.materialization_table_default",
@@ -5934,7 +5935,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.5899088
+      "created_at": 1655475474.8039799
     },
     "macro.dbt.materialization_snapshot_default": {
       "unique_id": "macro.dbt.materialization_snapshot_default",
@@ -5970,7 +5971,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6023326
+      "created_at": 1655475474.810032
     },
     "macro.dbt.snapshot_merge_sql": {
       "unique_id": "macro.dbt.snapshot_merge_sql",
@@ -5994,7 +5995,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6096268
+      "created_at": 1655475474.812932
     },
     "macro.dbt.default__snapshot_merge_sql": {
       "unique_id": "macro.dbt.default__snapshot_merge_sql",
@@ -6016,7 +6017,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6101358
+      "created_at": 1655475474.8132064
     },
     "macro.dbt.create_columns": {
       "unique_id": "macro.dbt.create_columns",
@@ -6040,7 +6041,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6218917
+      "created_at": 1655475474.8167512
     },
     "macro.dbt.default__create_columns": {
       "unique_id": "macro.dbt.default__create_columns",
@@ -6064,7 +6065,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6222606
+      "created_at": 1655475474.817044
     },
     "macro.dbt.post_snapshot": {
       "unique_id": "macro.dbt.post_snapshot",
@@ -6088,7 +6089,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6225576
+      "created_at": 1655475474.8172085
     },
     "macro.dbt.default__post_snapshot": {
       "unique_id": "macro.dbt.default__post_snapshot",
@@ -6110,7 +6111,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6226892
+      "created_at": 1655475474.8172905
     },
     "macro.dbt.snapshot_staging_table": {
       "unique_id": "macro.dbt.snapshot_staging_table",
@@ -6134,7 +6135,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.622921
+      "created_at": 1655475474.817485
     },
     "macro.dbt.default__snapshot_staging_table": {
       "unique_id": "macro.dbt.default__snapshot_staging_table",
@@ -6158,7 +6159,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6241324
+      "created_at": 1655475474.8183706
     },
     "macro.dbt.build_snapshot_table": {
       "unique_id": "macro.dbt.build_snapshot_table",
@@ -6182,7 +6183,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6243799
+      "created_at": 1655475474.8185518
     },
     "macro.dbt.default__build_snapshot_table": {
       "unique_id": "macro.dbt.default__build_snapshot_table",
@@ -6204,7 +6205,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6249542
+      "created_at": 1655475474.8187938
     },
     "macro.dbt.build_snapshot_staging_table": {
       "unique_id": "macro.dbt.build_snapshot_staging_table",
@@ -6231,7 +6232,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6256158
+      "created_at": 1655475474.8192174
     },
     "macro.dbt.strategy_dispatch": {
       "unique_id": "macro.dbt.strategy_dispatch",
@@ -6253,7 +6254,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.632656
+      "created_at": 1655475474.8232613
     },
     "macro.dbt.snapshot_hash_arguments": {
       "unique_id": "macro.dbt.snapshot_hash_arguments",
@@ -6277,7 +6278,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6328833
+      "created_at": 1655475474.823444
     },
     "macro.dbt.default__snapshot_hash_arguments": {
       "unique_id": "macro.dbt.default__snapshot_hash_arguments",
@@ -6299,7 +6300,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6331356
+      "created_at": 1655475474.823658
     },
     "macro.dbt.snapshot_get_time": {
       "unique_id": "macro.dbt.snapshot_get_time",
@@ -6323,7 +6324,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6332922
+      "created_at": 1655475474.8237944
     },
     "macro.dbt.default__snapshot_get_time": {
       "unique_id": "macro.dbt.default__snapshot_get_time",
@@ -6347,7 +6348,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.633397
+      "created_at": 1655475474.8238847
     },
     "macro.dbt.snapshot_timestamp_strategy": {
       "unique_id": "macro.dbt.snapshot_timestamp_strategy",
@@ -6371,7 +6372,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6342564
+      "created_at": 1655475474.8246377
     },
     "macro.dbt.snapshot_string_as_time": {
       "unique_id": "macro.dbt.snapshot_string_as_time",
@@ -6395,7 +6396,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6344392
+      "created_at": 1655475474.8247933
     },
     "macro.dbt.default__snapshot_string_as_time": {
       "unique_id": "macro.dbt.default__snapshot_string_as_time",
@@ -6417,7 +6418,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6346025
+      "created_at": 1655475474.8249497
     },
     "macro.dbt.snapshot_check_all_get_existing_columns": {
       "unique_id": "macro.dbt.snapshot_check_all_get_existing_columns",
@@ -6441,7 +6442,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6355777
+      "created_at": 1655475474.825896
     },
     "macro.dbt.snapshot_check_strategy": {
       "unique_id": "macro.dbt.snapshot_check_strategy",
@@ -6469,7 +6470,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.637533
+      "created_at": 1655475474.8276832
     },
     "macro.dbt.materialization_seed_default": {
       "unique_id": "macro.dbt.materialization_seed_default",
@@ -6500,7 +6501,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6426504
+      "created_at": 1655475474.831459
     },
     "macro.dbt.create_csv_table": {
       "unique_id": "macro.dbt.create_csv_table",
@@ -6524,7 +6525,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6488795
+      "created_at": 1655475474.835951
     },
     "macro.dbt.default__create_csv_table": {
       "unique_id": "macro.dbt.default__create_csv_table",
@@ -6548,7 +6549,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6498656
+      "created_at": 1655475474.8368173
     },
     "macro.dbt.reset_csv_table": {
       "unique_id": "macro.dbt.reset_csv_table",
@@ -6572,7 +6573,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6501231
+      "created_at": 1655475474.8370466
     },
     "macro.dbt.default__reset_csv_table": {
       "unique_id": "macro.dbt.default__reset_csv_table",
@@ -6596,7 +6597,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.650624
+      "created_at": 1655475474.837495
     },
     "macro.dbt.get_binding_char": {
       "unique_id": "macro.dbt.get_binding_char",
@@ -6620,7 +6621,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6507695
+      "created_at": 1655475474.8376298
     },
     "macro.dbt.default__get_binding_char": {
       "unique_id": "macro.dbt.default__get_binding_char",
@@ -6642,7 +6643,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6508875
+      "created_at": 1655475474.8377392
     },
     "macro.dbt.get_batch_size": {
       "unique_id": "macro.dbt.get_batch_size",
@@ -6666,7 +6667,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6510484
+      "created_at": 1655475474.8378844
     },
     "macro.dbt.default__get_batch_size": {
       "unique_id": "macro.dbt.default__get_batch_size",
@@ -6688,7 +6689,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6511676
+      "created_at": 1655475474.8379912
     },
     "macro.dbt.get_seed_column_quoted_csv": {
       "unique_id": "macro.dbt.get_seed_column_quoted_csv",
@@ -6710,7 +6711,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6516745
+      "created_at": 1655475474.8384511
     },
     "macro.dbt.load_csv_rows": {
       "unique_id": "macro.dbt.load_csv_rows",
@@ -6734,7 +6735,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6518674
+      "created_at": 1655475474.8386252
     },
     "macro.dbt.default__load_csv_rows": {
       "unique_id": "macro.dbt.default__load_csv_rows",
@@ -6760,7 +6761,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6542397
+      "created_at": 1655475474.839986
     },
     "macro.dbt.materialization_test_default": {
       "unique_id": "macro.dbt.materialization_test_default",
@@ -6787,7 +6788,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6624799
+      "created_at": 1655475474.8430684
     },
     "macro.dbt.get_test_sql": {
       "unique_id": "macro.dbt.get_test_sql",
@@ -6811,7 +6812,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6653543
+      "created_at": 1655475474.8445263
     },
     "macro.dbt.default__get_test_sql": {
       "unique_id": "macro.dbt.default__get_test_sql",
@@ -6833,7 +6834,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6657357
+      "created_at": 1655475474.8448367
     },
     "macro.dbt.get_where_subquery": {
       "unique_id": "macro.dbt.get_where_subquery",
@@ -6857,7 +6858,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6683714
+      "created_at": 1655475474.8460522
     },
     "macro.dbt.default__get_where_subquery": {
       "unique_id": "macro.dbt.default__get_where_subquery",
@@ -6879,7 +6880,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6688395
+      "created_at": 1655475474.8464212
     },
     "macro.dbt.statement": {
       "unique_id": "macro.dbt.statement",
@@ -6901,7 +6902,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6719482
+      "created_at": 1655475474.848338
     },
     "macro.dbt.noop_statement": {
       "unique_id": "macro.dbt.noop_statement",
@@ -6923,7 +6924,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6728394
+      "created_at": 1655475474.8488855
     },
     "macro.dbt.run_query": {
       "unique_id": "macro.dbt.run_query",
@@ -6947,7 +6948,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.673253
+      "created_at": 1655475474.8491867
     },
     "macro.dbt.convert_datetime": {
       "unique_id": "macro.dbt.convert_datetime",
@@ -6969,7 +6970,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6780403
+      "created_at": 1655475474.8519077
     },
     "macro.dbt.dates_in_range": {
       "unique_id": "macro.dbt.dates_in_range",
@@ -6993,7 +6994,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6795506
+      "created_at": 1655475474.8531656
     },
     "macro.dbt.partition_range": {
       "unique_id": "macro.dbt.partition_range",
@@ -7017,7 +7018,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6805353
+      "created_at": 1655475474.8540332
     },
     "macro.dbt.py_current_timestring": {
       "unique_id": "macro.dbt.py_current_timestring",
@@ -7039,7 +7040,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6809099
+      "created_at": 1655475474.8542745
     },
     "macro.dbt.default__test_relationships": {
       "unique_id": "macro.dbt.default__test_relationships",
@@ -7061,7 +7062,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6865268
+      "created_at": 1655475474.8562593
     },
     "macro.dbt.default__test_not_null": {
       "unique_id": "macro.dbt.default__test_not_null",
@@ -7083,7 +7084,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6878915
+      "created_at": 1655475474.857495
     },
     "macro.dbt.default__test_accepted_values": {
       "unique_id": "macro.dbt.default__test_accepted_values",
@@ -7105,7 +7106,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6901734
+      "created_at": 1655475474.859503
     },
     "macro.dbt.default__test_unique": {
       "unique_id": "macro.dbt.default__test_unique",
@@ -7127,7 +7128,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6962373
+      "created_at": 1655475474.8607867
     },
     "macro.dbt.get_catalog": {
       "unique_id": "macro.dbt.get_catalog",
@@ -7151,7 +7152,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6991124
+      "created_at": 1655475474.8630667
     },
     "macro.dbt.default__get_catalog": {
       "unique_id": "macro.dbt.default__get_catalog",
@@ -7173,7 +7174,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6994202
+      "created_at": 1655475474.8633204
     },
     "macro.dbt.information_schema_name": {
       "unique_id": "macro.dbt.information_schema_name",
@@ -7197,7 +7198,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6996264
+      "created_at": 1655475474.8634973
     },
     "macro.dbt.default__information_schema_name": {
       "unique_id": "macro.dbt.default__information_schema_name",
@@ -7219,7 +7220,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.699798
+      "created_at": 1655475474.8636456
     },
     "macro.dbt.list_schemas": {
       "unique_id": "macro.dbt.list_schemas",
@@ -7243,7 +7244,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.6999893
+      "created_at": 1655475474.863816
     },
     "macro.dbt.default__list_schemas": {
       "unique_id": "macro.dbt.default__list_schemas",
@@ -7268,7 +7269,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.700244
+      "created_at": 1655475474.8640556
     },
     "macro.dbt.check_schema_exists": {
       "unique_id": "macro.dbt.check_schema_exists",
@@ -7292,7 +7293,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7004826
+      "created_at": 1655475474.8642502
     },
     "macro.dbt.default__check_schema_exists": {
       "unique_id": "macro.dbt.default__check_schema_exists",
@@ -7316,7 +7317,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7008033
+      "created_at": 1655475474.864534
     },
     "macro.dbt.list_relations_without_caching": {
       "unique_id": "macro.dbt.list_relations_without_caching",
@@ -7340,7 +7341,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7009943
+      "created_at": 1655475474.8647072
     },
     "macro.dbt.default__list_relations_without_caching": {
       "unique_id": "macro.dbt.default__list_relations_without_caching",
@@ -7362,7 +7363,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7011607
+      "created_at": 1655475474.8648572
     },
     "macro.dbt.get_columns_in_relation": {
       "unique_id": "macro.dbt.get_columns_in_relation",
@@ -7386,7 +7387,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7043602
+      "created_at": 1655475474.8676128
     },
     "macro.dbt.default__get_columns_in_relation": {
       "unique_id": "macro.dbt.default__get_columns_in_relation",
@@ -7408,7 +7409,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7045872
+      "created_at": 1655475474.8677807
     },
     "macro.dbt.sql_convert_columns_in_relation": {
       "unique_id": "macro.dbt.sql_convert_columns_in_relation",
@@ -7430,7 +7431,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7049065
+      "created_at": 1655475474.8680873
     },
     "macro.dbt.get_columns_in_query": {
       "unique_id": "macro.dbt.get_columns_in_query",
@@ -7454,7 +7455,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7051775
+      "created_at": 1655475474.868335
     },
     "macro.dbt.default__get_columns_in_query": {
       "unique_id": "macro.dbt.default__get_columns_in_query",
@@ -7478,7 +7479,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7055404
+      "created_at": 1655475474.8686569
     },
     "macro.dbt.alter_column_type": {
       "unique_id": "macro.dbt.alter_column_type",
@@ -7502,7 +7503,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7057698
+      "created_at": 1655475474.8688731
     },
     "macro.dbt.default__alter_column_type": {
       "unique_id": "macro.dbt.default__alter_column_type",
@@ -7526,7 +7527,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7063766
+      "created_at": 1655475474.8694587
     },
     "macro.dbt.alter_relation_add_remove_columns": {
       "unique_id": "macro.dbt.alter_relation_add_remove_columns",
@@ -7550,7 +7551,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7066417
+      "created_at": 1655475474.8697052
     },
     "macro.dbt.default__alter_relation_add_remove_columns": {
       "unique_id": "macro.dbt.default__alter_relation_add_remove_columns",
@@ -7574,7 +7575,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7074344
+      "created_at": 1655475474.8704593
     },
     "macro.dbt.make_temp_relation": {
       "unique_id": "macro.dbt.make_temp_relation",
@@ -7598,7 +7599,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7121534
+      "created_at": 1655475474.872947
     },
     "macro.dbt.default__make_temp_relation": {
       "unique_id": "macro.dbt.default__make_temp_relation",
@@ -7620,7 +7621,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7125185
+      "created_at": 1655475474.8732693
     },
     "macro.dbt.drop_relation": {
       "unique_id": "macro.dbt.drop_relation",
@@ -7644,7 +7645,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7127097
+      "created_at": 1655475474.8734431
     },
     "macro.dbt.default__drop_relation": {
       "unique_id": "macro.dbt.default__drop_relation",
@@ -7668,7 +7669,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7129345
+      "created_at": 1655475474.8736439
     },
     "macro.dbt.truncate_relation": {
       "unique_id": "macro.dbt.truncate_relation",
@@ -7692,7 +7693,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7131205
+      "created_at": 1655475474.8738143
     },
     "macro.dbt.default__truncate_relation": {
       "unique_id": "macro.dbt.default__truncate_relation",
@@ -7716,7 +7717,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7132826
+      "created_at": 1655475474.8739617
     },
     "macro.dbt.rename_relation": {
       "unique_id": "macro.dbt.rename_relation",
@@ -7740,7 +7741,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7134933
+      "created_at": 1655475474.8741584
     },
     "macro.dbt.default__rename_relation": {
       "unique_id": "macro.dbt.default__rename_relation",
@@ -7764,7 +7765,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7137704
+      "created_at": 1655475474.8744264
     },
     "macro.dbt.get_or_create_relation": {
       "unique_id": "macro.dbt.get_or_create_relation",
@@ -7788,7 +7789,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7140152
+      "created_at": 1655475474.8746667
     },
     "macro.dbt.default__get_or_create_relation": {
       "unique_id": "macro.dbt.default__get_or_create_relation",
@@ -7810,7 +7811,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.714692
+      "created_at": 1655475474.875213
     },
     "macro.dbt.load_relation": {
       "unique_id": "macro.dbt.load_relation",
@@ -7832,7 +7833,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7149444
+      "created_at": 1655475474.8754275
     },
     "macro.dbt.drop_relation_if_exists": {
       "unique_id": "macro.dbt.drop_relation_if_exists",
@@ -7854,7 +7855,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7151327
+      "created_at": 1655475474.875608
     },
     "macro.dbt.current_timestamp": {
       "unique_id": "macro.dbt.current_timestamp",
@@ -7878,7 +7879,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7171576
+      "created_at": 1655475474.877066
     },
     "macro.dbt.default__current_timestamp": {
       "unique_id": "macro.dbt.default__current_timestamp",
@@ -7900,7 +7901,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.717312
+      "created_at": 1655475474.8772051
     },
     "macro.dbt.collect_freshness": {
       "unique_id": "macro.dbt.collect_freshness",
@@ -7924,7 +7925,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7175667
+      "created_at": 1655475474.877419
     },
     "macro.dbt.default__collect_freshness": {
       "unique_id": "macro.dbt.default__collect_freshness",
@@ -7949,7 +7950,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7180922
+      "created_at": 1655475474.8778932
     },
     "macro.dbt.create_schema": {
       "unique_id": "macro.dbt.create_schema",
@@ -7973,7 +7974,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.719488
+      "created_at": 1655475474.879258
     },
     "macro.dbt.default__create_schema": {
       "unique_id": "macro.dbt.default__create_schema",
@@ -7997,7 +7998,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.719667
+      "created_at": 1655475474.8794327
     },
     "macro.dbt.drop_schema": {
       "unique_id": "macro.dbt.drop_schema",
@@ -8021,7 +8022,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7198188
+      "created_at": 1655475474.879588
     },
     "macro.dbt.default__drop_schema": {
       "unique_id": "macro.dbt.default__drop_schema",
@@ -8045,7 +8046,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.719991
+      "created_at": 1655475474.879767
     },
     "macro.dbt.alter_column_comment": {
       "unique_id": "macro.dbt.alter_column_comment",
@@ -8069,7 +8070,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7215118
+      "created_at": 1655475474.8839016
     },
     "macro.dbt.default__alter_column_comment": {
       "unique_id": "macro.dbt.default__alter_column_comment",
@@ -8091,7 +8092,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.721748
+      "created_at": 1655475474.8840795
     },
     "macro.dbt.alter_relation_comment": {
       "unique_id": "macro.dbt.alter_relation_comment",
@@ -8115,7 +8116,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7219796
+      "created_at": 1655475474.884272
     },
     "macro.dbt.default__alter_relation_comment": {
       "unique_id": "macro.dbt.default__alter_relation_comment",
@@ -8137,7 +8138,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.722162
+      "created_at": 1655475474.8844461
     },
     "macro.dbt.persist_docs": {
       "unique_id": "macro.dbt.persist_docs",
@@ -8161,7 +8162,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7224557
+      "created_at": 1655475474.884702
     },
     "macro.dbt.default__persist_docs": {
       "unique_id": "macro.dbt.default__persist_docs",
@@ -8187,7 +8188,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.723121
+      "created_at": 1655475474.8851688
     },
     "macro.dbt.get_create_index_sql": {
       "unique_id": "macro.dbt.get_create_index_sql",
@@ -8211,7 +8212,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7253418
+      "created_at": 1655475474.8865552
     },
     "macro.dbt.default__get_create_index_sql": {
       "unique_id": "macro.dbt.default__get_create_index_sql",
@@ -8233,7 +8234,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7255208
+      "created_at": 1655475474.8866923
     },
     "macro.dbt.create_indexes": {
       "unique_id": "macro.dbt.create_indexes",
@@ -8257,7 +8258,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7256875
+      "created_at": 1655475474.8868468
     },
     "macro.dbt.default__create_indexes": {
       "unique_id": "macro.dbt.default__create_indexes",
@@ -8282,7 +8283,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7261143
+      "created_at": 1655475474.8872955
     },
     "macro.dbt.test_unique": {
       "unique_id": "macro.dbt.test_unique",
@@ -8306,7 +8307,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7283185
+      "created_at": 1655475474.8887975
     },
     "macro.dbt.test_not_null": {
       "unique_id": "macro.dbt.test_not_null",
@@ -8330,7 +8331,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.728595
+      "created_at": 1655475474.8890574
     },
     "macro.dbt.test_accepted_values": {
       "unique_id": "macro.dbt.test_accepted_values",
@@ -8354,7 +8355,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7288864
+      "created_at": 1655475474.8893313
     },
     "macro.dbt.test_relationships": {
       "unique_id": "macro.dbt.test_relationships",
@@ -8378,7 +8379,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1655439106.7292466
+      "created_at": 1655475474.889657
     }
   },
   "docs": {
@@ -8441,7 +8442,7 @@
           "trial_model_1"
         ]
       ],
-      "created_at": 1655439106.9132364
+      "created_at": 1655475475.0478299
     }
   },
   "selectors": {},

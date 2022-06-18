@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -10,6 +10,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 from metaphor.common.logger import get_logger
+from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.generated.dbt_catalog_v1 import CatalogTable, DbtCatalog
 from metaphor.dbt.util import (
     build_docs_url,
@@ -30,15 +31,14 @@ class CatalogParserV1:
 
     def __init__(
         self,
+        config: DbtRunConfig,
         platform: DataPlatform,
-        account: Optional[str],
-        docs_base_url: Optional[str],
         datasets: Dict[str, Dataset],
         virtual_views: Dict[str, VirtualView],
     ):
         self._platform = platform
-        self._account = account
-        self._docs_base_url = docs_base_url
+        self._account = config.account
+        self._docs_base_url = config.docs_base_url
         self._datasets = datasets
         self._virtual_views = virtual_views
 

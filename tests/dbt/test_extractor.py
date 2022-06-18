@@ -3,7 +3,7 @@ from freezegun import freeze_time
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.dbt.config import DbtRunConfig
+from metaphor.dbt.config import DbtRunConfig, MetaOwnership, MetaTag
 from metaphor.dbt.extractor import DbtExtractor
 from tests.test_utils import load_json
 
@@ -78,6 +78,8 @@ async def _test_project(
         catalog=catalog,
         docs_base_url=docs_base_url,
         project_source_url=project_source_url,
+        meta_ownerships=[MetaOwnership(meta_key="owner", ownership_type="Maintainer")],
+        meta_tags=[MetaTag(meta_key="pii", tag_type="PII")],
     )
     extractor = DbtExtractor()
     events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
