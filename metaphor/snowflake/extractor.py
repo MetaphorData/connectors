@@ -80,7 +80,8 @@ class SnowflakeExtractor(BaseExtractor):
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
                 self._fetch_table_info(conn, tables)
-                self._fetch_tags(cursor)
+
+            self._fetch_tags(cursor)
 
         logger.debug(self._datasets)
 
