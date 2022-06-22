@@ -63,6 +63,11 @@ class JobChangeEvent:
             ).remove_extras()
         elif job_type == "QUERY":
             query_job = job["jobConfig"]["queryConfig"]
+
+            # Not all query jobs will have a destination table, e.g. calling a stored procedure
+            if "destinationTable" not in query_job:
+                return None
+
             query = query_job["query"]
             destination_table = BigQueryResource.from_str(
                 query_job["destinationTable"]
