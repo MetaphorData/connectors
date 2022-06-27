@@ -21,6 +21,8 @@ from pydantic import parse_obj_as
 from restapisdk.configuration import Environment
 from restapisdk.controllers.metadata_controller import MetadataController
 from restapisdk.controllers.session_controller import SessionController
+from restapisdk.models.get_object_detail_type_enum import GetObjectDetailTypeEnum
+from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
 from restapisdk.models.session_login_response import SessionLoginResponse
 from restapisdk.models.tspublic_rest_v_2_metadata_header_search_request import (
     TspublicRestV2MetadataHeaderSearchRequest,
@@ -28,8 +30,6 @@ from restapisdk.models.tspublic_rest_v_2_metadata_header_search_request import (
 from restapisdk.models.tspublic_rest_v_2_session_gettoken_request import (
     TspublicRestV2SessionGettokenRequest,
 )
-from restapisdk.models.type_9_enum import Type9Enum
-from restapisdk.models.type_10_enum import Type10Enum
 from restapisdk.restapisdk_client import RestapisdkClient
 
 from metaphor.common.logger import get_logger
@@ -110,12 +110,29 @@ def from_list(list_: Iterable[T], key: Callable[[T], str] = repr) -> Dict[str, T
 
 
 class ThoughtSpot:
-    mapping: ClassVar[Dict[Type10Enum, Tuple[Type9Enum, Type[Metadata]]]] = {
-        Type10Enum.DATAOBJECT_TABLE: (Type9Enum.DATAOBJECT, SourceMetadata),
-        Type10Enum.DATAOBJECT_WORKSHEET: (Type9Enum.DATAOBJECT, SourceMetadata),
-        Type10Enum.DATAOBJECT_VIEW: (Type9Enum.DATAOBJECT, SourceMetadata),
-        Type10Enum.ANSWER: (Type9Enum.ANSWER, AnswerMetadata),
-        Type10Enum.LIVEBOARD: (Type9Enum.LIVEBOARD, LiveBoardMetadate),
+    mapping: ClassVar[
+        Dict[SearchObjectHeaderTypeEnum, Tuple[GetObjectDetailTypeEnum, Type[Metadata]]]
+    ] = {
+        SearchObjectHeaderTypeEnum.DATAOBJECT_TABLE: (
+            GetObjectDetailTypeEnum.DATAOBJECT,
+            SourceMetadata,
+        ),
+        SearchObjectHeaderTypeEnum.DATAOBJECT_WORKSHEET: (
+            GetObjectDetailTypeEnum.DATAOBJECT,
+            SourceMetadata,
+        ),
+        SearchObjectHeaderTypeEnum.DATAOBJECT_VIEW: (
+            GetObjectDetailTypeEnum.DATAOBJECT,
+            SourceMetadata,
+        ),
+        SearchObjectHeaderTypeEnum.ANSWER: (
+            GetObjectDetailTypeEnum.ANSWER,
+            AnswerMetadata,
+        ),
+        SearchObjectHeaderTypeEnum.LIVEBOARD: (
+            GetObjectDetailTypeEnum.LIVEBOARD,
+            LiveBoardMetadate,
+        ),
     }
 
     @staticmethod
@@ -150,20 +167,20 @@ class ThoughtSpot:
         supported_platform = set(c.value for c in ConnectionType)
 
         headers: List[ConnectionHeader] = ThoughtSpot._fetch_headers(
-            client.metadata, Type10Enum.CONNECTION, ConnectionHeader
+            client.metadata, SearchObjectHeaderTypeEnum.CONNECTION, ConnectionHeader
         )
         ids = [h.id for h in headers if h.type in supported_platform]
 
         logger.info(f"CONNECTION ids: {ids}")
 
         obj = ThoughtSpot._fetch_object_detail(
-            client.metadata, ids, Type9Enum.CONNECTION
+            client.metadata, ids, GetObjectDetailTypeEnum.CONNECTION
         )
         return parse_obj_as(List[ConnectionMetadata], obj)
 
     @classmethod
     def fetch_objects(
-        cls, client: RestapisdkClient, mtype: Type10Enum
+        cls, client: RestapisdkClient, mtype: SearchObjectHeaderTypeEnum
     ) -> List[Metadata]:
         if mtype not in cls.mapping:
             return []
@@ -180,7 +197,7 @@ class ThoughtSpot:
     @staticmethod
     def _fetch_headers(
         metadata_controller: MetadataController,
-        mtype: Type10Enum,
+        mtype: SearchObjectHeaderTypeEnum,
         header_type: Type[Header] = Header,
     ) -> List[Header]:
         body = TspublicRestV2MetadataHeaderSearchRequest(mtype=mtype)
@@ -194,7 +211,9 @@ class ThoughtSpot:
 
     @staticmethod
     def _fetch_object_detail(
-        metadata_controller: MetadataController, ids: List[str], object_type: Type9Enum
+        metadata_controller: MetadataController,
+        ids: List[str],
+        object_type: GetObjectDetailTypeEnum,
     ) -> List[Any]:
         res: List[Any] = []
         for chunk_ids in chunks(ids, 10):
