@@ -127,7 +127,7 @@ class LiveBoardHeader(Header):
 
 class ConnectionHeader(Header):
     type: str
-    authorName: str
+    authorName: str = ""
 
 
 class ConnectionMetadata(Metadata):
