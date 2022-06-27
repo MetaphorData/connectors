@@ -64,6 +64,7 @@ class AccessEvent:
     def table_name(self) -> str:
         return f"{self.database}.{self.schema}.{self.table}"
 
+    @staticmethod
     async def fetch_access_event(
         config: PostgreSQLRunConfig,
         database: str,
