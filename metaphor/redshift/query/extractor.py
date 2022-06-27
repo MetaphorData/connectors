@@ -16,7 +16,7 @@ from metaphor.common.logger import get_logger
 from metaphor.common.query_history import TableQueryHistoryHeap
 from metaphor.common.utils import start_of_day
 from metaphor.postgresql.extractor import PostgreSQLExtractor
-from metaphor.redshift.access_event import AccessEvent, fetch_access_event
+from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.query.config import RedshiftQueryRunConfig
 
 logger = get_logger(__name__)
@@ -45,7 +45,9 @@ class RedshiftQueryExtractor(PostgreSQLExtractor):
 
         start, end = self._utc_now - timedelta(config.lookback_days), self._utc_now
 
-        async for record in fetch_access_event(config, config.database, start, end):
+        async for record in AccessEvent.fetch_access_event(
+            config, config.database, start, end
+        ):
             self._process_record(record, dataset_filter)
 
         return [

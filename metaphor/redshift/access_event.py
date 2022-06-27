@@ -64,22 +64,21 @@ class AccessEvent:
     def table_name(self) -> str:
         return f"{self.database}.{self.schema}.{self.table}"
 
+    async def fetch_access_event(
+        config: PostgreSQLRunConfig,
+        database: str,
+        start_date: datetime,
+        end_date: datetime,
+    ) -> AsyncIterator["AccessEvent"]:
+        conn = await PostgreSQLExtractor._connect_database(config, database)
 
-async def fetch_access_event(
-    config: PostgreSQLRunConfig,
-    database: str,
-    start_date: datetime,
-    end_date: datetime,
-) -> AsyncIterator[AccessEvent]:
-    conn = await PostgreSQLExtractor._connect_database(config, database)
-
-    results = await conn.fetch(
-        REDSHIFT_USAGE_SQL_TEMPLATE.format(
-            start_time=start_date.isoformat(), end_time=end_date.isoformat()
+        results = await conn.fetch(
+            REDSHIFT_USAGE_SQL_TEMPLATE.format(
+                start_time=start_date.isoformat(), end_time=end_date.isoformat()
+            )
         )
-    )
 
-    for record in results:
-        yield AccessEvent.from_record(record)
+        for record in results:
+            yield AccessEvent.from_record(record)
 
-    await conn.close()
+        await conn.close()

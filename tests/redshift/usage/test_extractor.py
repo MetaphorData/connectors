@@ -7,6 +7,7 @@ from freezegun import freeze_time
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.usage.config import RedshiftUsageRunConfig
 from metaphor.redshift.usage.extractor import RedshiftUsageExtractor
 from tests.test_utils import load_json
@@ -43,7 +44,7 @@ def load_records(path):
 
 class AsyncIter:
     def __init__(self, items):
-        self.items = items
+        self.items = [AccessEvent.from_record(record) for record in items]
 
     async def __aiter__(self):
         for item in self.items:
@@ -66,9 +67,9 @@ async def test_extractor(test_root_dir):
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
     with patch(
-        "metaphor.redshift.usage.extractor.RedshiftUsageExtractor._fetch_usage"
+        "metaphor.redshift.access_event.AccessEvent.fetch_access_event",
     ) as mock_fetch_usage:
-        mock_fetch_usage.side_effect = lambda config: AsyncIter(records)
+        mock_fetch_usage.return_value = AsyncIter(records)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
@@ -90,9 +91,9 @@ async def test_extractor_use_history(test_root_dir):
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
     with patch(
-        "metaphor.redshift.usage.extractor.RedshiftUsageExtractor._fetch_usage"
+        "metaphor.redshift.access_event.AccessEvent.fetch_access_event",
     ) as mock_fetch_usage:
-        mock_fetch_usage.side_effect = lambda config: AsyncIter(records)
+        mock_fetch_usage.return_value = AsyncIter(records)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
