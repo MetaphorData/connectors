@@ -15,7 +15,7 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-from restapisdk.models.type_10_enum import Type10Enum
+from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
 from restapisdk.restapisdk_client import RestapisdkClient
 
 from metaphor.common.entity_id import (
@@ -72,9 +72,15 @@ class ThoughtspotExtractor(BaseExtractor):
     def fetch_virtual_views(self, client: RestapisdkClient):
         connections = from_list(ThoughtSpot.fetch_connections(client))
 
-        tables = ThoughtSpot.fetch_objects(client, Type10Enum.DATAOBJECT_TABLE)
-        sheets = ThoughtSpot.fetch_objects(client, Type10Enum.DATAOBJECT_WORKSHEET)
-        views = ThoughtSpot.fetch_objects(client, Type10Enum.DATAOBJECT_VIEW)
+        tables = ThoughtSpot.fetch_objects(
+            client, SearchObjectHeaderTypeEnum.DATAOBJECT_TABLE
+        )
+        sheets = ThoughtSpot.fetch_objects(
+            client, SearchObjectHeaderTypeEnum.DATAOBJECT_WORKSHEET
+        )
+        views = ThoughtSpot.fetch_objects(
+            client, SearchObjectHeaderTypeEnum.DATAOBJECT_VIEW
+        )
 
         def is_source_valid(table: SourceMetadata):
             """
@@ -157,10 +163,10 @@ class ThoughtspotExtractor(BaseExtractor):
                 )
 
     def fetch_dashboards(self, client: RestapisdkClient):
-        answers = ThoughtSpot.fetch_objects(client, Type10Enum.ANSWER)
+        answers = ThoughtSpot.fetch_objects(client, SearchObjectHeaderTypeEnum.ANSWER)
         self.populate_answers(answers)
 
-        boards = ThoughtSpot.fetch_objects(client, Type10Enum.LIVEBOARD)
+        boards = ThoughtSpot.fetch_objects(client, SearchObjectHeaderTypeEnum.LIVEBOARD)
         self.populate_liveboards(boards)
 
     def populate_answers(self, answers: List[AnswerMetadata]):
