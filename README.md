@@ -58,10 +58,12 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [metaphor.redshift](metaphor/redshift/README.md)                      | Schema, description, statistics          |
 | [metaphor.redshift.lineage](metaphor/redshift/lineage/README.md)      | Lineage                                  |
 | [metaphor.redshift.profile](metaphor/redshift/profile/README.md)      | Data profile                             |
+| [metaphor.redshift.query](metaphor/redshift/query/README.md)          | Queries                                  |
 | [metaphor.redshift.usage](metaphor/redshift/usage/README.md)          | Usage                                    |
 | [metaphor.snowflake](metaphor/snowflake/README.md)                    | Schema, description, statistics          |
 | [metaphor.snowflake.lineage](metaphor/snowflake/lineage/README.md)    | Lineage                                  |
 | [metaphor.snowflake.profile](metaphor/snowflake/profile/README.md)    | Data profile                             |
+| [metaphor.snowflake.query](metaphor/snowflake/query/README.md)        | Queries                                  |
 | [metaphor.snowflake.usage](metaphor/snowflake/usage/README.md)        | Data usage                               |
 | [metaphor.tableau](metaphor/tableau/README.md)                        | Dashboard, lineage                       |
 
