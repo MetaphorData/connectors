@@ -21,11 +21,17 @@ from pydantic import parse_obj_as
 from restapisdk.configuration import Environment
 from restapisdk.controllers.metadata_controller import MetadataController
 from restapisdk.controllers.session_controller import SessionController
+from restapisdk.models.export_object_tml_format_type_enum import (
+    ExportObjectTMLFormatTypeEnum,
+)
 from restapisdk.models.get_object_detail_type_enum import GetObjectDetailTypeEnum
 from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
 from restapisdk.models.session_login_response import SessionLoginResponse
 from restapisdk.models.tspublic_rest_v_2_metadata_header_search_request import (
     TspublicRestV2MetadataHeaderSearchRequest,
+)
+from restapisdk.models.tspublic_rest_v_2_metadata_tml_export_request import (
+    TspublicRestV2MetadataTmlExportRequest,
 )
 from restapisdk.models.tspublic_rest_v_2_session_gettoken_request import (
     TspublicRestV2SessionGettokenRequest,
@@ -45,6 +51,7 @@ from metaphor.thought_spot.models import (
     Metadata,
     SourceMetadata,
     SourceType,
+    TMLResult,
 )
 
 logger = get_logger(__name__)
@@ -194,6 +201,14 @@ class ThoughtSpot:
         # Because mypy can't handle dynamic type variables properly, we skip type-checking here.
         return parse_obj_as(List[target_type], obj)  # type: ignore
 
+    @classmethod
+    def fetch_tml(cls, client: RestapisdkClient, ids: List[str]) -> List[TMLResult]:
+        logger.info(f"Fetching tml for ids: {ids}")
+
+        obj = ThoughtSpot._fetch_tml(client.metadata, ids)
+
+        return parse_obj_as(List[TMLResult], obj)
+
     @staticmethod
     def _fetch_headers(
         metadata_controller: MetadataController,
@@ -223,4 +238,20 @@ class ThoughtSpot:
             response = json.loads(response_json)
             if "storables" in response:
                 res.extend(response["storables"])
+        return res
+
+    @staticmethod
+    def _fetch_tml(
+        metadata_controller: MetadataController,
+        ids: List[str],
+    ) -> List[Any]:
+        res: List[Any] = []
+        for chunk_ids in chunks(ids, 10):
+            body = TspublicRestV2MetadataTmlExportRequest(
+                id=chunk_ids, format_type=ExportObjectTMLFormatTypeEnum.JSON
+            )
+            response_json = metadata_controller.export_object_tml(body)
+            response = json.loads(response_json)
+            if "object" in response:
+                res.extend(response["object"])
         return res

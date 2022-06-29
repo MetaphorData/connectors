@@ -1,0 +1,53 @@
+---
+name: CI
+
+env:
+  PYTHON_VERSION: 3.7
+  POETRY_VERSION: 1.1.12
+
+# Run this build workflow for every new PR
+on:
+  pull_request:
+    branches: [main]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check-py:
+    name: Check Python code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Lint & Type Check
+        run: |
+          poetry install -E all
+          poetry run flake8
+          poetry run black --check .
+          poetry run isort --check .
+          poetry run mypy .
+          poetry run bandit -r . -c pyproject.toml
+
+      - name: Test
+        run: |
+          poetry run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=metaphor tests/ | tee pytest-coverage.txt
+
+      - name: Pytest coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
+
