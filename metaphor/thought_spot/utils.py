@@ -240,6 +240,7 @@ class ThoughtSpot:
                 res.extend(response["storables"])
         return res
 
+    @staticmethod
     def _fetch_tml(
         metadata_controller: MetadataController,
         ids: List[str],
