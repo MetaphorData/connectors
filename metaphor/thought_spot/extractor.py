@@ -15,6 +15,7 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
+from pydantic import parse_raw_as
 from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
 from restapisdk.restapisdk_client import RestapisdkClient
 
@@ -35,6 +36,7 @@ from metaphor.thought_spot.models import (
     Header,
     LiveBoardMetadate,
     SourceMetadata,
+    TMLObject,
     Visualization,
 )
 from metaphor.thought_spot.utils import (
@@ -95,6 +97,7 @@ class ThoughtspotExtractor(BaseExtractor):
 
         self.populate_virtual_views(tables)
         self.populate_lineage(connections, tables)
+        self.populate_formula(client)
 
     def populate_virtual_views(self, tables: Dict[str, SourceMetadata]):
         for table in tables.values():
@@ -109,6 +112,7 @@ class ThoughtspotExtractor(BaseExtractor):
                             description=column.header.description,
                             name=column.header.name,
                             type=column.dataType if column.dataType else column.type,
+                            optional_type=column.optionalType,
                         )
                         for column in table.columns
                     ],
@@ -119,6 +123,50 @@ class ThoughtspotExtractor(BaseExtractor):
                 ),
             )
             self._virtual_views[table_id] = view
+
+    @staticmethod
+    def build_column_expr_map(tml):
+        def build_formula_map(tml_table):
+            formula_map = {}
+            for f in tml_table.formulas:
+                if f.id:
+                    formula_map[f.id] = f.expr
+                formula_map[f.name] = f.expr
+            return formula_map
+
+        if tml.worksheet:
+            formula_map = build_formula_map(tml.worksheet)
+            columns = tml.worksheet.worksheet_columns
+        elif tml.view:
+            formula_map = build_formula_map(tml.view)
+            columns = tml.view.view_columns
+        else:
+            return
+
+        expr_map = {}
+        for column in columns:
+            lookup_id = column.formula_id if column.formula_id else column.name
+            if lookup_id in formula_map:
+                expr_map[column.name] = formula_map[lookup_id]
+        return expr_map
+
+    def populate_formula(self, client: RestapisdkClient):
+        ids = []
+        for guid, virtual_view in self._virtual_views.items():
+            if "FORMULA" in [
+                c.optional_type for c in virtual_view.thought_spot.columns
+            ]:
+                ids.append(guid)
+        for tml_result in ThoughtSpot.fetch_tml(client, ids):
+            if not tml_result.edoc:
+                continue
+            tml = parse_raw_as(TMLObject, tml_result.edoc)
+
+            column_expr_map = self.build_column_expr_map(tml)
+
+            for column in self._virtual_views[tml.guid].thought_spot.columns:
+                if column.name in column_expr_map:
+                    column.formula = column_expr_map[column.name]
 
     def populate_lineage(
         self,
