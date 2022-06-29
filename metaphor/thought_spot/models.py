@@ -71,6 +71,7 @@ class ColumnMetadata(Metadata):
     type: str
     sources: List[ColumnSource]
     dataType: Optional[str]
+    optionalType: Optional[str]
 
 
 class SourceType(Enum):
@@ -153,3 +154,39 @@ class LiveBoardMetadate(Metadata):
     header: LiveBoardHeader
     type: str
     reportContent: ReportContent
+
+
+class TMLResult(BaseModel):
+    info: Header
+    edoc: Optional[str]
+
+
+class TMLFormula(BaseModel):
+    id: Optional[str]
+    name: str
+    expr: str
+
+
+class TMLBase(BaseModel):
+    name: str
+    formulas: List[TMLFormula]
+
+
+class TMLColumn(BaseModel):
+    name: str
+    column_id: Optional[str]
+    formula_id: Optional[str]
+
+
+class TMLWorksheet(TMLBase):
+    worksheet_columns: List[TMLColumn]
+
+
+class TMLView(TMLBase):
+    view_columns: List[TMLColumn]
+
+
+class TMLObject(BaseModel):
+    guid: str
+    worksheet: Optional[TMLWorksheet]
+    view: Optional[TMLView]
