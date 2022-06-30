@@ -58,7 +58,7 @@ class ThoughtspotExtractor(BaseExtractor):
         return Platform.THOUGHT_SPOT
 
     def description(self) -> str:
-        return "Thought spot metadata crawler"
+        return "ThoughtSpot metadata crawler"
 
     def __init__(self):
         self._virtual_views: Dict[str, VirtualView] = {}
