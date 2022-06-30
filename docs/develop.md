@@ -89,12 +89,12 @@ Pre-commit hook is setup to automatically format all Python files before committ
 
 ### Linter
 
-We use [flakehell](https://github.com/life4/flakehell), which is a wrapper around the popular [flake8](https://github.com/PyCQA/flake8) linter. You can invoke the linter using the following command
+We use [flake8](https://github.com/PyCQA/flake8) linter to check the style and quality of some python code. You can invoke the linter using the following command
 
 ```shell
-flakehell lint
+flake8 .
 ```
 
 ## Publishing
 
-[This package](https://pypi.org/project/metaphor-connectors/) is automatically published to [PyPI](https://pypi.org/) as part of the [CI/CD workflow](.github/workflows/cicd.yml). Please make sure to bump up the version in [pyproject.toml](../pyproject.toml) along with the PR to trigger the publish workflow. 
+[This package](https://pypi.org/project/metaphor-connectors/) is automatically published to [PyPI](https://pypi.org/) as part of the [CI/CD workflow](../.github/workflows/cd.yml). Please make sure to bump up the version in [pyproject.toml](../pyproject.toml) along with the PR to trigger the publishing workflow. 
