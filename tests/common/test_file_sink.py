@@ -8,6 +8,7 @@ from metaphor.models.metadata_change_event import (
     PersonLogicalID,
 )
 
+from metaphor.common.event_util import EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig
 from tests.test_utils import load_json
 
@@ -52,6 +53,7 @@ def test_sink_metadata(test_root_dir):
 
     metadata = CrawlerRunMetadata(
         crawler_name="foo",
+        description="bar",
         start_time=datetime.now(),
         end_time=datetime.now(),
         status=Status.SUCCESS,
@@ -61,4 +63,6 @@ def test_sink_metadata(test_root_dir):
     sink = FileSink(FileSinkConfig(directory=directory, bach_size=2))
     sink.sink_metadata(metadata)
 
-    assert metadata.to_dict() == load_json(f"{directory}/run.metadata")
+    assert EventUtil.clean_nones(metadata.to_dict()) == load_json(
+        f"{directory}/run.metadata"
+    )
