@@ -80,7 +80,7 @@ def get_ownerships_from_meta(
             email = f"{email_or_username}@{email_domain}"
 
         if EMAIL_REGEX.match(email) is None:
-            logger.warn(f"Skipping invalid email address: {email}")
+            logger.warning(f"Skipping invalid email address: {email}")
             return None
 
         return str(to_person_entity_id(email))
