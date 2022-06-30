@@ -1,5 +1,6 @@
-from typing import Collection
+from typing import Collection, Optional
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform
 
 from metaphor.common.entity_id import dataset_fullname
@@ -19,6 +20,12 @@ SELECT schemaname, relname, seq_scan FROM pg_stat_user_tables
 
 class PostgreSQLUsageExtractor(PostgreSQLExtractor):
     """PostgreSQL usage metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.POSTGRESQL
+
+    def description(self) -> str:
+        return "PostgreSQL usage statistics crawler"
 
     @staticmethod
     def config_class():

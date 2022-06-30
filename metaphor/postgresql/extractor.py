@@ -1,11 +1,7 @@
 from typing import Callable, Collection, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
-
-from metaphor.common.entity_id import dataset_fullname
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
-from metaphor.postgresql.config import PostgreSQLRunConfig
+from metaphor.models.crawler_run_metadata import Platform
 
 try:
     import asyncpg
@@ -26,8 +22,12 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
 )
 
+from metaphor.common.entity_id import dataset_fullname
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.logger import get_logger
+from metaphor.postgresql.config import PostgreSQLRunConfig
 
 logger = get_logger(__name__)
 
@@ -42,6 +42,12 @@ _ignored_schemas = [
 
 class PostgreSQLExtractor(BaseExtractor):
     """PostgreSQL metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.POSTGRESQL
+
+    def description(self) -> str:
+        return "PostgreSQL metadata crawler"
 
     @staticmethod
     def config_class():

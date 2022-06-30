@@ -1,6 +1,7 @@
 from itertools import chain
-from typing import Collection, Dict, List, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
     Dashboard,
@@ -52,6 +53,12 @@ logger = get_logger(__name__)
 
 class ThoughtspotExtractor(BaseExtractor):
     """Thoughtspot metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.THOUGHT_SPOT
+
+    def description(self) -> str:
+        return "Thought spot metadata crawler"
 
     def __init__(self):
         self._virtual_views: Dict[str, VirtualView] = {}

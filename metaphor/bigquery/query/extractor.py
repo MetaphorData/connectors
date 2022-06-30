@@ -1,7 +1,7 @@
-import logging
 from datetime import timedelta
-from typing import Collection, List, Set
+from typing import Collection, List, Optional, Set
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -21,11 +21,16 @@ from metaphor.common.query_history import TableQueryHistoryHeap
 from metaphor.common.utils import start_of_day
 
 logger = get_logger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class BigQueryQueryExtractor(BaseExtractor):
     """BigQuery query history extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.BIGQUERY
+
+    def description(self) -> str:
+        return "BigQuery recent queries crawler"
 
     @staticmethod
     def config_class():

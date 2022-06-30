@@ -1,9 +1,10 @@
 import asyncio
+import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Collection, List, Type
+from typing import Collection, List, Optional, Type
 
-from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Status
+from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Platform, Status
 from metaphor.models.metadata_change_event import MetadataChangeEvent
 
 from metaphor.common.logger import get_logger
@@ -28,18 +29,30 @@ class BaseExtractor(ABC):
     async def extract(self, config: BaseConfig) -> Collection[ENTITY_TYPES]:
         """Extract metadata and build messages, should be overridden"""
 
+    @abstractmethod
+    def platform(self) -> Optional[Platform]:
+        """Extract metadata and build messages, should be overridden"""
+
+    @abstractmethod
+    def description(self) -> str:
+        """Extract metadata and build messages, should be overridden"""
+
     def run(self, config: BaseConfig) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
         start_time = datetime.now()
         logger.info(f"Starting extractor {self.__class__.__name__} at {start_time}")
 
         run_status = Status.SUCCESS
+        error_message = None
+        stacktrace = None
 
         entities: Collection[ENTITY_TYPES] = []
         try:
             entities = asyncio.run(self.extract(config))
         except Exception as ex:
             run_status = Status.FAILURE
+            error_message = str(ex)
+            stacktrace = traceback.format_exc()
             logger.exception(ex)
 
         end_time = datetime.now()
@@ -54,10 +67,14 @@ class BaseExtractor(ABC):
 
         run_metadata = CrawlerRunMetadata(
             crawler_name=crawler_name,
+            platform=self.platform(),
+            description=self.description(),
             start_time=start_time,
             end_time=end_time,
             status=run_status,
             entity_count=float(entity_count),
+            error_message=error_message,
+            stack_trace=stacktrace,
         )
 
         if config.output.api is not None:

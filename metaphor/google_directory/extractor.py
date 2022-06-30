@@ -1,11 +1,12 @@
 import base64
 import json
-from typing import Collection, Dict, List
+from typing import Collection, Dict, List, Optional
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Person,
     PersonLogicalID,
@@ -56,6 +57,12 @@ def build_directory_service(config: GoogleDirectoryRunConfig):
 
 class GoogleDirectoryExtractor(BaseExtractor):
     """Google Directory metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return None
+
+    def description(self) -> str:
+        return "Google directory crawler"
 
     @staticmethod
     def config_class():

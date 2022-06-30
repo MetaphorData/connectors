@@ -1,10 +1,27 @@
 import logging
-from typing import Collection, Dict, List, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
-from snowflake.connector import SnowflakeConnection
+from metaphor.models.crawler_run_metadata import Platform
+
+try:
+    import snowflake.connector
+except ImportError:
+    print("Please install metaphor[snowflake] extra\n")
+    raise
+
+
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetFieldStatistics,
+    DatasetLogicalID,
+    EntityType,
+    FieldStatistics,
+)
 
 from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
@@ -21,23 +38,6 @@ from metaphor.snowflake.utils import (
     async_execute,
 )
 
-try:
-    import snowflake.connector
-except ImportError:
-    print("Please install metaphor[snowflake] extra\n")
-    raise
-
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetFieldStatistics,
-    DatasetLogicalID,
-    EntityType,
-    FieldStatistics,
-)
-
-from metaphor.common.extractor import BaseExtractor
-
 logger = get_logger(__name__)
 
 logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
@@ -45,6 +45,12 @@ logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 class SnowflakeProfileExtractor(BaseExtractor):
     """Snowflake data profile extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.SNOWFLAKE
+
+    def description(self) -> str:
+        return "Snowflake data profile crawler"
 
     @staticmethod
     def config_class():
@@ -134,7 +140,9 @@ class SnowflakeProfileExtractor(BaseExtractor):
         """
 
     def _fetch_columns_async(
-        self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
+        self,
+        conn: snowflake.connector.SnowflakeConnection,
+        tables: Dict[str, DatasetInfo],
     ) -> None:
 
         # Create a map of full_name => [column_info] from information_schema.columns

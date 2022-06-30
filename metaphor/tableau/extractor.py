@@ -4,8 +4,6 @@ import re
 import traceback
 from typing import Collection, Dict, List, Optional, Tuple
 
-from metaphor.common.entity_id import EntityId, to_dataset_entity_id
-
 try:
     from tableauserverclient import (
         Pager,
@@ -19,6 +17,7 @@ except ImportError:
     print("Please install metaphor[tableau] extra\n")
     raise
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
     Dashboard,
@@ -30,6 +29,7 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
 )
 
+from metaphor.common.entity_id import EntityId, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
@@ -41,6 +41,12 @@ logger = get_logger(__name__)
 
 class TableauExtractor(BaseExtractor):
     """Tableau metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.TABLEAU
+
+    def description(self) -> str:
+        return "Tableau metadata crawler"
 
     def __init__(self):
         self._base_url: Optional[str] = None

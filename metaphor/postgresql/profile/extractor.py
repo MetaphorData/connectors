@@ -1,7 +1,14 @@
 import asyncio
 import traceback
-from typing import Collection, Iterable, List
+from typing import Collection, Iterable, List, Optional
 
+try:
+    import asyncpg
+except ImportError:
+    print("Please install metaphor[postgresql] extra\n")
+    raise
+
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetFieldStatistics,
@@ -16,17 +23,17 @@ from metaphor.common.sampling import SamplingConfig
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.postgresql.profile.config import PostgreSQLProfileRunConfig
 
-try:
-    import asyncpg
-except ImportError:
-    print("Please install metaphor[postgresql] extra\n")
-    raise
-
 logger = get_logger(__name__)
 
 
 class PostgreSQLProfileExtractor(PostgreSQLExtractor):
     """PostgreSQL data profile extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.POSTGRESQL
+
+    def description(self) -> str:
+        return "PostgreSQL data profile crawler"
 
     @staticmethod
     def config_class():
