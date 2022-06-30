@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Optional
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetUpstream,
@@ -19,6 +20,12 @@ logger = get_logger(__name__)
 
 class ManualLineageExtractor(BaseExtractor):
     """Manual lineage extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return None
+
+    def description(self) -> str:
+        return "Manual data lineage connector"
 
     @staticmethod
     def config_class():

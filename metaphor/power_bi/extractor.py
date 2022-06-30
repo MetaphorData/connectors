@@ -3,13 +3,7 @@ import tempfile
 from time import sleep
 from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
 
-import requests
-
-from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
-from metaphor.common.utils import chunks, unique_list
-from metaphor.power_bi.config import PowerBIRunConfig
+from metaphor.models.crawler_run_metadata import Platform
 
 try:
     import msal
@@ -17,6 +11,7 @@ except ImportError:
     print("Please install metaphor[power_bi] extra\n")
     raise
 
+import requests
 from metaphor.models.metadata_change_event import (
     Chart,
     ChartType,
@@ -43,7 +38,12 @@ from metaphor.models.metadata_change_event import (
 )
 from pydantic import BaseModel, parse_obj_as
 
+from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
+from metaphor.common.utils import chunks, unique_list
+from metaphor.power_bi.config import PowerBIRunConfig
 
 logger = get_logger(__name__)
 
@@ -295,6 +295,12 @@ class PowerBIClient:
 
 class PowerBIExtractor(BaseExtractor):
     """Power BI metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.POWER_BI
+
+    def description(self) -> str:
+        return "Power BI metadata crawler"
 
     @staticmethod
     def config_class():

@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
-from typing import Collection, Type
+from typing import Collection, Optional, Type
 
 from freezegun import freeze_time
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
@@ -22,6 +23,12 @@ class DummyRunConfig(BaseConfig):
 
 
 class DummyExtractor(BaseExtractor):
+    def platform(self) -> Optional[Platform]:
+        return None
+
+    def description(self) -> str:
+        return "dummy crawler"
+
     def __init__(self, dummy_entities):
         self._dummy_entities = dummy_entities
 

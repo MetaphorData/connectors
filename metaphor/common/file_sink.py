@@ -10,6 +10,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
 from pydantic.dataclasses import dataclass
 
+from .event_util import EventUtil
 from .logger import LOG_FILE, get_logger
 from .sink import Sink
 from .storage import BaseStorage, LocalStorage, S3Storage, S3StorageConfig
@@ -92,6 +93,6 @@ class FileSink(Sink):
             logger.info("Skip writing metadata")
             return
 
-        content = json.dumps(metadata.to_dict()).encode()
+        content = json.dumps(EventUtil.clean_nones(metadata.to_dict())).encode()
 
         self._storage.write_file(f"{self.path}/run.metadata", content, True)

@@ -1,9 +1,9 @@
-import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Collection, Dict, List, Optional, Set
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
 
 from metaphor.bigquery.usage.config import BigQueryUsageRunConfig
@@ -16,7 +16,6 @@ from metaphor.common.usage_util import UsageUtil
 from metaphor.common.utils import start_of_day
 
 logger = get_logger(__name__)
-logger.setLevel(logging.INFO)
 
 
 @dataclass
@@ -60,6 +59,12 @@ class TableReadEvent:
 
 class BigQueryUsageExtractor(BaseExtractor):
     """BigQuery usage metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.BIGQUERY
+
+    def description(self) -> str:
+        return "BigQuery usage statistics crawler"
 
     @staticmethod
     def config_class():

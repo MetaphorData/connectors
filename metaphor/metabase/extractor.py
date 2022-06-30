@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Collection, Dict, List, Optional, Set, Union
 
 import requests
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
     ChartType,
@@ -41,6 +42,12 @@ class DatabaseInfo:
 
 class MetabaseExtractor(BaseExtractor):
     """Tableau metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.METABASE
+
+    def description(self) -> str:
+        return "Metabase metadata crawler"
 
     def __init__(self):
         self._server_url = ""

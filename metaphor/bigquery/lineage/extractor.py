@@ -1,9 +1,6 @@
 import json
-import logging
 from datetime import datetime, timedelta, timezone
-from typing import Collection, Dict
-
-from sql_metadata import Parser
+from typing import Collection, Dict, Optional
 
 try:
     import google.cloud.bigquery as bigquery
@@ -11,6 +8,7 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -18,6 +16,7 @@ from metaphor.models.metadata_change_event import (
     DatasetUpstream,
     EntityType,
 )
+from sql_metadata import Parser
 
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
 from metaphor.bigquery.logEvent import JobChangeEvent
@@ -29,11 +28,16 @@ from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class BigQueryLineageExtractor(BaseExtractor):
     """BigQuery lineage metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.BIGQUERY
+
+    def description(self) -> str:
+        return "BigQuery data lineage crawler"
 
     @staticmethod
     def config_class():

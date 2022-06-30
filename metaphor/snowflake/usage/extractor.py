@@ -1,8 +1,9 @@
 import logging
 import math
 from datetime import datetime
-from typing import Collection, Dict, List, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
 from pydantic import parse_raw_as
 
@@ -32,6 +33,12 @@ DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 class SnowflakeUsageExtractor(BaseExtractor):
     """Snowflake usage metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.SNOWFLAKE
+
+    def description(self) -> str:
+        return "Snowflake usage statistics crawler"
 
     @staticmethod
     def config_class():

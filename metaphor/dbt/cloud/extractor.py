@@ -3,6 +3,7 @@ import tempfile
 from typing import Collection, Dict, Optional, Tuple
 
 import requests
+from metaphor.models.crawler_run_metadata import Platform
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
@@ -97,6 +98,12 @@ class DbtCloudExtractor(BaseExtractor):
     """
     dbt cloud metadata extractor
     """
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.DBT_MODEL
+
+    def description(self) -> str:
+        return "dbt cloud metadata crawler"
 
     @staticmethod
     def config_class():
