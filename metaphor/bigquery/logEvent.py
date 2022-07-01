@@ -56,7 +56,6 @@ class JobChangeEvent:
         job_type = job["jobConfig"]["type"]
 
         query, query_statement_type = None, None
-        start_time, end_time = None, None
         destination_table = None
 
         if job_type == "COPY":
