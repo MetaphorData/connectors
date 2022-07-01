@@ -1,6 +1,7 @@
 import json
 from typing import Collection, Dict, List, Optional, Union
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -27,12 +28,18 @@ class DbtExtractor(BaseExtractor):
     Using manifest v3 and catalog v1 schema, but backward-compatible with older schema versions
     """
 
+    def platform(self) -> Optional[Platform]:
+        return Platform.DBT_MODEL
+
+    def description(self) -> str:
+        return "dbt metadata crawler"
+
     @staticmethod
     def config_class():
         return DbtRunConfig
 
     def __init__(self):
-        self.platform: DataPlatform = DataPlatform.UNKNOWN
+        self.data_platform: DataPlatform = DataPlatform.UNKNOWN
         self._catalog: Optional[DbtCatalog] = None
         self._datasets: Dict[str, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
@@ -50,7 +57,7 @@ class DbtExtractor(BaseExtractor):
 
         platform = manifest_metadata.get("adapter_type", "").upper()
         assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
-        self.platform = DataPlatform[platform]
+        self.data_platform = DataPlatform[platform]
 
         schema_version = (
             manifest_metadata.get("dbt_schema_version", "")
@@ -62,14 +69,14 @@ class DbtExtractor(BaseExtractor):
         if schema_version in ("v1", "v2", "v3"):
             manifest_parser = ManifestParserV3(
                 config,
-                self.platform,
+                self.data_platform,
                 self._datasets,
                 self._virtual_views,
             )
         elif schema_version in ("v4", "v5"):
             manifest_parser = ManifestParserV5(
                 config,
-                self.platform,
+                self.data_platform,
                 self._datasets,
                 self._virtual_views,
                 self._metrics,
@@ -83,7 +90,7 @@ class DbtExtractor(BaseExtractor):
         if config.catalog:
             catalog_parser = CatalogParserV1(
                 config,
-                self.platform,
+                self.data_platform,
                 self._datasets,
                 self._virtual_views,
             )

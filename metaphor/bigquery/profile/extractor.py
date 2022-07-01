@@ -1,11 +1,7 @@
-import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from time import sleep
-from typing import Collection, List, Set, Union
-
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
+from typing import Collection, List, Optional, Set, Union
 
 try:
     import google.cloud.bigquery as bigquery
@@ -14,6 +10,8 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
+
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -26,15 +24,22 @@ from metaphor.models.metadata_change_event import (
 
 from metaphor.bigquery.extractor import BigQueryExtractor, build_client
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class BigQueryProfileExtractor(BaseExtractor):
     """BigQuery data profile extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.BIGQUERY
+
+    def description(self) -> str:
+        return "BigQuery data profile crawler"
 
     @staticmethod
     def config_class():
