@@ -2,8 +2,9 @@ import logging
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Collection, List, Tuple
+from typing import Collection, List, Optional, Tuple
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -43,6 +44,12 @@ class PrioritizedQueryInfo:
 
 class SnowflakeQueryExtractor(BaseExtractor):
     """Snowflake query extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.SNOWFLAKE
+
+    def description(self) -> str:
+        return "Snowflake recent queries crawler"
 
     @staticmethod
     def config_class():

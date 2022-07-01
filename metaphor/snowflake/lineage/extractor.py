@@ -1,7 +1,8 @@
 import logging
 import math
-from typing import Collection, Dict, List, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -32,6 +33,12 @@ DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 class SnowflakeLineageExtractor(BaseExtractor):
     """Snowflake lineage extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.SNOWFLAKE
+
+    def description(self) -> str:
+        return "Snowflake data lineage crawler"
 
     @staticmethod
     def config_class():

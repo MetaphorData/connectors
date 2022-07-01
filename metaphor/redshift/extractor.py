@@ -1,5 +1,6 @@
-from typing import Collection
+from typing import Collection, Optional
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform
 
 from metaphor.common.entity_id import dataset_fullname
@@ -13,6 +14,12 @@ logger = get_logger(__name__)
 
 class RedshiftExtractor(PostgreSQLExtractor):
     """Redshift metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.REDSHIFT
+
+    def description(self) -> str:
+        return "Redshift metadata crawler"
 
     @staticmethod
     def config_class():

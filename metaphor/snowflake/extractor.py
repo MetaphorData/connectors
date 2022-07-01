@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Mapping, Optional
 
+from metaphor.models.crawler_run_metadata import Platform
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
@@ -40,6 +41,12 @@ logger = get_logger(__name__)
 
 class SnowflakeExtractor(BaseExtractor):
     """Snowflake metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.SNOWFLAKE
+
+    def description(self) -> str:
+        return "Snowflake metadata crawler"
 
     @staticmethod
     def config_class():

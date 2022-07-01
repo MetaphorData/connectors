@@ -1,7 +1,5 @@
 from dataclasses import field
-from typing import Collection, Dict, List, Set
-
-from pydantic.dataclasses import dataclass
+from typing import Collection, Dict, List, Optional, Set
 
 try:
     from slack_sdk import WebClient
@@ -9,11 +7,13 @@ except ImportError:
     print("Please install metaphor[slack] extra\n")
     raise
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Person,
     PersonLogicalID,
     PersonSlackProfile,
 )
+from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.event_util import ENTITY_TYPES
@@ -54,6 +54,12 @@ def list_all_users(config: SlackRunConfig) -> List[Dict]:
 
 class SlackExtractor(BaseExtractor):
     """Slack directory extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return None
+
+    def description(self) -> str:
+        return "Slack directory crawler"
 
     @staticmethod
     def config_class():

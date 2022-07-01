@@ -1,5 +1,7 @@
 import os
-from typing import Collection, Dict, Iterable, List, Sequence, Set, Tuple
+from typing import Collection, Dict, Iterable, List, Optional, Sequence, Set, Tuple
+
+from metaphor.models.crawler_run_metadata import Platform
 
 try:
     import looker_sdk
@@ -33,6 +35,12 @@ logger = get_logger(__name__)
 
 class LookerExtractor(BaseExtractor):
     """Looker metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.LOOKER
+
+    def description(self) -> str:
+        return "Looker metadata crawler"
 
     @staticmethod
     def config_class():

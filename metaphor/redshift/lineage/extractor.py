@@ -1,6 +1,7 @@
 from typing import Collection, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -22,6 +23,12 @@ logger = get_logger(__name__)
 
 class RedshiftLineageExtractor(PostgreSQLExtractor):
     """Redshift lineage metadata extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.REDSHIFT
+
+    def description(self) -> str:
+        return "Redshift data lineage crawler"
 
     @staticmethod
     def config_class():

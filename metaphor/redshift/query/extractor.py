@@ -1,7 +1,7 @@
-import logging
 from datetime import timedelta
-from typing import Collection, List, Set
+from typing import Collection, List, Optional, Set
 
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -20,11 +20,16 @@ from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.query.config import RedshiftQueryRunConfig
 
 logger = get_logger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class RedshiftQueryExtractor(PostgreSQLExtractor):
-    """Redshift usage metadata extractor"""
+    """Redshift query extractor"""
+
+    def platform(self) -> Optional[Platform]:
+        return Platform.REDSHIFT
+
+    def description(self) -> str:
+        return "Redshift recent queries crawler"
 
     @staticmethod
     def config_class():
