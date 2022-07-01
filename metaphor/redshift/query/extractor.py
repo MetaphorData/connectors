@@ -68,9 +68,14 @@ class RedshiftQueryExtractor(PostgreSQLExtractor):
 
         self._table_queries.store_recent_query(
             table_name,
-            access_event.starttime,
-            access_event.querytxt,
-            access_event.usename,
+            QueryInfo(
+                elapsed_time=(
+                    access_event.endtime - access_event.starttime
+                ).total_seconds(),
+                issued_at=access_event.starttime,
+                issued_by=access_event.usename,
+                query=access_event.querytxt,
+            ),
         )
 
     def _init_dataset(

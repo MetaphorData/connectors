@@ -16,6 +16,8 @@ def test_parse_log(test_root_dir):
         JobChangeEvent(
             job_name="projects/metaphor-data/jobs/bquxjob_70ddc06_17f574eca64",
             timestamp=datetime(2022, 3, 4, 23, 40, 56, 595154, pytz.UTC),
+            start_time=datetime(2022, 3, 4, 23, 40, 56, 330000, pytz.UTC),
+            end_time=datetime(2022, 3, 4, 23, 40, 56, 590000, pytz.UTC),
             user_email="mars@metaphor.io",
             query="select * from `metaphor-data.test.yi_tests2`",
             statementType="SELECT",
@@ -33,6 +35,8 @@ def test_parse_log(test_root_dir):
         JobChangeEvent(
             job_name="projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
             timestamp=datetime(2022, 3, 7, 10, 29, 1, 625893, pytz.UTC),
+            start_time=datetime(2022, 3, 7, 10, 29, 1, 241000, pytz.UTC),
+            end_time=datetime(2022, 3, 7, 10, 29, 1, 617000, pytz.UTC),
             user_email="scott@metaphor.io",
             query="select `id`,\r\n    `name`\r\nfrom `metaphor-data`.`test`.`yi_test_view1`\r\nLIMIT 200 OFFSET 0",
             statementType="SELECT",

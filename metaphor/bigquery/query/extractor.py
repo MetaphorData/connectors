@@ -90,9 +90,14 @@ class BigQueryQueryExtractor(BaseExtractor):
 
             self._table_queries.store_recent_query(
                 table_name,
-                job_change.timestamp,
-                job_change.query,
-                job_change.user_email,
+                QueryInfo(
+                    elapsed_time=(
+                        job_change.end_time - job_change.start_time
+                    ).total_seconds(),
+                    issued_at=job_change.timestamp,
+                    issued_by=job_change.user_email,
+                    query=job_change.query,
+                ),
             )
 
     def _init_dataset(

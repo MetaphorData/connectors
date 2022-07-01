@@ -23,11 +23,9 @@ class TableQueryHistoryHeap:
         self._table_queries: Dict[str, List[PrioritizedQueryInfo]] = {}
         self._max_queries_per_table = max_queries_per_table
 
-    def store_recent_query(
-        self, table_name: str, query_time: datetime, query: str, username: str
-    ) -> None:
+    def store_recent_query(self, table_name: str, query_info: QueryInfo) -> None:
         """Store most recent N unique query for a table"""
-        query_hash = sha256(query.encode("utf-8")).hexdigest()
+        query_hash = sha256(query_info.query.encode("utf-8")).hexdigest()
         query_set = self._table_query_set.setdefault(table_name, set())
         if query_hash in query_set:
             return
@@ -37,12 +35,8 @@ class TableQueryHistoryHeap:
         heapq.heappush(
             query_heap,
             PrioritizedQueryInfo(
-                time=query_time,
-                item=QueryInfo(
-                    query=query,
-                    issued_by=username,
-                    issued_at=query_time,
-                ),
+                time=query_info.issued_at,
+                item=query_info,
             ),
         )
 

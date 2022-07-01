@@ -89,7 +89,7 @@ class SnowflakeQueryExtractor(BaseExtractor):
             queries = {
                 x: QueryWithParam(
                     f"""
-                    SELECT START_TIME, QUERY_TEXT, q.USER_NAME, DIRECT_OBJECTS_ACCESSED
+                    SELECT START_TIME, QUERY_TEXT, q.USER_NAME, DIRECT_OBJECTS_ACCESSED, TOTAL_ELAPSED_TIME
                     FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                     JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                       ON a.QUERY_ID = q.QUERY_ID
@@ -128,8 +128,16 @@ class SnowflakeQueryExtractor(BaseExtractor):
         self, batch_number: str, query_history: List[Tuple]
     ) -> None:
         logger.info(f"access logs batch #{batch_number}")
-        for start_time, query_text, username, accessed_objects in query_history:
-            self._parse_access_log(start_time, username, query_text, accessed_objects)
+        for (
+            start_time,
+            query_text,
+            username,
+            accessed_objects,
+            total_elapsed_time,
+        ) in query_history:
+            self._parse_access_log(
+                start_time, username, query_text, accessed_objects, total_elapsed_time
+            )
 
     def _parse_access_log(
         self,
@@ -137,6 +145,7 @@ class SnowflakeQueryExtractor(BaseExtractor):
         username: str,
         query_text: str,
         accessed_objects: str,
+        total_elapsed_time: float,
     ):
         try:
             objects = parse_raw_as(List[AccessedObject], accessed_objects)
@@ -160,7 +169,13 @@ class SnowflakeQueryExtractor(BaseExtractor):
                     logger.debug(f"Ignore {table_name} due to filter config")
                     continue
                 self._table_queries.store_recent_query(
-                    table_name, start_time, query_text, username
+                    table_name,
+                    QueryInfo(
+                        elapsed_time=total_elapsed_time / 1000,
+                        issued_at=start_time,
+                        issued_by=username,
+                        query=query_text,
+                    ),
                 )
         except Exception:
             logger.exception(f"access log error, objects: {accessed_objects}")

@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
 
+from google.cloud._helpers import _rfc3339_nanos_to_datetime
+
 from metaphor.bigquery.utils import BigQueryResource, LogEntry
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
@@ -20,12 +22,14 @@ class JobChangeEvent:
 
     job_name: str
     timestamp: datetime
+    start_time: Optional[datetime]  # Job execution start time.
+    end_time: Optional[datetime]  # Job completion time.
     user_email: str
 
     query: Optional[str]
     statementType: Optional[str]
     source_tables: List[BigQueryResource]
-    destination_table: BigQueryResource
+    destination_table: Optional[BigQueryResource]
 
     @classmethod
     def can_parse(cls, entry: LogEntry) -> bool:
@@ -50,7 +54,10 @@ class JobChangeEvent:
         job_name = job.get("jobName")  # Format: projects/<projectId>/jobs/<jobId>
 
         job_type = job["jobConfig"]["type"]
+
         query, query_statement_type = None, None
+        start_time, end_time = None, None
+        destination_table = None
 
         if job_type == "COPY":
             copy_job = job["jobConfig"]["tableCopyConfig"]
@@ -64,14 +71,13 @@ class JobChangeEvent:
         elif job_type == "QUERY":
             query_job = job["jobConfig"]["queryConfig"]
 
-            # Not all query jobs will have a destination table, e.g. calling a stored procedure
-            if "destinationTable" not in query_job:
-                return None
-
             query = query_job["query"]
-            destination_table = BigQueryResource.from_str(
-                query_job["destinationTable"]
-            ).remove_extras()
+
+            # Not all query jobs will have a destination table, e.g. calling a stored procedure
+            if "destinationTable" in query_job:
+                destination_table = BigQueryResource.from_str(
+                    query_job["destinationTable"]
+                ).remove_extras()
             query_statement_type = query_job.get("statementType")
 
             query_stats = job["jobStats"].get("queryStats", {})
@@ -86,11 +92,11 @@ class JobChangeEvent:
             return None
 
         # remove temporary and information schema tables, and duplicates in sources
-        if (
+        if destination_table and (
             destination_table.is_temporary()
             or destination_table.is_information_schema()
         ):
-            return None
+            destination_table = None
 
         source_tables = unique_list(
             [
@@ -99,6 +105,10 @@ class JobChangeEvent:
                 if not t.is_temporary() and not t.is_information_schema()
             ]
         )
+
+        jobStats = job["jobStats"]
+        start_time = _rfc3339_nanos_to_datetime(jobStats["startTime"])
+        end_time = _rfc3339_nanos_to_datetime(jobStats["endTime"])
 
         if len(source_tables) == 0:
             return None
@@ -111,4 +121,6 @@ class JobChangeEvent:
             statementType=query_statement_type,
             source_tables=source_tables,
             destination_table=destination_table,
+            start_time=start_time,
+            end_time=end_time,
         )

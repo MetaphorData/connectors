@@ -172,7 +172,6 @@ class MetaphorBackend(LineageBackend):
             if config.s3_url is None:
                 raise MetaphorError("s3_url is not set")
             directory = f'{config.s3_url.rstrip("/")}/{target_name}'
-            print(directory)
             sink = FileSink(
                 FileSinkConfig(
                     directory=directory,
