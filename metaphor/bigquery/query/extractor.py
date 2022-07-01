@@ -93,12 +93,17 @@ class BigQueryQueryExtractor(BaseExtractor):
 
             table_name = queried_table.table_name()
 
+            if job_change.start_time and job_change.end_time:
+                elapsed_time = (
+                    job_change.end_time - job_change.start_time
+                ).total_seconds()
+            else:
+                elapsed_time = None
+
             self._table_queries.store_recent_query(
                 table_name,
                 QueryInfo(
-                    elapsed_time=(
-                        job_change.end_time - job_change.start_time
-                    ).total_seconds(),
+                    elapsed_time=elapsed_time,
                     issued_at=job_change.timestamp,
                     issued_by=job_change.user_email,
                     query=job_change.query,
