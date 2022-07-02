@@ -4,7 +4,7 @@ name: CD
 env:
   PYTHON_VERSION: 3.7
   POETRY_VERSION: 1.1.12
-  NODE_VERSION: 14
+  NODE_VERSION: 16
   DOCKER_IMAGE: metaphordata/connectors
 
 # Run this build workflow after a new PR is merged
