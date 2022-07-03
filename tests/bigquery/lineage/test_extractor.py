@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from unittest.mock import patch
 
@@ -103,7 +102,6 @@ async def test_view_extractor(test_root_dir):
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
-    print(json.dumps(events))
     assert events == load_json(
         f"{test_root_dir}/bigquery/lineage/data/view_result.json"
     )

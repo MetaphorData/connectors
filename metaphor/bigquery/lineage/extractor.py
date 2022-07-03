@@ -160,7 +160,7 @@ class BigQueryLineageExtractor(BaseExtractor):
 
     def _parse_job_change_entry(self, entry: LogEntry):
         job_change = JobChangeEvent.from_entry(entry)
-        if job_change is None:
+        if job_change is None or job_change.destination_table is None:
             return
 
         if job_change.destination_table in job_change.source_tables:
