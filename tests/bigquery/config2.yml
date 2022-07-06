@@ -1,0 +1,9 @@
+---
+project_id: project_id
+credentials:
+  project_id: metaphor
+  private_key_id: '1234'
+  private_key: "-----BEGIN PRIVATE KEY-----\nabcd\n-----END PRIVATE KEY-----\n"
+  client_email: foo@gserviceaccount.com
+  client_id: '9876'
+output: {}

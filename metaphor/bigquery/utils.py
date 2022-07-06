@@ -1,7 +1,7 @@
 import json
 import re
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from smart_open import open
 
@@ -25,29 +25,38 @@ LogEntry = Any
 
 
 def build_client(config: BigQueryRunConfig) -> bigquery.Client:
-    with open(config.key_path) as fin:
-        credentials = service_account.Credentials.from_service_account_info(
-            json.load(fin),
+    credentials = _get_credentials(config)
+    return bigquery.Client(
+        credentials=credentials,
+        project=config.project_id if config.project_id else credentials.project_id,
+    )
+
+
+def build_logging_client(config: BigQueryRunConfig) -> logging_v2.Client:
+    credentials = _get_credentials(config)
+    return logging_v2.Client(
+        credentials=credentials,
+        project=config.project_id if config.project_id else credentials.project_id,
+    )
+
+
+def _get_credentials(config: BigQueryRunConfig) -> service_account.Credentials:
+    if config.key_path is not None:
+        with open(config.key_path) as fin:
+            return service_account.Credentials.from_service_account_info(
+                json.load(fin),
+                scopes=["https://www.googleapis.com/auth/cloud-platform"],
+            )
+
+    if config.credentials is not None:
+        return service_account.Credentials.from_service_account_info(
+            config.credentials.__dict__,
             scopes=["https://www.googleapis.com/auth/cloud-platform"],
         )
 
-        return bigquery.Client(
-            credentials=credentials,
-            project=config.project_id if config.project_id else credentials.project_id,
-        )
-
-
-def build_logging_client(key_path: str, project_id: Optional[str]) -> logging_v2.Client:
-    with open(key_path) as fin:
-        credentials = service_account.Credentials.from_service_account_info(
-            json.load(fin),
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],
-        )
-
-        return logging_v2.Client(
-            credentials=credentials,
-            project=project_id if project_id else credentials.project_id,
-        )
+    raise ValueError(
+        "Invalid BigQuery configuration, please set either key_path or credentials"
+    )
 
 
 # Handle yearly, monthly, daily, or hourly partitioning.
