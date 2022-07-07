@@ -21,6 +21,23 @@ Once the service account is created, you need to create a service account key fo
 3. Select `JSON` key type and click `CREATE`.
 4. Save the generated key file to a secure location.
 
+Your key file may look like:
+
+```json
+{
+  "type": "service_account",
+  "project_id": "<project_id>",
+  "private_key_id": "<key_id>",
+  "private_key": "-----BEGIN PRIVATE KEY-----\n<key>\n-----END PRIVATE KEY-----",
+  "client_email": "<email>@<project_id>.iam.gserviceaccount.com",
+  "client_id": "<client_id>",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/<client_cert_url>"
+}
+```
+
 ## Config File
 
 Create a YAML config file based on the following template.
@@ -29,13 +46,29 @@ Create a YAML config file based on the following template.
 
 ```yaml
 project_id: <bigquery_project_id>
-key_path: <path_to_JSON_key_file>
 output:
   file:
     directory: <output_directory>
 ```
 
 See [Common Configurations](../common/README.md) for more information on `output`.
+
+To connect to BigQuery, either the keyfile path or credentials from the JSON keyfile must be set in the config as following:
+
+```yaml
+key_path: <path_to_JSON_key_file>
+```
+
+or
+
+```yaml
+credentials:
+  project_id: <project_id>
+  private_key_id: <private_key_id>
+  private_key: <private_key_value>
+  client_email: <client_email>
+  client_id: <client_id>
+```
 
 ### Optional Configurations
 

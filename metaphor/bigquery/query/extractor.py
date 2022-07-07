@@ -47,7 +47,7 @@ class BigQueryQueryExtractor(BaseExtractor):
 
         logger.info("Fetching query history from BigQuery audit log")
 
-        client = build_logging_client(config.key_path, config.project_id)
+        client = build_logging_client(config)
         self._dataset_filter = config.filter.normalize()
         self._excluded_usernames = config.excluded_usernames
         self._table_queries = TableQueryHistoryHeap(config.max_queries_per_table)

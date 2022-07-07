@@ -82,7 +82,7 @@ class BigQueryUsageExtractor(BaseExtractor):
 
         logger.info("Fetching usage info from BigQuery")
 
-        client = build_logging_client(config.key_path, config.project_id)
+        client = build_logging_client(config)
         self._dataset_filter = config.filter.normalize()
 
         log_filter = self._build_table_data_read_filter(config, end_time=self._utc_now)
