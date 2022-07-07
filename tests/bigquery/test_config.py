@@ -1,3 +1,6 @@
+import pytest
+from pydantic import ValidationError
+
 from metaphor.bigquery.config import BigQueryCredentials
 from metaphor.bigquery.extractor import BigQueryRunConfig
 from metaphor.common.base_config import OutputConfig
@@ -31,3 +34,10 @@ def test_yaml_config_with_credentials(test_root_dir):
         ),
         project_id="project_id",
     )
+
+
+def test_yaml_config_with_missing_config(test_root_dir):
+    with pytest.raises(ValidationError):
+        BigQueryRunConfig.from_yaml_file(
+            f"{test_root_dir}/bigquery/config_missing_credentials.yml"
+        )

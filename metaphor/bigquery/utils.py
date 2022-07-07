@@ -41,6 +41,8 @@ def build_logging_client(config: BigQueryRunConfig) -> logging_v2.Client:
 
 
 def _get_credentials(config: BigQueryRunConfig) -> service_account.Credentials:
+    # either "key_path" or "credentials" should be set, otherwise pydantic validator will throw error
+
     if config.key_path is not None:
         with open(config.key_path) as fin:
             return service_account.Credentials.from_service_account_info(
@@ -48,14 +50,9 @@ def _get_credentials(config: BigQueryRunConfig) -> service_account.Credentials:
                 scopes=["https://www.googleapis.com/auth/cloud-platform"],
             )
 
-    if config.credentials is not None:
-        return service_account.Credentials.from_service_account_info(
-            config.credentials.__dict__,
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],
-        )
-
-    raise ValueError(
-        "Invalid BigQuery configuration, please set either key_path or credentials"
+    return service_account.Credentials.from_service_account_info(
+        config.credentials.__dict__,
+        scopes=["https://www.googleapis.com/auth/cloud-platform"],
     )
 
 

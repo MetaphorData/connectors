@@ -1,6 +1,7 @@
 from dataclasses import field as dataclass_field
 from typing import Optional
 
+from pydantic import validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -49,3 +50,9 @@ class BigQueryRunConfig(BaseConfig):
     filter: Optional[DatasetFilter] = dataclass_field(
         default_factory=lambda: DatasetFilter()
     )
+
+    @validator("credentials")
+    def have_key_path_or_credentials(cls, v, values):
+        if v is None and values["key_path"] is None:
+            raise ValueError("must set either key_path or credentials")
+        return v
