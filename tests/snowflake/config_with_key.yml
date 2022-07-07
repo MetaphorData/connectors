@@ -1,0 +1,8 @@
+---
+account: account
+user: user
+private_key:
+  key_file: key_file
+  passphrase: passphrase
+default_database: database
+output: {}
