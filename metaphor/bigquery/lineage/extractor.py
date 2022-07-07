@@ -137,7 +137,7 @@ class BigQueryLineageExtractor(BaseExtractor):
     def _fetch_audit_log(self, config: BigQueryLineageRunConfig):
         logger.info("Fetching lineage info from BigQuery Audit log")
 
-        client = build_logging_client(config.key_path, config.project_id)
+        client = build_logging_client(config)
         self._dataset_filter = config.filter.normalize()
 
         log_filter = self._build_job_change_filter(config, end_time=self._utc_now)
