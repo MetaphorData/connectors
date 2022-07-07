@@ -989,7 +989,7 @@ python-versions = "*"
 name = "gitdb"
 version = "4.0.9"
 description = "Git Object Database"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1000,7 +1000,7 @@ smmap = ">=3.0.1,<6"
 name = "gitpython"
 version = "3.1.27"
 description = "GitPython is a python library used to interact with Git repositories"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -2413,7 +2413,7 @@ webhdfs = ["requests"]
 name = "smmap"
 version = "5.0.0"
 description = "A pure Python implementation of a sliding window memory map manager"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -2791,11 +2791,11 @@ docs = ["sphinx", "jaraco.packaging (>=9)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)"]
 
 [extras]
-all = ["asyncpg", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "msal", "slack-sdk", "snowflake-connector-python", "sql-metadata", "tableauserverclient", "thoughtspot-rest-api-sdk"]
+all = ["asyncpg", "GitPython", "google-api-python-client", "google-auth-oauthlib", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "msal", "slack-sdk", "snowflake-connector-python", "sql-metadata", "tableauserverclient", "thoughtspot-rest-api-sdk"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 dbt = []
 google_directory = ["google-api-python-client", "google-auth-oauthlib"]
-looker = ["lkml", "looker-sdk", "sql-metadata"]
+looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
 metabase = ["sql-metadata"]
 postgresql = ["asyncpg"]
 power_bi = ["msal"]
@@ -2808,7 +2808,7 @@ throughtspot = ["thoughtspot-rest-api-sdk"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "2740525783a28158f3af85ec0441f0ed0a5aa578f64adbda7e3640a8422ec70c"
+content-hash = "d1b1abf603c11d1acbc476c806e34dabcba49a32787700c2c43f135ff92d17b1"
 
 [metadata.files]
 alembic = [

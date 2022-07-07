@@ -27,9 +27,9 @@ class BigQueryCredentials:
     # Client ID contained in the key file
     client_id: str
 
-    type: Optional[str] = "service_account"
-    auth_uri: Optional[str] = "https://accounts.google.com/o/oauth2/auth"
-    token_uri: Optional[str] = "https://oauth2.googleapis.com/token"
+    type: str = "service_account"
+    auth_uri: str = "https://accounts.google.com/o/oauth2/auth"
+    token_uri: str = "https://oauth2.googleapis.com/token"
 
 
 @dataclass
@@ -44,7 +44,7 @@ class BigQueryRunConfig(BaseConfig):
     project_id: Optional[str] = None
 
     # Max number of concurrent requests to bigquery or logging API, default is 10
-    max_concurrency: Optional[int] = 10
+    max_concurrency: int = 10
 
     # Include or exclude specific databases/schemas/tables
     filter: Optional[DatasetFilter] = dataclass_field(
