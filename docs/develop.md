@@ -97,4 +97,4 @@ flake8 .
 
 ## Publishing
 
-[This package](https://pypi.org/project/metaphor-connectors/) is automatically published to [PyPI](https://pypi.org/) as part of the [CI/CD workflow](../.github/workflows/cd.yml). Please make sure to bump up the version in [pyproject.toml](../pyproject.toml) along with the PR to trigger the publishing workflow. 
+[The PyPI package](https://pypi.org/project/metaphor-connectors/) and [docker image](https://hub.docker.com/r/metaphordata/connectors) are automatically built and published as part of the [CD workflow](../.github/workflows/cd.yml). Please make sure to bump up the version in [pyproject.toml](../pyproject.toml) along with the PR to trigger the publishing workflow.
