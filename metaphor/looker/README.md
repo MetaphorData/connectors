@@ -55,7 +55,6 @@ Create a YAML config file based on the following template.
 base_url: <looker_base_url>
 client_id: <client_id>
 client_secret: <client_secret>
-lookml_dir: <path_to_lookml_project>
 connections:
   <name>:
     database: <database_name>
@@ -71,12 +70,28 @@ Note that `connections` is a mapping of database connection names to connection 
 
 See [Common Configurations](../common/README.md) for more information on `output`.
 
+The connector also needs to parse the LookML project to extract additional metadata. There are two ways to provide the project source code. If the source code is in local environment, we can set the path to the project root as following:
+
+```yaml
+lookml_dir: <path_to_lookml_project>
+```
+
+Alternatively, if the source code is hosted on Git, we can set the git repository config as following:
+
+```yaml
+lookml_git_repo:
+  git_url: <git_repo_url>
+  access_token: <git_repo_personal_access_token>
+```
+
+For more information about git repo configuration, please refer to [Git Repo Connection Config](../common/docs/git_repo.md).
+
 ### Optional Configurations
 
 To add a "View LookML" link to Looker explore & views on Metaphor you need to specify a base URL for the Looker project. This can be either a URL to the GitHub repository (`https://github.com/<account>/<repo>`) or Looker IDE (`https://<account>.cloud.looker.com/projects/<project>/files/`).
 
 ```yaml
-projectSourceUrl: <looker_project_url>
+project_source_url: <looker_project_source_url>
 ```
 
 You can also disable SSL verify and change the request timeout if needed, e.g.

@@ -24,7 +24,7 @@ class GitRepoConfig:
     password: Optional[str] = None
 
     # path to the project, default to the root of the repo
-    project_path: str = "."
+    project_path: str = ""
 
     @root_validator()
     def have_token_or_username_password(cls, values):
@@ -33,6 +33,9 @@ class GitRepoConfig:
         ):
             raise ValueError("must set either access_token or username+password")
         return values
+
+
+_supported_git_services = ["github.com", "gitlab.com"]
 
 
 def clone_repo(config: GitRepoConfig, local_dir: Optional[str] = None) -> str:
@@ -44,7 +47,17 @@ def clone_repo(config: GitRepoConfig, local_dir: Optional[str] = None) -> str:
         local_dir = tempfile.mkdtemp()
 
     parsed_url = urlparse(config.git_url)
-    auth = config.access_token or f"{config.username}:{config.password}"
+    assert parsed_url.netloc in _supported_git_services, "Unsupported git service"
+
+    if parsed_url.netloc == "github.com":
+        auth = config.access_token or f"{config.username}:{config.password}"
+    else:  # gitlab
+        auth = (
+            f"oauth2:{config.access_token}"
+            if config.access_token
+            else f"{config.username}:{config.password}"
+        )
+
     git_url = f"{parsed_url.scheme}://{auth}@{parsed_url.netloc}{parsed_url.path}"
 
     Repo.clone_from(git_url, local_dir)
