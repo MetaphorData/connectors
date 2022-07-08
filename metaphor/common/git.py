@@ -1,7 +1,7 @@
 import os
 import tempfile
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from git import Repo
 from pydantic import root_validator
@@ -14,11 +14,11 @@ class GitRepoConfig:
     # Git repository URL, ending with ".git"
     git_url: str
 
+    # git repo username
+    username: str
+
     # git repo access token
     access_token: Optional[str] = None
-
-    # git repo username
-    username: Optional[str] = None
 
     # git repo password
     password: Optional[str] = None
@@ -27,15 +27,10 @@ class GitRepoConfig:
     project_path: str = ""
 
     @root_validator()
-    def have_token_or_username_password(cls, values):
-        if values["access_token"] is None and (
-            values["username"] is None or values["password"] is None
-        ):
-            raise ValueError("must set either access_token or username+password")
+    def have_token_or_password(cls, values):
+        if values["access_token"] is None and values["password"] is None:
+            raise ValueError("must set either access_token or password")
         return values
-
-
-_supported_git_services = ["github.com", "gitlab.com"]
 
 
 def clone_repo(config: GitRepoConfig, local_dir: Optional[str] = None) -> str:
@@ -46,19 +41,18 @@ def clone_repo(config: GitRepoConfig, local_dir: Optional[str] = None) -> str:
     if local_dir is None:
         local_dir = tempfile.mkdtemp()
 
-    parsed_url = urlparse(config.git_url)
-    assert parsed_url.netloc in _supported_git_services, "Unsupported git service"
-
-    if parsed_url.netloc == "github.com":
-        auth = config.access_token or f"{config.username}:{config.password}"
-    else:  # gitlab
-        auth = (
-            f"oauth2:{config.access_token}"
-            if config.access_token
-            else f"{config.username}:{config.password}"
-        )
-
-    git_url = f"{parsed_url.scheme}://{auth}@{parsed_url.netloc}{parsed_url.path}"
+    git_url = _generate_git_url(config)
 
     Repo.clone_from(git_url, local_dir)
     return os.path.join(local_dir, config.project_path)
+
+
+def _generate_git_url(config: GitRepoConfig) -> str:
+    """Generate a git URL containing authentication"""
+    parsed_url = urlparse(config.git_url)
+
+    auth = f"{quote(config.username)}:{config.access_token or config.password}"
+    host = (parsed_url.hostname or parsed_url.netloc) + (
+        f":{parsed_url.port}" if parsed_url.port else ""
+    )
+    return f"{parsed_url.scheme}://{auth}@{host}{parsed_url.path}"

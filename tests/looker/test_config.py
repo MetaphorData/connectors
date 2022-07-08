@@ -51,7 +51,9 @@ def test_yaml_config_with_git(test_root_dir):
             )
         },
         lookml_git_repo=GitRepoConfig(
-            git_url="https://github.com/foo/looker.git", access_token="bar"
+            git_url="https://github.com/foo/looker.git",
+            username="foo",
+            access_token="bar",
         ),
         output=OutputConfig(),
     )

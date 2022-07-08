@@ -1,6 +1,6 @@
 # Git Repo Connection Config
 
-When the connector needs to fetch source code from a git repository, we can set up the connection config by using personal access token or the username and password. Currently, the git connector supports repos on Github and GitLab. 
+When the connector needs to fetch source code from a git repository, we can set up the connection config by using personal access token or the username and password. 
 
 ## Personal Access Token
 
@@ -8,8 +8,11 @@ Using personal access token with read scope is the recommended way to connect to
 
 ```yaml
 git_url: <git_repo_url> # ending with .git
+username: <username>
 access_token: <personal_access_token>
 ```
+
+**NOTE**: For GitLab or GitLab enterprise, please use `oauth2` as the username.
 
 ## Username Password
 
@@ -20,3 +23,5 @@ git_url: <git_repo_url> # ending with .git
 username: <username>
 password: <password>
 ```
+
+**NOTE**: BitBucket Cloud [stopped supporting account passwords for Git authentication](https://atlassian.community/t5/x/x/ba-p/1948231). Please generate and use [App passwords](https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/) instead.

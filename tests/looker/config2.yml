@@ -4,6 +4,7 @@ client_id: client_id
 client_secret: client_secret
 lookml_git_repo:
   git_url: https://github.com/foo/looker.git
+  username: foo
   access_token: bar
 connections:
   conn1:
