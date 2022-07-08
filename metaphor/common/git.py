@@ -23,7 +23,7 @@ class GitRepoConfig:
     # git repo password
     password: Optional[str] = None
 
-    # path to the project, default to the root of the repo
+    # relative path to the project, default to the root of the repo
     project_path: str = ""
 
     @root_validator()
