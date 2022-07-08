@@ -12,13 +12,7 @@ username: <username>
 access_token: <personal_access_token>
 ```
 
-**NOTE**: For GitLab or GitLab enterprise, please use `oauth2` as the username:
-
-```yaml
-git_url: <git_repo_url> # ending with .git
-username: oauth2
-access_token: <personal_access_token>
-```
+> NOTE: For GitLab or GitLab enterprise, please use `oauth2` as the username:
 
 ## Username Password
 
@@ -30,4 +24,4 @@ username: <username>
 password: <password>
 ```
 
-**NOTE**: BitBucket Cloud [stopped supporting account passwords for Git authentication](https://atlassian.community/t5/x/x/ba-p/1948231). Please generate and use [App passwords](https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/) instead.
+> NOTE: BitBucket Cloud [stopped supporting account passwords for Git authentication](https://atlassian.community/t5/x/x/ba-p/1948231). Please generate and use [App passwords](https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/) instead.
