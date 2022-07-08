@@ -81,6 +81,7 @@ Alternatively, if the source code is hosted on Git, we can set the git repositor
 ```yaml
 lookml_git_repo:
   git_url: <git_repo_url>
+  username: <username>
   access_token: <git_repo_personal_access_token>
 ```
 
