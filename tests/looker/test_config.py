@@ -1,6 +1,9 @@
+import pytest
 from metaphor.models.metadata_change_event import DataPlatform
+from pydantic import ValidationError
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.git import GitRepoConfig
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 
 
@@ -30,3 +33,34 @@ def test_yaml_config(test_root_dir):
         timeout=1,
         output=OutputConfig(),
     )
+
+
+def test_yaml_config_with_git(test_root_dir):
+    config = LookerRunConfig.from_yaml_file(f"{test_root_dir}/looker/config2.yml")
+
+    assert config == LookerRunConfig(
+        base_url="base_url",
+        client_id="client_id",
+        client_secret="client_secret",
+        connections={
+            "conn1": LookerConnectionConfig(
+                database="db1",
+                account="account1",
+                default_schema="schema1",
+                platform="SNOWFLAKE",
+            )
+        },
+        lookml_git_repo=GitRepoConfig(
+            git_url="https://github.com/foo/looker.git",
+            username="foo",
+            access_token="bar",
+        ),
+        output=OutputConfig(),
+    )
+
+
+def test_yaml_config_missing_lookml(test_root_dir):
+    with pytest.raises(ValidationError):
+        LookerRunConfig.from_yaml_file(
+            f"{test_root_dir}/looker/config_missing_lookml.yml"
+        )

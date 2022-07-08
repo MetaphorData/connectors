@@ -3,6 +3,8 @@ from typing import Collection, Dict, Iterable, List, Optional, Sequence, Set, Tu
 
 from metaphor.models.crawler_run_metadata import Platform
 
+from metaphor.common.git import clone_repo
+
 try:
     import looker_sdk
     from looker_sdk.sdk.api40.methods import Looker40SDK
@@ -87,8 +89,11 @@ class LookerExtractor(BaseExtractor):
             k.lower(): v for (k, v) in config.connections.items()
         }
 
+        lookml_dir = config.lookml_dir or clone_repo(config.lookml_git_repo)
+        logger.info(f"Parsing LookML project at {lookml_dir}")
+
         model_map, virtual_views = parse_project(
-            config.lookml_dir, connections, config.project_source_url
+            lookml_dir, connections, config.project_source_url
         )
 
         dashboards = self._fetch_dashboards(config, sdk, model_map)

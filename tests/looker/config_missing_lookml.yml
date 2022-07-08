@@ -1,0 +1,11 @@
+---
+base_url: base_url
+client_id: client_id
+client_secret: client_secret
+connections:
+  conn1:
+    database: db1
+    default_schema: schema1
+    platform: SNOWFLAKE
+    account: account1
+output: {}
