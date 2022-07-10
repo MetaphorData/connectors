@@ -52,6 +52,7 @@ class TableauExtractor(BaseExtractor):
         self._base_url: Optional[str] = None
         self._views: Dict[str, ViewItem] = {}
         self._dashboards: Dict[str, Dashboard] = {}
+        self._disable_preview_image = False
         self._snowflake_account: Optional[str] = None
         self._bigquery_project_name_to_id_map: Dict[str, str] = dict()
 
@@ -64,6 +65,7 @@ class TableauExtractor(BaseExtractor):
 
         logger.info("Fetching metadata from Tableau")
 
+        self._disable_preview_image = config.disable_preview_image
         self._snowflake_account = config.snowflake_account
         self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
 
@@ -94,7 +96,7 @@ class TableauExtractor(BaseExtractor):
             )
             for item in views:
                 logger.debug(json.dumps(item.__dict__, default=str))
-                if not config.disable_preview_image:
+                if not self._disable_preview_image:
                     server.views.populate_preview_image(item)
                 self._views[item.id] = item
 
@@ -237,7 +239,7 @@ class TableauExtractor(BaseExtractor):
         try:
             preview_data_url = (
                 TableauExtractor._build_preview_data_url(view.preview_image)
-                if view.preview_image
+                if not self._disable_preview_image and view.preview_image
                 else None
             )
         except Exception as error:
