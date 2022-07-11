@@ -1,6 +1,7 @@
-from typing import Dict
+from typing import Dict, List, Optional
 
 from metaphor.models.metadata_change_event import DataPlatform
+from pydantic import BaseModel, Field
 
 connection_type_map: Dict[str, DataPlatform] = {
     "bigquery": DataPlatform.BIGQUERY,
@@ -9,7 +10,8 @@ connection_type_map: Dict[str, DataPlatform] = {
     "snowflake": DataPlatform.SNOWFLAKE,
 }
 
-# NOTE!!! Tableau models data source as a downstream of database, NOT upstream.
+# NOTE!!! the id (uuid) of an entity from graphql api is different from
+# the id of the same entity from the REST api, use luid instead
 workbooks_graphql_query = """
 query {
   workbooks {
@@ -17,15 +19,93 @@ query {
     name
     projectName
     vizportalUrlId
-    upstreamTables {
+    upstreamDatasources {
+      id
+      luid
+      vizportalUrlId
       name
-      fullName
-      schema
-      database {
+      description
+      fields {
         name
-        connectionType
+        description
+      }
+      upstreamTables {
+        luid
+        name
+        fullName
+        schema
+        database {
+          name
+          connectionType
+        }
+      }
+    }
+    embeddedDatasources {
+      id
+      name
+      fields {
+        name
+        description
+      }
+      upstreamTables {
+        luid
+        name
+        fullName
+        schema
+        database {
+          name
+          connectionType
+        }
       }
     }
   }
 }
 """
+
+
+class Database(BaseModel):
+    name: str
+    description: Optional[str]
+    connectionType: str
+
+
+class DatabaseTable(BaseModel):
+    luid: str
+    name: str
+    fullName: str
+    schema_: str = Field(alias="schema")
+    description: Optional[str]
+    database: Database
+
+
+class DatasourceField(BaseModel):
+    name: str
+    description: Optional[str]
+
+
+class PublishedDatasource(BaseModel):
+    id: str
+    luid: str
+    vizportalUrlId: str
+    name: str
+    description: Optional[str]
+    fields: List[DatasourceField]
+    upstreamTables: Optional[List[DatabaseTable]]
+
+
+class EmbeddedDatasource(BaseModel):
+    id: str
+    name: str
+    fields: List[DatasourceField]
+    upstreamTables: Optional[List[DatabaseTable]]
+
+
+class WorkbookQueryResponse(BaseModel):
+    """Modeling Metadata Graphql API response for a workbook"""
+
+    luid: str
+    name: str
+    projectName: str
+    vizportalUrlId: str
+    upstreamDatasources: List[PublishedDatasource]
+    embeddedDatasources: List[EmbeddedDatasource]
