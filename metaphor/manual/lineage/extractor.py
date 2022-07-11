@@ -13,7 +13,7 @@ from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 
-from .config import ManualLienageConfig
+from .config import ManualLineageConfig
 
 logger = get_logger(__name__)
 
@@ -29,9 +29,9 @@ class ManualLineageExtractor(BaseExtractor):
 
     @staticmethod
     def config_class():
-        return ManualLienageConfig
+        return ManualLineageConfig
 
-    async def extract(self, config: ManualLienageConfig) -> List[MetadataChangeEvent]:
+    async def extract(self, config: ManualLineageConfig) -> List[MetadataChangeEvent]:
         assert isinstance(config, ManualLineageExtractor.config_class())
         logger.info("Fetching lineage from config")
 
