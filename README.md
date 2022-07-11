@@ -2,7 +2,7 @@
 
 # Metaphor Connectors
 
-[![CI](https://github.com/MetaphorData/connectors/actions/workflows/ci.yml/badge.svg)](https://github.com/MetaphorData/connectors/actions/workflows/cicd.yml)
+[![CI](https://github.com/MetaphorData/connectors/actions/workflows/ci.yml/badge.svg)](https://github.com/MetaphorData/connectors/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/MetaphorData/connectors/workflows/CodeQL/badge.svg)](https://github.com/MetaphorData/connectors/actions/workflows/codeql-analysis.yml)
 [![PyPI Version](https://img.shields.io/pypi/v/metaphor-connectors)](https://pypi.org/project/metaphor-connectors/)
 ![Python version 3.7+](https://img.shields.io/badge/python-3.7%2B-blue)
