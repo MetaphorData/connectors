@@ -1,0 +1,26 @@
+[
+  {
+    "logicalId": {
+      "name": "foo",
+      "platform": "BIGQUERY"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Data Steward",
+          "person": "PERSON~661024EEDE1A17D74282AF91B3685450"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~9E4AD56458C7A717CA190A403306981C"
+        }
+      ]
+    },
+    "tagAssignment": {
+      "tagNames": [
+        "pii",
+        "golden"
+      ]
+    }
+  }
+]

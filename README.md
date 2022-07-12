@@ -49,6 +49,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [metaphor.dbt.cloud](metaphor/dbt/cloud/README.md)                    | dbt model, test, lineage                 |
 | [metaphor.google_directory](metaphor/google_directory/README.md)      | User profile                             |
 | [metaphor.looker](metaphor/looker/README.md)                          | Looker view, explore, dashboard, lineage |
+| [metaphor.manual.governance](metaphor/manual/governance/README.md)    | Ownership, tags                          |
 | [metaphor.manual.lineage](metaphor/manual/lineage/README.md)          | Lineage                                  |
 | [metaphor.metabase](metaphor/metabase/README.md)                      | Dashboard, lineage                       |
 | [metaphor.postgresql](metaphor/postgresql/README.md)                  | Schema, description, statistics          |
