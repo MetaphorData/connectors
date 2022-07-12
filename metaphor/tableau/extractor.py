@@ -206,6 +206,7 @@ class TableauExtractor(BaseExtractor):
                         TableauField(field=f.name, description=f.description or None)
                         for f in source.fields
                     ],
+                    embedded=False,
                     url=f"{self._base_url}/datasources/{source.vizportalUrlId}",
                     source_datasets=source_datasets or None,
                 ),
@@ -236,6 +237,7 @@ class TableauExtractor(BaseExtractor):
                         TableauField(field=f.name, description=f.description or None)
                         for f in source.fields
                     ],
+                    embedded=True,
                     source_datasets=source_datasets or None,
                 ),
             )
