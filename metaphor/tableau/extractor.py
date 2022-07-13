@@ -262,10 +262,10 @@ class TableauExtractor(BaseExtractor):
         )
 
     def _parse_dataset_id(self, table: DatabaseTable) -> Optional[EntityId]:
-        database_name = table.database.name
-        if None in (table.name, table.schema, database_name):
+        if None in (table.name, table.schema, table.fullName, table.database):
             return None
 
+        database_name = table.database.name
         connection_type = table.database.connectionType
         if connection_type not in connection_type_map:
             # connection type not supported

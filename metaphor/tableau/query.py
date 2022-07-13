@@ -72,10 +72,10 @@ class Database(BaseModel):
 class DatabaseTable(BaseModel):
     luid: str
     name: str
-    fullName: str
-    schema_: str = Field(alias="schema")
+    fullName: Optional[str]
+    schema_: Optional[str] = Field(alias="schema")
     description: Optional[str]
-    database: Database
+    database: Optional[Database]
 
 
 class DatasourceField(BaseModel):
@@ -90,14 +90,14 @@ class PublishedDatasource(BaseModel):
     name: str
     description: Optional[str]
     fields: List[DatasourceField]
-    upstreamTables: Optional[List[DatabaseTable]]
+    upstreamTables: List[DatabaseTable]
 
 
 class EmbeddedDatasource(BaseModel):
     id: str
     name: str
     fields: List[DatasourceField]
-    upstreamTables: Optional[List[DatabaseTable]]
+    upstreamTables: List[DatabaseTable]
 
 
 class WorkbookQueryResponse(BaseModel):
