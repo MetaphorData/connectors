@@ -186,6 +186,7 @@ class TableauExtractor(BaseExtractor):
         table_fullname = table["fullName"]
         table_schema = table["schema"]
 
+        # table name, schema and database potentially have null value
         if None in (table_name, table_schema, table["database"]):
             return None
 
