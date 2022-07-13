@@ -1,0 +1,14 @@
+---
+datasets:
+  - id:
+      name: foo
+      platform: BIGQUERY
+    ownerships:
+      - type: Data Steward
+        email: foo1@bar.com
+      - type: Maintainer
+        email: foo2@bar.com
+    tags:
+      - pii
+      - golden
+output: {}
