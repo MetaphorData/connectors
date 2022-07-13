@@ -185,11 +185,12 @@ class TableauExtractor(BaseExtractor):
         table_name = table["name"]
         table_fullname = table["fullName"]
         table_schema = table["schema"]
-        database_name = table["database"]["name"]
 
-        if None in (table_name, table_schema, database_name):
+        # table name, schema and database potentially have null value
+        if None in (table_name, table_schema, table["database"]):
             return None
 
+        database_name = table["database"]["name"]
         connection_type = table["database"]["connectionType"]
         if connection_type not in connection_type_map:
             # connection type not supported
