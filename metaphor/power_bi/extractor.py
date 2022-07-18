@@ -384,6 +384,10 @@ class PowerBIExtractor(BaseExtractor):
                         logger.warning(
                             f"Parsing upstream fail, exp: {power_query_text}"
                         )
+                    except IndexError:
+                        logger.warning(
+                            f"Parsing upstream fail, exp: {power_query_text}"
+                        )
 
             ds = dataset_map.get(wds.id, None)
             if ds is None:
