@@ -27,14 +27,28 @@ from metaphor.models.metadata_change_event import (
     DashboardUpstream,
     DataPlatform,
     SourceInfo,
+    TableauDatasource,
+    TableauField,
+    VirtualView,
+    VirtualViewLogicalID,
+    VirtualViewType,
 )
 
-from metaphor.common.entity_id import EntityId, to_dataset_entity_id
+from metaphor.common.entity_id import (
+    EntityId,
+    to_dataset_entity_id,
+    to_virtual_view_entity_id,
+)
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.tableau.config import TableauRunConfig
-from metaphor.tableau.query import connection_type_map, workbooks_graphql_query
+from metaphor.tableau.query import (
+    DatabaseTable,
+    WorkbookQueryResponse,
+    connection_type_map,
+    workbooks_graphql_query,
+)
 
 logger = get_logger(__name__)
 
@@ -51,6 +65,7 @@ class TableauExtractor(BaseExtractor):
     def __init__(self):
         self._base_url: Optional[str] = None
         self._views: Dict[str, ViewItem] = {}
+        self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
         self._disable_preview_image = False
         self._snowflake_account: Optional[str] = None
@@ -115,20 +130,19 @@ class TableauExtractor(BaseExtractor):
                     traceback.print_exc()
                     logger.error(f"failed to parse workbook {item.name}, error {error}")
 
-            # fetch workbook upstreams
-            # NOTE!!! the id (uuid) returned by graphql api for a particular entity is different with the one returned
-            # by the REST api, can NOT use id to match entities.
+            # fetch workbook related info from Metadata GraphQL API
             resp = server.metadata.query(workbooks_graphql_query)
             resp_data = resp["data"]
             for item in resp_data["workbooks"]:
                 try:
-                    self._parse_dashboard_upstream(item)
+                    workbook = WorkbookQueryResponse.parse_obj(item)
+                    self._parse_workbook_query_response(workbook)
                 except Exception as error:
                     logger.exception(
-                        f"failed to parse workbook upstream {item['vizportalUrlId']}, error {error}"
+                        f"failed to parse workbook {item['vizportalUrlId']}, error {error}"
                     )
 
-        return self._dashboards.values()
+        return [*self._dashboards.values(), *self._virtual_views.values()]
 
     def _parse_dashboard(self, workbook: WorkbookItem) -> None:
         base_url, workbook_id = TableauExtractor._parse_workbook_url(
@@ -162,13 +176,82 @@ class TableauExtractor(BaseExtractor):
 
         self._dashboards[workbook_id] = dashboard
 
-    def _parse_dashboard_upstream(self, workbook: Dict) -> None:
-        dashboard = self._dashboards[workbook["vizportalUrlId"]]
+    def _parse_workbook_query_response(self, workbook: WorkbookQueryResponse) -> None:
+        dashboard = self._dashboards[workbook.vizportalUrlId]
+        source_virtual_views: List[str] = []
+        published_datasources: List[str] = []
 
-        upstream_datasets = [
-            self._parse_dataset_id(table) for table in workbook["upstreamTables"]
-        ]
-        source_datasets = list(
+        for source in workbook.upstreamDatasources:
+            virtual_view_id = str(
+                to_virtual_view_entity_id(
+                    source.luid, VirtualViewType.TABLEAU_DATASOURCE
+                )
+            )
+            if source.luid in self._virtual_views:
+                # data source already parsed
+                source_virtual_views.append(virtual_view_id)
+                published_datasources.append(source.name)
+                continue
+
+            source_datasets = self._parse_upstream_datasets(source.upstreamTables)
+
+            self._virtual_views[source.luid] = VirtualView(
+                logical_id=VirtualViewLogicalID(
+                    type=VirtualViewType.TABLEAU_DATASOURCE, name=source.luid
+                ),
+                tableau_datasource=TableauDatasource(
+                    name=f"{workbook.projectName}.{source.name}",
+                    description=source.description or None,
+                    fields=[
+                        TableauField(field=f.name, description=f.description or None)
+                        for f in source.fields
+                    ],
+                    embedded=False,
+                    url=f"{self._base_url}/datasources/{source.vizportalUrlId}",
+                    source_datasets=source_datasets or None,
+                ),
+            )
+            source_virtual_views.append(virtual_view_id)
+            published_datasources.append(source.name)
+
+        for source in workbook.embeddedDatasources:
+            if source.name in published_datasources:
+                logger.debug(
+                    f"Skip embedded datasource {source.name} since it's published"
+                )
+                continue
+
+            virtual_view_id = str(
+                to_virtual_view_entity_id(source.id, VirtualViewType.TABLEAU_DATASOURCE)
+            )
+
+            source_datasets = self._parse_upstream_datasets(source.upstreamTables)
+
+            self._virtual_views[source.id] = VirtualView(
+                logical_id=VirtualViewLogicalID(
+                    type=VirtualViewType.TABLEAU_DATASOURCE, name=source.id
+                ),
+                tableau_datasource=TableauDatasource(
+                    name=f"{workbook.projectName}.{source.name}",
+                    fields=[
+                        TableauField(field=f.name, description=f.description or None)
+                        for f in source.fields
+                    ],
+                    embedded=True,
+                    source_datasets=source_datasets or None,
+                ),
+            )
+            source_virtual_views.append(virtual_view_id)
+
+        dashboard.upstream = DashboardUpstream(
+            source_virtual_views=source_virtual_views
+        )
+
+    def _parse_upstream_datasets(
+        self, upstreamTables: List[DatabaseTable]
+    ) -> List[str]:
+        upstream_datasets = [self._parse_dataset_id(table) for table in upstreamTables]
+        return list(
             set(
                 [
                     str(dataset_id)
@@ -178,20 +261,12 @@ class TableauExtractor(BaseExtractor):
             )
         )
 
-        if source_datasets:
-            dashboard.upstream = DashboardUpstream(source_datasets=source_datasets)
-
-    def _parse_dataset_id(self, table: Dict) -> Optional[EntityId]:
-        table_name = table["name"]
-        table_fullname = table["fullName"]
-        table_schema = table["schema"]
-
-        # table name, schema and database potentially have null value
-        if None in (table_name, table_schema, table["database"]):
+    def _parse_dataset_id(self, table: DatabaseTable) -> Optional[EntityId]:
+        if None in (table.name, table.schema, table.fullName, table.database):
             return None
 
-        database_name = table["database"]["name"]
-        connection_type = table["database"]["connectionType"]
+        database_name = table.database.name
+        connection_type = table.database.connectionType
         if connection_type not in connection_type_map:
             # connection type not supported
             return None
@@ -199,8 +274,8 @@ class TableauExtractor(BaseExtractor):
         platform = connection_type_map[connection_type]
 
         # if table fullname contains three segments, use it as dataset name
-        if table_fullname.count(".") == 2:
-            fullname = table_fullname
+        if table.fullName.count(".") == 2:
+            fullname = table.fullName
         else:
             # use BigQuery project ID to replace project name, to be consistent with the BigQuery crawler
             if platform == DataPlatform.BIGQUERY:
@@ -213,10 +288,10 @@ class TableauExtractor(BaseExtractor):
                     )
 
             # if table name has two segments, then it contains "schema" and "table_name"
-            if "." in table_name:
-                fullname = f"{database_name}.{table_name}"
+            if "." in table.name:
+                fullname = f"{database_name}.{table.name}"
             else:
-                fullname = f"{database_name}.{table_schema}.{table_name}"
+                fullname = f"{database_name}.{table.schema_}.{table.name}"
 
         fullname = (
             fullname.replace("[", "")
