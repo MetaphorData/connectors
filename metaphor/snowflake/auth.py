@@ -7,6 +7,7 @@ from pydantic.dataclasses import dataclass
 from smart_open import open
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.utils import must_set_exactly_one
 
 try:
     import snowflake.connector
@@ -51,8 +52,7 @@ class SnowflakeAuthConfig(BaseConfig):
 
     @root_validator
     def have_password_or_private_key(cls, values):
-        if values["password"] is None and values["private_key"] is None:
-            raise ValueError("must set either password or private_key")
+        must_set_exactly_one(values, ["password", "private_key"])
         return values
 
 

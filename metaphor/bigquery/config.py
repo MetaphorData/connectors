@@ -6,6 +6,7 @@ from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.utils import must_set_exactly_one
 
 
 @dataclass
@@ -53,6 +54,5 @@ class BigQueryRunConfig(BaseConfig):
 
     @root_validator
     def have_key_path_or_credentials(cls, values):
-        if values["key_path"] is None and values["credentials"] is None:
-            raise ValueError("must set either key_path or credentials")
+        must_set_exactly_one(values, ["key_path", "credentials"])
         return values

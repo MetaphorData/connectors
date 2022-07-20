@@ -6,6 +6,7 @@ from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.git import GitRepoConfig
+from metaphor.common.utils import must_set_exactly_one
 
 
 @dataclass
@@ -46,8 +47,7 @@ class LookerRunConfig(BaseConfig):
     verify_ssl: bool = True
     timeout: int = 120
 
-    @root_validator()
+    @root_validator
     def have_local_or_git_dir_for_lookml(cls, values):
-        if values["lookml_dir"] is None and values["lookml_git_repo"] is None:
-            raise ValueError("must set either lookml_dir or lookml_git_repo")
+        must_set_exactly_one(values, ["lookml_dir", "lookml_git_repo"])
         return values

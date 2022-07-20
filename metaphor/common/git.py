@@ -7,6 +7,8 @@ from git import Repo
 from pydantic import root_validator
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.utils import must_set_exactly_one
+
 
 @dataclass
 class GitRepoConfig:
@@ -26,10 +28,9 @@ class GitRepoConfig:
     # relative path to the project, default to the root of the repo
     project_path: str = ""
 
-    @root_validator()
+    @root_validator
     def have_token_or_password(cls, values):
-        if values["access_token"] is None and values["password"] is None:
-            raise ValueError("must set either access_token or password")
+        must_set_exactly_one(values, ["access_token", "password"])
         return values
 
 
