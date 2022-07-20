@@ -51,7 +51,7 @@ output:
     directory: <output_directory>
 ```
 
-See [Common Configurations](../common/README.md) for more information on `output`.
+See [Output Config](../common/docs/output.md) for more information on `output`.
 
 To connect to BigQuery, either the keyfile path or credentials from the JSON keyfile must be set in the config as following:
 
