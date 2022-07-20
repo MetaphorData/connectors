@@ -59,6 +59,7 @@ If using user password authentication:
 account: <snowflake_account>
 user: <snowflake_username>
 password: <snowflake_password>
+role: <snowflake_role> # Optional. Will use default role if not specified.
 default_database: <default_database_for_connections>
 output:
   file:
@@ -73,6 +74,7 @@ user: <snowflake_username>
 private_key:
   key_file: <private_key_file>
   passphrase: <private_key_encoding_passphrase>
+role: <snowflake_role> # Optional. Will use default role if not specified.
 default_database: <default_database_for_connections>
 output:
   file:

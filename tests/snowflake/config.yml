@@ -2,6 +2,7 @@
 account: account
 user: user
 password: password
+role: role
 default_database: database
 filter:
   includes:
