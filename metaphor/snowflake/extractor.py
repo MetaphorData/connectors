@@ -167,7 +167,6 @@ class SnowflakeExtractor(BaseExtractor):
         ) in cursor:
             full_name = dataset_fullname(database, table_schema, table_name)
             if full_name not in self._datasets:
-                logger.warning(f"Table {full_name} not found")
                 continue
 
             dataset = self._datasets[full_name]

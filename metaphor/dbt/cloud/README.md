@@ -23,7 +23,7 @@ output:
 
 You can extract `account_id` & `job_id` from a particular dbt job's URL, which has the format `https://cloud.getdbt.com/#/accounts/<account_id>/projects/<project_id>/jobs/<job_id>/`.
 
-See [Common Configurations](../common/README.md) for more information on `output`.
+See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ## Testing
 

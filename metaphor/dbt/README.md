@@ -22,7 +22,7 @@ output:
     directory: <output_directory>
 ```
 
-See [Common Configurations](../common/README.md) for more information on `output`.
+See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
