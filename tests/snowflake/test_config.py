@@ -14,6 +14,7 @@ def test_yaml_config(test_root_dir):
         account="account",
         user="user",
         password="password",
+        role="role",
         default_database="database",
         filter=DatasetFilter(
             includes={
@@ -48,6 +49,7 @@ def test_yaml_config_with_private_key(test_root_dir):
         private_key=SnowflakeKeyPairAuthConfig(
             key_file="key_file", passphrase="passphrase"
         ),
+        role="role",
         default_database="database",
         query_tag="MetaphorData",
     )
