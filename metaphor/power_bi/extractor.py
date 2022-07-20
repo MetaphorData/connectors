@@ -1,3 +1,4 @@
+import json
 import re
 import tempfile
 from time import sleep
@@ -290,6 +291,9 @@ class PowerBIClient:
         ), "Authentication error. Please enable read-only Power BI admin API access for the app."
 
         assert result.status_code == 200, f"GET {url} failed, {result.content.decode()}"
+
+        logger.debug(f"Response from {url}:")
+        logger.debug(json.dumps(result.json(), indent=2))
         return parse_obj_as(type_, transform_response(result))
 
 
