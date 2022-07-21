@@ -8,6 +8,7 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.extractor import (
+    PowerBIApp,
     PowerBIDashboard,
     PowerBIDataset,
     PowerBIExtractor,
@@ -28,18 +29,23 @@ from tests.test_utils import load_json
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     mock_instance = MagicMock()
-    dataset1_id = "dataset-100"
-    dataset2_id = "dataset-101"
+
+    workspace1_id = "workspace-1"
+
+    app1 = PowerBIApp(id="app-1", name="foo app", workspaceId=workspace1_id)
+
+    app2 = PowerBIApp(id="app-2", name="bar app", workspaceId=workspace1_id)
+
+    dataset1_id = "dataset-1"
     dataset1 = PowerBIDataset(
         id=dataset1_id, webUrl=f"https://powerbi.com/{dataset1_id}", name="Foo Dataset"
     )
+    dataset2_id = "dataset-2"
     dataset2 = PowerBIDataset(
         id=dataset2_id, webUrl=f"https://powerbi.com/{dataset2_id}", name="Bar Dataset"
     )
 
     report1_id = "report-1"
-    report2_id = "report-2"
-
     report1 = PowerBIReport(
         id=report1_id,
         name="Foo Report",
@@ -47,6 +53,8 @@ async def test_extractor(test_root_dir):
         reportType="",
         webUrl=f"https://powerbi.com/report/{report1_id}",
     )
+
+    report2_id = "report-2"
     report2 = PowerBIReport(
         id=report2_id,
         name="Bar Report",
@@ -56,13 +64,13 @@ async def test_extractor(test_root_dir):
     )
 
     dashboard1_id = "dashboard-1"
-    dashboard2_id = "dashboard-2"
-
     dashboard1 = PowerBIDashboard(
         id=dashboard1_id,
         displayName="Dashboard A",
         webUrl=f"https://powerbi.com/dashboard/{dashboard1_id}",
     )
+
+    dashboard2_id = "dashboard-2"
     dashboard2 = PowerBIDashboard(
         id=dashboard2_id,
         displayName="Dashboard B",
@@ -76,6 +84,7 @@ async def test_extractor(test_root_dir):
         reportId=report1_id,
         embedUrl="",
     )
+
     tile2 = PowerBITile(
         id="tile-2",
         title="Second Chart",
@@ -83,6 +92,7 @@ async def test_extractor(test_root_dir):
         reportId=report1_id,
         embedUrl="",
     )
+
     tile3 = PowerBITile(
         id="tile-3",
         title="Third Chart",
@@ -91,21 +101,19 @@ async def test_extractor(test_root_dir):
         embedUrl="",
     )
 
-    datasets = {dataset1_id: dataset1, dataset2_id: dataset2}
-    reports = {report1_id: report1, report2_id: report2}
-    dashboards = {dashboard1_id: dashboard1, dashboard2_id: dashboard2}
     tiles = {dashboard1_id: [tile1, tile3], dashboard2_id: [tile2, tile3]}
 
     mock_instance.get_workspace_info = MagicMock(
         return_value=[
             WorkspaceInfo(
-                id="123",
-                name="foo",
+                id=workspace1_id,
+                name="Workspace",
                 type="normal",
                 state="",
                 reports=[
                     WorkspaceInfoReport(
                         id=report1.id,
+                        appId=app1.id,
                         name=report1.name,
                         datasetId=report1.datasetId,
                         description="This is a report about foo",
@@ -182,7 +190,11 @@ async def test_extractor(test_root_dir):
                     ),
                 ],
                 dashboards=[
-                    WorkspaceInfoDashboard(displayName="Dashboard A", id="dashboard-1"),
+                    WorkspaceInfoDashboard(
+                        displayName="Dashboard A",
+                        id="dashboard-1",
+                        appId=app2.id,
+                    ),
                     WorkspaceInfoDashboard(displayName="Dashboard B", id="dashboard-2"),
                 ],
             )
@@ -190,21 +202,25 @@ async def test_extractor(test_root_dir):
     )
 
     def fake_get_datasets(workspace_id) -> List[PowerBIDataset]:
-        return datasets.values()
+        return [dataset1, dataset2]
 
     def fake_get_reports(workspace_id) -> List[PowerBIReport]:
-        return reports.values()
+        return [report1, report2]
 
     def fake_get_dashboards(workspace_id) -> List[PowerBIReport]:
-        return dashboards.values()
+        return [dashboard1, dashboard2]
 
     def fake_get_tiles(dashboard_id) -> List[PowerBITile]:
         return tiles.get(dashboard_id)
+
+    def fake_get_apps() -> List[PowerBIApp]:
+        return [app1, app2]
 
     mock_instance.get_datasets.side_effect = fake_get_datasets
     mock_instance.get_reports.side_effect = fake_get_reports
     mock_instance.get_dashboards.side_effect = fake_get_dashboards
     mock_instance.get_tiles.side_effect = fake_get_tiles
+    mock_instance.get_apps.side_effect = fake_get_apps
 
     with patch("metaphor.power_bi.extractor.PowerBIClient") as mock_client:
         mock_client.return_value = mock_instance
