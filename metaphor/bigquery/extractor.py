@@ -76,7 +76,7 @@ class BigQueryExtractor(BaseExtractor):
                 ).result()
 
                 for table_name, ddl in table_ddl:
-                    dataset = datasets[table_name]
+                    dataset = datasets[str(table_name).lower()]
                     assert dataset, f"table {table_name} not found for DDL"
                     dataset.schema.sql_schema.table_schema = ddl
 
