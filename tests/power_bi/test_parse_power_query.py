@@ -1,7 +1,7 @@
 from metaphor.models.metadata_change_event import DataPlatform
 
 from metaphor.common.entity_id import to_dataset_entity_id
-from metaphor.power_bi.extractor import PowerQueryParser
+from metaphor.power_bi.power_query_parser import PowerQueryParser
 
 
 def test_parse_dataset_redshift():
