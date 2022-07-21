@@ -1,28 +1,48 @@
 [
   {
-    "logicalId": { "name": "dataset-100", "type": "POWER_BI_DATASET" },
+    "logicalId": {
+      "name": "dataset-1",
+      "type": "POWER_BI_DATASET"
+    },
     "powerBIDataset": {
       "name": "Foo Dataset",
-      "sourceDatasets": ["DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"],
+      "sourceDatasets": [
+        "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
+      ],
       "tables": [
         {
           "columns": [
-            { "field": "col1", "type": "string" },
-            { "field": "col2", "type": "int" }
+            {
+              "field": "col1",
+              "type": "string"
+            },
+            {
+              "field": "col2",
+              "type": "int"
+            }
           ],
           "measures": [
-            { "expression": "avg(col1)", "field": "exp1" },
-            { "expression": "max(col1)", "field": "exp2" }
+            {
+              "expression": "avg(col1)",
+              "field": "exp1"
+            },
+            {
+              "expression": "max(col1)",
+              "field": "exp2"
+            }
           ],
           "name": "table1"
         }
       ],
-      "url": "https://powerbi.com/dataset-100",
-      "description":"This is a dataset"
+      "url": "https://powerbi.com/dataset-1",
+      "description": "This is a dataset"
     }
   },
   {
-    "logicalId": { "name": "dataset-101", "type": "POWER_BI_DATASET" },
+    "logicalId": {
+      "name": "dataset-2",
+      "type": "POWER_BI_DATASET"
+    },
     "powerBIDataset": {
       "name": "Bar Dataset",
       "sourceDatasets": [
@@ -32,51 +52,89 @@
       "tables": [
         {
           "columns": [
-            { "field": "col1", "type": "string" },
-            { "field": "col2", "type": "int" }
+            {
+              "field": "col1",
+              "type": "string"
+            },
+            {
+              "field": "col2",
+              "type": "int"
+            }
           ],
           "measures": [],
           "name": "table2"
         },
         {
           "columns": [
-            { "field": "col1", "type": "string" },
-            { "field": "col2", "type": "int" }
+            {
+              "field": "col1",
+              "type": "string"
+            },
+            {
+              "field": "col2",
+              "type": "int"
+            }
           ],
           "measures": [],
           "name": "table2"
         }
       ],
-      "url": "https://powerbi.com/dataset-101",
-      "description":"This is another dataset"
+      "url": "https://powerbi.com/dataset-2",
+      "description": "This is another dataset"
     }
   },
   {
     "dashboardInfo": {
       "description": "This is a report about foo",
-      "powerBiDashboardType": "REPORT",
-      "title": "Foo Report"
+      "title": "Foo Report",
+      "powerBi": {
+        "powerBiDashboardType": "REPORT",
+        "workspace": {
+          "id": "workspace-1",
+          "name": "Workspace"
+        },
+        "app": {
+          "id": "app-1",
+          "name": "foo app"
+        }
+      }
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/report/report-1"
     },
-    "logicalId": { "dashboardId": "report-1", "platform": "POWER_BI" },
+    "logicalId": {
+      "dashboardId": "report-1",
+      "platform": "POWER_BI"
+    },
     "upstream": {
-      "sourceVirtualViews": ["VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3"]
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~F8B7E3046996D3C72700BBF7B394518F"
+      ]
     }
   },
   {
     "dashboardInfo": {
       "description": "This is a report about bar",
-      "powerBiDashboardType": "REPORT",
-      "title": "Bar Report"
+      "title": "Bar Report",
+      "powerBi": {
+        "powerBiDashboardType": "REPORT",
+        "workspace": {
+          "id": "workspace-1",
+          "name": "Workspace"
+        }
+      }
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/report/report-2"
     },
-    "logicalId": { "dashboardId": "report-2", "platform": "POWER_BI" },
+    "logicalId": {
+      "dashboardId": "report-2",
+      "platform": "POWER_BI"
+    },
     "upstream": {
-      "sourceVirtualViews": ["VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"]
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~5B41092CB4ADC388D9C7720E678582F6"
+      ]
     }
   },
   {
@@ -93,17 +151,30 @@
           "chartType": "OTHER"
         }
       ],
-      "powerBiDashboardType": "DASHBOARD",
-      "title": "Dashboard A"
+      "title": "Dashboard A",
+      "powerBi": {
+        "powerBiDashboardType": "DASHBOARD",
+        "workspace": {
+          "id": "workspace-1",
+          "name": "Workspace"
+        },
+        "app": {
+          "id": "app-2",
+          "name": "bar app"
+        }
+      }
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/dashboard/dashboard-1"
     },
-    "logicalId": { "dashboardId": "dashboard-1", "platform": "POWER_BI" },
+    "logicalId": {
+      "dashboardId": "dashboard-1",
+      "platform": "POWER_BI"
+    },
     "upstream": {
       "sourceVirtualViews": [
-        "VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3",
-        "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
+        "VIRTUAL_VIEW~F8B7E3046996D3C72700BBF7B394518F",
+        "VIRTUAL_VIEW~5B41092CB4ADC388D9C7720E678582F6"
       ]
     }
   },
@@ -121,17 +192,26 @@
           "chartType": "OTHER"
         }
       ],
-      "powerBiDashboardType": "DASHBOARD",
-      "title": "Dashboard B"
+      "title": "Dashboard B",
+      "powerBi": {
+        "powerBiDashboardType": "DASHBOARD",
+        "workspace": {
+          "id": "workspace-1",
+          "name": "Workspace"
+        }
+      }
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/dashboard/dashboard-2"
     },
-    "logicalId": { "dashboardId": "dashboard-2", "platform": "POWER_BI" },
+    "logicalId": {
+      "dashboardId": "dashboard-2",
+      "platform": "POWER_BI"
+    },
     "upstream": {
       "sourceVirtualViews": [
-        "VIRTUAL_VIEW~2322FD3B8CE1D90D543947822929BBF3",
-        "VIRTUAL_VIEW~F072F23068858B3959BEE11F79071794"
+        "VIRTUAL_VIEW~F8B7E3046996D3C72700BBF7B394518F",
+        "VIRTUAL_VIEW~5B41092CB4ADC388D9C7720E678582F6"
       ]
     }
   }
