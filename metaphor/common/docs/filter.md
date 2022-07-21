@@ -42,7 +42,7 @@ Use wildcard characters (`*` and `?`) to match specific patterns. For example, t
 ```yaml
 filter:
   excludes:
-    *:
-      staging_*:
-      *_temp:
+    '*':
+      'staging_*':
+      '*_temp':
 ```
