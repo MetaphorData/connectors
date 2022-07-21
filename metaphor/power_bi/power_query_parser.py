@@ -16,6 +16,8 @@ class PowerQueryParser:
     """
 
     def __init__(self, power_query):
+        # Replace the escape sequence for power query
+        # Doc: https://docs.microsoft.com/en-us/powerquery-m/m-spec-lexical-structure#character-escape-sequences
         self._power_query = re.sub(r"#\((cr|lf|tab)\)", " ", power_query)
 
     def _parse_power_query(self) -> EntityId:
