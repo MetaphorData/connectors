@@ -55,19 +55,36 @@ class BigQueryExtractor(BaseExtractor):
 
         with ThreadPoolExecutor(max_workers=config.max_concurrency) as executor:
 
-            def list_table(dataset_ref) -> Iterable[Dataset]:
+            def list_table(dataset_ref: bigquery.DatasetReference) -> List[Dataset]:
                 def get_table(table) -> Dataset:
                     bq_table = client.get_table(table)
                     return self._parse_table(client.project, bq_table)
 
-                return executor.map(
-                    get_table,
-                    BigQueryExtractor._list_tables_with_filter(
-                        dataset_ref, client, dataset_filter
-                    ),
-                )
+                datasets = [
+                    d
+                    for d in executor.map(
+                        get_table,
+                        BigQueryExtractor._list_tables_with_filter(
+                            dataset_ref, client, dataset_filter
+                        ),
+                    )
+                ]
 
-            def flatten(result: Iterable[Iterable[Dataset]]) -> List[Dataset]:
+                table_ddl = client.query(
+                    f"select table_name, ddl from `{dataset_ref.project}.{dataset_ref.dataset_id}.INFORMATION_SCHEMA.TABLES`"
+                ).result()
+
+                for table_name, ddl in table_ddl:
+                    dataset = next(
+                        d
+                        for d in datasets
+                        if d.logical_id.name.split(".")[-1] == str(table_name).lower()
+                    )
+                    dataset.schema.sql_schema.table_schema = ddl
+
+                return datasets
+
+            def flatten(result: Iterable[List[Dataset]]) -> List[Dataset]:
                 return [d for datasets in result for d in datasets]
 
             return flatten(
