@@ -32,7 +32,7 @@ def test_parse_dataset_bigquery():
 
 
 def test_parse_native_query_parameters():
-    exp = '''let\n    Source = Value.NativeQuery(Snowflake.Databases("some-account.dev.snowflakecomputing.com","WH_CA_USERS"){[Name="DB_PRD_CONFORMED"]}[Data], "SELECT table1.id, table3.name#(lf)FROM db.foo.table1 AS table1#(lf)INNER JOIN db.bar.account AS account ON account.id = table1.account_id#(lf)INNER JOIN db.foo.table3 AS table3 ON table3.id = table1.product_id#(lf)WHERE table1.name in ('A','B')#(lf)ORDER BY 3", null, [EnableFolding=true]),\nin\n    #"Source"'''
+    exp = '''let\n    Source = Value.NativeQuery(Snowflake.Databases("some-account.dev.snowflakecomputing.com","WH_CA_USERS"){[Name="DB"]}[Data], "SELECT table1.id, table3.name#(lf)FROM db.foo.table1 AS table1#(lf)INNER JOIN db.bar.account AS account ON account.id = table1.account_id#(lf)INNER JOIN db.foo.table3 AS table3 ON table3.id = table1.product_id#(lf)WHERE table1.name in ('A','B')#(lf)ORDER BY 3", null, [EnableFolding=true]),\nin\n    #"Source"'''
     assert PowerQueryParser.parse_source_datasets(exp) == [
         to_dataset_entity_id(
             "db.foo.table1",
@@ -50,3 +50,18 @@ def test_parse_native_query_parameters():
             account="some-account.dev",
         ),
     ]
+
+
+def test_extract_function_parameter():
+    assert PowerQueryParser.extract_function_parameter(
+        'int a = 1;\n printf("%d", a);', "printf"
+    ) == ['"%d"', "a"]
+
+    assert PowerQueryParser.extract_function_parameter(
+        '  abc.foo(20, (1+2), "SELECT foo from TABLE")', "foo"
+    ) == ["20", "(1+2)", '"SELECT foo from TABLE"']
+
+    assert PowerQueryParser.extract_function_parameter(
+        '  abc.foo(20, \n    \t(1+2), \n   "SELECT foo from TABLE  ", "())), asd")',
+        "foo",
+    ) == ["20", "(1+2)", '"SELECT foo from TABLE  "', '"())), asd"']

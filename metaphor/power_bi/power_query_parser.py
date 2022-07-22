@@ -74,12 +74,17 @@ class PowerQueryParser:
         Output: ["\"%d\"", "a"]
         """
 
-        start = index = text.find(function_name) + len(function_name)
         left_parentheses_count, in_quote = 0, False
+        start = index = text.find(function_name) + len(function_name)
         parameters = []
 
+        # Skip to the first char of first parameter
+        while start < len(text) and (text[start] == "(" or text[start].isspace()):
+            start += 1
+
         def slice_with_ltrim(text: str, start: int, end: int):
-            while text[start].isspace() or text[start] == "(":
+            # Trim spaces and the left parentheses
+            while start < end and text[start].isspace():
                 start += 1
             return text[start:end]
 
@@ -87,23 +92,25 @@ class PowerQueryParser:
 
             ch = text[index]
 
-            if ch == "(":
-                left_parentheses_count += 1
-            elif ch == ")":
-                left_parentheses_count -= 1
-            elif ch == '"':
+            if ch == '"':
                 in_quote = not in_quote
-            elif left_parentheses_count == 1 and in_quote is False and ch == ",":
-                # Parameter should be in the first level, and not in quoted-string
-                parameters.append(slice_with_ltrim(text, start, index))
-                start = index + 1
+            elif not in_quote:
+                if ch == "(":
+                    left_parentheses_count += 1
+                elif ch == ")":
+                    left_parentheses_count -= 1
+                elif left_parentheses_count == 1 and in_quote is False and ch == ",":
+                    # Parameter should be in the first level, and not in quoted-string
+                    parameters.append(slice_with_ltrim(text, start, index))
+                    start = index + 1
 
             if index >= len(text) or (not ch.isspace() and left_parentheses_count == 0):
                 break
 
             index += 1
+
         parameters.append(slice_with_ltrim(text, start, index))
-        assert len(parameters) >= 2, "expecting at least two parameter"
+
         return parameters
 
     @staticmethod
@@ -143,6 +150,8 @@ class PowerQueryParser:
         parameters = PowerQueryParser.extract_function_parameter(
             power_query, "NativeQuery"
         )
+        assert len(parameters) >= 2, "expecting at least two parameter for NativeQuery"
+
         platform, account = PowerQueryParser.parse_platform(parameters[0])
         tables = PowerQueryParser.parse_tables(parameters[1])
 
