@@ -15,15 +15,9 @@ class PowerQueryParser:
     A simple PowerQuery parser, doc: https://docs.microsoft.com/en-us/powerquery-m/power-query-m-language-specification
     """
 
-    def __init__(self, power_query):
-        # Replace the escape sequence for power query
-        # Doc: https://docs.microsoft.com/en-us/powerquery-m/m-spec-lexical-structure#character-escape-sequences
-        self._power_query = re.sub(r"#\((cr|lf|tab)\)", " ", power_query)
-
-    def _parse_power_query(self) -> EntityId:
-        expression = self._power_query
-
-        lines = expression.split("\n")
+    @staticmethod
+    def parse_power_query(power_query) -> EntityId:
+        lines = power_query.split("\n")
         platform_pattern = re.compile(r"Source = (\w+).")
         match = platform_pattern.search(lines[1])
         assert match, "Can't parse platform from power query expression."
@@ -79,6 +73,7 @@ class PowerQueryParser:
         Input: 'int a = 1;\n printf("%d", a);'
         Output: ["\"%d\"", "a"]
         """
+
         start = index = text.find(function_name) + len(function_name)
         left_parentheses_count, in_quote = 0, False
         parameters = []
@@ -143,9 +138,10 @@ class PowerQueryParser:
 
         return tables
 
-    def _parse_native_query(self):
+    @staticmethod
+    def parse_native_query(power_query: str) -> List[EntityId]:
         parameters = PowerQueryParser.extract_function_parameter(
-            self._power_query, "NativeQuery"
+            power_query, "NativeQuery"
         )
         platform, account = PowerQueryParser.parse_platform(parameters[0])
         tables = PowerQueryParser.parse_tables(parameters[1])
@@ -155,13 +151,20 @@ class PowerQueryParser:
             for db, schema, table in tables
         ]
 
-    def source_datasets(self) -> List[EntityId]:
-        if "Value.NativeQuery(" in self._power_query:
-            return self._parse_native_query()
+    @staticmethod
+    def parse_source_datasets(power_query: str) -> List[EntityId]:
+        # Replace the the control character escape sequence for power query
+        # Doc: https://docs.microsoft.com/en-us/powerquery-m/m-spec-lexical-structure#character-escape-sequences
+        power_query = re.sub(r"#\((cr|lf|tab)(,(cr|lf|tab))*\)", " ", power_query)
+
+        if "Value.NativeQuery(" in power_query:
+            return PowerQueryParser.parse_native_query(power_query)
+
         try:
-            return [self._parse_power_query()]
+            return [PowerQueryParser.parse_power_query(power_query)]
         except AssertionError:
-            logger.warning(f"Parsing upstream fail, exp: {self._power_query}")
+            logger.warning(f"Parsing upstream fail, exp: {power_query}")
         except IndexError:
-            logger.warning(f"Parsing upstream fail, exp: {self._power_query}")
+            logger.warning(f"Parsing upstream fail, exp: {power_query}")
+
         return []

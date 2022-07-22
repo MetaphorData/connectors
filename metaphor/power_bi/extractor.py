@@ -378,7 +378,7 @@ class PowerBIExtractor(BaseExtractor):
             source_datasets = [
                 str(dataset)
                 for source in sources
-                for dataset in PowerQueryParser(source).source_datasets()
+                for dataset in PowerQueryParser.parse_source_datasets(source)
             ]
 
             ds = dataset_map.get(wds.id, None)
