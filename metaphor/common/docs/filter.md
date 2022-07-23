@@ -46,3 +46,5 @@ filter:
       'staging_*':
       '*_temp':
 ```
+
+> Note: You must quote strings that start with wildcards or they'll be treated as [YAML aliases](https://www.educative.io/blog/advanced-yaml-syntax-cheatsheet#anchors).
