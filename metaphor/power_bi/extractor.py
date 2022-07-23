@@ -453,15 +453,9 @@ class PowerBIExtractor(BaseExtractor):
                 logger.warn(f"Skipping invalid report {wi_report.id}")
                 continue
 
-            pbi_info = PowerBIInfo(
-                power_bi_dashboard_type=PowerBIDashboardType.REPORT,
-                workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+            pbi_info = self._make_power_bi_info(
+                PowerBIDashboardType.REPORT, workspace, wi_report.appId, app_map
             )
-
-            if wi_report.appId is not None:
-                app = app_map.get(wi_report.appId)
-                if app is not None:
-                    pbi_info.app = PbiApp(id=app.id, name=app.name)
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -510,15 +504,9 @@ class PowerBIExtractor(BaseExtractor):
                 logger.warn(f"Skipping invalid dashboard {wi_dashboard.id}")
                 continue
 
-            pbi_info = PowerBIInfo(
-                power_bi_dashboard_type=PowerBIDashboardType.DASHBOARD,
-                workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+            pbi_info = self._make_power_bi_info(
+                PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard.appId, app_map
             )
-
-            if wi_dashboard.appId is not None:
-                app = app_map.get(wi_dashboard.appId)
-                if app is not None:
-                    pbi_info.app = PbiApp(id=app.id, name=app.name)
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -536,6 +524,25 @@ class PowerBIExtractor(BaseExtractor):
                 upstream=DashboardUpstream(source_virtual_views=unique_list(upstream)),
             )
             self._dashboards[wi_dashboard.id] = dashboard
+
+    def _make_power_bi_info(
+        self,
+        type: PowerBIDashboardType,
+        workspace: WorkspaceInfo,
+        app_id: Optional[str],
+        app_map: Dict[str, PowerBIApp],
+    ) -> PowerBIInfo:
+        pbi_info = PowerBIInfo(
+            power_bi_dashboard_type=type,
+            workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+        )
+
+        if app_id is not None:
+            app = app_map.get(app_id)
+            if app is not None:
+                pbi_info.app = PbiApp(id=app.id, name=app.name)
+
+        return pbi_info
 
     @staticmethod
     def parse_power_query(expression: str) -> EntityId:
