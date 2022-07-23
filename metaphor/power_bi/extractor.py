@@ -4,15 +4,8 @@ import tempfile
 from time import sleep
 from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
 
-from metaphor.models.crawler_run_metadata import Platform
-
-try:
-    import msal
-except ImportError:
-    print("Please install metaphor[power_bi] extra\n")
-    raise
-
 import requests
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
     ChartType,
@@ -47,6 +40,14 @@ from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import chunks, unique_list
 from metaphor.power_bi.config import PowerBIRunConfig
+from metaphor.power_bi.power_query_parser import PowerQueryParser
+
+try:
+    import msal
+except ImportError:
+    print("Please install metaphor[power_bi] extra\n")
+    raise
+
 
 logger = get_logger(__name__)
 
@@ -371,7 +372,7 @@ class PowerBIExtractor(BaseExtractor):
         dataset_map = {d.id: d for d in self.client.get_datasets(workspace.id)}
 
         for wds in workspace.datasets:
-            source_datasets = []
+            sources = []
             tables = []
             for table in wds.tables:
                 tables.append(
@@ -389,26 +390,13 @@ class PowerBIExtractor(BaseExtractor):
                 )
 
                 for source in table.source:
-                    power_query_text = source["expression"]
+                    sources.append(source["expression"])
 
-                    if "Value.NativeQuery(" in power_query_text:
-                        logger.warning(
-                            f"Skip {table.name}, because it is created from Custom SQL"
-                        )
-                        continue
-                    try:
-                        entity_id = str(
-                            PowerBIExtractor.parse_power_query(power_query_text)
-                        )
-                        source_datasets.append(entity_id)
-                    except AssertionError:
-                        logger.warning(
-                            f"Parsing upstream fail, exp: {power_query_text}"
-                        )
-                    except IndexError:
-                        logger.warning(
-                            f"Parsing upstream fail, exp: {power_query_text}"
-                        )
+            source_datasets = [
+                str(dataset)
+                for source in sources
+                for dataset in PowerQueryParser.parse_source_datasets(source)
+            ]
 
             ds = dataset_map.get(wds.id, None)
             if ds is None:
