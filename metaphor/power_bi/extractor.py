@@ -17,13 +17,15 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     EntityType,
 )
+from metaphor.models.metadata_change_event import PowerBIApp as PbiApp
 from metaphor.models.metadata_change_event import PowerBIColumn as PbiColumn
 from metaphor.models.metadata_change_event import PowerBIDashboardType
 from metaphor.models.metadata_change_event import (
     PowerBIDataset as VirtualViewPowerBIDataset,
 )
-from metaphor.models.metadata_change_event import PowerBIDatasetTable
+from metaphor.models.metadata_change_event import PowerBIDatasetTable, PowerBIInfo
 from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
+from metaphor.models.metadata_change_event import PowerBIWorkspace as PbiWorkspace
 from metaphor.models.metadata_change_event import (
     SourceInfo,
     VirtualView,
@@ -48,6 +50,12 @@ except ImportError:
 
 
 logger = get_logger(__name__)
+
+
+class PowerBIApp(BaseModel):
+    id: str
+    name: str
+    workspaceId: str
 
 
 class PowerBIDataSource(BaseModel):
@@ -123,12 +131,14 @@ class WorkspaceInfoDataset(BaseModel):
 
 
 class WorkspaceInfoDashboard(BaseModel):
-    displayName: str
     id: str
+    appId: Optional[str] = None
+    displayName: str
 
 
 class WorkspaceInfoReport(BaseModel):
     id: str
+    appId: Optional[str] = None
     name: str
     datasetId: Optional[str] = None
     description: str = ""
@@ -179,6 +189,13 @@ class PowerBIClient:
         url = f"{self.API_ENDPOINT}/admin/groups?$top=5000&$filter={PowerBIClient.GROUPS_FILTER}"
         return self._call_get(
             url, List[PowerBIWorkspace], transform_response=lambda r: r.json()["value"]
+        )
+
+    def get_apps(self) -> List[PowerBIApp]:
+        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/apps-get-apps-as-admin
+        url = f"{self.API_ENDPOINT}/admin/apps"
+        return self._call_get(
+            url, List[PowerBIApp], transform_response=lambda r: r.json()["value"]
         )
 
     def get_tiles(self, dashboard_id: str) -> List[PowerBITile]:
@@ -326,19 +343,21 @@ class PowerBIExtractor(BaseExtractor):
 
         logger.info(f"Process {len(config.workspaces)} workspaces: {config.workspaces}")
 
+        apps = self.client.get_apps()
+        app_map = {app.id: app for app in apps}
+
         for workspace_ids in chunks(
             config.workspaces, PowerBIClient.MAX_WORKSPACES_PER_SCAN
         ):
-            for info in self.client.get_workspace_info(workspace_ids):
-                workspace_id = info.id
+            for workspace in self.client.get_workspace_info(workspace_ids):
                 logger.info(
-                    f"Fetching metadata from Power BI workspace ID: {workspace_id}"
+                    f"Fetching metadata from Power BI workspace ID: {workspace.id}"
                 )
 
                 try:
-                    self.map_wi_datasets_to_virtual_views(workspace_id, info.datasets)
-                    self.map_wi_reports_to_dashboard(workspace_id, info.reports)
-                    self.map_wi_dashboards_to_dashboard(workspace_id, info.dashboards)
+                    self.map_wi_datasets_to_virtual_views(workspace)
+                    self.map_wi_reports_to_dashboard(workspace, app_map)
+                    self.map_wi_dashboards_to_dashboard(workspace, app_map)
                 except Exception as e:
                     logger.exception(e)
 
@@ -348,13 +367,11 @@ class PowerBIExtractor(BaseExtractor):
 
         return entities
 
-    def map_wi_datasets_to_virtual_views(
-        self, workspace_id: str, wi_datasets: List[WorkspaceInfoDataset]
-    ) -> None:
+    def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
 
-        dataset_map = {d.id: d for d in self.client.get_datasets(workspace_id)}
+        dataset_map = {d.id: d for d in self.client.get_datasets(workspace.id)}
 
-        for wds in wi_datasets:
+        for wds in workspace.datasets:
             sources = []
             tables = []
             for table in wds.tables:
@@ -402,12 +419,12 @@ class PowerBIExtractor(BaseExtractor):
             self._virtual_views[wds.id] = virtual_view
 
     def map_wi_reports_to_dashboard(
-        self, workspace_id: str, wi_reports: List[WorkspaceInfoReport]
+        self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
     ) -> None:
 
-        report_map = {r.id: r for r in self.client.get_reports(workspace_id)}
+        report_map = {r.id: r for r in self.client.get_reports(workspace.id)}
 
-        for wi_report in wi_reports:
+        for wi_report in workspace.reports:
             if wi_report.datasetId is None:
                 logger.warn(f"Skipping report without datasetId: {wi_report.id}")
                 continue
@@ -424,6 +441,10 @@ class PowerBIExtractor(BaseExtractor):
                 logger.warn(f"Skipping invalid report {wi_report.id}")
                 continue
 
+            pbi_info = self._make_power_bi_info(
+                PowerBIDashboardType.REPORT, workspace, wi_report.appId, app_map
+            )
+
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_report.id,
@@ -431,8 +452,8 @@ class PowerBIExtractor(BaseExtractor):
                 ),
                 dashboard_info=DashboardInfo(
                     description=wi_report.description,
-                    power_bi_dashboard_type=PowerBIDashboardType.REPORT,
                     title=wi_report.name,
+                    power_bi=pbi_info,
                 ),
                 source_info=SourceInfo(
                     main_url=report.webUrl,
@@ -442,12 +463,12 @@ class PowerBIExtractor(BaseExtractor):
             self._dashboards[wi_report.id] = dashboard
 
     def map_wi_dashboards_to_dashboard(
-        self, workspace_id: str, wi_dashboards: List[WorkspaceInfoDashboard]
+        self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
     ) -> None:
 
-        dashboard_map = {d.id: d for d in self.client.get_dashboards(workspace_id)}
+        dashboard_map = {d.id: d for d in self.client.get_dashboards(workspace.id)}
 
-        for wi_dashboard in wi_dashboards:
+        for wi_dashboard in workspace.dashboards:
             tiles = self.client.get_tiles(wi_dashboard.id)
             upstream = []
             for tile in tiles:
@@ -471,6 +492,10 @@ class PowerBIExtractor(BaseExtractor):
                 logger.warn(f"Skipping invalid dashboard {wi_dashboard.id}")
                 continue
 
+            pbi_info = self._make_power_bi_info(
+                PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard.appId, app_map
+            )
+
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_dashboard.id,
@@ -479,7 +504,7 @@ class PowerBIExtractor(BaseExtractor):
                 dashboard_info=DashboardInfo(
                     title=wi_dashboard.displayName,
                     charts=self.transform_tiles_to_charts(tiles),
-                    power_bi_dashboard_type=PowerBIDashboardType.DASHBOARD,
+                    power_bi=pbi_info,
                 ),
                 source_info=SourceInfo(
                     main_url=pbi_dashboard.webUrl,
@@ -487,6 +512,25 @@ class PowerBIExtractor(BaseExtractor):
                 upstream=DashboardUpstream(source_virtual_views=unique_list(upstream)),
             )
             self._dashboards[wi_dashboard.id] = dashboard
+
+    def _make_power_bi_info(
+        self,
+        type: PowerBIDashboardType,
+        workspace: WorkspaceInfo,
+        app_id: Optional[str],
+        app_map: Dict[str, PowerBIApp],
+    ) -> PowerBIInfo:
+        pbi_info = PowerBIInfo(
+            power_bi_dashboard_type=type,
+            workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+        )
+
+        if app_id is not None:
+            app = app_map.get(app_id)
+            if app is not None:
+                pbi_info.app = PbiApp(id=app.id, name=app.name)
+
+        return pbi_info
 
     @staticmethod
     def parse_power_query(expression: str) -> EntityId:
