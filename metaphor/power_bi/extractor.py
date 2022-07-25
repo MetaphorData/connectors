@@ -193,7 +193,7 @@ class PowerBIClient:
 
     def get_apps(self) -> List[PowerBIApp]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/apps-get-apps-as-admin
-        url = f"{self.API_ENDPOINT}/admin/apps"
+        url = f"{self.API_ENDPOINT}/admin/apps?$top=5000"
         return self._call_get(
             url, List[PowerBIApp], transform_response=lambda r: r.json()["value"]
         )
