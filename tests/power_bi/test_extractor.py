@@ -135,8 +135,8 @@ async def test_extractor(test_root_dir):
                             PowerBITable(
                                 name="table1",
                                 columns=[
-                                    PowerBITableColumn(name="col1", datatype="string"),
-                                    PowerBITableColumn(name="col2", datatype="int"),
+                                    PowerBITableColumn(name="col1", dataType="string"),
+                                    PowerBITableColumn(name="col2", dataType="int"),
                                 ],
                                 measures=[
                                     PowerBITableMeasure(
@@ -163,8 +163,8 @@ async def test_extractor(test_root_dir):
                             PowerBITable(
                                 name="table2",
                                 columns=[
-                                    PowerBITableColumn(name="col1", datatype="string"),
-                                    PowerBITableColumn(name="col2", datatype="int"),
+                                    PowerBITableColumn(name="col1", dataType="string"),
+                                    PowerBITableColumn(name="col2", dataType="int"),
                                 ],
                                 measures=[],
                                 source=[
@@ -176,8 +176,8 @@ async def test_extractor(test_root_dir):
                             PowerBITable(
                                 name="table2",
                                 columns=[
-                                    PowerBITableColumn(name="col1", datatype="string"),
-                                    PowerBITableColumn(name="col2", datatype="int"),
+                                    PowerBITableColumn(name="col1", dataType="string"),
+                                    PowerBITableColumn(name="col2", dataType="int"),
                                 ],
                                 measures=[],
                                 source=[
