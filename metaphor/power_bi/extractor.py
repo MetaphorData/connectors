@@ -102,7 +102,7 @@ class PowerBITile(BaseModel):
 
 class PowerBITableColumn(BaseModel):
     name: str
-    datatype: str = "unknown"
+    dataType: str = "unknown"
 
 
 class PowerBITableMeasure(BaseModel):
@@ -378,7 +378,7 @@ class PowerBIExtractor(BaseExtractor):
                 tables.append(
                     PowerBIDatasetTable(
                         columns=[
-                            PbiColumn(field=c.name, type=c.datatype)
+                            PbiColumn(field=c.name, type=c.dataType)
                             for c in table.columns
                         ],
                         measures=[
