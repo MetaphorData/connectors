@@ -128,6 +128,8 @@ class PowerQueryParser:
             platform = DataPlatform.BIGQUERY
         elif "redshift" in lower_exp:
             platform = DataPlatform.REDSHIFT
+        else:
+            raise AssertionError(f"Unknown platform for a native query: ${exp}")
 
         return platform, account
 
@@ -171,9 +173,7 @@ class PowerQueryParser:
 
         try:
             return [PowerQueryParser.parse_power_query(power_query)]
-        except AssertionError:
-            logger.warning(f"Parsing upstream fail, exp: {power_query}")
-        except IndexError:
-            logger.warning(f"Parsing upstream fail, exp: {power_query}")
+        except (AssertionError, IndexError) as error:
+            logger.warning(f"Parsing upstream fail, exp: {power_query}, error: {error}")
 
         return []
