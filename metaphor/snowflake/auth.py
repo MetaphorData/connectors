@@ -7,6 +7,7 @@ from pydantic.dataclasses import dataclass
 from smart_open import open
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.utils import must_set_exactly_one
 
 try:
     import snowflake.connector
@@ -40,6 +41,9 @@ class SnowflakeAuthConfig(BaseConfig):
     # if using key pair authentication
     private_key: Optional[SnowflakeKeyPairAuthConfig] = None
 
+    # role to use when opening a connection
+    role: Optional[str] = None
+
     # database context when opening a connection
     default_database: Optional[str] = None
 
@@ -48,29 +52,13 @@ class SnowflakeAuthConfig(BaseConfig):
 
     @root_validator
     def have_password_or_private_key(cls, values):
-        if values["password"] is None and values["private_key"] is None:
-            raise ValueError("must set either password or private_key")
+        must_set_exactly_one(values, ["password", "private_key"])
         return values
 
 
 def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnection:
-    # either "password" or "private_key" should be set, otherwise pydantic validator will throw error
-
-    # default authenticator
-    if config.password is not None:
-        return snowflake.connector.connect(
-            account=config.account,
-            user=config.user,
-            password=config.password,
-            database=config.default_database,
-            application=METAPHOR_DATA_SNOWFLAKE_CONNECTOR,
-            session_parameters={
-                "QUERY_TAG": config.query_tag,
-                "quoted_identifiers_ignore_case": False,
-            },
-        )
-
     # key pair authentication
+    pkb = None
     if config.private_key is not None:
         passphrase = (
             config.private_key.passphrase.encode()
@@ -89,17 +77,16 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
             encryption_algorithm=serialization.NoEncryption(),
         )
 
-        return snowflake.connector.connect(
-            account=config.account,
-            user=config.user,
-            private_key=pkb,
-            database=config.default_database,
-            application=METAPHOR_DATA_SNOWFLAKE_CONNECTOR,
-            session_parameters={
-                "QUERY_TAG": config.query_tag,
-            },
-        )
-
-    raise ValueError(
-        "Invalid Snowflake configuration, please set either password or private key"
+    return snowflake.connector.connect(
+        account=config.account,
+        user=config.user,
+        password=config.password,
+        private_key=pkb,
+        role=config.role,
+        database=config.default_database,
+        application=METAPHOR_DATA_SNOWFLAKE_CONNECTOR,
+        session_parameters={
+            "QUERY_TAG": config.query_tag,
+            "quoted_identifiers_ignore_case": False,
+        },
     )

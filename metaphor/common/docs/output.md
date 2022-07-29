@@ -1,10 +1,8 @@
-# Common Configurations
-
-## Output
+# Output Config
 
 You can configure the connector to output to files or API.
 
-### Output to Files
+## Output to Files
 
 File-based output is the preferred way as it enables decoupling between the connector and ingestion pipeline. Add the following fragment to your config file:
 
@@ -24,7 +22,7 @@ output:
 
 To write the output to a S3 bucket, you must also set the AWS region & credentials using the [AWS CLI environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html), specifically, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY`.
 
-### Output to API
+## Output to API
 
 You can choose to output the results to an API using the following config:
 

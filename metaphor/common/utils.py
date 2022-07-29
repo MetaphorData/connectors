@@ -1,4 +1,5 @@
 from datetime import datetime, time, timedelta, timezone
+from typing import Dict, List
 
 
 def start_of_day(daysAgo=0) -> datetime:
@@ -17,3 +18,9 @@ def chunks(list, n):
     """Yield successive n-sized chunks from the list."""
     for i in range(0, len(list), n):
         yield list[i : i + n]
+
+
+def must_set_exactly_one(values: Dict, keys: List[str]):
+    not_none = [k for k in keys if values.get(k) is not None]
+    if len(not_none) != 1:
+        raise ValueError(f"must set exactly one of {keys}, found {not_none}")

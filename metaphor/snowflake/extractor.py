@@ -81,6 +81,10 @@ class SnowflakeExtractor(BaseExtractor):
 
             for database in databases:
                 tables = self._fetch_tables(cursor, database, filter)
+                if len(tables) == 0:
+                    logger.info(f"Skip empty database {database}")
+                    continue
+
                 logger.info(f"Include {len(tables)} tables from {database}")
 
                 self._fetch_columns(cursor, database)
@@ -163,7 +167,6 @@ class SnowflakeExtractor(BaseExtractor):
         ) in cursor:
             full_name = dataset_fullname(database, table_schema, table_name)
             if full_name not in self._datasets:
-                logger.warning(f"Table {full_name} not found")
                 continue
 
             dataset = self._datasets[full_name]
@@ -199,8 +202,16 @@ class SnowflakeExtractor(BaseExtractor):
             params.append(fullname)
             ddl_tables.append(fullname)
 
+        query = f"SELECT {','.join(queries)}"
+
         cursor = conn.cursor(DictCursor)
-        cursor.execute(f"SELECT {','.join(queries)}", tuple(params))
+
+        try:
+            cursor.execute(query, tuple(params))
+        except Exception as e:
+            logger.exception(f"Failed to execute query:\n{query}\n{e}")
+            return
+
         results = cursor.fetchone()
         assert isinstance(results, Mapping)
         cursor.close()

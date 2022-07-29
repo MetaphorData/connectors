@@ -24,6 +24,19 @@ def test_include_table_empty_filter():
     assert filter.include_table("db2", "boo", "bar")
 
 
+def test_include_table_glob_patterns():
+
+    filter = DatasetFilter(
+        includes={"db?": {"schema*": set(["*"])}},
+        excludes=None,
+    )
+
+    assert filter.include_table("db1", "schema1", "table1")
+    assert filter.include_table("db2", "schema2", "table2")
+    assert not filter.include_table("db1", "foo", "bar")
+    assert not filter.include_table("db_extra", "schema1", "table1")
+
+
 def test_include_table_includes_only():
 
     filter = DatasetFilter(
