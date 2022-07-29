@@ -48,6 +48,9 @@ def test_parse_log(test_root_dir):
                 BigQueryResource(
                     project_id="metaphor-data", dataset_id="test", table_id="yi_tests3"
                 ),
+                BigQueryResource(
+                    project_id="metaphor-data", dataset_id="test", table_id="yi_tests"
+                ),
             ],
             destination_table=BigQueryResource(
                 project_id="metaphor-data", dataset_id="test", table_id="yi_tests"

@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta, timezone
 from typing import Collection, Dict, Optional
 
@@ -47,6 +46,7 @@ class BigQueryLineageExtractor(BaseExtractor):
         self._utc_now = datetime.now().replace(tzinfo=timezone.utc)
         self._datasets: Dict[str, Dataset] = {}
         self._dataset_filter: DatasetFilter = DatasetFilter()
+        self._include_self_lineage = True
 
     async def extract(
         self, config: BigQueryLineageRunConfig
@@ -163,11 +163,16 @@ class BigQueryLineageExtractor(BaseExtractor):
         if job_change is None or job_change.destination_table is None:
             return
 
-        if job_change.destination_table in job_change.source_tables:
-            logger.warning(
-                f"self referencing tables in job {json.dumps(job_change.__dict__, default=str)}"
+        assert job_change.destination_table is not None
+
+        # Filter out self lineage
+        if not self._include_self_lineage:
+            job_change.source_tables = list(
+                filter(
+                    lambda t: t != job_change.destination_table,
+                    job_change.source_tables,
+                )
             )
-            return
 
         destination = job_change.destination_table
         if not self._dataset_filter.include_schema(

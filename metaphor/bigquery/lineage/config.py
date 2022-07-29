@@ -13,4 +13,7 @@ class BigQueryLineageRunConfig(BigQueryRunConfig):
 
     lookback_days: int = 30
 
+    # Whether to include self loop in lineage
+    include_self_lineage: bool = True
+
     batch_size: int = 1000
