@@ -1,8 +1,9 @@
 FROM python:3.8-slim
 
-ADD . /src 
+COPY . /src
 
 RUN pip install '/src[all]'
-RUN pip install 'lumigo_opentelemetry'
+
+RUN rm -rf /src
 
 CMD ["sh", "-c", "python -m ${PY_MODULE} ${CONFIG_FILE}"]
