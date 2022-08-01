@@ -25,7 +25,7 @@ def test_file_sink_no_split(test_root_dir):
         MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo2@bar.com"))),
     ]
 
-    sink = FileSink(FileSinkConfig(directory=directory, bach_size=2))
+    sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
     assert sink.sink(messages) is True
     assert messages == events_from_json(f"{directory}/1-of-1.json")
 
@@ -41,7 +41,7 @@ def test_file_sink_split(test_root_dir):
         MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo5@bar.com"))),
     ]
 
-    sink = FileSink(FileSinkConfig(directory=directory, bach_size=2))
+    sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
     assert sink.sink(messages) is True
     assert messages[0:2] == events_from_json(f"{directory}/1-of-3.json")
     assert messages[2:4] == events_from_json(f"{directory}/2-of-3.json")
@@ -60,7 +60,7 @@ def test_sink_metadata(test_root_dir):
         entity_count=1.0,
     )
 
-    sink = FileSink(FileSinkConfig(directory=directory, bach_size=2))
+    sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
     sink.sink_metadata(metadata)
 
     assert EventUtil.clean_nones(metadata.to_dict()) == load_json(
