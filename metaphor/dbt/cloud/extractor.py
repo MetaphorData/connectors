@@ -3,7 +3,6 @@ import tempfile
 from typing import Collection, Dict, Optional, Tuple
 
 import requests
-from metaphor.models.crawler_run_metadata import Platform
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
@@ -11,6 +10,7 @@ from metaphor.common.logger import get_logger
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.extractor import DbtExtractor
+from metaphor.models.crawler_run_metadata import Platform
 
 logger = get_logger(__name__)
 

@@ -1,6 +1,10 @@
 import json
 from typing import Collection, Dict, List, Optional, Union
 
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
+from metaphor.dbt.config import DbtRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -8,11 +12,6 @@ from metaphor.models.metadata_change_event import (
     Metric,
     VirtualView,
 )
-
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logger import get_logger
-from metaphor.dbt.config import DbtRunConfig
 
 from .catalog_parser_v1 import CatalogParserV1
 from .generated.dbt_catalog_v1 import DbtCatalog

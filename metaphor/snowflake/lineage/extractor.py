@@ -2,13 +2,6 @@ import logging
 import math
 from typing import Collection, Dict, List, Optional, Tuple
 
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetLogicalID,
-    DatasetUpstream,
-)
 from pydantic import parse_raw_as
 
 from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
@@ -17,6 +10,13 @@ from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import start_of_day, unique_list
+from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
+    DatasetUpstream,
+)
 from metaphor.snowflake.accessed_object import AccessedObject
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.lineage.config import SnowflakeLineageRunConfig

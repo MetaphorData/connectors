@@ -1,10 +1,9 @@
 from typing import Collection, Optional
 
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import DataPlatform
-
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.postgresql.profile.extractor import PostgreSQLProfileExtractor
 from metaphor.redshift.profile.config import RedshiftProfileRunConfig

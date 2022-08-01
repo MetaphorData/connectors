@@ -7,8 +7,9 @@ from os import path
 from typing import List, Optional
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
 from pydantic.dataclasses import dataclass
+
+from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
 
 from .event_util import EventUtil
 from .logger import LOG_FILE, get_logger

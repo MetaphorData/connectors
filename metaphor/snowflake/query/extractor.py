@@ -4,14 +4,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Collection, List, Optional, Tuple
 
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetLogicalID,
-    DatasetQueryHistory,
-    QueryInfo,
-)
 from pydantic import parse_raw_as
 
 from metaphor.common.event_util import ENTITY_TYPES
@@ -20,6 +12,14 @@ from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import TableQueryHistoryHeap
 from metaphor.common.utils import start_of_day
+from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
+    DatasetQueryHistory,
+    QueryInfo,
+)
 from metaphor.snowflake.accessed_object import AccessedObject
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.query.config import SnowflakeQueryRunConfig

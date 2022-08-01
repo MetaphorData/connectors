@@ -1,12 +1,11 @@
 from typing import Collection, Optional
 
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import DataPlatform
-
 from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
+from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.postgresql.usage.config import PostgreSQLUsageRunConfig
 

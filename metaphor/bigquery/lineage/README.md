@@ -42,7 +42,7 @@ Follow the [Installation](../../../README.md) instructions to install `metaphor-
 To test the connector locally, change the config file to output to a local path and run the following command
 
 ```bash
-python -m metaphor.bigquery.lineage <config_file>
+metaphor bigquery.lineage <config_file>
 ```
 
 Manually verify the output after the run finishes.

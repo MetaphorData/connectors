@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from metaphor.models.metadata_change_event import QueryInfo
-
 from metaphor.common.query_history import TableQueryHistoryHeap
+from metaphor.models.metadata_change_event import QueryInfo
 
 
 def test_recent_queries():

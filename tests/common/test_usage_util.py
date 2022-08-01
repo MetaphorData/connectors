@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+from metaphor.common.usage_util import UsageUtil
 from metaphor.models.metadata_change_event import (
     AspectType,
     DataPlatform,
@@ -16,8 +17,6 @@ from metaphor.models.metadata_change_event import (
     QueryCounts,
     UserQueryCounts,
 )
-
-from metaphor.common.usage_util import UsageUtil
 
 
 def make_dataset_with_usage(counts: List[int]):

@@ -16,6 +16,11 @@ except ImportError:
     print("Please install metaphor[looker] extra\n")
     raise
 
+from metaphor.common.entity_id import (
+    EntityId,
+    to_dataset_entity_id,
+    to_virtual_view_entity_id,
+)
 from metaphor.models.metadata_change_event import (
     LookerExplore,
     LookerExploreJoin,
@@ -25,12 +30,6 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
-)
-
-from metaphor.common.entity_id import (
-    EntityId,
-    to_dataset_entity_id,
-    to_virtual_view_entity_id,
 )
 
 logger = logging.getLogger(__name__)

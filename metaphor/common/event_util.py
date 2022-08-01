@@ -5,6 +5,8 @@ from importlib import resources
 from typing import Union
 
 import fastjsonschema
+
+from metaphor import models
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
@@ -15,8 +17,6 @@ from metaphor.models.metadata_change_event import (
     Person,
     VirtualView,
 )
-
-from metaphor import models
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Mapping, Optional
 
-from metaphor.models.crawler_run_metadata import Platform
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import DictCursor, SnowflakeCursor
 
@@ -9,6 +8,7 @@ from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.snowflake.auth import connect
 from metaphor.snowflake.config import SnowflakeRunConfig
 from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
@@ -19,6 +19,7 @@ except ImportError:
     print("Please install metaphor[snowflake] extra\n")
     raise
 
+from metaphor.common.extractor import BaseExtractor
 from metaphor.models.metadata_change_event import (
     AspectType,
     DataPlatform,
@@ -33,8 +34,6 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     SQLSchema,
 )
-
-from metaphor.common.extractor import BaseExtractor
 
 logger = get_logger(__name__)
 

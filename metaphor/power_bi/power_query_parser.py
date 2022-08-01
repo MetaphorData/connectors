@@ -1,11 +1,11 @@
 import re
 from typing import List, Optional, Tuple
 
-from metaphor.models.metadata_change_event import DataPlatform
 from sql_metadata import Parser
 
 from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
 from metaphor.common.logger import get_logger
+from metaphor.models.metadata_change_event import DataPlatform
 
 logger = get_logger(__name__)
 

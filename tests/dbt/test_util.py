@@ -1,8 +1,7 @@
-from metaphor.models.metadata_change_event import Ownership
-
 from metaphor.common.entity_id import to_person_entity_id
 from metaphor.dbt.config import MetaOwnership, MetaTag
 from metaphor.dbt.util import get_ownerships_from_meta, get_tags_from_meta
+from metaphor.models.metadata_change_event import Ownership
 
 
 def test_get_ownerships_from_meta(test_root_dir):

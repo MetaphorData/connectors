@@ -1,15 +1,14 @@
 from typing import List
 
+from metaphor.common.event_util import EventUtil
+from metaphor.common.filter import DatasetFilter
+from metaphor.common.utils import start_of_day
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetUsage,
     QueryCount,
     QueryCounts,
 )
-
-from metaphor.common.event_util import EventUtil
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.utils import start_of_day
 from metaphor.snowflake.usage.extractor import SnowflakeUsageExtractor
 from tests.test_utils import load_json
 

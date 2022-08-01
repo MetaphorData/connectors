@@ -2,6 +2,11 @@ from datetime import datetime, timezone
 from typing import Collection, Optional, Type
 
 from freezegun import freeze_time
+from pydantic.dataclasses import dataclass
+
+from metaphor.common.base_config import BaseConfig, OutputConfig
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dashboard,
@@ -10,11 +15,6 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     VirtualView,
 )
-from pydantic.dataclasses import dataclass
-
-from metaphor.common.base_config import BaseConfig, OutputConfig
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 
 
 @dataclass

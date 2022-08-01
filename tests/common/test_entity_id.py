@@ -1,10 +1,9 @@
+from metaphor.common.entity_id import EntityId
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     DatasetLogicalID,
     EntityType,
 )
-
-from metaphor.common.entity_id import EntityId
 
 
 def test_to_str():

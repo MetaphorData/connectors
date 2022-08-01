@@ -8,14 +8,6 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetLogicalID,
-    DatasetUpstream,
-    EntityType,
-)
 from sql_metadata import Parser
 
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
@@ -26,6 +18,14 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
+    DatasetUpstream,
+    EntityType,
+)
 
 logger = get_logger(__name__)
 

@@ -1,6 +1,7 @@
 from typing import Callable, Collection, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
+
 from metaphor.models.crawler_run_metadata import Platform
 
 try:
@@ -9,6 +10,11 @@ except ImportError:
     print("Please install metaphor[postgresql] extra\n")
     raise
 
+from metaphor.common.entity_id import dataset_fullname
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.filter import DatasetFilter
+from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -21,12 +27,6 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SQLSchema,
 )
-
-from metaphor.common.entity_id import dataset_fullname
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.logger import get_logger
 from metaphor.postgresql.config import PostgreSQLRunConfig
 
 logger = get_logger(__name__)

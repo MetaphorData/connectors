@@ -13,11 +13,11 @@ if TYPE_CHECKING:
     from airflow.models.baseoperator import BaseOperator
 
 from airflow.lineage.backend import LineageBackend
-from metaphor.models.metadata_change_event import Dataset, DatasetUpstream, EntityType
 from pydantic.dataclasses import dataclass
 
 from metaphor.airflow_plugin.lineage.entity import MetaphorDataset
 from metaphor.common.entity_id import EntityId
+from metaphor.models.metadata_change_event import Dataset, DatasetUpstream, EntityType
 
 INGESTION_API_MODE = "ingestion-api"
 S3_MODE = "s3"

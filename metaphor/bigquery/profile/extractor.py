@@ -11,6 +11,12 @@ except ImportError:
     raise
 
 
+from metaphor.bigquery.extractor import BigQueryExtractor, build_client
+from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.filter import DatasetFilter
+from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -21,13 +27,6 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     FieldStatistics,
 )
-
-from metaphor.bigquery.extractor import BigQueryExtractor, build_client
-from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
 

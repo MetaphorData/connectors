@@ -1,3 +1,6 @@
+from tableauserverclient import WorkbookItem
+
+from metaphor.common.entity_id import to_dataset_entity_id, to_virtual_view_entity_id
 from metaphor.models.metadata_change_event import (
     Dashboard,
     DashboardInfo,
@@ -8,9 +11,6 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     VirtualViewType,
 )
-from tableauserverclient import WorkbookItem
-
-from metaphor.common.entity_id import to_dataset_entity_id, to_virtual_view_entity_id
 from metaphor.tableau.extractor import TableauExtractor
 from metaphor.tableau.query import WorkbookQueryResponse
 

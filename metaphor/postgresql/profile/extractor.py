@@ -8,6 +8,10 @@ except ImportError:
     print("Please install metaphor[postgresql] extra\n")
     raise
 
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.filter import DatasetFilter
+from metaphor.common.logger import get_logger
+from metaphor.common.sampling import SamplingConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dataset,
@@ -15,11 +19,6 @@ from metaphor.models.metadata_change_event import (
     FieldStatistics,
     MaterializationType,
 )
-
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.logger import get_logger
-from metaphor.common.sampling import SamplingConfig
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.postgresql.profile.config import PostgreSQLProfileRunConfig
 

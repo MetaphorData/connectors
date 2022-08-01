@@ -1,6 +1,23 @@
 import re
 from typing import Dict, List, Optional, Union
 
+from metaphor.common.entity_id import (
+    EntityId,
+    dataset_fullname,
+    to_dataset_entity_id,
+    to_person_entity_id,
+    to_virtual_view_entity_id,
+)
+from metaphor.common.logger import get_logger
+from metaphor.dbt.config import MetaOwnership, MetaTag
+from metaphor.dbt.generated.dbt_manifest_v3 import (
+    CompiledModelNode as CompiledModelNode_v3,
+)
+from metaphor.dbt.generated.dbt_manifest_v3 import ParsedModelNode as ParsedModelNode_v3
+from metaphor.dbt.generated.dbt_manifest_v4 import (
+    CompiledModelNode as CompiledModelNode_v4,
+)
+from metaphor.dbt.generated.dbt_manifest_v4 import ParsedModelNode as ParsedModelNode_v4
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -19,24 +36,6 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-
-from metaphor.common.entity_id import (
-    EntityId,
-    dataset_fullname,
-    to_dataset_entity_id,
-    to_person_entity_id,
-    to_virtual_view_entity_id,
-)
-from metaphor.common.logger import get_logger
-from metaphor.dbt.config import MetaOwnership, MetaTag
-from metaphor.dbt.generated.dbt_manifest_v3 import (
-    CompiledModelNode as CompiledModelNode_v3,
-)
-from metaphor.dbt.generated.dbt_manifest_v3 import ParsedModelNode as ParsedModelNode_v3
-from metaphor.dbt.generated.dbt_manifest_v4 import (
-    CompiledModelNode as CompiledModelNode_v4,
-)
-from metaphor.dbt.generated.dbt_manifest_v4 import ParsedModelNode as ParsedModelNode_v4
 
 logger = get_logger(__name__)
 

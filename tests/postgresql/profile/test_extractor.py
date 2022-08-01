@@ -1,3 +1,4 @@
+from metaphor.common.sampling import SamplingConfig
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -9,8 +10,6 @@ from metaphor.models.metadata_change_event import (
     FieldStatistics,
     SchemaField,
 )
-
-from metaphor.common.sampling import SamplingConfig
 from metaphor.postgresql.profile.extractor import PostgreSQLProfileExtractor
 
 

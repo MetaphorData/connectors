@@ -6,10 +6,9 @@ from datetime import datetime
 from multiprocessing import Process
 from typing import Collection, List, Optional, Type
 
+from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Platform, Status
 from metaphor.models.metadata_change_event import MetadataChangeEvent
-
-from metaphor.common.logger import get_logger
 
 from .api_sink import ApiSink
 from .base_config import BaseConfig

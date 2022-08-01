@@ -37,36 +37,35 @@ Similarly, you can also install the package using `requirements.txt` or `pyproje
 
 Each connector is placed under its own directory under [metaphor](./metaphor) and extends the `metaphor.common.BaseExtractor` class.
 
-| Connector                                                             | Metadata                                 |
-|-----------------------------------------------------------------------|------------------------------------------|  
-| [metaphor.airflow_plugin](metaphor/airflow_plugin/README.md)          | Lineage                                  |
-| [metaphor.bigquery](metaphor/bigquery/README.md)                      | Schema, description, statistics          |
-| [metaphor.bigquery.lineage](metaphor/bigquery/lineage/README.md)      | Lineage                                  |
-| [metaphor.bigquery.profile](metaphor/bigquery/profile/README.md)      | Data profile                             |
-| [metaphor.bigquery.query](metaphor/bigquery/query/README.md)          | Queries                                  |
-| [metaphor.bigquery.usage](metaphor/bigquery/usage/README.md)          | Data usage                               |
-| [metaphor.dbt](metaphor/dbt/README.md)                                | dbt model, test, lineage                 |
-| [metaphor.dbt.cloud](metaphor/dbt/cloud/README.md)                    | dbt model, test, lineage                 |
-| [metaphor.google_directory](metaphor/google_directory/README.md)      | User profile                             |
-| [metaphor.looker](metaphor/looker/README.md)                          | Looker view, explore, dashboard, lineage |
-| [metaphor.manual.governance](metaphor/manual/governance/README.md)    | Ownership, tags                          |
-| [metaphor.manual.lineage](metaphor/manual/lineage/README.md)          | Lineage                                  |
-| [metaphor.metabase](metaphor/metabase/README.md)                      | Dashboard, lineage                       |
-| [metaphor.postgresql](metaphor/postgresql/README.md)                  | Schema, description, statistics          |
-| [metaphor.postgresql.profile](metaphor/postgresql/profile/README.md)  | Data profile                             |
-| [metaphor.postgresql.usage](metaphor/postgresql/usage/README.md)      | Usage                                    |
-| [metaphor.power_bi](metaphor/power_bi/README.md)                      | Dashboard, lineage                       |
-| [metaphor.redshift](metaphor/redshift/README.md)                      | Schema, description, statistics          |
-| [metaphor.redshift.lineage](metaphor/redshift/lineage/README.md)      | Lineage                                  |
-| [metaphor.redshift.profile](metaphor/redshift/profile/README.md)      | Data profile                             |
-| [metaphor.redshift.query](metaphor/redshift/query/README.md)          | Queries                                  |
-| [metaphor.redshift.usage](metaphor/redshift/usage/README.md)          | Usage                                    |
-| [metaphor.snowflake](metaphor/snowflake/README.md)                    | Schema, description, statistics          |
-| [metaphor.snowflake.lineage](metaphor/snowflake/lineage/README.md)    | Lineage                                  |
-| [metaphor.snowflake.profile](metaphor/snowflake/profile/README.md)    | Data profile                             |
-| [metaphor.snowflake.query](metaphor/snowflake/query/README.md)        | Queries                                  |
-| [metaphor.snowflake.usage](metaphor/snowflake/usage/README.md)        | Data usage                               |
-| [metaphor.tableau](metaphor/tableau/README.md)                        | Dashboard, lineage                       |
+| Connector Name                                               | Metadata                                 |
+|--------------------------------------------------------------|------------------------------------------|  
+| [airflow_plugin](metaphor/airflow_plugin/README.md)          | Lineage                                  |
+| [bigquery](metaphor/bigquery/README.md)                      | Schema, description, statistics          |
+| [bigquery.lineage](metaphor/bigquery/lineage/README.md)      | Lineage                                  |
+| [bigquery.profile](metaphor/bigquery/profile/README.md)      | Data profile                             |
+| [bigquery.query](metaphor/bigquery/query/README.md)          | Queries                                  |
+| [bigquery.usage](metaphor/bigquery/usage/README.md)          | Data usage                               |
+| [dbt](metaphor/dbt/README.md)                                | dbt model, test, lineage                 |
+| [dbt.cloud](metaphor/dbt/cloud/README.md)                    | dbt model, test, lineage                 |
+| [looker](metaphor/looker/README.md)                          | Looker view, explore, dashboard, lineage |
+| [manual.governance](metaphor/manual/governance/README.md)    | Ownership, tags                          |
+| [manual.lineage](metaphor/manual/lineage/README.md)          | Lineage                                  |
+| [metabase](metaphor/metabase/README.md)                      | Dashboard, lineage                       |
+| [postgresql](metaphor/postgresql/README.md)                  | Schema, description, statistics          |
+| [postgresql.profile](metaphor/postgresql/profile/README.md)  | Data profile                             |
+| [postgresql.usage](metaphor/postgresql/usage/README.md)      | Usage                                    |
+| [power_bi](metaphor/power_bi/README.md)                      | Dashboard, lineage                       |
+| [redshift](metaphor/redshift/README.md)                      | Schema, description, statistics          |
+| [redshift.lineage](metaphor/redshift/lineage/README.md)      | Lineage                                  |
+| [redshift.profile](metaphor/redshift/profile/README.md)      | Data profile                             |
+| [redshift.query](metaphor/redshift/query/README.md)          | Queries                                  |
+| [redshift.usage](metaphor/redshift/usage/README.md)          | Usage                                    |
+| [snowflake](metaphor/snowflake/README.md)                    | Schema, description, statistics          |
+| [snowflake.lineage](metaphor/snowflake/lineage/README.md)    | Lineage                                  |
+| [snowflake.profile](metaphor/snowflake/profile/README.md)    | Data profile                             |
+| [snowflake.query](metaphor/snowflake/query/README.md)        | Queries                                  |
+| [snowflake.usage](metaphor/snowflake/usage/README.md)        | Data usage                               |
+| [tableau](metaphor/tableau/README.md)                        | Dashboard, lineage                       |
 
 ## Development
 

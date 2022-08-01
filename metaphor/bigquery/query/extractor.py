@@ -1,15 +1,6 @@
 from datetime import timedelta
 from typing import Collection, List, Optional, Set
 
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetLogicalID,
-    DatasetQueryHistory,
-    QueryInfo,
-)
-
 from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.bigquery.query.config import BigQueryQueryRunConfig
 from metaphor.bigquery.utils import LogEntry, build_logging_client
@@ -19,6 +10,14 @@ from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import TableQueryHistoryHeap
 from metaphor.common.utils import start_of_day
+from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
+    DatasetQueryHistory,
+    QueryInfo,
+)
 
 logger = get_logger(__name__)
 

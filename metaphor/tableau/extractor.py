@@ -17,6 +17,14 @@ except ImportError:
     print("Please install metaphor[tableau] extra\n")
     raise
 
+from metaphor.common.entity_id import (
+    EntityId,
+    to_dataset_entity_id,
+    to_virtual_view_entity_id,
+)
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
@@ -33,15 +41,6 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-
-from metaphor.common.entity_id import (
-    EntityId,
-    to_dataset_entity_id,
-    to_virtual_view_entity_id,
-)
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logger import get_logger
 from metaphor.tableau.config import TableauRunConfig
 from metaphor.tableau.query import (
     DatabaseTable,

@@ -1,5 +1,9 @@
 from typing import List, Optional
 
+from metaphor.common.entity_id import EntityId
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
+from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dataset,
@@ -7,11 +11,6 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     MetadataChangeEvent,
 )
-
-from metaphor.common.entity_id import EntityId
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logger import get_logger
-from metaphor.common.utils import unique_list
 
 from .config import ManualLineageConfig
 

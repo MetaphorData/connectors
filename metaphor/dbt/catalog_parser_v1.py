@@ -2,13 +2,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict
 
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetStatistics,
-    VirtualView,
-)
-
 from metaphor.common.logger import get_logger
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.generated.dbt_catalog_v1 import CatalogTable, DbtCatalog
@@ -19,6 +12,12 @@ from metaphor.dbt.util import (
     init_field,
     init_field_doc,
     init_virtual_view,
+)
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetStatistics,
+    VirtualView,
 )
 
 logger = get_logger(__name__)

@@ -1,5 +1,8 @@
 from typing import List, Optional
 
+from metaphor.common.entity_id import to_person_entity_id
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dataset,
@@ -8,10 +11,6 @@ from metaphor.models.metadata_change_event import (
     OwnershipAssignment,
     TagAssignment,
 )
-
-from metaphor.common.entity_id import to_person_entity_id
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logger import get_logger
 
 from .config import ManualGovernanceConfig
 
