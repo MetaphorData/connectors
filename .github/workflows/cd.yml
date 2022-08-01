@@ -23,7 +23,9 @@ jobs:
     name: Get version
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.get-version.outputs.version }}
+      full: ${{ steps.get-version.outputs.full }}
+      major: ${{ steps.get-version.outputs.major }}
+      minor: ${{ steps.get-version.outputs.minor }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -42,7 +44,10 @@ jobs:
             const fs = require('fs');
             const toml = require('toml');
             const pyproject = toml.parse(fs.readFileSync('pyproject.toml')); 
-            core.setOutput('version', pyproject.tool.poetry.version);
+            const version = pyproject.tool.poetry.version;
+            core.setOutput('full', version);
+            core.setOutput('major', version.split('.').slice(0, 1).join('.'));
+            core.setOutput('minor', version.split('.').slice(0, 2).join('.'));
 
   pypi:
     name: Publish to PyPI
@@ -75,7 +80,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
           script: |
-            const version = '${{ needs.version.outputs.version }}';
+            const version = '${{ needs.version.outputs.full }}';
             core.notice(`Tagging ${{ github.sha }} as ${version}`);
 
             try {
@@ -110,4 +115,6 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_IMAGE }}:latest
-            ${{ env.DOCKER_IMAGE }}:${{ needs.version.outputs.version }}
+            ${{ env.DOCKER_IMAGE }}:${{ needs.version.outputs.full }}
+            ${{ env.DOCKER_IMAGE }}:${{ needs.version.outputs.major }}
+            ${{ env.DOCKER_IMAGE }}:${{ needs.version.outputs.minor }}
