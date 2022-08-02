@@ -7,10 +7,18 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel
 
 
+class Tag(BaseModel):
+    name: str
+    isDeleted: bool
+    isHidden: bool
+    isDeprecated: bool
+
+
 class Header(BaseModel):
     id: str
     name: str
     description: Optional[str]
+    tags: List[Tag] = []
 
 
 class Reference(BaseModel):

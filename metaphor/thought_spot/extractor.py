@@ -109,6 +109,11 @@ class ThoughtspotExtractor(BaseExtractor):
     def populate_virtual_views(self, tables: Dict[str, SourceMetadata]):
         for table in tables.values():
             table_id = table.header.id
+            tags = [
+                tag.name
+                for tag in table.header.tags
+                if not (tag.isDeleted or tag.isHidden or tag.isDeprecated)
+            ]
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
@@ -127,6 +132,7 @@ class ThoughtspotExtractor(BaseExtractor):
                     description=table.header.description,
                     type=mapping_data_object_type(table.type),
                     url=f"{self.base_url}/#/data/tables/{table_id}",
+                    tags=tags,
                 ),
             )
             self._virtual_views[table_id] = view
