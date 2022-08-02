@@ -35,7 +35,11 @@
         }
       ],
       "url": "https://powerbi.com/dataset-1",
-      "description": "This is a dataset"
+      "description": "This is a dataset",
+      "workspace": {
+        "id": "workspace-1",
+        "name": "Workspace"
+      }
     }
   },
   {
@@ -80,7 +84,11 @@
         }
       ],
       "url": "https://powerbi.com/dataset-2",
-      "description": "This is another dataset"
+      "description": "This is another dataset",
+      "workspace": {
+        "id": "workspace-1",
+        "name": "Workspace"
+      }
     }
   },
   {
