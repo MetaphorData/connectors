@@ -29,7 +29,7 @@ class FileSinkConfig:
     write_logs: bool = True
 
     # Maximum number of messages in each output file split
-    bach_size: int = 200
+    batch_size: int = 200
 
     # IAM role to assume before writing to file
     assume_role_arn: Optional[str] = None
@@ -43,7 +43,7 @@ class FileSink(Sink):
 
     def __init__(self, config: FileSinkConfig):
         self.path = config.directory.rstrip("/")
-        self.bach_size = config.bach_size
+        self.batch_size = config.batch_size
         self.write_logs = config.write_logs
 
         if config.directory.startswith("s3://"):
@@ -62,13 +62,13 @@ class FileSink(Sink):
         logger.info(f"deleted {len(existing)} MCE files")
 
         # split MCE into batches and write to files
-        bach_size = self.bach_size
-        parts = math.ceil(len(messages) / bach_size)
+        batch_size = self.batch_size
+        parts = math.ceil(len(messages) / batch_size)
 
         for i in range(0, parts):
             self._storage.write_file(
                 f"{self.path}/{i + 1}-of-{parts}.json",
-                json.dumps(messages[i * bach_size : (i + 1) * bach_size]),
+                json.dumps(messages[i * batch_size : (i + 1) * batch_size]),
             )
         logger.info(f"written {parts} MCE files")
 

@@ -8,3 +8,5 @@ output:
   file:
     assume_role_arn: arn
     directory: path
+    write_logs: false
+    batch_size: 2
