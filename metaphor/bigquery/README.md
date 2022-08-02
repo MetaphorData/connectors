@@ -79,7 +79,7 @@ See [Filter Configurations](../common/docs/filter.md) for more information on th
 The max number of concurrent requests to the google cloud API can be configured as follows,
 
 ```yaml
-max_concurrency: <max_number_of_queries> # Default to 10
+max_concurrency: <max_number_of_queries> # Default to 5
 ```
 
 ### Notes
