@@ -6,4 +6,4 @@ RUN pip install '/src[all]'
 
 RUN rm -rf /src
 
-CMD ["sh", "-c", "python -m ${PY_MODULE} ${CONFIG_FILE}"]
+CMD ["sh", "-c", "metaphor ${CONNECTOR} ${CONFIG_FILE}"]
