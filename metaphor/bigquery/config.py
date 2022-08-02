@@ -44,8 +44,8 @@ class BigQueryRunConfig(BaseConfig):
     # Project ID to use. Use the service account's default project if not set
     project_id: Optional[str] = None
 
-    # Max number of concurrent requests to bigquery or logging API, default is 10
-    max_concurrency: int = 10
+    # Max number of concurrent requests to bigquery or logging API, default is 5
+    max_concurrency: int = 5
 
     # Include or exclude specific databases/schemas/tables
     filter: Optional[DatasetFilter] = dataclass_field(
