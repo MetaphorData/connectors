@@ -11,7 +11,7 @@ We recommend creating a dedicated GCP service account with limited permissions f
     - Enter a service account name, e.g., `metaphor-bigquery`.
     - Enter a description, e.g. `Metadata collection for Metaphor app`
     - Click `CREATE AND CONTINUE`.
-    - Select `BigQuery Metadata Viewer` as the role and click `CONTINUE`.
+    - Select `BigQuery Metadata Viewer` and `BigQuery Job User` as the roles and click `CONTINUE`.
     - Click `DONE` to complete the process as there's no need to grant user access to the service account.
 
 Once the service account is created, you need to create a service account key for authentication:
@@ -79,7 +79,7 @@ See [Filter Configurations](../common/docs/filter.md) for more information on th
 The max number of concurrent requests to the google cloud API can be configured as follows,
 
 ```yaml
-max_concurrency: <max_number_of_queries> # Default to 10
+max_concurrency: <max_number_of_queries> # Default to 5
 ```
 
 ### Notes

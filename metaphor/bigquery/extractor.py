@@ -1,5 +1,15 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Collection, Iterable, List, Mapping, Optional, Sequence, Union
+from typing import (
+    Any,
+    Collection,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Union,
+)
 
 try:
     import google.cloud.bigquery as bigquery
@@ -52,15 +62,21 @@ class BigQueryExtractor(BaseExtractor):
         client = build_client(config)
         dataset_filter = config.filter.normalize()
 
-        with ThreadPoolExecutor(max_workers=config.max_concurrency) as executor:
+        fetched_tables: List[Dataset] = []
+        for dataset_ref in BigQueryExtractor._list_datasets_with_filter(
+            client, dataset_filter
+        ):
+            logger.info(f"Fetching tables for {dataset_ref}")
 
-            def list_table(dataset_ref: bigquery.DatasetReference) -> Iterable[Dataset]:
-                def get_table(table) -> Dataset:
+            with ThreadPoolExecutor(max_workers=config.max_concurrency) as executor:
+
+                def get_table(table: bigquery.TableReference) -> Dataset:
+                    logger.info(f"Getting table {table.table_id}")
                     bq_table = client.get_table(table)
                     return self._parse_table(client.project, bq_table)
 
                 # map of table name to Dataset
-                datasets = {
+                tables: Dict[str, Dataset] = {
                     d.logical_id.name.split(".")[-1]: d
                     for d in executor.map(
                         get_table,
@@ -70,30 +86,21 @@ class BigQueryExtractor(BaseExtractor):
                     )
                 }
 
-                table_ddl = client.query(
-                    f"select table_name, ddl from `{dataset_ref.project}.{dataset_ref.dataset_id}.INFORMATION_SCHEMA.TABLES`"
-                ).result()
+            logger.info(f"Getting table DDL for {dataset_ref}")
+            table_ddl = client.query(
+                f"select table_name, ddl from `{dataset_ref.project}.{dataset_ref.dataset_id}.INFORMATION_SCHEMA.TABLES`"
+            ).result()
 
-                for table_name, ddl in table_ddl:
-                    dataset = datasets[str(table_name).lower()]
-                    if not dataset:
-                        logger.error(f"table {table_name} not found for DDL")
-                        continue
-                    dataset.schema.sql_schema.table_schema = ddl
+            for table_name, ddl in table_ddl:
+                table = tables[str(table_name).lower()]
+                if not table:
+                    logger.error(f"table {table_name} not found for DDL")
+                    continue
+                table.schema.sql_schema.table_schema = ddl
 
-                return datasets.values()
+            fetched_tables.extend(tables.values())
 
-            def flatten(result: Iterable[Iterable[Dataset]]) -> List[Dataset]:
-                return [d for datasets in result for d in datasets]
-
-            return flatten(
-                executor.map(
-                    list_table,
-                    BigQueryExtractor._list_datasets_with_filter(
-                        client, dataset_filter
-                    ),
-                )
-            )
+        return fetched_tables
 
     @staticmethod
     def _list_datasets_with_filter(
@@ -107,8 +114,6 @@ class BigQueryExtractor(BaseExtractor):
             dataset_ref = bigquery.DatasetReference(
                 client.project, bq_dataset.dataset_id
             )
-
-            logger.info(f"Found dataset {dataset_ref}")
             yield dataset_ref
 
     @staticmethod
@@ -124,7 +129,6 @@ class BigQueryExtractor(BaseExtractor):
             ):
                 logger.info(f"Skipped table: {table_ref}")
                 continue
-            logger.info(f"Found table {table_ref}")
             yield table_ref
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
