@@ -1,5 +1,4 @@
 import json
-import re
 import tempfile
 from time import sleep
 from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
@@ -7,7 +6,7 @@ from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVa
 import requests
 from pydantic import BaseModel, parse_obj_as
 
-from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
+from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
@@ -21,7 +20,6 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
-    DataPlatform,
     EntityType,
 )
 from metaphor.models.metadata_change_event import PowerBIApp as PbiApp
@@ -413,6 +411,7 @@ class PowerBIExtractor(BaseExtractor):
                     url=ds.webUrl,
                     source_datasets=unique_list(source_datasets),
                     description=wds.description,
+                    workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
                 ),
             )
 
@@ -531,57 +530,6 @@ class PowerBIExtractor(BaseExtractor):
                 pbi_info.app = PbiApp(id=app.id, name=app.name)
 
         return pbi_info
-
-    @staticmethod
-    def parse_power_query(expression: str) -> EntityId:
-        lines = expression.split("\n")
-        platform_pattern = re.compile(r"Source = (\w+).")
-        match = platform_pattern.search(lines[1])
-        assert match, "Can't parse platform from power query expression."
-        platform_str = match.group(1)
-
-        field_pattern = re.compile(r'{\[Name="([\w\-]+)"(.*)\]}')
-
-        def get_field(text: str) -> str:
-            match = field_pattern.search(text)
-            assert match, "Can't parse field from power query expression"
-            return match.group(1)
-
-        account = None
-        if platform_str == "AmazonRedshift":
-            platform = DataPlatform.REDSHIFT
-            db_pattern = re.compile(r"Source = (\w+).Database\((.*)\),$")
-            match = db_pattern.search(lines[1])
-            assert (
-                match
-            ), "Can't parse AmazonRedshift database from power query expression"
-
-            db = match.group(2).split(",")[1].replace('"', "")
-            schema = get_field(lines[2])
-            table = get_field(lines[3])
-        elif platform_str == "Snowflake":
-            platform = DataPlatform.SNOWFLAKE
-            account_pattern = re.compile(r'Snowflake.Databases\("([\w\-\.]+)"')
-
-            # remove trailing snowflakecomputing.com
-            match = account_pattern.search(lines[1])
-            assert match, "Can't parse Snowflake account from power query expression"
-
-            account = ".".join(match.group(1).split(".")[:-2])
-            db = get_field(lines[2])
-            schema = get_field(lines[3])
-            table = get_field(lines[4])
-        elif platform_str == "GoogleBigQuery":
-            platform = DataPlatform.BIGQUERY
-            db = get_field(lines[2])
-            schema = get_field(lines[3])
-            table = get_field(lines[4])
-        else:
-            raise AssertionError(f"Unknown platform ${platform_str}")
-
-        return to_dataset_entity_id(
-            dataset_fullname(db, schema, table), platform, account
-        )
 
     @staticmethod
     def transform_tiles_to_charts(tiles: List[PowerBITile]) -> List[Chart]:
