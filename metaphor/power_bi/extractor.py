@@ -5,6 +5,13 @@ from time import sleep
 from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
 
 import requests
+from pydantic import BaseModel, parse_obj_as
+
+from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
+from metaphor.common.utils import chunks, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
@@ -32,13 +39,6 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-from pydantic import BaseModel, parse_obj_as
-
-from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logger import get_logger
-from metaphor.common.utils import chunks, unique_list
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 

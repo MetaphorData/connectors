@@ -7,6 +7,12 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
+from metaphor.bigquery.config import BigQueryRunConfig
+from metaphor.bigquery.utils import build_client
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.filter import DatasetFilter
+from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -19,13 +25,6 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SQLSchema,
 )
-
-from metaphor.bigquery.config import BigQueryRunConfig
-from metaphor.bigquery.utils import build_client
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.logger import get_logger
 
 logger = get_logger(__name__)
 

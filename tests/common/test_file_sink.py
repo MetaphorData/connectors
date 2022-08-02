@@ -1,15 +1,14 @@
 import tempfile
 from datetime import datetime
 
+from metaphor.common.event_util import EventUtil
+from metaphor.common.file_sink import FileSink, FileSinkConfig
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Status
 from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Person,
     PersonLogicalID,
 )
-
-from metaphor.common.event_util import EventUtil
-from metaphor.common.file_sink import FileSink, FileSinkConfig
 from tests.test_utils import load_json
 
 

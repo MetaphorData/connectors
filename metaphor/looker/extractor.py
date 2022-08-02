@@ -1,9 +1,8 @@
 import os
 from typing import Collection, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-from metaphor.models.crawler_run_metadata import Platform
-
 from metaphor.common.git import clone_repo
+from metaphor.models.crawler_run_metadata import Platform
 
 try:
     import looker_sdk
@@ -13,6 +12,12 @@ except ImportError:
     print("Please install metaphor[looker] extra\n")
     raise
 
+from metaphor.common.entity_id import to_virtual_view_entity_id
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
+from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
+from metaphor.looker.lookml_parser import Model, fullname, parse_project
 from metaphor.models.metadata_change_event import (
     Chart,
     ChartType,
@@ -24,13 +29,6 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     VirtualViewType,
 )
-
-from metaphor.common.entity_id import to_virtual_view_entity_id
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logger import get_logger
-from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
-from metaphor.looker.lookml_parser import Model, fullname, parse_project
 
 logger = get_logger(__name__)
 

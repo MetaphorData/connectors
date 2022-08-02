@@ -1,12 +1,12 @@
 from typing import Dict, Optional
 
-from metaphor.models.metadata_change_event import DataPlatform
 from pydantic import root_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.git import GitRepoConfig
 from metaphor.common.utils import must_set_exactly_one
+from metaphor.models.metadata_change_event import DataPlatform
 
 
 @dataclass

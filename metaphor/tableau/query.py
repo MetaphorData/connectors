@@ -1,7 +1,8 @@
 from typing import Dict, List, Optional
 
-from metaphor.models.metadata_change_event import DataPlatform
 from pydantic import BaseModel, Field
+
+from metaphor.models.metadata_change_event import DataPlatform
 
 connection_type_map: Dict[str, DataPlatform] = {
     "bigquery": DataPlatform.BIGQUERY,

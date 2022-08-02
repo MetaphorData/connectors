@@ -1,10 +1,10 @@
 import pytest
-from metaphor.models.metadata_change_event import DataPlatform
 from pydantic import ValidationError
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.git import GitRepoConfig
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
+from metaphor.models.metadata_change_event import DataPlatform
 
 
 def test_yaml_config(test_root_dir):

@@ -1,3 +1,4 @@
+from metaphor.common.sampling import SamplingConfig
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -6,8 +7,6 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     FieldStatistics,
 )
-
-from metaphor.common.sampling import SamplingConfig
 from metaphor.snowflake.profile.config import ColumnStatistics
 from metaphor.snowflake.profile.extractor import SnowflakeProfileExtractor
 

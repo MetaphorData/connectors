@@ -1,6 +1,19 @@
 from itertools import chain
 from typing import Collection, Dict, List, Optional, Tuple
 
+from pydantic import parse_raw_as
+from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
+from restapisdk.restapisdk_client import RestapisdkClient
+
+from metaphor.common.entity_id import (
+    dataset_fullname,
+    to_dataset_entity_id,
+    to_virtual_view_entity_id,
+)
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
+from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
@@ -16,19 +29,6 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-from pydantic import parse_raw_as
-from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
-from restapisdk.restapisdk_client import RestapisdkClient
-
-from metaphor.common.entity_id import (
-    dataset_fullname,
-    to_dataset_entity_id,
-    to_virtual_view_entity_id,
-)
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logger import get_logger
-from metaphor.common.utils import unique_list
 from metaphor.thought_spot.config import ThoughtspotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadata,

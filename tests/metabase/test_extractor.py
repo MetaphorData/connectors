@@ -1,7 +1,6 @@
-from metaphor.models.metadata_change_event import Chart, ChartType, DataPlatform
-
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.metabase.extractor import DatabaseInfo, MetabaseExtractor
+from metaphor.models.metadata_change_event import Chart, ChartType, DataPlatform
 
 
 def test_parse_database_and_card():

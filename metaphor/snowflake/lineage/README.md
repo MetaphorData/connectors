@@ -25,7 +25,7 @@ Follow the [Installation](../../README.md) instructions to install `metaphor-con
 To test the connector locally, change the config file to output to a local path and run the following command
 
 ```
-python -m metaphor.snowflake.linage <config_file>
+metaphor snowflake.linage <config_file>
 ```
 
 Manually verify the output after the run finishes.

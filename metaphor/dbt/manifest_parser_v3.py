@@ -1,5 +1,10 @@
 from typing import Dict, Union
 
+from pydantic.utils import unique_list
+
+from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
+from metaphor.common.logger import get_logger
+from metaphor.dbt.config import DbtRunConfig
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -13,11 +18,6 @@ from metaphor.models.metadata_change_event import (
     TagAssignment,
     VirtualView,
 )
-from pydantic.utils import unique_list
-
-from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
-from metaphor.common.logger import get_logger
-from metaphor.dbt.config import DbtRunConfig
 
 from .generated.dbt_manifest_v3 import (
     CompiledModelNode,

@@ -12,11 +12,6 @@ from typing import (
     TypeVar,
 )
 
-from metaphor.models.metadata_change_event import (
-    ChartType,
-    DataPlatform,
-    ThoughtSpotDataObjectType,
-)
 from pydantic import parse_obj_as
 from restapisdk.configuration import Environment
 from restapisdk.controllers.metadata_controller import MetadataController
@@ -40,6 +35,11 @@ from restapisdk.restapisdk_client import RestapisdkClient
 
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import chunks
+from metaphor.models.metadata_change_event import (
+    ChartType,
+    DataPlatform,
+    ThoughtSpotDataObjectType,
+)
 from metaphor.thought_spot.config import ThoughtspotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadata,

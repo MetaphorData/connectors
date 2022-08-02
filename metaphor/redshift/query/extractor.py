@@ -1,6 +1,11 @@
 from datetime import timedelta
 from typing import Collection, List, Optional, Set
 
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.filter import DatasetFilter
+from metaphor.common.logger import get_logger
+from metaphor.common.query_history import TableQueryHistoryHeap
+from metaphor.common.utils import start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -9,12 +14,6 @@ from metaphor.models.metadata_change_event import (
     DatasetQueryHistory,
     QueryInfo,
 )
-
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.logger import get_logger
-from metaphor.common.query_history import TableQueryHistoryHeap
-from metaphor.common.utils import start_of_day
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.query.config import RedshiftQueryRunConfig

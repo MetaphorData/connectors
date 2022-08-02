@@ -1,9 +1,9 @@
 from typing import Optional
 
 import attr
-from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 
 from metaphor.common.entity_id import dataset_fullname
+from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 
 
 @attr.s(auto_attribs=True, str=True)

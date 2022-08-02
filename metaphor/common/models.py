@@ -1,9 +1,9 @@
 from typing import Optional
 
-from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 
 
 @dataclass

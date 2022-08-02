@@ -1,6 +1,5 @@
-from metaphor.models.metadata_change_event import DataPlatform
-
 from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 
 

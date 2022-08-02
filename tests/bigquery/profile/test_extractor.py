@@ -1,4 +1,7 @@
 from google.cloud.bigquery import DatasetReference, TableReference
+
+from metaphor.bigquery.profile.extractor import BigQueryProfileExtractor
+from metaphor.common.sampling import SamplingConfig
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -9,9 +12,6 @@ from metaphor.models.metadata_change_event import (
     FieldStatistics,
     SchemaField,
 )
-
-from metaphor.bigquery.profile.extractor import BigQueryProfileExtractor
-from metaphor.common.sampling import SamplingConfig
 
 
 def test_build_profiling_query():

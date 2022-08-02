@@ -1,3 +1,6 @@
+from metaphor.common.entity_id import EntityId
+from metaphor.looker.config import LookerConnectionConfig
+from metaphor.looker.lookml_parser import Explore, Model, parse_project
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     DatasetLogicalID,
@@ -11,10 +14,6 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-
-from metaphor.common.entity_id import EntityId
-from metaphor.looker.config import LookerConnectionConfig
-from metaphor.looker.lookml_parser import Explore, Model, parse_project
 from tests.test_utils import compare_list_ignore_order
 
 connection_map = {

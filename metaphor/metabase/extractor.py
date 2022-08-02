@@ -3,6 +3,13 @@ from dataclasses import dataclass
 from typing import Collection, Dict, List, Optional, Set, Union
 
 import requests
+from sql_metadata import Parser
+
+from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.extractor import BaseExtractor
+from metaphor.common.logger import get_logger
+from metaphor.metabase.config import MetabaseRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
@@ -15,13 +22,6 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     SourceInfo,
 )
-from sql_metadata import Parser
-
-from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.logger import get_logger
-from metaphor.metabase.config import MetabaseRunConfig
 
 logger = get_logger(__name__)
 

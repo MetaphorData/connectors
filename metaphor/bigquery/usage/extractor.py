@@ -3,9 +3,6 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Collection, Dict, List, Optional, Set
 
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import DataPlatform, Dataset
-
 from metaphor.bigquery.usage.config import BigQueryUsageRunConfig
 from metaphor.bigquery.utils import BigQueryResource, LogEntry, build_logging_client
 from metaphor.common.event_util import ENTITY_TYPES
@@ -14,6 +11,8 @@ from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.common.utils import start_of_day
+from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import DataPlatform, Dataset
 
 logger = get_logger(__name__)
 
