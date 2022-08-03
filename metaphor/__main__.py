@@ -1,4 +1,5 @@
 import argparse
+import logging
 from importlib import import_module
 
 
@@ -15,6 +16,7 @@ def main():
     if package_main is None:
         raise ValueError(f"Unable to load {args.package}:main")
 
+    logging.info(f"Executing {args.name} connector with config file {args.config}")
     package_main(args.config)
 
 

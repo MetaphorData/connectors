@@ -57,7 +57,7 @@ class BigQueryExtractor(BaseExtractor):
     async def extract(self, config: BigQueryRunConfig) -> Collection[ENTITY_TYPES]:
         assert isinstance(config, BigQueryExtractor.config_class())
 
-        logger.info("Fetching metadata from BigQuery")
+        logger.info(f"Fetching metadata from BigQuery project {config.project_id}")
 
         client = build_client(config)
         dataset_filter = config.filter.normalize()
