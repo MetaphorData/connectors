@@ -13,6 +13,7 @@ def test_yaml_config(test_root_dir):
         enable_view_lineage=True,
         enable_lineage_from_log=False,
         lookback_days=10,
+        include_self_lineage=False,
         batch_size=1000,
         output=OutputConfig(),
     )

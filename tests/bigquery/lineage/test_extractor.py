@@ -32,7 +32,10 @@ def mock_list_entries(mock_build_log_client, entries):
 @freeze_time("2022-01-27")
 async def test_log_extractor(test_root_dir):
     config = BigQueryLineageRunConfig(
-        output=OutputConfig(), key_path="fake_file", enable_view_lineage=False
+        output=OutputConfig(),
+        key_path="fake_file",
+        enable_view_lineage=False,
+        include_self_lineage=True,
     )
     extractor = BigQueryLineageExtractor()
 
