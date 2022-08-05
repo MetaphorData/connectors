@@ -28,6 +28,9 @@ enable_view_lineage: <boolean>
 # (Optional) Whether to enable parsing audit log to find table lineage information, default True
 enable_lineage_from_log: <boolean>
 
+# (Optional) Whether to include self-referencing loops in lineage, default True
+include_self_lineage: <boolean>
+
 # (Optional) Number of days of logs to extract for lineage analysis. Default to 30.
 lookback_days: <days>
 
