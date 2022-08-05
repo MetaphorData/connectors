@@ -1,9 +1,7 @@
 import asyncio
-import os
 import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime
-from multiprocessing import Process
 from typing import Collection, List, Optional, Type
 
 from metaphor.common.logger import get_logger
@@ -16,8 +14,6 @@ from .event_util import ENTITY_TYPES, EventUtil
 from .file_sink import FileSink
 
 logger = get_logger(__name__)
-
-DEFAULT_TIMEOUT = 3600  # 1 hour
 
 
 class BaseExtractor(ABC):
@@ -40,17 +36,7 @@ class BaseExtractor(ABC):
     def description(self) -> str:
         """Extract metadata and build messages, should be overridden"""
 
-    def run(self, config: BaseConfig):
-        timeout = float(os.environ.get("TIMEOUT", DEFAULT_TIMEOUT))
-
-        process = Process(target=self._run, args=(config,))
-        process.start()
-        process.join(timeout)
-        process.terminate()
-        if process.exitcode is None:
-            raise TimeoutError(f"Process killed after {timeout} seconds")
-
-    def _run(self, config: BaseConfig) -> List[MetadataChangeEvent]:
+    def run(self, config: BaseConfig) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
         start_time = datetime.now()
         logger.info(f"Starting extractor {self.__class__.__name__} at {start_time}")
