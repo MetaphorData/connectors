@@ -45,7 +45,7 @@ class DummyExtractor(BaseExtractor):
 def test_dummy_extractor():
     entities = [Dashboard(), Dataset(), VirtualView()]
     config = DummyRunConfig(dummy_attr=0, output=OutputConfig())
-    events = DummyExtractor(entities)._run(config)
+    events = DummyExtractor(entities).run(config)
 
     assert events == [
         MetadataChangeEvent(
