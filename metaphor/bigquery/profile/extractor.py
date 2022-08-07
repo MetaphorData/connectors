@@ -286,56 +286,6 @@ class BigQueryProfileExtractor(BaseExtractor):
             results
         ), f"Unconsumed elements from results for {dataset.logical_id}"
 
-        """
-        assert (
-            dataset.field_statistics is not None
-            and dataset.field_statistics.field_statistics is not None
-        )
-        fields = dataset.field_statistics.field_statistics
-
-        assert len(results) > 0, f"Empty result for ${dataset.logical_id}"
-
-        row_count = int(results[0])
-        index = 1
-        for field in schema.fields:
-            column = field.field_path
-            data_type = field.native_type
-
-            unique_values = None
-            if not BigQueryProfileExtractor._is_complex(data_type):
-                unique_values = float(results[index])
-                index += 1
-
-            nulls = float(results[index]) if results[index] else 0.0
-            index += 1
-
-            if BigQueryProfileExtractor._is_numeric(data_type):
-                min_value = float(results[index]) if results[index] else None
-                index += 1
-                max_value = float(results[index]) if results[index] else None
-                index += 1
-                avg = float(results[index]) if results[index] else None
-                index += 1
-                stddev = float(results[index]) if results[index] else None
-                index += 1
-            else:
-                min_value, max_value, avg = None, None, None
-
-            dataset.field_statistics.field_statistics.append(
-                FieldStatistics(
-                    field_path=column,
-                    distinct_value_count=unique_values,
-                    null_value_count=nulls,
-                    nonnull_value_count=(row_count - nulls),
-                    min_value=min_value,
-                    max_value=max_value,
-                    average=avg,
-                )
-            )
-
-        assert index == len(results), "index should match number of results"
-        """
-
     # See https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#numeric_types
     @staticmethod
     def _is_numeric(data_type: str) -> bool:
