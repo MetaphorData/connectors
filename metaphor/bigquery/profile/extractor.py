@@ -10,9 +10,9 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
-
 from metaphor.bigquery.extractor import BigQueryExtractor, build_client
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
+from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
@@ -46,6 +46,7 @@ class BigQueryProfileExtractor(BaseExtractor):
 
     def __init__(self):
         self._sampling = None
+        self._column_statistics = None
 
     async def extract(
         self, config: BigQueryProfileRunConfig
@@ -55,6 +56,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         logger.info("Fetching usage info from BigQuery")
 
         self._sampling = config.sampling
+        self._column_statistics = config.column_statistics
 
         client = build_client(config)
         tables = self._fetch_tables(client, config)
@@ -133,7 +135,9 @@ class BigQueryProfileExtractor(BaseExtractor):
             else:
                 try:
                     results = [res for res in next(job.result())]
-                    BigQueryProfileExtractor._parse_result(results, schema, dataset)
+                    BigQueryProfileExtractor._parse_result(
+                        results, schema, dataset, self._column_statistics
+                    )
                 except AssertionError as error:
                     logger.error(f"Assertion failed during process results, {error}")
                 except StopIteration as error:
@@ -155,7 +159,9 @@ class BigQueryProfileExtractor(BaseExtractor):
         schema = BigQueryExtractor.parse_schema(bq_table)
 
         logger.debug(f"building query for {table}")
-        sql = self._build_profiling_query(schema, table, row_count, self._sampling)
+        sql = self._build_profiling_query(
+            schema, table, row_count, self._column_statistics, self._sampling
+        )
         job = client.query(sql)
 
         jobs.add(job.job_id)
@@ -168,6 +174,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         schema: DatasetSchema,
         table_ref: TableReference,
         row_count: Union[int, None],
+        column_statistics: ColumnStatistics,
         sampling: SamplingConfig,
     ) -> str:
         query = ["SELECT COUNT(1)"]
@@ -175,22 +182,25 @@ class BigQueryProfileExtractor(BaseExtractor):
         for field in schema.fields:
             column = field.field_path
             data_type = field.native_type
-            nullable = field.nullable
 
-            if not BigQueryProfileExtractor._is_complex(data_type):
+            if (
+                column_statistics.unique_count
+                and not BigQueryProfileExtractor._is_complex(data_type)
+            ):
                 query.append(f", COUNT(DISTINCT `{column}`)")
 
-            if nullable:
+            if column_statistics.null_count:
                 query.append(f", COUNTIF(`{column}` is NULL)")
 
             if BigQueryProfileExtractor._is_numeric(data_type):
-                query.extend(
-                    [
-                        f", MIN(`{column}`)",
-                        f", MAX(`{column}`)",
-                        f", AVG(`{column}`)",
-                    ]
-                )
+                if column_statistics.min_value:
+                    query.append(f", MIN(`{column}`)")
+                if column_statistics.max_value:
+                    query.append(f", MAX(`{column}`)")
+                if column_statistics.avg_value:
+                    query.append(f", AVG(`{column}`)")
+                if column_statistics.std_dev:
+                    query.append(f", STDDEV(`{column}`)")
 
         query.append(f" FROM `{table_ref}`")
 
@@ -202,48 +212,79 @@ class BigQueryProfileExtractor(BaseExtractor):
         return "".join(query)
 
     @staticmethod
-    def _parse_result(results: List, schema: DatasetSchema, dataset: Dataset):
+    def _parse_result(
+        results: List,
+        schema: DatasetSchema,
+        dataset: Dataset,
+        column_statistics: ColumnStatistics,
+    ):
+        assert (
+            dataset.field_statistics is not None
+            and dataset.field_statistics.field_statistics is not None
+        )
+        fields = dataset.field_statistics.field_statistics
+
+        assert len(results) > 0, f"Empty result for ${dataset.logical_id}"
         row_count = int(results[0])
+
         index = 1
         for field in schema.fields:
             column = field.field_path
             data_type = field.native_type
-            nullable = field.nullable
 
-            unique_values = None
-            if not BigQueryProfileExtractor._is_complex(data_type):
-                unique_values = float(results[index])
+            unique_count = None
+            if (
+                column_statistics.unique_count
+                and not BigQueryProfileExtractor._is_complex(data_type)
+            ):
+                unique_count = float(results[index])
                 index += 1
 
-            if nullable:
-                nulls = float(results[index]) if results[index] else 0.0
+            nulls, non_nulls = None, None
+            if column_statistics.null_count:
+                nulls = float(results[index])
+                non_nulls = row_count - nulls
                 index += 1
-            else:
-                nulls = 0.0
 
+            min_value, max_value, avg, std_dev = None, None, None, None
             if BigQueryProfileExtractor._is_numeric(data_type):
-                min_value = float(results[index]) if results[index] else None
-                index += 1
-                max_value = float(results[index]) if results[index] else None
-                index += 1
-                avg = float(results[index]) if results[index] else None
-                index += 1
-            else:
-                min_value, max_value, avg = None, None, None
+                if column_statistics.min_value:
+                    min_value = (
+                        None if results[index] is None else float(results[index])
+                    )
+                    index += 1
 
-            dataset.field_statistics.field_statistics.append(
+                if column_statistics.max_value:
+                    max_value = (
+                        None if results[index] is None else float(results[index])
+                    )
+                    index += 1
+
+                if column_statistics.avg_value:
+                    avg = None if results[index] is None else float(results[index])
+                    index += 1
+
+                if column_statistics.std_dev:
+                    std_dev = None if results[index] is None else float(results[index])
+                    index += 1
+
+            fields.append(
                 FieldStatistics(
                     field_path=column,
-                    distinct_value_count=unique_values,
+                    distinct_value_count=unique_count,
                     null_value_count=nulls,
-                    nonnull_value_count=(row_count - nulls),
+                    nonnull_value_count=non_nulls,
                     min_value=min_value,
                     max_value=max_value,
                     average=avg,
+                    std_dev=std_dev,
                 )
             )
 
-        assert index == len(results), "index should match number of results"
+        # Verify that we've consumed all the elements from results
+        assert index == len(
+            results
+        ), f"Unconsumed elements from results for {dataset.logical_id}"
 
     # See https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#numeric_types
     @staticmethod

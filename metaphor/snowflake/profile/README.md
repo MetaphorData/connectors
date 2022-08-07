@@ -34,6 +34,10 @@ By default, the connector only profile Snowflake "base table", i.e. exclude view
 exclude_views: false
 ```
 
+#### Column Statistics
+
+See [Column Statistics](../../common/docs/column_statistics.md) for details.
+
 #### Sampling
 
 See [Sampling Config](../../common/docs/sampling.md) for details.

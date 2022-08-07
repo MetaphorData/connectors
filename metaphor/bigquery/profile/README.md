@@ -12,6 +12,10 @@ The config file inherits all the required and optional fields from the general B
 
 ### Optional Configurations
 
+#### Column Statistics
+
+See [Column Statistics](../../common/docs/column_statistics.md) for details.
+
 #### Sampling
 
 See [Sampling Config](../../common/docs/sampling.md) for details.
