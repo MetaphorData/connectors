@@ -73,7 +73,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
         )
 
         excluded_usernames_clause = (
-            f"and USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
+            f"and q.USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
             if len(config.excluded_usernames) > 0
             else ""
         )
