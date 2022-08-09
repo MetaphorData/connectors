@@ -71,9 +71,16 @@ async def test_extractor(test_root_dir):
         },
         {
             "target_schema": "foo",
-            "target_table": "t3",
+            "target_table": "t4",
             "source_schema": "public",
-            "source_table": "s2",
+            "source_table": "s1",
+            "querytxt": "",
+        },
+        {
+            "target_schema": "foo",
+            "target_table": "t5",
+            "source_schema": "public",
+            "source_table": "s1",
         },
     ]
 

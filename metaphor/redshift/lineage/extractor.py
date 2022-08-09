@@ -146,9 +146,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         for row in results:
             source_table_name = f"{db}.{row['source_schema']}.{row['source_table']}"
             target_table_name = f"{db}.{row['target_schema']}.{row['target_table']}"
-            query = (
-                row["querytxt"].rstrip() if row.get("querytxt") is not None else None
-            )
+            query = row["querytxt"].rstrip() if row.get("querytxt") else None
 
             source_id = str(
                 to_dataset_entity_id(source_table_name, DataPlatform.REDSHIFT)
