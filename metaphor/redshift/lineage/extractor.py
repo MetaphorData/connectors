@@ -148,7 +148,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             target_table_name = f"{db}.{row['target_schema']}.{row['target_table']}"
             query = (
                 row["querytxt"].rstrip()
-                if "querytxt" in row and type(row["querytxt"]) == str
+                if row.get("querytxt") is not None
                 else None
             )
 
