@@ -25,5 +25,18 @@
       ],
       "transformation": "q2"
     }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "test.foo.t3",
+      "platform": "REDSHIFT"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC",
+        "DATASET~B077275BCBF5E69AD0DBFCAE3F7E47E4"
+      ]
+    }
   }
 ]
