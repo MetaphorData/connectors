@@ -62,6 +62,26 @@ async def test_extractor(test_root_dir):
             "source_table": "s1",
             "querytxt": "q2",
         },
+        {
+            "target_schema": "foo",
+            "target_table": "t3",
+            "source_schema": "public",
+            "source_table": "s1",
+            "querytxt": None,
+        },
+        {
+            "target_schema": "foo",
+            "target_table": "t4",
+            "source_schema": "public",
+            "source_table": "s1",
+            "querytxt": "",
+        },
+        {
+            "target_schema": "foo",
+            "target_table": "t5",
+            "source_schema": "public",
+            "source_table": "s1",
+        },
     ]
 
     with patch(

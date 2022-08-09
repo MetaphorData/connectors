@@ -25,5 +25,41 @@
       ],
       "transformation": "q2"
     }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "test.foo.t3",
+      "platform": "REDSHIFT"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "test.foo.t4",
+      "platform": "REDSHIFT"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "test.foo.t5",
+      "platform": "REDSHIFT"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
+      ]
+    }
   }
 ]
