@@ -34,7 +34,7 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Examples
 
-Here's an example specifying that BigQuery `project.db.table1` sources its data from `project.db.table2` & `project.db.table3`:
+Here's an example specifying that BigQuery table `project.db.table1` sources its data from BigQuery table `project.db.table2` & Snowflake table `db.schema.table3`:
 
 ```yaml
 lineages:
