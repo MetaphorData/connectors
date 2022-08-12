@@ -11,7 +11,7 @@ Create a dedicated user & role based on the [Setup](../README.md#Setup) guide fo
 The config file inherits all the required and optional fields from the general Snowflake connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
 ```yaml
-# (Optional) Number of days of logs to extract for lineage analysis. Default to 30.
+# (Optional) Number of days of logs to extract for lineage analysis. Default to 7.
 lookback_days: <days>
 
 # (Optional) The number of access logs fetched in a batch, default to 100000, value must be in range 0 - 100000

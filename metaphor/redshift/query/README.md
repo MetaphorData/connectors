@@ -17,7 +17,7 @@ GRANT SELECT ON pg_catalog.svl_user_info TO metaphor;
 The config file inherits all the required and optional fields from the general Redshift connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
 ```yaml
-# (Optional) Number of days to include in the usage analysis. Default to 30.
+# (Optional) Number of days to include in the usage analysis. Default to 7.
 lookback_days: <days>
 
 # (Optional) Maximum number of recent queries to extract per table. Default to 100.

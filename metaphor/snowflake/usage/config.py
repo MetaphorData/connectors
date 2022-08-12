@@ -14,7 +14,7 @@ class SnowflakeUsageRunConfig(SnowflakeRunConfig):
     use_history: bool = True
 
     # Number of days back in the query log to process if use_history = False, otherwise, it's locked to 1 day
-    lookback_days: int = 30
+    lookback_days: int = 7
 
     # Query filter to exclude certain usernames from the processing
     excluded_usernames: Set[str] = field(default_factory=lambda: set())

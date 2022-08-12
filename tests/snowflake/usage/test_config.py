@@ -13,7 +13,7 @@ def test_yaml_config(test_root_dir):
         user="user",
         password="password",
         filter=DatasetFilter(),
-        lookback_days=30,
+        lookback_days=7,
         excluded_usernames=set(),
         output=OutputConfig(),
     )

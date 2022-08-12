@@ -9,7 +9,7 @@ from metaphor.bigquery.config import BigQueryRunConfig
 @dataclass
 class BigQueryQueryRunConfig(BigQueryRunConfig):
     # The number of days' logs to fetch
-    lookback_days: int = 30
+    lookback_days: int = 7
 
     # Batch size for querying the BigQuery audit log
     batch_size: int = 1000
