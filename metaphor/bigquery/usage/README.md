@@ -25,7 +25,7 @@ The config file inherits all the required and optional fields from the general B
 # (Optional) whether to do day-by-day log parsing and keep the metadata history, or fetch log for <lookback_days> and not keep history, default to True. 
 use_history: bool = True
 
-# (Optional) Number of days to include in the usage analysis. Default to 30.
+# (Optional) Number of days to include in the usage analysis. Default to 7.
 lookback_days: <days>
 
 # (Optional) A list of users whose queries will be excluded from the usage calculation 

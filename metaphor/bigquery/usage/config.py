@@ -12,7 +12,7 @@ class BigQueryUsageRunConfig(BigQueryRunConfig):
     use_history: bool = True
 
     # the number of days' logs to fetch if use_history = False, otherwise, it's locked to 1 day
-    lookback_days: int = 30
+    lookback_days: int = 7
 
     batch_size: int = 1000
 

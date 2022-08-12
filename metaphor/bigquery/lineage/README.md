@@ -31,7 +31,7 @@ enable_lineage_from_log: <boolean>
 # (Optional) Whether to include self-referencing loops in lineage, default True
 include_self_lineage: <boolean>
 
-# (Optional) Number of days of logs to extract for lineage analysis. Default to 30.
+# (Optional) Number of days of logs to extract for lineage analysis. Default to 7.
 lookback_days: <days>
 
 # (Optional) The number of access logs fetched in a batch, default to 1000, value must be in range 0 - 1000

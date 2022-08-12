@@ -22,7 +22,7 @@ See [Access Control](https://cloud.google.com/logging/docs/access-control#consol
 The config file inherits all the required and optional fields from the general BigQuery connector [Config File](../README.md#config-file). In addition, you can specify the following optional configurations:
 
 ```yaml
-# (Optional) Number of days of logs to extract for lineage analysis. Default to 30.
+# (Optional) Number of days of logs to extract for lineage analysis. Default to 7.
 lookback_days: <days>
 
 # (Optional) The number of access logs fetched in a batch, default to 1000, value must be in range 0 - 1000
