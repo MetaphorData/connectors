@@ -74,6 +74,14 @@ credentials:
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
+#### BigQuery Job Project ID
+
+By default, all BigQuery API calls are made using the project ID specified in `project_id` config. However, sometimes you may wish to run BigQuery jobs using a different project ID, e.g. when querying the DDLs for tables & views. You can do so by specifying the `job_project_id` config as follows,
+
+```yaml
+job_project_id: <project_id>
+```
+
 #### Concurrency
 
 The max number of concurrent requests to the google cloud API can be configured as follows,

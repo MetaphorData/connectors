@@ -12,6 +12,7 @@ def test_yaml_config_with_key_path(test_root_dir):
     assert config == BigQueryRunConfig(
         key_path="key_path",
         project_id="project_id",
+        job_project_id="job_project_id",
         output=OutputConfig(),
     )
 

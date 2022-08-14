@@ -88,7 +88,8 @@ class BigQueryExtractor(BaseExtractor):
 
             logger.info(f"Getting table DDL for {dataset_ref}")
             table_ddl = client.query(
-                f"select table_name, ddl from `{dataset_ref.project}.{dataset_ref.dataset_id}.INFORMATION_SCHEMA.TABLES`"
+                f"select table_name, ddl from `{dataset_ref.project}.{dataset_ref.dataset_id}.INFORMATION_SCHEMA.TABLES`",
+                project=config.job_project_id,
             ).result()
 
             for table_name, ddl in table_ddl:
