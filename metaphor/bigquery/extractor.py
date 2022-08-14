@@ -93,7 +93,7 @@ class BigQueryExtractor(BaseExtractor):
 
             for table_name, ddl in table_ddl:
                 table = tables.get(str(table_name).lower())
-                if not table:
+                if table is None:
                     logger.error(f"table {table_name} not found for DDL")
                     continue
                 table.schema.sql_schema.table_schema = ddl
