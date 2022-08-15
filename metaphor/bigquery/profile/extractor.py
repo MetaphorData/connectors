@@ -45,6 +45,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         return BigQueryProfileRunConfig
 
     def __init__(self):
+        self._job_project_id = None
         self._sampling = None
         self._column_statistics = None
 
@@ -55,6 +56,7 @@ class BigQueryProfileExtractor(BaseExtractor):
 
         logger.info("Fetching usage info from BigQuery")
 
+        self._job_project_id = config.job_project_id
         self._sampling = config.sampling
         self._column_statistics = config.column_statistics
 
@@ -162,7 +164,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         sql = self._build_profiling_query(
             schema, table, row_count, self._column_statistics, self._sampling
         )
-        job = client.query(sql)
+        job = client.query(sql, project=self._job_project_id)
 
         jobs.add(job.job_id)
         job.add_done_callback(partial(job_callback, schema=schema, dataset=dataset))
