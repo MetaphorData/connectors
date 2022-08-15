@@ -35,7 +35,8 @@ class MetaphorBackendConfig:
 
     @staticmethod
     def from_config() -> "MetaphorBackendConfig":
-        mode = conf.get("lineage", "metaphor_backend_mode", fallback=None)
+        mode = conf.get("lineage", "metaphor_backend_mode", fallback=S3_MODE)
+        assert mode, "missing metaphor ingestion mode"
         s3_url = conf.get("lineage", "metaphor_s3_url", fallback=None)
         aws_access_key_id = conf.get(
             "lineage", "metaphor_aws_access_key_id", fallback=None
