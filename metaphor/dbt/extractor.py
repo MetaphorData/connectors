@@ -17,6 +17,7 @@ from .catalog_parser_v1 import CatalogParserV1
 from .generated.dbt_catalog_v1 import DbtCatalog
 from .manifest_parser_v3 import ManifestParserV3
 from .manifest_parser_v5 import ManifestParserV5
+from .manifest_parser_v6 import ManifestParserV6
 
 logger = get_logger(__name__)
 
@@ -64,7 +65,7 @@ class DbtExtractor(BaseExtractor):
             .split(".")[0]
         )
 
-        manifest_parser: Union[ManifestParserV3, ManifestParserV5]
+        manifest_parser: Union[ManifestParserV3, ManifestParserV5, ManifestParserV6]
         if schema_version in ("v1", "v2", "v3"):
             manifest_parser = ManifestParserV3(
                 config,
@@ -74,6 +75,14 @@ class DbtExtractor(BaseExtractor):
             )
         elif schema_version in ("v4", "v5"):
             manifest_parser = ManifestParserV5(
+                config,
+                self.data_platform,
+                self._datasets,
+                self._virtual_views,
+                self._metrics,
+            )
+        elif schema_version == "v6":
+            manifest_parser = ManifestParserV6(
                 config,
                 self.data_platform,
                 self._datasets,

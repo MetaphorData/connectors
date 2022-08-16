@@ -54,6 +54,15 @@ async def test_trial_project_v5(test_root_dir):
 
 
 @pytest.mark.asyncio
+async def test_trial_project_v6(test_root_dir):
+    await _test_project(
+        test_root_dir + "/dbt/data/trial_v6",
+        "http://localhost:8080",
+        "https://github.com/MetaphorData/dbt/tree/main/trial",
+    )
+
+
+@pytest.mark.asyncio
 async def test_ride_share_project(test_root_dir):
     await _test_project(test_root_dir + "/dbt/data/ride_share", None, None, True)
 

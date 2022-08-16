@@ -22,7 +22,7 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 
-from .generated.dbt_manifest_v5 import (
+from .generated.dbt_manifest_v6 import (
     CompiledGenericTestNode,
     CompiledModelNode,
     DbtManifest,
@@ -55,10 +55,9 @@ MODEL_NODE_TYPE = Union[CompiledModelNode, ParsedModelNode]
 TEST_NODE_TYPE = Union[CompiledGenericTestNode, ParsedGenericTestNode]
 
 
-class ManifestParserV5:
+class ManifestParserV6:
     """
-    dbt manifest parser, using v5 schema https://schemas.getdbt.com/dbt/manifest/v5.json
-    Backward compatible with v4
+    dbt manifest parser, using v6 schema https://schemas.getdbt.com/dbt/manifest/v6.json
     """
 
     def __init__(
@@ -193,7 +192,7 @@ class ManifestParserV5:
         macro_map: Dict[str, DbtMacro],
     ):
         if model.config is None or model.database is None:
-            logger.warn("Skipping model without config or database")
+            logger.warning("Skipping model without config or database")
             return
 
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
