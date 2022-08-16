@@ -1,0 +1,720 @@
+[
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "Sample data of 100K sales records."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "COUNTRY. SALES_RECORDS",
+          "fieldPath": "country"
+        },
+        {
+          "documentation": "REGION. SALES_RECORDS",
+          "fieldPath": "region"
+        },
+        {
+          "documentation": "ITEM_TYPE. SALES_RECORDS",
+          "fieldPath": "item_type"
+        },
+        {
+          "documentation": "SALES_CHANNEL. SALES_RECORDS",
+          "fieldPath": "sales_channel"
+        },
+        {
+          "documentation": "ORDER_PRIORITY. SALES_RECORDS",
+          "fieldPath": "order_priority"
+        },
+        {
+          "documentation": "ORDER_DATE. SALES_RECORDS",
+          "fieldPath": "order_date"
+        },
+        {
+          "documentation": "ORDER_ID. SALES_RECORDS",
+          "fieldPath": "order_id"
+        },
+        {
+          "documentation": "SHIP_DATE. SALES_RECORDS",
+          "fieldPath": "ship_date"
+        },
+        {
+          "documentation": "UNITS_SOLD. SALES_RECORDS",
+          "fieldPath": "units_sold"
+        },
+        {
+          "documentation": "UNIT_PRICE. SALES_RECORDS",
+          "fieldPath": "unit_price"
+        },
+        {
+          "documentation": "UNIT_COST. SALES_RECORDS",
+          "fieldPath": "unit_cost"
+        },
+        {
+          "documentation": "TOTAL_REVENUE. SALES_RECORDS",
+          "fieldPath": "total_revenue"
+        },
+        {
+          "documentation": "TOTAL_COST. SALES_RECORDS",
+          "fieldPath": "total_cost"
+        },
+        {
+          "documentation": "TOTAL_PROFIT. SALES_RECORDS",
+          "fieldPath": "total_profit"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.sales_records",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "Sample data of Netflix shows."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "SHOW_ID. NETFLIX",
+          "fieldPath": "show_id"
+        },
+        {
+          "documentation": "TYPE. NETFLIX",
+          "fieldPath": "type"
+        },
+        {
+          "documentation": "TITLE. NETFLIX",
+          "fieldPath": "title"
+        },
+        {
+          "documentation": "DIRECTOR. NETFLIX",
+          "fieldPath": "director"
+        },
+        {
+          "documentation": "CAST. NETFLIX",
+          "fieldPath": "cast"
+        },
+        {
+          "documentation": "COUNTRY. NETFLIX",
+          "fieldPath": "country"
+        },
+        {
+          "documentation": "DATE_ADDED. NETFLIX",
+          "fieldPath": "date_added"
+        },
+        {
+          "documentation": "RELEASE_YEAR. NETFLIX",
+          "fieldPath": "release_year"
+        },
+        {
+          "documentation": "RATING. NETFLIX",
+          "fieldPath": "rating"
+        },
+        {
+          "documentation": "DURATION. NETFLIX",
+          "fieldPath": "duration"
+        },
+        {
+          "documentation": "LISTED_IN. NETFLIX",
+          "fieldPath": "listed_in"
+        },
+        {
+          "documentation": "DESCRIPTION. NETFLIX",
+          "fieldPath": "description"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.netflix",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.my_first_dbt_model",
+      "platform": "SNOWFLAKE"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
+        }
+      ]
+    },
+    "tagAssignment": {
+      "tagNames": [
+        "PII"
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\nselect show_id, type, title, country, release_year \nfrom DEV_DB.DBT_DEV.NETFLIX",
+      "description": "First trial model, mapping columns from NETFLIX source table",
+      "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_1",
+      "fields": [
+        {
+          "description": "The show id, primary key for this table",
+          "fieldPath": "show_id",
+          "nativeType": "Not Set"
+        },
+        {
+          "description": "The type of the show, e.g. Movie or TV Show",
+          "fieldPath": "type",
+          "nativeType": "Not Set"
+        },
+        {
+          "description": "The title of the show",
+          "fieldPath": "title",
+          "nativeType": "Not Set"
+        },
+        {
+          "description": "The country where the show was originated from",
+          "fieldPath": "country",
+          "nativeType": "Not Set"
+        },
+        {
+          "description": "The year the show was released",
+          "fieldPath": "release_year",
+          "nativeType": "Not Set"
+        }
+      ],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_snowflake.snowflake__set_query_tag"
+          ],
+          "description": "",
+          "name": "set_query_tag",
+          "packageName": "dbt_snowflake",
+          "sql": "{% macro set_query_tag() -%}\n    {{ return(adapter.dispatch('set_query_tag', 'dbt')()) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_snowflake.set_query_tag"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.statement"
+          ],
+          "description": "",
+          "name": "run_hooks",
+          "packageName": "dbt",
+          "sql": "{% macro run_hooks(hooks, inside_transaction=True) %}\n  {% for hook in hooks | selectattr('transaction', 'equalto', inside_transaction)  %}\n    {% if not inside_transaction and loop.first %}\n      {% call statement(auto_begin=inside_transaction) %}\n        commit;\n      {% endcall %}\n    {% endif %}\n    {% set rendered = render(hook.get('sql')) | trim %}\n    {% if (rendered | length) > 0 %}\n      {% call statement(auto_begin=inside_transaction) %}\n        {{ rendered }}\n      {% endcall %}\n    {% endif %}\n  {% endfor %}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.run_hooks"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [],
+          "description": "",
+          "name": "statement",
+          "packageName": "dbt",
+          "sql": "{% macro statement(name=None, fetch_result=False, auto_begin=True) -%}\n  {%- if execute: -%}\n    {%- set sql = caller() -%}\n\n    {%- if name == 'main' -%}\n      {{ log('Writing runtime SQL for node \"{}\"'.format(model['unique_id'])) }}\n      {{ write(sql) }}\n    {%- endif -%}\n\n    {%- set res, table = adapter.execute(sql, auto_begin=auto_begin, fetch=fetch_result) -%}\n    {%- if name is not none -%}\n      {{ store_result(name, response=res, agate_table=table) }}\n    {%- endif -%}\n\n  {%- endif -%}\n{%- endmacro %}",
+          "uniqueId": "macro.dbt.statement"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.copy_grants"
+          ],
+          "description": "",
+          "name": "should_revoke",
+          "packageName": "dbt",
+          "sql": "{% macro should_revoke(existing_relation, full_refresh_mode=True) %}\n\n    {% if not existing_relation %}\n        {#-- The table doesn't already exist, so no grants to copy over --#}\n        {{ return(False) }}\n    {% elif full_refresh_mode %}\n        {#-- The object is being REPLACED -- whether grants are copied over depends on the value of user config --#}\n        {{ return(copy_grants()) }}\n    {% else %}\n        {#-- The table is being merged/upserted/inserted -- grants will be carried over --#}\n        {{ return(True) }}\n    {% endif %}\n\n{% endmacro %}",
+          "uniqueId": "macro.dbt.should_revoke"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.default__apply_grants"
+          ],
+          "description": "",
+          "name": "apply_grants",
+          "packageName": "dbt",
+          "sql": "{% macro apply_grants(relation, grant_config, should_revoke) %}\n    {{ return(adapter.dispatch(\"apply_grants\", \"dbt\")(relation, grant_config, should_revoke)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.apply_grants"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.default__persist_docs"
+          ],
+          "description": "",
+          "name": "persist_docs",
+          "packageName": "dbt",
+          "sql": "{% macro persist_docs(relation, model, for_relation=true, for_columns=true) -%}\n  {{ return(adapter.dispatch('persist_docs', 'dbt')(relation, model, for_relation, for_columns)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.persist_docs"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_snowflake.snowflake__unset_query_tag"
+          ],
+          "description": "",
+          "name": "unset_query_tag",
+          "packageName": "dbt_snowflake",
+          "sql": "{% macro unset_query_tag(original_query_tag) -%}\n    {{ return(adapter.dispatch('unset_query_tag', 'dbt')(original_query_tag)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_snowflake.unset_query_tag"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~7C639CB9ABA8DF1C80107AF51D7BA678",
+        "type": "TABLE"
+      },
+      "packageName": "trial",
+      "rawSql": "{{ config(materialized='table') }}\n\nselect show_id, type, title, country, release_year \nfrom {{ source('DBT_DEV', 'NETFLIX') }}",
+      "sourceDatasets": [
+        "DATASET~0A27263039022A2F145CAB8A63CB2D58"
+      ],
+      "sourceModels": [],
+      "tags": [
+        "trial"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "show_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_trial_model_1_show_id",
+          "uniqueId": "test.trial.unique_trial_model_1_show_id.6e142709e3"
+        },
+        {
+          "columns": [
+            "show_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_trial_model_1_show_id",
+          "uniqueId": "test.trial.not_null_trial_model_1_show_id.210878cb19"
+        },
+        {
+          "columns": [
+            "type"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_trial_model_1_type",
+          "uniqueId": "test.trial.not_null_trial_model_1_type.051dc613aa"
+        },
+        {
+          "columns": [
+            "title"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_trial_model_1_title",
+          "uniqueId": "test.trial.not_null_trial_model_1_title.b49e531d6d"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_1.sql"
+    },
+    "logicalId": {
+      "name": "trial.trial_model_1",
+      "type": "DBT_MODEL"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+      "description": "Second trial model, get statistics from SALES_RECORDS table",
+      "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_2",
+      "fields": [
+        {
+          "description": "The country where the sales records are from",
+          "fieldPath": "country",
+          "nativeType": "Not Set"
+        },
+        {
+          "description": "The type of the item, e.g. clothes, household, etc",
+          "fieldPath": "item_type",
+          "nativeType": "Not Set"
+        },
+        {
+          "description": "The year that the aggregated sales statistics is for",
+          "fieldPath": "year",
+          "nativeType": "Not Set"
+        },
+        {
+          "description": "The total revenue aggregated over the country + item_type + year",
+          "fieldPath": "revenue",
+          "nativeType": "Not Set"
+        },
+        {
+          "description": "The total profit aggregated over the country + item_type + year",
+          "fieldPath": "profit",
+          "nativeType": "Not Set"
+        }
+      ],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_snowflake.snowflake__set_query_tag"
+          ],
+          "description": "",
+          "name": "set_query_tag",
+          "packageName": "dbt_snowflake",
+          "sql": "{% macro set_query_tag() -%}\n    {{ return(adapter.dispatch('set_query_tag', 'dbt')()) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_snowflake.set_query_tag"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.statement"
+          ],
+          "description": "",
+          "name": "run_hooks",
+          "packageName": "dbt",
+          "sql": "{% macro run_hooks(hooks, inside_transaction=True) %}\n  {% for hook in hooks | selectattr('transaction', 'equalto', inside_transaction)  %}\n    {% if not inside_transaction and loop.first %}\n      {% call statement(auto_begin=inside_transaction) %}\n        commit;\n      {% endcall %}\n    {% endif %}\n    {% set rendered = render(hook.get('sql')) | trim %}\n    {% if (rendered | length) > 0 %}\n      {% call statement(auto_begin=inside_transaction) %}\n        {{ rendered }}\n      {% endcall %}\n    {% endif %}\n  {% endfor %}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.run_hooks"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [],
+          "description": "",
+          "name": "statement",
+          "packageName": "dbt",
+          "sql": "{% macro statement(name=None, fetch_result=False, auto_begin=True) -%}\n  {%- if execute: -%}\n    {%- set sql = caller() -%}\n\n    {%- if name == 'main' -%}\n      {{ log('Writing runtime SQL for node \"{}\"'.format(model['unique_id'])) }}\n      {{ write(sql) }}\n    {%- endif -%}\n\n    {%- set res, table = adapter.execute(sql, auto_begin=auto_begin, fetch=fetch_result) -%}\n    {%- if name is not none -%}\n      {{ store_result(name, response=res, agate_table=table) }}\n    {%- endif -%}\n\n  {%- endif -%}\n{%- endmacro %}",
+          "uniqueId": "macro.dbt.statement"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.copy_grants"
+          ],
+          "description": "",
+          "name": "should_revoke",
+          "packageName": "dbt",
+          "sql": "{% macro should_revoke(existing_relation, full_refresh_mode=True) %}\n\n    {% if not existing_relation %}\n        {#-- The table doesn't already exist, so no grants to copy over --#}\n        {{ return(False) }}\n    {% elif full_refresh_mode %}\n        {#-- The object is being REPLACED -- whether grants are copied over depends on the value of user config --#}\n        {{ return(copy_grants()) }}\n    {% else %}\n        {#-- The table is being merged/upserted/inserted -- grants will be carried over --#}\n        {{ return(True) }}\n    {% endif %}\n\n{% endmacro %}",
+          "uniqueId": "macro.dbt.should_revoke"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.default__apply_grants"
+          ],
+          "description": "",
+          "name": "apply_grants",
+          "packageName": "dbt",
+          "sql": "{% macro apply_grants(relation, grant_config, should_revoke) %}\n    {{ return(adapter.dispatch(\"apply_grants\", \"dbt\")(relation, grant_config, should_revoke)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.apply_grants"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.default__persist_docs"
+          ],
+          "description": "",
+          "name": "persist_docs",
+          "packageName": "dbt",
+          "sql": "{% macro persist_docs(relation, model, for_relation=true, for_columns=true) -%}\n  {{ return(adapter.dispatch('persist_docs', 'dbt')(relation, model, for_relation, for_columns)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.persist_docs"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_snowflake.snowflake__unset_query_tag"
+          ],
+          "description": "",
+          "name": "unset_query_tag",
+          "packageName": "dbt_snowflake",
+          "sql": "{% macro unset_query_tag(original_query_tag) -%}\n    {{ return(adapter.dispatch('unset_query_tag', 'dbt')(original_query_tag)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_snowflake.unset_query_tag"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~0BBB61D8415DECED5AEE298FC711C88F",
+        "type": "TABLE"
+      },
+      "packageName": "trial",
+      "rawSql": "{{ config(materialized='table', alias='sales_summary') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+      "sourceDatasets": [
+        "DATASET~C931554DBA0604DA498A2E772F3D6FEF"
+      ],
+      "sourceModels": [],
+      "tags": [
+        "trial"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "country"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_trial_model_2_country",
+          "uniqueId": "test.trial.not_null_trial_model_2_country.8170348e7c"
+        },
+        {
+          "columns": [
+            "item_type"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_trial_model_2_item_type",
+          "uniqueId": "test.trial.not_null_trial_model_2_item_type.1e87bba840"
+        },
+        {
+          "columns": [
+            "year"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_trial_model_2_year",
+          "uniqueId": "test.trial.not_null_trial_model_2_year.eb13ae8f8b"
+        },
+        {
+          "columns": [
+            "revenue"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_trial_model_2_revenue",
+          "uniqueId": "test.trial.not_null_trial_model_2_revenue.c697e41758"
+        },
+        {
+          "columns": [
+            "profit"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_trial_model_2_profit",
+          "uniqueId": "test.trial.not_null_trial_model_2_profit.faa538228c"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_2.sql"
+    },
+    "logicalId": {
+      "name": "trial.trial_model_2",
+      "type": "DBT_MODEL"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
+      "description": "A starter dbt model, my_second_dbt_model",
+      "docsUrl": "http://localhost:8080/#!/model/model.trial.my_second_dbt_model",
+      "fields": [
+        {
+          "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'",
+          "fieldPath": "id",
+          "nativeType": "Not Set"
+        }
+      ],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_snowflake.snowflake__set_query_tag"
+          ],
+          "description": "",
+          "name": "set_query_tag",
+          "packageName": "dbt_snowflake",
+          "sql": "{% macro set_query_tag() -%}\n    {{ return(adapter.dispatch('set_query_tag', 'dbt')()) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_snowflake.set_query_tag"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.run_hooks",
+            "macro.dbt.handle_existing_table",
+            "macro.dbt.should_full_refresh",
+            "macro.dbt.statement",
+            "macro.dbt.get_create_view_as_sql",
+            "macro.dbt.should_revoke",
+            "macro.dbt.apply_grants"
+          ],
+          "description": "",
+          "name": "create_or_replace_view",
+          "packageName": "dbt",
+          "sql": "{% macro create_or_replace_view() %}\n  {%- set identifier = model['alias'] -%}\n\n  {%- set old_relation = adapter.get_relation(database=database, schema=schema, identifier=identifier) -%}\n  {%- set exists_as_view = (old_relation is not none and old_relation.is_view) -%}\n\n  {%- set target_relation = api.Relation.create(\n      identifier=identifier, schema=schema, database=database,\n      type='view') -%}\n  {% set grant_config = config.get('grants') %}\n\n  {{ run_hooks(pre_hooks) }}\n\n  -- If there's a table with the same name and we weren't told to full refresh,\n  -- that's an error. If we were told to full refresh, drop it. This behavior differs\n  -- for Snowflake and BigQuery, so multiple dispatch is used.\n  {%- if old_relation is not none and old_relation.is_table -%}\n    {{ handle_existing_table(should_full_refresh(), old_relation) }}\n  {%- endif -%}\n\n  -- build model\n  {% call statement('main') -%}\n    {{ get_create_view_as_sql(target_relation, sql) }}\n  {%- endcall %}\n\n  {% set should_revoke = should_revoke(exists_as_view, full_refresh_mode=True) %}\n  {% do apply_grants(target_relation, grant_config, should_revoke=True) %}\n\n  {{ run_hooks(post_hooks) }}\n\n  {{ return({'relations': [target_relation]}) }}\n\n{% endmacro %}",
+          "uniqueId": "macro.dbt.create_or_replace_view"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.default__persist_docs"
+          ],
+          "description": "",
+          "name": "persist_docs",
+          "packageName": "dbt",
+          "sql": "{% macro persist_docs(relation, model, for_relation=true, for_columns=true) -%}\n  {{ return(adapter.dispatch('persist_docs', 'dbt')(relation, model, for_relation, for_columns)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.persist_docs"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~81710CAF4D9C7ADB5729E487404E7925",
+        "type": "VIEW"
+      },
+      "packageName": "trial",
+      "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
+      ],
+      "tags": [],
+      "tests": [
+        {
+          "columns": [
+            "id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_my_second_dbt_model_id",
+          "uniqueId": "test.trial.unique_my_second_dbt_model_id.57a0f8c493"
+        },
+        {
+          "columns": [
+            "id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_my_second_dbt_model_id",
+          "uniqueId": "test.trial.not_null_my_second_dbt_model_id.151b76d778"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
+    },
+    "logicalId": {
+      "name": "trial.my_second_dbt_model",
+      "type": "DBT_MODEL"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
+      "description": "A starter dbt model, my_first_dbt_model",
+      "docsUrl": "http://localhost:8080/#!/model/model.trial.my_first_dbt_model",
+      "fields": [
+        {
+          "description": "The primary key for this table, auto generated id",
+          "fieldPath": "id",
+          "nativeType": "Not Set"
+        }
+      ],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_snowflake.snowflake__set_query_tag"
+          ],
+          "description": "",
+          "name": "set_query_tag",
+          "packageName": "dbt_snowflake",
+          "sql": "{% macro set_query_tag() -%}\n    {{ return(adapter.dispatch('set_query_tag', 'dbt')()) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_snowflake.set_query_tag"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.run_hooks",
+            "macro.dbt.handle_existing_table",
+            "macro.dbt.should_full_refresh",
+            "macro.dbt.statement",
+            "macro.dbt.get_create_view_as_sql",
+            "macro.dbt.should_revoke",
+            "macro.dbt.apply_grants"
+          ],
+          "description": "",
+          "name": "create_or_replace_view",
+          "packageName": "dbt",
+          "sql": "{% macro create_or_replace_view() %}\n  {%- set identifier = model['alias'] -%}\n\n  {%- set old_relation = adapter.get_relation(database=database, schema=schema, identifier=identifier) -%}\n  {%- set exists_as_view = (old_relation is not none and old_relation.is_view) -%}\n\n  {%- set target_relation = api.Relation.create(\n      identifier=identifier, schema=schema, database=database,\n      type='view') -%}\n  {% set grant_config = config.get('grants') %}\n\n  {{ run_hooks(pre_hooks) }}\n\n  -- If there's a table with the same name and we weren't told to full refresh,\n  -- that's an error. If we were told to full refresh, drop it. This behavior differs\n  -- for Snowflake and BigQuery, so multiple dispatch is used.\n  {%- if old_relation is not none and old_relation.is_table -%}\n    {{ handle_existing_table(should_full_refresh(), old_relation) }}\n  {%- endif -%}\n\n  -- build model\n  {% call statement('main') -%}\n    {{ get_create_view_as_sql(target_relation, sql) }}\n  {%- endcall %}\n\n  {% set should_revoke = should_revoke(exists_as_view, full_refresh_mode=True) %}\n  {% do apply_grants(target_relation, grant_config, should_revoke=True) %}\n\n  {{ run_hooks(post_hooks) }}\n\n  {{ return({'relations': [target_relation]}) }}\n\n{% endmacro %}",
+          "uniqueId": "macro.dbt.create_or_replace_view"
+        },
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt.default__persist_docs"
+          ],
+          "description": "",
+          "name": "persist_docs",
+          "packageName": "dbt",
+          "sql": "{% macro persist_docs(relation, model, for_relation=true, for_columns=true) -%}\n  {{ return(adapter.dispatch('persist_docs', 'dbt')(relation, model, for_relation, for_columns)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.persist_docs"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~95F35FDE6E7C3F9E556D701A1B00CA23",
+        "type": "VIEW"
+      },
+      "packageName": "trial",
+      "rawSql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
+      "tags": [],
+      "tests": [
+        {
+          "columns": [
+            "id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_my_first_dbt_model_id",
+          "uniqueId": "test.trial.unique_my_first_dbt_model_id.16e066b321"
+        },
+        {
+          "columns": [
+            "id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_my_first_dbt_model_id",
+          "uniqueId": "test.trial.not_null_my_first_dbt_model_id.5fb22c2710"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_first_dbt_model.sql"
+    },
+    "logicalId": {
+      "name": "trial.my_first_dbt_model",
+      "type": "DBT_MODEL"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "number of movies",
+      "dimensions": [
+        "country",
+        "type"
+      ],
+      "filters": [
+        {
+          "field": "title",
+          "operator": "!=",
+          "value": ""
+        }
+      ],
+      "label": "trial metrics",
+      "packageName": "trial",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~B2A1F1A79091280F72E9B65C53786E52"
+      ],
+      "sql": "",
+      "tags": [],
+      "timeGrains": [
+        "year"
+      ],
+      "type": "count"
+    },
+    "logicalId": {
+      "name": "trial.trial_metric_1",
+      "type": "DBT_METRIC"
+    }
+  }
+]
