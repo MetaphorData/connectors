@@ -14,7 +14,7 @@ The config file inherits all the required and optional fields from the general S
 # (Optional) Whether to enable finding view lineage from object dependencies, default True.
 enable_view_lineage: bool = True
 
-# (Optional) Whether to enable finding table lineage information from access history and query history, default True
+# (Optional) Whether to enable finding table lineage information from access history and query history, default True.
 enable_lineage_from_history: bool = True
 
 # (Optional) Number of days to include in the usage analysis. Default to 7.
