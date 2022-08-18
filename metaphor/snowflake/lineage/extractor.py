@@ -233,7 +233,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 not source_object_domain
                 or source_object_domain.upper() not in SUPPORTED_OBJECT_DOMAIN_TYPES
                 or not target_object_domain
-                or target_object_domain not in SUPPORTED_OBJECT_DOMAIN_TYPES
+                or target_object_domain.upper() not in SUPPORTED_OBJECT_DOMAIN_TYPES
             ):
                 continue
 
