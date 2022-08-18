@@ -68,7 +68,9 @@ def test_parse_object_dependencies(test_root_dir):
     extractor.filter = DatasetFilter()
 
     dependencies = [
-        ("ACME", "METAPHOR", "FOO", "TABLE", "ACME", "METAPHOR", "BAR", "VIEW")
+        ("ACME", "METAPHOR", "FOO", "TABLE", "ACME", "METAPHOR", "BAR", "VIEW"),
+        ("ACME", "METAPHOR", "ABC", "TABLE", "ACME", "METAPHOR", "XYZ", "VIEW"),
+        ("ACME", "METAPHOR", "F", "TABLE", "ACME", "METAPHOR", "B", "STAGE"),
     ]
 
     extractor._parse_object_dependencies(dependencies)
