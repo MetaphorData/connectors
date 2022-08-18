@@ -84,30 +84,12 @@ class SnowflakeLineageExtractor(BaseExtractor):
         with conn:
             cursor = conn.cursor()
 
-            # Join QUERY_HISTORY & ACCESS_HISTORY to include only queries that succeeded.
-            cursor.execute(
-                """
-                SELECT COUNT(*)
-                FROM
-                    SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q,
-                    SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
-                WHERE q.QUERY_ID = a.QUERY_ID
-                    AND q.EXECUTION_STATUS = 'SUCCESS'
-                    AND ARRAY_SIZE(a.BASE_OBJECTS_ACCESSED) > 0
-                    AND ARRAY_SIZE(a.OBJECTS_MODIFIED) > 0
-                    AND a.QUERY_START_TIME > %s
-                ORDER BY a.QUERY_START_TIME ASC
-                """,
-                (start_date,),
-            )
-            count = cursor.fetchone()[0]
-            batches = math.ceil(count / self.batch_size)
-            logger.info(f"Total {count} queries, dividing into {batches} batches")
-
-            queries = {
-                x: QueryWithParam(
-                    f"""
-                    SELECT a.BASE_OBJECTS_ACCESSED, a.OBJECTS_MODIFIED, q.QUERY_TEXT
+            if config.enable_lineage_from_history:
+                logger.info("Fetching access and query history")
+                # Join QUERY_HISTORY & ACCESS_HISTORY to include only queries that succeeded.
+                cursor.execute(
+                    """
+                    SELECT COUNT(*)
                     FROM
                         SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q,
                         SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
@@ -117,33 +99,54 @@ class SnowflakeLineageExtractor(BaseExtractor):
                         AND ARRAY_SIZE(a.OBJECTS_MODIFIED) > 0
                         AND a.QUERY_START_TIME > %s
                     ORDER BY a.QUERY_START_TIME ASC
-                    LIMIT {self.batch_size} OFFSET %s
                     """,
-                    (
-                        start_date,
-                        x * self.batch_size,
-                    ),
+                    (start_date,),
                 )
-                for x in range(batches)
-            }
-            async_execute(
-                conn,
-                queries,
-                "fetch_access_logs",
-                self.max_concurrency,
-                self._parse_access_logs,
-            )
+                count = cursor.fetchone()[0]
+                batches = math.ceil(count / self.batch_size)
+                logger.info(f"Total {count} queries, dividing into {batches} batches")
 
-            logger.info("Fetching direct object dependencies")
-            cursor.execute(
-                """
-                SELECT REFERENCED_DATABASE, REFERENCED_SCHEMA, REFERENCED_OBJECT_NAME, REFERENCED_OBJECT_DOMAIN,
-                    REFERENCING_DATABASE, REFERENCING_SCHEMA, REFERENCING_OBJECT_NAME, REFERENCING_OBJECT_DOMAIN
-                FROM SNOWFLAKE.ACCOUNT_USAGE.OBJECT_DEPENDENCIES;
-                """
-            )
-            dependencies = cursor.fetchall()
-            self._parse_object_dependencies(dependencies)
+                queries = {
+                    x: QueryWithParam(
+                        f"""
+                        SELECT a.BASE_OBJECTS_ACCESSED, a.OBJECTS_MODIFIED, q.QUERY_TEXT
+                        FROM
+                            SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q,
+                            SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+                        WHERE q.QUERY_ID = a.QUERY_ID
+                            AND q.EXECUTION_STATUS = 'SUCCESS'
+                            AND ARRAY_SIZE(a.BASE_OBJECTS_ACCESSED) > 0
+                            AND ARRAY_SIZE(a.OBJECTS_MODIFIED) > 0
+                            AND a.QUERY_START_TIME > %s
+                        ORDER BY a.QUERY_START_TIME ASC
+                        LIMIT {self.batch_size} OFFSET %s
+                        """,
+                        (
+                            start_date,
+                            x * self.batch_size,
+                        ),
+                    )
+                    for x in range(batches)
+                }
+                async_execute(
+                    conn,
+                    queries,
+                    "fetch_access_logs",
+                    self.max_concurrency,
+                    self._parse_access_logs,
+                )
+
+            if config.enable_view_lineage:
+                logger.info("Fetching direct object dependencies")
+                cursor.execute(
+                    """
+                    SELECT REFERENCED_DATABASE, REFERENCED_SCHEMA, REFERENCED_OBJECT_NAME, REFERENCED_OBJECT_DOMAIN,
+                        REFERENCING_DATABASE, REFERENCING_SCHEMA, REFERENCING_OBJECT_NAME, REFERENCING_OBJECT_DOMAIN
+                    FROM SNOWFLAKE.ACCOUNT_USAGE.OBJECT_DEPENDENCIES;
+                    """
+                )
+                dependencies = cursor.fetchall()
+                self._parse_object_dependencies(dependencies)
 
         return self._datasets.values()
 
