@@ -11,7 +11,7 @@ Create a dedicated user & role based on the [Setup](../README.md#Setup) guide fo
 The config file inherits all the required and optional fields from the general Snowflake connector [Config File](../README.md#config-file). In addition, you can specify the following configurations:
 
 ```yaml
-# (Optional)Whether to enable finding view lineage from object dependencies, default True
+# (Optional) Whether to enable finding view lineage from object dependencies, default True.
 enable_view_lineage: bool = True
 
 # (Optional) Whether to enable finding table lineage information from access history and query history, default True
