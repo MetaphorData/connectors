@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from freezegun import freeze_time
 
@@ -93,4 +95,5 @@ async def _test_project(
     extractor = DbtExtractor()
     events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
+    print(json.dumps(events))
     assert events == load_json(expected)

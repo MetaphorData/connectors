@@ -932,65 +932,78 @@
       "fields": [
         {
           "description": "The month the cohort belongs to, i.e the first month the customer had an order.",
+          "fieldName": "cohort_month",
           "fieldPath": "cohort_month",
           "nativeType": "Not Set"
         },
         {
           "description": "The 'number' of the `date_month` of the record, i.e. how many months from their start month this cohort occurred",
+          "fieldName": "cohort_month_number",
           "fieldPath": "cohort_month_number",
           "nativeType": "Not Set"
         },
         {
           "description": "Unique key representing a customer in a given month.",
+          "fieldName": "customer_cohort_id",
           "fieldPath": "customer_cohort_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the related customer.",
+          "fieldName": "customer_id",
           "fieldPath": "customer_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The calendar month the customer stats relate to.",
+          "fieldName": "date_month",
           "fieldPath": "date_month",
           "nativeType": "Not Set"
         },
         {
           "description": "The timestamp of the customer's first order.",
+          "fieldName": "first_order_timestamp",
           "fieldPath": "first_order_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "Number of line items purchased in the `date_month`",
+          "fieldName": "line_item_count_in_month",
           "fieldPath": "line_item_count_in_month",
           "nativeType": "Not Set"
         },
         {
           "description": "Number of line items purchased up until and including this `date_month`.",
+          "fieldName": "line_item_count_lifetime",
           "fieldPath": "line_item_count_lifetime",
           "nativeType": "Not Set"
         },
         {
           "description": "Number of orders purchased in the `date_month`",
+          "fieldName": "order_count_in_month",
           "fieldPath": "order_count_in_month",
           "nativeType": "Not Set"
         },
         {
           "description": "Number of orders purchased up until and including this `date_month`.",
+          "fieldName": "order_count_lifetime",
           "fieldPath": "order_count_lifetime",
           "nativeType": "Not Set"
         },
         {
           "description": "Total amount (in currency) purchased in the `date_month`",
+          "fieldName": "total_price_in_month",
           "fieldPath": "total_price_in_month",
           "nativeType": "Not Set"
         },
         {
           "description": "Total amount (in currency) up until and including this `date_month`.",
+          "fieldName": "total_price_lifetime",
           "fieldPath": "total_price_lifetime",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -1069,105 +1082,126 @@
       "fields": [
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the customer has consented to receive marketing material via email.",
+          "fieldName": "has_accepted_marketing",
           "fieldPath": "has_accepted_marketing",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the customer was created.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The default address for the customer.",
+          "fieldName": "default_address_id",
           "fieldPath": "default_address_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique email address of the customer. Attempting to assign the same email address to multiple customers returns an error.",
+          "fieldName": "email",
           "fieldPath": "email",
           "nativeType": "Not Set"
         },
         {
           "description": "The customer's first name.",
+          "fieldName": "first_name",
           "fieldPath": "first_name",
           "nativeType": "Not Set"
         },
         {
           "description": "A unique identifier for the customer.",
+          "fieldName": "customer_id",
           "fieldPath": "customer_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The customer's last name.",
+          "fieldName": "last_name",
           "fieldPath": "last_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The number of orders associated with this customer.",
+          "fieldName": "lifetime_count_orders",
           "fieldPath": "lifetime_count_orders",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique phone number (E.164 format) for this customer. Attempting to assign the same phone number to multiple customers returns an error.",
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "Not Set"
         },
         {
           "description": "The state of the customer's account with a shop.",
+          "fieldName": "account_state",
           "fieldPath": "account_state",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the customer is exempt from paying taxes on their order. If true, then taxes won't be applied to an order at checkout. If false, then taxes will be applied at checkout.",
+          "fieldName": "is_tax_exempt",
           "fieldPath": "is_tax_exempt",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the customer information was last updated.",
+          "fieldName": "updated_timestamp",
           "fieldPath": "updated_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the customer has verified their email address.",
+          "fieldName": "is_verified_email",
           "fieldPath": "is_verified_email",
           "nativeType": "Not Set"
         },
         {
           "description": "The timestamp the customer completed their first order.",
+          "fieldName": "first_order_timestamp",
           "fieldPath": "first_order_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The timestamp the customer completed their most recent order.",
+          "fieldName": "most_recent_order_timestamp",
           "fieldPath": "most_recent_order_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The average order value for the customer.",
+          "fieldName": "average_order_value",
           "fieldPath": "average_order_value",
           "nativeType": "Not Set"
         },
         {
           "description": "The total amount of money that the customer has spent on orders across their order history.",
+          "fieldName": "lifetime_total_spent",
           "fieldPath": "lifetime_total_spent",
           "nativeType": "Not Set"
         },
         {
           "description": "The total amount of money that the customer has been refunded on orders across their order history.",
+          "fieldName": "lifetime_total_refunded",
           "fieldPath": "lifetime_total_refunded",
           "nativeType": "Not Set"
         },
         {
           "description": "The total amount of money (minus refunds) that the customer has spent across their order history.",
+          "fieldName": "lifetime_total_amount",
           "fieldPath": "lifetime_total_amount",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -1222,267 +1256,322 @@
       "fields": [
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "The amount available to fulfill, calculated as follows: quantity - max(refunded_quantity, fulfilled_quantity) - pending_fulfilled_quantity - open_fulfilled_quantity",
+          "fieldName": "fulfillable_quantity",
           "fieldPath": "fulfillable_quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "The service provider that's fulfilling the item.",
+          "fieldName": "fulfillment_service",
           "fieldPath": "fulfillment_service",
           "nativeType": "Not Set"
         },
         {
           "description": "How far along an order is in terms line items fulfilled.",
+          "fieldName": "fulfillment_status",
           "fieldPath": "fulfillment_status",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the item is a gift card. If true, then the item is not taxed or considered for shipping charges.",
+          "fieldName": "is_gift_card",
           "fieldPath": "is_gift_card",
           "nativeType": "Not Set"
         },
         {
           "description": "The weight of the item in grams.",
+          "fieldName": "grams",
           "fieldPath": "grams",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the line item.",
+          "fieldName": "order_line_id",
           "fieldPath": "order_line_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the product variant.",
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the related order.",
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The price of the item before discounts have been applied in the shop currency.",
+          "fieldName": "price",
           "fieldPath": "price",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the product that the line item belongs to. Can be null if the original product associated with the order is deleted at a later date.",
+          "fieldName": "product_id",
           "fieldPath": "product_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The number of items that were purchased.",
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the item requires shipping.",
+          "fieldName": "is_requiring_shipping",
           "fieldPath": "is_requiring_shipping",
           "nativeType": "Not Set"
         },
         {
           "description": "The item's SKU (stock keeping unit).",
+          "fieldName": "sku",
           "fieldPath": "sku",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the item was taxable.",
+          "fieldName": "is_taxable",
           "fieldPath": "is_taxable",
           "nativeType": "Not Set"
         },
         {
           "description": "The title of the product.",
+          "fieldName": "title",
           "fieldPath": "title",
           "nativeType": "Not Set"
         },
         {
           "description": "The total amount of the discount allocated to the line item in the shop currency.",
+          "fieldName": "total_discount",
           "fieldPath": "total_discount",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the product variant.",
+          "fieldName": "variant_id",
           "fieldPath": "variant_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the item's supplier.",
+          "fieldName": "vendor",
           "fieldPath": "vendor",
           "nativeType": "Not Set"
         },
         {
           "description": "Quantity of the item that has been refunded.",
+          "fieldName": "refunded_quantity",
           "fieldPath": "refunded_quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "Quantity ordered, excluding refunds.",
+          "fieldName": "quantity_net_refunds",
           "fieldPath": "quantity_net_refunds",
           "nativeType": "Not Set"
         },
         {
           "description": "The barcode, UPC, or ISBN number for the product.",
+          "fieldName": "variant_barcode",
           "fieldPath": "variant_barcode",
           "nativeType": "Not Set"
         },
         {
           "description": "The original price of the item before an adjustment or a sale.",
+          "fieldName": "variant_compare_at_price",
           "fieldPath": "variant_compare_at_price",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time (ISO 8601 format) when the product variant was created.",
+          "fieldName": "variant_created_at",
           "fieldPath": "variant_created_at",
           "nativeType": "Not Set"
         },
         {
           "description": "The fulfillment service associated with the product variant.",
+          "fieldName": "variant_fulfillment_service",
           "fieldPath": "variant_fulfillment_service",
           "nativeType": "Not Set"
         },
         {
           "description": "The weight of the product variant in grams.",
+          "fieldName": "variant_grams",
           "fieldPath": "variant_grams",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique numeric identifier for a product's image. The image must be associated to the same product as the variant.",
+          "fieldName": "variant_image_id",
           "fieldPath": "variant_image_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique identifier for the inventory item, which is used in the Inventory API to query for inventory information.",
+          "fieldName": "inventory_item_id",
           "fieldPath": "inventory_item_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The fulfillment service that tracks the number of items in stock for the product variant.",
+          "fieldName": "variant_inventory_management",
           "fieldPath": "variant_inventory_management",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether customers are allowed to place an order for the product variant when it's out of stock.",
+          "fieldName": "variant_inventory_policy",
           "fieldPath": "variant_inventory_policy",
           "nativeType": "Not Set"
         },
         {
           "description": "An aggregate of inventory across all locations. To adjust inventory at a specific location, use the InventoryLevel resource.",
+          "fieldName": "variant_inventory_quantity",
           "fieldPath": "variant_inventory_quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+          "fieldName": "variant_option_1",
           "fieldPath": "variant_option_1",
           "nativeType": "Not Set"
         },
         {
           "description": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+          "fieldName": "variant_option_2",
           "fieldPath": "variant_option_2",
           "nativeType": "Not Set"
         },
         {
           "description": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+          "fieldName": "variant_option_3",
           "fieldPath": "variant_option_3",
           "nativeType": "Not Set"
         },
         {
           "description": "The order of the product variant in the list of product variants. The first position in the list is 1. The position of variants is indicated by the order in which they are listed.",
+          "fieldName": "variant_position",
           "fieldPath": "variant_position",
           "nativeType": "Not Set"
         },
         {
           "description": "The price of the product variant.",
+          "fieldName": "variant_price",
           "fieldPath": "variant_price",
           "nativeType": "Not Set"
         },
         {
           "description": "This property is deprecated. Use the `requires_shipping` property on the InventoryItem resource instead.",
+          "fieldName": "variant_is_requiring_shipping",
           "fieldPath": "variant_is_requiring_shipping",
           "nativeType": "Not Set"
         },
         {
           "description": "A unique identifier for the product variant in the shop. Required in order to connect to a FulfillmentService.",
+          "fieldName": "variant_sku",
           "fieldPath": "variant_sku",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether a tax is charged when the product variant is sold.",
+          "fieldName": "variant_is_taxable",
           "fieldPath": "variant_is_taxable",
           "nativeType": "Not Set"
         },
         {
           "description": "The title of the product variant. The title field is a concatenation of the option1, option2, and option3 fields. You can only update title indirectly using the option fields.",
+          "fieldName": "variant_title",
           "fieldPath": "variant_title",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the product variant was last modified. Gets returned in ISO 8601 format.",
+          "fieldName": "variant_updated_at",
           "fieldPath": "variant_updated_at",
           "nativeType": "Not Set"
         },
         {
           "description": "The weight of the product variant in the unit system specified with weight_unit.",
+          "fieldName": "variant_weight",
           "fieldPath": "variant_weight",
           "nativeType": "Not Set"
         },
         {
           "description": "The unit of measurement that applies to the product variant's weight. If you don't specify a value for weight_unit, then the shop's default unit of measurement is applied. Valid values: g, kg, oz, and lb.",
+          "fieldName": "variant_weight_unit",
           "fieldPath": "variant_weight_unit",
           "nativeType": "Not Set"
         },
         {
           "description": "Subtotal amount of the refund applied to the order line.",
+          "fieldName": "refunded_subtotal",
           "fieldPath": "refunded_subtotal",
           "nativeType": "Not Set"
         },
         {
           "description": "Subtotal of the order line with refunds subtracted.",
+          "fieldName": "subtotal_net_refunds",
           "fieldPath": "subtotal_net_refunds",
           "nativeType": "Not Set"
         },
         {
           "description": "Image id of the product variant associated with the order line.",
+          "fieldName": "image_id",
           "fieldPath": "image_id",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "index",
           "fieldPath": "index",
           "nativeType": "NUMBER"
         },
         {
+          "fieldName": "pre_tax_price",
           "fieldPath": "pre_tax_price",
           "nativeType": "FLOAT"
         },
         {
+          "fieldName": "property_charge_interval_frequency",
           "fieldPath": "property_charge_interval_frequency",
           "nativeType": "NUMBER"
         },
         {
+          "fieldName": "property_for_shipping_jan_3_rd_2020",
           "fieldPath": "property_for_shipping_jan_3_rd_2020",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "property_shipping_interval_frequency",
           "fieldPath": "property_shipping_interval_frequency",
           "nativeType": "NUMBER"
         },
         {
+          "fieldName": "property_shipping_interval_unit_type",
           "fieldPath": "property_shipping_interval_unit_type",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "property_subscription_id",
           "fieldPath": "property_subscription_id",
           "nativeType": "NUMBER"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "variant_tax_code",
           "fieldPath": "variant_tax_code",
           "nativeType": "TEXT"
         }
@@ -1536,400 +1625,480 @@
       "fields": [
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the app that created the order.",
+          "fieldName": "app_id",
           "fieldPath": "app_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The street address of the billing address.",
+          "fieldName": "billing_address_address_1",
           "fieldPath": "billing_address_address_1",
           "nativeType": "Not Set"
         },
         {
           "description": "An optional additional field for the street address of the billing address.",
+          "fieldName": "billing_address_address_2",
           "fieldPath": "billing_address_address_2",
           "nativeType": "Not Set"
         },
         {
           "description": "The city, town, or village of the billing address.",
+          "fieldName": "billing_address_city",
           "fieldPath": "billing_address_city",
           "nativeType": "Not Set"
         },
         {
           "description": "The company of the person associated with the billing address.",
+          "fieldName": "billing_address_company",
           "fieldPath": "billing_address_company",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the country of the billing address.",
+          "fieldName": "billing_address_country",
           "fieldPath": "billing_address_country",
           "nativeType": "Not Set"
         },
         {
           "description": "The two-letter code (ISO 3166-1 format) for the country of the billing address.",
+          "fieldName": "billing_address_country_code",
           "fieldPath": "billing_address_country_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The first name of the person associated with the payment method.",
+          "fieldName": "billing_address_first_name",
           "fieldPath": "billing_address_first_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The last name of the person associated with the payment method.",
+          "fieldName": "billing_address_last_name",
           "fieldPath": "billing_address_last_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The latitude of the billing address.",
+          "fieldName": "billing_address_latitude",
           "fieldPath": "billing_address_latitude",
           "nativeType": "Not Set"
         },
         {
           "description": "The longitude of the billing address.",
+          "fieldName": "billing_address_longitude",
           "fieldPath": "billing_address_longitude",
           "nativeType": "Not Set"
         },
         {
           "description": "The full name of the person associated with the payment method.",
+          "fieldName": "billing_address_name",
           "fieldPath": "billing_address_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The phone number at the billing address.",
+          "fieldName": "billing_address_phone",
           "fieldPath": "billing_address_phone",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the region (province, state, prefecture, \u2026) of the billing address.",
+          "fieldName": "billing_address_province",
           "fieldPath": "billing_address_province",
           "nativeType": "Not Set"
         },
         {
           "description": "The two-letter abbreviation of the region of the billing address.",
+          "fieldName": "billing_address_province_code",
           "fieldPath": "billing_address_province_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The postal code (zip, postcode, Eircode, \u2026) of the billing address.",
+          "fieldName": "billing_address_zip",
           "fieldPath": "billing_address_zip",
           "nativeType": "Not Set"
         },
         {
           "description": "The IP address of the browser used by the customer when they placed the order.",
+          "fieldName": "browser_ip",
           "fieldPath": "browser_ip",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the customer consented to receive email updates from the shop.",
+          "fieldName": "has_buyer_accepted_marketing",
           "fieldPath": "has_buyer_accepted_marketing",
           "nativeType": "Not Set"
         },
         {
           "description": "The reason why the order was canceled.",
+          "fieldName": "cancel_reason",
           "fieldPath": "cancel_reason",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the order was canceled.",
+          "fieldName": "cancelled_timestamp",
           "fieldPath": "cancelled_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the cart that's associated with the order.",
+          "fieldName": "cart_token",
           "fieldPath": "cart_token",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the order was closed.",
+          "fieldName": "closed_timestamp",
           "fieldPath": "closed_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The autogenerated date and time when the order was created in Shopify.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The three-letter code for the shop currency.",
+          "fieldName": "currency",
           "fieldPath": "currency",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the order's customer.",
+          "fieldName": "customer_id",
           "fieldPath": "customer_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The customer's email address.",
+          "fieldName": "email",
           "fieldPath": "email",
           "nativeType": "Not Set"
         },
         {
           "description": "The status of payments associated with the order. Can only be set when the order is created",
+          "fieldName": "financial_status",
           "fieldPath": "financial_status",
           "nativeType": "Not Set"
         },
         {
           "description": "The order's status in terms of fulfilled line items.",
+          "fieldName": "fulfillment_status",
           "fieldPath": "fulfillment_status",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the order, used for API purposes. This is different from the order_number property, which is the ID used by the shop owner and customer.",
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The URL for the page where the buyer landed when they entered the shop.",
+          "fieldName": "landing_site_base_url",
           "fieldPath": "landing_site_base_url",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the physical location where the order was processed.",
+          "fieldName": "location_id",
           "fieldPath": "location_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The order name, generated by combining the order_number property with the order prefix and suffix that are set in the merchant's general settings.",
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "Not Set"
         },
         {
           "description": "An optional note that a shop owner can attach to the order.",
+          "fieldName": "note",
           "fieldPath": "note",
           "nativeType": "Not Set"
         },
         {
           "description": "The order's position in the shop's count of orders. Numbers are sequential and start at 1.",
+          "fieldName": "number",
           "fieldPath": "number",
           "nativeType": "Not Set"
         },
         {
           "description": "The order 's position in the shop's count of orders starting at 1001. Order numbers are sequential and start at 1001.",
+          "fieldName": "order_number",
           "fieldPath": "order_number",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when an order was processed. This value is the date that appears on your orders and that's used in the analytic reports.",
+          "fieldName": "processed_timestamp",
           "fieldPath": "processed_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "How the payment was processed.",
+          "fieldName": "processing_method",
           "fieldPath": "processing_method",
           "nativeType": "Not Set"
         },
         {
           "description": "The website where the customer clicked a link to the shop.",
+          "fieldName": "referring_site",
           "fieldPath": "referring_site",
           "nativeType": "Not Set"
         },
         {
           "description": "The street address of the shipping address.",
+          "fieldName": "shipping_address_address_1",
           "fieldPath": "shipping_address_address_1",
           "nativeType": "Not Set"
         },
         {
           "description": "An optional additional field for the street address of the shipping address.",
+          "fieldName": "shipping_address_address_2",
           "fieldPath": "shipping_address_address_2",
           "nativeType": "Not Set"
         },
         {
           "description": "The city, town, or village of the shipping address.",
+          "fieldName": "shipping_address_city",
           "fieldPath": "shipping_address_city",
           "nativeType": "Not Set"
         },
         {
           "description": "The company of the person associated with the shipping address.",
+          "fieldName": "shipping_address_company",
           "fieldPath": "shipping_address_company",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the country of the shipping address.",
+          "fieldName": "shipping_address_country",
           "fieldPath": "shipping_address_country",
           "nativeType": "Not Set"
         },
         {
           "description": "The two-letter code (ISO 3166-1 format) for the country of the shipping address.",
+          "fieldName": "shipping_address_country_code",
           "fieldPath": "shipping_address_country_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The first name of the person associated with the shipping address.",
+          "fieldName": "shipping_address_first_name",
           "fieldPath": "shipping_address_first_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The last name of the person associated with the shipping address.",
+          "fieldName": "shipping_address_last_name",
           "fieldPath": "shipping_address_last_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The latitude of the shipping address.",
+          "fieldName": "shipping_address_latitude",
           "fieldPath": "shipping_address_latitude",
           "nativeType": "Not Set"
         },
         {
           "description": "The longitude of the shipping address.",
+          "fieldName": "shipping_address_longitude",
           "fieldPath": "shipping_address_longitude",
           "nativeType": "Not Set"
         },
         {
           "description": "The full name of the person associated with the payment method.",
+          "fieldName": "shipping_address_name",
           "fieldPath": "shipping_address_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The phone number at the shipping address.",
+          "fieldName": "shipping_address_phone",
           "fieldPath": "shipping_address_phone",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the region (province, state, prefecture, \u2026) of the shipping address.",
+          "fieldName": "shipping_address_province",
           "fieldPath": "shipping_address_province",
           "nativeType": "Not Set"
         },
         {
           "description": "The two-letter abbreviation of the region of the shipping address.",
+          "fieldName": "shipping_address_province_code",
           "fieldPath": "shipping_address_province_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The postal code (zip, postcode, Eircode, \u2026) of the shipping address.",
+          "fieldName": "shipping_address_zip",
           "fieldPath": "shipping_address_zip",
           "nativeType": "Not Set"
         },
         {
           "description": "Where the order originated. Can be set only during order creation, and is not writeable afterwards.",
+          "fieldName": "source_name",
           "fieldPath": "source_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The price of the order in the shop currency after discounts but before shipping, taxes, and tips.",
+          "fieldName": "subtotal_price",
           "fieldPath": "subtotal_price",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether taxes are included in the order subtotal.",
+          "fieldName": "has_taxes_included",
           "fieldPath": "has_taxes_included",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether this is a test order.",
+          "fieldName": "is_test_order",
           "fieldPath": "is_test_order",
           "nativeType": "Not Set"
         },
         {
           "description": "A unique token for the order.",
+          "fieldName": "token",
           "fieldPath": "token",
           "nativeType": "Not Set"
         },
         {
           "description": "The total discounts applied to the price of the order in the shop currency.",
+          "fieldName": "total_discounts",
           "fieldPath": "total_discounts",
           "nativeType": "Not Set"
         },
         {
           "description": "The sum of all line item prices in the shop currency.",
+          "fieldName": "total_line_items_price",
           "fieldPath": "total_line_items_price",
           "nativeType": "Not Set"
         },
         {
           "description": "The sum of all line item prices, discounts, shipping, taxes, and tips in the shop currency. Must be positive.",
+          "fieldName": "total_price",
           "fieldPath": "total_price",
           "nativeType": "Not Set"
         },
         {
           "description": "The sum of all the taxes applied to the order in th shop currency. Must be positive).",
+          "fieldName": "total_tax",
           "fieldPath": "total_tax",
           "nativeType": "Not Set"
         },
         {
           "description": "The sum of all line item weights in grams.",
+          "fieldName": "total_weight",
           "fieldPath": "total_weight",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time (ISO 8601 format) when the order was last modified.",
+          "fieldName": "updated_timestamp",
           "fieldPath": "updated_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the user logged into Shopify POS who processed the order, if applicable.",
+          "fieldName": "user_id",
           "fieldPath": "user_id",
           "nativeType": "Not Set"
         },
         {
           "description": "Number of line items included in the order.",
+          "fieldName": "line_item_count",
           "fieldPath": "line_item_count",
           "nativeType": "Not Set"
         },
         {
           "description": "The sequential number of the order as it relates to the customer",
+          "fieldName": "customer_order_seq_number",
           "fieldPath": "customer_order_seq_number",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the order was a new or repeat order for the customer.",
+          "fieldName": "new_vs_repeat",
           "fieldPath": "new_vs_repeat",
           "nativeType": "Not Set"
         },
         {
           "description": "The shipping cost of the order.",
+          "fieldName": "shipping_cost",
           "fieldPath": "shipping_cost",
           "nativeType": "Not Set"
         },
         {
           "description": "Total adjustment amount applied to the order.",
+          "fieldName": "order_adjustment_amount",
           "fieldPath": "order_adjustment_amount",
           "nativeType": "Not Set"
         },
         {
           "description": "Total tax applied to the adjustment on the order.",
+          "fieldName": "order_adjustment_tax_amount",
           "fieldPath": "order_adjustment_tax_amount",
           "nativeType": "Not Set"
         },
         {
           "description": "Total refund amount applied to the order.",
+          "fieldName": "refund_subtotal",
           "fieldPath": "refund_subtotal",
           "nativeType": "Not Set"
         },
         {
           "description": "Total tax applied to the refund on the order.",
+          "fieldName": "refund_total_tax",
           "fieldPath": "refund_total_tax",
           "nativeType": "Not Set"
         },
         {
           "description": "Order total adjusted for refunds and other adjustments. The calculation used for this field is as follows: total price listed on the original order (including shipping costs and discounts) + adjustments + adjustments tax - total refunds - refunds tax The order_adjusted_total will equate to the total sales - refunds listed within the transactions table for the order (after currency exchange).\n",
+          "fieldName": "order_adjusted_total",
           "fieldPath": "order_adjusted_total",
           "nativeType": "Not Set"
         },
         {
           "description": "Field representing the index of the order line in relation to the order.",
+          "fieldName": "index",
           "fieldPath": "index",
           "nativeType": "Not Set"
         },
         {
           "description": "The pre tax price of the order line.",
+          "fieldName": "pre_tax_price",
           "fieldPath": "pre_tax_price",
           "nativeType": "Not Set"
         },
         {
           "description": "The checkout token applied to the order.",
+          "fieldName": "checkout_token",
           "fieldPath": "checkout_token",
           "nativeType": "Not Set"
         },
         {
           "description": "The total shipping price set to the order.",
+          "fieldName": "total_shipping_price_set",
           "fieldPath": "total_shipping_price_set",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -2006,90 +2175,108 @@
       "fields": [
         {
           "description": "Whether the record has been deleted in the source system.",
+          "fieldName": "_fivetran_deleted",
           "fieldPath": "_fivetran_deleted",
           "nativeType": "Not Set"
         },
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the product was created.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "A unique human-friendly string for the product. Automatically generated from the product's title.",
+          "fieldName": "handle",
           "fieldPath": "handle",
           "nativeType": "Not Set"
         },
         {
           "description": "An unsigned 64-bit integer that's used as a unique identifier for the product. Each id is unique across the Shopify system. No two products will have the same id, even if they're from different shops.",
+          "fieldName": "product_id",
           "fieldPath": "product_id",
           "nativeType": "Not Set"
         },
         {
           "description": "A categorization for the product used for filtering and searching products.",
+          "fieldName": "product_type",
           "fieldPath": "product_type",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time (ISO 8601 format) when the product was published. Can be set to null to unpublish the product from the Online Store channel.",
+          "fieldName": "published_timestamp",
           "fieldPath": "published_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the product is published to the Point of Sale channel.",
+          "fieldName": "published_scope",
           "fieldPath": "published_scope",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the product.",
+          "fieldName": "title",
           "fieldPath": "title",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the product was last modified.",
+          "fieldName": "updated_timestamp",
           "fieldPath": "updated_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the product's vendor.",
+          "fieldName": "vendor",
           "fieldPath": "vendor",
           "nativeType": "Not Set"
         },
         {
           "description": "Quantity of the product sold.",
+          "fieldName": "quantity_sold",
           "fieldPath": "quantity_sold",
           "nativeType": "Not Set"
         },
         {
           "description": "Total amount of the product sold.",
+          "fieldName": "subtotal_sold",
           "fieldPath": "subtotal_sold",
           "nativeType": "Not Set"
         },
         {
           "description": "Quantity of the product sold, excluding refunds.",
+          "fieldName": "quantity_sold_net_refunds",
           "fieldPath": "quantity_sold_net_refunds",
           "nativeType": "Not Set"
         },
         {
           "description": "Total amount of the product sold, excluding refunds.",
+          "fieldName": "subtotal_sold_net_refunds",
           "fieldPath": "subtotal_sold_net_refunds",
           "nativeType": "Not Set"
         },
         {
           "description": "The timestamp the product was first ordered.",
+          "fieldName": "first_order_timestamp",
           "fieldPath": "first_order_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The timestamp the product was most recently ordered.",
+          "fieldName": "most_recent_order_timestamp",
           "fieldPath": "most_recent_order_timestamp",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -2143,170 +2330,204 @@
       "fields": [
         {
           "description": "The ID for the transaction.",
+          "fieldName": "transaction_id",
           "fieldPath": "transaction_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID for the order that the transaction is associated with.",
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID associated with a refund in the refund table.",
+          "fieldName": "refund_id",
           "fieldPath": "refund_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The amount of money included in the transaction.",
+          "fieldName": "amount",
           "fieldPath": "amount",
           "nativeType": "Not Set"
         },
         {
           "description": "The authorization code associated with the transaction.",
+          "fieldName": "authorization",
           "fieldPath": "authorization",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the transaction was created.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when a transaction was processed.",
+          "fieldName": "processed_timestamp",
           "fieldPath": "processed_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID for the device.",
+          "fieldName": "device_id",
           "fieldPath": "device_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the gateway the transaction was issued through.",
+          "fieldName": "gateway",
           "fieldPath": "gateway",
           "nativeType": "Not Set"
         },
         {
           "description": "The origin of the transaction.",
+          "fieldName": "source_name",
           "fieldPath": "source_name",
           "nativeType": "Not Set"
         },
         {
           "description": "A string generated by the payment provider with additional information about why the transaction succeeded or failed.",
+          "fieldName": "message",
           "fieldPath": "message",
           "nativeType": "Not Set"
         },
         {
           "description": "The three-letter code (ISO 4217 format) for the currency used for the payment.",
+          "fieldName": "currency",
           "fieldPath": "currency",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the physical location where the transaction was processed.",
+          "fieldName": "location_id",
           "fieldPath": "location_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of an associated transaction.",
+          "fieldName": "parent_id",
           "fieldPath": "parent_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The response code from the address verification system.",
+          "fieldName": "payment_avs_result_code",
           "fieldPath": "payment_avs_result_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The issuer identification number (IIN), formerly known as bank identification number (BIN) of the customer's credit card.",
+          "fieldName": "payment_credit_card_bin",
           "fieldPath": "payment_credit_card_bin",
           "nativeType": "Not Set"
         },
         {
           "description": "The response code from the credit card company indicating whether the customer entered the card security code, or card verification value, correctly.",
+          "fieldName": "payment_cvv_result_code",
           "fieldPath": "payment_cvv_result_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The customer's credit card number, with most of the leading digits redacted.",
+          "fieldName": "payment_credit_card_number",
           "fieldPath": "payment_credit_card_number",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the company that issued the customer's credit card.",
+          "fieldName": "payment_credit_card_company",
           "fieldPath": "payment_credit_card_company",
           "nativeType": "Not Set"
         },
         {
           "description": "The transaction's type.",
+          "fieldName": "kind",
           "fieldPath": "kind",
           "nativeType": "Not Set"
         },
         {
           "description": "A transaction receipt attached to the transaction by the gateway.",
+          "fieldName": "receipt",
           "fieldPath": "receipt",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the adjustment.",
+          "fieldName": "currency_exchange_id",
           "fieldPath": "currency_exchange_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The difference between the amounts on the associated transaction and the parent transaction.",
+          "fieldName": "currency_exchange_adjustment",
           "fieldPath": "currency_exchange_adjustment",
           "nativeType": "Not Set"
         },
         {
           "description": "The amount of the parent transaction in the shop currency.",
+          "fieldName": "currency_exchange_original_amount",
           "fieldPath": "currency_exchange_original_amount",
           "nativeType": "Not Set"
         },
         {
           "description": "The amount of the associated transaction in the shop currency.",
+          "fieldName": "currency_exchange_final_amount",
           "fieldPath": "currency_exchange_final_amount",
           "nativeType": "Not Set"
         },
         {
           "description": "The shop currency.",
+          "fieldName": "currency_exchange_currency",
           "fieldPath": "currency_exchange_currency",
           "nativeType": "Not Set"
         },
         {
           "description": "A standardized error code, independent of the payment provider.",
+          "fieldName": "error_code",
           "fieldPath": "error_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The status of the transaction.",
+          "fieldName": "status",
           "fieldPath": "status",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the transaction is a test transaction.",
+          "fieldName": "test",
           "fieldPath": "test",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID for the user who was logged into the Shopify POS device when the order was processed, if applicable.",
+          "fieldName": "user_id",
           "fieldPath": "user_id",
           "nativeType": "Not Set"
         },
         {
           "description": "Timestamp of the date the record was synced by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "The exchange rate between the home currency and the currency of sale at the time of the transaction.",
+          "fieldName": "exchange_rate",
           "fieldPath": "exchange_rate",
           "nativeType": "Not Set"
         },
         {
           "description": "The total amount of the transaction with the currency exchange rate applied.",
+          "fieldName": "currency_exchange_calculated_amount",
           "fieldPath": "currency_exchange_calculated_amount",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -2469,6 +2690,7 @@
       "compiledSql": "\n\n/*\ncall as follows:\n\ndate_spine(\n    \"day\",\n    \"to_date('01/01/2016', 'mm/dd/yyyy')\",\n    \"dateadd(week, 1, current_date)\"\n)\n\n*/\n\nwith rawdata as (\n\n    \n\n    \n\n    with p as (\n        select 0 as generated_number union all select 1\n    ), unioned as (\n\n    select\n\n    \n    p0.generated_number * power(2, 0)\n     + \n    \n    p1.generated_number * power(2, 1)\n     + \n    \n    p2.generated_number * power(2, 2)\n     + \n    \n    p3.generated_number * power(2, 3)\n     + \n    \n    p4.generated_number * power(2, 4)\n     + \n    \n    p5.generated_number * power(2, 5)\n     + \n    \n    p6.generated_number * power(2, 6)\n     + \n    \n    p7.generated_number * power(2, 7)\n     + \n    \n    p8.generated_number * power(2, 8)\n     + \n    \n    p9.generated_number * power(2, 9)\n    \n    \n    + 1\n    as generated_number\n\n    from\n\n    \n    p as p0\n     cross join \n    \n    p as p1\n     cross join \n    \n    p as p2\n     cross join \n    \n    p as p3\n     cross join \n    \n    p as p4\n     cross join \n    \n    p as p5\n     cross join \n    \n    p as p6\n     cross join \n    \n    p as p7\n     cross join \n    \n    p as p8\n     cross join \n    \n    p as p9\n    \n    \n\n    )\n\n    select *\n    from unioned\n    where generated_number <= 1008\n    order by generated_number\n\n\n\n),\n\nall_periods as (\n\n    select (\n        \n\n    dateadd(\n        day,\n        row_number() over (order by 1) - 1,\n        cast('2019-01-01' as date)\n        )\n\n\n    ) as date_day\n    from rawdata\n\n),\n\nfiltered as (\n\n    select *\n    from all_periods\n    where date_day <= current_date\n\n)\n\nselect * from filtered\n\n",
       "fields": [
         {
+          "fieldName": "date_day",
           "fieldPath": "date_day",
           "nativeType": "DATE"
         }
@@ -2506,80 +2728,96 @@
       "fields": [
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the customer has consented to receive marketing material via email.",
+          "fieldName": "has_accepted_marketing",
           "fieldPath": "has_accepted_marketing",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the customer was created.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The default address for the customer.",
+          "fieldName": "default_address_id",
           "fieldPath": "default_address_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique email address of the customer. Attempting to assign the same email address to multiple customers returns an error.",
+          "fieldName": "email",
           "fieldPath": "email",
           "nativeType": "Not Set"
         },
         {
           "description": "The customer's first name.",
+          "fieldName": "first_name",
           "fieldPath": "first_name",
           "nativeType": "Not Set"
         },
         {
           "description": "A unique identifier for the customer.",
+          "fieldName": "customer_id",
           "fieldPath": "customer_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The customer's last name.",
+          "fieldName": "last_name",
           "fieldPath": "last_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The number of orders associated with this customer.",
+          "fieldName": "orders_count",
           "fieldPath": "orders_count",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique phone number (E.164 format) for this customer. Attempting to assign the same phone number to multiple customers returns an error.",
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "Not Set"
         },
         {
           "description": "The state of the customer's account with a shop.",
+          "fieldName": "account_state",
           "fieldPath": "account_state",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the customer is exempt from paying taxes on their order. If true, then taxes won't be applied to an order at checkout. If false, then taxes will be applied at checkout.",
+          "fieldName": "is_tax_exempt",
           "fieldPath": "is_tax_exempt",
           "nativeType": "Not Set"
         },
         {
           "description": "The total amount of money that the customer has spent across their order history.",
+          "fieldName": "total_spent",
           "fieldPath": "total_spent",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the customer information was last updated.",
+          "fieldName": "updated_timestamp",
           "fieldPath": "updated_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the customer has verified their email address.",
+          "fieldName": "is_verified_email",
           "fieldPath": "is_verified_email",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -2658,354 +2896,425 @@
       "fields": [
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the app that created the order.",
+          "fieldName": "app_id",
           "fieldPath": "app_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The street address of the billing address.",
+          "fieldName": "billing_address_address_1",
           "fieldPath": "billing_address_address_1",
           "nativeType": "Not Set"
         },
         {
           "description": "An optional additional field for the street address of the billing address.",
+          "fieldName": "billing_address_address_2",
           "fieldPath": "billing_address_address_2",
           "nativeType": "Not Set"
         },
         {
           "description": "The city, town, or village of the billing address.",
+          "fieldName": "billing_address_city",
           "fieldPath": "billing_address_city",
           "nativeType": "Not Set"
         },
         {
           "description": "The company of the person associated with the billing address.",
+          "fieldName": "billing_address_company",
           "fieldPath": "billing_address_company",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the country of the billing address.",
+          "fieldName": "billing_address_country",
           "fieldPath": "billing_address_country",
           "nativeType": "Not Set"
         },
         {
           "description": "The two-letter code (ISO 3166-1 format) for the country of the billing address.",
+          "fieldName": "billing_address_country_code",
           "fieldPath": "billing_address_country_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The first name of the person associated with the payment method.",
+          "fieldName": "billing_address_first_name",
           "fieldPath": "billing_address_first_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The last name of the person associated with the payment method.",
+          "fieldName": "billing_address_last_name",
           "fieldPath": "billing_address_last_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The latitude of the billing address.",
+          "fieldName": "billing_address_latitude",
           "fieldPath": "billing_address_latitude",
           "nativeType": "Not Set"
         },
         {
           "description": "The longitude of the billing address.",
+          "fieldName": "billing_address_longitude",
           "fieldPath": "billing_address_longitude",
           "nativeType": "Not Set"
         },
         {
           "description": "The full name of the person associated with the payment method.",
+          "fieldName": "billing_address_name",
           "fieldPath": "billing_address_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The phone number at the billing address.",
+          "fieldName": "billing_address_phone",
           "fieldPath": "billing_address_phone",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the region (province, state, prefecture, \u2026) of the billing address.",
+          "fieldName": "billing_address_province",
           "fieldPath": "billing_address_province",
           "nativeType": "Not Set"
         },
         {
           "description": "The two-letter abbreviation of the region of the billing address.",
+          "fieldName": "billing_address_province_code",
           "fieldPath": "billing_address_province_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The postal code (zip, postcode, Eircode, \u2026) of the billing address.",
+          "fieldName": "billing_address_zip",
           "fieldPath": "billing_address_zip",
           "nativeType": "Not Set"
         },
         {
           "description": "The IP address of the browser used by the customer when they placed the order.",
+          "fieldName": "browser_ip",
           "fieldPath": "browser_ip",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the customer consented to receive email updates from the shop.",
+          "fieldName": "has_buyer_accepted_marketing",
           "fieldPath": "has_buyer_accepted_marketing",
           "nativeType": "Not Set"
         },
         {
           "description": "The reason why the order was canceled.",
+          "fieldName": "cancel_reason",
           "fieldPath": "cancel_reason",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the order was canceled.",
+          "fieldName": "cancelled_timestamp",
           "fieldPath": "cancelled_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the cart that's associated with the order.",
+          "fieldName": "cart_token",
           "fieldPath": "cart_token",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the order was closed.",
+          "fieldName": "closed_timestamp",
           "fieldPath": "closed_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The autogenerated date and time when the order was created in Shopify.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The three-letter code for the shop currency.",
+          "fieldName": "currency",
           "fieldPath": "currency",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the order's customer.",
+          "fieldName": "customer_id",
           "fieldPath": "customer_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The customer's email address.",
+          "fieldName": "email",
           "fieldPath": "email",
           "nativeType": "Not Set"
         },
         {
           "description": "The status of payments associated with the order. Can only be set when the order is created",
+          "fieldName": "financial_status",
           "fieldPath": "financial_status",
           "nativeType": "Not Set"
         },
         {
           "description": "The order's status in terms of fulfilled line items.",
+          "fieldName": "fulfillment_status",
           "fieldPath": "fulfillment_status",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the order, used for API purposes. This is different from the order_number property, which is the ID used by the shop owner and customer.",
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The URL for the page where the buyer landed when they entered the shop.",
+          "fieldName": "landing_site_base_url",
           "fieldPath": "landing_site_base_url",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the physical location where the order was processed.",
+          "fieldName": "location_id",
           "fieldPath": "location_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The order name, generated by combining the order_number property with the order prefix and suffix that are set in the merchant's general settings.",
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "Not Set"
         },
         {
           "description": "An optional note that a shop owner can attach to the order.",
+          "fieldName": "note",
           "fieldPath": "note",
           "nativeType": "Not Set"
         },
         {
           "description": "The order's position in the shop's count of orders. Numbers are sequential and start at 1.",
+          "fieldName": "number",
           "fieldPath": "number",
           "nativeType": "Not Set"
         },
         {
           "description": "The order 's position in the shop's count of orders starting at 1001. Order numbers are sequential and start at 1001.",
+          "fieldName": "order_number",
           "fieldPath": "order_number",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when an order was processed. This value is the date that appears on your orders and that's used in the analytic reports.",
+          "fieldName": "processed_timestamp",
           "fieldPath": "processed_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "How the payment was processed.",
+          "fieldName": "processing_method",
           "fieldPath": "processing_method",
           "nativeType": "Not Set"
         },
         {
           "description": "The website where the customer clicked a link to the shop.",
+          "fieldName": "referring_site",
           "fieldPath": "referring_site",
           "nativeType": "Not Set"
         },
         {
           "description": "The street address of the shipping address.",
+          "fieldName": "shipping_address_address_1",
           "fieldPath": "shipping_address_address_1",
           "nativeType": "Not Set"
         },
         {
           "description": "An optional additional field for the street address of the shipping address.",
+          "fieldName": "shipping_address_address_2",
           "fieldPath": "shipping_address_address_2",
           "nativeType": "Not Set"
         },
         {
           "description": "The city, town, or village of the shipping address.",
+          "fieldName": "shipping_address_city",
           "fieldPath": "shipping_address_city",
           "nativeType": "Not Set"
         },
         {
           "description": "The company of the person associated with the shipping address.",
+          "fieldName": "shipping_address_company",
           "fieldPath": "shipping_address_company",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the country of the shipping address.",
+          "fieldName": "shipping_address_country",
           "fieldPath": "shipping_address_country",
           "nativeType": "Not Set"
         },
         {
           "description": "The two-letter code (ISO 3166-1 format) for the country of the shipping address.",
+          "fieldName": "shipping_address_country_code",
           "fieldPath": "shipping_address_country_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The first name of the person associated with the shipping address.",
+          "fieldName": "shipping_address_first_name",
           "fieldPath": "shipping_address_first_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The last name of the person associated with the shipping address.",
+          "fieldName": "shipping_address_last_name",
           "fieldPath": "shipping_address_last_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The latitude of the shipping address.",
+          "fieldName": "shipping_address_latitude",
           "fieldPath": "shipping_address_latitude",
           "nativeType": "Not Set"
         },
         {
           "description": "The longitude of the shipping address.",
+          "fieldName": "shipping_address_longitude",
           "fieldPath": "shipping_address_longitude",
           "nativeType": "Not Set"
         },
         {
           "description": "The full name of the person associated with the payment method.",
+          "fieldName": "shipping_address_name",
           "fieldPath": "shipping_address_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The phone number at the shipping address.",
+          "fieldName": "shipping_address_phone",
           "fieldPath": "shipping_address_phone",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the region (province, state, prefecture, \u2026) of the shipping address.",
+          "fieldName": "shipping_address_province",
           "fieldPath": "shipping_address_province",
           "nativeType": "Not Set"
         },
         {
           "description": "The two-letter abbreviation of the region of the shipping address.",
+          "fieldName": "shipping_address_province_code",
           "fieldPath": "shipping_address_province_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The postal code (zip, postcode, Eircode, \u2026) of the shipping address.",
+          "fieldName": "shipping_address_zip",
           "fieldPath": "shipping_address_zip",
           "nativeType": "Not Set"
         },
         {
           "description": "Where the order originated. Can be set only during order creation, and is not writeable afterwards.",
+          "fieldName": "source_name",
           "fieldPath": "source_name",
           "nativeType": "Not Set"
         },
         {
           "description": "The price of the order in the shop currency after discounts but before shipping, taxes, and tips.",
+          "fieldName": "subtotal_price",
           "fieldPath": "subtotal_price",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether taxes are included in the order subtotal.",
+          "fieldName": "has_taxes_included",
           "fieldPath": "has_taxes_included",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether this is a test order.",
+          "fieldName": "is_test_order",
           "fieldPath": "is_test_order",
           "nativeType": "Not Set"
         },
         {
           "description": "A unique token for the order.",
+          "fieldName": "token",
           "fieldPath": "token",
           "nativeType": "Not Set"
         },
         {
           "description": "The total discounts applied to the price of the order in the shop currency.",
+          "fieldName": "total_discounts",
           "fieldPath": "total_discounts",
           "nativeType": "Not Set"
         },
         {
           "description": "The sum of all line item prices in the shop currency.",
+          "fieldName": "total_line_items_price",
           "fieldPath": "total_line_items_price",
           "nativeType": "Not Set"
         },
         {
           "description": "The sum of all line item prices, discounts, shipping, taxes, and tips in the shop currency. Must be positive.",
+          "fieldName": "total_price",
           "fieldPath": "total_price",
           "nativeType": "Not Set"
         },
         {
           "description": "The sum of all the taxes applied to the order in th shop currency. Must be positive).",
+          "fieldName": "total_tax",
           "fieldPath": "total_tax",
           "nativeType": "Not Set"
         },
         {
           "description": "The sum of all line item weights in grams.",
+          "fieldName": "total_weight",
           "fieldPath": "total_weight",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time (ISO 8601 format) when the order was last modified.",
+          "fieldName": "updated_timestamp",
           "fieldPath": "updated_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the user logged into Shopify POS who processed the order, if applicable.",
+          "fieldName": "user_id",
           "fieldPath": "user_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The total shipping price set for the order.",
+          "fieldName": "total_shipping_price_set",
           "fieldPath": "total_shipping_price_set",
           "nativeType": "Not Set"
         },
         {
           "description": "The index associated with the order.",
+          "fieldName": "index",
           "fieldPath": "index",
           "nativeType": "Not Set"
         },
         {
           "description": "The total pre tax price of the order.",
+          "fieldName": "pre_tax_price",
           "fieldPath": "pre_tax_price",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "checkout_token",
           "fieldPath": "checkout_token",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -3084,55 +3393,66 @@
       "fields": [
         {
           "description": "The unique numeric identifier for the order adjustment.",
+          "fieldName": "order_adjustment_id",
           "fieldPath": "order_adjustment_id",
           "nativeType": "Not Set"
         },
         {
           "description": "Reference to the order which the adjustment is associated.",
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "Not Set"
         },
         {
           "description": "Reference to the refund which the adjustment is associated.",
+          "fieldName": "refund_id",
           "fieldPath": "refund_id",
           "nativeType": "Not Set"
         },
         {
           "description": "Amount of the adjustment.",
+          "fieldName": "amount",
           "fieldPath": "amount",
           "nativeType": "Not Set"
         },
         {
           "description": "Tax amount applied to the order adjustment.",
+          "fieldName": "tax_amount",
           "fieldPath": "tax_amount",
           "nativeType": "Not Set"
         },
         {
           "description": "The kind of order adjustment (eg. refund, restock, etc.).",
+          "fieldName": "kind",
           "fieldPath": "kind",
           "nativeType": "Not Set"
         },
         {
           "description": "The reason for the order adjustment.",
+          "fieldName": "reason",
           "fieldPath": "reason",
           "nativeType": "Not Set"
         },
         {
           "description": "Amount set towards the order adjustment",
+          "fieldName": "amount_set",
           "fieldPath": "amount_set",
           "nativeType": "Not Set"
         },
         {
           "description": "Tax amount set towards the order adjustment.",
+          "fieldName": "tax_amount_set",
           "fieldPath": "tax_amount_set",
           "nativeType": "Not Set"
         },
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -3211,128 +3531,155 @@
       "fields": [
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "The amount available to fulfill, calculated as follows: quantity - max(refunded_quantity, fulfilled_quantity) - pending_fulfilled_quantity - open_fulfilled_quantity",
+          "fieldName": "fulfillable_quantity",
           "fieldPath": "fulfillable_quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "The service provider that's fulfilling the item.",
+          "fieldName": "fulfillment_service",
           "fieldPath": "fulfillment_service",
           "nativeType": "Not Set"
         },
         {
           "description": "How far along an order is in terms line items fulfilled.",
+          "fieldName": "fulfillment_status",
           "fieldPath": "fulfillment_status",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the item is a gift card. If true, then the item is not taxed or considered for shipping charges.",
+          "fieldName": "is_gift_card",
           "fieldPath": "is_gift_card",
           "nativeType": "Not Set"
         },
         {
           "description": "The weight of the item in grams.",
+          "fieldName": "grams",
           "fieldPath": "grams",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the line item.",
+          "fieldName": "order_line_id",
           "fieldPath": "order_line_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the product variant.",
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the related order.",
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The price of the item before discounts have been applied in the shop currency.",
+          "fieldName": "price",
           "fieldPath": "price",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the product that the line item belongs to. Can be null if the original product associated with the order is deleted at a later date.",
+          "fieldName": "product_id",
           "fieldPath": "product_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The number of items that were purchased.",
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the item requires shipping.",
+          "fieldName": "is_requiring_shipping",
           "fieldPath": "is_requiring_shipping",
           "nativeType": "Not Set"
         },
         {
           "description": "The item's SKU (stock keeping unit).",
+          "fieldName": "sku",
           "fieldPath": "sku",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the item was taxable.",
+          "fieldName": "is_taxable",
           "fieldPath": "is_taxable",
           "nativeType": "Not Set"
         },
         {
           "description": "The title of the product.",
+          "fieldName": "title",
           "fieldPath": "title",
           "nativeType": "Not Set"
         },
         {
           "description": "The total amount of the discount allocated to the line item in the shop currency.",
+          "fieldName": "total_discount",
           "fieldPath": "total_discount",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the product variant.",
+          "fieldName": "variant_id",
           "fieldPath": "variant_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the item's supplier.",
+          "fieldName": "vendor",
           "fieldPath": "vendor",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "index",
           "fieldPath": "index",
           "nativeType": "NUMBER"
         },
         {
+          "fieldName": "pre_tax_price",
           "fieldPath": "pre_tax_price",
           "nativeType": "FLOAT"
         },
         {
+          "fieldName": "property_charge_interval_frequency",
           "fieldPath": "property_charge_interval_frequency",
           "nativeType": "NUMBER"
         },
         {
+          "fieldName": "property_for_shipping_jan_3_rd_2020",
           "fieldPath": "property_for_shipping_jan_3_rd_2020",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "property_shipping_interval_frequency",
           "fieldPath": "property_shipping_interval_frequency",
           "nativeType": "NUMBER"
         },
         {
+          "fieldName": "property_shipping_interval_unit_type",
           "fieldPath": "property_shipping_interval_unit_type",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "property_subscription_id",
           "fieldPath": "property_subscription_id",
           "nativeType": "NUMBER"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -3411,50 +3758,60 @@
       "fields": [
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique identifier of the line item in the refund.",
+          "fieldName": "order_line_refund_id",
           "fieldPath": "order_line_refund_id",
           "nativeType": "Not Set"
         },
         {
           "description": "TThe unique identifier of the location where the items will be restockedBD",
+          "fieldName": "location_id",
           "fieldPath": "location_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the related line item in the order.",
+          "fieldName": "order_line_id",
           "fieldPath": "order_line_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The quantity of the associated line item that was returned.",
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the related refund.",
+          "fieldName": "refund_id",
           "fieldPath": "refund_id",
           "nativeType": "Not Set"
         },
         {
           "description": "How this refund line item affects inventory levels.",
+          "fieldName": "restock_type",
           "fieldPath": "restock_type",
           "nativeType": "Not Set"
         },
         {
           "description": "Subtotal amount of the order line refund",
+          "fieldName": "subtotal",
           "fieldPath": "subtotal",
           "nativeType": "Not Set"
         },
         {
           "description": "The total tax applied to the refund.",
+          "fieldName": "total_tax",
           "fieldPath": "total_tax",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -3533,60 +3890,72 @@
       "fields": [
         {
           "description": "Whether the record has been deleted in the source system.",
+          "fieldName": "_fivetran_deleted",
           "fieldPath": "_fivetran_deleted",
           "nativeType": "Not Set"
         },
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the product was created.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "A unique human-friendly string for the product. Automatically generated from the product's title.",
+          "fieldName": "handle",
           "fieldPath": "handle",
           "nativeType": "Not Set"
         },
         {
           "description": "An unsigned 64-bit integer that's used as a unique identifier for the product. Each id is unique across the Shopify system. No two products will have the same id, even if they're from different shops.",
+          "fieldName": "product_id",
           "fieldPath": "product_id",
           "nativeType": "Not Set"
         },
         {
           "description": "A categorization for the product used for filtering and searching products.",
+          "fieldName": "product_type",
           "fieldPath": "product_type",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time (ISO 8601 format) when the product was published. Can be set to null to unpublish the product from the Online Store channel.",
+          "fieldName": "published_timestamp",
           "fieldPath": "published_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the product is published to the Point of Sale channel.",
+          "fieldName": "published_scope",
           "fieldPath": "published_scope",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the product.",
+          "fieldName": "title",
           "fieldPath": "title",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the product was last modified.",
+          "fieldName": "updated_timestamp",
           "fieldPath": "updated_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the product's vendor.",
+          "fieldName": "vendor",
           "fieldPath": "vendor",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -3664,140 +4033,168 @@
       "fields": [
         {
           "description": "The barcode, UPC, or ISBN number for the product.",
+          "fieldName": "barcode",
           "fieldPath": "barcode",
           "nativeType": "Not Set"
         },
         {
           "description": "The original price of the item before an adjustment or a sale.",
+          "fieldName": "compare_at_price",
           "fieldPath": "compare_at_price",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time (ISO 8601 format) when the product variant was created.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The fulfillment service associated with the product variant.",
+          "fieldName": "fulfillment_service",
           "fieldPath": "fulfillment_service",
           "nativeType": "Not Set"
         },
         {
           "description": "The weight of the product variant in grams.",
+          "fieldName": "grams",
           "fieldPath": "grams",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique numeric identifier for the product variant.",
+          "fieldName": "variant_id",
           "fieldPath": "variant_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique numeric identifier for a product's image. The image must be associated to the same product as the variant.",
+          "fieldName": "image_id",
           "fieldPath": "image_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique identifier for the inventory item, which is used in the Inventory API to query for inventory information.",
+          "fieldName": "inventory_item_id",
           "fieldPath": "inventory_item_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The fulfillment service that tracks the number of items in stock for the product variant.",
+          "fieldName": "inventory_management",
           "fieldPath": "inventory_management",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether customers are allowed to place an order for the product variant when it's out of stock.",
+          "fieldName": "inventory_policy",
           "fieldPath": "inventory_policy",
           "nativeType": "Not Set"
         },
         {
           "description": "An aggregate of inventory across all locations. To adjust inventory at a specific location, use the InventoryLevel resource.",
+          "fieldName": "inventory_quantity",
           "fieldPath": "inventory_quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "This property is deprecated. Use the InventoryLevel resource instead.",
+          "fieldName": "old_inventory_quantity",
           "fieldPath": "old_inventory_quantity",
           "nativeType": "Not Set"
         },
         {
           "description": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+          "fieldName": "option_1",
           "fieldPath": "option_1",
           "nativeType": "Not Set"
         },
         {
           "description": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+          "fieldName": "option_2",
           "fieldPath": "option_2",
           "nativeType": "Not Set"
         },
         {
           "description": "The custom properties that a shop owner uses to define product variants. You can define three options for a product variant: option1, option2, option3.",
+          "fieldName": "option_3",
           "fieldPath": "option_3",
           "nativeType": "Not Set"
         },
         {
           "description": "The order of the product variant in the list of product variants. The first position in the list is 1. The position of variants is indicated by the order in which they are listed.",
+          "fieldName": "position",
           "fieldPath": "position",
           "nativeType": "Not Set"
         },
         {
           "description": "The price of the product variant.",
+          "fieldName": "price",
           "fieldPath": "price",
           "nativeType": "Not Set"
         },
         {
           "description": "The unique numeric identifier for the product.",
+          "fieldName": "product_id",
           "fieldPath": "product_id",
           "nativeType": "Not Set"
         },
         {
           "description": "This property is deprecated. Use the `requires_shipping` property on the InventoryItem resource instead.",
+          "fieldName": "is_requiring_shipping",
           "fieldPath": "is_requiring_shipping",
           "nativeType": "Not Set"
         },
         {
           "description": "A unique identifier for the product variant in the shop. Required in order to connect to a FulfillmentService.",
+          "fieldName": "sku",
           "fieldPath": "sku",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether a tax is charged when the product variant is sold.",
+          "fieldName": "is_taxable",
           "fieldPath": "is_taxable",
           "nativeType": "Not Set"
         },
         {
           "description": "This parameter applies only to the stores that have the Avalara AvaTax app installed. Specifies the Avalara tax code for the product variant.",
+          "fieldName": "tax_code",
           "fieldPath": "tax_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The title of the product variant. The title field is a concatenation of the option1, option2, and option3 fields. You can only update title indirectly using the option fields.",
+          "fieldName": "title",
           "fieldPath": "title",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the product variant was last modified. Gets returned in ISO 8601 format.",
+          "fieldName": "updated_timestamp",
           "fieldPath": "updated_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The weight of the product variant in the unit system specified with weight_unit.",
+          "fieldName": "weight",
           "fieldPath": "weight",
           "nativeType": "Not Set"
         },
         {
           "description": "The unit of measurement that applies to the product variant's weight. If you don't specify a value for weight_unit, then the shop's default unit of measurement is applied. Valid values: g, kg, oz, and lb.",
+          "fieldName": "weight_unit",
           "fieldPath": "weight_unit",
           "nativeType": "Not Set"
         },
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -3876,50 +4273,60 @@
       "fields": [
         {
           "description": "The unique numeric identifier for the refund.",
+          "fieldName": "refund_id",
           "fieldPath": "refund_id",
           "nativeType": "Not Set"
         },
         {
           "description": "Timestamp of the date when the refund was created.",
+          "fieldName": "created_at",
           "fieldPath": "created_at",
           "nativeType": "Not Set"
         },
         {
           "description": "Timestamp of the date when the refund was processed.",
+          "fieldName": "processed_at",
           "fieldPath": "processed_at",
           "nativeType": "Not Set"
         },
         {
           "description": "User generated note attached to the refund.",
+          "fieldName": "note",
           "fieldPath": "note",
           "nativeType": "Not Set"
         },
         {
           "description": "Boolean indicating if the refund is a result of a restock.",
+          "fieldName": "restock",
           "fieldPath": "restock",
           "nativeType": "Not Set"
         },
         {
           "description": "Reference to the user id which generated the refund.",
+          "fieldName": "user_id",
           "fieldPath": "user_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
           "description": "Record representing total duties set for the refund.",
+          "fieldName": "total_duties_set",
           "fieldPath": "total_duties_set",
           "nativeType": "Not Set"
         },
         {
           "description": "Reference to the order which the refund is associated.",
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -3997,160 +4404,192 @@
       "fields": [
         {
           "description": "The ID for the transaction.",
+          "fieldName": "transaction_id",
           "fieldPath": "transaction_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID for the order that the transaction is associated with.",
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID associated with a refund in the refund table.",
+          "fieldName": "refund_id",
           "fieldPath": "refund_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The amount of money included in the transaction.",
+          "fieldName": "amount",
           "fieldPath": "amount",
           "nativeType": "Not Set"
         },
         {
           "description": "The authorization code associated with the transaction.",
+          "fieldName": "authorization",
           "fieldPath": "authorization",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when the transaction was created.",
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The date and time when a transaction was processed.",
+          "fieldName": "processed_timestamp",
           "fieldPath": "processed_timestamp",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID for the device.",
+          "fieldName": "device_id",
           "fieldPath": "device_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the gateway the transaction was issued through.",
+          "fieldName": "gateway",
           "fieldPath": "gateway",
           "nativeType": "Not Set"
         },
         {
           "description": "The origin of the transaction.",
+          "fieldName": "source_name",
           "fieldPath": "source_name",
           "nativeType": "Not Set"
         },
         {
           "description": "A string generated by the payment provider with additional information about why the transaction succeeded or failed.",
+          "fieldName": "message",
           "fieldPath": "message",
           "nativeType": "Not Set"
         },
         {
           "description": "The three-letter code (ISO 4217 format) for the currency used for the payment.",
+          "fieldName": "currency",
           "fieldPath": "currency",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the physical location where the transaction was processed.",
+          "fieldName": "location_id",
           "fieldPath": "location_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of an associated transaction.",
+          "fieldName": "parent_id",
           "fieldPath": "parent_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The response code from the address verification system.",
+          "fieldName": "payment_avs_result_code",
           "fieldPath": "payment_avs_result_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The issuer identification number (IIN), formerly known as bank identification number (BIN) of the customer's credit card.",
+          "fieldName": "payment_credit_card_bin",
           "fieldPath": "payment_credit_card_bin",
           "nativeType": "Not Set"
         },
         {
           "description": "The response code from the credit card company indicating whether the customer entered the card security code, or card verification value, correctly.",
+          "fieldName": "payment_cvv_result_code",
           "fieldPath": "payment_cvv_result_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The customer's credit card number, with most of the leading digits redacted.",
+          "fieldName": "payment_credit_card_number",
           "fieldPath": "payment_credit_card_number",
           "nativeType": "Not Set"
         },
         {
           "description": "The name of the company that issued the customer's credit card.",
+          "fieldName": "payment_credit_card_company",
           "fieldPath": "payment_credit_card_company",
           "nativeType": "Not Set"
         },
         {
           "description": "The transaction's type.",
+          "fieldName": "kind",
           "fieldPath": "kind",
           "nativeType": "Not Set"
         },
         {
           "description": "A transaction receipt attached to the transaction by the gateway.",
+          "fieldName": "receipt",
           "fieldPath": "receipt",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID of the adjustment.",
+          "fieldName": "currency_exchange_id",
           "fieldPath": "currency_exchange_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The difference between the amounts on the associated transaction and the parent transaction.",
+          "fieldName": "currency_exchange_adjustment",
           "fieldPath": "currency_exchange_adjustment",
           "nativeType": "Not Set"
         },
         {
           "description": "The amount of the parent transaction in the shop currency.",
+          "fieldName": "currency_exchange_original_amount",
           "fieldPath": "currency_exchange_original_amount",
           "nativeType": "Not Set"
         },
         {
           "description": "The amount of the associated transaction in the shop currency.",
+          "fieldName": "currency_exchange_final_amount",
           "fieldPath": "currency_exchange_final_amount",
           "nativeType": "Not Set"
         },
         {
           "description": "The shop currency.",
+          "fieldName": "currency_exchange_currency",
           "fieldPath": "currency_exchange_currency",
           "nativeType": "Not Set"
         },
         {
           "description": "A standardized error code, independent of the payment provider.",
+          "fieldName": "error_code",
           "fieldPath": "error_code",
           "nativeType": "Not Set"
         },
         {
           "description": "The status of the transaction.",
+          "fieldName": "status",
           "fieldPath": "status",
           "nativeType": "Not Set"
         },
         {
           "description": "Whether the transaction is a test transaction.",
+          "fieldName": "test",
           "fieldPath": "test",
           "nativeType": "Not Set"
         },
         {
           "description": "The ID for the user who was logged into the Shopify POS device when the order was processed, if applicable.",
+          "fieldName": "user_id",
           "fieldPath": "user_id",
           "nativeType": "Not Set"
         },
         {
           "description": "The time when a record was last updated by Fivetran.",
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "Not Set"
         },
         {
+          "fieldName": "source_relation",
           "fieldPath": "source_relation",
           "nativeType": "TEXT"
         }
@@ -4226,62 +4665,77 @@
       "compiledSql": "\n\n\n\n    select * \n    from DEV_DB.shopify.customer\n\n\n\n",
       "fields": [
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "accepts_marketing",
           "fieldPath": "accepts_marketing",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "created_at",
           "fieldPath": "created_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "default_address_id",
           "fieldPath": "default_address_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "email",
           "fieldPath": "email",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "first_name",
           "fieldPath": "first_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "last_name",
           "fieldPath": "last_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "orders_count",
           "fieldPath": "orders_count",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "state",
           "fieldPath": "state",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "tax_exempt",
           "fieldPath": "tax_exempt",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_spent",
           "fieldPath": "total_spent",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "updated_at",
           "fieldPath": "updated_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "verified_email",
           "fieldPath": "verified_email",
           "nativeType": "TEXT"
         }
@@ -4332,42 +4786,52 @@
       "compiledSql": "--To disable this model, set the shopify__using_order_adjustment variable within your dbt_project.yml file to False.\n\n\n\n\n\n\n    select * \n    from DEV_DB.shopify.order_adjustment\n\n\n\n",
       "fields": [
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "refund_id",
           "fieldPath": "refund_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "amount",
           "fieldPath": "amount",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "tax_amount",
           "fieldPath": "tax_amount",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "kind",
           "fieldPath": "kind",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "reason",
           "fieldPath": "reason",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "amount_set",
           "fieldPath": "amount_set",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "tax_amount_set",
           "fieldPath": "tax_amount_set",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         }
@@ -4418,38 +4882,47 @@
       "compiledSql": "--To disable this model, set the shopify__using_order_line_refund variable within your dbt_project.yml file to False.\n\n\n\n\n\n\n    select * \n    from DEV_DB.shopify.order_line_refund\n\n\n\n",
       "fields": [
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "location_id",
           "fieldPath": "location_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "order_line_id",
           "fieldPath": "order_line_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "refund_id",
           "fieldPath": "refund_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "restock_type",
           "fieldPath": "restock_type",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "subtotal",
           "fieldPath": "subtotal",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_tax",
           "fieldPath": "total_tax",
           "nativeType": "TEXT"
         }
@@ -4500,78 +4973,97 @@
       "compiledSql": "\n\n\n\n    select * \n    from DEV_DB.shopify.order_line\n\n\n\n",
       "fields": [
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "fulfillable_quantity",
           "fieldPath": "fulfillable_quantity",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "fulfillment_service",
           "fieldPath": "fulfillment_service",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "fulfillment_status",
           "fieldPath": "fulfillment_status",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "gift_card",
           "fieldPath": "gift_card",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "grams",
           "fieldPath": "grams",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "price",
           "fieldPath": "price",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "product_id",
           "fieldPath": "product_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "requires_shipping",
           "fieldPath": "requires_shipping",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "sku",
           "fieldPath": "sku",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "taxable",
           "fieldPath": "taxable",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "title",
           "fieldPath": "title",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_discount",
           "fieldPath": "total_discount",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "variant_id",
           "fieldPath": "variant_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "vendor",
           "fieldPath": "vendor",
           "nativeType": "TEXT"
         }
@@ -4622,266 +5114,332 @@
       "compiledSql": "\n\n\n\n    select * \n    from DEV_DB.shopify.\"ORDER\"\n\n\n\n",
       "fields": [
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "app_id",
           "fieldPath": "app_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_address_1",
           "fieldPath": "billing_address_address_1",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_address_2",
           "fieldPath": "billing_address_address_2",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_city",
           "fieldPath": "billing_address_city",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_company",
           "fieldPath": "billing_address_company",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_country",
           "fieldPath": "billing_address_country",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_country_code",
           "fieldPath": "billing_address_country_code",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_first_name",
           "fieldPath": "billing_address_first_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_last_name",
           "fieldPath": "billing_address_last_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_latitude",
           "fieldPath": "billing_address_latitude",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_longitude",
           "fieldPath": "billing_address_longitude",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_name",
           "fieldPath": "billing_address_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_phone",
           "fieldPath": "billing_address_phone",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_province",
           "fieldPath": "billing_address_province",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_province_code",
           "fieldPath": "billing_address_province_code",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "billing_address_zip",
           "fieldPath": "billing_address_zip",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "browser_ip",
           "fieldPath": "browser_ip",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "buyer_accepts_marketing",
           "fieldPath": "buyer_accepts_marketing",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "cancel_reason",
           "fieldPath": "cancel_reason",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "cancelled_at",
           "fieldPath": "cancelled_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "cart_token",
           "fieldPath": "cart_token",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "closed_at",
           "fieldPath": "closed_at",
           "nativeType": "TIMESTAMP_NTZ"
         },
         {
+          "fieldName": "created_at",
           "fieldPath": "created_at",
           "nativeType": "TIMESTAMP_NTZ"
         },
         {
+          "fieldName": "currency",
           "fieldPath": "currency",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "customer_id",
           "fieldPath": "customer_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "email",
           "fieldPath": "email",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "financial_status",
           "fieldPath": "financial_status",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "fulfillment_status",
           "fieldPath": "fulfillment_status",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "landing_site_base_url",
           "fieldPath": "landing_site_base_url",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "location_id",
           "fieldPath": "location_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "note",
           "fieldPath": "note",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "number",
           "fieldPath": "number",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "order_number",
           "fieldPath": "order_number",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "processed_at",
           "fieldPath": "processed_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "processing_method",
           "fieldPath": "processing_method",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "referring_site",
           "fieldPath": "referring_site",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_address_1",
           "fieldPath": "shipping_address_address_1",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_address_2",
           "fieldPath": "shipping_address_address_2",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_city",
           "fieldPath": "shipping_address_city",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_company",
           "fieldPath": "shipping_address_company",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_country",
           "fieldPath": "shipping_address_country",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_country_code",
           "fieldPath": "shipping_address_country_code",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_first_name",
           "fieldPath": "shipping_address_first_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_last_name",
           "fieldPath": "shipping_address_last_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_latitude",
           "fieldPath": "shipping_address_latitude",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_longitude",
           "fieldPath": "shipping_address_longitude",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_name",
           "fieldPath": "shipping_address_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_phone",
           "fieldPath": "shipping_address_phone",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_province",
           "fieldPath": "shipping_address_province",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_province_code",
           "fieldPath": "shipping_address_province_code",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "shipping_address_zip",
           "fieldPath": "shipping_address_zip",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "source_name",
           "fieldPath": "source_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "subtotal_price",
           "fieldPath": "subtotal_price",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "taxes_included",
           "fieldPath": "taxes_included",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "test",
           "fieldPath": "test",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "token",
           "fieldPath": "token",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_discounts",
           "fieldPath": "total_discounts",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_line_items_price",
           "fieldPath": "total_line_items_price",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_price",
           "fieldPath": "total_price",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_tax",
           "fieldPath": "total_tax",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_weight",
           "fieldPath": "total_weight",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "updated_at",
           "fieldPath": "updated_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "user_id",
           "fieldPath": "user_id",
           "nativeType": "TEXT"
         }
@@ -4932,46 +5490,57 @@
       "compiledSql": "\n\n\n\n    select * \n    from DEV_DB.shopify.product\n\n\n\n",
       "fields": [
         {
+          "fieldName": "_fivetran_deleted",
           "fieldPath": "_fivetran_deleted",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "created_at",
           "fieldPath": "created_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "handle",
           "fieldPath": "handle",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "product_type",
           "fieldPath": "product_type",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "published_at",
           "fieldPath": "published_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "published_scope",
           "fieldPath": "published_scope",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "title",
           "fieldPath": "title",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "updated_at",
           "fieldPath": "updated_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "vendor",
           "fieldPath": "vendor",
           "nativeType": "TEXT"
         }
@@ -5022,122 +5591,152 @@
       "compiledSql": "\n\n\n\n    select * \n    from DEV_DB.shopify.product_variant\n\n\n\n",
       "fields": [
         {
+          "fieldName": "barcode",
           "fieldPath": "barcode",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "compare_at_price",
           "fieldPath": "compare_at_price",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "created_at",
           "fieldPath": "created_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "fulfillment_service",
           "fieldPath": "fulfillment_service",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "grams",
           "fieldPath": "grams",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "image_id",
           "fieldPath": "image_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "inventory_item_id",
           "fieldPath": "inventory_item_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "inventory_management",
           "fieldPath": "inventory_management",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "inventory_policy",
           "fieldPath": "inventory_policy",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "inventory_quantity",
           "fieldPath": "inventory_quantity",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "old_inventory_quantity",
           "fieldPath": "old_inventory_quantity",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "option_1",
           "fieldPath": "option_1",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "option_2",
           "fieldPath": "option_2",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "option_3",
           "fieldPath": "option_3",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "position",
           "fieldPath": "position",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "price",
           "fieldPath": "price",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "product_id",
           "fieldPath": "product_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "requires_shipping",
           "fieldPath": "requires_shipping",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "sku",
           "fieldPath": "sku",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "taxable",
           "fieldPath": "taxable",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "tax_code",
           "fieldPath": "tax_code",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "title",
           "fieldPath": "title",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "updated_at",
           "fieldPath": "updated_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "weight",
           "fieldPath": "weight",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "weight_unit",
           "fieldPath": "weight_unit",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_shipping_price_set",
           "fieldPath": "total_shipping_price_set",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "index",
           "fieldPath": "index",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "pre_tax_price",
           "fieldPath": "pre_tax_price",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         }
@@ -5188,38 +5787,47 @@
       "compiledSql": "--To disable this model, set the shopify__using_refund variable within your dbt_project.yml file to False.\n\n\n\n\n\n\n    select * \n    from DEV_DB.shopify.refund\n\n\n\n",
       "fields": [
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "created_at",
           "fieldPath": "created_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "processed_at",
           "fieldPath": "processed_at",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "note",
           "fieldPath": "note",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "restock",
           "fieldPath": "restock",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "user_id",
           "fieldPath": "user_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "total_duties_set",
           "fieldPath": "total_duties_set",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "TEXT"
         }
@@ -5270,126 +5878,157 @@
       "compiledSql": "\n\n\n\n    select * \n    from DEV_DB.shopify.transaction\n\n\n\n",
       "fields": [
         {
+          "fieldName": "transaction_id",
           "fieldPath": "transaction_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "order_id",
           "fieldPath": "order_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "refund_id",
           "fieldPath": "refund_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "amount",
           "fieldPath": "amount",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "authorization",
           "fieldPath": "authorization",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "created_timestamp",
           "fieldPath": "created_timestamp",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "processed_timestamp",
           "fieldPath": "processed_timestamp",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "device_id",
           "fieldPath": "device_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "gateway",
           "fieldPath": "gateway",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "source_name",
           "fieldPath": "source_name",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "message",
           "fieldPath": "message",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "currency",
           "fieldPath": "currency",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "location_id",
           "fieldPath": "location_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "parent_id",
           "fieldPath": "parent_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "payment_avs_result_code",
           "fieldPath": "payment_avs_result_code",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "payment_credit_card_bin",
           "fieldPath": "payment_credit_card_bin",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "payment_cvv_result_code",
           "fieldPath": "payment_cvv_result_code",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "payment_credit_card_number",
           "fieldPath": "payment_credit_card_number",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "payment_credit_card_company",
           "fieldPath": "payment_credit_card_company",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "kind",
           "fieldPath": "kind",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "receipt",
           "fieldPath": "receipt",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "currency_exchange_id",
           "fieldPath": "currency_exchange_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "currency_exchange_adjustment",
           "fieldPath": "currency_exchange_adjustment",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "currency_exchange_original_amount",
           "fieldPath": "currency_exchange_original_amount",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "currency_exchange_final_amount",
           "fieldPath": "currency_exchange_final_amount",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "currency_exchange_currency",
           "fieldPath": "currency_exchange_currency",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "error_code",
           "fieldPath": "error_code",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "status",
           "fieldPath": "status",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "test",
           "fieldPath": "test",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "user_id",
           "fieldPath": "user_id",
           "nativeType": "TEXT"
         },
         {
+          "fieldName": "_fivetran_synced",
           "fieldPath": "_fivetran_synced",
           "nativeType": "TEXT"
         }

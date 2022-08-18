@@ -10,12 +10,14 @@
         {
           "description": "d1",
           "fieldPath": "f1",
+          "fieldName": "f1",
           "nativeType": "STRING",
           "nullable": true
         },
         {
           "description": "d2",
           "fieldPath": "f2",
+          "fieldName": "f2",
           "nativeType": "INTEGER",
           "nullable": false
         }
@@ -42,6 +44,7 @@
         {
           "description": "d1",
           "fieldPath": "f1",
+          "fieldName": "f1",
           "nativeType": "ARRAY<FLOAT>",
           "nullable": false
         }

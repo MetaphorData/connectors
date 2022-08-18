@@ -18,9 +18,27 @@ from metaphor.models.metadata_change_event import (
 def test_build_profiling_query_default():
     schema = DatasetSchema(
         fields=[
-            SchemaField(field_path="id", native_type="STRING", nullable=False),
-            SchemaField(field_path="price", native_type="INT", nullable=True),
-            SchemaField(field_path="json", native_type="RECORD", nullable=True),
+            SchemaField(
+                field_path="id",
+                field_name="id",
+                native_type="STRING",
+                nullable=False,
+                subfields=None,
+            ),
+            SchemaField(
+                field_path="price",
+                field_name="price",
+                native_type="INT",
+                nullable=True,
+                subfields=None,
+            ),
+            SchemaField(
+                field_path="json",
+                field_name="json",
+                native_type="RECORD",
+                nullable=True,
+                subfields=None,
+            ),
         ]
     )
 
@@ -48,9 +66,27 @@ def test_build_profiling_query_default():
 def test_build_profiling_query_full():
     schema = DatasetSchema(
         fields=[
-            SchemaField(field_path="id", native_type="STRING", nullable=False),
-            SchemaField(field_path="price", native_type="INT", nullable=True),
-            SchemaField(field_path="json", native_type="RECORD", nullable=True),
+            SchemaField(
+                field_path="id",
+                field_name="id",
+                native_type="STRING",
+                nullable=False,
+                subfields=None,
+            ),
+            SchemaField(
+                field_path="price",
+                field_name="price",
+                native_type="INT",
+                nullable=True,
+                subfields=None,
+            ),
+            SchemaField(
+                field_path="json",
+                field_name="json",
+                native_type="RECORD",
+                nullable=True,
+                subfields=None,
+            ),
         ]
     )
 
@@ -85,8 +121,20 @@ def test_build_profiling_query_full():
 def test_build_profiling_query_with_sampling():
     schema = DatasetSchema(
         fields=[
-            SchemaField(field_path="id", native_type="STRING", nullable=False),
-            SchemaField(field_path="price", native_type="INT", nullable=True),
+            SchemaField(
+                field_path="id",
+                field_name="id",
+                native_type="STRING",
+                nullable=False,
+                subfields=None,
+            ),
+            SchemaField(
+                field_path="price",
+                field_name="price",
+                native_type="INT",
+                nullable=True,
+                subfields=None,
+            ),
         ]
     )
 
@@ -114,12 +162,30 @@ def test_build_profiling_query_with_sampling():
 def test_parse_profiling_result_default():
     schema = DatasetSchema(
         fields=[
-            SchemaField(field_path="id", native_type="STRING", nullable=False),
-            SchemaField(field_path="price", native_type="INT", nullable=True),
-            SchemaField(field_path="json", native_type="RECORD", nullable=True),
+            SchemaField(
+                field_path="id",
+                field_name="id",
+                native_type="STRING",
+                nullable=False,
+                subfields=None,
+            ),
+            SchemaField(
+                field_path="price",
+                field_name="price",
+                native_type="INT",
+                nullable=True,
+                subfields=None,
+            ),
+            SchemaField(
+                field_path="json",
+                field_name="json",
+                native_type="RECORD",
+                nullable=True,
+                subfields=None,
+            ),
         ]
     )
-    results = (
+    results = [
         # row count
         5,
         # id
@@ -130,7 +196,7 @@ def test_parse_profiling_result_default():
         2,
         # json
         5,
-    )
+    ]
     dataset = BigQueryProfileExtractor._init_dataset(full_name="foo")
 
     column_statistics = ColumnStatistics()

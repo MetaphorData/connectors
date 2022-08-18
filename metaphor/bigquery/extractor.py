@@ -21,6 +21,7 @@ from metaphor.bigquery.config import BigQueryRunConfig
 from metaphor.bigquery.utils import build_client
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
+from metaphor.common.fieldpath import FieldDataType, build_field_path
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
@@ -173,14 +174,15 @@ class BigQueryExtractor(BaseExtractor):
         else:
             raise ValueError(f"Unexpected table type {bq_table.table_type}")
 
-        schema.fields = BigQueryExtractor._parse_fields(bq_table.schema)
+        schema.fields = BigQueryExtractor._parse_fields(bq_table.schema, "")
 
         return schema
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.schema.SchemaField.html#google.cloud.bigquery.schema.SchemaField
     @staticmethod
     def _parse_fields(
-        schema: Sequence[Union[bigquery.schema.SchemaField, Mapping[str, Any]]]
+        schema: Sequence[Union[bigquery.schema.SchemaField, Mapping[str, Any]]],
+        parent_field_path: str,
     ) -> List[SchemaField]:
 
         fields: List[SchemaField] = []
@@ -192,18 +194,35 @@ class BigQueryExtractor(BaseExtractor):
                 raise ValueError(f"Field type not supported: {field}")
 
             # mode REPEATED means ARRAY
-            field_type = (
+            native_type = (
                 f"ARRAY<{field.field_type}>"
                 if field.mode == "REPEATED"
                 else field.field_type
             )
 
+            # See https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#TableFieldSchema.FIELDS.type
+            field_type = (
+                FieldDataType.ARRAY
+                if field.mode == "REPEATED"
+                else FieldDataType.RECORD
+                if field.field_type in ("RECORD", "STRUCT")
+                else FieldDataType.PRIMITIVE
+            )
+
+            field_path = build_field_path(parent_field_path, field.name, field_type)
+
+            subfields = None
+            if field.fields is not None and len(field.fields) > 0:
+                subfields = BigQueryExtractor._parse_fields(field.fields, field_path)
+
             fields.append(
                 SchemaField(
-                    field_path=field.name,
+                    field_path=field_path,
+                    field_name=field.name,
                     description=field.description,
-                    native_type=field_type,
+                    native_type=native_type,
                     nullable=field.is_nullable,
+                    subfields=subfields,
                 )
             )
 
