@@ -37,18 +37,19 @@ async def test_log_extractor(test_root_dir):
         enable_view_lineage=False,
         include_self_lineage=True,
     )
-    extractor = BigQueryLineageExtractor()
 
     entries = load_entries(test_root_dir + "/bigquery/lineage/data/sample_log.json")
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch(
+    with patch("metaphor.bigquery.lineage.extractor.build_client"), patch(
         "metaphor.bigquery.lineage.extractor.build_logging_client"
-    ) as mock_build_client:
-        mock_build_client.return_value.project = "project1"
-        mock_list_entries(mock_build_client, entries)
+    ) as mock_build_logging_client:
+        extractor = BigQueryLineageExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+        mock_build_logging_client.return_value.project = "project1"
+        mock_list_entries(mock_build_logging_client, entries)
+
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(test_root_dir + "/bigquery/lineage/data/result.json")
 
@@ -62,10 +63,16 @@ async def test_view_extractor(test_root_dir):
         project_id="fake_project",
         enable_lineage_from_log=False,
     )
-    extractor = BigQueryLineageExtractor()
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch("metaphor.bigquery.lineage.extractor.build_client") as mock_build_client:
+    with patch(
+        "metaphor.bigquery.lineage.extractor.build_client"
+    ) as mock_build_client, patch(
+        "metaphor.bigquery.lineage.extractor.build_logging_client"
+    ):
+
+        extractor = BigQueryLineageExtractor(config)
+
         mock_build_client.return_value.project = "project1"
 
         mock_list_datasets(mock_build_client, [mock_dataset("dataset1")])
@@ -103,7 +110,7 @@ async def test_view_extractor(test_root_dir):
             },
         )
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(
         f"{test_root_dir}/bigquery/lineage/data/view_result.json"

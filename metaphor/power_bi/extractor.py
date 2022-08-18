@@ -6,9 +6,9 @@ from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVa
 import requests
 from pydantic import BaseModel, parse_obj_as
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import chunks, unique_list
 from metaphor.models.crawler_run_metadata import Platform
@@ -355,38 +355,34 @@ class PowerBIClient:
 class PowerBIExtractor(BaseExtractor):
     """Power BI metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.POWER_BI
-
-    def description(self) -> str:
-        return "Power BI metadata crawler"
-
     @staticmethod
-    def config_class():
-        return PowerBIRunConfig
+    def from_config_file(config_file: str) -> "PowerBIExtractor":
+        return PowerBIExtractor(PowerBIRunConfig.from_yaml_file(config_file))
 
-    def __init__(self):
+    def __init__(self, config: PowerBIRunConfig):
+        super().__init__(config, "Power BI metadata crawler", Platform.POWER_BI)
+        self._tenant_id = config.tenant_id
+        self._workspaces = config.workspaces
+
+        self._client = PowerBIClient(config)
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
 
-    async def extract(self, config: PowerBIRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, PowerBIExtractor.config_class())
-        logger.info(f"Fetching metadata from Power BI tenant ID: {config.tenant_id}")
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching metadata from Power BI tenant ID: {self._tenant_id}")
 
-        self.client = PowerBIClient(config)
+        if len(self._workspaces) == 0:
+            self._workspaces = [w.id for w in self._client.get_groups()]
 
-        if len(config.workspaces) == 0:
-            config.workspaces = [w.id for w in self.client.get_groups()]
+        logger.info(f"Process {len(self._workspaces)} workspaces: {self._workspaces}")
 
-        logger.info(f"Process {len(config.workspaces)} workspaces: {config.workspaces}")
-
-        apps = self.client.get_apps()
+        apps = self._client.get_apps()
         app_map = {app.id: app for app in apps}
 
         for workspace_ids in chunks(
-            config.workspaces, PowerBIClient.MAX_WORKSPACES_PER_SCAN
+            self._workspaces, PowerBIClient.MAX_WORKSPACES_PER_SCAN
         ):
-            for workspace in self.client.get_workspace_info(workspace_ids):
+            for workspace in self._client.get_workspace_info(workspace_ids):
                 logger.info(
                     f"Fetching metadata from Power BI workspace ID: {workspace.id}"
                 )
@@ -406,7 +402,7 @@ class PowerBIExtractor(BaseExtractor):
 
     def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
 
-        dataset_map = {d.id: d for d in self.client.get_datasets(workspace.id)}
+        dataset_map = {d.id: d for d in self._client.get_datasets(workspace.id)}
 
         for wds in workspace.datasets:
             expressions = []
@@ -466,7 +462,7 @@ class PowerBIExtractor(BaseExtractor):
         self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
     ) -> None:
 
-        report_map = {r.id: r for r in self.client.get_reports(workspace.id)}
+        report_map = {r.id: r for r in self._client.get_reports(workspace.id)}
 
         for wi_report in workspace.reports:
             if wi_report.datasetId is None:
@@ -494,7 +490,7 @@ class PowerBIExtractor(BaseExtractor):
             if wi_report.appId is None:
                 # Log errors instead of throwing exceptions as this API call requires extra permissions
                 try:
-                    pages = self.client.get_pages(workspace.id, wi_report.id)
+                    pages = self._client.get_pages(workspace.id, wi_report.id)
                     charts = self.transform_pages_to_charts(pages)
                 except Exception as e:
                     logger.exception(e)
@@ -521,10 +517,10 @@ class PowerBIExtractor(BaseExtractor):
         self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
     ) -> None:
 
-        dashboard_map = {d.id: d for d in self.client.get_dashboards(workspace.id)}
+        dashboard_map = {d.id: d for d in self._client.get_dashboards(workspace.id)}
 
         for wi_dashboard in workspace.dashboards:
-            tiles = self.client.get_tiles(wi_dashboard.id)
+            tiles = self._client.get_tiles(wi_dashboard.id)
             upstream = []
             for tile in tiles:
                 dataset_id = tile.datasetId

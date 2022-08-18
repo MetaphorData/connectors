@@ -1,7 +1,8 @@
 from typing import List
+from unittest.mock import patch
 
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.utils import start_of_day
 from metaphor.models.metadata_change_event import (
     Dataset,
@@ -9,8 +10,19 @@ from metaphor.models.metadata_change_event import (
     QueryCount,
     QueryCounts,
 )
+from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 from metaphor.snowflake.usage.extractor import SnowflakeUsageExtractor
 from tests.test_utils import load_json
+
+
+def dummy_config():
+    return SnowflakeUsageRunConfig(
+        account="account",
+        user="user",
+        password="password",
+        use_history=False,
+        output=OutputConfig(),
+    )
 
 
 def make_dataset_with_usage(counts: List[int]):
@@ -27,10 +39,6 @@ def make_dataset_with_usage(counts: List[int]):
 
 
 def test_parse_access_log(test_root_dir):
-    extractor = SnowflakeUsageExtractor()
-    extractor._utc_now = start_of_day()
-    extractor._use_history = False
-    extractor.filter = DatasetFilter()
 
     accessed_objects = """
     [
@@ -69,12 +77,14 @@ def test_parse_access_log(test_root_dir):
     ]
     """
 
-    extractor._parse_access_log(start_of_day(), "tester", accessed_objects)
+    with patch("metaphor.snowflake.auth.connect"):
+        extractor = SnowflakeUsageExtractor(dummy_config())
+        extractor._parse_access_log(start_of_day(), "tester", accessed_objects)
 
-    results = {}
-    for key, value in extractor._datasets.items():
-        results[key] = EventUtil.clean_nones(value.to_dict())
+        results = {}
+        for key, value in extractor._datasets.items():
+            results[key] = EventUtil.clean_nones(value.to_dict())
 
-    assert results == load_json(
-        test_root_dir + "/snowflake/usage/data/parse_query_log_result.json"
-    )
+        assert results == load_json(
+            test_root_dir + "/snowflake/usage/data/parse_query_log_result.json"
+        )

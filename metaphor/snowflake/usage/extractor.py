@@ -1,20 +1,20 @@
 import logging
 import math
 from datetime import datetime
-from typing import Collection, Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Tuple
 
 from pydantic import parse_raw_as
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.common.utils import start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
+from metaphor.snowflake import auth
 from metaphor.snowflake.accessed_object import AccessedObject
-from metaphor.snowflake.auth import connect
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 from metaphor.snowflake.utils import (
     QueryWithParam,
@@ -34,60 +34,50 @@ DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 class SnowflakeUsageExtractor(BaseExtractor):
     """Snowflake usage metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.SNOWFLAKE
-
-    def description(self) -> str:
-        return "Snowflake usage statistics crawler"
-
     @staticmethod
-    def config_class():
-        return SnowflakeUsageRunConfig
+    def from_config_file(config_file: str) -> "SnowflakeUsageExtractor":
+        return SnowflakeUsageExtractor(
+            SnowflakeUsageRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        self.account = None
-        self.filter = None
-        self.max_concurrency = None
-        self.batch_size = None
-        self._use_history = True
+    def __init__(self, config: SnowflakeUsageRunConfig):
+        super().__init__(
+            config, "Snowflake usage statistics crawler", Platform.SNOWFLAKE
+        )
+        self._account = config.account
+        self._filter = config.filter.normalize()
+        self._max_concurrency = config.max_concurrency
+        self._batch_size = config.batch_size
+        self._use_history = config.use_history
+        self._excluded_usernames = config.excluded_usernames
+        self._lookback_days = 1 if config.use_history else config.lookback_days
+
+        self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(
-        self, config: SnowflakeUsageRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, SnowflakeUsageExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching usage info from Snowflake")
 
-        self.account = config.account
-        self.max_concurrency = config.max_concurrency
-        self.batch_size = config.batch_size
-        self._use_history = config.use_history
-
-        self.filter = config.filter.normalize()
-
-        self.filter.excludes = (
+        self._filter.excludes = (
             DEFAULT_EXCLUDED_DATABASES
-            if self.filter.excludes is None
-            else {**self.filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
+            if self._filter.excludes is None
+            else {**self._filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
         )
 
         excluded_usernames_clause = (
-            f"and q.USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
-            if len(config.excluded_usernames) > 0
+            f"and q.USER_NAME NOT IN ({','.join(['%s'] * len(self._excluded_usernames))})"
+            if len(self._excluded_usernames) > 0
             else ""
         )
 
-        lookback_days = 1 if config.use_history else config.lookback_days
-        start_date = start_of_day(lookback_days)
+        start_date = start_of_day(self._lookback_days)
 
-        conn = connect(config)
-
-        with conn:
+        with self._conn:
             count = fetch_query_history_count(
-                conn, start_date, config.excluded_usernames
+                self._conn, start_date, self._excluded_usernames
             )
-            batches = math.ceil(count / self.batch_size)
+            batches = math.ceil(count / self._batch_size)
             logger.info(f"Total {count} queries, dividing into {batches} batches")
 
             queries = {
@@ -102,22 +92,22 @@ class SnowflakeUsageExtractor(BaseExtractor):
                       AND QUERY_START_TIME > %s
                       {excluded_usernames_clause}
                     ORDER BY q.QUERY_ID
-                    LIMIT {self.batch_size} OFFSET %s
+                    LIMIT {self._batch_size} OFFSET %s
                     """,
                     (
                         start_date,
                         start_date,
-                        *config.excluded_usernames,
-                        x * self.batch_size,
+                        *self._excluded_usernames,
+                        x * self._batch_size,
                     ),
                 )
                 for x in range(batches)
             }
             async_execute(
-                conn,
+                self._conn,
                 queries,
                 "fetch_access_logs",
-                self.max_concurrency,
+                self._max_concurrency,
                 self._parse_access_logs,
             )
 
@@ -152,7 +142,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
                     continue
 
                 db, schema, table = parts[0], parts[1], parts[2]
-                if not self.filter.include_table(db, schema, table):
+                if not self._filter.include_table(db, schema, table):
                     logger.debug(f"Ignore {table_name} due to filter config")
                     continue
 
@@ -160,7 +150,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
 
                 if table_name not in self._datasets:
                     self._datasets[table_name] = UsageUtil.init_dataset(
-                        self.account,
+                        self._account,
                         table_name,
                         DataPlatform.SNOWFLAKE,
                         self._use_history,

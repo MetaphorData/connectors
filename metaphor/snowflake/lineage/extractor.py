@@ -1,12 +1,12 @@
 import logging
 import math
-from typing import Collection, Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Tuple, Union
 
 from pydantic import parse_raw_as
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import start_of_day, unique_list
@@ -17,8 +17,8 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetUpstream,
 )
+from metaphor.snowflake import auth
 from metaphor.snowflake.accessed_object import AccessedObject
-from metaphor.snowflake.auth import connect
 from metaphor.snowflake.lineage.config import SnowflakeLineageRunConfig
 from metaphor.snowflake.utils import QueryWithParam, async_execute
 
@@ -41,50 +41,41 @@ SUPPORTED_OBJECT_DOMAIN_TYPES = (
 class SnowflakeLineageExtractor(BaseExtractor):
     """Snowflake lineage extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.SNOWFLAKE
-
-    def description(self) -> str:
-        return "Snowflake data lineage crawler"
-
     @staticmethod
-    def config_class():
-        return SnowflakeLineageRunConfig
+    def from_config_file(config_file: str) -> "SnowflakeLineageExtractor":
+        return SnowflakeLineageExtractor(
+            SnowflakeLineageRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        self.account = None
-        self.filter = None
-        self.max_concurrency = None
-        self.batch_size = None
+    def __init__(self, config: SnowflakeLineageRunConfig):
+        super().__init__(config, "Snowflake data lineage crawler", Platform.SNOWFLAKE)
+        self._account = config.account
+        self._filter = config.filter.normalize()
+        self._max_concurrency = config.max_concurrency
+        self._batch_size = config.batch_size
+        self._lookback_days = config.lookback_days
+        self._enable_view_lineage = config.enable_view_lineage
+        self._enable_lineage_from_history = config.enable_lineage_from_history
+
+        self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(
-        self, config: SnowflakeLineageRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, SnowflakeLineageExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching lineage info from Snowflake")
 
-        self.account = config.account
-        self.max_concurrency = config.max_concurrency
-        self.batch_size = config.batch_size
-
-        self.filter = config.filter.normalize()
-
-        self.filter.excludes = (
+        self._filter.excludes = (
             DEFAULT_EXCLUDED_DATABASES
-            if self.filter.excludes is None
-            else {**self.filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
+            if self._filter.excludes is None
+            else {**self._filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
         )
 
-        start_date = start_of_day(config.lookback_days)
+        start_date = start_of_day(self._lookback_days)
 
-        conn = connect(config)
+        with self._conn:
+            cursor = self._conn.cursor()
 
-        with conn:
-            cursor = conn.cursor()
-
-            if config.enable_lineage_from_history:
+            if self._enable_lineage_from_history:
                 logger.info("Fetching access and query history")
                 # Join QUERY_HISTORY & ACCESS_HISTORY to include only queries that succeeded.
                 cursor.execute(
@@ -102,8 +93,10 @@ class SnowflakeLineageExtractor(BaseExtractor):
                     """,
                     (start_date,),
                 )
-                count = cursor.fetchone()[0]
-                batches = math.ceil(count / self.batch_size)
+                res = cursor.fetchone()
+                assert res is not None, f"Missing count: {res}"
+                count = res[0]
+                batches = math.ceil(count / self._batch_size)
                 logger.info(f"Total {count} queries, dividing into {batches} batches")
 
                 queries = {
@@ -119,24 +112,24 @@ class SnowflakeLineageExtractor(BaseExtractor):
                             AND ARRAY_SIZE(a.OBJECTS_MODIFIED) > 0
                             AND a.QUERY_START_TIME > %s
                         ORDER BY a.QUERY_START_TIME ASC
-                        LIMIT {self.batch_size} OFFSET %s
+                        LIMIT {self._batch_size} OFFSET %s
                         """,
                         (
                             start_date,
-                            x * self.batch_size,
+                            x * self._batch_size,
                         ),
                     )
                     for x in range(batches)
                 }
                 async_execute(
-                    conn,
+                    self._conn,
                     queries,
                     "fetch_access_logs",
-                    self.max_concurrency,
+                    self._max_concurrency,
                     self._parse_access_logs,
                 )
 
-            if config.enable_view_lineage:
+            if self._enable_view_lineage:
                 logger.info("Fetching direct object dependencies")
                 cursor.execute(
                     """
@@ -178,7 +171,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
 
             full_name = obj.objectName.lower().replace('"', "")
             entity_id = to_dataset_entity_id(
-                full_name, DataPlatform.SNOWFLAKE, self.account
+                full_name, DataPlatform.SNOWFLAKE, self._account
             )
             source_datasets.append(str(entity_id))
 
@@ -202,12 +195,12 @@ class SnowflakeLineageExtractor(BaseExtractor):
 
             database, schema, name = parts
             full_name = dataset_fullname(database, schema, name)
-            if not self.filter.include_table(database, schema, name):
+            if not self._filter.include_table(database, schema, name):
                 logger.info(f"Excluding table {full_name}")
                 continue
 
             logical_id = DatasetLogicalID(
-                name=full_name, account=self.account, platform=DataPlatform.SNOWFLAKE
+                name=full_name, account=self._account, platform=DataPlatform.SNOWFLAKE
             )
 
             upstream = DatasetUpstream(
@@ -218,7 +211,9 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 logical_id=logical_id, upstream=upstream
             )
 
-    def _parse_object_dependencies(self, object_dependencies: List[Tuple]) -> None:
+    def _parse_object_dependencies(
+        self, object_dependencies: Union[List[Tuple], List[Dict]]
+    ) -> None:
         for (
             source_db,
             source_schema,
@@ -240,19 +235,19 @@ class SnowflakeLineageExtractor(BaseExtractor):
             source_fullname = dataset_fullname(source_db, source_schema, source_table)
             source_entity_id_str = str(
                 to_dataset_entity_id(
-                    source_fullname, DataPlatform.SNOWFLAKE, self.account
+                    source_fullname, DataPlatform.SNOWFLAKE, self._account
                 )
             )
 
             target_fullname = dataset_fullname(target_db, target_schema, target_table)
 
-            if not self.filter.include_table(target_db, target_schema, target_table):
+            if not self._filter.include_table(target_db, target_schema, target_table):
                 logger.info(f"Excluding table {target_fullname}")
                 continue
 
             target_logical_id = DatasetLogicalID(
                 name=target_fullname,
-                account=self.account,
+                account=self._account,
                 platform=DataPlatform.SNOWFLAKE,
             )
 

@@ -21,22 +21,21 @@ class BaseExtractor(ABC):
 
     @staticmethod
     @abstractmethod
-    def config_class() -> Type[BaseConfig]:
+    def from_config_file(config_file: str) -> Type[BaseConfig]:
         """Returns the corresponding config class"""
 
     @abstractmethod
-    async def extract(self, config: BaseConfig) -> Collection[ENTITY_TYPES]:
+    async def extract(self) -> Collection[ENTITY_TYPES]:
         """Extract metadata and build messages, should be overridden"""
 
-    @abstractmethod
-    def platform(self) -> Optional[Platform]:
-        """Extract metadata and build messages, should be overridden"""
+    def __init__(
+        self, config: BaseConfig, description: str, platform: Optional[Platform]
+    ) -> None:
+        self._output = config.output
+        self._description = description
+        self._platform = platform
 
-    @abstractmethod
-    def description(self) -> str:
-        """Extract metadata and build messages, should be overridden"""
-
-    def run(self, config: BaseConfig) -> List[MetadataChangeEvent]:
+    def run(self) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
         start_time = datetime.now()
         logger.info(f"Starting extractor {self.__class__.__name__} at {start_time}")
@@ -47,7 +46,7 @@ class BaseExtractor(ABC):
 
         entities: Collection[ENTITY_TYPES] = []
         try:
-            entities = asyncio.run(self.extract(config))
+            entities = asyncio.run(self.extract())
         except Exception as ex:
             run_status = Status.FAILURE
             error_message = str(ex)
@@ -66,8 +65,8 @@ class BaseExtractor(ABC):
 
         run_metadata = CrawlerRunMetadata(
             crawler_name=crawler_name,
-            platform=self.platform(),
-            description=self.description(),
+            platform=self._platform,
+            description=self._description,
             start_time=start_time,
             end_time=end_time,
             status=run_status,
@@ -76,12 +75,12 @@ class BaseExtractor(ABC):
             stack_trace=stacktrace,
         )
 
-        if config.output.api is not None:
-            ApiSink(config.output.api).sink(events)
+        if self._output.api is not None:
+            ApiSink(self._output.api).sink(events)
 
         file_sink = None
-        if config.output.file is not None:
-            file_sink = FileSink(config.output.file)
+        if self._output.file is not None:
+            file_sink = FileSink(self._output.file)
             file_sink.sink(events)
 
         if file_sink is not None:

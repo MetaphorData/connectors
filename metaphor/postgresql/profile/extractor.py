@@ -1,6 +1,6 @@
 import asyncio
 import traceback
-from typing import Collection, Iterable, List, Optional
+from typing import Collection, Iterable, List
 
 try:
     import asyncpg
@@ -9,11 +9,11 @@ except ImportError:
     raise
 
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    DataPlatform,
     Dataset,
     DatasetFieldStatistics,
     FieldStatistics,
@@ -28,66 +28,57 @@ logger = get_logger(__name__)
 class PostgreSQLProfileExtractor(PostgreSQLExtractor):
     """PostgreSQL data profile extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.POSTGRESQL
-
-    def description(self) -> str:
-        return "PostgreSQL data profile crawler"
-
     @staticmethod
-    def config_class():
-        return PostgreSQLProfileRunConfig
+    def from_config_file(config_file: str) -> "PostgreSQLProfileExtractor":
+        return PostgreSQLProfileExtractor(
+            PostgreSQLProfileRunConfig.from_yaml_file(config_file)
+        )
 
-    async def extract(
-        self, config: PostgreSQLProfileRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, PostgreSQLExtractor.config_class())
-        logger.info(f"Fetching data profile from PostgreSQL host {config.host}")
-
-        return await self._extract(config)
-
-    async def _extract(
-        self, config: PostgreSQLProfileRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-
+    def __init__(
+        self,
+        config: PostgreSQLProfileRunConfig,
+        description="PostgreSQL data profile crawler",
+        platform=Platform.POSTGRESQL,
+        dataset_platform=DataPlatform.POSTGRESQL,
+    ):
+        super().__init__(
+            config,
+            description,
+            platform,
+            dataset_platform,
+        )
+        self._max_concurrency = config.max_concurrency
         self._include_views = config.include_views
         self._sampling = config.sampling
 
-        dataset_filter = config.filter.normalize()
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching data profile from host {self._host}")
 
         databases = (
-            await self._fetch_databases(config)
-            if dataset_filter.includes is None
-            else list(dataset_filter.includes.keys())
+            await self._fetch_databases()
+            if self._filter.includes is None
+            else list(self._filter.includes.keys())
         )
 
-        coroutines = [
-            self._profile_database(database, config, dataset_filter)
-            for database in databases
-        ]
+        coroutines = [self._profile_database(database) for database in databases]
 
         await asyncio.gather(*coroutines)
 
         return self._datasets.values()
 
-    async def _profile_database(
-        self,
-        database: str,
-        config: PostgreSQLProfileRunConfig,
-        dataset_filter: DatasetFilter,
-    ) -> None:
-        pool = await self._create_connection_pool(config, database)
+    async def _profile_database(self, database: str) -> None:
+        pool = await self._create_connection_pool()
 
         async with pool.acquire() as conn:
-            await self._fetch_tables(conn, database, dataset_filter)
-            datasets = await self._fetch_columns(conn, database, dataset_filter)
+            await self._fetch_tables(conn, database)
+            datasets = await self._fetch_columns(conn, database)
             logger.info(f"Include {len(datasets)} tables from {database}")
 
         tasks = [
             self._profile_dataset(pool, dataset)
             for dataset in datasets
             if dataset.schema.sql_schema.materialization != MaterializationType.VIEW
-            or not config.include_views
+            or not self._include_views
         ]
         await asyncio.gather(*tasks)
         await pool.close()
@@ -198,19 +189,16 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
         assert index == len(results)
 
-    @staticmethod
-    async def _create_connection_pool(
-        config: PostgreSQLProfileRunConfig, database: str
-    ) -> asyncpg.Pool:
-        logger.info(f"Connecting to DB {database}")
+    async def _create_connection_pool(self) -> asyncpg.Pool:
+        logger.info(f"Connecting to DB {self._database}")
         return await asyncpg.create_pool(
             min_size=1,
-            max_size=config.max_concurrency,
-            host=config.host,
-            port=config.port,
-            user=config.user,
-            password=config.password,
-            database=database,
+            max_size=self._max_concurrency,
+            host=self._host,
+            port=self._port,
+            user=self._user,
+            password=self._password,
+            database=self._database,
         )
 
     def _init_dataset(

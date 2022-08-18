@@ -7,7 +7,7 @@ from metaphor.common.base_config import BaseConfig
 
 
 @dataclass
-class ThoughtspotRunConfig(BaseConfig):
+class ThoughtSpotRunConfig(BaseConfig):
     user: str
 
     # ThoughtSpot instance url

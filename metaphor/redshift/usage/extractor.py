@@ -1,13 +1,12 @@
-from datetime import timedelta
-from typing import Collection, Dict, Optional, Set
+from datetime import datetime, timedelta
+from typing import Collection
 
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.common.utils import start_of_day
 from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import DataPlatform, Dataset
+from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.usage.config import RedshiftUsageRunConfig
@@ -18,50 +17,42 @@ logger = get_logger(__name__)
 class RedshiftUsageExtractor(PostgreSQLExtractor):
     """Redshift usage metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.REDSHIFT
-
-    def description(self) -> str:
-        return "Redshift usage statistics crawler"
-
     @staticmethod
-    def config_class():
-        return RedshiftUsageRunConfig
+    def from_config_file(config_file: str) -> "RedshiftUsageExtractor":
+        return RedshiftUsageExtractor(
+            RedshiftUsageRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        super().__init__()
-        self._utc_now = start_of_day()
-        self._datasets: Dict[str, Dataset] = {}
-        self._excluded_usernames: Set[str] = set()
+    def __init__(self, config: RedshiftUsageRunConfig):
+        super().__init__(
+            config,
+            "Redshift usage statistics crawler",
+            Platform.REDSHIFT,
+            DataPlatform.REDSHIFT,
+        )
+        self._use_history = config.use_history
+        self._lookback_days = config.lookback_days
+        self._excluded_usernames = config.excluded_usernames
 
-    async def extract(self, config: RedshiftUsageRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, PostgreSQLExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching metadata from redshift host {self._host}")
 
-        logger.info(f"Fetching metadata from redshift host {config.host}")
+        utc_now = start_of_day()
+        lookback_days = 1 if self._use_history else self._lookback_days
+        start, end = utc_now - timedelta(lookback_days), utc_now
 
-        dataset_filter = DatasetFilter.normalize(config.filter)
+        conn = await self._connect_database(self._database)
+        async for record in AccessEvent.fetch_access_event(conn, start, end):
+            self._process_record(record, utc_now)
 
-        lookback_days = 1 if config.use_history else config.lookback_days
-        start, end = self._utc_now - timedelta(lookback_days), self._utc_now
-
-        async for record in AccessEvent.fetch_access_event(
-            config, config.database, start, end
-        ):
-            self._process_record(record, dataset_filter, config.use_history)
-
-        if not config.use_history:
+        if not self._use_history:
             UsageUtil.calculate_statistics(self._datasets.values())
 
         return self._datasets.values()
 
-    def _process_record(
-        self,
-        access_event: AccessEvent,
-        dataset_filter: DatasetFilter,
-        use_history: bool,
-    ):
+    def _process_record(self, access_event: AccessEvent, utc_now: datetime):
 
-        if not dataset_filter.include_table(
+        if not self._filter.include_table(
             access_event.database, access_event.schema, access_event.table
         ):
             return
@@ -72,10 +63,10 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
         table_name = access_event.table_name()
         if table_name not in self._datasets:
             self._datasets[table_name] = UsageUtil.init_dataset(
-                None, table_name, DataPlatform.REDSHIFT, use_history, self._utc_now
+                None, table_name, DataPlatform.REDSHIFT, self._use_history, utc_now
             )
 
-        if use_history:
+        if self._use_history:
             UsageUtil.update_table_and_columns_usage_history(
                 self._datasets[table_name].usage_history, [], access_event.usename
             )
@@ -84,6 +75,6 @@ class RedshiftUsageExtractor(PostgreSQLExtractor):
                 usage=self._datasets[table_name].usage,
                 columns=[],
                 start_time=access_event.starttime,
-                utc_now=self._utc_now,
+                utc_now=utc_now,
                 username=access_event.usename,
             )

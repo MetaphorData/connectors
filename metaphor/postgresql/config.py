@@ -1,5 +1,4 @@
 from dataclasses import field
-from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -15,6 +14,6 @@ class PostgreSQLRunConfig(BaseConfig):
     password: str
 
     # Include or exclude specific databases/schemas/tables
-    filter: Optional[DatasetFilter] = field(default_factory=lambda: DatasetFilter())
+    filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
 
     port: int = 5432

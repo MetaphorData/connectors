@@ -1,15 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Iterable,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    Union,
-)
+from typing import Any, Collection, Dict, Iterable, List, Mapping, Sequence, Union
 
 try:
     import google.cloud.bigquery as bigquery
@@ -19,8 +9,8 @@ except ImportError:
 
 from metaphor.bigquery.config import BigQueryRunConfig
 from metaphor.bigquery.utils import build_client
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.fieldpath import FieldDataType, build_field_path
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -43,38 +33,35 @@ logger = get_logger(__name__)
 class BigQueryExtractor(BaseExtractor):
     """BigQuery metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.BIGQUERY
-
-    def description(self) -> str:
-        return "BigQuery metadata crawler"
-
-    @staticmethod
-    def config_class():
-        return BigQueryRunConfig
-
     BYTES_PER_MEGABYTES = 1024 * 1024
 
-    async def extract(self, config: BigQueryRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, BigQueryExtractor.config_class())
+    @staticmethod
+    def from_config_file(config_file: str) -> "BigQueryExtractor":
+        return BigQueryExtractor(BigQueryRunConfig.from_yaml_file(config_file))
 
-        logger.info(f"Fetching metadata from BigQuery project {config.project_id}")
+    def __init__(self, config: BigQueryRunConfig) -> None:
+        super().__init__(config, "BigQuery metadata crawler", Platform.BIGQUERY)
+        self._client = build_client(config)
+        self._project_id = config.project_id
+        self._job_project_id = config.job_project_id
+        self._dataset_filter = config.filter.normalize()
+        self._max_concurrency = config.max_concurrency
 
-        client = build_client(config)
-        dataset_filter = config.filter.normalize()
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching metadata from BigQuery project {self._project_id}")
 
         fetched_tables: List[Dataset] = []
         for dataset_ref in BigQueryExtractor._list_datasets_with_filter(
-            client, dataset_filter
+            self._client, self._dataset_filter
         ):
             logger.info(f"Fetching tables for {dataset_ref}")
 
-            with ThreadPoolExecutor(max_workers=config.max_concurrency) as executor:
+            with ThreadPoolExecutor(max_workers=self._max_concurrency) as executor:
 
                 def get_table(table: bigquery.TableReference) -> Dataset:
                     logger.info(f"Getting table {table.table_id}")
-                    bq_table = client.get_table(table)
-                    return self._parse_table(client.project, bq_table)
+                    bq_table = self._client.get_table(table)
+                    return self._parse_table(self._client.project, bq_table)
 
                 # map of table name to Dataset
                 tables: Dict[str, Dataset] = {
@@ -82,15 +69,15 @@ class BigQueryExtractor(BaseExtractor):
                     for d in executor.map(
                         get_table,
                         BigQueryExtractor._list_tables_with_filter(
-                            dataset_ref, client, dataset_filter
+                            dataset_ref, self._client, self._dataset_filter
                         ),
                     )
                 }
 
             logger.info(f"Getting table DDL for {dataset_ref}")
-            table_ddl = client.query(
+            table_ddl = self._client.query(
                 f"select table_name, ddl from `{dataset_ref.project}.{dataset_ref.dataset_id}.INFORMATION_SCHEMA.TABLES`",
-                project=config.job_project_id,
+                project=self._job_project_id,
             ).result()
 
             for table_name, ddl in table_ddl:

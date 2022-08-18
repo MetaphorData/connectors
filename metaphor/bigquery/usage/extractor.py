@@ -1,13 +1,11 @@
-import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Collection, Dict, List, Optional, Set
+from typing import Collection, Dict, List, Optional
 
 from metaphor.bigquery.usage.config import BigQueryUsageRunConfig
 from metaphor.bigquery.utils import BigQueryResource, LogEntry, build_logging_client
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
 from metaphor.common.utils import start_of_day
@@ -59,51 +57,49 @@ class TableReadEvent:
 class BigQueryUsageExtractor(BaseExtractor):
     """BigQuery usage metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.BIGQUERY
-
-    def description(self) -> str:
-        return "BigQuery usage statistics crawler"
-
     @staticmethod
-    def config_class():
-        return BigQueryUsageRunConfig
+    def from_config_file(config_file: str) -> "BigQueryUsageExtractor":
+        return BigQueryUsageExtractor(
+            BigQueryUsageRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        self._utc_now = start_of_day()
+    def __init__(self, config: BigQueryUsageRunConfig):
+        super().__init__(config, "BigQuery usage statistics crawler", Platform.BIGQUERY)
+        self._client = build_logging_client(config)
+        self._dataset_filter = config.filter.normalize()
+        self._excluded_usernames = config.excluded_usernames
+        self._use_history = config.use_history
+        self._lookback_days = config.lookback_days
+        self._batch_size = config.batch_size
+
         self._datasets: Dict[str, Dataset] = {}
-        self._datasets_pattern: List[re.Pattern[str]] = []
-        self._dataset_filter: DatasetFilter = DatasetFilter()
-        self._excluded_usernames: Set[str] = set()
 
-    async def extract(self, config: BigQueryUsageRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, BigQueryUsageExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching usage info from BigQuery")
 
-        client = build_logging_client(config)
-        self._dataset_filter = config.filter.normalize()
+        utc_now = start_of_day()
 
-        log_filter = self._build_table_data_read_filter(config, end_time=self._utc_now)
+        log_filter = self._build_table_data_read_filter(utc_now)
         counter = 0
-        for entry in client.list_entries(
-            page_size=config.batch_size, filter_=log_filter
+        for entry in self._client.list_entries(
+            page_size=self._batch_size, filter_=log_filter
         ):
             counter += 1
             if TableReadEvent.can_parse(entry):
-                self._parse_table_data_read_entry(entry, config.use_history)
+                self._parse_table_data_read_entry(entry, utc_now)
 
             if counter % 1000 == 0:
                 logger.info(f"Fetched {counter} audit logs")
 
         logger.info(f"Number of tableDataRead log entries fetched: {counter}")
 
-        if not config.use_history:
+        if not self._use_history:
             UsageUtil.calculate_statistics(self._datasets.values())
 
         return self._datasets.values()
 
-    def _parse_table_data_read_entry(self, entry: LogEntry, use_history: bool) -> None:
+    def _parse_table_data_read_entry(self, entry: LogEntry, utc_now: datetime) -> None:
         read_event = TableReadEvent.from_entry(entry)
         if read_event is None:
             return
@@ -123,10 +119,10 @@ class BigQueryUsageExtractor(BaseExtractor):
         table_name = resource.table_name()
         if table_name not in self._datasets:
             self._datasets[table_name] = UsageUtil.init_dataset(
-                None, table_name, DataPlatform.BIGQUERY, use_history, self._utc_now
+                None, table_name, DataPlatform.BIGQUERY, self._use_history, utc_now
             )
 
-        if use_history:
+        if self._use_history:
             history = self._datasets[table_name].usage_history
             UsageUtil.update_table_and_columns_usage_history(
                 history=history,
@@ -139,13 +135,12 @@ class BigQueryUsageExtractor(BaseExtractor):
                 usage=usage,
                 columns=read_event.columns,
                 start_time=read_event.timestamp,
-                utc_now=self._utc_now,
+                utc_now=utc_now,
                 username=read_event.username,
             )
 
-    @staticmethod
-    def _build_table_data_read_filter(config: BigQueryUsageRunConfig, end_time) -> str:
-        lookback_days = 1 if config.use_history else config.lookback_days
+    def _build_table_data_read_filter(self, end_time: datetime) -> str:
+        lookback_days = 1 if self._use_history else self._lookback_days
 
         start = (end_time - timedelta(days=lookback_days)).isoformat()
         end = end_time.isoformat()

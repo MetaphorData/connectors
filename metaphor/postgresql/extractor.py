@@ -6,10 +6,9 @@ except ImportError:
     print("Please install metaphor[postgresql] extra\n")
     raise
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -40,59 +39,60 @@ _ignored_schemas = [
 class PostgreSQLExtractor(BaseExtractor):
     """PostgreSQL metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.POSTGRESQL
-
-    def description(self) -> str:
-        return "PostgreSQL metadata crawler"
-
     @staticmethod
-    def config_class():
-        return PostgreSQLRunConfig
+    def from_config_file(config_file: str) -> "PostgreSQLExtractor":
+        return PostgreSQLExtractor(PostgreSQLRunConfig.from_yaml_file(config_file))
 
-    def __init__(self):
-        self._platform = DataPlatform.POSTGRESQL
+    def __init__(
+        self,
+        config: PostgreSQLRunConfig,
+        description="PostgreSQL metadata crawler",
+        platform=Platform.POSTGRESQL,
+        dataset_platform=DataPlatform.POSTGRESQL,
+    ):
+        super().__init__(config, description, platform)
+        self._host = config.host
+        self._database = config.database
+        self._user = config.user
+        self._password = config.password
+        self._filter = config.filter.normalize()
+        self._port = config.port
+        self._dataset_platform = dataset_platform
+
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(self, config: PostgreSQLRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, PostgreSQLExtractor.config_class())
-        logger.info(f"Fetching metadata from postgreSQL host {config.host}")
-
-        filter = config.filter.normalize()
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching metadata from postgreSQL host {self._host}")
 
         databases = (
-            await self._fetch_databases(config)
-            if filter.includes is None
-            else list(filter.includes.keys())
+            await self._fetch_databases()
+            if self._filter.includes is None
+            else list(self._filter.includes.keys())
         )
 
         for db in databases:
-            conn = await self._connect_database(config, db)
+            conn = await self._connect_database(db)
             try:
-                await self._fetch_tables(conn, db, filter)
-                await self._fetch_columns(conn, db, filter)
+                await self._fetch_tables(conn, db)
+                await self._fetch_columns(conn, db)
                 await self._fetch_constraints(conn, db)
             finally:
                 await conn.close()
 
         return self._datasets.values()
 
-    @staticmethod
-    async def _connect_database(
-        config: PostgreSQLRunConfig, database: str
-    ) -> asyncpg.Connection:
+    async def _connect_database(self, database: str) -> asyncpg.Connection:
         logger.info(f"Connecting to DB {database}")
         return await asyncpg.connect(
-            host=config.host,
-            port=config.port,
-            user=config.user,
-            password=config.password,
+            host=self._host,
+            port=self._port,
+            user=self._user,
+            password=self._password,
             database=database,
         )
 
-    @staticmethod
-    async def _fetch_databases(config: PostgreSQLRunConfig) -> List[str]:
-        conn = await PostgreSQLExtractor._connect_database(config, config.database)
+    async def _fetch_databases(self) -> List[str]:
+        conn = await self._connect_database(self._database)
         try:
             results = await conn.fetch("SELECT datname FROM pg_database")
             databases = [r[0] for r in results if r[0] not in _ignored_dbs]
@@ -107,8 +107,7 @@ class PostgreSQLExtractor(BaseExtractor):
     async def _fetch_tables(
         self,
         conn: asyncpg.Connection,
-        database: str,
-        filter: DatasetFilter,
+        catalog: str,
         redshift: bool = False,
     ) -> List[Dataset]:
         parts = [
@@ -156,8 +155,8 @@ class PostgreSQLExtractor(BaseExtractor):
             row_count = table["row_count"]
             table_size = table["table_size"]
             table_type = table["table_type"]
-            full_name = dataset_fullname(database, schema, name)
-            if not filter.include_table(database, schema, name):
+            full_name = dataset_fullname(catalog, schema, name)
+            if not self._filter.include_table(catalog, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
             datasets.append(
@@ -172,7 +171,6 @@ class PostgreSQLExtractor(BaseExtractor):
         self,
         conn: asyncpg.Connection,
         catalog: str,
-        filter: DatasetFilter,
         redshift: bool = False,
     ) -> List[Dataset]:
         parts = [
@@ -225,7 +223,7 @@ class PostgreSQLExtractor(BaseExtractor):
         for column in columns:
             schema, name = column["table_schema"], column["table_name"]
             full_name = dataset_fullname(catalog, schema, name)
-            if not filter.include_table(catalog, schema, name):
+            if not self._filter.include_table(catalog, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
             dataset = self._datasets[full_name]
@@ -249,7 +247,7 @@ class PostgreSQLExtractor(BaseExtractor):
             schema = view_definition["schemaname"]
             name = view_definition["viewname"]
             full_name = dataset_fullname(catalog, schema, name)
-            if not filter.include_table(catalog, schema, name):
+            if not self._filter.include_table(catalog, schema, name):
                 continue
 
             dataset = self._datasets.get(full_name)
@@ -320,7 +318,7 @@ class PostgreSQLExtractor(BaseExtractor):
     ) -> Dataset:
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
-        dataset.logical_id.platform = self._platform
+        dataset.logical_id.platform = self._dataset_platform
         dataset.logical_id.name = full_name
 
         dataset.schema = DatasetSchema()

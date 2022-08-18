@@ -1,10 +1,15 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.metabase.config import MetabaseRunConfig
 from metaphor.metabase.extractor import DatabaseInfo, MetabaseExtractor
 from metaphor.models.metadata_change_event import Chart, ChartType, DataPlatform
 
 
 def test_parse_database_and_card():
-    extractor = MetabaseExtractor()
+    config = MetabaseRunConfig(
+        server_url="", username="", password="", output=OutputConfig()
+    )
+    extractor = MetabaseExtractor(config)
 
     database_json = {
         "name": "metaphor_bigquery",

@@ -83,10 +83,11 @@ async def test_extractor(test_root_dir):
     config = BigQueryRunConfig(
         output=OutputConfig(), key_path="fake_file", project_id="fake_project"
     )
-    extractor = BigQueryExtractor()
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
     with patch("metaphor.bigquery.extractor.build_client") as mock_build_client:
+        extractor = BigQueryExtractor(config)
+
         mock_build_client.return_value.project = "project1"
 
         mock_list_datasets(mock_build_client, [mock_dataset("dataset1")])
@@ -168,6 +169,6 @@ async def test_extractor(test_root_dir):
             },
         )
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/bigquery/expected.json")
