@@ -1,0 +1,14 @@
+{
+  "acme.metaphor.bar": {
+    "logicalId": {
+      "account": "snowflake_account",
+      "name": "acme.metaphor.bar",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~EAEA28F30430853E9C299356A7C4CB46"
+      ]
+    }
+  }
+}

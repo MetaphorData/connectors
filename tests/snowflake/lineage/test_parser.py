@@ -60,3 +60,23 @@ def test_parse_access_log(test_root_dir):
     assert results == load_json(
         test_root_dir + "/snowflake/lineage/data/parse_query_log_result.json"
     )
+
+
+def test_parse_object_dependencies(test_root_dir):
+    extractor = SnowflakeLineageExtractor()
+    extractor.account = "snowflake_account"
+    extractor.filter = DatasetFilter()
+
+    dependencies = [
+        ("ACME", "METAPHOR", "FOO", "TABLE", "ACME", "METAPHOR", "BAR", "VIEW")
+    ]
+
+    extractor._parse_object_dependencies(dependencies)
+
+    results = {}
+    for key, value in extractor._datasets.items():
+        results[key] = EventUtil.clean_nones(value.to_dict())
+
+    assert results == load_json(
+        test_root_dir + "/snowflake/lineage/data/parse_object_dependencies_result.json"
+    )
