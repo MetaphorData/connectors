@@ -90,7 +90,7 @@ async def _test_project(
         meta_ownerships=[MetaOwnership(meta_key="owner", ownership_type="Maintainer")],
         meta_tags=[MetaTag(meta_key="pii", tag_type="PII")],
     )
-    extractor = DbtExtractor()
-    events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+    extractor = DbtExtractor(config)
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(expected)

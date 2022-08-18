@@ -4,7 +4,6 @@ from asyncpg import Connection
 
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
@@ -24,42 +23,38 @@ logger = get_logger(__name__)
 class RedshiftLineageExtractor(PostgreSQLExtractor):
     """Redshift lineage metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.REDSHIFT
-
-    def description(self) -> str:
-        return "Redshift data lineage crawler"
-
     @staticmethod
-    def config_class():
-        return RedshiftLineageRunConfig
+    def from_config_file(config_file: str) -> "RedshiftLineageExtractor":
+        return RedshiftLineageExtractor(
+            RedshiftLineageRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        super().__init__()
-        self._platform = DataPlatform.REDSHIFT
-        self._dataset_filter: DatasetFilter = DatasetFilter()
+    def __init__(self, config: RedshiftLineageRunConfig):
+        super().__init__(
+            config,
+            "Redshift data lineage crawler",
+            Platform.REDSHIFT,
+            DataPlatform.REDSHIFT,
+        )
+        self._enable_lineage_from_stl_scan = config.enable_lineage_from_stl_scan
+        self._enable_view_lineage = config.enable_view_lineage
 
-    async def extract(
-        self, config: RedshiftLineageRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, PostgreSQLExtractor.config_class())
-        logger.info(f"Fetching lineage info from redshift host {config.host}")
-
-        self._dataset_filter = config.filter.normalize()
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching lineage info from redshift host {self._host}")
 
         databases = (
-            await self._fetch_databases(config)
-            if self._dataset_filter.includes is None
-            else list(self._dataset_filter.includes.keys())
+            await self._fetch_databases()
+            if self._filter.includes is None
+            else list(self._filter.includes.keys())
         )
 
         for db in databases:
-            conn = await PostgreSQLExtractor._connect_database(config, db)
+            conn = await self._connect_database(db)
 
-            if config.enable_lineage_from_stl_scan:
+            if self._enable_lineage_from_stl_scan:
                 await self._fetch_upstream_from_stl_scan(conn, db)
 
-            if config.enable_view_lineage:
+            if self._enable_view_lineage:
                 await self._fetch_view_upstream(conn, db)
 
             await conn.close()

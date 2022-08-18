@@ -18,7 +18,7 @@ async def test_extractor(test_root_dir):
 
     mock_dbt_extractor = MagicMock()
 
-    async def fake_extract(config):
+    async def fake_extract():
         return []
 
     mock_dbt_extractor.extract.side_effect = fake_extract
@@ -38,10 +38,10 @@ async def test_extractor(test_root_dir):
             job_id=2222,
             service_token="service_token",
         )
-        extractor = DbtCloudExtractor()
-        await extractor.extract(config)
+        extractor = DbtCloudExtractor(config)
+        await extractor.extract()
 
-        mock_dbt_extractor.extract.assert_called_once_with(
+        mock_dbt_extractor_class.assert_called_once_with(
             DbtRunConfig(
                 manifest="tempfile",
                 account="snowflake_account",
@@ -49,3 +49,4 @@ async def test_extractor(test_root_dir):
                 output=OutputConfig(),
             )
         )
+        mock_dbt_extractor.extract.assert_called_once()

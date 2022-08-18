@@ -1,5 +1,6 @@
 from tableauserverclient import WorkbookItem
 
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import to_dataset_entity_id, to_virtual_view_entity_id
 from metaphor.models.metadata_change_event import (
     Dashboard,
@@ -11,14 +12,24 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     VirtualViewType,
 )
+from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 from metaphor.tableau.extractor import TableauExtractor
 from metaphor.tableau.query import WorkbookQueryResponse
+
+
+def dummy_config():
+    return TableauRunConfig(
+        server_url="url",
+        site_name="name",
+        access_token=TableauTokenAuthConfig(token_name="name", token_value="value"),
+        output=OutputConfig(),
+    )
 
 
 def test_view_url():
     view_name = "Regional/sheets/Obesity"
 
-    extractor = TableauExtractor()
+    extractor = TableauExtractor(dummy_config())
     extractor._base_url = "https://10ax.online.tableau.com/#/site/abc"
 
     view_url = extractor._build_view_url(view_name)
@@ -29,7 +40,7 @@ def test_view_url():
 
 
 def test_parse_workbook_url():
-    extractor = TableauExtractor()
+    extractor = TableauExtractor(dummy_config())
 
     # Tableau Online
     base_url, workbook_id = extractor._parse_workbook_url(
@@ -67,7 +78,7 @@ def test_parse_dashboard():
     )
     workbook._set_views([])
 
-    extractor = TableauExtractor()
+    extractor = TableauExtractor(dummy_config())
     extractor._parse_dashboard(workbook)
 
     assert len(extractor._dashboards) == 1

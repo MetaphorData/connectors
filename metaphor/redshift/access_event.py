@@ -2,10 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import AsyncIterator
 
-from asyncpg import Record
-
-from metaphor.postgresql.config import PostgreSQLRunConfig
-from metaphor.postgresql.extractor import PostgreSQLExtractor
+from asyncpg import Connection, Record
 
 REDSHIFT_USAGE_SQL_TEMPLATE = """
 SELECT DISTINCT ss.userid,
@@ -66,12 +63,10 @@ class AccessEvent:
 
     @staticmethod
     async def fetch_access_event(
-        config: PostgreSQLRunConfig,
-        database: str,
+        conn: Connection,
         start_date: datetime,
         end_date: datetime,
     ) -> AsyncIterator["AccessEvent"]:
-        conn = await PostgreSQLExtractor._connect_database(config, database)
 
         results = await conn.fetch(
             REDSHIFT_USAGE_SQL_TEMPLATE.format(

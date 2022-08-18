@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta, timezone
-from typing import Collection, Dict, Optional
+from datetime import timedelta
+from typing import Collection, Dict
 
 try:
     import google.cloud.bigquery as bigquery
@@ -12,11 +12,11 @@ from sql_metadata import Parser
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
 from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.bigquery.utils import LogEntry, build_client, build_logging_client
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -32,67 +32,64 @@ logger = get_logger(__name__)
 class BigQueryLineageExtractor(BaseExtractor):
     """BigQuery lineage metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.BIGQUERY
-
-    def description(self) -> str:
-        return "BigQuery data lineage crawler"
-
     @staticmethod
-    def config_class():
-        return BigQueryLineageRunConfig
+    def from_config_file(config_file: str) -> "BigQueryLineageExtractor":
+        return BigQueryLineageExtractor(
+            BigQueryLineageRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        self._utc_now = datetime.now().replace(tzinfo=timezone.utc)
+    def __init__(self, config: BigQueryLineageRunConfig):
+        super().__init__(config, "BigQuery data lineage crawler", Platform.BIGQUERY)
+        self._client = build_client(config)
+        self._logging_client = build_logging_client(config)
+        self._project_id = config.project_id
+        self._dataset_filter = config.filter.normalize()
+        self._enable_view_lineage = config.enable_view_lineage
+        self._enable_lineage_from_log = config.enable_lineage_from_log
+        self._include_self_lineage = config.include_self_lineage
+        self._lookback_days = config.lookback_days
+        self._batch_size = config.batch_size
+
         self._datasets: Dict[str, Dataset] = {}
-        self._dataset_filter: DatasetFilter = DatasetFilter()
-        self._include_self_lineage = True
 
-    async def extract(
-        self, config: BigQueryLineageRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, BigQueryLineageExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
 
-        if config.enable_view_lineage:
-            self._fetch_view_upstream(config)
+        if self._enable_view_lineage:
+            self._fetch_view_upstream()
 
-        if config.enable_lineage_from_log:
-            self._fetch_audit_log(config)
+        if self._enable_lineage_from_log:
+            self._fetch_audit_log()
 
         return self._datasets.values()
 
-    def _fetch_view_upstream(self, config: BigQueryLineageRunConfig) -> None:
+    def _fetch_view_upstream(self) -> None:
         logger.info("Fetching lineage info from BigQuery API")
 
-        client = build_client(config)
-
-        dataset_filter = config.filter.normalize()
-
-        for bq_dataset in client.list_datasets():
-            if not dataset_filter.include_schema(
-                config.project_id, bq_dataset.dataset_id
+        for bq_dataset in self._client.list_datasets():
+            if not self._dataset_filter.include_schema(
+                self._project_id, bq_dataset.dataset_id
             ):
                 logger.info(f"Skipped dataset {bq_dataset.dataset_id}")
                 continue
 
             dataset_ref = bigquery.DatasetReference(
-                client.project, bq_dataset.dataset_id
+                self._client.project, bq_dataset.dataset_id
             )
 
             logger.info(f"Found dataset {dataset_ref}")
 
-            for bq_table in client.list_tables(bq_dataset.dataset_id):
+            for bq_table in self._client.list_tables(bq_dataset.dataset_id):
                 table_ref = dataset_ref.table(bq_table.table_id)
-                if not dataset_filter.include_table(
-                    config.project_id, bq_dataset.dataset_id, bq_table.table_id
+                if not self._dataset_filter.include_table(
+                    self._project_id, bq_dataset.dataset_id, bq_table.table_id
                 ):
                     logger.info(f"Skipped table: {table_ref}")
                     continue
                 logger.debug(f"Found table {table_ref}")
 
-                bq_table = client.get_table(table_ref)
+                bq_table = self._client.get_table(table_ref)
                 try:
-                    self._parse_view_lineage(client.project, bq_table)
+                    self._parse_view_lineage(self._client.project, bq_table)
                 except Exception as ex:
                     logger.exception(ex)
 
@@ -134,16 +131,13 @@ class BigQueryLineageExtractor(BaseExtractor):
                 source_datasets=list(dataset_ids), transformation=view_query
             )
 
-    def _fetch_audit_log(self, config: BigQueryLineageRunConfig):
+    def _fetch_audit_log(self):
         logger.info("Fetching lineage info from BigQuery Audit log")
 
-        client = build_logging_client(config)
-        self._dataset_filter = config.filter.normalize()
-
-        log_filter = self._build_job_change_filter(config, end_time=self._utc_now)
+        log_filter = self._build_job_change_filter()
         fetched, parsed = 0, 0
-        for entry in client.list_entries(
-            page_size=config.batch_size, filter_=log_filter
+        for entry in self._logging_client.list_entries(
+            page_size=self._batch_size, filter_=log_filter
         ):
             fetched += 1
             try:
@@ -193,9 +187,9 @@ class BigQueryLineageExtractor(BaseExtractor):
             transformation=job_change.query,
         )
 
-    @staticmethod
-    def _build_job_change_filter(config: BigQueryLineageRunConfig, end_time):
-        start = (end_time - timedelta(days=config.lookback_days)).isoformat()
+    def _build_job_change_filter(self):
+        end_time = start_of_day()
+        start = (end_time - timedelta(days=self._lookback_days)).isoformat()
         end = end_time.isoformat()
 
         # See https://cloud.google.com/logging/docs/view/logging-query-language for query syntax

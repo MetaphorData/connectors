@@ -1,25 +1,19 @@
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Mapping, Optional
 
-from snowflake.connector import SnowflakeConnection
-from snowflake.connector.cursor import DictCursor, SnowflakeCursor
-
-from metaphor.common.entity_id import dataset_fullname
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.logger import get_logger
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.snowflake.auth import connect
-from metaphor.snowflake.config import SnowflakeRunConfig
-from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
-
 try:
-    import snowflake.connector
+    from snowflake.connector.cursor import DictCursor, SnowflakeCursor
+    from snowflake.connector.errors import ProgrammingError
 except ImportError:
     print("Please install metaphor[snowflake] extra\n")
     raise
 
-from metaphor.common.extractor import BaseExtractor
+
+from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.entity_id import dataset_fullname
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.logger import get_logger
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -33,6 +27,9 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     SQLSchema,
 )
+from metaphor.snowflake.auth import connect
+from metaphor.snowflake.config import SnowflakeRunConfig
+from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
 
 logger = get_logger(__name__)
 
@@ -40,45 +37,35 @@ logger = get_logger(__name__)
 class SnowflakeExtractor(BaseExtractor):
     """Snowflake metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.SNOWFLAKE
-
-    def description(self) -> str:
-        return "Snowflake metadata crawler"
-
     @staticmethod
-    def config_class():
-        return SnowflakeRunConfig
+    def from_config_file(config_file: str) -> "SnowflakeExtractor":
+        return SnowflakeExtractor(SnowflakeRunConfig.from_yaml_file(config_file))
 
-    def __init__(self):
-        self.account = None
-        self.max_concurrency = None
+    def __init__(self, config: SnowflakeRunConfig):
+        super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
+        self._account = config.account
+        self._filter = config.filter.normalize()
+
+        self._conn = connect(config)
         self._datasets: Dict[str, Dataset] = {}
 
-    async def extract(self, config: SnowflakeRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, SnowflakeExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching metadata from Snowflake")
-        self.account = config.account
-        self.max_concurrency = config.max_concurrency
 
-        conn = connect(config)
-
-        with conn:
-            cursor = conn.cursor()
-
-            filter = config.filter.normalize()
+        with self._conn:
+            cursor = self._conn.cursor()
 
             databases = (
                 self.fetch_databases(cursor)
-                if filter.includes is None
-                else list(filter.includes.keys())
+                if self._filter.includes is None
+                else list(self._filter.includes.keys())
             )
 
             logger.info(f"Databases to include: {databases}")
 
             for database in databases:
-                tables = self._fetch_tables(cursor, database, filter)
+                tables = self._fetch_tables(cursor, database)
                 if len(tables) == 0:
                     logger.info(f"Skip empty database {database}")
                     continue
@@ -88,7 +75,7 @@ class SnowflakeExtractor(BaseExtractor):
                 self._fetch_columns(cursor, database)
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
-                self._fetch_table_info(conn, tables)
+                self._fetch_table_info(tables)
 
             self._fetch_tags(cursor)
 
@@ -111,11 +98,11 @@ class SnowflakeExtractor(BaseExtractor):
     """
 
     def _fetch_tables(
-        self, cursor: SnowflakeCursor, database: str, filter: DatasetFilter
+        self, cursor: SnowflakeCursor, database: str
     ) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)
-        except snowflake.connector.errors.ProgrammingError:
+        except ProgrammingError:
             raise ValueError(f"Invalid or inaccessible database {database}")
 
         cursor.execute(self.FETCH_TABLE_QUERY)
@@ -123,7 +110,7 @@ class SnowflakeExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo] = {}
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
             full_name = dataset_fullname(database, schema, name)
-            if not filter.include_table(database, schema, name):
+            if not self._filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
 
@@ -184,9 +171,7 @@ class SnowflakeExtractor(BaseExtractor):
                 )
             )
 
-    def _fetch_table_info(
-        self, conn: SnowflakeConnection, tables: Dict[str, DatasetInfo]
-    ) -> None:
+    def _fetch_table_info(self, tables: Dict[str, DatasetInfo]) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
         for fullname, table in tables.items():
@@ -204,7 +189,7 @@ class SnowflakeExtractor(BaseExtractor):
 
         query = f"SELECT {','.join(queries)}"
 
-        cursor = conn.cursor(DictCursor)
+        cursor = self._conn.cursor(DictCursor)
 
         try:
             cursor.execute(query, tuple(params))
@@ -330,11 +315,11 @@ class SnowflakeExtractor(BaseExtractor):
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, account=self.account, platform=DataPlatform.SNOWFLAKE
+            name=full_name, account=self._account, platform=DataPlatform.SNOWFLAKE
         )
 
         dataset.source_info = SourceInfo(
-            main_url=SnowflakeExtractor.build_table_url(self.account, full_name)
+            main_url=SnowflakeExtractor.build_table_url(self._account, full_name)
         )
 
         dataset.schema = DatasetSchema(

@@ -1,12 +1,11 @@
 from datetime import timedelta
-from typing import Collection, List, Optional, Set
+from typing import Collection, List
 
 from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.bigquery.query.config import BigQueryQueryRunConfig
 from metaphor.bigquery.utils import LogEntry, build_logging_client
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import TableQueryHistoryHeap
 from metaphor.common.utils import start_of_day
@@ -25,36 +24,32 @@ logger = get_logger(__name__)
 class BigQueryQueryExtractor(BaseExtractor):
     """BigQuery query history extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.BIGQUERY
-
-    def description(self) -> str:
-        return "BigQuery recent queries crawler"
-
     @staticmethod
-    def config_class():
-        return BigQueryQueryRunConfig
+    def from_config_file(config_file: str) -> "BigQueryQueryExtractor":
+        return BigQueryQueryExtractor(
+            BigQueryQueryRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        self._utc_now = start_of_day()
-        self._dataset_filter: DatasetFilter = DatasetFilter()
-        self._max_queries_per_table = 0
-        self._excluded_usernames: Set[str] = set()
+    def __init__(self, config: BigQueryQueryRunConfig):
+        super().__init__(config, "BigQuery recent queries crawler", Platform.BIGQUERY)
+        self._client = build_logging_client(config)
+        self._dataset_filter = config.filter.normalize()
+        self._lookback_days = config.lookback_days
+        self._batch_size = config.batch_size
+        self._max_queries_per_table = config.max_queries_per_table
+        self._exclude_service_accounts = config.exclude_service_accounts
+        self._excluded_usernames = config.excluded_usernames
 
-    async def extract(self, config: BigQueryQueryRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, BigQueryQueryExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching query history from BigQuery audit log")
 
-        client = build_logging_client(config)
-        self._dataset_filter = config.filter.normalize()
-        self._excluded_usernames = config.excluded_usernames
-        self._table_queries = TableQueryHistoryHeap(config.max_queries_per_table)
+        self._table_queries = TableQueryHistoryHeap(self._max_queries_per_table)
 
-        log_filter = self._build_job_change_filter(config, end_time=self._utc_now)
+        log_filter = self._build_job_change_filter()
         counter = 0
-        for entry in client.list_entries(
-            page_size=config.batch_size, filter_=log_filter
+        for entry in self._client.list_entries(
+            page_size=self._batch_size, filter_=log_filter
         ):
             counter += 1
             if JobChangeEvent.can_parse(entry):
@@ -119,15 +114,15 @@ class BigQueryQueryExtractor(BaseExtractor):
             query_history=DatasetQueryHistory(recent_queries=recent_queries),
         )
 
-    @staticmethod
-    def _build_job_change_filter(config: BigQueryQueryRunConfig, end_time) -> str:
-        start = (end_time - timedelta(days=config.lookback_days)).isoformat()
+    def _build_job_change_filter(self) -> str:
+        end_time = start_of_day()
+        start = (end_time - timedelta(days=self._lookback_days)).isoformat()
         end = end_time.isoformat()
 
         # Filter for service account
         service_account_filter = (
             "NOT protoPayload.authenticationInfo.principalEmail:gserviceaccount.com AND"
-            if config.exclude_service_accounts
+            if self._exclude_service_accounts
             else ""
         )
 

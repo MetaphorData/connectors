@@ -1,8 +1,7 @@
 from datetime import timedelta
-from typing import Collection, List, Optional, Set
+from typing import Collection, List
 
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import TableQueryHistoryHeap
 from metaphor.common.utils import start_of_day
@@ -24,43 +23,42 @@ logger = get_logger(__name__)
 class RedshiftQueryExtractor(PostgreSQLExtractor):
     """Redshift query extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.REDSHIFT
-
-    def description(self) -> str:
-        return "Redshift recent queries crawler"
-
     @staticmethod
-    def config_class():
-        return RedshiftQueryRunConfig
+    def from_config_file(config_file: str) -> "RedshiftQueryExtractor":
+        return RedshiftQueryExtractor(
+            RedshiftQueryRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        super().__init__()
-        self._utc_now = start_of_day()
-        self._excluded_usernames: Set[str] = set()
+    def __init__(self, config: RedshiftQueryRunConfig):
+        super().__init__(
+            config,
+            "Redshift recent queries crawler",
+            Platform.REDSHIFT,
+            DataPlatform.REDSHIFT,
+        )
+        self._lookback_days = config.lookback_days
+        self._max_queries_per_table = config.max_queries_per_table
+        self._excluded_usernames = config.excluded_usernames
 
-    async def extract(self, config: RedshiftQueryRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, PostgreSQLExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching metadata from redshift host {self._host}")
 
-        logger.info(f"Fetching metadata from redshift host {config.host}")
+        self._table_queries = TableQueryHistoryHeap(self._max_queries_per_table)
 
-        dataset_filter = DatasetFilter.normalize(config.filter)
-        self._table_queries = TableQueryHistoryHeap(config.max_queries_per_table)
+        utc_now = start_of_day()
+        start, end = utc_now - timedelta(self._lookback_days), utc_now
 
-        start, end = self._utc_now - timedelta(config.lookback_days), self._utc_now
-
-        async for record in AccessEvent.fetch_access_event(
-            config, config.database, start, end
-        ):
-            self._process_record(record, dataset_filter)
+        conn = await self._connect_database(self._database)
+        async for record in AccessEvent.fetch_access_event(conn, start, end):
+            self._process_record(record)
 
         return [
             self._init_dataset(table_name, recent_queries)
             for table_name, recent_queries in self._table_queries.recent_queries()
         ]
 
-    def _process_record(self, access_event: AccessEvent, dataset_filter: DatasetFilter):
-        if not dataset_filter.include_table(
+    def _process_record(self, access_event: AccessEvent):
+        if not self._filter.include_table(
             access_event.database, access_event.schema, access_event.table
         ):
             return

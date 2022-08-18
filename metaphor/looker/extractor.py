@@ -1,20 +1,19 @@
 import os
-from typing import Collection, Dict, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Collection, Dict, Iterable, List, Sequence, Set, Tuple
 
 from metaphor.common.git import clone_repo
 from metaphor.models.crawler_run_metadata import Platform
 
 try:
     import looker_sdk
-    from looker_sdk.sdk.api40.methods import Looker40SDK
     from looker_sdk.sdk.api40.models import DashboardElement
 except ImportError:
     print("Please install metaphor[looker] extra\n")
     raise
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import to_virtual_view_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 from metaphor.looker.lookml_parser import Model, fullname, parse_project
@@ -36,16 +35,6 @@ logger = get_logger(__name__)
 class LookerExtractor(BaseExtractor):
     """Looker metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.LOOKER
-
-    def description(self) -> str:
-        return "Looker metadata crawler"
-
-    @staticmethod
-    def config_class():
-        return LookerRunConfig
-
     vis_type_map = {
         "looker_area": ChartType.AREA,
         "looker_bar": ChartType.BAR,
@@ -65,49 +54,54 @@ class LookerExtractor(BaseExtractor):
         "text": ChartType.TEXT,
     }
 
-    def initSdk(self, config: LookerRunConfig) -> Looker40SDK:
+    @staticmethod
+    def from_config_file(config_file: str) -> "LookerExtractor":
+        return LookerExtractor(LookerRunConfig.from_yaml_file(config_file))
+
+    def __init__(self, config: LookerRunConfig) -> None:
+        super().__init__(config, "Looker metadata crawler", Platform.LOOKER)
+        self._base_url = config.base_url
+        self._connections = config.connections
+        self._lookml_dir = config.lookml_dir
+        self._lookml_git_repo = config.lookml_git_repo
+        self._project_source_url = config.project_source_url
+
         # Load config using environment variables instead from looker.ini file
         # See https://github.com/looker-open-source/sdk-codegen#environment-variable-configuration
-        os.environ["LOOKERSDK_BASE_URL"] = config.base_url
+        os.environ["LOOKERSDK_BASE_URL"] = self._base_url
         os.environ["LOOKERSDK_CLIENT_ID"] = config.client_id
         os.environ["LOOKERSDK_CLIENT_SECRET"] = config.client_secret
         os.environ["LOOKERSDK_VERIFY_SSL"] = str(config.verify_ssl)
         os.environ["LOOKERSDK_TIMEOUT"] = str(config.timeout)
-        return looker_sdk.init40()
+        self._sdk = looker_sdk.init40()
 
-    async def extract(self, config: LookerRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, LookerExtractor.config_class())
-
+    async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Looker")
-
-        sdk = self.initSdk(config)
 
         # Lower case all connection names for case-insensitive lookup
         connections: Dict[str, LookerConnectionConfig] = {
-            k.lower(): v for (k, v) in config.connections.items()
+            k.lower(): v for (k, v) in self._connections.items()
         }
 
-        lookml_dir = config.lookml_dir or clone_repo(config.lookml_git_repo)
+        lookml_dir = self._lookml_dir or clone_repo(self._lookml_git_repo)
         logger.info(f"Parsing LookML project at {lookml_dir}")
 
         model_map, virtual_views = parse_project(
-            lookml_dir, connections, config.project_source_url
+            lookml_dir, connections, self._project_source_url
         )
 
-        dashboards = self._fetch_dashboards(config, sdk, model_map)
+        dashboards = self._fetch_dashboards(model_map)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(dashboards)
         entities.extend(virtual_views)
         return entities
 
-    def _fetch_dashboards(
-        self, config: LookerRunConfig, sdk: Looker40SDK, model_map: Dict[str, Model]
-    ) -> List[Dashboard]:
+    def _fetch_dashboards(self, model_map: Dict[str, Model]) -> List[Dashboard]:
         dashboards: List[Dashboard] = []
-        for basic_dashboard in sdk.all_dashboards():
+        for basic_dashboard in self._sdk.all_dashboards():
             assert basic_dashboard.id is not None
-            dashboard = sdk.dashboard(dashboard_id=basic_dashboard.id)
+            dashboard = self._sdk.dashboard(dashboard_id=basic_dashboard.id)
 
             dashboard_info = DashboardInfo(
                 title=dashboard.title,
@@ -116,7 +110,7 @@ class LookerExtractor(BaseExtractor):
             )
 
             source_info = SourceInfo(
-                main_url=f"{config.base_url}/{dashboard.preferred_viewer}/{dashboard.id}",
+                main_url=f"{self._base_url}/{dashboard.preferred_viewer}/{dashboard.id}",
             )
 
             # All numeric fields must be converted to "float" to meet quicktype's expectation

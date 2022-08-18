@@ -5,9 +5,9 @@ from typing import Collection, Dict, List, Optional, Set, Union
 import requests
 from sql_metadata import Parser
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.metabase.config import MetabaseRunConfig
 from metaphor.models.crawler_run_metadata import Platform
@@ -43,32 +43,6 @@ class DatabaseInfo:
 class MetabaseExtractor(BaseExtractor):
     """Tableau metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.METABASE
-
-    def description(self) -> str:
-        return "Metabase metadata crawler"
-
-    def __init__(self):
-        self._server_url = ""
-        self._session = None
-
-        # mapping of card id to ChartInfo
-        self._charts: Dict[int, ChartInfo] = {}
-
-        # mapping of dashboard id to Dashboard
-        self._dashboards: Dict[int, Dashboard] = {}
-
-        # mapping of database id to DatabaseInfo
-        self._databases: Dict[int, DatabaseInfo] = {}
-
-        # mapping of table id to dataset entity ID string
-        self._tables: Dict[int, Optional[str]] = {}
-
-    @staticmethod
-    def config_class():
-        return MetabaseRunConfig
-
     _chart_type_mapping = dict(
         table=ChartType.TABLE,
         bar=ChartType.BAR,
@@ -95,26 +69,37 @@ class MetabaseExtractor(BaseExtractor):
         "redshift": DataPlatform.REDSHIFT,
     }
 
-    async def extract(self, config: MetabaseRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, MetabaseExtractor.config_class())
+    @staticmethod
+    def from_config_file(config_file: str) -> "MetabaseExtractor":
+        return MetabaseExtractor(MetabaseRunConfig.from_yaml_file(config_file))
 
-        logger.info("Fetching metadata from Metabase")
-
+    def __init__(self, config: MetabaseRunConfig):
+        super().__init__(config, "Metabase metadata crawler", Platform.METABASE)
         self._server_url = config.server_url.rstrip("/")
+        self._username = config.username
+        self._password = config.password
+
+        self._charts: Dict[int, ChartInfo] = {}
+        self._dashboards: Dict[int, Dashboard] = {}
+        self._databases: Dict[int, DatabaseInfo] = {}
+        self._tables: Dict[int, Optional[str]] = {}
+        self._session = requests.session()
+
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info("Fetching metadata from Metabase")
 
         # fetch session token
         session_token_resp = requests.post(
             f"{self._server_url}/api/session",
             None,
             {
-                "username": config.username,
-                "password": config.password,
+                "username": self._username,
+                "password": self._password,
             },
         )
         session_token_resp.raise_for_status()
         session_token = session_token_resp.json()["id"]
 
-        self._session = requests.session()
         self._session.headers.update(
             {
                 "X-Metabase-Session": session_token,

@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from time import sleep
-from typing import Collection, List, Optional, Set, Union
+from typing import Collection, List, Set, Union
 
 try:
     import google.cloud.bigquery as bigquery
@@ -12,9 +12,9 @@ except ImportError:
 
 from metaphor.bigquery.extractor import BigQueryExtractor, build_client
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
@@ -34,54 +34,42 @@ logger = get_logger(__name__)
 class BigQueryProfileExtractor(BaseExtractor):
     """BigQuery data profile extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.BIGQUERY
-
-    def description(self) -> str:
-        return "BigQuery data profile crawler"
-
     @staticmethod
-    def config_class():
-        return BigQueryProfileRunConfig
+    def from_config_file(config_file: str) -> "BigQueryProfileExtractor":
+        return BigQueryProfileExtractor(
+            BigQueryProfileRunConfig.from_yaml_file(config_file)
+        )
 
-    def __init__(self):
-        self._job_project_id = None
-        self._sampling = None
-        self._column_statistics = None
+    def __init__(self, config: BigQueryProfileRunConfig):
+        super().__init__(config, "BigQuery data profile crawler", Platform.BIGQUERY)
+        self._client = build_client(config)
+        self._job_project_id = config.job_project_id
+        self._max_concurrency = config.max_concurrency
+        self._filter = DatasetFilter.normalize(config.filter)
+        self._column_statistics = config.column_statistics
+        self._sampling = config.sampling
 
-    async def extract(
-        self, config: BigQueryProfileRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, BigQueryProfileExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching usage info from BigQuery")
 
-        self._job_project_id = config.job_project_id
-        self._sampling = config.sampling
-        self._column_statistics = config.column_statistics
+        tables = self._fetch_tables()
+        return self.profile(tables)
 
-        client = build_client(config)
-        tables = self._fetch_tables(client, config)
-        return self.profile(client, tables, config)
+    def _fetch_tables(self) -> List[TableReference]:
 
-    @staticmethod
-    def _fetch_tables(
-        client: bigquery.Client, config: BigQueryProfileRunConfig
-    ) -> List[TableReference]:
-
-        filter = DatasetFilter.normalize(config.filter)
         tables = []
-        for bq_dataset in client.list_datasets():
+        for bq_dataset in self._client.list_datasets():
             dataset_ref = bigquery.DatasetReference(
-                client.project, bq_dataset.dataset_id
+                self._client.project, bq_dataset.dataset_id
             )
 
             logger.info(f"Found dataset {dataset_ref}")
 
-            for bq_table in client.list_tables(bq_dataset.dataset_id):
+            for bq_table in self._client.list_tables(bq_dataset.dataset_id):
 
                 table_ref = dataset_ref.table(bq_table.table_id)
-                if not filter.include_table(
+                if not self._filter.include_table(
                     database=table_ref.project,
                     schema=table_ref.dataset_id,
                     table=table_ref.table_id,
@@ -95,16 +83,14 @@ class BigQueryProfileExtractor(BaseExtractor):
 
     def profile(
         self,
-        client: bigquery.Client,
         tables: List[TableReference],
-        config: BigQueryProfileRunConfig,
     ) -> List[Dataset]:
         jobs: Set[QueryJob] = set()
 
         def profile(table: TableReference):
-            return self._profile_table(client, table, jobs)
+            return self._profile_table(table, jobs)
 
-        with ThreadPoolExecutor(max_workers=config.max_concurrency) as executor:
+        with ThreadPoolExecutor(max_workers=self._max_concurrency) as executor:
             datasets = [dataset for dataset in executor.map(profile, tables)]
 
         counter = 0
@@ -121,7 +107,6 @@ class BigQueryProfileExtractor(BaseExtractor):
 
     def _profile_table(
         self,
-        client: bigquery.Client,
         table: TableReference,
         jobs: Set[QueryJob],
     ) -> Dataset:
@@ -156,7 +141,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         dataset = BigQueryProfileExtractor._init_dataset(
             f"{table.project}.{table.dataset_id}.{table.table_id}"
         )
-        bq_table = client.get_table(table)
+        bq_table = self._client.get_table(table)
         row_count = bq_table.num_rows
         schema = BigQueryExtractor.parse_schema(bq_table)
 
@@ -164,7 +149,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         sql = self._build_profiling_query(
             schema, table, row_count, self._column_statistics, self._sampling
         )
-        job = client.query(sql, project=self._job_project_id)
+        job = self._client.query(sql, project=self._job_project_id)
 
         jobs.add(job.job_id)
         job.add_done_callback(partial(job_callback, schema=schema, dataset=dataset))
