@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
@@ -171,5 +170,4 @@ async def test_extractor(test_root_dir):
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
 
-    print(json.dumps(events))
     assert events == load_json(f"{test_root_dir}/bigquery/expected.json")
