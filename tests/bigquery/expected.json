@@ -10,12 +10,14 @@
         {
           "description": "d1",
           "fieldPath": "f1",
+          "fieldName": "f1",
           "nativeType": "STRING",
           "nullable": true
         },
         {
           "description": "d2",
           "fieldPath": "f2",
+          "fieldName": "f2",
           "nativeType": "INTEGER",
           "nullable": false
         }
@@ -42,8 +44,32 @@
         {
           "description": "d1",
           "fieldPath": "f1",
+          "fieldName": "f1",
           "nativeType": "ARRAY<FLOAT>",
           "nullable": false
+        },
+        {
+          "description": "d2",
+          "fieldName": "f2",
+          "fieldPath": "f2",
+          "nativeType": "RECORD",
+          "nullable": false,
+          "subfields": [
+            {
+              "description": "d3",
+              "fieldName": "sf1",
+              "fieldPath": "f2.sf1",
+              "nativeType": "INT",
+              "nullable": true
+            },
+            {
+              "description": "d4",
+              "fieldName": "sf2",
+              "fieldPath": "f2.sf2",
+              "nativeType": "STRING",
+              "nullable": false
+            }
+          ]
         }
       ],
       "schemaType": "SQL",

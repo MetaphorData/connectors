@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.11.17"
+version = "0.11.18"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -23,7 +23,7 @@ google-cloud-bigquery = { version = "^2.34.4", optional = true }
 google-cloud-logging = { version = "^3.1.0", optional = true }
 lkml = { version = "^1.2.0", optional = true }
 looker-sdk = { version = "^22.4.0", optional = true }
-metaphor-models = "^0.10.1"
+metaphor-models = "^0.11.1"
 msal = { version = "^1.17.0", optional = true }
 pydantic = "^1.9.0"
 python = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856

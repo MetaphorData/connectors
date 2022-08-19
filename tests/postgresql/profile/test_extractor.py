@@ -31,9 +31,21 @@ def init_dataset(name: str, row_count) -> Dataset:
 def test_build_profiling_query():
     dataset = init_dataset(name="foo", row_count=1000)
     dataset.schema.fields = [
-        SchemaField(field_path="id", nullable=False),
-        SchemaField(field_path="price", nullable=True, precision=22.0),
-        SchemaField(field_path="year", nullable=True, precision=32.0),
+        SchemaField(field_path="id", field_name="id", nullable=False, subfields=None),
+        SchemaField(
+            field_path="price",
+            field_name="price",
+            nullable=True,
+            precision=22.0,
+            subfields=None,
+        ),
+        SchemaField(
+            field_path="year",
+            field_name="year",
+            nullable=True,
+            precision=32.0,
+            subfields=None,
+        ),
     ]
 
     expected = [
@@ -54,10 +66,24 @@ def test_build_profiling_query():
 def test_build_profiling_query_multiple_sql():
     dataset = init_dataset(name="foo", row_count=1000)
     dataset.schema.fields = [
-        SchemaField(field_path="id", nullable=False),
-        SchemaField(field_path="price", nullable=True, precision=22.0),
-        SchemaField(field_path="year", nullable=True, precision=32.0),
-        SchemaField(field_path="name", nullable=True),
+        SchemaField(field_path="id", field_name="id", nullable=False, subfields=None),
+        SchemaField(
+            field_path="price",
+            field_name="price",
+            nullable=True,
+            precision=22.0,
+            subfields=None,
+        ),
+        SchemaField(
+            field_path="year",
+            field_name="year",
+            nullable=True,
+            precision=32.0,
+            subfields=None,
+        ),
+        SchemaField(
+            field_path="name", field_name="name", nullable=True, subfields=None
+        ),
     ]
 
     expected = [
@@ -91,8 +117,14 @@ def test_build_profiling_query_multiple_sql():
 def test_build_profiling_query_with_sampling():
     dataset = init_dataset(name="foo", row_count=1000000000000)
     dataset.schema.fields = [
-        SchemaField(field_path="id", nullable=False),
-        SchemaField(field_path="price", nullable=True, precision=22.0),
+        SchemaField(field_path="id", field_name="id", nullable=False, subfields=None),
+        SchemaField(
+            field_path="price",
+            field_name="price",
+            nullable=True,
+            precision=22.0,
+            subfields=None,
+        ),
     ]
 
     expected = [
@@ -115,13 +147,25 @@ def test_build_profiling_query_with_sampling():
 def test_parse_profiling_result():
     dataset = init_dataset(name="foo", row_count=1000)
     dataset.schema.fields = [
-        SchemaField(field_path="id", nullable=False),
-        SchemaField(field_path="price", nullable=True, precision=22.0),
-        SchemaField(field_path="year", nullable=True, precision=32.0),
+        SchemaField(field_path="id", field_name="id", nullable=False, subfields=None),
+        SchemaField(
+            field_path="price",
+            field_name="price",
+            nullable=True,
+            precision=22.0,
+            subfields=None,
+        ),
+        SchemaField(
+            field_path="year",
+            field_name="year",
+            nullable=True,
+            precision=32.0,
+            subfields=None,
+        ),
     ]
     dataset.field_statistics = DatasetFieldStatistics(field_statistics=[])
 
-    results = (5, 5, 4, 0, 3, 8, 5, 2, 1, 2000, 2020, 2015)
+    results = [5, 5, 4, 0, 3, 8, 5, 2, 1, 2000, 2020, 2015]
 
     PostgreSQLProfileExtractor._parse_result(results, dataset)
     dataset.schema = None

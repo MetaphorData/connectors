@@ -138,7 +138,27 @@ async def test_extractor(test_root_dir):
                             field_type="FLOAT",
                             description="d1",
                             mode="REPEATED",
-                        )
+                        ),
+                        SchemaField(
+                            name="f2",
+                            field_type="RECORD",
+                            description="d2",
+                            mode="REQUIRED",
+                            fields=[
+                                SchemaField(
+                                    name="sf1",
+                                    field_type="INT",
+                                    description="d3",
+                                    mode="NULLABLE",
+                                ),
+                                SchemaField(
+                                    name="sf2",
+                                    field_type="STRING",
+                                    description="d4",
+                                    mode="REQUIRED",
+                                ),
+                            ],
+                        ),
                     ],
                     view_query="select * from FOO",
                     modified=datetime.fromisoformat("2000-01-02"),

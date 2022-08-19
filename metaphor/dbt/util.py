@@ -183,7 +183,7 @@ def init_schema(dataset: Dataset) -> None:
 def init_field(fields: List[SchemaField], column: str) -> SchemaField:
     field = next((f for f in fields if f.field_path == column), None)
     if not field:
-        field = SchemaField(field_path=column)
+        field = SchemaField(field_path=column, field_name=column, subfields=None)
         fields.append(field)
     return field
 
