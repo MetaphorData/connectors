@@ -20,6 +20,15 @@ def test_parse_dataset_snowflake():
         )
     ]
 
+    exp = 'let\n    Source = Snowflake.Databases("some-account.snowflakecomputing.com","COMPUTE_WH"),\n    DB_NAME_Database = Source{[Name=Database,Kind="Database"]}[Data],\n    PUBLIC_Schema = DB_Database{[Name="PUBLIC",Kind="Schema"]}[Data],\n    TEST_Table = PUBLIC_Schema{[Name="TEST",Kind="Table"]}[Data]\nin\n    TEST_Table'
+    assert PowerQueryParser.parse_source_datasets(exp) == [
+        to_dataset_entity_id(
+            "db_name.public.test",
+            platform=DataPlatform.SNOWFLAKE,
+            account="some-account",
+        )
+    ]
+
 
 def test_parse_dataset_bigquery():
     exp = 'let\n    Source = GoogleBigQuery.Database(),\n    #"test-project" = Source{[Name="test-project"]}[Data],\n    test_Schema = #"test-project"{[Name="test",Kind="Schema"]}[Data],\n    example_Table = test_Schema{[Name="example",Kind="Table"]}[Data]\nin\n    example_Table'
