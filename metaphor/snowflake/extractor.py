@@ -175,11 +175,13 @@ class SnowflakeExtractor(BaseExtractor):
             dataset.schema.fields.append(
                 SchemaField(
                     field_path=column,
+                    field_name=column,
                     native_type=data_type,
                     max_length=float(max_length) if max_length is not None else None,
                     precision=float(precision) if precision is not None else None,
                     nullable=nullable == "YES",
                     description=comment,
+                    subfields=None,
                 )
             )
 
