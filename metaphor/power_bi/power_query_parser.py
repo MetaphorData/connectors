@@ -23,11 +23,15 @@ class PowerQueryParser:
         assert match, "Can't parse platform from power query expression."
         platform_str = match.group(1)
 
-        field_pattern = re.compile(r'{\[Name="([\w\-]+)"(.*)\]}')
+        field_pattern_param = re.compile(r'{\[Name="([\w\-]+)".*\]}')
+        field_pattern_var = re.compile(r"^\s+(\w+)_\w+ = .+")
 
         def get_field(text: str) -> str:
-            match = field_pattern.search(text)
-            assert match, "Can't parse field from power query expression"
+            match = field_pattern_param.search(text)
+            if match is None:
+                match = field_pattern_var.search(text)
+
+            assert match, f"Can't parse field from power query expression: {text}"
             return match.group(1)
 
         account = None
