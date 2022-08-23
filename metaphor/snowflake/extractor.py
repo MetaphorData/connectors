@@ -21,7 +21,6 @@ except ImportError:
 
 from metaphor.common.extractor import BaseExtractor
 from metaphor.models.metadata_change_event import (
-    AspectType,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -336,16 +335,17 @@ class SnowflakeExtractor(BaseExtractor):
             main_url=SnowflakeExtractor.build_table_url(self.account, full_name)
         )
 
-        dataset.schema = DatasetSchema()
-        dataset.schema.aspect_type = AspectType.DATASET_SCHEMA
-        dataset.schema.schema_type = SchemaType.SQL
-        dataset.schema.description = comment
-        dataset.schema.fields = []
-        dataset.schema.sql_schema = SQLSchema()
-        dataset.schema.sql_schema.materialization = (
-            MaterializationType.VIEW
-            if table_type == SnowflakeTableType.VIEW.value
-            else MaterializationType.TABLE
+        dataset.schema = DatasetSchema(
+            schema_type=SchemaType.SQL,
+            description=comment,
+            fields=[],
+            sql_schema=SQLSchema(
+                materialization=(
+                    MaterializationType.VIEW
+                    if table_type == SnowflakeTableType.VIEW.value
+                    else MaterializationType.TABLE
+                )
+            ),
         )
 
         dataset.statistics = DatasetStatistics()
