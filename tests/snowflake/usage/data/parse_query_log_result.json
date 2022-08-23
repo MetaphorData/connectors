@@ -6,7 +6,6 @@
       "platform": "SNOWFLAKE"
     },
     "usage": {
-      "aspectType": "DATASET_USAGE",
       "fieldQueryCounts": {
         "last24Hours": [
           {
@@ -137,7 +136,6 @@
       "platform": "SNOWFLAKE"
     },
     "usage": {
-      "aspectType": "DATASET_USAGE",
       "fieldQueryCounts": {
         "last24Hours": [
           {

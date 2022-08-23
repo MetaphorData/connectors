@@ -6,7 +6,6 @@
       "platform": "REDSHIFT"
     },
     "usage": {
-      "aspectType": "DATASET_USAGE",
       "fieldQueryCounts": {
         "last24Hours": [],
         "last30Days": [],
@@ -77,7 +76,6 @@
       "platform": "REDSHIFT"
     },
     "usage": {
-      "aspectType": "DATASET_USAGE",
       "fieldQueryCounts": {
         "last24Hours": [],
         "last30Days": [],

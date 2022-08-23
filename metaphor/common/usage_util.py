@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from typing import Callable, Collection, List, Optional
 
 from metaphor.models.metadata_change_event import (
-    AspectType,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -46,7 +45,6 @@ class UsageUtil:
         # write to dataset usage aspect
         else:
             dataset.usage = DatasetUsage(
-                aspect_type=AspectType.DATASET_USAGE,
                 query_counts=QueryCounts(
                     # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
                     # See https://github.com/quicktype/quicktype/issues/1375

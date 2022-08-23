@@ -3,7 +3,6 @@ from typing import List
 
 from metaphor.common.usage_util import UsageUtil
 from metaphor.models.metadata_change_event import (
-    AspectType,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -39,7 +38,6 @@ def test_init_dataset():
         entity_type=EntityType.DATASET,
         logical_id=DatasetLogicalID(name="foo", platform=DataPlatform.S3),
         usage=DatasetUsage(
-            aspect_type=AspectType.DATASET_USAGE,
             field_query_counts=FieldQueryCounts(
                 last24_hours=[],
                 last30_days=[],
