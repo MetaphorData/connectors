@@ -78,7 +78,6 @@ def test_metaphor_lineage_backend(mock_from_config: MagicMock):
                     },
                     "upstream": {
                         "entityId": "",
-                        "latest": False,
                         "sourceDatasets": ["DATASET~A100403449D6C7F9B07F93D13D7CE873"],
                         "transformation": "select * from table",
                     },
