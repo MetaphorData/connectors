@@ -70,6 +70,17 @@ credentials:
   client_id: <client_id>
 ```
 
+> Note: `private_key` is a multi-line string and must be specified using YAML's [literal style](https://yaml.org/spec/1.2.2/#812-literal-style), i.e. using a pipe (`|`). You can use this command to extract and format the value from the JSON key:
+> ```sh
+> cat <JSON_key_file> | jq -r '.private_key' | sed 's/^/    /' 
+> ```
+> Copy & paste the value into the config file as such:
+> ```yaml
+> credentials:
+>   private_key: |
+>     <paste here>
+> ```
+
 ### Optional Configurations
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
