@@ -226,10 +226,12 @@ class SnowflakeExtractor(BaseExtractor):
             dataset = self._datasets[fullname]
             assert dataset.schema.sql_schema is not None
 
+            # Timestamp is in nanosecond.
+            # See https://docs.snowflake.com/en/sql-reference/functions/system_last_change_commit_time.html
             timestamp = results[f"UPDATED_{fullname}"]
             if timestamp > 0:
                 dataset.statistics.last_updated = datetime.utcfromtimestamp(
-                    timestamp / 1000
+                    timestamp / 1000000000
                 ).replace(tzinfo=timezone.utc)
 
     def _fetch_unique_keys(self, cursor: SnowflakeCursor, database: str) -> None:
