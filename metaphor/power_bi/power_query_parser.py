@@ -43,7 +43,7 @@ class PowerQueryParser:
                 match
             ), "Can't parse AmazonRedshift database from power query expression"
 
-            db = match.group(2).split(",")[1].replace('"', "")
+            db = match.group(2).split(",")[1].strip().replace('"', "")
             schema = get_field(lines[2])
             table = get_field(lines[3])
         elif platform_str == "Snowflake":
