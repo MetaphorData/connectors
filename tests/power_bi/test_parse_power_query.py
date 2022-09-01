@@ -4,7 +4,7 @@ from metaphor.power_bi.power_query_parser import PowerQueryParser
 
 
 def test_parse_dataset_redshift():
-    exp = 'let\n    Source = AmazonRedshift.Database("url:5439","db"),\n    public = Source{[Name="public"]}[Data],\n    table1 = public{[Name="table"]}[Data]\nin\n    table1'
+    exp = 'let\n    Source = AmazonRedshift.Database("url:5439", "db" ),\n    public = Source{[Name="public"]}[Data],\n    table1 = public{[Name="table"]}[Data]\nin\n    table1'
     assert PowerQueryParser.parse_source_datasets(exp) == [
         to_dataset_entity_id("db.public.table", platform=DataPlatform.REDSHIFT)
     ]
