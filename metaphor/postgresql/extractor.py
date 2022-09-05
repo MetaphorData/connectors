@@ -1,9 +1,5 @@
 from typing import Callable, Collection, Dict, List, Optional, Tuple
 
-from asyncpg import Connection
-
-from metaphor.models.crawler_run_metadata import Platform
-
 try:
     import asyncpg
 except ImportError:
@@ -15,6 +11,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -83,7 +80,7 @@ class PostgreSQLExtractor(BaseExtractor):
     @staticmethod
     async def _connect_database(
         config: PostgreSQLRunConfig, database: str
-    ) -> Connection:
+    ) -> asyncpg.Connection:
         logger.info(f"Connecting to DB {database}")
         return await asyncpg.connect(
             host=config.host,
@@ -108,7 +105,7 @@ class PostgreSQLExtractor(BaseExtractor):
     _excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
 
     async def _fetch_tables(
-        self, conn: Connection, database: str, filter: DatasetFilter
+        self, conn: asyncpg.Connection, database: str, filter: DatasetFilter
     ) -> List[Dataset]:
         results = await conn.fetch(
             """
@@ -157,7 +154,7 @@ class PostgreSQLExtractor(BaseExtractor):
         return datasets
 
     async def _fetch_columns(
-        self, conn: Connection, catalog: str, filter: DatasetFilter
+        self, conn: asyncpg.Connection, catalog: str, filter: DatasetFilter
     ) -> List[Dataset]:
         columns = await conn.fetch(
             """
@@ -186,7 +183,7 @@ class PostgreSQLExtractor(BaseExtractor):
               AND nc.nspname != 'information_schema' and nc.nspname !~ '^pg_'
               AND a.attnum > 0
               AND NOT a.attisdropped
-            ORDER BY nc.nspname, c.relname, a.attnum
+            ORDER BY nc.nspname, c.relname, a.attnum;
             """
         )
 
@@ -207,9 +204,32 @@ class PostgreSQLExtractor(BaseExtractor):
                 datasets.append(dataset)
                 seen.add(full_name)
 
+        # Fetch view definitions
+        # See https://www.postgresql.org/docs/current/view-pg-views.html
+        view_definitions = await conn.fetch(
+            """
+            SELECT *
+            FROM pg_catalog.pg_views
+            WHERE schemaname != 'information_schema' and schemaname !~ '^pg_';
+            """
+        )
+        for view_definition in view_definitions:
+            schema = view_definition["schemaname"]
+            name = view_definition["viewname"]
+            full_name = dataset_fullname(catalog, schema, name)
+            if not filter.include_table(catalog, schema, name):
+                continue
+
+            dataset = self._datasets.get(full_name)
+            if dataset is None:
+                logger.warning(f"view {full_name} not found")
+                continue
+
+            dataset.schema.sql_schema.table_schema = view_definition["definition"]
+
         return datasets
 
-    async def _fetch_constraints(self, conn: Connection, catalog: str) -> None:
+    async def _fetch_constraints(self, conn: asyncpg.Connection, catalog: str) -> None:
         constraints = await conn.fetch(
             """
             SELECT nr.nspname AS table_schema, r.relname AS table_name,
