@@ -121,6 +121,13 @@ class PowerQueryParser:
     def parse_platform(
         exp: str,
     ) -> Tuple[Optional[DataPlatform], Optional[str], Optional[str]]:
+        """
+        Parse platform information from native query expression.
+
+        :param exp: the native query expression
+        :returns: a tuple of (platform_type, account, default_db)
+        """
+
         lower_exp = exp.lower()
         account = None
         default_db = None
@@ -145,6 +152,13 @@ class PowerQueryParser:
 
     @staticmethod
     def parse_tables(sql: str, default_db: Optional[str]) -> List[Tuple[str, str, str]]:
+        """
+        Parse source tables from a SQL statement.
+
+        :param sql: the sql query to parse
+        :returns: a list of (database_name, schema_name, table_name)
+        """
+
         parser = Parser(sql.replace('"', ""))
         tables = []
         for table_name in parser.tables:
