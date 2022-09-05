@@ -118,9 +118,12 @@ class PowerQueryParser:
         return parameters
 
     @staticmethod
-    def parse_platform(exp: str) -> Tuple[Optional[DataPlatform], Optional[str]]:
+    def parse_platform(
+        exp: str,
+    ) -> Tuple[Optional[DataPlatform], Optional[str], Optional[str]]:
         lower_exp = exp.lower()
         account = None
+        default_db = None
 
         if "snowflake" in lower_exp:
             url = PowerQueryParser.extract_function_parameter(
@@ -131,18 +134,25 @@ class PowerQueryParser:
         elif "bigquery" in lower_exp:
             platform = DataPlatform.BIGQUERY
         elif "redshift" in lower_exp:
+            default_db = PowerQueryParser.extract_function_parameter(
+                exp, "AmazonRedshift.Database"
+            )[1].replace('"', "")
             platform = DataPlatform.REDSHIFT
         else:
             raise AssertionError(f"Unknown platform for a native query: ${exp}")
 
-        return platform, account
+        return platform, account, default_db
 
     @staticmethod
-    def parse_tables(sql: str) -> List[Tuple[str, str, str]]:
+    def parse_tables(sql: str, default_db: Optional[str]) -> List[Tuple[str, str, str]]:
         parser = Parser(sql.replace('"', ""))
         tables = []
         for table_name in parser.tables:
             fields = table_name.split(".")
+
+            # Fallback to default database name if not specified in query
+            if len(fields) == 2 and default_db is not None:
+                fields.insert(0, default_db)
 
             assert (
                 len(fields) == 3
@@ -158,8 +168,8 @@ class PowerQueryParser:
         )
         assert len(parameters) >= 2, "expecting at least two parameter for NativeQuery"
 
-        platform, account = PowerQueryParser.parse_platform(parameters[0])
-        tables = PowerQueryParser.parse_tables(parameters[1])
+        platform, account, default_db = PowerQueryParser.parse_platform(parameters[0])
+        tables = PowerQueryParser.parse_tables(parameters[1], default_db)
 
         return [
             to_dataset_entity_id(dataset_fullname(db, schema, table), platform, account)

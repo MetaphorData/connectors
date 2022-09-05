@@ -370,7 +370,7 @@ class PowerBIExtractor(BaseExtractor):
         dataset_map = {d.id: d for d in self.client.get_datasets(workspace.id)}
 
         for wds in workspace.datasets:
-            sources = []
+            expressions = []
             tables = []
             for table in wds.tables:
                 tables.append(
@@ -388,13 +388,19 @@ class PowerBIExtractor(BaseExtractor):
                 )
 
                 for source in table.source:
-                    sources.append(source["expression"])
+                    expressions.append(source["expression"])
 
-            source_datasets = [
-                str(dataset)
-                for source in sources
-                for dataset in PowerQueryParser.parse_source_datasets(source)
-            ]
+            source_datasets = []
+            for expression in expressions:
+                try:
+                    source_datasets.extend(
+                        PowerQueryParser.parse_source_datasets(expression)
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"Failed to parse expression: {expression} for dataset {wds.id}"
+                    )
+                    logger.exception(e)
 
             ds = dataset_map.get(wds.id, None)
             if ds is None:
@@ -409,7 +415,7 @@ class PowerBIExtractor(BaseExtractor):
                     tables=tables,
                     name=wds.name,
                     url=ds.webUrl,
-                    source_datasets=unique_list(source_datasets),
+                    source_datasets=unique_list([str(d) for d in source_datasets]),
                     description=wds.description,
                     workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
                 ),
