@@ -59,6 +59,14 @@ def test_parse_native_query_parameters():
         ),
     ]
 
+    exp = 'let\n    Source = Value.NativeQuery(AmazonRedshift.Database("redshift-cluster-1.account.us-east-1.redshift.amazonaws.com","db"), "SELECT *#(lf)FROM schema1.table1#(lf)WHERE is_active = 1", null, [EnableFolding=true]),)'
+    assert PowerQueryParser.parse_source_datasets(exp) == [
+        to_dataset_entity_id(
+            "db.schema1.table1",
+            platform=DataPlatform.REDSHIFT,
+        )
+    ]
+
 
 def test_extract_function_parameter():
     assert PowerQueryParser.extract_function_parameter(
