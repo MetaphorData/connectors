@@ -79,7 +79,7 @@ class PostgreSQLExtractor(BaseExtractor):
 
     @staticmethod
     async def _connect_database(
-        config: PostgreSQLRunConfig, database: str
+        config: PostgreSQLRunConfig, database: Optional[str] = None
     ) -> asyncpg.Connection:
         logger.info(f"Connecting to DB {database}")
         return await asyncpg.connect(
@@ -128,6 +128,11 @@ class PostgreSQLExtractor(BaseExtractor):
             LEFT JOIN pg_catalog.pg_description pgd
               ON pgd.objoid = pgc.oid AND pgd.objsubid = 0
             WHERE schemaname != 'information_schema' and schemaname !~ '^pg_'
+            UNION
+            SELECT schemaname, tablename AS name, null as description, null AS row_count,
+                null AS table_size, 'EXTERNAL' as table_type
+            FROM
+                pg_catalog.svv_external_tables
             ORDER BY schemaname, name;
             """
         )
@@ -183,7 +188,14 @@ class PostgreSQLExtractor(BaseExtractor):
               AND nc.nspname != 'information_schema' and nc.nspname !~ '^pg_'
               AND a.attnum > 0
               AND NOT a.attisdropped
-            ORDER BY nc.nspname, c.relname, a.attnum;
+            UNION
+            SELECT schemaname as table_schema, tablename as table_name, null as ordinal_position,
+                columnname as column_name, null as not_null,
+                external_type as format, external_type as data_type,
+                null as description
+            FROM
+                pg_catalog.svv_external_columns
+            ORDER BY table_schema, table_name, ordinal_position
             """
         )
 
@@ -303,8 +315,10 @@ class PostgreSQLExtractor(BaseExtractor):
         )
 
         dataset.statistics = DatasetStatistics()
-        dataset.statistics.record_count = float(row_count)
-        dataset.statistics.data_size = table_size / (1000 * 1000)  # in MB
+        dataset.statistics.record_count = float(row_count) if row_count else None
+        dataset.statistics.data_size = (
+            table_size / (1000 * 1000) if table_size else None
+        )  # in MB
         # There is no reliable way to directly get data last modified time, can explore alternatives in future
         # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 
@@ -385,6 +399,7 @@ class PostgreSQLExtractor(BaseExtractor):
         precision, max_length = None, None
 
         excluded_types = (
+            "timestamp",
             "timestamp with time zone",
             "timestamp without time zone",
             "boolean",
@@ -395,7 +410,7 @@ class PostgreSQLExtractor(BaseExtractor):
         if native_type in excluded_types:
             return precision, max_length
 
-        if native_type == "integer":
+        if native_type == "integer" or native_type == "int":
             precision = 32.0
         elif native_type == "smallint":
             precision = 16.0
@@ -406,6 +421,8 @@ class PostgreSQLExtractor(BaseExtractor):
         elif native_type == "double precision":
             precision = 53.0
         elif native_type == "numeric" and type_str != "numeric":
+            precision = PostgreSQLExtractor._parse_precision(type_str)
+        elif native_type.startswith("decimal") and type_str != "decimal":
             precision = PostgreSQLExtractor._parse_precision(type_str)
         elif native_type == "character varying" or native_type == "character":
             max_length = PostgreSQLExtractor._parse_max_length(type_str)
