@@ -111,9 +111,8 @@ class PostgreSQLExtractor(BaseExtractor):
         filter: DatasetFilter,
         redshift: bool = False,
     ) -> List[Dataset]:
-        query = "\n".join(
-            [
-                """
+        parts = [
+            """
             SELECT schemaname, tablename AS name, pgd.description, pgc.reltuples::bigint AS row_count,
                 pg_total_relation_size(pgc.oid) AS table_size,
                 'TABLE' as table_type
@@ -133,7 +132,10 @@ class PostgreSQLExtractor(BaseExtractor):
             LEFT JOIN pg_catalog.pg_description pgd
               ON pgd.objoid = pgc.oid AND pgd.objsubid = 0
             WHERE schemaname != 'information_schema' and schemaname !~ '^pg_'
-            """,
+            """
+        ]
+        if redshift:
+            parts.append(
                 """
             UNION
             SELECT schemaname, tablename AS name, null as description, null AS row_count,
@@ -141,12 +143,9 @@ class PostgreSQLExtractor(BaseExtractor):
             FROM
                 pg_catalog.svv_external_tables
             """
-                if redshift
-                else "",
-                "ORDER BY schemaname, name;",
-            ]
-        )
-        results = await conn.fetch(query)
+            )
+        parts.append("ORDER BY schemaname, name;")
+        results = await conn.fetch("\n".join(parts))
 
         datasets = []
 
@@ -176,9 +175,8 @@ class PostgreSQLExtractor(BaseExtractor):
         filter: DatasetFilter,
         redshift: bool = False,
     ) -> List[Dataset]:
-        query = "\n".join(
-            [
-                """
+        parts = [
+            """
             SELECT nc.nspname AS table_schema, c.relname AS table_name,
                 a.attnum AS ordinal_position, a.attname AS column_name,
                 a.attnotnull AS not_null, format_type(a.atttypid, a.atttypmod) AS format,
@@ -204,7 +202,10 @@ class PostgreSQLExtractor(BaseExtractor):
               AND nc.nspname != 'information_schema' and nc.nspname !~ '^pg_'
               AND a.attnum > 0
               AND NOT a.attisdropped
-            """,
+            """
+        ]
+        if redshift:
+            parts.append(
                 """
             UNION
             SELECT schemaname as table_schema, tablename as table_name, null as ordinal_position,
@@ -214,12 +215,9 @@ class PostgreSQLExtractor(BaseExtractor):
             FROM
                 pg_catalog.svv_external_columns
             """
-                if redshift
-                else "",
-                "ORDER BY table_schema, table_name, ordinal_position;",
-            ]
-        )
-        columns = await conn.fetch(query)
+            )
+        parts.append("ORDER BY table_schema, table_name, ordinal_position;")
+        columns = await conn.fetch("\n".join(parts))
 
         datasets = []
         seen = set()
