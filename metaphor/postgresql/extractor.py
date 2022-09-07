@@ -79,7 +79,7 @@ class PostgreSQLExtractor(BaseExtractor):
 
     @staticmethod
     async def _connect_database(
-        config: PostgreSQLRunConfig, database: Optional[str] = None
+        config: PostgreSQLRunConfig, database: str
     ) -> asyncpg.Connection:
         logger.info(f"Connecting to DB {database}")
         return await asyncpg.connect(
