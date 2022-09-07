@@ -417,7 +417,7 @@ class ParsedDocumentation(BaseModel):
     root_path: str
     path: str
     original_file_path: str
-    name: str
+    name: Optional[str]
     block_contents: str
 
 
