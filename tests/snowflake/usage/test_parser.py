@@ -56,11 +56,9 @@ def test_parse_access_log(test_root_dir):
         {
             "columns": [
                 {
-                    "columnId": 1511734,
                     "columnName": "DIRECT_OBJECTS_ACCESSED"
                 },
                 {
-                    "columnId": 1511731,
                     "columnName": "QUERY_ID"
                 }
             ],
