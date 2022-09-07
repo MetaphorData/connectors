@@ -18,6 +18,14 @@ GRANT SELECT ON pg_catalog.svv_table_info TO metaphor;
 
 > Note: If the Redshift cluster contains more than one database, you must grant the permission in all databases. Alternatively, you can limit the connector to a subset of databases using the [filter configuration](../common/docs/filter.md).
 
+### Redshift Spectrum
+
+To extract external tables' metadata from `SVV_EXTERNAL_*`, you must grant non-admin users `USAGE` privilege to the corresponding external schemas (see [this page](https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_EXTERNAL_TABLES.html) for more details):
+
+```SQL
+GRANT USAGE ON SCHEMA <external_schema> TO metaphor;
+```
+
 ## Config File
 
 Create a YAML config file based on the following template.

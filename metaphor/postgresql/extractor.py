@@ -105,9 +105,13 @@ class PostgreSQLExtractor(BaseExtractor):
     _excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
 
     async def _fetch_tables(
-        self, conn: asyncpg.Connection, database: str, filter: DatasetFilter
+        self,
+        conn: asyncpg.Connection,
+        database: str,
+        filter: DatasetFilter,
+        redshift: bool = False,
     ) -> List[Dataset]:
-        results = await conn.fetch(
+        parts = [
             """
             SELECT schemaname, tablename AS name, pgd.description, pgc.reltuples::bigint AS row_count,
                 pg_total_relation_size(pgc.oid) AS table_size,
@@ -128,9 +132,20 @@ class PostgreSQLExtractor(BaseExtractor):
             LEFT JOIN pg_catalog.pg_description pgd
               ON pgd.objoid = pgc.oid AND pgd.objsubid = 0
             WHERE schemaname != 'information_schema' and schemaname !~ '^pg_'
-            ORDER BY schemaname, name;
             """
-        )
+        ]
+        if redshift:
+            parts.append(
+                """
+            UNION
+            SELECT schemaname, tablename AS name, null as description, null AS row_count,
+                null AS table_size, 'EXTERNAL' as table_type
+            FROM
+                pg_catalog.svv_external_tables
+            """
+            )
+        parts.append("ORDER BY schemaname, name;")
+        results = await conn.fetch("\n".join(parts))
 
         datasets = []
 
@@ -154,9 +169,13 @@ class PostgreSQLExtractor(BaseExtractor):
         return datasets
 
     async def _fetch_columns(
-        self, conn: asyncpg.Connection, catalog: str, filter: DatasetFilter
+        self,
+        conn: asyncpg.Connection,
+        catalog: str,
+        filter: DatasetFilter,
+        redshift: bool = False,
     ) -> List[Dataset]:
-        columns = await conn.fetch(
+        parts = [
             """
             SELECT nc.nspname AS table_schema, c.relname AS table_name,
                 a.attnum AS ordinal_position, a.attname AS column_name,
@@ -183,9 +202,22 @@ class PostgreSQLExtractor(BaseExtractor):
               AND nc.nspname != 'information_schema' and nc.nspname !~ '^pg_'
               AND a.attnum > 0
               AND NOT a.attisdropped
-            ORDER BY nc.nspname, c.relname, a.attnum;
             """
-        )
+        ]
+        if redshift:
+            parts.append(
+                """
+            UNION
+            SELECT schemaname as table_schema, tablename as table_name, null as ordinal_position,
+                columnname as column_name, null as not_null,
+                external_type as format, external_type as data_type,
+                null as description
+            FROM
+                pg_catalog.svv_external_columns
+            """
+            )
+        parts.append("ORDER BY table_schema, table_name, ordinal_position;")
+        columns = await conn.fetch("\n".join(parts))
 
         datasets = []
         seen = set()
@@ -299,12 +331,16 @@ class PostgreSQLExtractor(BaseExtractor):
         dataset.schema.sql_schema.materialization = (
             MaterializationType.VIEW
             if table_type == "VIEW"
+            else MaterializationType.EXTERNAL
+            if table_type == "EXTERNAL"
             else MaterializationType.TABLE
         )
 
         dataset.statistics = DatasetStatistics()
-        dataset.statistics.record_count = float(row_count)
-        dataset.statistics.data_size = table_size / (1000 * 1000)  # in MB
+        dataset.statistics.record_count = float(row_count) if row_count else None
+        dataset.statistics.data_size = (
+            table_size / (1000 * 1000) if table_size else None
+        )  # in MB
         # There is no reliable way to directly get data last modified time, can explore alternatives in future
         # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 
@@ -385,6 +421,7 @@ class PostgreSQLExtractor(BaseExtractor):
         precision, max_length = None, None
 
         excluded_types = (
+            "timestamp",
             "timestamp with time zone",
             "timestamp without time zone",
             "boolean",
@@ -395,7 +432,7 @@ class PostgreSQLExtractor(BaseExtractor):
         if native_type in excluded_types:
             return precision, max_length
 
-        if native_type == "integer":
+        if native_type == "integer" or native_type == "int":
             precision = 32.0
         elif native_type == "smallint":
             precision = 16.0
@@ -406,6 +443,8 @@ class PostgreSQLExtractor(BaseExtractor):
         elif native_type == "double precision":
             precision = 53.0
         elif native_type == "numeric" and type_str != "numeric":
+            precision = PostgreSQLExtractor._parse_precision(type_str)
+        elif native_type.startswith("decimal") and type_str != "decimal":
             precision = PostgreSQLExtractor._parse_precision(type_str)
         elif native_type == "character varying" or native_type == "character":
             max_length = PostgreSQLExtractor._parse_max_length(type_str)
