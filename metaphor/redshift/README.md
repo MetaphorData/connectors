@@ -20,9 +20,11 @@ GRANT SELECT ON pg_catalog.svv_table_info TO metaphor;
 
 ### Redshift Spectrum
 
-To extract metadata from external tables, we use `'SVV EXTERNAL_*`.
-According to this [document](https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_EXTERNAL_TABLES.html), if using a normal user in this connector,
- the external schemas must be granted 'USAGE' privilege.
+To extract metadata from external tables from `SVV_EXTERNAL_*`, you must grant non-admin users USAGE privilege to the external schema (see [this](https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_EXTERNAL_TABLES.html) for more details):
+
+```SQL
+GRANT USAGE ON SCHEMA [external_schema] TO [user];
+```
 
 ## Config File
 
