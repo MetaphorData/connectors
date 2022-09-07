@@ -105,10 +105,15 @@ class PostgreSQLExtractor(BaseExtractor):
     _excluded_schemas_clause = f" table_schema NOT IN ({','.join([f'${i + 1}' for i in range(len(_ignored_schemas))])})"
 
     async def _fetch_tables(
-        self, conn: asyncpg.Connection, database: str, filter: DatasetFilter
+        self,
+        conn: asyncpg.Connection,
+        database: str,
+        filter: DatasetFilter,
+        redshift: bool = False,
     ) -> List[Dataset]:
-        results = await conn.fetch(
-            """
+        query = "\n".join(
+            [
+                """
             SELECT schemaname, tablename AS name, pgd.description, pgc.reltuples::bigint AS row_count,
                 pg_total_relation_size(pgc.oid) AS table_size,
                 'TABLE' as table_type
@@ -128,14 +133,20 @@ class PostgreSQLExtractor(BaseExtractor):
             LEFT JOIN pg_catalog.pg_description pgd
               ON pgd.objoid = pgc.oid AND pgd.objsubid = 0
             WHERE schemaname != 'information_schema' and schemaname !~ '^pg_'
+            """,
+                """
             UNION
             SELECT schemaname, tablename AS name, null as description, null AS row_count,
                 null AS table_size, 'EXTERNAL' as table_type
             FROM
                 pg_catalog.svv_external_tables
-            ORDER BY schemaname, name;
             """
+                if redshift
+                else "",
+                "ORDER BY schemaname, name;",
+            ]
         )
+        results = await conn.fetch(query)
 
         datasets = []
 
@@ -159,10 +170,15 @@ class PostgreSQLExtractor(BaseExtractor):
         return datasets
 
     async def _fetch_columns(
-        self, conn: asyncpg.Connection, catalog: str, filter: DatasetFilter
+        self,
+        conn: asyncpg.Connection,
+        catalog: str,
+        filter: DatasetFilter,
+        redshift: bool = False,
     ) -> List[Dataset]:
-        columns = await conn.fetch(
-            """
+        query = "\n".join(
+            [
+                """
             SELECT nc.nspname AS table_schema, c.relname AS table_name,
                 a.attnum AS ordinal_position, a.attname AS column_name,
                 a.attnotnull AS not_null, format_type(a.atttypid, a.atttypmod) AS format,
@@ -188,6 +204,8 @@ class PostgreSQLExtractor(BaseExtractor):
               AND nc.nspname != 'information_schema' and nc.nspname !~ '^pg_'
               AND a.attnum > 0
               AND NOT a.attisdropped
+            """,
+                """
             UNION
             SELECT schemaname as table_schema, tablename as table_name, null as ordinal_position,
                 columnname as column_name, null as not_null,
@@ -195,9 +213,13 @@ class PostgreSQLExtractor(BaseExtractor):
                 null as description
             FROM
                 pg_catalog.svv_external_columns
-            ORDER BY table_schema, table_name, ordinal_position
             """
+                if redshift
+                else "",
+                "ORDER BY table_schema, table_name, ordinal_position;",
+            ]
         )
+        columns = await conn.fetch(query)
 
         datasets = []
         seen = set()
@@ -311,6 +333,8 @@ class PostgreSQLExtractor(BaseExtractor):
         dataset.schema.sql_schema.materialization = (
             MaterializationType.VIEW
             if table_type == "VIEW"
+            else MaterializationType.EXTERNAL
+            if table_type == "EXTERNAL"
             else MaterializationType.TABLE
         )
 
