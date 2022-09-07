@@ -24,8 +24,8 @@ def test_parse_access_log(test_root_dir):
             },
             {
                 "columns": [
-                    {"columnId": 4, "columnName": "BAZ"},
-                    {"columnId": 5, "columnName": "QUX"},
+                    {"columnName": "BAZ"},
+                    {"columnName": "QUX"},
                 ],
                 "objectDomain": "View",
                 "objectId": 6,

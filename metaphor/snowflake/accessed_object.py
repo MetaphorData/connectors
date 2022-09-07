@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 
 class AccessedObjectColumn(BaseModel):
-    columnId: int
+    columnId: Optional[int]
     columnName: str
 
 
