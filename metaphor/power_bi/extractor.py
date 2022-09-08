@@ -1,6 +1,5 @@
 import json
 import tempfile
-from multiprocessing import AuthenticationError
 from time import sleep
 from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
 
@@ -159,7 +158,7 @@ class WorkspaceInfo(BaseModel):
     dashboards: List[WorkspaceInfoDashboard] = []
 
 
-class NotAuthorizedError(Exception):
+class AuthenticationError(Exception):
     def __init__(self, body) -> None:
         super().__init__(
             f"Authentication error: {body}.\n"
