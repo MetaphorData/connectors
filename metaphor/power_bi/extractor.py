@@ -90,6 +90,12 @@ class PowerBIReport(BaseModel):
     webUrl: Optional[str]
 
 
+class PowerBIPage(BaseModel):
+    name: str
+    displayName: str
+    order: int
+
+
 class PowerBITile(BaseModel):
     id: str
     title: str = ""
@@ -150,6 +156,21 @@ class WorkspaceInfo(BaseModel):
     reports: List[WorkspaceInfoReport] = []
     datasets: List[WorkspaceInfoDataset] = []
     dashboards: List[WorkspaceInfoDashboard] = []
+
+
+class AuthenticationError(Exception):
+    def __init__(self, body) -> None:
+        super().__init__(
+            f"Authentication error: {body}.\n"
+            f"Please\n"
+            f"  1. Enable Power BI admin read-only API for the app\n"
+            f"  2. Enable service principal to use Power BI APIs for the app\n"
+        )
+
+
+class EntityNotFoundError(Exception):
+    def __init__(self, body) -> None:
+        super().__init__(f"EntityNotFound error: {body}")
 
 
 class PowerBIClient:
@@ -223,6 +244,21 @@ class PowerBIClient:
         return self._call_get(
             url, List[PowerBIReport], transform_response=lambda r: r.json()["value"]
         )
+
+    def get_pages(self, group_id: str, report_id: str) -> List[PowerBIPage]:
+        # https://docs.microsoft.com/en-us/rest/api/power-bi/reports/get-pages-in-group
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/reports/{report_id}/pages"
+
+        try:
+            return self._call_get(
+                url, List[PowerBIPage], transform_response=lambda r: r.json()["value"]
+            )
+        except EntityNotFoundError as e:
+            logger.error(
+                f"Unable to find report {report_id} in workspace {group_id}\n"
+                f"Please add the service principal as a viewer to the workspace"
+            )
+            raise e
 
     def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:
@@ -302,11 +338,14 @@ class PowerBIClient:
         transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
     ) -> T:
         result = requests.get(url, headers=self._headers)
-        assert (
-            result.status_code != 401
-        ), "Authentication error. Please enable read-only Power BI admin API access for the app."
+        body = result.content.decode()
 
-        assert result.status_code == 200, f"GET {url} failed, {result.content.decode()}"
+        if result.status_code == 401:
+            raise AuthenticationError(body)
+        elif result.status_code == 404:
+            raise EntityNotFoundError(body)
+        elif result.status_code != 200:
+            raise AssertionError(f"GET {url} failed: {result.status_code}\n{body}")
 
         logger.debug(f"Response from {url}:")
         logger.debug(json.dumps(result.json(), indent=2))
@@ -450,6 +489,16 @@ class PowerBIExtractor(BaseExtractor):
                 PowerBIDashboardType.REPORT, workspace, wi_report.appId, app_map
             )
 
+            # The "app" version of report doesn't have pages
+            charts = None
+            if wi_report.appId is None:
+                # Log errors instead of throwing exceptions as this API call requires extra permissions
+                try:
+                    pages = self.client.get_pages(workspace.id, wi_report.id)
+                    charts = self.transform_pages_to_charts(pages)
+                except Exception as e:
+                    logger.exception(e)
+
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_report.id,
@@ -459,6 +508,7 @@ class PowerBIExtractor(BaseExtractor):
                     description=wi_report.description,
                     title=wi_report.name,
                     power_bi=pbi_info,
+                    charts=charts,
                 ),
                 source_info=SourceInfo(
                     main_url=report.webUrl,
@@ -543,3 +593,7 @@ class PowerBIExtractor(BaseExtractor):
             Chart(title=t.title, url=t.embedUrl, chart_type=ChartType.OTHER)
             for t in tiles
         ]
+
+    @staticmethod
+    def transform_pages_to_charts(pages: List[PowerBIPage]) -> List[Chart]:
+        return [Chart(title=p.displayName, chart_type=ChartType.OTHER) for p in pages]

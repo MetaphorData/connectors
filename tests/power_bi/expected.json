@@ -130,7 +130,17 @@
           "id": "workspace-1",
           "name": "Workspace"
         }
-      }
+      },
+      "charts": [
+        {
+          "title": "First Page",
+          "chartType": "OTHER"
+        },
+        {
+          "title": "Second Page",
+          "chartType": "OTHER"
+        }
+      ]
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/report/report-2"

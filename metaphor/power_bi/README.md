@@ -13,6 +13,7 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 2. Follow [this doc](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal#create-a-basic-group-and-add-members) to create a security group and add the app's service principal as a member.
 
 3. Log into [Power BI Admin Portal](https://app.powerbi.com/admin-portal/tenantSettings) as a Power BI admin, enable the following settings under **Admin API settings** for the security group created in the previous step:
+    - Allow service principals to use Power BI APIs
     - Allow service principals to use read-only Power BI admin APIs
     - Enhance admin APIs responses with detailed metadata
     - Enhance admin APIs responses with DAX and mashup expressions
@@ -20,6 +21,8 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 For example,
 
 ![](https://docs.microsoft.com/en-us/power-bi/enterprise/media/read-only-apis-service-principal-auth/allow-service-principals-tenant-setting.png)
+
+4. [Add the service principal](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-4---add-the-service-principal-to-your-workspace) to all workspaces of interest, except "My Workspaces". Note that it may take an hour before the permission is fully propagated.
 
 ## Config File
 
