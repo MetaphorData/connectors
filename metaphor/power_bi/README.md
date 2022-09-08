@@ -22,6 +22,8 @@ For example,
 
 ![](https://docs.microsoft.com/en-us/power-bi/enterprise/media/read-only-apis-service-principal-auth/allow-service-principals-tenant-setting.png)
 
+4. [Add the service principal](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-4---add-the-service-principal-to-your-workspace) to all workspaces of interest, except "My Workspaces". Note that it may take an hour before the permission is fully propagated.
+
 ## Config File
 
 Create a YAML config file based on the following template.

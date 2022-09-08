@@ -1,5 +1,6 @@
 import json
 import tempfile
+from multiprocessing import AuthenticationError
 from time import sleep
 from typing import Any, Callable, Collection, Dict, List, Optional, Type, TypeVar
 
@@ -158,6 +159,21 @@ class WorkspaceInfo(BaseModel):
     dashboards: List[WorkspaceInfoDashboard] = []
 
 
+class NotAuthorizedError(Exception):
+    def __init__(self, body) -> None:
+        super().__init__(
+            f"Authentication error: {body}.\n"
+            f"Please\n"
+            f"  1. Enable Power BI admin read-only API for the app\n"
+            f"  2. Enable service principal to use Power BI APIs for the app\n"
+        )
+
+
+class EntityNotFoundError(Exception):
+    def __init__(self, body) -> None:
+        super().__init__(f"EntityNotFound error: {body}")
+
+
 class PowerBIClient:
     AUTHORITY = "https://login.microsoftonline.com/{tenant_id}"
     SCOPES = ["https://analysis.windows.net/powerbi/api/.default"]
@@ -233,9 +249,17 @@ class PowerBIClient:
     def get_pages(self, group_id: str, report_id: str) -> List[PowerBIPage]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/reports/get-pages-in-group
         url = f"{self.API_ENDPOINT}/groups/{group_id}/reports/{report_id}/pages"
-        return self._call_get(
-            url, List[PowerBIPage], transform_response=lambda r: r.json()["value"]
-        )
+
+        try:
+            return self._call_get(
+                url, List[PowerBIPage], transform_response=lambda r: r.json()["value"]
+            )
+        except EntityNotFoundError as e:
+            logger.error(
+                f"Unable to find report {report_id} in workspace {group_id}\n"
+                f"Please add the service principal as a viewer to the workspace"
+            )
+            raise e
 
     def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:
@@ -315,15 +339,14 @@ class PowerBIClient:
         transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
     ) -> T:
         result = requests.get(url, headers=self._headers)
-        assert result.status_code != 401, (
-            f"Authentication error: {result.content.decode()}, Please\n"
-            "  1. Enable Power BI admin read-only API for the app\n"
-            "  2. Enable service principal to use Power BI APIs for the app\n"
-        )
+        body = result.content.decode()
 
-        assert (
-            result.status_code == 200
-        ), f"GET {url} failed: {result.status_code}\n{result.content.decode()}"
+        if result.status_code == 401:
+            raise AuthenticationError(body)
+        elif result.status_code == 404:
+            raise EntityNotFoundError(body)
+        elif result.status_code != 200:
+            raise AssertionError(f"GET {url} failed: {result.status_code}\n{body}")
 
         logger.debug(f"Response from {url}:")
         logger.debug(json.dumps(result.json(), indent=2))
