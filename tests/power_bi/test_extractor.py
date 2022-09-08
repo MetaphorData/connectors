@@ -12,6 +12,7 @@ from metaphor.power_bi.extractor import (
     PowerBIDashboard,
     PowerBIDataset,
     PowerBIExtractor,
+    PowerBIPage,
     PowerBIReport,
     PowerBITable,
     PowerBITableColumn,
@@ -102,6 +103,12 @@ async def test_extractor(test_root_dir):
     )
 
     tiles = {dashboard1_id: [tile1, tile3], dashboard2_id: [tile2, tile3]}
+
+    page1 = PowerBIPage(name="name-1", displayName="First Page", order=1)
+
+    page2 = PowerBIPage(name="name-2", displayName="Second Page", order=2)
+
+    pages = {workspace1_id: {report1_id: [], report2_id: [page1, page2]}}
 
     mock_instance.get_workspace_info = MagicMock(
         return_value=[
@@ -213,6 +220,9 @@ async def test_extractor(test_root_dir):
     def fake_get_tiles(dashboard_id) -> List[PowerBITile]:
         return tiles.get(dashboard_id)
 
+    def fake_get_pages(workspace_id, report_id) -> List[PowerBIPage]:
+        return pages.get(workspace_id).get(report_id)
+
     def fake_get_apps() -> List[PowerBIApp]:
         return [app1, app2]
 
@@ -220,6 +230,7 @@ async def test_extractor(test_root_dir):
     mock_instance.get_reports.side_effect = fake_get_reports
     mock_instance.get_dashboards.side_effect = fake_get_dashboards
     mock_instance.get_tiles.side_effect = fake_get_tiles
+    mock_instance.get_pages.side_effect = fake_get_pages
     mock_instance.get_apps.side_effect = fake_get_apps
 
     with patch("metaphor.power_bi.extractor.PowerBIClient") as mock_client:
