@@ -1,10 +1,9 @@
-from typing import Collection, Optional
+from typing import Collection
 
 from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
-from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.postgresql.usage.config import PostgreSQLUsageRunConfig
@@ -20,34 +19,28 @@ SELECT schemaname, relname, seq_scan FROM pg_stat_user_tables
 class PostgreSQLUsageExtractor(PostgreSQLExtractor):
     """PostgreSQL usage metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.POSTGRESQL
-
-    def description(self) -> str:
-        return "PostgreSQL usage statistics crawler"
-
     @staticmethod
-    def config_class():
-        return PostgreSQLUsageRunConfig
+    def from_config_file(config_file: str) -> "PostgreSQLUsageExtractor":
+        return PostgreSQLUsageExtractor(
+            PostgreSQLUsageRunConfig.from_yaml_file(config_file)
+        )
 
-    async def extract(
-        self, config: PostgreSQLUsageRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, PostgreSQLExtractor.config_class())
-        logger.info(f"Fetching usage metadata from PostgreSQL host {config.host}")
+    def __init__(self, config: PostgreSQLUsageRunConfig):
+        super().__init__(config, "PostgreSQL usage statistics crawler")
 
-        dataset_filter = config.filter.normalize()
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching usage metadata from PostgreSQL host {self._host}")
 
         databases = (
-            await self._fetch_databases(config)
-            if dataset_filter.includes is None
-            else list(dataset_filter.includes.keys())
+            await self._fetch_databases()
+            if self._filter.includes is None
+            else list(self._filter.includes.keys())
         )
 
         datasets = []
 
         for db in databases:
-            conn = await self._connect_database(config, db)
+            conn = await self._connect_database(db)
             try:
                 results = await conn.fetch(USAGE_SQL)
                 for row in results:
@@ -56,7 +49,7 @@ class PostgreSQLUsageExtractor(PostgreSQLExtractor):
                     read_count = row["seq_scan"]
                     full_name = dataset_fullname(db, schema, table_name)
 
-                    if not dataset_filter.include_table(db, schema, table_name):
+                    if not self._filter.include_table(db, schema, table_name):
                         logger.info(f"Ignore {full_name} due to filter config")
                         continue
 

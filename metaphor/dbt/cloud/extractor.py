@@ -4,8 +4,8 @@ from typing import Collection, Dict, Optional, Tuple
 
 import requests
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.config import DbtRunConfig
@@ -24,7 +24,11 @@ class DbtAdminAPIClient:
     See https://docs.getdbt.com/dbt-cloud/api-v2 for more details.
     """
 
-    def __init__(self, account_id: str, service_token: str):
+    @staticmethod
+    def from_config_file(config_file: str) -> "DbtExtractor":
+        return DbtExtractor(DbtRunConfig.from_yaml_file(config_file))
+
+    def __init__(self, account_id: int, service_token: str):
         self.account_id = account_id
         self.service_token = service_token
 
@@ -99,27 +103,25 @@ class DbtCloudExtractor(BaseExtractor):
     dbt cloud metadata extractor
     """
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.DBT_MODEL
-
-    def description(self) -> str:
-        return "dbt cloud metadata crawler"
-
     @staticmethod
-    def config_class():
-        return DbtCloudConfig
+    def from_config_file(config_file: str) -> "DbtCloudExtractor":
+        return DbtCloudExtractor(DbtCloudConfig.from_yaml_file(config_file))
 
-    async def extract(self, config: DbtCloudConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, DbtCloudExtractor.config_class())
-        self.account_id = config.account_id
-        self.job_id = config.job_id
-        self.service_token = config.service_token
+    def __init__(self, config: DbtCloudConfig):
+        super().__init__(config, "dbt cloud metadata crawler", Platform.DBT_MODEL)
+        self._account_id = config.account_id
+        self._job_id = config.job_id
+        self._service_token = config.service_token
+        self._meta_ownerships = config.meta_ownerships
+        self._meta_tags = config.meta_tags
+
+    async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching metadata from DBT cloud")
 
-        client = DbtAdminAPIClient(config.account_id, config.service_token)
+        client = DbtAdminAPIClient(self._account_id, self._service_token)
 
-        project_id, run_id = client.get_last_successful_run(config.job_id)
+        project_id, run_id = client.get_last_successful_run(self._job_id)
         logger.info(f"Last successful run ID: {run_id}, project ID: {project_id}")
 
         account = client.get_snowflake_account(project_id)
@@ -130,13 +132,13 @@ class DbtCloudExtractor(BaseExtractor):
         logger.info(f"manifest.json saved to {manifest_json}")
 
         # Pass the path of the downloaded manifest file to the dbt Core extractor
-        return await DbtExtractor().extract(
+        return await DbtExtractor(
             DbtRunConfig(
                 manifest=manifest_json,
                 account=account,
-                docs_base_url=DBT_DOC_BASE_URL % (self.account_id, run_id),
-                output=config.output,
-                meta_ownerships=config.meta_ownerships,
-                meta_tags=config.meta_tags,
+                docs_base_url=DBT_DOC_BASE_URL % (self._account_id, run_id),
+                output=self._output,
+                meta_ownerships=self._meta_ownerships,
+                meta_tags=self._meta_tags,
             )
-        )
+        ).extract()

@@ -243,8 +243,8 @@ async def test_extractor(test_root_dir):
             secret="fake_secret",
             workspaces=["bar"],
         )
-        extractor = PowerBIExtractor()
+        extractor = PowerBIExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")

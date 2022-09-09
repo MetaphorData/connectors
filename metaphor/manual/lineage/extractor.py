@@ -1,10 +1,10 @@
-from typing import List, Optional
+from typing import List
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import EntityId
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
-from metaphor.models.crawler_run_metadata import Platform
+from metaphor.manual.lineage.config import ManualLineageConfig
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetUpstream,
@@ -12,33 +12,28 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
 )
 
-from .config import ManualLineageConfig
-
 logger = get_logger(__name__)
 
 
 class ManualLineageExtractor(BaseExtractor):
     """Manual lineage extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return None
-
-    def description(self) -> str:
-        return "Manual data lineage connector"
-
     @staticmethod
-    def config_class():
-        return ManualLineageConfig
+    def from_config_file(config_file: str) -> "ManualLineageExtractor":
+        return ManualLineageExtractor(ManualLineageConfig.from_yaml_file(config_file))
 
-    async def extract(self, config: ManualLineageConfig) -> List[MetadataChangeEvent]:
-        assert isinstance(config, ManualLineageExtractor.config_class())
+    def __init__(self, config: ManualLineageConfig) -> None:
+        super().__init__(config, "Manual data lineage connector", None)
+        self._lineages = config.lineages
+
+    async def extract(self) -> List[MetadataChangeEvent]:
         logger.info("Fetching lineage from config")
 
         # Create a placeholder dataset for each unique upstream dataset
         extra_datasets = {}
 
         datasets = []
-        for lineage in config.lineages:
+        for lineage in self._lineages:
             source_datasets = []
             for id in lineage.upstreams:
                 source_datasets.append(str(id.to_entity_id()))

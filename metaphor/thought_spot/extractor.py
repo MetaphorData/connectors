@@ -1,17 +1,16 @@
 from itertools import chain
-from typing import Collection, Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Tuple
 
 from pydantic import parse_raw_as
 from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
-from restapisdk.restapisdk_client import RestapisdkClient
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     dataset_fullname,
     to_dataset_entity_id,
     to_virtual_view_entity_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
@@ -29,7 +28,7 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-from metaphor.thought_spot.config import ThoughtspotRunConfig
+from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadata,
     ConnectionMetadata,
@@ -51,44 +50,39 @@ from metaphor.thought_spot.utils import (
 logger = get_logger(__name__)
 
 
-class ThoughtspotExtractor(BaseExtractor):
-    """Thoughtspot metadata extractor"""
-
-    def platform(self) -> Optional[Platform]:
-        return Platform.THOUGHT_SPOT
-
-    def description(self) -> str:
-        return "ThoughtSpot metadata crawler"
-
-    def __init__(self):
-        self._virtual_views: Dict[str, VirtualView] = {}
-        self._dashboards: Dict[str, Dashboard] = {}
+class ThoughtSpotExtractor(BaseExtractor):
+    """ThoughtSpot metadata extractor"""
 
     @staticmethod
-    def config_class():
-        return ThoughtspotRunConfig
+    def from_config_file(config_file: str) -> "ThoughtSpotExtractor":
+        return ThoughtSpotExtractor(ThoughtSpotRunConfig.from_yaml_file(config_file))
 
-    async def extract(self, config: ThoughtspotRunConfig) -> Collection[ENTITY_TYPES]:
-        self.base_url = config.base_url
+    def __init__(self, config: ThoughtSpotRunConfig):
+        super().__init__(config, "ThoughtSpot metadata crawler", Platform.THOUGHT_SPOT)
+        self._base_url = config.base_url
 
-        client = ThoughtSpot.create_client(config)
+        self._client = ThoughtSpot.create_client(config)
+        self._dashboards: Dict[str, Dashboard] = {}
+        self._virtual_views: Dict[str, VirtualView] = {}
 
-        self.fetch_virtual_views(client)
-        self.fetch_dashboards(client)
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+
+        self.fetch_virtual_views()
+        self.fetch_dashboards()
 
         return list(chain(self._virtual_views.values(), self._dashboards.values()))
 
-    def fetch_virtual_views(self, client: RestapisdkClient):
-        connections = from_list(ThoughtSpot.fetch_connections(client))
+    def fetch_virtual_views(self):
+        connections = from_list(ThoughtSpot.fetch_connections(self._client))
 
         tables = ThoughtSpot.fetch_objects(
-            client, SearchObjectHeaderTypeEnum.DATAOBJECT_TABLE
+            self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_TABLE
         )
         sheets = ThoughtSpot.fetch_objects(
-            client, SearchObjectHeaderTypeEnum.DATAOBJECT_WORKSHEET
+            self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_WORKSHEET
         )
         views = ThoughtSpot.fetch_objects(
-            client, SearchObjectHeaderTypeEnum.DATAOBJECT_VIEW
+            self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_VIEW
         )
 
         def is_source_valid(table: SourceMetadata):
@@ -99,12 +93,12 @@ class ThoughtspotExtractor(BaseExtractor):
 
         valid_tables = filter(is_source_valid, tables)
 
-        # In ThoushtSpot, Tables, Worksheets, and Views can be treated as a kind of Table.
+        # In ThoughtSpot, Tables, Worksheets, and Views can be treated as a kind of Table.
         tables = from_list(chain(valid_tables, sheets, views))
 
         self.populate_virtual_views(tables)
         self.populate_lineage(connections, tables)
-        self.populate_formula(client)
+        self.populate_formula()
 
     def populate_virtual_views(self, tables: Dict[str, SourceMetadata]):
         for table in tables.values():
@@ -131,7 +125,7 @@ class ThoughtspotExtractor(BaseExtractor):
                     name=table.header.name,
                     description=table.header.description,
                     type=mapping_data_object_type(table.type),
-                    url=f"{self.base_url}/#/data/tables/{table_id}",
+                    url=f"{self._base_url}/#/data/tables/{table_id}",
                     tags=tags,
                 ),
             )
@@ -163,14 +157,14 @@ class ThoughtspotExtractor(BaseExtractor):
                 expr_map[column.name] = formula_map[lookup_id]
         return expr_map
 
-    def populate_formula(self, client: RestapisdkClient):
+    def populate_formula(self):
         ids = []
         for guid, virtual_view in self._virtual_views.items():
             if "FORMULA" in [
                 c.optional_type for c in virtual_view.thought_spot.columns
             ]:
                 ids.append(guid)
-        for tml_result in ThoughtSpot.fetch_tml(client, ids):
+        for tml_result in ThoughtSpot.fetch_tml(self._client, ids):
             if not tml_result.edoc:
                 continue
             tml = parse_raw_as(TMLObject, tml_result.edoc)
@@ -223,11 +217,15 @@ class ThoughtspotExtractor(BaseExtractor):
                     source_virtual_views
                 )
 
-    def fetch_dashboards(self, client: RestapisdkClient):
-        answers = ThoughtSpot.fetch_objects(client, SearchObjectHeaderTypeEnum.ANSWER)
+    def fetch_dashboards(self):
+        answers = ThoughtSpot.fetch_objects(
+            self._client, SearchObjectHeaderTypeEnum.ANSWER
+        )
         self.populate_answers(answers)
 
-        boards = ThoughtSpot.fetch_objects(client, SearchObjectHeaderTypeEnum.LIVEBOARD)
+        boards = ThoughtSpot.fetch_objects(
+            self._client, SearchObjectHeaderTypeEnum.LIVEBOARD
+        )
         self.populate_liveboards(boards)
 
     def populate_answers(self, answers: List[AnswerMetadata]):
@@ -250,11 +248,11 @@ class ThoughtspotExtractor(BaseExtractor):
                     description=answer.header.description,
                     title=answer.header.name,
                     charts=self._populate_charts(
-                        visualizations, self.base_url, answer_id
+                        visualizations, self._base_url, answer_id
                     ),
                 ),
                 source_info=SourceInfo(
-                    main_url=f"{self.base_url}/#/saved-answer/{answer_id}",
+                    main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
                 upstream=DashboardUpstream(
                     source_virtual_views=self._populate_source_virtual_views(
@@ -292,11 +290,11 @@ class ThoughtspotExtractor(BaseExtractor):
                     description=board.header.description,
                     title=board.header.name,
                     charts=self._populate_charts(
-                        visualizations, self.base_url, board_id
+                        visualizations, self._base_url, board_id
                     ),
                 ),
                 source_info=SourceInfo(
-                    main_url=f"{self.base_url}/#/pinboard/{board_id}",
+                    main_url=f"{self._base_url}/#/pinboard/{board_id}",
                 ),
                 upstream=DashboardUpstream(
                     source_virtual_views=self._populate_source_virtual_views(

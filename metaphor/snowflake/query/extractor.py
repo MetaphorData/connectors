@@ -2,12 +2,12 @@ import logging
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Collection, List, Optional, Tuple
+from typing import Collection, List, Tuple
 
 from pydantic import parse_raw_as
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import TableQueryHistoryHeap
@@ -20,8 +20,8 @@ from metaphor.models.metadata_change_event import (
     DatasetQueryHistory,
     QueryInfo,
 )
+from metaphor.snowflake import auth
 from metaphor.snowflake.accessed_object import AccessedObject
-from metaphor.snowflake.auth import connect
 from metaphor.snowflake.query.config import SnowflakeQueryRunConfig
 from metaphor.snowflake.utils import (
     QueryWithParam,
@@ -45,52 +45,48 @@ class PrioritizedQueryInfo:
 class SnowflakeQueryExtractor(BaseExtractor):
     """Snowflake query extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.SNOWFLAKE
-
-    def description(self) -> str:
-        return "Snowflake recent queries crawler"
-
     @staticmethod
-    def config_class():
-        return SnowflakeQueryRunConfig
-
-    def __init__(self):
-        self.max_concurrency = None
-
-    async def extract(
-        self, config: SnowflakeQueryRunConfig
-    ) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, SnowflakeQueryExtractor.config_class())
-
-        logger.info("Fetching query history from Snowflake")
-        self.max_concurrency = config.max_concurrency
-        self.batch_size = config.batch_size
-        self._table_queries = TableQueryHistoryHeap(config.max_queries_per_table)
-
-        conn = connect(config)
-
-        self.filter = config.filter.normalize()
-
-        self.filter.excludes = (
-            DEFAULT_EXCLUDED_DATABASES
-            if self.filter.excludes is None
-            else {**self.filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
+    def from_config_file(config_file: str) -> "SnowflakeQueryExtractor":
+        return SnowflakeQueryExtractor(
+            SnowflakeQueryRunConfig.from_yaml_file(config_file)
         )
 
-        start_date = start_of_day(config.lookback_days)
+    def __init__(self, config: SnowflakeQueryRunConfig):
+        super().__init__(config, "Snowflake recent queries crawler", Platform.SNOWFLAKE)
+        self._filter = config.filter.normalize()
+        self._max_concurrency = config.max_concurrency
+        self._lookback_days = config.lookback_days
+        self._batch_size = config.batch_size
+        self._max_queries_per_table = config.max_queries_per_table
+        self._excluded_usernames = config.excluded_usernames
+
+        self._conn = auth.connect(config)
+
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+
+        logger.info("Fetching query history from Snowflake")
+
+        self._table_queries = TableQueryHistoryHeap(self._max_queries_per_table)
+
+        self._filter.excludes = (
+            DEFAULT_EXCLUDED_DATABASES
+            if self._filter.excludes is None
+            else {**self._filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
+        )
+
+        start_date = start_of_day(self._lookback_days)
 
         excluded_usernames_clause = (
-            f"and q.USER_NAME NOT IN ({','.join(['%s'] * len(config.excluded_usernames))})"
-            if len(config.excluded_usernames) > 0
+            f"and q.USER_NAME NOT IN ({','.join(['%s'] * len(self._excluded_usernames))})"
+            if len(self._excluded_usernames) > 0
             else ""
         )
 
-        with conn:
+        with self._conn:
             count = fetch_query_history_count(
-                conn, start_date, config.excluded_usernames
+                self._conn, start_date, self._excluded_usernames
             )
-            batches = math.ceil(count / self.batch_size)
+            batches = math.ceil(count / self._batch_size)
             logger.info(f"Total {count} queries, dividing into {batches} batches")
 
             queries = {
@@ -106,23 +102,23 @@ class SnowflakeQueryExtractor(BaseExtractor):
                       AND QUERY_START_TIME > %s
                       {excluded_usernames_clause}
                     ORDER BY q.QUERY_ID DESC
-                    LIMIT {self.batch_size} OFFSET %s
+                    LIMIT {self._batch_size} OFFSET %s
                     """,
                     (
                         start_date,
                         start_date,
-                        *config.excluded_usernames,
-                        x * self.batch_size,
+                        *self._excluded_usernames,
+                        x * self._batch_size,
                     ),
                 )
                 for x in range(batches)
             }
 
             async_execute(
-                conn,
+                self._conn,
                 queries,
                 "fetch_query_history",
-                self.max_concurrency,
+                self._max_concurrency,
                 self._parse_query_history,
             )
 
@@ -172,7 +168,7 @@ class SnowflakeQueryExtractor(BaseExtractor):
                     continue
 
                 db, schema, table = parts[0], parts[1], parts[2]
-                if not self.filter.include_table(db, schema, table):
+                if not self._filter.include_table(db, schema, table):
                     logger.debug(f"Ignore {table_name} due to filter config")
                     continue
                 self._table_queries.store_recent_query(

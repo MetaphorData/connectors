@@ -5,8 +5,8 @@ from freezegun import freeze_time
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig, OutputConfig
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dashboard,
@@ -29,15 +29,15 @@ class DummyExtractor(BaseExtractor):
     def description(self) -> str:
         return "dummy crawler"
 
-    def __init__(self, dummy_entities):
+    @staticmethod
+    def from_config_file(config_file: str) -> Type[BaseConfig]:
+        return DummyRunConfig.from_config_file(config_file)
+
+    def __init__(self, config: DummyRunConfig, dummy_entities):
+        super().__init__(config, "description", None)
         self._dummy_entities = dummy_entities
 
-    @staticmethod
-    def config_class() -> Type[BaseConfig]:
-        return DummyRunConfig
-
-    async def extract(self, config: BaseConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, DummyExtractor.config_class())
+    async def extract(self) -> Collection[ENTITY_TYPES]:
         return self._dummy_entities
 
 
@@ -45,7 +45,7 @@ class DummyExtractor(BaseExtractor):
 def test_dummy_extractor():
     entities = [Dashboard(), Dataset(), VirtualView()]
     config = DummyRunConfig(dummy_attr=0, output=OutputConfig())
-    events = DummyExtractor(entities).run(config)
+    events = DummyExtractor(config, entities).run()
 
     assert events == [
         MetadataChangeEvent(

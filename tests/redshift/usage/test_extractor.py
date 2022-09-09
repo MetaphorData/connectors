@@ -10,7 +10,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.usage.config import RedshiftUsageRunConfig
 from metaphor.redshift.usage.extractor import RedshiftUsageExtractor
-from tests.test_utils import load_json
+from tests.test_utils import AsyncMock, load_json
 
 
 def load_records(path):
@@ -53,7 +53,7 @@ class AsyncIter:
 
 @pytest.mark.asyncio
 @freeze_time("2022-01-17")
-async def test_extractor(test_root_dir):
+async def test_extractor_no_history(test_root_dir):
     config = RedshiftUsageRunConfig(
         output=OutputConfig(),
         host="",
@@ -62,16 +62,16 @@ async def test_extractor(test_root_dir):
         password="",
         use_history=False,
     )
-    extractor = RedshiftUsageExtractor()
     records = load_records(test_root_dir + "/redshift/usage/data/sample_log.json")
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch(
+    with patch("asyncpg.connect", new_callable=AsyncMock), patch(
         "metaphor.redshift.access_event.AccessEvent.fetch_access_event",
     ) as mock_fetch_usage:
         mock_fetch_usage.return_value = AsyncIter(records)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+        extractor = RedshiftUsageExtractor(config)
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(test_root_dir + "/redshift/usage/data/result.json")
 
@@ -86,16 +86,16 @@ async def test_extractor_use_history(test_root_dir):
         user="",
         password="",
     )
-    extractor = RedshiftUsageExtractor()
     records = load_records(test_root_dir + "/redshift/usage/data/sample_log.json")
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch(
+    with patch("asyncpg.connect", new_callable=AsyncMock), patch(
         "metaphor.redshift.access_event.AccessEvent.fetch_access_event",
     ) as mock_fetch_usage:
         mock_fetch_usage.return_value = AsyncIter(records)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+        extractor = RedshiftUsageExtractor(config)
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(
         test_root_dir + "/redshift/usage/data/result_use_history.json"

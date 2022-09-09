@@ -51,9 +51,7 @@ class BigQueryRunConfig(BaseConfig):
     max_concurrency: int = 5
 
     # Include or exclude specific databases/schemas/tables
-    filter: Optional[DatasetFilter] = dataclass_field(
-        default_factory=lambda: DatasetFilter()
-    )
+    filter: DatasetFilter = dataclass_field(default_factory=lambda: DatasetFilter())
 
     @root_validator
     def have_key_path_or_credentials(cls, values):

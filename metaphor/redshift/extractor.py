@@ -1,4 +1,4 @@
-from typing import Collection, Optional
+from typing import Collection
 
 from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
@@ -14,37 +14,32 @@ logger = get_logger(__name__)
 class RedshiftExtractor(PostgreSQLExtractor):
     """Redshift metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.REDSHIFT
-
-    def description(self) -> str:
-        return "Redshift metadata crawler"
-
     @staticmethod
-    def config_class():
-        return RedshiftRunConfig
+    def from_config_file(config_file: str) -> "RedshiftExtractor":
+        return RedshiftExtractor(RedshiftRunConfig.from_yaml_file(config_file))
 
-    def __init__(self):
-        super().__init__()
-        self._platform = DataPlatform.REDSHIFT
+    def __init__(self, config: RedshiftRunConfig):
+        super().__init__(
+            config,
+            "Redshift metadata crawler",
+            Platform.REDSHIFT,
+            DataPlatform.REDSHIFT,
+        )
 
-    async def extract(self, config: RedshiftRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, PostgreSQLExtractor.config_class())
-        logger.info(f"Fetching metadata from redshift host {config.host}")
-
-        filter = config.filter.normalize()
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching metadata from redshift host {self._host}")
 
         databases = (
-            await self._fetch_databases(config)
-            if filter.includes is None
-            else list(filter.includes.keys())
+            await self._fetch_databases()
+            if self._filter.includes is None
+            else list(self._filter.includes.keys())
         )
 
         for db in databases:
-            conn = await self._connect_database(config, db)
+            conn = await self._connect_database(db)
             try:
-                await self._fetch_tables(conn, db, filter, True)
-                await self._fetch_columns(conn, db, filter, True)
+                await self._fetch_tables(conn, db, True)
+                await self._fetch_columns(conn, db, True)
                 await self._fetch_redshift_table_stats(conn, db)
             finally:
                 await conn.close()

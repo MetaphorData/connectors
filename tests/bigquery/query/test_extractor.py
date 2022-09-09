@@ -22,17 +22,18 @@ def mock_list_entries(mock_build_log_client, entries):
 @freeze_time("2022-01-27")
 async def test_extractor(test_root_dir):
     config = BigQueryQueryRunConfig(output=OutputConfig(), key_path="fake_file")
-    extractor = BigQueryQueryExtractor()
 
     entries = load_entries(test_root_dir + "/bigquery/query/data/sample_log.json")
 
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
     with patch(
         "metaphor.bigquery.query.extractor.build_logging_client"
-    ) as mock_build_client:
-        mock_build_client.return_value.project = "project1"
-        mock_list_entries(mock_build_client, entries)
+    ) as mock_build_logging_client:
+        extractor = BigQueryQueryExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+        mock_build_logging_client.return_value.project = "project1"
+        mock_list_entries(mock_build_logging_client, entries)
+
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(test_root_dir + "/bigquery/query/data/result.json")

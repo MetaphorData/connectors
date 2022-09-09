@@ -1,16 +1,23 @@
 import json
+from unittest.mock import patch
 
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.common.filter import DatasetFilter
+from metaphor.snowflake.lineage.config import SnowflakeLineageRunConfig
 from metaphor.snowflake.lineage.extractor import SnowflakeLineageExtractor
 from tests.test_utils import load_json
 
 
-def test_parse_access_log(test_root_dir):
-    extractor = SnowflakeLineageExtractor()
-    extractor.account = "snowflake_account"
-    extractor.filter = DatasetFilter()
+def dummy_config():
+    return SnowflakeLineageRunConfig(
+        account="snowflake_account",
+        user="user",
+        password="password",
+        output=OutputConfig(),
+    )
 
+
+def test_parse_access_log(test_root_dir):
     accessed_objects = json.dumps(
         [
             {
@@ -51,34 +58,35 @@ def test_parse_access_log(test_root_dir):
         ]
     )
 
-    extractor._parse_access_log(accessed_objects, modified_objects, "query")
+    with patch("metaphor.snowflake.auth.connect"):
+        extractor = SnowflakeLineageExtractor(dummy_config())
+        extractor._parse_access_log(accessed_objects, modified_objects, "query")
 
-    results = {}
-    for key, value in extractor._datasets.items():
-        results[key] = EventUtil.clean_nones(value.to_dict())
+        results = {}
+        for key, value in extractor._datasets.items():
+            results[key] = EventUtil.clean_nones(value.to_dict())
 
-    assert results == load_json(
-        test_root_dir + "/snowflake/lineage/data/parse_query_log_result.json"
-    )
+        assert results == load_json(
+            test_root_dir + "/snowflake/lineage/data/parse_query_log_result.json"
+        )
 
 
 def test_parse_object_dependencies(test_root_dir):
-    extractor = SnowflakeLineageExtractor()
-    extractor.account = "snowflake_account"
-    extractor.filter = DatasetFilter()
-
     dependencies = [
         ("ACME", "METAPHOR", "FOO", "TABLE", "ACME", "METAPHOR", "BAR", "VIEW"),
         ("ACME", "METAPHOR", "ABC", "TABLE", "ACME", "METAPHOR", "XYZ", "VIEW"),
         ("ACME", "METAPHOR", "F", "TABLE", "ACME", "METAPHOR", "B", "STAGE"),
     ]
 
-    extractor._parse_object_dependencies(dependencies)
+    with patch("metaphor.snowflake.auth.connect"):
+        extractor = SnowflakeLineageExtractor(dummy_config())
+        extractor._parse_object_dependencies(dependencies)
 
-    results = {}
-    for key, value in extractor._datasets.items():
-        results[key] = EventUtil.clean_nones(value.to_dict())
+        results = {}
+        for key, value in extractor._datasets.items():
+            results[key] = EventUtil.clean_nones(value.to_dict())
 
-    assert results == load_json(
-        test_root_dir + "/snowflake/lineage/data/parse_object_dependencies_result.json"
-    )
+        assert results == load_json(
+            test_root_dir
+            + "/snowflake/lineage/data/parse_object_dependencies_result.json"
+        )

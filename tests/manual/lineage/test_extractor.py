@@ -13,8 +13,8 @@ async def test_extractor(test_root_dir):
     config = ManualLineageConfig.from_yaml_file(
         f"{test_root_dir}/manual/lineage/config.yml"
     )
-    extractor = ManualLineageExtractor()
+    extractor = ManualLineageExtractor(config)
 
-    events = [EventUtil.trim_event(e) for e in await extractor.extract(config)]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/manual/lineage/expected.json")

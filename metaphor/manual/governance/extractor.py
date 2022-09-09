@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import List
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import to_person_entity_id
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
-from metaphor.models.crawler_run_metadata import Platform
+from metaphor.manual.governance.config import ManualGovernanceConfig
 from metaphor.models.metadata_change_event import (
     Dataset,
     MetadataChangeEvent,
@@ -12,32 +12,27 @@ from metaphor.models.metadata_change_event import (
     TagAssignment,
 )
 
-from .config import ManualGovernanceConfig
-
 logger = get_logger(__name__)
 
 
 class ManualGovernanceExtractor(BaseExtractor):
     """Manual governance extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return None
-
-    def description(self) -> str:
-        return "Manual governance connector"
-
     @staticmethod
-    def config_class():
-        return ManualGovernanceConfig
+    def from_config_file(config_file: str) -> "ManualGovernanceExtractor":
+        return ManualGovernanceExtractor(
+            ManualGovernanceConfig.from_yaml_file(config_file)
+        )
 
-    async def extract(
-        self, config: ManualGovernanceConfig
-    ) -> List[MetadataChangeEvent]:
-        assert isinstance(config, ManualGovernanceExtractor.config_class())
+    def __init__(self, config: ManualGovernanceConfig) -> None:
+        super().__init__(config, "Manual governance connector", None)
+        self._datasets = config.datasets
+
+    async def extract(self) -> List[MetadataChangeEvent]:
         logger.info("Fetching governance from config")
 
         datasets = []
-        for governance in config.datasets:
+        for governance in self._datasets:
             dataset = Dataset(logical_id=governance.id.to_logical_id())
             datasets.append(dataset)
 

@@ -17,13 +17,13 @@ except ImportError:
     print("Please install metaphor[tableau] extra\n")
     raise
 
+from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     EntityId,
     to_dataset_entity_id,
     to_virtual_view_entity_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -55,52 +55,42 @@ logger = get_logger(__name__)
 class TableauExtractor(BaseExtractor):
     """Tableau metadata extractor"""
 
-    def platform(self) -> Optional[Platform]:
-        return Platform.TABLEAU
+    @staticmethod
+    def from_config_file(config_file: str) -> "TableauExtractor":
+        return TableauExtractor(TableauRunConfig.from_yaml_file(config_file))
 
-    def description(self) -> str:
-        return "Tableau metadata crawler"
+    def __init__(self, config: TableauRunConfig):
+        super().__init__(config, "Tableau metadata crawler", Platform.TABLEAU)
+        self._server_url = config.server_url
+        self._site_name = config.site_name
+        self._access_token = config.access_token
+        self._user_password = config.user_password
+        self._snowflake_account = config.snowflake_account
+        self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
+        self._disable_preview_image = config.disable_preview_image
 
-    def __init__(self):
         self._base_url: Optional[str] = None
         self._views: Dict[str, ViewItem] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
-        self._disable_preview_image = False
-        self._snowflake_account: Optional[str] = None
-        self._bigquery_project_name_to_id_map: Dict[str, str] = dict()
 
-    @staticmethod
-    def config_class():
-        return TableauRunConfig
-
-    async def extract(self, config: TableauRunConfig) -> Collection[ENTITY_TYPES]:
-        assert isinstance(config, TableauExtractor.config_class())
-
+    async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Tableau")
 
-        self._disable_preview_image = config.disable_preview_image
-        self._snowflake_account = config.snowflake_account
-        self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
-
-        assert (
-            config.access_token or config.user_password
-        ), "no login credential, please provide access token or user password in config"
-
-        tableau_auth = (
-            PersonalAccessTokenAuth(
-                config.access_token.token_name,
-                config.access_token.token_value,
-                config.site_name,
+        if self._access_token is not None:
+            tableau_auth = PersonalAccessTokenAuth(
+                self._access_token.token_name,
+                self._access_token.token_value,
+                self._site_name,
             )
-            if config.access_token
-            else TableauAuth(
-                config.user_password.username,
-                config.user_password.password,
-                config.site_name,
+        elif self._user_password is not None:
+            tableau_auth = TableauAuth(
+                self._user_password.username,
+                self._user_password.password,
+                self._site_name,
             )
-        )
-        server = Server(config.server_url, use_server_version=True)
+
+        server = Server(self._server_url, use_server_version=True)
 
         with server.auth.sign_in(tableau_auth):
             # fetch all views, with preview image

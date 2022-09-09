@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic.dataclasses import dataclass
 
-from metaphor.common.extractor import BaseConfig
+from metaphor.common.base_extractor import BaseConfig
 from metaphor.common.models import DeserializableDatasetLogicalID
 
 

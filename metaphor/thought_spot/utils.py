@@ -40,7 +40,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     ThoughtSpotDataObjectType,
 )
-from metaphor.thought_spot.config import ThoughtspotRunConfig
+from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadata,
     ConnectionHeader,
@@ -143,7 +143,7 @@ class ThoughtSpot:
     }
 
     @staticmethod
-    def create_client(config: ThoughtspotRunConfig) -> RestapisdkClient:
+    def create_client(config: ThoughtSpotRunConfig) -> RestapisdkClient:
         def _client(token: str):
             return RestapisdkClient(
                 content_type="application/json",
