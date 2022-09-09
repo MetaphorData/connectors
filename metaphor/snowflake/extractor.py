@@ -46,7 +46,7 @@ class SnowflakeExtractor(BaseExtractor):
         self._account = config.account
         self._filter = config.filter.normalize()
 
-        self._conn = connect(config)
+        self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
