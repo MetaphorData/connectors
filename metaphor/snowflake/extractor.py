@@ -27,7 +27,7 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     SQLSchema,
 )
-from metaphor.snowflake.auth import connect
+from metaphor.snowflake import auth
 from metaphor.snowflake.config import SnowflakeRunConfig
 from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
 
