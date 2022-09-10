@@ -8,12 +8,13 @@ from metaphor.snowflake.lineage.extractor import SnowflakeLineageExtractor
 from tests.test_utils import load_json
 
 
-def dummy_config():
+def dummy_config(**args):
     return SnowflakeLineageRunConfig(
         account="snowflake_account",
         user="user",
         password="password",
         output=OutputConfig(),
+        **args,
     )
 
 
@@ -38,6 +39,16 @@ def test_parse_access_log(test_root_dir):
                 "objectId": 6,
                 "objectName": "DB1.SCHEMA1.TABLE2",
             },
+            # self lineage
+            {
+                "columns": [
+                    {"columnName": "BAZ"},
+                    {"columnName": "QUX"},
+                ],
+                "objectDomain": "Table",
+                "objectId": 6,
+                "objectName": "DB2.SCHEMA1.TABLE1",
+            },
         ]
     )
 
@@ -59,6 +70,7 @@ def test_parse_access_log(test_root_dir):
     )
 
     with patch("metaphor.snowflake.auth.connect"):
+        # Include self-lineage
         extractor = SnowflakeLineageExtractor(dummy_config())
         extractor._parse_access_log(accessed_objects, modified_objects, "query")
 
@@ -67,7 +79,21 @@ def test_parse_access_log(test_root_dir):
             results[key] = EventUtil.clean_nones(value.to_dict())
 
         assert results == load_json(
-            test_root_dir + "/snowflake/lineage/data/parse_query_log_result.json"
+            test_root_dir
+            + "/snowflake/lineage/data/parse_query_log_result_include_self_lineage.json"
+        )
+
+        # Exclude self-lineage
+        extractor = SnowflakeLineageExtractor(dummy_config(include_self_lineage=False))
+        extractor._parse_access_log(accessed_objects, modified_objects, "query")
+
+        results = {}
+        for key, value in extractor._datasets.items():
+            results[key] = EventUtil.clean_nones(value.to_dict())
+
+        assert results == load_json(
+            test_root_dir
+            + "/snowflake/lineage/data/parse_query_log_result_exclude_self_lineage.json"
         )
 
 
