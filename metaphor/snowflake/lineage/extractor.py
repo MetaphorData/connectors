@@ -47,7 +47,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
     def __init__(self, config: SnowflakeLineageRunConfig):
         super().__init__(config, "Snowflake data lineage crawler", Platform.SNOWFLAKE)
         self._account = config.account
-        self._filter = config.filter.normalize().extend(DEFAULT_FILTER)
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._batch_size = config.batch_size
         self._lookback_days = config.lookback_days

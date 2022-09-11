@@ -52,7 +52,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
     def __init__(self, config: SnowflakeProfileRunConfig):
         super().__init__(config, "Snowflake data profile crawler", Platform.SNOWFLAKE)
         self._account = config.account
-        self._filter = config.filter.normalize().extend(DEFAULT_FILTER)
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._include_views = config.include_views
         self._column_statistics = config.column_statistics

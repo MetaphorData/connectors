@@ -46,7 +46,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
             config, "Snowflake usage statistics crawler", Platform.SNOWFLAKE
         )
         self._account = config.account
-        self._filter = config.filter.normalize().extend(DEFAULT_FILTER)
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._batch_size = config.batch_size
         self._use_history = config.use_history

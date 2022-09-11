@@ -54,7 +54,7 @@ class SnowflakeQueryExtractor(BaseExtractor):
 
     def __init__(self, config: SnowflakeQueryRunConfig):
         super().__init__(config, "Snowflake recent queries crawler", Platform.SNOWFLAKE)
-        self._filter = config.filter.normalize().extend(DEFAULT_FILTER)
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._lookback_days = config.lookback_days
         self._batch_size = config.batch_size

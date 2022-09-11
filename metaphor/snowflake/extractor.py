@@ -54,7 +54,7 @@ class SnowflakeExtractor(BaseExtractor):
     def __init__(self, config: SnowflakeRunConfig):
         super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
         self._account = config.account
-        self._filter = config.filter.normalize().extend(DEFAULT_FILTER)
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
         self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
