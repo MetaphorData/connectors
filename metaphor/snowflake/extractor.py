@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Mapping, Optional
 
+from metaphor.common.filter import DatabaseFilter, DatasetFilter
+
 try:
     from snowflake.connector.cursor import DictCursor, SnowflakeCursor
     from snowflake.connector.errors import ProgrammingError
@@ -33,6 +35,14 @@ from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
 
 logger = get_logger(__name__)
 
+# Filter out "Snowflake" database & all "information_schema" schemas
+DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
+    excludes={
+        "SNOWFLAKE": None,
+        "*": {"INFORMATION_SCHEMA": None},
+    }
+)
+
 
 class SnowflakeExtractor(BaseExtractor):
     """Snowflake metadata extractor"""
@@ -44,7 +54,7 @@ class SnowflakeExtractor(BaseExtractor):
     def __init__(self, config: SnowflakeRunConfig):
         super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
         self._account = config.account
-        self._filter = config.filter.normalize()
+        self._filter = config.filter.normalize().extend(DEFAULT_FILTER)
 
         self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}

@@ -7,7 +7,6 @@ from pydantic import parse_raw_as
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatabaseFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import start_of_day, unique_list
 from metaphor.models.crawler_run_metadata import Platform
@@ -19,6 +18,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.snowflake import auth
 from metaphor.snowflake.accessed_object import AccessedObject
+from metaphor.snowflake.extractor import DEFAULT_FILTER
 from metaphor.snowflake.lineage.config import SnowflakeLineageRunConfig
 from metaphor.snowflake.utils import QueryWithParam, async_execute
 
@@ -26,9 +26,6 @@ logger = get_logger(__name__)
 
 # disable logging from sql_metadata
 logging.getLogger("Parser").setLevel(logging.CRITICAL)
-
-
-DEFAULT_EXCLUDED_DATABASES: DatabaseFilter = {"SNOWFLAKE": None}
 
 
 SUPPORTED_OBJECT_DOMAIN_TYPES = (
@@ -50,7 +47,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
     def __init__(self, config: SnowflakeLineageRunConfig):
         super().__init__(config, "Snowflake data lineage crawler", Platform.SNOWFLAKE)
         self._account = config.account
-        self._filter = config.filter.normalize()
+        self._filter = config.filter.normalize().extend(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._batch_size = config.batch_size
         self._lookback_days = config.lookback_days
@@ -63,12 +60,6 @@ class SnowflakeLineageExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching lineage info from Snowflake")
-
-        self._filter.excludes = (
-            DEFAULT_EXCLUDED_DATABASES
-            if self._filter.excludes is None
-            else {**self._filter.excludes, **DEFAULT_EXCLUDED_DATABASES}
-        )
 
         start_date = start_of_day(self._lookback_days)
 

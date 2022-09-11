@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.lineage.config import SnowflakeLineageRunConfig
 from metaphor.snowflake.lineage.extractor import SnowflakeLineageExtractor
 from tests.test_utils import load_json
@@ -15,6 +16,30 @@ def dummy_config():
         password="password",
         output=OutputConfig(),
     )
+
+
+def test_default_excludes():
+
+    with patch("metaphor.snowflake.auth.connect"):
+        extractor = SnowflakeLineageExtractor(
+            SnowflakeLineageRunConfig(
+                account="snowflake_account",
+                user="user",
+                password="password",
+                filter=DatasetFilter(
+                    includes={"foo": None},
+                    excludes={"bar": None},
+                ),
+                output=OutputConfig(),
+            )
+        )
+
+        assert extractor._filter.includes == {"foo": None}
+        assert extractor._filter.excludes == {
+            "bar": None,
+            "SNOWFLAKE": None,
+            "*": {"INFORMATION_SCHEMA": None},
+        }
 
 
 def test_parse_access_log(test_root_dir):

@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.utils import start_of_day
 from metaphor.models.metadata_change_event import (
     Dataset,
@@ -36,6 +37,30 @@ def make_dataset_with_usage(counts: List[int]):
         last365_days=QueryCount(count=counts[4]),
     )
     return dataset
+
+
+def test_default_excludes():
+
+    with patch("metaphor.snowflake.auth.connect"):
+        extractor = SnowflakeUsageExtractor(
+            SnowflakeUsageRunConfig(
+                account="snowflake_account",
+                user="user",
+                password="password",
+                filter=DatasetFilter(
+                    includes={"foo": None},
+                    excludes={"bar": None},
+                ),
+                output=OutputConfig(),
+            )
+        )
+
+        assert extractor._filter.includes == {"foo": None}
+        assert extractor._filter.excludes == {
+            "bar": None,
+            "SNOWFLAKE": None,
+            "*": {"INFORMATION_SCHEMA": None},
+        }
 
 
 def test_parse_access_log(test_root_dir):

@@ -15,6 +15,7 @@ from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform, Dataset
 from metaphor.snowflake import auth
 from metaphor.snowflake.accessed_object import AccessedObject
+from metaphor.snowflake.extractor import DEFAULT_FILTER
 from metaphor.snowflake.usage.config import SnowflakeUsageRunConfig
 from metaphor.snowflake.utils import (
     QueryWithParam,
@@ -45,7 +46,7 @@ class SnowflakeUsageExtractor(BaseExtractor):
             config, "Snowflake usage statistics crawler", Platform.SNOWFLAKE
         )
         self._account = config.account
-        self._filter = config.filter.normalize()
+        self._filter = config.filter.normalize().extend(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._batch_size = config.batch_size
         self._use_history = config.use_history

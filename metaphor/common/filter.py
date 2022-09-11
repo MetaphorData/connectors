@@ -1,3 +1,4 @@
+from copy import deepcopy
 from fnmatch import fnmatch
 from typing import Dict, Optional, Set
 
@@ -15,6 +16,24 @@ class DatasetFilter:
 
     # A list of databases/schemas/tables to exclude
     excludes: Optional[DatabaseFilter] = None
+
+    def extend(self, filter: "DatasetFilter") -> "DatasetFilter":
+        extended = deepcopy(self)
+
+        if filter.includes is not None:
+            extended.includes = (
+                filter.includes
+                if extended.includes is None
+                else {**extended.includes, **filter.includes}
+            )
+
+        if filter.excludes is not None:
+            extended.excludes = (
+                filter.excludes
+                if extended.excludes is None
+                else {**extended.excludes, **filter.excludes}
+            )
+        return extended
 
     def normalize(self) -> "DatasetFilter":
         def normalize_table_filter(
