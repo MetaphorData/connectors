@@ -5,7 +5,11 @@ from typing import Collection, Dict, List, Tuple, Union
 from pydantic import parse_raw_as
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
+from metaphor.common.entity_id import (
+    dataset_fullname,
+    to_dataset_entity_id,
+    to_dataset_entity_id_from_logical_id,
+)
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import start_of_day, unique_list
@@ -53,6 +57,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
         self._lookback_days = config.lookback_days
         self._enable_view_lineage = config.enable_view_lineage
         self._enable_lineage_from_history = config.enable_lineage_from_history
+        self._include_self_lineage = config.include_self_lineage
 
         self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
@@ -194,8 +199,17 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 name=full_name, account=self._account, platform=DataPlatform.SNOWFLAKE
             )
 
+            filtered_source_datasets = source_datasets.copy()
+            if not self._include_self_lineage:
+                try:
+                    entity_id = to_dataset_entity_id_from_logical_id(logical_id)
+                    filtered_source_datasets.remove(str(entity_id))
+                except ValueError:
+                    # Nothing to remove if there's no self lineage
+                    pass
+
             upstream = DatasetUpstream(
-                source_datasets=source_datasets, transformation=query
+                source_datasets=filtered_source_datasets, transformation=query
             )
 
             self._datasets[full_name] = Dataset(

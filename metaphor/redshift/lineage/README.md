@@ -24,6 +24,9 @@ enable_view_lineage: <boolean>
 
 # (Optional) Whether to enable parsing stl_scan table to find table lineage information, default True
 enable_lineage_from_log: <boolean>
+
+# (Optional) Whether to include self-referencing loops in lineage, default True
+include_self_lineage: <boolean>
 ```
 
 ## Testing

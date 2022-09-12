@@ -11,3 +11,6 @@ class RedshiftLineageRunConfig(RedshiftRunConfig):
 
     # Whether to enable parsing stl_scan table to find table lineage information, default True
     enable_lineage_from_stl_scan: bool = True
+
+    # Whether to include self loop in lineage
+    include_self_lineage: bool = True
