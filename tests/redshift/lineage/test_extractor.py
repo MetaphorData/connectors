@@ -22,18 +22,15 @@ def mock_records(mock: MagicMock, records: List):
     mock.return_value = mock_conn
 
 
+def dummy_config(**args):
+    return RedshiftLineageRunConfig(
+        host="", database="", user="", password="", output=OutputConfig(), **args
+    )
+
+
 @pytest.mark.asyncio
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
-    config = RedshiftLineageRunConfig(  # nosec
-        output=OutputConfig(),
-        host="",
-        database="",
-        user="",
-        password="",
-        enable_view_lineage=False,
-    )
-
     records = [
         {
             "target_schema": "private",
@@ -76,7 +73,17 @@ async def test_extractor(test_root_dir):
             "source_schema": "public",
             "source_table": "s1",
         },
+        # self-lineage
+        {
+            "target_schema": "public",
+            "target_table": "s1",
+            "source_schema": "public",
+            "source_table": "s1",
+            "querytxt": "q1",
+        },
     ]
+
+    test_data_dir = f"{test_root_dir}/redshift/lineage/data"
 
     with patch(
         "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
@@ -88,24 +95,22 @@ async def test_extractor(test_root_dir):
         mock_databases(mock_fetch_databases, ["test"])
         mock_records(mock_connect_database, records)
 
-        extractor = RedshiftLineageExtractor(config)
-
+        # Include self-lineage
+        extractor = RedshiftLineageExtractor(dummy_config(enable_view_lineage=False))
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+        assert events == load_json(f"{test_data_dir}/result_include_self_lineage.json")
 
-    assert events == load_json(test_root_dir + "/redshift/lineage/data/result.json")
+        # Exclude self-lineage
+        extractor = RedshiftLineageExtractor(
+            dummy_config(enable_view_lineage=False, include_self_lineage=False)
+        )
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+        assert events == load_json(f"{test_data_dir}/result_exclude_self_lineage.json")
 
 
 @pytest.mark.asyncio
 @freeze_time("2000-01-01")
 async def test_extractor_view(test_root_dir):
-    config = RedshiftLineageRunConfig(  # nosec
-        output=OutputConfig(),
-        host="",
-        database="",
-        user="",
-        password="",
-        enable_lineage_from_stl_scan=False,
-    )
     records = [
         {
             "target_schema": "private",
@@ -137,7 +142,9 @@ async def test_extractor_view(test_root_dir):
         mock_databases(mock_fetch_databases, ["test"])
         mock_records(mock_connect_database, records)
 
-        extractor = RedshiftLineageExtractor(config)
+        extractor = RedshiftLineageExtractor(
+            dummy_config(enable_lineage_from_stl_scan=False)
+        )
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 

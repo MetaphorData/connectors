@@ -38,6 +38,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         )
         self._enable_lineage_from_stl_scan = config.enable_lineage_from_stl_scan
         self._enable_view_lineage = config.enable_view_lineage
+        self._include_self_lineage = config.include_self_lineage
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching lineage info from redshift host {self._host}")
@@ -141,6 +142,14 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         for row in results:
             source_table_name = f"{db}.{row['source_schema']}.{row['source_table']}"
             target_table_name = f"{db}.{row['target_schema']}.{row['target_table']}"
+
+            # Ignore self-lineage
+            if (
+                not self._include_self_lineage
+                and source_table_name.lower() == target_table_name.lower()
+            ):
+                continue
+
             query = row["querytxt"].rstrip() if row.get("querytxt") else None
 
             source_id = str(
