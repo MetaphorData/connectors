@@ -52,12 +52,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             else list(self._filter.includes.keys())
         )
 
-        if self._enable_lineage_from_sql:
-            conn = await self._connect_database(self._database)
-            await self._fetch_lineage_sql_base(conn)
-            await conn.close()
-
-        for db in databases[:1]:
+        for db in databases:
             conn = await self._connect_database(db)
 
             if self._enable_lineage_from_stl_scan:
@@ -66,6 +61,11 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             if self._enable_view_lineage:
                 await self._fetch_view_upstream(conn, db)
 
+            await conn.close()
+
+        if self._enable_lineage_from_sql:
+            conn = await self._connect_database(self._database)
+            await self._fetch_lineage_sql_base(conn)
             await conn.close()
 
         return self._datasets.values()
