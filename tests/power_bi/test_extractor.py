@@ -7,12 +7,14 @@ from freezegun import freeze_time
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.power_bi.config import PowerBIRunConfig
-from metaphor.power_bi.extractor import (
+from metaphor.power_bi.extractor import PowerBIExtractor
+from metaphor.power_bi.power_bi_client import (
     PowerBIApp,
     PowerBIDashboard,
     PowerBIDataset,
-    PowerBIExtractor,
     PowerBIPage,
+    PowerBIRefresh,
+    PowerBIRefreshStatus,
     PowerBIReport,
     PowerBITable,
     PowerBITableColumn,
@@ -39,11 +41,17 @@ async def test_extractor(test_root_dir):
 
     dataset1_id = "dataset-1"
     dataset1 = PowerBIDataset(
-        id=dataset1_id, webUrl=f"https://powerbi.com/{dataset1_id}", name="Foo Dataset"
+        id=dataset1_id,
+        name="Foo Dataset",
+        isRefreshable=True,
+        webUrl=f"https://powerbi.com/{dataset1_id}",
     )
     dataset2_id = "dataset-2"
     dataset2 = PowerBIDataset(
-        id=dataset2_id, webUrl=f"https://powerbi.com/{dataset2_id}", name="Bar Dataset"
+        id=dataset2_id,
+        name="Bar Dataset",
+        isRefreshable=False,
+        webUrl=f"https://powerbi.com/{dataset2_id}",
     )
 
     report1_id = "report-1"
@@ -109,6 +117,18 @@ async def test_extractor(test_root_dir):
     page2 = PowerBIPage(name="name-2", displayName="Second Page", order=2)
 
     pages = {workspace1_id: {report1_id: [], report2_id: [page1, page2]}}
+
+    refreshes = {
+        workspace1_id: {
+            dataset1_id: [
+                PowerBIRefresh(status=PowerBIRefreshStatus.FAILED, endTime=""),
+                PowerBIRefresh(
+                    status=PowerBIRefreshStatus.COMPLETED,
+                    endTime="2022-01-01T01:02:03.456Z",
+                ),
+            ]
+        }
+    }
 
     mock_instance.get_workspace_info = MagicMock(
         return_value=[
@@ -223,6 +243,9 @@ async def test_extractor(test_root_dir):
     def fake_get_pages(workspace_id, report_id) -> List[PowerBIPage]:
         return pages.get(workspace_id).get(report_id)
 
+    def fake_get_refreshes(workspace_id, dataset_id) -> List[PowerBIRefresh]:
+        return refreshes.get(workspace_id).get(dataset_id)
+
     def fake_get_apps() -> List[PowerBIApp]:
         return [app1, app2]
 
@@ -231,6 +254,7 @@ async def test_extractor(test_root_dir):
     mock_instance.get_dashboards.side_effect = fake_get_dashboards
     mock_instance.get_tiles.side_effect = fake_get_tiles
     mock_instance.get_pages.side_effect = fake_get_pages
+    mock_instance.get_refreshes.side_effect = fake_get_refreshes
     mock_instance.get_apps.side_effect = fake_get_apps
 
     with patch("metaphor.power_bi.extractor.PowerBIClient") as mock_client:

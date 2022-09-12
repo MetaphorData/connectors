@@ -22,6 +22,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.snowflake import auth
 from metaphor.snowflake.accessed_object import AccessedObject
+from metaphor.snowflake.extractor import DEFAULT_FILTER
 from metaphor.snowflake.query.config import SnowflakeQueryRunConfig
 from metaphor.snowflake.utils import (
     QueryWithParam,
@@ -53,7 +54,7 @@ class SnowflakeQueryExtractor(BaseExtractor):
 
     def __init__(self, config: SnowflakeQueryRunConfig):
         super().__init__(config, "Snowflake recent queries crawler", Platform.SNOWFLAKE)
-        self._filter = config.filter.normalize()
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._lookback_days = config.lookback_days
         self._batch_size = config.batch_size
