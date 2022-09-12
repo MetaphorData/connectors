@@ -53,7 +53,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         )
 
         if self._enable_lineage_from_sql:
-            conn = await PostgreSQLExtractor._connect_database(self._database)
+            conn = await self._connect_database(self._database)
             await self._fetch_lineage_sql_base(conn)
             await conn.close()
 
