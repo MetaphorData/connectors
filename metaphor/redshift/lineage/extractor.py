@@ -61,7 +61,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
 
         if self._enable_lineage_from_sql:
             conn = await self._connect_database(self._database)
-            await self._fetch_lineage_sql_base(conn)
+            await self._fetch_lineage_from_stl_query(conn)
             await conn.close()
 
         return self._datasets.values()
@@ -140,12 +140,15 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             parser = Parser(query.replace('"', ""))
 
             tables = [format_table_name(table, database) for table in parser.tables]
+
             target, *sources = tables
 
-            if len(sources) == 0:
+            # Only one table in a Insert/Create Table query
+            if len(tables) == 1:
                 if self._include_self_lineage:
-                    sources = [target]
+                    target, sources = tables[0], tables
                 else:
+                    # Skip self lineage
                     continue
 
             source_ids = [
