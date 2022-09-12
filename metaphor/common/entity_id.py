@@ -50,6 +50,13 @@ def to_dataset_entity_id(
     )
 
 
+def to_dataset_entity_id_from_logical_id(logical_id: DatasetLogicalID) -> EntityId:
+    """
+    converts a dataset logical ID to entity ID
+    """
+    return EntityId(EntityType.DATASET, logical_id)
+
+
 def to_virtual_view_entity_id(name: str, virtualViewType: VirtualViewType) -> EntityId:
     """
     converts a virtual view name and type into a Virtual View entity ID

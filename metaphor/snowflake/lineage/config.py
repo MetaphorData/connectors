@@ -16,5 +16,8 @@ class SnowflakeLineageRunConfig(SnowflakeRunConfig):
     # Number of days back in the query log to process
     lookback_days: int = 7
 
+    # Whether to include self loop in lineage
+    include_self_lineage: bool = True
+
     # The number of access logs fetched in a batch, default to 100000
     batch_size: int = DEFAULT_BATCH_SIZE
