@@ -33,53 +33,25 @@ def dummy_config(**args):
 async def test_extractor(test_root_dir):
     records = [
         {
-            "target_schema": "private",
-            "target_table": "t1",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": "q1",
+            "querytxt": "INSERT INTO public_table SELECT * FROM foo WHERE foo.price > 0",
+            "database": "test",
         },
         {
-            "target_schema": "private",
-            "target_table": "t1",
-            "source_schema": "public",
-            "source_table": "s2",
-            "querytxt": "q1",
+            "querytxt": "INSERT INTO product.foo pf SELECT * FROM stock.foo sf WHERE sf.price > 0",
+            "database": "test",
         },
         {
-            "target_schema": "foo",
-            "target_table": "t2",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": "q2",
+            "querytxt": 'CREATE TABLE test AS SELECT id, name FROM account a WHERE a.dept == "sales"',
+            "database": "test",
         },
         {
-            "target_schema": "foo",
-            "target_table": "t3",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": None,
-        },
-        {
-            "target_schema": "foo",
-            "target_table": "t4",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": "",
-        },
-        {
-            "target_schema": "foo",
-            "target_table": "t5",
-            "source_schema": "public",
-            "source_table": "s1",
+            "querytxt": "CREATE TABLE product.bar AS SELECT * FROM stock.bar sbr JOIN stock.baz sbz ON sbr.id == sbz.id",
+            "database": "test",
         },
         # self-lineage
         {
-            "target_schema": "public",
-            "target_table": "s1",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": "q1",
+            "querytxt": "INSERT INTO self t SELECT * FROM self s WHERE sf.price > 0",
+            "database": "test",
         },
     ]
 
@@ -99,8 +71,6 @@ async def test_extractor(test_root_dir):
         extractor = RedshiftLineageExtractor(
             dummy_config(
                 enable_view_lineage=False,
-                enable_lineage_from_sql=False,
-                enable_lineage_from_stl_scan=True,
             )
         )
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -111,8 +81,6 @@ async def test_extractor(test_root_dir):
             dummy_config(
                 enable_view_lineage=False,
                 include_self_lineage=False,
-                enable_lineage_from_sql=False,
-                enable_lineage_from_stl_scan=True,
             )
         )
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -154,9 +122,7 @@ async def test_extractor_view(test_root_dir):
         mock_records(mock_connect_database, records)
 
         extractor = RedshiftLineageExtractor(
-            dummy_config(
-                enable_lineage_from_stl_scan=False, enable_lineage_from_sql=False
-            )
+            dummy_config(enable_lineage_from_sql=False)
         )
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -164,62 +130,3 @@ async def test_extractor_view(test_root_dir):
     assert events == load_json(
         test_root_dir + "/redshift/lineage/data/result_view.json"
     )
-
-
-@pytest.mark.asyncio
-@freeze_time("2000-01-01")
-async def test_extractor_lineage_from_sql(test_root_dir):
-    records = [
-        {
-            "querytxt": "INSERT INTO public_table SELECT * FROM foo WHERE foo.price > 0",
-            "database": "test",
-        },
-        {
-            "querytxt": "INSERT INTO product.foo pf SELECT * FROM stock.foo sf WHERE sf.price > 0",
-            "database": "test",
-        },
-        {
-            "querytxt": 'CREATE TABLE test AS SELECT id, name FROM account a WHERE a.dept == "sales"',
-            "database": "test",
-        },
-        {
-            "querytxt": "CREATE TABLE product.bar AS SELECT * FROM stock.bar sbr JOIN stock.baz sbz ON sbr.id == sbz.id",
-            "database": "test",
-        },
-        # self-lineage
-        {
-            "querytxt": "INSERT INTO self t SELECT * FROM self s WHERE sf.price > 0",
-            "database": "test",
-        },
-    ]
-
-    with patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
-        new_callable=AsyncMock,
-    ) as mock_fetch_databases, patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
-        new_callable=AsyncMock,
-    ) as mock_connect_database:
-        mock_databases(mock_fetch_databases, ["test"])
-        mock_records(mock_connect_database, records)
-
-        extractor = RedshiftLineageExtractor(
-            dummy_config(
-                enable_view_lineage=False,
-                include_self_lineage=False,
-            )
-        )
-
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-        assert events == load_json(
-            test_root_dir
-            + "/redshift/lineage/data/result_sql_base_exclude_self_lineage.json"
-        )
-
-        extractor = RedshiftLineageExtractor(dummy_config(enable_view_lineage=False))
-
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-        assert events == load_json(
-            test_root_dir
-            + "/redshift/lineage/data/result_sql_base_include_self_lineage.json"
-        )

@@ -38,7 +38,6 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             DataPlatform.REDSHIFT,
         )
         self._database = config.database
-        self._enable_lineage_from_stl_scan = config.enable_lineage_from_stl_scan
         self._enable_lineage_from_sql = config.enable_lineage_from_sql
         self._enable_view_lineage = config.enable_view_lineage
         self._include_self_lineage = config.include_self_lineage
@@ -55,9 +54,6 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         for db in databases:
             conn = await self._connect_database(db)
 
-            if self._enable_lineage_from_stl_scan:
-                await self._fetch_upstream_from_stl_scan(conn, db)
-
             if self._enable_view_lineage:
                 await self._fetch_view_upstream(conn, db)
 
@@ -69,39 +65,6 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             await conn.close()
 
         return self._datasets.values()
-
-    async def _fetch_upstream_from_stl_scan(self, conn: Connection, db: str) -> None:
-        stl_scan_based_lineage_query: str = """
-            SELECT DISTINCT
-                target_schema, target_table, source_schema, source_table, trim(sq.querytxt) as querytxt
-            FROM
-                    (
-                SELECT
-                    trim(nspname) AS target_schema, trim(relname) AS target_table, query
-                FROM
-                    stl_insert
-                JOIN pg_class ON pg_class.oid = tbl
-                JOIN pg_namespace ON pg_namespace.oid = relnamespace
-                    ) AS target
-            JOIN
-                    (
-                SELECT
-                    trim(nspname) AS source_schema, trim(relname) AS source_table, query
-                FROM stl_scan
-                JOIN pg_class ON pg_class.oid = tbl
-                JOIN pg_namespace ON pg_namespace.oid = relnamespace
-                WHERE
-                    userid > 1 AND type in (1, 2, 3)
-                    ) AS source
-            USING (query)
-            LEFT JOIN stl_query sq ON target.query = sq.query
-            WHERE
-                target_schema != 'information_schema'
-                AND target_schema !~ '^pg_'
-                AND source_schema != 'information_schema'
-                AND source_schema !~ '^pg_'
-        """
-        await self._fetch_lineage(stl_scan_based_lineage_query, conn, db)
 
     async def _fetch_view_upstream(self, conn: Connection, db: str) -> None:
         view_lineage_query: str = """
