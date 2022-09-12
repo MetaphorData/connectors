@@ -9,7 +9,6 @@ except ImportError:
     print("Please install metaphor[snowflake] extra\n")
     raise
 
-
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
@@ -24,7 +23,7 @@ from metaphor.models.metadata_change_event import (
     FieldStatistics,
 )
 from metaphor.snowflake import auth
-from metaphor.snowflake.extractor import SnowflakeExtractor
+from metaphor.snowflake.extractor import DEFAULT_FILTER, SnowflakeExtractor
 from metaphor.snowflake.profile.config import (
     ColumnStatistics,
     SnowflakeProfileRunConfig,
@@ -53,7 +52,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
     def __init__(self, config: SnowflakeProfileRunConfig):
         super().__init__(config, "Snowflake data profile crawler", Platform.SNOWFLAKE)
         self._account = config.account
-        self._filter = config.filter.normalize()
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._include_views = config.include_views
         self._column_statistics = config.column_statistics

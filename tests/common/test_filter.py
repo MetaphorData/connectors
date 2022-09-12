@@ -158,3 +158,45 @@ def test_include_schema_excludes_overrides_includes():
 
     # partial exclude
     assert filter.include_schema("db1", "schema2")
+
+
+def test_merge():
+    f1 = DatasetFilter()
+    f2 = DatasetFilter()
+    assert f1.merge(f2) == DatasetFilter()
+
+    f1 = DatasetFilter(includes={"foo": None})
+    f2 = DatasetFilter()
+    assert f1.merge(f2) == DatasetFilter(includes={"foo": None})
+
+    f1 = DatasetFilter()
+    f2 = DatasetFilter(includes={"foo": None})
+    assert f1.merge(f2) == DatasetFilter(includes={"foo": None})
+
+    f1 = DatasetFilter(excludes={"foo": None})
+    f2 = DatasetFilter()
+    assert f1.merge(f2) == DatasetFilter(excludes={"foo": None})
+
+    f1 = DatasetFilter()
+    f2 = DatasetFilter(excludes={"foo": None})
+    assert f1.merge(f2) == DatasetFilter(excludes={"foo": None})
+
+    f1 = DatasetFilter(includes={"foo": None})
+    f2 = DatasetFilter(excludes={"bar": None})
+    assert f1.merge(f2) == DatasetFilter(includes={"foo": None}, excludes={"bar": None})
+
+    f1 = DatasetFilter(includes={"foo": None})
+    f2 = DatasetFilter(includes={"bar": None})
+    assert f1.merge(f2) == DatasetFilter(includes={"foo": None, "bar": None})
+
+    f1 = DatasetFilter(includes={"foo": None})
+    f2 = DatasetFilter(includes={"foo": {"bar": None}})
+    assert f1.merge(f2) == DatasetFilter(includes={"foo": {"bar": None}})
+
+    f1 = DatasetFilter(excludes={"foo": None})
+    f2 = DatasetFilter(excludes={"bar": None})
+    assert f1.merge(f2) == DatasetFilter(excludes={"foo": None, "bar": None})
+
+    f1 = DatasetFilter(excludes={"foo": None})
+    f2 = DatasetFilter(excludes={"foo": {"bar": None}})
+    assert f1.merge(f2) == DatasetFilter(excludes={"foo": {"bar": None}})

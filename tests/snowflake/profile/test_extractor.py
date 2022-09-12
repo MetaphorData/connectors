@@ -1,3 +1,7 @@
+from unittest.mock import patch
+
+from metaphor.common.base_config import OutputConfig
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.sampling import SamplingConfig
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -7,7 +11,10 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     FieldStatistics,
 )
-from metaphor.snowflake.profile.config import ColumnStatistics
+from metaphor.snowflake.profile.config import (
+    ColumnStatistics,
+    SnowflakeProfileRunConfig,
+)
 from metaphor.snowflake.profile.extractor import SnowflakeProfileExtractor
 
 
@@ -20,6 +27,30 @@ def column_statistics_config():
         avg_value=True,
         std_dev=True,
     )
+
+
+def test_default_excludes():
+
+    with patch("metaphor.snowflake.auth.connect"):
+        extractor = SnowflakeProfileExtractor(
+            SnowflakeProfileRunConfig(
+                account="snowflake_account",
+                user="user",
+                password="password",
+                filter=DatasetFilter(
+                    includes={"foo": None},
+                    excludes={"bar": None},
+                ),
+                output=OutputConfig(),
+            )
+        )
+
+        assert extractor._filter.includes == {"foo": None}
+        assert extractor._filter.excludes == {
+            "bar": None,
+            "SNOWFLAKE": None,
+            "*": {"INFORMATION_SCHEMA": None},
+        }
 
 
 def test_build_profiling_query():

@@ -16,6 +16,17 @@ class DatasetFilter:
     # A list of databases/schemas/tables to exclude
     excludes: Optional[DatabaseFilter] = None
 
+    def merge(self, filter: "DatasetFilter") -> "DatasetFilter":
+        """Merge with another filter and return a shallow copy"""
+
+        def merge_filters(f1: Optional[DatabaseFilter], f2: Optional[DatabaseFilter]):
+            return f1 if f2 is None else f2 if f1 is None else {**f1, **f2}
+
+        return DatasetFilter(
+            includes=merge_filters(self.includes, filter.includes),
+            excludes=merge_filters(self.excludes, filter.excludes),
+        )
+
     def normalize(self) -> "DatasetFilter":
         def normalize_table_filter(
             table_filter: Optional[TableFilter],
