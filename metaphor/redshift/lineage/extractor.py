@@ -146,7 +146,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         sql = """
         SELECT DISTINCT
             trim(q.querytxt) AS querytxt,
-            trim(q.database) AS database,
+            trim(q.database) AS database
         FROM (
             SELECT *
             FROM pg_catalog.stl_query
