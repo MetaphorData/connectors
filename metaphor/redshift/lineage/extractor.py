@@ -58,7 +58,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             await conn.close()
 
         for db in databases[:1]:
-            conn = await PostgreSQLExtractor._connect_database(db)
+            conn = await self._connect_database(db)
 
             if self._enable_lineage_from_stl_scan:
                 await self._fetch_upstream_from_stl_scan(conn, db)
