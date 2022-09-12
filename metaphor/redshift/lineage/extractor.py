@@ -105,7 +105,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         """
         await self._fetch_lineage(view_lineage_query, conn, db)
 
-    async def _fetch_lineage_sql_base(self, conn):
+    async def _fetch_lineage_from_stl_query(self, conn):
         sql = """
         SELECT DISTINCT
             trim(q.querytxt) AS querytxt,
