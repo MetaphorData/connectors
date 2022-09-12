@@ -1,0 +1,55 @@
+[
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "test.public.public_table",
+      "platform": "REDSHIFT"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~874F7CF4869E665C09C8C5849702156F"
+      ],
+      "transformation": "INSERT INTO public_table SELECT * FROM foo WHERE foo.price > 0"
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "test.product.foo",
+      "platform": "REDSHIFT"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~80035CA83670B9F71F2329A249B4473E"
+      ],
+      "transformation": "INSERT INTO product.foo pf SELECT * FROM stock.foo sf WHERE sf.price > 0"
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "test.public.test",
+      "platform": "REDSHIFT"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~51D238938706B5D5527832698F272296"
+      ],
+      "transformation": "CREATE TABLE test AS SELECT id, name FROM account a WHERE a.dept == \"sales\""
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "test.product.bar",
+      "platform": "REDSHIFT"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~7430F4962E505E847BC1F0EEDE30CDE8",
+        "DATASET~C6D251ED970F700029534E6ACFE4E356"
+      ],
+      "transformation": "CREATE TABLE product.bar AS SELECT * FROM stock.bar sbr JOIN stock.baz sbz ON sbr.id == sbz.id"
+    }
+  }
+]
