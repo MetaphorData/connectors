@@ -32,6 +32,7 @@ def dummy_config(**args):
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     records = [
+        # default schema in source
         {
             "querytxt": "INSERT INTO public_table SELECT * FROM foo WHERE foo.price > 0",
             "database": "test",
@@ -40,8 +41,9 @@ async def test_extractor(test_root_dir):
             "querytxt": "INSERT INTO product.foo pf SELECT * FROM stock.foo sf WHERE sf.price > 0",
             "database": "test",
         },
+        # default schema in target
         {
-            "querytxt": 'CREATE TABLE test AS SELECT id, name FROM account a WHERE a.dept == "sales"',
+            "querytxt": 'CREATE TABLE test AS SELECT id, name FROM user.account a WHERE a.dept == "sales"',
             "database": "test",
         },
         {
@@ -51,6 +53,10 @@ async def test_extractor(test_root_dir):
         # self-lineage
         {
             "querytxt": "INSERT INTO self t SELECT * FROM self s WHERE sf.price > 0",
+            "database": "test",
+        },
+        {
+            "querytxt": "INSERT INTO public.self t SELECT * FROM public.self s WHERE sf.price > 0",
             "database": "test",
         },
     ]

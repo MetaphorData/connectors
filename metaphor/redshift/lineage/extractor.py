@@ -1,7 +1,8 @@
 from typing import Collection, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
-from sql_metadata import Parser
+from sqllineage.core.models import Schema, Table
+from sqllineage.runner import LineageRunner
 
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
@@ -124,32 +125,34 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         """
         results = await conn.fetch(sql)
 
-        def format_table_name(table: str, database: str) -> str:
-            tokens = table.split(".")
-            if len(tokens) == 1:
-                return ".".join([database, "public", tokens[0]])
-            elif len(tokens) == 2:
-                return ".".join([database] + tokens)
-            else:
-                logger.warning(f"formatting table name error: {table}")
-                return ""
+        def format_table_name(table: Table, database: str) -> str:
+            print(str(table))
+            return f"{database}.{str(table)}"
 
         for row in results:
             query = row["querytxt"]
             database = row["database"]
-            parser = Parser(query.replace('"', ""))
+            parser = LineageRunner(query.replace('"', ""))
 
-            tables = [format_table_name(table, database) for table in parser.tables]
+            if len(parser.target_tables) != 1:
+                logger.warn(f"Cannot extract lineage for the query: {query}")
+                continue
 
-            target, *sources = tables
+            if any(
+                [
+                    table.schema.raw_name == Schema.unknown
+                    for table in set(parser.source_tables + parser.target_tables)
+                ]
+            ):
+                continue
 
-            # Only one table in a Insert/Create Table query
-            if len(tables) == 1:
-                if self._include_self_lineage:
-                    target, sources = tables[0], tables
-                else:
-                    # Skip self lineage
-                    continue
+            target = format_table_name(parser.target_tables[0], database)
+            sources = [
+                format_table_name(table, database) for table in parser.source_tables
+            ]
+
+            if (not self._include_self_lineage) and target in sources:
+                continue
 
             source_ids = [
                 str(to_dataset_entity_id(source, DataPlatform.REDSHIFT))
