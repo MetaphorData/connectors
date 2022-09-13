@@ -4,6 +4,6 @@ database: database
 user: user
 password: password
 enable_view_lineage: false
-enable_lineage_from_stl_scan: false
+enable_lineage_from_sql: false
 include_self_lineage: false
 output: {}

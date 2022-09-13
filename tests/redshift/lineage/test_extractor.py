@@ -32,54 +32,32 @@ def dummy_config(**args):
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     records = [
+        # default schema in source
         {
-            "target_schema": "private",
-            "target_table": "t1",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": "q1",
+            "querytxt": "INSERT INTO public_table SELECT * FROM foo WHERE foo.price > 0",
+            "database": "test",
         },
         {
-            "target_schema": "private",
-            "target_table": "t1",
-            "source_schema": "public",
-            "source_table": "s2",
-            "querytxt": "q1",
+            "querytxt": "INSERT INTO product.foo pf SELECT * FROM stock.foo sf WHERE sf.price > 0",
+            "database": "test",
+        },
+        # default schema in target
+        {
+            "querytxt": 'CREATE TABLE test AS SELECT id, name FROM user.account a WHERE a.dept == "sales"',
+            "database": "test",
         },
         {
-            "target_schema": "foo",
-            "target_table": "t2",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": "q2",
-        },
-        {
-            "target_schema": "foo",
-            "target_table": "t3",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": None,
-        },
-        {
-            "target_schema": "foo",
-            "target_table": "t4",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": "",
-        },
-        {
-            "target_schema": "foo",
-            "target_table": "t5",
-            "source_schema": "public",
-            "source_table": "s1",
+            "querytxt": "CREATE TABLE product.bar AS SELECT * FROM stock.bar sbr JOIN stock.baz sbz ON sbr.id == sbz.id",
+            "database": "test",
         },
         # self-lineage
         {
-            "target_schema": "public",
-            "target_table": "s1",
-            "source_schema": "public",
-            "source_table": "s1",
-            "querytxt": "q1",
+            "querytxt": "INSERT INTO self t SELECT * FROM self s WHERE sf.price > 0",
+            "database": "test",
+        },
+        {
+            "querytxt": "INSERT INTO public.self t SELECT * FROM public.self s WHERE sf.price > 0",
+            "database": "test",
         },
     ]
 
@@ -96,13 +74,20 @@ async def test_extractor(test_root_dir):
         mock_records(mock_connect_database, records)
 
         # Include self-lineage
-        extractor = RedshiftLineageExtractor(dummy_config(enable_view_lineage=False))
+        extractor = RedshiftLineageExtractor(
+            dummy_config(
+                enable_view_lineage=False,
+            )
+        )
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
         assert events == load_json(f"{test_data_dir}/result_include_self_lineage.json")
 
         # Exclude self-lineage
         extractor = RedshiftLineageExtractor(
-            dummy_config(enable_view_lineage=False, include_self_lineage=False)
+            dummy_config(
+                enable_view_lineage=False,
+                include_self_lineage=False,
+            )
         )
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
         assert events == load_json(f"{test_data_dir}/result_exclude_self_lineage.json")
@@ -143,7 +128,7 @@ async def test_extractor_view(test_root_dir):
         mock_records(mock_connect_database, records)
 
         extractor = RedshiftLineageExtractor(
-            dummy_config(enable_lineage_from_stl_scan=False)
+            dummy_config(enable_lineage_from_sql=False)
         )
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]

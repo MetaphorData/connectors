@@ -2,64 +2,28 @@
   {
     "entityType": "DATASET",
     "logicalId": {
-      "name": "test.private.t1",
+      "name": "test.product.foo",
       "platform": "REDSHIFT"
     },
     "upstream": {
       "sourceDatasets": [
-        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC",
-        "DATASET~B077275BCBF5E69AD0DBFCAE3F7E47E4"
+        "DATASET~80035CA83670B9F71F2329A249B4473E"
       ],
-      "transformation": "q1"
+      "transformation": "INSERT INTO product.foo pf SELECT * FROM stock.foo sf WHERE sf.price > 0"
     }
   },
   {
     "entityType": "DATASET",
     "logicalId": {
-      "name": "test.foo.t2",
+      "name": "test.product.bar",
       "platform": "REDSHIFT"
     },
     "upstream": {
       "sourceDatasets": [
-        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
+        "DATASET~7430F4962E505E847BC1F0EEDE30CDE8",
+        "DATASET~C6D251ED970F700029534E6ACFE4E356"
       ],
-      "transformation": "q2"
-    }
-  },
-  {
-    "entityType": "DATASET",
-    "logicalId": {
-      "name": "test.foo.t3",
-      "platform": "REDSHIFT"
-    },
-    "upstream": {
-      "sourceDatasets": [
-        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
-      ]
-    }
-  },
-  {
-    "entityType": "DATASET",
-    "logicalId": {
-      "name": "test.foo.t4",
-      "platform": "REDSHIFT"
-    },
-    "upstream": {
-      "sourceDatasets": [
-        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
-      ]
-    }
-  },
-  {
-    "entityType": "DATASET",
-    "logicalId": {
-      "name": "test.foo.t5",
-      "platform": "REDSHIFT"
-    },
-    "upstream": {
-      "sourceDatasets": [
-        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
-      ]
+      "transformation": "CREATE TABLE product.bar AS SELECT * FROM stock.bar sbr JOIN stock.baz sbz ON sbr.id == sbz.id"
     }
   }
 ]

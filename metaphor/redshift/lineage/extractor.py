@@ -1,6 +1,8 @@
 from typing import Collection, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
+from sqllineage.core.models import Schema, Table
+from sqllineage.runner import LineageRunner
 
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
@@ -36,7 +38,8 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             Platform.REDSHIFT,
             DataPlatform.REDSHIFT,
         )
-        self._enable_lineage_from_stl_scan = config.enable_lineage_from_stl_scan
+        self._database = config.database
+        self._enable_lineage_from_sql = config.enable_lineage_from_sql
         self._enable_view_lineage = config.enable_view_lineage
         self._include_self_lineage = config.include_self_lineage
 
@@ -52,48 +55,17 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         for db in databases:
             conn = await self._connect_database(db)
 
-            if self._enable_lineage_from_stl_scan:
-                await self._fetch_upstream_from_stl_scan(conn, db)
-
             if self._enable_view_lineage:
                 await self._fetch_view_upstream(conn, db)
 
             await conn.close()
 
-        return self._datasets.values()
+        if self._enable_lineage_from_sql:
+            conn = await self._connect_database(self._database)
+            await self._fetch_lineage_from_stl_query(conn)
+            await conn.close()
 
-    async def _fetch_upstream_from_stl_scan(self, conn: Connection, db: str) -> None:
-        stl_scan_based_lineage_query: str = """
-            SELECT DISTINCT
-                target_schema, target_table, source_schema, source_table, trim(sq.querytxt) as querytxt
-            FROM
-                    (
-                SELECT
-                    trim(nspname) AS target_schema, trim(relname) AS target_table, query
-                FROM
-                    stl_insert
-                JOIN pg_class ON pg_class.oid = tbl
-                JOIN pg_namespace ON pg_namespace.oid = relnamespace
-                    ) AS target
-            JOIN
-                    (
-                SELECT
-                    trim(nspname) AS source_schema, trim(relname) AS source_table, query
-                FROM stl_scan
-                JOIN pg_class ON pg_class.oid = tbl
-                JOIN pg_namespace ON pg_namespace.oid = relnamespace
-                WHERE
-                    userid > 1 AND type in (1, 2, 3)
-                    ) AS source
-            USING (query)
-            LEFT JOIN stl_query sq ON target.query = sq.query
-            WHERE
-                target_schema != 'information_schema'
-                AND target_schema !~ '^pg_'
-                AND source_schema != 'information_schema'
-                AND source_schema !~ '^pg_'
-        """
-        await self._fetch_lineage(stl_scan_based_lineage_query, conn, db)
+        return self._datasets.values()
 
     async def _fetch_view_upstream(self, conn: Connection, db: str) -> None:
         view_lineage_query: str = """
@@ -134,6 +106,65 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         """
         await self._fetch_lineage(view_lineage_query, conn, db)
 
+    async def _fetch_lineage_from_stl_query(self, conn):
+        sql = """
+        SELECT DISTINCT
+            trim(q.querytxt) AS querytxt,
+            trim(q.database) AS database
+        FROM (
+            SELECT *
+            FROM pg_catalog.stl_query
+            WHERE userid > 1
+                AND (
+                    querytxt ILIKE 'create table %% as select %%'
+                    OR querytxt ILIKE 'insert %%'
+                )
+                AND aborted = 0
+        ) q
+        ORDER BY q.endtime DESC;
+        """
+        results = await conn.fetch(sql)
+
+        def format_table_name(table: Table, database: str) -> str:
+            return f"{database}.{str(table)}"
+
+        for row in results:
+            query = row["querytxt"]
+            database = row["database"]
+            parser = LineageRunner(query.replace('"', ""))
+
+            if len(parser.target_tables) != 1:
+                logger.warning(f"Cannot extract lineage for the query: {query}")
+                continue
+
+            if any(
+                [
+                    table.schema.raw_name == Schema.unknown
+                    for table in set(parser.source_tables + parser.target_tables)
+                ]
+            ):
+                # TODO: find the default schema name
+                logger.warning(f"Skip query missing explicit schema: {query}")
+                continue
+
+            target = format_table_name(parser.target_tables[0], database)
+            sources = [
+                format_table_name(table, database) for table in parser.source_tables
+            ]
+
+            if (not self._include_self_lineage) and target in sources:
+                continue
+
+            source_ids = [
+                str(to_dataset_entity_id(source, DataPlatform.REDSHIFT))
+                for source in sources
+            ]
+
+            self._init_dataset(
+                target,
+                DatasetUpstream(source_datasets=source_ids, transformation=query),
+            )
+
     async def _fetch_lineage(self, sql, conn, db):
         results = await conn.fetch(sql)
 
@@ -160,19 +191,21 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             )
 
         for target_table_name in upstream_map.keys():
-            dataset = self._init_dataset(target_table_name)
             sources, query = upstream_map[target_table_name]
-            dataset.upstream = DatasetUpstream(
-                source_datasets=unique_list(sources), transformation=query
+            self._init_dataset(
+                target_table_name,
+                DatasetUpstream(
+                    source_datasets=unique_list(sources), transformation=query
+                ),
             )
 
-    def _init_dataset(self, table_name: str) -> Dataset:
+    def _init_dataset(self, table_name: str, upstream: DatasetUpstream) -> Dataset:
         if table_name not in self._datasets:
             self._datasets[table_name] = Dataset(
                 entity_type=EntityType.DATASET,
                 logical_id=DatasetLogicalID(
                     name=table_name, platform=DataPlatform.REDSHIFT
                 ),
+                upstream=upstream,
             )
-
         return self._datasets[table_name]
