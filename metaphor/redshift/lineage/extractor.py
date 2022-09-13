@@ -126,7 +126,6 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         results = await conn.fetch(sql)
 
         def format_table_name(table: Table, database: str) -> str:
-            print(str(table))
             return f"{database}.{str(table)}"
 
         for row in results:
@@ -135,7 +134,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             parser = LineageRunner(query.replace('"', ""))
 
             if len(parser.target_tables) != 1:
-                logger.warn(f"Cannot extract lineage for the query: {query}")
+                logger.warning(f"Cannot extract lineage for the query: {query}")
                 continue
 
             if any(
@@ -144,6 +143,8 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                     for table in set(parser.source_tables + parser.target_tables)
                 ]
             ):
+                # TODO: find the default schema name
+                logger.warning(f"Skip query with default schema: {query}")
                 continue
 
             target = format_table_name(parser.target_tables[0], database)
