@@ -144,7 +144,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                 ]
             ):
                 # TODO: find the default schema name
-                logger.warning(f"Skip query with default schema: {query}")
+                logger.warning(f"Skip query missing explicit schema: {query}")
                 continue
 
             target = format_table_name(parser.target_tables[0], database)
