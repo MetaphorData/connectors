@@ -26,7 +26,7 @@ class CustomMetadataExtractor(BaseExtractor):
         self._datasets = config.datasets
 
     async def extract(self) -> List[MetadataChangeEvent]:
-        logger.info("Fetching governance from config")
+        logger.info("Fetching custom metadata from config")
 
         datasets = []
         for dataset_metadata in self._datasets:
