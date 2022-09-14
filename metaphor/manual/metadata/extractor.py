@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 
 
 class CustomMetadataExtractor(BaseExtractor):
-    """Manual governance extractor"""
+    """Custom metadata extractor"""
 
     @staticmethod
     def from_config_file(config_file: str) -> "CustomMetadataExtractor":
