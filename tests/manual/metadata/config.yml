@@ -1,0 +1,15 @@
+---
+datasets:
+  - id:
+      name: foo
+      platform: BIGQUERY
+    metadata:
+      string: v1
+      number: 1
+      list:
+        - v1
+        - v2
+      dict:
+        k1: v1
+        k2: v2
+output: {}
