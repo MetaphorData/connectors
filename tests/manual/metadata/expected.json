@@ -1,0 +1,28 @@
+[
+  {
+    "logicalId": {
+      "name": "foo",
+      "platform": "BIGQUERY"
+    },
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "string",
+          "value": "\"v1\""
+        },
+        {
+          "key": "number",
+          "value": "1"
+        },
+        {
+          "key": "list",
+          "value": "[\"v1\", \"v2\"]"
+        },
+        {
+          "key": "dict",
+          "value": "{\"k1\": \"v1\", \"k2\": \"v2\"}"
+        }
+      ]
+    }
+  }
+]
