@@ -1,6 +1,6 @@
-# Manual Governance Connector
+# Custom Metadata Connector
 
-This connector assigns manually specified ownership and tagging information to tables.
+This connector attaches custom metadata to tables.
 
 ## Setup
 
@@ -10,8 +10,6 @@ No special setup is required.
 
 Create a YAML config file based on the following template.
 
-> Note: The ownership types and tags must be first created on Metaphor for the assignment to take effect.
-
 ### Required Configurations
 
 ```yaml
@@ -20,12 +18,8 @@ datasets:
       platform: <data_platform>
       name: <dataset_name>
       account: <snowflake_account> # only for Snowflake
-    ownerships:
-      - type: <ownership_type>
-        email: <owner_email>
-      ...
-    tags:
-      - <tag_name>
+    metadata:
+      <key>: <value>
       ...
   ...
 output:
@@ -39,34 +33,22 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Examples
 
-Here's an example on how to assign `alice@test.com` and `bob@test.com` as owners of a BigQuery table.
+Here's an example showing how to attach custom metadata that contains primitive or complex values to a BigQuery table:
 
 ```yaml
 datasets:
   - id:
       platform: BIGQUERY
-      name: project.db.table1
-    ownerships:
-      - type: Data Steward
-        email: bob@test.com
-      - type: 
-        email: alice@test.com
-output:
-  file:
-    directory: /output
-```
-
-Here's another example showing how to tag a Snowflake table as `pii` and `golden`.
-
-```yaml
-datasets:
-  - id:
-      platform: SNOWFLAKE
-      account: test_account
       name: database.schema.table1
-    tags:
-      - pii
-      - golden 
+    metadata:
+      key1: string_value
+      key2: 2
+      key3:
+        - item1
+        - item2
+      key4:
+        f1: value1,
+        f2: value2
 output:
   file:
     directory: /output
@@ -79,7 +61,7 @@ Follow the [Installation](../../README.md) instructions to install `metaphor-con
 To test the connector locally, change the config file to output to a local path and run the following command
 
 ```shell
-metaphor manual.governance <config_file>
+metaphor manual.metadata <config_file>
 ```
 
 Manually verify the output after the run finishes.
