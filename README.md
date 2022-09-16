@@ -9,7 +9,7 @@
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/MetaphorData/connectors.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/MetaphorData/connectors/context:python)
 [![License](https://img.shields.io/github/license/MetaphorData/connectors)](https://github.com/MetaphorData/connectors/blob/master/LICENSE)
 
-This repository contains a collection of Python-based "connectors" that extract metadata from various sources to ingest into the Metaphor app.
+This repository contains a collection of Python-based "connectors" that extract metadata from various sources to ingest into the [Metaphor](https://metaphor.io) platform.
 
 ## Installation
 
