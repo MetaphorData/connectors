@@ -24,6 +24,7 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     ThoughtSpotColumn,
     ThoughtSpotDataObject,
+    ThoughtSpotInfo,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
@@ -102,6 +103,8 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_virtual_views(self, tables: Dict[str, SourceMetadata]):
         for table in tables.values():
+            logger.debug(f"table: {table}")
+
             table_id = table.header.id
             tags = [
                 tag.name
@@ -230,6 +233,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_answers(self, answers: List[AnswerMetadata]):
         for answer in answers:
+            logger.debug(f"answer: {answer}")
             answer_id = answer.header.id
 
             visualizations = [
@@ -250,6 +254,9 @@ class ThoughtSpotExtractor(BaseExtractor):
                     charts=self._populate_charts(
                         visualizations, self._base_url, answer_id
                     ),
+                    thought_spot=ThoughtSpotInfo(
+                        tags=answer.header.tags,
+                    ),
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
@@ -265,6 +272,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_liveboards(self, liveboards: List[LiveBoardMetadate]):
         for board in liveboards:
+            logger.debug(f"board: {board}")
             board_id = board.header.id
 
             resolvedObjects = board.header.resolvedObjects
@@ -291,6 +299,9 @@ class ThoughtSpotExtractor(BaseExtractor):
                     title=board.header.name,
                     charts=self._populate_charts(
                         visualizations, self._base_url, board_id
+                    ),
+                    thought_spot=ThoughtSpotInfo(
+                        tags=board.header.tags,
                     ),
                 ),
                 source_info=SourceInfo(

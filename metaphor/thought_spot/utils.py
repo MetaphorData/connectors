@@ -197,6 +197,7 @@ class ThoughtSpot:
         logger.info(f"{mtype} ids: {ids}")
 
         obj = ThoughtSpot._fetch_object_detail(client.metadata, ids, detail_type)
+        logger.debug(f"fetch_object_detail: {obj}")
 
         # Because mypy can't handle dynamic type variables properly, we skip type-checking here.
         return parse_obj_as(List[target_type], obj)  # type: ignore
