@@ -1,0 +1,82 @@
+[
+  {
+    "logicalId": {
+      "name": "table1",
+      "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "thoughtSpot": {
+      "name": "Table 1",
+      "description": "This is table1",
+      "type": "WORKSHEET",
+      "url": "http://base.url/#/data/tables/table1",
+      "columns": [],
+      "sourceVirtualViews": [],
+      "tags": [
+        "tag1"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "dashboardId": "answer1",
+      "platform": "THOUGHT_SPOT"
+    },
+    "dashboardInfo": {
+      "title": "Answer 1",
+      "description": "This is answer1",
+      "charts": [
+        {
+          "chartType": "LINE",
+          "title": "Answer 1",
+          "description": "This is answer1"
+        }
+      ],
+      "thoughtSpot": {
+        "type": "ANSWER",
+        "tags": [
+          "tag2"
+        ]
+      }
+    },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/saved-answer/answer1"
+    },
+    "upstream": {
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "dashboardId": "board1",
+      "platform": "THOUGHT_SPOT"
+    },
+    "dashboardInfo": {
+      "title": "Board 1",
+      "description": "This is board1",
+      "charts": [
+        {
+          "chartType": "LINE",
+          "title": "Answer 1",
+          "description": "This is answer1",
+          "url": "http://base.url#/embed/viz/board1/viz2"
+        }
+      ],
+      "thoughtSpot": {
+        "type": "LIVEBOARD",
+        "tags": [
+          "tag3"
+        ]
+      }
+    },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/pinboard/board1"
+    },
+    "upstream": {
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
+      ]
+    }
+  }
+]

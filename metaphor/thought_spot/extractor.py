@@ -23,6 +23,7 @@ from metaphor.models.metadata_change_event import (
     DashboardUpstream,
     SourceInfo,
     ThoughtSpotColumn,
+    ThoughtSpotDashboardType,
     ThoughtSpotDataObject,
     ThoughtSpotInfo,
     VirtualView,
@@ -37,6 +38,7 @@ from metaphor.thought_spot.models import (
     Header,
     LiveBoardMetadate,
     SourceMetadata,
+    Tag,
     TMLObject,
     Visualization,
 )
@@ -106,11 +108,6 @@ class ThoughtSpotExtractor(BaseExtractor):
             logger.debug(f"table: {table}")
 
             table_id = table.header.id
-            tags = [
-                tag.name
-                for tag in table.header.tags
-                if not (tag.isDeleted or tag.isHidden or tag.isDeprecated)
-            ]
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
@@ -129,7 +126,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                     description=table.header.description,
                     type=mapping_data_object_type(table.type),
                     url=f"{self._base_url}/#/data/tables/{table_id}",
-                    tags=tags,
+                    tags=self._tag_names(table.header.tags),
                 ),
             )
             self._virtual_views[table_id] = view
@@ -237,6 +234,7 @@ class ThoughtSpotExtractor(BaseExtractor):
             answer_id = answer.header.id
 
             visualizations = [
+                # Use answer.header instead as viz.header contain only dummy values
                 (viz, answer.header, "")
                 for sheet in answer.reportContent.sheets
                 for viz in sheet.sheetContent.visualizations
@@ -255,7 +253,8 @@ class ThoughtSpotExtractor(BaseExtractor):
                         visualizations, self._base_url, answer_id
                     ),
                     thought_spot=ThoughtSpotInfo(
-                        tags=answer.header.tags,
+                        type=ThoughtSpotDashboardType.ANSWER,
+                        tags=self._tag_names(answer.header.tags),
                     ),
                 ),
                 source_info=SourceInfo(
@@ -282,6 +281,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for viz in sheet.sheetContent.visualizations
             }
             visualizations = [
+                # Use answer.header instead as viz.header contain only dummy values
                 (viz, answer.header, chart_id)
                 for chart_id, answer in answers.items()
                 for sheet in answer.reportContent.sheets
@@ -301,7 +301,8 @@ class ThoughtSpotExtractor(BaseExtractor):
                         visualizations, self._base_url, board_id
                     ),
                     thought_spot=ThoughtSpotInfo(
-                        tags=board.header.tags,
+                        type=ThoughtSpotDashboardType.LIVEBOARD,
+                        tags=self._tag_names(board.header.tags),
                     ),
                 ),
                 source_info=SourceInfo(
@@ -349,3 +350,11 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for reference in column.referencedTableHeaders
             ]
         )
+
+    @staticmethod
+    def _tag_names(tags: List[Tag]) -> List[str]:
+        return [
+            tag.name
+            for tag in tags
+            if not (tag.isDeleted or tag.isHidden or tag.isDeprecated)
+        ]
