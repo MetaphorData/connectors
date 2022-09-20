@@ -66,6 +66,7 @@ def mapping_data_object_type(type_: SourceType) -> ThoughtSpotDataObjectType:
     return mapping.get(type_)
 
 
+# https://docs.thoughtspot.com/software/latest/chart-types
 def mapping_chart_type(type_: str) -> Optional[ChartType]:
     mapping = {
         "COLUMN": ChartType.COLUMN,
@@ -170,7 +171,7 @@ class ThoughtSpot:
         return _client(result.token)
 
     @staticmethod
-    def fetch_connections(client: RestapisdkClient) -> List[Metadata]:
+    def fetch_connections(client: RestapisdkClient) -> List[ConnectionMetadata]:
         supported_platform = set(c.value for c in ConnectionType)
 
         headers: List[ConnectionHeader] = ThoughtSpot._fetch_headers(
