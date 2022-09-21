@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import Any, Collection, Dict, List
 
@@ -119,11 +120,16 @@ class GlueExtractor(BaseExtractor):
                 custom_metadata = []
                 if location:
                     custom_metadata.append(
-                        CustomMetadataItem(key="location", value=location)
+                        CustomMetadataItem(
+                            key="location", value=json.dumps({"location": location})
+                        )
                     )
                 if table_type:
                     custom_metadata.append(
-                        CustomMetadataItem(key="glue_table_type", value=table_type)
+                        CustomMetadataItem(
+                            key="glue_table_type",
+                            value=json.dumps({"glue_table_type": table_type}),
+                        )
                     )
                 dataset.custom_metadata = (
                     CustomMetadata(metadata=custom_metadata)
