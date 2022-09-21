@@ -41,7 +41,7 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
-You can specify a role ARN with proper policy, the connector will assume the role to access AWS API.
+You can also specify a role ARN with proper policy and let the connector assume the role before accessing AWS APIs.
 
 ```yaml
 aws:
