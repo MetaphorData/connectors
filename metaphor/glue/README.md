@@ -4,7 +4,7 @@ This connector extracts technical metadata from AWS Glue using the [boto3](https
 
 ## Setup
 
-Prepare an AWS credential with the following permissions.
+Prepare an AWS credential with the following IAM permissions.
 
 ``` text
 effect = "Allow"
