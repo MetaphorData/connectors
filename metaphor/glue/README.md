@@ -25,28 +25,20 @@ Create a YAML config file based on the following template.
 
 ### Required Configurations
 
-If using user password authentication:
+You must specify an AWS user credential to access Glue API. You can also specify a role ARN with proper policy and let the connector assume the role before accessing AWS APIs.
 
 ```yaml
 aws:
   access_key_id: <aws_access_key_id>
   secret_access_key: <aws_secret_access_key>
   region_name: <aws_region_name>
+  assume_role_arn: <aws_role_arn> # Optional
 output:
   file:
     directory: <output_directory>
 ```
 
 See [Output Config](../common/docs/output.md) for more information on `output`.
-
-### Optional Configurations
-
-You can also specify a role ARN with proper policy and let the connector assume the role before accessing AWS APIs.
-
-```yaml
-aws:
-  assume_role_arn: <aws_role_arn>
-```
 
 ## Testing
 
