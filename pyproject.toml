@@ -65,7 +65,7 @@ tableau = ["tableauserverclient"]
 throughtspot = ["thoughtspot-rest-api-sdk"]
 
 [tool.poetry.dev-dependencies]
-apache-airflow = "^2.3.0"
+apache-airflow = "^2.4.0"
 bandit = "^1.7.2"
 black = "^22.1"
 datamodel-code-generator = { extras = ["http"], version = "^0.11.14" }
