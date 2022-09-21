@@ -15,7 +15,7 @@ actions = [
   "glue:GetDataBases"
 ]
 resources = [
-  "*" // or specify the resources
+  "*" // or specific resources
 ]
 ```
 
