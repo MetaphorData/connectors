@@ -8,7 +8,8 @@ from aws_assume_role_lib import assume_role
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.glue.config import GlueRunConfig
+from metaphor.common.utils import unique_list
+from metaphor.glue.config import AwsCredentials, GlueRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     CustomMetadata,
@@ -27,6 +28,18 @@ from metaphor.models.metadata_change_event import (
 logger = get_logger(__name__)
 
 
+def create_glue_client(aws: AwsCredentials) -> boto3.client:
+    session = boto3.Session(
+        aws_access_key_id=aws.access_key_id,
+        aws_secret_access_key=aws.secret_access_key,
+        region_name=aws.region_name,
+    )
+    if aws.assume_role_arn is not None:
+        session = assume_role(session, aws.assume_role_arn)
+        logger.info(f"Assumed role: {session.client('sts').get_caller_identity()}")
+    return session.client("glue")
+
+
 class GlueExtractor(BaseExtractor):
     """Glue metadata extractor"""
 
@@ -39,22 +52,7 @@ class GlueExtractor(BaseExtractor):
     def __init__(self, config: GlueRunConfig) -> None:
         super().__init__(config, "Glue metadata crawler", Platform.GLUE)
         self._datasets: Dict[str, Dataset] = {}
-
-        aws = config.aws
-        session = boto3.Session(
-            aws_access_key_id=aws.access_key_id,
-            aws_secret_access_key=aws.secret_access_key,
-            region_name=aws.region_name,
-        )
-        if aws.assume_role_arn is not None:
-            self._session = assume_role(session, aws.assume_role_arn)
-            logger.info(
-                f"Assumed role: {self._session.client('sts').get_caller_identity()}"
-            )
-        else:
-            self._session = session
-
-        self._client = self._session.client("glue")
+        self._client = create_glue_client(config.aws)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Glue")
@@ -68,13 +66,18 @@ class GlueExtractor(BaseExtractor):
 
     def _get_databases(self):
         paginator = self._client.get_paginator("get_databases")
+
+        print(paginator)
+
         paginator_response = paginator.paginate()
 
-        database_names = set()
+        print(paginator_response)
+
+        database_names = []
         for page in paginator_response:
             for database in page["DatabaseList"]:
-                database_names.add(database["Name"])
-        return database_names
+                database_names.append(database["Name"])
+        return unique_list(database_names)
 
     def _get_columns(self, storageDescriptor: Any) -> List[SchemaField]:
         columns = []
