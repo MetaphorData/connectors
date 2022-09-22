@@ -71,8 +71,10 @@ class SnowflakeExtractor(BaseExtractor):
                 if self._filter.includes is None
                 else list(self._filter.includes.keys())
             )
-
             logger.info(f"Databases to include: {databases}")
+
+            shared_databases = self._fetch_shared_databases(cursor)
+            logger.info(f"Shared inbound databases: {shared_databases}")
 
             for database in databases:
                 tables = self._fetch_tables(cursor, database)
@@ -85,7 +87,7 @@ class SnowflakeExtractor(BaseExtractor):
                 self._fetch_columns(cursor, database)
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
-                self._fetch_table_info(tables)
+                self._fetch_table_info(tables, database in shared_databases)
 
             self._fetch_tags(cursor)
 
@@ -98,7 +100,13 @@ class SnowflakeExtractor(BaseExtractor):
         cursor.execute(
             "SELECT database_name FROM information_schema.databases ORDER BY database_name"
         )
-        return [db[0] for db in cursor]
+        return [db[0].lower() for db in cursor]
+
+    @staticmethod
+    def _fetch_shared_databases(cursor: SnowflakeCursor) -> List[str]:
+        cursor.execute("SHOW SHARES")
+        cursor.execute("SELECT * FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))")
+        return [db[3].lower() for db in cursor if db[1] == "INBOUND"]
 
     FETCH_TABLE_QUERY = """
     SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes
@@ -181,7 +189,7 @@ class SnowflakeExtractor(BaseExtractor):
                 )
             )
 
-    def _fetch_table_info(self, tables: Dict[str, DatasetInfo]) -> None:
+    def _fetch_table_info(self, tables: Dict[str, DatasetInfo], shared: bool) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
         for fullname, table in tables.items():
@@ -193,10 +201,13 @@ class SnowflakeExtractor(BaseExtractor):
                 params.append(fullname)
                 updated_time_tables.append(fullname)
 
-            queries.append(f"get_ddl('table', %s) as \"DDL_{fullname}\"")
-            params.append(fullname)
-            ddl_tables.append(fullname)
+            if not shared:
+                queries.append(f"get_ddl('table', %s) as \"DDL_{fullname}\"")
+                params.append(fullname)
+                ddl_tables.append(fullname)
 
+        if not queries:
+            return
         query = f"SELECT {','.join(queries)}"
 
         cursor = self._conn.cursor(DictCursor)
