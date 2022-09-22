@@ -66,12 +66,7 @@ class GlueExtractor(BaseExtractor):
 
     def _get_databases(self):
         paginator = self._client.get_paginator("get_databases")
-
-        print(paginator)
-
         paginator_response = paginator.paginate()
-
-        print(paginator_response)
 
         database_names = []
         for page in paginator_response:
