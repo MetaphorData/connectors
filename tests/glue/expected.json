@@ -1,0 +1,68 @@
+[
+  {
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "location",
+          "value": "{\"location\": \"s3://path\"}"
+        }
+      ]
+    },
+    "logicalId": {
+      "name": "db1.table1",
+      "platform": "GLUE"
+    },
+    "schema": {
+      "description": "Table description",
+      "fields": [
+        {
+          "description": "description",
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
+      }
+    },
+    "statistics": {
+      "lastUpdated": "2022-09-20T08:30:00",
+      "recordCount": 100000.0
+    }
+  },
+  {
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "location",
+          "value": "{\"location\": \"s3://path\"}"
+        }
+      ]
+    },
+    "logicalId": {
+      "name": "db2.table2",
+      "platform": "GLUE"
+    },
+    "schema": {
+      "description": "Table description",
+      "fields": [
+        {
+          "description": "description",
+          "fieldName": "col3",
+          "fieldPath": "col3",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
+      }
+    },
+    "statistics": {
+      "lastUpdated": "2022-09-20T08:30:00",
+      "recordCount": 100000.0
+    }
+  }
+]
