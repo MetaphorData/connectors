@@ -3,7 +3,7 @@ import tempfile
 
 _, LOG_FILE = tempfile.mkstemp(suffix=".log")
 
-logging.basicConfig(level=logging.DEBUG, filename=LOG_FILE, filemode="w")
+logging.basicConfig(level=logging.DEBUG, filename=LOG_FILE, filemode="a")
 
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
