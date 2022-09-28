@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import Optional, Set
+from typing import Set
 
 from pydantic.dataclasses import dataclass
 
