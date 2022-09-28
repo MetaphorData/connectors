@@ -93,7 +93,7 @@ See [Filter Configurations](../common/docs/filter.md) for more information on th
 
 #### Query Logs
 
-By default, the snowflake connector will fetch 1 day's query logs, to be analyzed for additional metadata, such as dataset usage and lineage information. To backfill log data, can set `lookback_days` to be longer. To turn off the log fetch, set `lookback_days` to 0. 
+By default, the snowflake connector will fetch a full day's query logs from yesterday, to be analyzed for additional metadata, such as dataset usage and lineage information. To backfill log data, one can set `lookback_days` to the desired value. To turn off query log fetching, set `lookback_days` to 0.  
 
 ```yaml
 # (Optional) Number of days of query logs to fetch. Default to 1. If 0, the no query logs will be fetched.

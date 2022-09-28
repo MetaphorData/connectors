@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.auth import SnowflakeKeyPairAuthConfig
-from metaphor.snowflake.config import SnowflakeRunConfig
+from metaphor.snowflake.config import SnowflakeQueryLogConfig, SnowflakeRunConfig
 
 
 def test_yaml_config(test_root_dir):
@@ -31,6 +31,11 @@ def test_yaml_config(test_root_dir):
                 },
             },
             excludes={"db3": None},
+        ),
+        query_log=SnowflakeQueryLogConfig(
+            lookback_days=7,
+            excluded_usernames={"ex1", "ex2"},
+            query_log_fetch_size=100000,
         ),
         output=OutputConfig(),
     )

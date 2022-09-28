@@ -58,8 +58,6 @@ DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
     }
 )
 
-# number of query logs to fetch from Snowflake in one batch
-DEFAULT_QUERY_LOG_FETCH_SIZE = 100000
 # max number of query logs to output in one MCE
 DEFAULT_QUERY_LOG_OUTPUT_SIZE = 100
 
@@ -75,8 +73,9 @@ class SnowflakeExtractor(BaseExtractor):
         super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
         self._account = config.account
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
-        self._excluded_usernames = config.excluded_usernames
-        self._lookback_days = config.lookback_days
+        self._excluded_usernames = config.query_log.excluded_usernames
+        self._lookback_days = config.query_log.lookback_days
+        self._query_log_fetch_size = config.query_log.query_log_fetch_size
         self._max_concurrency = config.max_concurrency
 
         self._conn = auth.connect(config)
@@ -363,7 +362,7 @@ class SnowflakeExtractor(BaseExtractor):
         count = fetch_query_history_count(
             self._conn, start_date, self._excluded_usernames, end_date
         )
-        batches = math.ceil(count / DEFAULT_QUERY_LOG_FETCH_SIZE)
+        batches = math.ceil(count / self._query_log_fetch_size)
         logger.info(f"Total {count} queries, dividing into {batches} batches")
 
         queries = {
@@ -375,17 +374,19 @@ class SnowflakeExtractor(BaseExtractor):
                 JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                   ON a.QUERY_ID = q.QUERY_ID
                 WHERE EXECUTION_STATUS = 'SUCCESS'
-                  AND START_TIME > %s
-                  AND START_TIME <= %s
+                  AND START_TIME > %s AND START_TIME <= %s
+                  AND QUERY_START_TIME > %s AND QUERY_START_TIME <= %s
                   {exclude_username_clause(self._excluded_usernames)}
                 ORDER BY q.QUERY_ID
-                LIMIT {DEFAULT_QUERY_LOG_FETCH_SIZE} OFFSET %s
+                LIMIT {self._query_log_fetch_size} OFFSET %s
                 """,
                 (
                     start_date,
                     end_date,
+                    start_date,
+                    end_date,
                     *self._excluded_usernames,
-                    x * DEFAULT_QUERY_LOG_FETCH_SIZE,
+                    x * self._query_log_fetch_size,
                 ),
             )
             for x in range(batches)
