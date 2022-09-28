@@ -110,7 +110,11 @@ class PowerBIExtractor(BaseExtractor):
                             for c in table.columns
                         ],
                         measures=[
-                            PbiMeasure(field=m.name, expression=m.expression)
+                            PbiMeasure(
+                                field=m.name,
+                                expression=m.expression,
+                                description=m.description,
+                            )
                             for m in table.measures
                         ],
                         name=table.name,

@@ -94,6 +94,7 @@ class PowerBITableColumn(BaseModel):
 
 class PowerBITableMeasure(BaseModel):
     name: str
+    description: Optional[str] = None
     expression: str = ""
 
 
