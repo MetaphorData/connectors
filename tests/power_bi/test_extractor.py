@@ -167,7 +167,9 @@ async def test_extractor(test_root_dir):
                                 ],
                                 measures=[
                                     PowerBITableMeasure(
-                                        name="exp1", expression="avg(col1)"
+                                        name="exp1",
+                                        expression="avg(col1)",
+                                        description="this is exp1",
                                     ),
                                     PowerBITableMeasure(
                                         name="exp2", expression="max(col1)"

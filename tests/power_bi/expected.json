@@ -24,7 +24,8 @@
           "measures": [
             {
               "expression": "avg(col1)",
-              "field": "exp1"
+              "field": "exp1",
+              "description": "this is exp1"
             },
             {
               "expression": "max(col1)",
