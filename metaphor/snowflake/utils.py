@@ -116,7 +116,7 @@ def fetch_query_history_count(
         FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
         JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
           ON a.QUERY_ID = q.QUERY_ID
-        WHERE EXECUTION_STATUS = 'SUCCESS' 
+        WHERE EXECUTION_STATUS = 'SUCCESS'
           and START_TIME > %s and START_TIME <= %s
           and QUERY_START_TIME > %s AND QUERY_START_TIME <= %s
           {exclude_username_clause(excluded_usernames)}
