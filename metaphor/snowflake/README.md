@@ -91,6 +91,20 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
+#### Query Logs
+
+By default, the snowflake connector will fetch 1 day's query logs, to be analyzed for additional metadata, such as dataset usage and lineage information. To backfill log data, can set `lookback_days` to be longer. To turn off the log fetch, set `lookback_days` to 0. 
+
+```yaml
+# (Optional) Number of days of query logs to fetch. Default to 1. If 0, the no query logs will be fetched.
+lookback_days: <days>
+
+# (Optional) A list of users whose queries will be excluded from the log fetching.
+excluded_usernames:
+  - <user_name1>
+  - <user_name2>
+```
+
 #### Concurrency
 
 The max number of concurrent queries to the snowflake database can be configured as follows,

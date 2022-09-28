@@ -1,7 +1,12 @@
+import math
 from datetime import datetime, timezone
-from typing import Collection, Dict, List, Mapping, Optional
+from typing import Collection, Dict, List, Mapping, Optional, Tuple
+
+from pydantic import parse_raw_as
 
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
+from metaphor.common.utils import chunks, start_of_day
+from metaphor.snowflake.accessed_object import AccessedObject
 
 try:
     from snowflake.connector.cursor import DictCursor, SnowflakeCursor
@@ -24,6 +29,9 @@ from metaphor.models.metadata_change_event import (
     DatasetStatistics,
     EntityType,
     MaterializationType,
+    QueriedDataset,
+    QueryLog,
+    QueryLogs,
     SchemaField,
     SchemaType,
     SourceInfo,
@@ -31,7 +39,14 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.snowflake import auth
 from metaphor.snowflake.config import SnowflakeRunConfig
-from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
+from metaphor.snowflake.utils import (
+    DatasetInfo,
+    QueryWithParam,
+    SnowflakeTableType,
+    async_execute,
+    exclude_username_clause,
+    fetch_query_history_count,
+)
 
 logger = get_logger(__name__)
 
@@ -42,6 +57,11 @@ DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
         "*": {"INFORMATION_SCHEMA": None},
     }
 )
+
+# number of query logs to fetch from Snowflake in one batch
+DEFAULT_QUERY_LOG_FETCH_SIZE = 100000
+# max number of query logs to output in one MCE
+DEFAULT_QUERY_LOG_OUTPUT_SIZE = 100
 
 
 class SnowflakeExtractor(BaseExtractor):
@@ -55,9 +75,13 @@ class SnowflakeExtractor(BaseExtractor):
         super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
         self._account = config.account
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
+        self._excluded_usernames = config.excluded_usernames
+        self._lookback_days = config.lookback_days
+        self._max_concurrency = config.max_concurrency
 
         self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
+        self._logs: List[QueryLog] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
 
@@ -91,9 +115,18 @@ class SnowflakeExtractor(BaseExtractor):
 
             self._fetch_tags(cursor)
 
-        logger.debug(self._datasets)
+            if self._lookback_days > 0:
+                self._fetch_query_logs()
 
-        return self._datasets.values()
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(self._datasets.values())
+        entities.extend(
+            [
+                QueryLogs(logs=chunk)
+                for chunk in chunks(self._logs, DEFAULT_QUERY_LOG_OUTPUT_SIZE)
+            ]
+        )
+        return entities
 
     @staticmethod
     def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
@@ -321,6 +354,88 @@ class SnowflakeExtractor(BaseExtractor):
                 dataset.schema.tags = []
             dataset.schema.tags.append(self._build_tag_string(key, value))
 
+    def _fetch_query_logs(self) -> None:
+        logger.info("Fetching Snowflake query logs")
+
+        start_date = start_of_day(self._lookback_days)
+        end_date = start_of_day()
+
+        count = fetch_query_history_count(
+            self._conn, start_date, self._excluded_usernames, end_date
+        )
+        batches = math.ceil(count / DEFAULT_QUERY_LOG_FETCH_SIZE)
+        logger.info(f"Total {count} queries, dividing into {batches} batches")
+
+        queries = {
+            x: QueryWithParam(
+                f"""
+                SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME,
+                  BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
+                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
+                JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+                  ON a.QUERY_ID = q.QUERY_ID
+                WHERE EXECUTION_STATUS = 'SUCCESS'
+                  AND START_TIME > %s
+                  AND START_TIME <= %s
+                  {exclude_username_clause(self._excluded_usernames)}
+                ORDER BY q.QUERY_ID
+                LIMIT {DEFAULT_QUERY_LOG_FETCH_SIZE} OFFSET %s
+                """,
+                (
+                    start_date,
+                    end_date,
+                    *self._excluded_usernames,
+                    x * DEFAULT_QUERY_LOG_FETCH_SIZE,
+                ),
+            )
+            for x in range(batches)
+        }
+        async_execute(
+            self._conn,
+            queries,
+            "fetch_query_logs",
+            self._max_concurrency,
+            self._parse_access_logs,
+        )
+
+        logger.info(f"Fetched {len(self._logs)} query logs")
+
+    def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
+        logger.info(f"access logs batch #{batch_number}")
+        for (
+            query_id,
+            username,
+            query_text,
+            start_time,
+            elapsed_time,
+            bytes_scanned,
+            bytes_written,
+            rows_produced,
+            accessed_objects,
+            modified_objects,
+        ) in access_logs:
+            try:
+                sources = self._parse_accessed_objects(accessed_objects)
+                targets = self._parse_accessed_objects(modified_objects)
+
+                query_log = QueryLog(
+                    id=f"{str(DataPlatform.SNOWFLAKE)}:{query_id}",
+                    platform=DataPlatform.SNOWFLAKE,
+                    start_time=start_time,
+                    duration=float(elapsed_time / 1000.0),
+                    user_id=username,
+                    rows_written=float(rows_produced) if rows_produced else None,
+                    bytes_read=float(bytes_scanned) if bytes_scanned else None,
+                    bytes_written=float(bytes_written) if bytes_written else None,
+                    sources=sources,
+                    targets=targets,
+                    sql=query_text,
+                )
+
+                self._logs.append(query_log)
+            except Exception:
+                logger.exception(f"access log processing error, query id: {query_id}")
+
     @staticmethod
     def _build_tag_string(tag_key: str, tag_value: str) -> str:
         return f"{tag_key}={tag_value}"
@@ -371,3 +486,34 @@ class SnowflakeExtractor(BaseExtractor):
             f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
             f"databaseName={db}&schemaName={schema}&tableName={table}"
         )
+
+    @staticmethod
+    def _parse_accessed_objects(raw_objects: str) -> List[QueriedDataset]:
+        objects = parse_raw_as(List[AccessedObject], raw_objects)
+        queried_datasets: List[QueriedDataset] = []
+        for obj in objects:
+            if not obj.objectDomain or obj.objectDomain.upper() not in (
+                "TABLE",
+                "VIEW",
+                "MATERIALIZED VIEW",
+            ):
+                continue
+
+            table_name = obj.objectName.lower()
+            parts = table_name.split(".")
+            if len(parts) != 3:
+                logger.debug(f"Invalid table name {table_name}, skip")
+                continue
+
+            db, schema, table = parts
+
+            queried_datasets.append(
+                QueriedDataset(
+                    database=db,
+                    schema=schema,
+                    table=table,
+                    columns=[col.columnName for col in obj.columns] or None,
+                )
+            )
+
+        return queried_datasets
