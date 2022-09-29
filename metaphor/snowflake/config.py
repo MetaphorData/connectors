@@ -21,7 +21,7 @@ class SnowflakeQueryLogConfig:
     excluded_usernames: Set[str] = field(default_factory=lambda: set())
 
     # The number of query logs to fetch from Snowflake in one batch
-    query_log_fetch_size: int = DEFAULT_QUERY_LOG_FETCH_SIZE
+    fetch_size: int = DEFAULT_QUERY_LOG_FETCH_SIZE
 
 
 @dataclass

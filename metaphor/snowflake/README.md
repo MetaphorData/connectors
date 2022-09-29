@@ -107,7 +107,7 @@ query_log:
     - <user_name2>
   
   # (Optional) The number of query logs to fetch from Snowflake in one batch. Default to 100000.
-  query_log_fetch_size: <number_of_logs>
+  fetch_size: <number_of_logs>
 ```
 
 #### Concurrency

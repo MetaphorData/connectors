@@ -73,9 +73,9 @@ class SnowflakeExtractor(BaseExtractor):
         super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
         self._account = config.account
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
-        self._excluded_usernames = config.query_log.excluded_usernames
-        self._lookback_days = config.query_log.lookback_days
-        self._query_log_fetch_size = config.query_log.query_log_fetch_size
+        self._query_log_excluded_usernames = config.query_log.excluded_usernames
+        self._query_log_lookback_days = config.query_log.lookback_days
+        self._query_log_fetch_size = config.query_log.fetch_size
         self._max_concurrency = config.max_concurrency
 
         self._conn = auth.connect(config)
@@ -114,7 +114,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             self._fetch_tags(cursor)
 
-            if self._lookback_days > 0:
+            if self._query_log_lookback_days > 0:
                 self._fetch_query_logs()
 
         entities: List[ENTITY_TYPES] = []
@@ -356,11 +356,11 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_query_logs(self) -> None:
         logger.info("Fetching Snowflake query logs")
 
-        start_date = start_of_day(self._lookback_days)
+        start_date = start_of_day(self._query_log_lookback_days)
         end_date = start_of_day()
 
         count = fetch_query_history_count(
-            self._conn, start_date, self._excluded_usernames, end_date
+            self._conn, start_date, self._query_log_excluded_usernames, end_date
         )
         batches = math.ceil(count / self._query_log_fetch_size)
         logger.info(f"Total {count} queries, dividing into {batches} batches")
@@ -376,7 +376,7 @@ class SnowflakeExtractor(BaseExtractor):
                 WHERE EXECUTION_STATUS = 'SUCCESS'
                   AND START_TIME > %s AND START_TIME <= %s
                   AND QUERY_START_TIME > %s AND QUERY_START_TIME <= %s
-                  {exclude_username_clause(self._excluded_usernames)}
+                  {exclude_username_clause(self._query_log_excluded_usernames)}
                 ORDER BY q.QUERY_ID
                 LIMIT {self._query_log_fetch_size} OFFSET %s
                 """,
@@ -385,7 +385,7 @@ class SnowflakeExtractor(BaseExtractor):
                     end_date,
                     start_date,
                     end_date,
-                    *self._excluded_usernames,
+                    *self._query_log_excluded_usernames,
                     x * self._query_log_fetch_size,
                 ),
             )
