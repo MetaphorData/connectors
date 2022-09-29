@@ -35,7 +35,7 @@ def test_yaml_config(test_root_dir):
         query_log=SnowflakeQueryLogConfig(
             lookback_days=7,
             excluded_usernames={"ex1", "ex2"},
-            query_log_fetch_size=100000,
+            fetch_size=100000,
         ),
         output=OutputConfig(),
     )
