@@ -4,7 +4,11 @@ from datetime import datetime
 from hashlib import sha256
 from typing import Dict, List, Set
 
-from metaphor.models.metadata_change_event import QueryInfo
+from metaphor.common.utils import chunks
+from metaphor.models.metadata_change_event import QueryInfo, QueryLog, QueryLogs
+
+# max number of query logs to output in one MCE
+DEFAULT_QUERY_LOG_OUTPUT_SIZE = 100
 
 
 @dataclass(order=True)
@@ -47,3 +51,13 @@ class TableQueryHistoryHeap:
         """Yield each table with sorted recent queries"""
         for table_name, query_heap in self._table_queries.items():
             yield table_name, [q.item for q in sorted(query_heap)]
+
+
+def chunk_query_logs(query_logs: List[QueryLog]) -> List[QueryLogs]:
+    """
+    divide query logs into batches to put in MCE
+    """
+    return [
+        QueryLogs(logs=chunk)
+        for chunk in chunks(query_logs, DEFAULT_QUERY_LOG_OUTPUT_SIZE)
+    ]

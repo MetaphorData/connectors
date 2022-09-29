@@ -101,6 +101,27 @@ The max number of concurrent requests to the google cloud API can be configured 
 max_concurrency: <max_number_of_queries> # Default to 5
 ```
 
+#### Query Logs
+
+By default, the BigQuery connector will fetch a full day's query logs (AuditMetadata) from yesterday, to be analyzed for additional metadata, such as dataset usage and lineage information. To backfill log data, one can set `lookback_days` to the desired value. To turn off query log fetching, set `lookback_days` to 0.  
+
+```yaml
+query_log:
+  # (Optional) Number of days of query logs to fetch. Default to 1. If 0, the no query logs will be fetched.
+  lookback_days: <days>
+  
+  # (Optional) A list of users whose queries will be excluded from the log fetching.
+  excluded_usernames:
+    - <user_name1>
+    - <user_name2>
+
+  # (Optional) Exclude queries issued by service accounts. Default to true.
+  exclude_service_accounts: <boolean>
+
+  # (Optional) The number of query logs to fetch from BigQuery in one batch. Default to 1000.
+  fetch_size: <number_of_logs>
+```
+
 ### Notes
 
 Make sure to use BigQuery project ID when setting the `database` field in the filter configuration. For example:

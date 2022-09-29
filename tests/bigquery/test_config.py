@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from metaphor.bigquery.config import BigQueryCredentials
+from metaphor.bigquery.config import BigQueryCredentials, BigQueryQueryLogConfig
 from metaphor.bigquery.extractor import BigQueryRunConfig
 from metaphor.common.base_config import OutputConfig
 
@@ -13,6 +13,9 @@ def test_yaml_config_with_key_path(test_root_dir):
         key_path="key_path",
         project_id="project_id",
         job_project_id="job_project_id",
+        query_log=BigQueryQueryLogConfig(
+            lookback_days=7, excluded_usernames={"ex1", "ex2"}
+        ),
         output=OutputConfig(),
     )
 
