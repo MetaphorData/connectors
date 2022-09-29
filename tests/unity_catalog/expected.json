@@ -1,0 +1,32 @@
+[
+  {
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "Unity Catalog built-in",
+          "value": "{\"storage_location\": \"s3://path\", \"data_source_format\": \"csv\", \"table_type\": \"TYPE\"}"
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "catalog.schema.table",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int",
+          "nullable": true,
+          "precision": 32.0
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
+      }
+    }
+  }
+]
