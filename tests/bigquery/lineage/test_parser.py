@@ -29,6 +29,9 @@ def test_parse_log(test_root_dir):
             destination_table=BigQueryResource(
                 project_id="metaphor-data", dataset_id="test", table_id="yi_tests2"
             ),
+            input_bytes=None,
+            output_bytes=None,
+            output_rows=None,
         ),
         JobChangeEvent(
             job_name="projects/metaphor-data/jobs/7526798f-8072-446d-bdf1-ac1acb4d8591",
@@ -55,5 +58,8 @@ def test_parse_log(test_root_dir):
             destination_table=BigQueryResource(
                 project_id="metaphor-data", dataset_id="test", table_id="yi_tests"
             ),
+            input_bytes=52781,
+            output_bytes=None,
+            output_rows=1,
         ),
     ]

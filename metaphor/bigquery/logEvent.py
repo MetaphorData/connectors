@@ -31,6 +31,10 @@ class JobChangeEvent:
     source_tables: List[BigQueryResource]
     destination_table: Optional[BigQueryResource]
 
+    input_bytes: Optional[int]
+    output_bytes: Optional[int]
+    output_rows: Optional[int]
+
     @classmethod
     def can_parse(cls, entry: LogEntry) -> bool:
         try:
@@ -57,6 +61,8 @@ class JobChangeEvent:
 
         query, query_statement_type = None, None
         destination_table = None
+
+        input_bytes, output_bytes, output_rows = None, None, None
 
         if job_type == "COPY":
             copy_job = job["jobConfig"]["tableCopyConfig"]
@@ -86,6 +92,12 @@ class JobChangeEvent:
                 BigQueryResource.from_str(source).remove_extras()
                 for source in referenced_tables + referenced_views
             ]
+
+            processed_bytes = query_stats.get("totalProcessedBytes", None)
+            input_bytes = int(processed_bytes) if processed_bytes else None
+
+            output_row_count = query_stats.get("outputRowCount", None)
+            output_rows = int(output_row_count) if output_row_count else None
         else:
             logger.error(f"unsupported job type {job_type}")
             return None
@@ -122,4 +134,7 @@ class JobChangeEvent:
             destination_table=destination_table,
             start_time=start_time,
             end_time=end_time,
+            input_bytes=input_bytes,
+            output_bytes=output_bytes,
+            output_rows=output_rows,
         )
