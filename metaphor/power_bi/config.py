@@ -20,5 +20,5 @@ class PowerBIRunConfig(BaseConfig):
     # (Optional) The ids of Power BI workspace
     workspaces: List[str] = field(default_factory=lambda: list())
 
-    # (Optional) The snowflake account
+    # (Optional) The default snowflake account
     snowflake_account: Optional[str] = None
