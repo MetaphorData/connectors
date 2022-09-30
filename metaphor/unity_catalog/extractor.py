@@ -15,6 +15,7 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
+    DatasetStructure,
     EntityType,
     MaterializationType,
     SchemaField,
@@ -85,9 +86,14 @@ class UnityCatalogExtractor(BaseExtractor):
         full_name = f"{database}.{schema_name}.{table_name}".lower()
 
         dataset = Dataset()
+        dataset.structure = DatasetStructure()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
             name=full_name, platform=DataPlatform.UNITY_CATALOG
+        )
+
+        dataset.structure = DatasetStructure(
+            database=database, schema=schema_name, table=table_name
         )
 
         dataset.schema = DatasetSchema(

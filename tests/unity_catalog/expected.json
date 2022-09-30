@@ -27,6 +27,11 @@
       "sqlSchema": {
         "materialization": "TABLE"
       }
+    },
+    "structure": {
+      "database": "catalog",
+      "schema": "schema",
+      "table": "table"
     }
   }
 ]
