@@ -52,6 +52,12 @@ workspaces:
   - <workspace_id>  # The workspace id
 ```
 
+We parse the snowflake account directly from the DAX expression, we recommend specifying the default snowflake account explicitly because the parser might not cover some corner cases.
+
+```yaml
+snowflake_account: <snowflake_account>
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `power_bi` extra.
