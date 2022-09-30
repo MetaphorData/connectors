@@ -118,7 +118,7 @@ query_log:
   # (Optional) Exclude queries issued by service accounts. Default to false.
   exclude_service_accounts: <boolean>
 
-  # (Optional) The number of query logs to fetch from BigQuery in one batch. Default to 1000.
+  # (Optional) The number of query logs to fetch from BigQuery in one batch. Max 1000, default to 1000.
   fetch_size: <number_of_logs>
 ```
 

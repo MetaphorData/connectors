@@ -9,6 +9,8 @@ from metaphor.common.base_config import BaseConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.utils import must_set_exactly_one
 
+# logs "list_entries" page size, max 1000.
+# See https://cloud.google.com/logging/docs/reference/v2/rest/v2/entries/list
 DEFAULT_QUERY_LOG_FETCH_SIZE = 1000
 
 
