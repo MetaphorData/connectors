@@ -1,5 +1,19 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Collection, Dict, Iterable, List, Mapping, Sequence, Union
+from typing import (
+    Any,
+    Collection,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Union,
+)
+
+from metaphor.bigquery.logEvent import JobChangeEvent
+from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.utils import start_of_day
 
 try:
     import google.cloud.bigquery as bigquery
@@ -8,7 +22,7 @@ except ImportError:
     raise
 
 from metaphor.bigquery.config import BigQueryRunConfig
-from metaphor.bigquery.utils import build_client
+from metaphor.bigquery.utils import LogEntry, build_client, build_logging_client
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import FieldDataType, build_field_path
@@ -22,6 +36,8 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     DatasetStatistics,
     MaterializationType,
+    QueriedDataset,
+    QueryLog,
     SchemaField,
     SchemaType,
     SQLSchema,
@@ -42,10 +58,17 @@ class BigQueryExtractor(BaseExtractor):
     def __init__(self, config: BigQueryRunConfig) -> None:
         super().__init__(config, "BigQuery metadata crawler", Platform.BIGQUERY)
         self._client = build_client(config)
+        self._logging_client = build_logging_client(config)
         self._project_id = config.project_id
         self._job_project_id = config.job_project_id
         self._dataset_filter = config.filter.normalize()
         self._max_concurrency = config.max_concurrency
+        self._query_log_lookback_days = config.query_log.lookback_days
+        self._query_log_excluded_usernames = config.query_log.excluded_usernames
+        self._query_log_exclude_service_accounts = (
+            config.query_log.exclude_service_accounts
+        )
+        self._query_log_fetch_size = config.query_log.fetch_size
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from BigQuery project {self._project_id}")
@@ -89,7 +112,12 @@ class BigQueryExtractor(BaseExtractor):
 
             fetched_tables.extend(tables.values())
 
-        return fetched_tables
+        logger.info("Fetching BigQueryAuditMetadata")
+        query_logs = self._fetch_query_logs()
+
+        entities: List[ENTITY_TYPES] = fetched_tables
+        entities.extend(chunk_query_logs(query_logs))
+        return entities
 
     @staticmethod
     def _list_datasets_with_filter(
@@ -223,3 +251,95 @@ class BigQueryExtractor(BaseExtractor):
             record_count=float(bq_table.num_rows),
             last_updated=bq_table.modified,
         )
+
+    def _fetch_query_logs(self) -> List[QueryLog]:
+        logs: List[Optional[QueryLog]] = []
+        log_filter = self._build_job_change_filter()
+
+        for entry in self._logging_client.list_entries(
+            page_size=self._query_log_fetch_size, filter_=log_filter
+        ):
+            if JobChangeEvent.can_parse(entry):
+                logs.append(self._parse_job_change_entry(entry))
+
+            if len(logs) % 1000 == 0:
+                logger.info(f"Fetched {len(logs)} audit logs")
+
+        logger.info(f"Number of audit log entries fetched: {len(logs)}")
+
+        return [log for log in logs if log is not None]
+
+    def _parse_job_change_entry(self, entry: LogEntry) -> Optional[QueryLog]:
+        job_change = JobChangeEvent.from_entry(entry)
+        if job_change is None or job_change.query is None:
+            return None
+
+        if job_change.user_email in self._query_log_excluded_usernames:
+            logger.debug(f"Skipped query issued by {job_change.user_email}")
+            return None
+
+        sources: List[QueriedDataset] = [
+            QueriedDataset(database=d.project_id, schema=d.dataset_id, table=d.table_id)
+            for d in job_change.source_tables
+        ]
+        target = job_change.destination_table
+        target_datasets = (
+            [
+                QueriedDataset(
+                    database=target.project_id,
+                    schema=target.dataset_id,
+                    table=target.table_id,
+                )
+            ]
+            if target
+            else None
+        )
+
+        elapsed_time = (
+            (job_change.end_time - job_change.start_time).total_seconds()
+            if job_change.start_time and job_change.end_time
+            else None
+        )
+
+        return QueryLog(
+            id=f"{str(DataPlatform.BIGQUERY)}:{job_change.job_name}",
+            platform=DataPlatform.BIGQUERY,
+            start_time=job_change.start_time,
+            duration=float(elapsed_time),
+            email=job_change.user_email,
+            rows_written=float(job_change.output_rows)
+            if job_change.output_rows
+            else None,
+            bytes_read=float(job_change.input_bytes)
+            if job_change.input_bytes
+            else None,
+            bytes_written=float(job_change.output_bytes)
+            if job_change.output_bytes
+            else None,
+            sources=sources,
+            targets=target_datasets,
+            sql=job_change.query,
+        )
+
+    def _build_job_change_filter(self) -> str:
+        start_time = start_of_day(self._query_log_lookback_days).isoformat()
+        end_time = start_of_day().isoformat()
+
+        # Filter for service account
+        service_account_filter = (
+            "NOT protoPayload.authenticationInfo.principalEmail:gserviceaccount.com AND"
+            if self._query_log_exclude_service_accounts
+            else ""
+        )
+
+        # See https://cloud.google.com/logging/docs/view/logging-query-language for query syntax
+        return f"""
+        resource.type="bigquery_project" AND
+        protoPayload.serviceName="bigquery.googleapis.com" AND
+        protoPayload.metadata.jobChange.after="DONE" AND
+        NOT protoPayload.metadata.jobChange.job.jobStatus.errorResult.code:* AND
+        protoPayload.metadata.jobChange.job.jobConfig.type=("COPY" OR "QUERY") AND
+        {service_account_filter}
+        timestamp>="{start_time}" AND
+        timestamp<"{end_time}"
+        """
