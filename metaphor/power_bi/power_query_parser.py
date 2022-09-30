@@ -16,7 +16,7 @@ class PowerQueryParser:
     """
 
     @staticmethod
-    def parse_power_query(power_query) -> EntityId:
+    def parse_power_query(power_query: str) -> EntityId:
         lines = power_query.split("\n")
         platform_pattern = re.compile(r"Source = (\w+).")
         match = platform_pattern.search(lines[1])
@@ -119,7 +119,7 @@ class PowerQueryParser:
 
     @staticmethod
     def parse_platform(
-        exp: str,
+        exp: str, snowflake_account: str
     ) -> Tuple[Optional[DataPlatform], Optional[str], Optional[str]]:
         """
         Parse platform information from native query expression.
@@ -137,7 +137,9 @@ class PowerQueryParser:
                 lower_exp, "snowflake.databases"
             )[0]
             platform = DataPlatform.SNOWFLAKE
-            account = ".".join(url.split(".")[:-2]).replace('"', "")
+            account = (
+                ".".join(url.split(".")[:-2]).replace('"', "") or snowflake_account
+            )
         elif "bigquery" in lower_exp:
             platform = DataPlatform.BIGQUERY
         elif "redshift" in lower_exp:
@@ -176,13 +178,15 @@ class PowerQueryParser:
         return tables
 
     @staticmethod
-    def parse_native_query(power_query: str) -> List[EntityId]:
+    def parse_native_query(power_query: str, snowflake_account: str) -> List[EntityId]:
         parameters = PowerQueryParser.extract_function_parameter(
             power_query, "NativeQuery"
         )
         assert len(parameters) >= 2, "expecting at least two parameter for NativeQuery"
 
-        platform, account, default_db = PowerQueryParser.parse_platform(parameters[0])
+        platform, account, default_db = PowerQueryParser.parse_platform(
+            parameters[0], snowflake_account
+        )
         tables = PowerQueryParser.parse_tables(parameters[1], default_db)
 
         return [
@@ -191,7 +195,9 @@ class PowerQueryParser:
         ]
 
     @staticmethod
-    def parse_source_datasets(power_query: str) -> List[EntityId]:
+    def parse_source_datasets(
+        power_query: str, snowflake_account: str = ""
+    ) -> List[EntityId]:
         def replacer(match: re.Match) -> str:
             controls = {
                 "lf": "\n",
@@ -205,7 +211,7 @@ class PowerQueryParser:
         power_query = re.sub(r"#\((cr|lf|tab)(,(cr|lf|tab))*\)", replacer, power_query)
 
         if "Value.NativeQuery(" in power_query:
-            return PowerQueryParser.parse_native_query(power_query)
+            return PowerQueryParser.parse_native_query(power_query, snowflake_account)
 
         try:
             return [PowerQueryParser.parse_power_query(power_query)]

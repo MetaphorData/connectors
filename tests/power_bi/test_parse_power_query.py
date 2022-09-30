@@ -68,16 +68,16 @@ def test_parse_native_query_parameters():
     ]
 
 
-def test_a():
+def test_native_query_with_provided_account():
     exp = 'let\n    Source = Value.NativeQuery(Snowflake.Databases(Server,Warehouse){[Name=Database]}[Data], "/*#(lf)comments:#(lf)blah...#blah...#(lf)--SQL comments#(lf)    --COMMENT#(lf)#(lf)text#(lf)FOO#(lf)BAR#(lf)BAZ#(lf)*/#(lf)#(lf)SELECT #(lf)T.COL1 AS ""COL1"",#(lf)T.COL2 AS ""COL2"",#(lf)TT.COL2 AS ""COL3"",#(lf)--TT.COL4 AS ""COL4""#(lf)FROM  db.schema.TABLE AS ""T""#(lf)JOIN db.schema.TABLE2 AS ""TT"" ON T.A = TT.A", null, [EnableFolding=true]),\n    #"Changed Type" = Table.TransformColumnTypes(Source,{{"COL1", Int64.Type}, {"COL2", Int64.Type}, {"COL3", Int64.Type}})\nin\n    #"Changed Type"'
-    assert PowerQueryParser.parse_source_datasets(exp) == [
+    assert PowerQueryParser.parse_source_datasets(exp, "account") == [
         to_dataset_entity_id(
             "db.schema.table",
             platform=DataPlatform.SNOWFLAKE,
-            account="",
+            account="account",
         ),
         to_dataset_entity_id(
-            "db.schema.table2", platform=DataPlatform.SNOWFLAKE, account=""
+            "db.schema.table2", platform=DataPlatform.SNOWFLAKE, account="account"
         ),
     ]
 

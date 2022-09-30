@@ -62,6 +62,7 @@ class PowerBIExtractor(BaseExtractor):
         self._client = PowerBIClient(config)
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
+        self._snowflake_account = config.snowflake_account
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Power BI tenant ID: {self._tenant_id}")
@@ -128,7 +129,9 @@ class PowerBIExtractor(BaseExtractor):
             for expression in expressions:
                 try:
                     source_datasets.extend(
-                        PowerQueryParser.parse_source_datasets(expression)
+                        PowerQueryParser.parse_source_datasets(
+                            expression, self._snowflake_account
+                        )
                     )
                 except Exception as e:
                     logger.error(
