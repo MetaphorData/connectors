@@ -46,7 +46,7 @@ class BigQueryQueryLogConfig:
     excluded_usernames: Set[str] = field(default_factory=lambda: set())
 
     # Exclude queries issued by service accounts
-    exclude_service_accounts: bool = True
+    exclude_service_accounts: bool = False
 
     # The number of query logs to fetch from BigQuery in one batch
     fetch_size: int = DEFAULT_QUERY_LOG_FETCH_SIZE
