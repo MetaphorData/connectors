@@ -192,9 +192,17 @@ class PowerQueryParser:
 
     @staticmethod
     def parse_source_datasets(power_query: str) -> List[EntityId]:
+        def replacer(match: re.Match) -> str:
+            controls = {
+                "lf": "\n",
+                "cr": "\r",
+                "tab": "\t",
+            }
+            return "".join(list(map(lambda m: controls.get(m, ""), match.groups())))
+
         # Replace the the control character escape sequence for power query
         # Doc: https://docs.microsoft.com/en-us/powerquery-m/m-spec-lexical-structure#character-escape-sequences
-        power_query = re.sub(r"#\((cr|lf|tab)(,(cr|lf|tab))*\)", " ", power_query)
+        power_query = re.sub(r"#\((cr|lf|tab)(,(cr|lf|tab))*\)", replacer, power_query)
 
         if "Value.NativeQuery(" in power_query:
             return PowerQueryParser.parse_native_query(power_query)
