@@ -15,13 +15,16 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Metric,
     Person,
+    QueryLogs,
     VirtualView,
 )
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-ENTITY_TYPES = Union[Dashboard, Dataset, Metric, Person, KnowledgeCard, VirtualView]
+ENTITY_TYPES = Union[
+    Dashboard, Dataset, Metric, Person, KnowledgeCard, VirtualView, QueryLogs
+]
 
 
 class EventUtil:
@@ -51,12 +54,16 @@ class EventUtil:
             return self._build_event(dashboard=entity)
         elif type(entity) is Dataset:
             return self._build_event(dataset=entity)
+        elif type(entity) is Metric:
+            return self._build_event(metric=entity)
         elif type(entity) is Person:
             return self._build_event(person=entity)
         elif type(entity) is KnowledgeCard:
             return self._build_event(knowledge_card=entity)
         elif type(entity) is VirtualView:
             return self._build_event(virtual_view=entity)
+        elif type(entity) is QueryLogs:
+            return self._build_event(query_logs=entity)
         else:
             raise TypeError(f"invalid entity type {type(entity)}")
 

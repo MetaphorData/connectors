@@ -14,4 +14,9 @@ filter:
         - table2
   excludes:
     db3:
+query_log:
+  lookback_days: 7
+  excluded_usernames:
+    - ex1
+    - ex2
 output: {}

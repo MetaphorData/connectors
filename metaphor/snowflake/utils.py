@@ -4,7 +4,7 @@ from concurrent import futures
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Set, Tuple
 
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
@@ -92,30 +92,40 @@ def async_execute(
         return results_map
 
 
-def fetch_query_history_count(
-    conn: SnowflakeConnection,
-    start_date: datetime,
-    excluded_usernames: List[str],
-) -> int:
-    """
-    Fetch query history count
-    """
-    excluded_usernames_clause = (
+def exclude_username_clause(excluded_usernames: Set[str]) -> str:
+    return (
         f"and USER_NAME NOT IN ({','.join(['%s'] * len(excluded_usernames))})"
         if len(excluded_usernames) > 0
         else ""
     )
 
+
+def fetch_query_history_count(
+    conn: SnowflakeConnection,
+    start_date: datetime,
+    excluded_usernames: Set[str],
+    end_date: datetime = datetime.now(),
+) -> int:
+    """
+    Fetch query history count
+    """
     cursor = conn.cursor()
     cursor.execute(
         f"""
         SELECT COUNT(1)
-        FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
-        WHERE EXECUTION_STATUS = 'SUCCESS' and START_TIME > %s
-          {excluded_usernames_clause}
+        FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
+        JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+          ON a.QUERY_ID = q.QUERY_ID
+        WHERE EXECUTION_STATUS = 'SUCCESS'
+          and START_TIME > %s and START_TIME <= %s
+          and QUERY_START_TIME > %s AND QUERY_START_TIME <= %s
+          {exclude_username_clause(excluded_usernames)}
         """,
         (
             start_date,
+            end_date,
+            start_date,
+            end_date,
             *excluded_usernames,
         ),
     )
