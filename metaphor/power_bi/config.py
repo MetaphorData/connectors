@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import List
+from typing import List, Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -19,3 +19,6 @@ class PowerBIRunConfig(BaseConfig):
 
     # (Optional) The ids of Power BI workspace
     workspaces: List[str] = field(default_factory=lambda: list())
+
+    # (Optional) The default snowflake account
+    snowflake_account: Optional[str] = None
