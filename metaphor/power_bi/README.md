@@ -52,7 +52,7 @@ workspaces:
   - <workspace_id>  # The workspace id
 ```
 
-We parse the snowflake account directly from the DAX expression, we recommend specifying the default snowflake account explicitly because the parser might not cover some corner cases.
+When extracting lineages, the connector parses the snowflake account directly from the [DAX expression](https://learn.microsoft.com/en-us/dax/). In the rare cases when it's unable to do so, the parser will fall back to the default snowflake account specified in the config file as follows.
 
 ```yaml
 snowflake_account: <snowflake_account>
