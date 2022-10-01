@@ -4,7 +4,7 @@ This connector extracts technical metadata from Unity Catalog using the [databri
 
 ## Setup
 
-Create an access token in the Databrick workspace -> User setting -> Access tokens.
+Create an access token in the Databrick workspace > `User setting` > `Access tokens`.
 
 ## Config File
 
