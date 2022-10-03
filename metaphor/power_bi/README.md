@@ -52,6 +52,12 @@ workspaces:
   - <workspace_id>  # The workspace id
 ```
 
+When extracting lineages, the connector parses the snowflake account directly from the [DAX expression](https://learn.microsoft.com/en-us/dax/). In the rare cases when it's unable to do so, the parser will fall back to the default snowflake account specified in the config file as follows.
+
+```yaml
+snowflake_account: <snowflake_account>
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `power_bi` extra.

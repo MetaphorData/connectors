@@ -31,6 +31,9 @@ def test_parse_log(test_root_dir):
                 dataset_id="3198487640cceeb8e7d28d7c0f23e9f51ed519b1",
                 table_id="anon66e97db94a52893f2f3ee8e5c3d420963d37c90c",
             ),
+            input_bytes=216,
+            output_bytes=None,
+            output_rows=4,
         ),
         JobChangeEvent(
             job_name="projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
@@ -55,5 +58,8 @@ def test_parse_log(test_root_dir):
                 dataset_id="7920ed6988b5b158b0bcde435ea325d866993be9",
                 table_id="anon8d8bdc7387b1ebe499e35632b1dd94a6232badf3",
             ),
+            input_bytes=72,
+            output_bytes=None,
+            output_rows=10,
         ),
     ]

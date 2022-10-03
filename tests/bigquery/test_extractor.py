@@ -5,9 +5,11 @@ import pytest
 from freezegun import freeze_time
 from google.cloud.bigquery.schema import SchemaField
 
+from metaphor.bigquery.config import BigQueryQueryLogConfig
 from metaphor.bigquery.extractor import BigQueryExtractor, BigQueryRunConfig
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from tests.bigquery.load_entries import load_entries
 from tests.test_utils import load_json
 
 
@@ -77,15 +79,29 @@ def mock_get_table(mock_build_client, tables):
     mock_build_client.return_value.get_table.side_effect = side_effect
 
 
+def mock_list_entries(mock_build_log_client, entries):
+    def side_effect(page_size, filter_):
+        return entries
+
+    mock_build_log_client.return_value.list_entries.side_effect = side_effect
+
+
 @pytest.mark.asyncio
 @freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     config = BigQueryRunConfig(
-        output=OutputConfig(), key_path="fake_file", project_id="fake_project"
+        output=OutputConfig(),
+        key_path="fake_file",
+        project_id="fake_project",
+        query_log=BigQueryQueryLogConfig(),
     )
 
+    entries = load_entries(test_root_dir + "/bigquery/sample_log.json")
+
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch("metaphor.bigquery.extractor.build_client") as mock_build_client:
+    with patch("metaphor.bigquery.extractor.build_client") as mock_build_client, patch(
+        "metaphor.bigquery.extractor.build_logging_client"
+    ) as mock_build_logging_client:
         extractor = BigQueryExtractor(config)
 
         mock_build_client.return_value.project = "project1"
@@ -168,6 +184,8 @@ async def test_extractor(test_root_dir):
                 ),
             },
         )
+
+        mock_list_entries(mock_build_logging_client, entries)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 

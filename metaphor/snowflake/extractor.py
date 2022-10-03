@@ -5,7 +5,8 @@ from typing import Collection, Dict, List, Mapping, Optional, Tuple
 from pydantic import parse_raw_as
 
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
-from metaphor.common.utils import chunks, start_of_day
+from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.utils import start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 
 try:
@@ -31,7 +32,6 @@ from metaphor.models.metadata_change_event import (
     MaterializationType,
     QueriedDataset,
     QueryLog,
-    QueryLogs,
     SchemaField,
     SchemaType,
     SourceInfo,
@@ -57,9 +57,6 @@ DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
         "*": {"INFORMATION_SCHEMA": None},
     }
 )
-
-# max number of query logs to output in one MCE
-DEFAULT_QUERY_LOG_OUTPUT_SIZE = 100
 
 
 class SnowflakeExtractor(BaseExtractor):
@@ -119,12 +116,7 @@ class SnowflakeExtractor(BaseExtractor):
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
-        entities.extend(
-            [
-                QueryLogs(logs=chunk)
-                for chunk in chunks(self._logs, DEFAULT_QUERY_LOG_OUTPUT_SIZE)
-            ]
-        )
+        entities.extend(chunk_query_logs(self._logs))
         return entities
 
     @staticmethod
