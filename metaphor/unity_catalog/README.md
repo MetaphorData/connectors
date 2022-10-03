@@ -10,9 +10,7 @@ Create an access token in the Databrick workspace > `User setting` > `Access tok
 
 Create a YAML config file based on the following template.
 
-### Required Configurations
-
-You must provide the workspace URL and access token you created to access Unity Catalog API.
+### Configurations
 
 ```yaml
 host: <workspace_url>
