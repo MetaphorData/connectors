@@ -1,0 +1,50 @@
+[
+  {
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "storage_location",
+          "value": "\"s3://path\""
+        },
+        {
+          "key": "data_source_format",
+          "value": "\"csv\""
+        },
+        {
+          "key": "table_type",
+          "value": "\"TYPE\""
+        },
+        {
+          "key": "Properties",
+          "value": "{\"delta.lastCommitTimestamp\": \"1664444422000\"}"
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "catalog.schema.table",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "description": "example",
+      "fields": [
+        {
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int",
+          "nullable": true,
+          "precision": 32.0
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
+      }
+    },
+    "structure": {
+      "database": "catalog",
+      "schema": "schema",
+      "table": "table"
+    }
+  }
+]
