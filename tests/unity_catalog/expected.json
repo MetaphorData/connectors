@@ -3,8 +3,16 @@
     "customMetadata": {
       "metadata": [
         {
-          "key": "Unity Catalog built-in",
-          "value": "{\"storage_location\": \"s3://path\", \"data_source_format\": \"csv\", \"table_type\": \"TYPE\"}"
+          "key": "Storage location",
+          "value": "{\"storage_location\": \"s3://path\"}"
+        },
+        {
+          "key": "Data source format",
+          "value": "{\"data_source_format\": \"csv\"}"
+        },
+        {
+          "key": "Table type",
+          "value": "{\"table_type\": \"TYPE\"}"
         }
       ]
     },

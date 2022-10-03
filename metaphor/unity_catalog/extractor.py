@@ -39,9 +39,7 @@ class UnityCatalogExtractor(BaseExtractor):
         super().__init__(
             config, "Unity Catalog metadata crawler", Platform.THOUGHT_SPOT
         )
-        self.host = config.host
-        self.token = config.token
-        self._api = UnityCatalogExtractor.create_api(self.host, self.token)
+        self._api = UnityCatalogExtractor.create_api(config.host, config.token)
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -116,15 +114,29 @@ class UnityCatalogExtractor(BaseExtractor):
         dataset.custom_metadata = CustomMetadata(
             metadata=[
                 CustomMetadataItem(
-                    key="Unity Catalog built-in",
+                    key="Storage location",
                     value=json.dumps(
                         {
                             "storage_location": table.storage_location,
+                        }
+                    ),
+                ),
+                CustomMetadataItem(
+                    key="Data source format",
+                    value=json.dumps(
+                        {
                             "data_source_format": table.data_source_format,
+                        }
+                    ),
+                ),
+                CustomMetadataItem(
+                    key="Table type",
+                    value=json.dumps(
+                        {
                             "table_type": table.table_type,
                         }
                     ),
-                )
+                ),
             ]
         )
 
