@@ -114,28 +114,16 @@ class UnityCatalogExtractor(BaseExtractor):
         dataset.custom_metadata = CustomMetadata(
             metadata=[
                 CustomMetadataItem(
-                    key="Storage location",
-                    value=json.dumps(
-                        {
-                            "storage_location": table.storage_location,
-                        }
-                    ),
+                    key="storage_location",
+                    value=json.dumps(table.storage_location),
                 ),
                 CustomMetadataItem(
-                    key="Data source format",
-                    value=json.dumps(
-                        {
-                            "data_source_format": table.data_source_format,
-                        }
-                    ),
+                    key="data_source_format",
+                    value=json.dumps(table.data_source_format),
                 ),
                 CustomMetadataItem(
-                    key="Table type",
-                    value=json.dumps(
-                        {
-                            "table_type": table.table_type,
-                        }
-                    ),
+                    key="table_type",
+                    value=json.dumps(table.table_type),
                 ),
                 CustomMetadataItem(
                     key="Properties",

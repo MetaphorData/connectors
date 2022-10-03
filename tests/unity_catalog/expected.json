@@ -3,16 +3,16 @@
     "customMetadata": {
       "metadata": [
         {
-          "key": "Storage location",
-          "value": "{\"storage_location\": \"s3://path\"}"
+          "key": "storage_location",
+          "value": "\"s3://path\""
         },
         {
-          "key": "Data source format",
-          "value": "{\"data_source_format\": \"csv\"}"
+          "key": "data_source_format",
+          "value": "\"csv\""
         },
         {
-          "key": "Table type",
-          "value": "{\"table_type\": \"TYPE\"}"
+          "key": "table_type",
+          "value": "\"TYPE\""
         },
         {
           "key": "Properties",
