@@ -96,7 +96,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
-            description=None,
+            description=table.comment,
             fields=[
                 SchemaField(
                     subfields=None,
@@ -136,6 +136,10 @@ class UnityCatalogExtractor(BaseExtractor):
                             "table_type": table.table_type,
                         }
                     ),
+                ),
+                CustomMetadataItem(
+                    key="Properties",
+                    value=json.dumps(table.properties),
                 ),
             ]
         )

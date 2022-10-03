@@ -1,6 +1,6 @@
 # Unity Catalog Connector
 
-This connector extracts technical metadata from Unity Catalog using the [databricks-cli](https://github.com/databricks/databricks-cli).
+This connector extracts technical metadata from Unity Catalog using the [Unity Catalog API](https://api-docs.databricks.com/rest/latest/unity-catalog-api-specification-2-1.html).
 
 ## Setup
 

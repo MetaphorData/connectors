@@ -23,9 +23,11 @@ class Table(BaseModel):
     data_source_format: str
     columns: List[Column]
     storage_location: str
+    comment: str
     owner: str
     updated_at: int
     updated_by: str
+    properties: object
 
 
 def parse_table_from_object(obj: object):

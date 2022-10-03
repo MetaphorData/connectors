@@ -13,6 +13,10 @@
         {
           "key": "Table type",
           "value": "{\"table_type\": \"TYPE\"}"
+        },
+        {
+          "key": "Properties",
+          "value": "{\"delta.lastCommitTimestamp\": \"1664444422000\"}"
         }
       ]
     },
@@ -22,6 +26,7 @@
       "platform": "UNITY_CATALOG"
     },
     "schema": {
+      "description": "example",
       "fields": [
         {
           "fieldName": "col1",

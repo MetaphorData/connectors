@@ -46,8 +46,12 @@ async def test_extractor(test_root_dir):
                     ],
                     "storage_location": "s3://path",
                     "owner": "foo@bar.com",
+                    "comment": "example",
                     "updated_at": 0,
                     "updated_by": "foo@bar.com",
+                    "properties": {
+                        "delta.lastCommitTimestamp": "1664444422000",
+                    },
                 }
             ]
         }
@@ -63,5 +67,9 @@ async def test_extractor(test_root_dir):
 
         extractor = UnityCatalogExtractor(dummy_config())
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+
+        import json
+
+        print(json.dumps(events))
 
     assert events == load_json(f"{test_root_dir}/unity_catalog/expected.json")
