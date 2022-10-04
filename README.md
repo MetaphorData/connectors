@@ -68,6 +68,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [snowflake.query](metaphor/snowflake/query/README.md)        | Queries                                  |
 | [snowflake.usage](metaphor/snowflake/usage/README.md)        | Data usage                               |
 | [tableau](metaphor/tableau/README.md)                        | Dashboard, lineage                       |
+| [unity_catalog](metaphor/unity_catalog/README.md)            | Schema, description                      |
 
 ## Development
 
