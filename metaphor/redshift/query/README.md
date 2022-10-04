@@ -23,7 +23,7 @@ lookback_days: <days>
 # (Optional) Maximum number of recent queries to extract per table. Default to 100.
 max_queries_per_table: <number>
 
-# (Optional) A list of users whose queries will be excluded from the usage calculation 
+# (Optional) Exclude queries issued by specific users. 
 excluded_usernames:
   - <user_name1>
   - <user_name2>
