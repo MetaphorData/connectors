@@ -4,19 +4,29 @@ This connector extracts technical metadata from AWS Glue using the [boto3](https
 
 ## Setup
 
-Prepare an AWS credential with the following IAM permissions.
+We recommend creating a dedicated AWS IAM user for the crawler with limited permissions based on the following IAM policy:
 
-``` text
-effect = "Allow"
-actions = [
-  "glue:GetTable",
-  "glue:GetTables",
-  "glue:GetDatabase",
-  "glue:GetDataBases"
-]
-resources = [
-  "*" // or specific resources
-]
+``` json
+{
+    "Version": "2012-10-17",
+    "Statement":
+    [
+        {
+            "Effect": "Allow",
+            "Actions":
+            [
+                "glue:GetTable",
+                "glue:GetTables",
+                "glue:GetDatabase",
+                "glue:GetDataBases"
+            ],
+            "resources":
+            [
+                "*"
+            ]
+        }
+    ]
+}
 ```
 
 ## Config File
@@ -25,7 +35,7 @@ Create a YAML config file based on the following template.
 
 ### Required Configurations
 
-You must specify an AWS user credential to access Glue API. You can also specify a role ARN with proper policy and let the connector assume the role before accessing AWS APIs.
+You must specify an AWS user credential to access Glue API. You can also specify a role ARN and let the connector assume the role before accessing AWS APIs.
 
 ```yaml
 aws:
