@@ -42,7 +42,7 @@ aws:
   access_key_id: <aws_access_key_id>
   secret_access_key: <aws_secret_access_key>
   region_name: <aws_region_name>
-  assume_role_arn: <aws_role_arn>  # Optional
+  assume_role_arn: <aws_role_arn>  # If using IAM role
 output:
   file:
     directory: <output_directory>
