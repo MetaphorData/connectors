@@ -1,5 +1,4 @@
 from concurrent.futures import ThreadPoolExecutor
-from hashlib import md5
 from typing import (
     Any,
     Collection,
@@ -14,7 +13,7 @@ from typing import (
 
 from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.utils import start_of_day
+from metaphor.common.utils import md5_digest, start_of_day
 
 try:
     import google.cloud.bigquery as bigquery
@@ -321,7 +320,7 @@ class BigQueryExtractor(BaseExtractor):
             sources=sources,
             targets=target_datasets,
             sql=job_change.query,
-            sql_hash=md5(job_change.query.encode("utf-8")).hexdigest(),  # nosec B324
+            sql_hash=md5_digest(job_change.query.encode("utf-8")),
         )
 
     def _build_job_change_filter(self) -> str:

@@ -1,13 +1,12 @@
 import math
 from datetime import datetime, timezone
-from hashlib import md5
 from typing import Collection, Dict, List, Mapping, Optional, Tuple
 
 from pydantic import parse_raw_as
 
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.utils import start_of_day
+from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 
 try:
@@ -425,7 +424,7 @@ class SnowflakeExtractor(BaseExtractor):
                     sources=sources,
                     targets=targets,
                     sql=query_text,
-                    sql_hash=md5(query_text.encode("utf-8")).hexdigest(),  # nosec B324
+                    sql_hash=md5_digest(query_text.encode("utf-8")),
                 )
 
                 self._logs.append(query_log)
