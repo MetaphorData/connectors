@@ -88,6 +88,7 @@
     "logs": [
       {
         "_id": "DataPlatform.BIGQUERY:projects/metaphor-data/jobs/bquxjob_70ddc06_17f574eca64",
+        "queryId": "projects/metaphor-data/jobs/bquxjob_70ddc06_17f574eca64",
         "bytesRead": 216.0,
         "duration": 0.26,
         "email": "mars@metaphor.io",
@@ -101,6 +102,7 @@
           }
         ],
         "sql": "select * from `metaphor-data.test.yi_tests2`",
+        "sqlHash": "3447da1c806a4a48356bbf81bbff6acb",
         "startTime": "2022-03-04T23:40:56.330000+00:00",
         "targets": [
           {
@@ -112,6 +114,7 @@
       },
       {
         "_id": "DataPlatform.BIGQUERY:projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
+        "queryId": "projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
         "bytesRead": 72.0,
         "duration": 0.376,
         "email": "scott@metaphor.io",
@@ -130,6 +133,7 @@
           }
         ],
         "sql": "select `id`,\r\n    `name`\r\nfrom `metaphor-data`.`test`.`yi_test_view1`\r\nLIMIT 200 OFFSET 0",
+        "sqlHash": "da2942a2e043ff5194ea532e611dda72",
         "startTime": "2022-03-07T10:29:01.241000+00:00",
         "targets": [
           {

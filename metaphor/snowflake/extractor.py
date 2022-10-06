@@ -6,7 +6,7 @@ from pydantic import parse_raw_as
 
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.utils import start_of_day
+from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 
 try:
@@ -413,6 +413,7 @@ class SnowflakeExtractor(BaseExtractor):
 
                 query_log = QueryLog(
                     id=f"{str(DataPlatform.SNOWFLAKE)}:{query_id}",
+                    query_id=query_id,
                     platform=DataPlatform.SNOWFLAKE,
                     start_time=start_time,
                     duration=float(elapsed_time / 1000.0),
@@ -423,6 +424,7 @@ class SnowflakeExtractor(BaseExtractor):
                     sources=sources,
                     targets=targets,
                     sql=query_text,
+                    sql_hash=md5_digest(query_text.encode("utf-8")),
                 )
 
                 self._logs.append(query_log)

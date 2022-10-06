@@ -1,4 +1,5 @@
 from datetime import datetime, time, timedelta, timezone
+from hashlib import md5
 from typing import Dict, List
 
 
@@ -24,3 +25,8 @@ def must_set_exactly_one(values: Dict, keys: List[str]):
     not_none = [k for k in keys if values.get(k) is not None]
     if len(not_none) != 1:
         raise ValueError(f"must set exactly one of {keys}, found {not_none}")
+
+
+def md5_digest(value: bytes) -> str:
+    """For computing non-crypto use of MD5 digest"""
+    return md5(value).hexdigest()  # nosec B303, B324

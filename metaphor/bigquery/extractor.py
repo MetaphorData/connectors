@@ -13,7 +13,7 @@ from typing import (
 
 from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.utils import start_of_day
+from metaphor.common.utils import md5_digest, start_of_day
 
 try:
     import google.cloud.bigquery as bigquery
@@ -303,6 +303,7 @@ class BigQueryExtractor(BaseExtractor):
 
         return QueryLog(
             id=f"{str(DataPlatform.BIGQUERY)}:{job_change.job_name}",
+            query_id=job_change.job_name,
             platform=DataPlatform.BIGQUERY,
             start_time=job_change.start_time,
             duration=float(elapsed_time),
@@ -319,6 +320,7 @@ class BigQueryExtractor(BaseExtractor):
             sources=sources,
             targets=target_datasets,
             sql=job_change.query,
+            sql_hash=md5_digest(job_change.query.encode("utf-8")),
         )
 
     def _build_job_change_filter(self) -> str:

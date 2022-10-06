@@ -1,10 +1,10 @@
-import hashlib
 from typing import Optional, Union
 
 from canonicaljson import encode_canonical_json
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.event_util import EventUtil
+from metaphor.common.utils import md5_digest
 from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DataPlatform,
@@ -32,7 +32,7 @@ class EntityId:
 
     def __str__(self) -> str:
         json = encode_canonical_json(EventUtil.clean_nones(self.logicalId.to_dict()))
-        return f"{self.type.name}~{hashlib.md5(json).hexdigest().upper()}"  # nosec B303: md5
+        return f"{self.type.name}~{md5_digest(json).upper()}"
 
     def __hash__(self):
         return hash(str(self))
