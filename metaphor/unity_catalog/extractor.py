@@ -5,6 +5,7 @@ from databricks_cli.unity_catalog.api import UnityCatalogApi
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -25,6 +26,14 @@ from metaphor.unity_catalog.models import Table, parse_table_from_object
 
 logger = get_logger(__name__)
 
+# Filter out "Snowflake" database & all "information_schema" schemas
+DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
+    excludes={
+        "system": None,
+        "*": {"INFORMATION_SCHEMA": None},
+    }
+)
+
 
 class UnityCatalogExtractor(BaseExtractor):
     """Unity Catalog metadata extractor"""
@@ -39,15 +48,29 @@ class UnityCatalogExtractor(BaseExtractor):
         )
         self._api = UnityCatalogExtractor.create_api(config.host, config.token)
         self._datasets: Dict[str, Dataset] = {}
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        catalogs = self._get_catalogs()
+        catalogs = (
+            self._get_catalogs()
+            if self._filter.includes is None
+            else list(self._filter.includes.keys())
+        )
         for catalog in catalogs:
             schemas = self._get_schemas(catalog)
             for schema in schemas:
-                if schema == "information_schema":
+                if not self._filter.include_schema(catalog, schema):
+                    logger.info(
+                        f"Ignore schema: {catalog}.{schema} due to filter config"
+                    )
                     continue
+
                 for table in self._get_tables(catalog, schema):
+                    if not self._filter.include_table(catalog, schema, table.name):
+                        logger.info(
+                            f"Ignore table: {catalog}.{schema}.{table.name} due to filter config"
+                        )
+                        continue
                     self._init_dataset(table)
         return self._datasets.values()
 

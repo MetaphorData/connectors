@@ -10,7 +10,7 @@ Create an access token in the Databrick workspace > `User setting` > `Access tok
 
 Create a YAML config file based on the following template.
 
-### Configurations
+### Required Configurations
 
 ```yaml
 host: <workspace_url>
@@ -21,6 +21,11 @@ output:
 ```
 
 See [Output Config](../common/docs/output.md) for more information on `output`.
+
+
+### Optional Configurations
+
+See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
 ## Testing
 
