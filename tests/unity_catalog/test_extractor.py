@@ -34,8 +34,8 @@ async def test_extractor(test_root_dir):
                     "name": "table",
                     "catalog_name": "catalog",
                     "schema_name": "schema",
-                    "table_type": "TYPE",
-                    "data_source_format": "csv",
+                    "table_type": "MANAGED",
+                    "data_source_format": "CSV",
                     "columns": [
                         {
                             "name": "col1",
@@ -52,7 +52,43 @@ async def test_extractor(test_root_dir):
                     "properties": {
                         "delta.lastCommitTimestamp": "1664444422000",
                     },
-                }
+                },
+                {
+                    "name": "view",
+                    "catalog_name": "catalog",
+                    "schema_name": "schema",
+                    "table_type": "VIEW",
+                    "columns": [
+                        {
+                            "name": "col1",
+                            "type_name": "int",
+                            "type_precision": 32,
+                            "nullable": True,
+                        }
+                    ],
+                    "view_definition": "SELECT ...",
+                    "owner": "foo@bar.com",
+                    "comment": "example",
+                    "updated_at": 0,
+                    "updated_by": "foo@bar.com",
+                    "properties": {
+                        "view.catalogAndNamespace.numParts": "2",
+                        "view.sqlConfig.spark.sql.hive.convertCTAS": "true",
+                        "view.query.out.col.0": "key",
+                        "view.sqlConfig.spark.sql.parquet.compression.codec": "snappy",
+                        "view.query.out.numCols": "3",
+                        "view.referredTempViewNames": "[]",
+                        "view.query.out.col.1": "values",
+                        "view.sqlConfig.spark.sql.streaming.stopTimeout": "15s",
+                        "view.catalogAndNamespace.part.0": "catalog",
+                        "view.sqlConfig.spark.sql.sources.commitProtocolClass": "com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol",
+                        "view.sqlConfig.spark.sql.sources.default": "delta",
+                        "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault": "false",
+                        "view.query.out.col.2": "nested_values",
+                        "view.referredTempFunctionsNames": "[]",
+                        "view.catalogAndNamespace.part.1": "default",
+                    },
+                },
             ]
         }
 

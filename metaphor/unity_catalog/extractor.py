@@ -1,4 +1,3 @@
-import json
 from typing import Collection, Dict, Generator, List
 
 from databricks_cli.sdk.api_client import ApiClient
@@ -6,11 +5,11 @@ from databricks_cli.unity_catalog.api import UnityCatalogApi
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     CustomMetadata,
-    CustomMetadataItem,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -23,9 +22,23 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
-from metaphor.unity_catalog.models import Table, parse_table_from_object
+from metaphor.unity_catalog.models import Table, TableType, parse_table_from_object
 
 logger = get_logger(__name__)
+
+# Filter out "system" database & all "information_schema" schemas
+DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
+    excludes={
+        "system": None,
+        "*": {"information_schema": None},
+    }
+)
+
+TABLE_TYPE_MAP = {
+    TableType.MANAGED: MaterializationType.TABLE,
+    TableType.EXTERNAL: MaterializationType.EXTERNAL,
+    TableType.VIEW: MaterializationType.VIEW,
+}
 
 
 class UnityCatalogExtractor(BaseExtractor):
@@ -41,15 +54,29 @@ class UnityCatalogExtractor(BaseExtractor):
         )
         self._api = UnityCatalogExtractor.create_api(config.host, config.token)
         self._datasets: Dict[str, Dataset] = {}
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        catalogs = self._get_catalogs()
+        catalogs = (
+            self._get_catalogs()
+            if self._filter.includes is None
+            else list(self._filter.includes.keys())
+        )
         for catalog in catalogs:
             schemas = self._get_schemas(catalog)
             for schema in schemas:
-                if schema == "information_schema":
+                if not self._filter.include_schema(catalog, schema):
+                    logger.info(
+                        f"Ignore schema: {catalog}.{schema} due to filter config"
+                    )
                     continue
+
                 for table in self._get_tables(catalog, schema):
+                    if not self._filter.include_table(catalog, schema, table.name):
+                        logger.info(
+                            f"Ignore table: {catalog}.{schema}.{table.name} due to filter config"
+                        )
+                        continue
                     self._init_dataset(table)
         return self._datasets.values()
 
@@ -104,33 +131,18 @@ class UnityCatalogExtractor(BaseExtractor):
                     field_path=column.name,
                     native_type=column.type_name,
                     precision=float(column.type_precision),
-                    nullable=column.nullable,
                 )
                 for column in table.columns
             ],
-            sql_schema=SQLSchema(materialization=MaterializationType.TABLE),
+            sql_schema=SQLSchema(
+                materialization=TABLE_TYPE_MAP.get(
+                    table.table_type, MaterializationType.TABLE
+                ),
+                table_schema=table.view_definition if table.view_definition else None,
+            ),
         )
 
-        dataset.custom_metadata = CustomMetadata(
-            metadata=[
-                CustomMetadataItem(
-                    key="storage_location",
-                    value=json.dumps(table.storage_location),
-                ),
-                CustomMetadataItem(
-                    key="data_source_format",
-                    value=json.dumps(table.data_source_format),
-                ),
-                CustomMetadataItem(
-                    key="table_type",
-                    value=json.dumps(table.table_type),
-                ),
-                CustomMetadataItem(
-                    key="Properties",
-                    value=json.dumps(table.properties),
-                ),
-            ]
-        )
+        dataset.custom_metadata = CustomMetadata(metadata=table.extra_metadata())
 
         self._datasets[full_name] = dataset
 

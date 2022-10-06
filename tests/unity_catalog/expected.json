@@ -3,20 +3,24 @@
     "customMetadata": {
       "metadata": [
         {
-          "key": "storage_location",
-          "value": "\"s3://path\""
+          "key": "table_type",
+          "value": "\"MANAGED\""
         },
         {
           "key": "data_source_format",
-          "value": "\"csv\""
+          "value": "\"CSV\""
         },
         {
-          "key": "table_type",
-          "value": "\"TYPE\""
+          "key": "owner",
+          "value": "\"foo@bar.com\""
         },
         {
-          "key": "Properties",
+          "key": "properties",
           "value": "{\"delta.lastCommitTimestamp\": \"1664444422000\"}"
+        },
+        {
+          "key": "storage_location",
+          "value": "\"s3://path\""
         }
       ]
     },
@@ -32,7 +36,6 @@
           "fieldName": "col1",
           "fieldPath": "col1",
           "nativeType": "int",
-          "nullable": true,
           "precision": 32.0
         }
       ],
@@ -45,6 +48,50 @@
       "database": "catalog",
       "schema": "schema",
       "table": "table"
+    }
+  },
+  {
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "table_type",
+          "value": "\"VIEW\""
+        },
+        {
+          "key": "owner",
+          "value": "\"foo@bar.com\""
+        },
+        {
+          "key": "properties",
+          "value": "{\"view.catalogAndNamespace.numParts\": \"2\", \"view.sqlConfig.spark.sql.hive.convertCTAS\": \"true\", \"view.query.out.col.0\": \"key\", \"view.sqlConfig.spark.sql.parquet.compression.codec\": \"snappy\", \"view.query.out.numCols\": \"3\", \"view.referredTempViewNames\": \"[]\", \"view.query.out.col.1\": \"values\", \"view.sqlConfig.spark.sql.streaming.stopTimeout\": \"15s\", \"view.catalogAndNamespace.part.0\": \"catalog\", \"view.sqlConfig.spark.sql.sources.commitProtocolClass\": \"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\", \"view.sqlConfig.spark.sql.sources.default\": \"delta\", \"view.sqlConfig.spark.sql.legacy.createHiveTableByDefault\": \"false\", \"view.query.out.col.2\": \"nested_values\", \"view.referredTempFunctionsNames\": \"[]\", \"view.catalogAndNamespace.part.1\": \"default\"}"
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "catalog.schema.view",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "description": "example",
+      "fields": [
+        {
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int",
+          "precision": 32.0
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "SELECT ..."
+      }
+    },
+    "structure": {
+      "database": "catalog",
+      "schema": "schema",
+      "table": "view"
     }
   }
 ]
