@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from hashlib import md5
 from typing import (
     Any,
     Collection,
@@ -303,6 +304,7 @@ class BigQueryExtractor(BaseExtractor):
 
         return QueryLog(
             id=f"{str(DataPlatform.BIGQUERY)}:{job_change.job_name}",
+            query_id=job_change.job_name,
             platform=DataPlatform.BIGQUERY,
             start_time=job_change.start_time,
             duration=float(elapsed_time),
@@ -319,6 +321,7 @@ class BigQueryExtractor(BaseExtractor):
             sources=sources,
             targets=target_datasets,
             sql=job_change.query,
+            sql_hash=md5(job_change.query.encode("utf-8")).hexdigest(),
         )
 
     def _build_job_change_filter(self) -> str:
