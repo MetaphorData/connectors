@@ -30,7 +30,7 @@ logger = get_logger(__name__)
 DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
     excludes={
         "system": None,
-        "*": {"INFORMATION_SCHEMA": None},
+        "*": {"information_schema": None},
     }
 )
 
