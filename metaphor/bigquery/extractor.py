@@ -321,7 +321,7 @@ class BigQueryExtractor(BaseExtractor):
             sources=sources,
             targets=target_datasets,
             sql=job_change.query,
-            sql_hash=md5(job_change.query.encode("utf-8")).hexdigest(),
+            sql_hash=md5(job_change.query.encode("utf-8")).hexdigest(),  # nosec B324
         )
 
     def _build_job_change_filter(self) -> str:

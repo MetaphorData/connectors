@@ -32,7 +32,7 @@ class EntityId:
 
     def __str__(self) -> str:
         json = encode_canonical_json(EventUtil.clean_nones(self.logicalId.to_dict()))
-        return f"{self.type.name}~{hashlib.md5(json).hexdigest().upper()}"  # nosec B303: md5
+        return f"{self.type.name}~{hashlib.md5(json).hexdigest().upper()}"  # nosec B324
 
     def __hash__(self):
         return hash(str(self))

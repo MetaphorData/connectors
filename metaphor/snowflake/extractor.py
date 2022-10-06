@@ -425,7 +425,7 @@ class SnowflakeExtractor(BaseExtractor):
                     sources=sources,
                     targets=targets,
                     sql=query_text,
-                    sql_hash=md5(query_text.encode("utf-8")).hexdigest(),
+                    sql_hash=md5(query_text.encode("utf-8")).hexdigest(),  # nosec B324
                 )
 
                 self._logs.append(query_log)
