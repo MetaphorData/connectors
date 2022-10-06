@@ -3,20 +3,24 @@
     "customMetadata": {
       "metadata": [
         {
-          "key": "storage_location",
-          "value": "\"s3://path\""
+          "key": "table_type",
+          "value": "\"MANAGED\""
         },
         {
           "key": "data_source_format",
-          "value": "\"csv\""
+          "value": "\"CSV\""
         },
         {
-          "key": "table_type",
-          "value": "\"TYPE\""
+          "key": "owner",
+          "value": "\"foo@bar.com\""
         },
         {
-          "key": "Properties",
+          "key": "properties",
           "value": "{\"delta.lastCommitTimestamp\": \"1664444422000\"}"
+        },
+        {
+          "key": "storage_location",
+          "value": "\"s3://path\""
         }
       ]
     },

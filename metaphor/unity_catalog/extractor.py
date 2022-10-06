@@ -1,4 +1,3 @@
-import json
 from typing import Collection, Dict, Generator, List
 
 from databricks_cli.sdk.api_client import ApiClient
@@ -10,7 +9,6 @@ from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     CustomMetadata,
-    CustomMetadataItem,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -111,26 +109,7 @@ class UnityCatalogExtractor(BaseExtractor):
             sql_schema=SQLSchema(materialization=MaterializationType.TABLE),
         )
 
-        dataset.custom_metadata = CustomMetadata(
-            metadata=[
-                CustomMetadataItem(
-                    key="storage_location",
-                    value=json.dumps(table.storage_location),
-                ),
-                CustomMetadataItem(
-                    key="data_source_format",
-                    value=json.dumps(table.data_source_format),
-                ),
-                CustomMetadataItem(
-                    key="table_type",
-                    value=json.dumps(table.table_type),
-                ),
-                CustomMetadataItem(
-                    key="Properties",
-                    value=json.dumps(table.properties),
-                ),
-            ]
-        )
+        dataset.custom_metadata = CustomMetadata(metadata=table.extra_metadata())
 
         self._datasets[full_name] = dataset
 

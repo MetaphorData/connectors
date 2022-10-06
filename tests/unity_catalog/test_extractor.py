@@ -34,8 +34,8 @@ async def test_extractor(test_root_dir):
                     "name": "table",
                     "catalog_name": "catalog",
                     "schema_name": "schema",
-                    "table_type": "TYPE",
-                    "data_source_format": "csv",
+                    "table_type": "MANAGED",
+                    "data_source_format": "CSV",
                     "columns": [
                         {
                             "name": "col1",
