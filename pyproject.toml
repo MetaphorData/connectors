@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.11.44"
+version = "0.11.45"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -60,7 +60,7 @@ dbt = []
 looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
 metabase = ["sql-metadata"]
 postgresql = ["asyncpg"]
-power_bi = ["msal"]
+power_bi = ["msal", "sql-metadata"]
 redshift = ["asyncpg", "metaphor-sqllineage"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 tableau = ["tableauserverclient"]
