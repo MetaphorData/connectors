@@ -26,7 +26,7 @@ from metaphor.unity_catalog.models import Table, parse_table_from_object
 
 logger = get_logger(__name__)
 
-# Filter out "Snowflake" database & all "information_schema" schemas
+# Filter out "system" database & all "information_schema" schemas
 DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
     excludes={
         "system": None,
