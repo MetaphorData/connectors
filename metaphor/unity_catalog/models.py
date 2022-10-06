@@ -60,7 +60,6 @@ class Table(BaseModel):
             "owner",
             "properties",
             "storage_location",
-            "view_definition",
             "sql_path",
         ]
         return [

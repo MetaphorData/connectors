@@ -22,7 +22,7 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
-from metaphor.unity_catalog.models import Table, parse_table_from_object
+from metaphor.unity_catalog.models import Table, TableType, parse_table_from_object
 
 logger = get_logger(__name__)
 
@@ -33,6 +33,12 @@ DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
         "*": {"information_schema": None},
     }
 )
+
+TABLE_TYPE_MAP = {
+    TableType.MANAGED: MaterializationType.TABLE,
+    TableType.EXTERNAL: MaterializationType.EXTERNAL,
+    TableType.VIEW: MaterializationType.VIEW,
+}
 
 
 class UnityCatalogExtractor(BaseExtractor):
@@ -125,11 +131,15 @@ class UnityCatalogExtractor(BaseExtractor):
                     field_path=column.name,
                     native_type=column.type_name,
                     precision=float(column.type_precision),
-                    nullable=column.nullable,
                 )
                 for column in table.columns
             ],
-            sql_schema=SQLSchema(materialization=MaterializationType.TABLE),
+            sql_schema=SQLSchema(
+                materialization=TABLE_TYPE_MAP.get(
+                    table.table_type, MaterializationType.TABLE
+                ),
+                table_schema=table.view_definition if table.view_definition else None,
+            ),
         )
 
         dataset.custom_metadata = CustomMetadata(metadata=table.extra_metadata())
