@@ -38,29 +38,31 @@ class DataSourceFormat(str, Enum):
 
 
 class Table(BaseModel):
-    name: str
     catalog_name: str
-    schema_name: str
-    table_type: TableType
-    data_source_format: Optional[DataSourceFormat]
     columns: List[Column]
+    comment: Optional[str]
+    data_source_format: Optional[DataSourceFormat]
+    generation: Optional[int]
+    name: str
     owner: str
     properties: object
+    schema_name: str
     storage_location: Optional[str]
-    view_definition: Optional[str]
     sql_path: Optional[str]
-    comment: Optional[str]
+    table_type: TableType
     updated_at: int
     updated_by: str
+    view_definition: Optional[str]
 
     def extra_metadata(self) -> List[CustomMetadataItem]:
         properties = [
-            "table_type",
             "data_source_format",
+            "generation",
             "owner",
             "properties",
             "storage_location",
             "sql_path",
+            "table_type",
         ]
         return [
             CustomMetadataItem(key=p, value=json.dumps(getattr(self, p)))
