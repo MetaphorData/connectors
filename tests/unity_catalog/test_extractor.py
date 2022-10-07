@@ -52,6 +52,7 @@ async def test_extractor(test_root_dir):
                     "properties": {
                         "delta.lastCommitTimestamp": "1664444422000",
                     },
+                    "generation": 0,
                 },
                 {
                     "name": "view",
@@ -88,6 +89,7 @@ async def test_extractor(test_root_dir):
                         "view.referredTempFunctionsNames": "[]",
                         "view.catalogAndNamespace.part.1": "default",
                     },
+                    "generation": 1,
                 },
             ]
         }

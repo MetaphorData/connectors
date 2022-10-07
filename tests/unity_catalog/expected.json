@@ -3,10 +3,6 @@
     "customMetadata": {
       "metadata": [
         {
-          "key": "table_type",
-          "value": "\"MANAGED\""
-        },
-        {
           "key": "data_source_format",
           "value": "\"CSV\""
         },
@@ -21,6 +17,10 @@
         {
           "key": "storage_location",
           "value": "\"s3://path\""
+        },
+        {
+          "key": "table_type",
+          "value": "\"MANAGED\""
         }
       ]
     },
@@ -54,8 +54,8 @@
     "customMetadata": {
       "metadata": [
         {
-          "key": "table_type",
-          "value": "\"VIEW\""
+          "key": "generation",
+          "value": "1"
         },
         {
           "key": "owner",
@@ -64,6 +64,10 @@
         {
           "key": "properties",
           "value": "{\"view.catalogAndNamespace.numParts\": \"2\", \"view.sqlConfig.spark.sql.hive.convertCTAS\": \"true\", \"view.query.out.col.0\": \"key\", \"view.sqlConfig.spark.sql.parquet.compression.codec\": \"snappy\", \"view.query.out.numCols\": \"3\", \"view.referredTempViewNames\": \"[]\", \"view.query.out.col.1\": \"values\", \"view.sqlConfig.spark.sql.streaming.stopTimeout\": \"15s\", \"view.catalogAndNamespace.part.0\": \"catalog\", \"view.sqlConfig.spark.sql.sources.commitProtocolClass\": \"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\", \"view.sqlConfig.spark.sql.sources.default\": \"delta\", \"view.sqlConfig.spark.sql.legacy.createHiveTableByDefault\": \"false\", \"view.query.out.col.2\": \"nested_values\", \"view.referredTempFunctionsNames\": \"[]\", \"view.catalogAndNamespace.part.1\": \"default\"}"
+        },
+        {
+          "key": "table_type",
+          "value": "\"VIEW\""
         }
       ]
     },
