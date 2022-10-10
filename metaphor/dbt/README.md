@@ -63,7 +63,7 @@ meta_ownerships:
     ownership_type: Data Steward
 ```
 
-If the `owner` field contains ony the user name (e.g. `joe` instead of `joe@test.com`), you can specify the common email domain using the `email_domain` config:
+If the `owner` field contains only the user name (e.g. `joe` instead of `joe@test.com`), you can specify the common email domain using the `email_domain` config:
 
 ```yaml
 meta_ownerships:
@@ -72,7 +72,7 @@ meta_ownerships:
     email_domain: test.com
 ```
 
-#### Tags
+#### Governed Tags
 
 Similar to [Ownership](#ownership), you can optionally specify certain attributes in meta. For example:
 
@@ -84,7 +84,7 @@ models:
         pii: true
 ```
 
-To map `pii` to the corresponding tag type defined in Metaphor, add the following to the config file:
+To map `pii` to the `HAS_PII` governed tag defined in Metaphor, add the following to the config file:
 
 ```yaml
 meta_tags:
@@ -102,7 +102,7 @@ models:
         team: sales
 ```
 
-Use the following config to map it to the "SALES" tag on Metaphor:
+Use the following config to map it to the `SALES` tag on Metaphor:
 
 ```yaml
 meta_tags:
