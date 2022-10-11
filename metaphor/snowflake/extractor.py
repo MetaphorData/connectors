@@ -6,7 +6,7 @@ from pydantic import parse_raw_as
 
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.utils import md5_digest, start_of_day
+from metaphor.common.utils import chunks, md5_digest, start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 
 try:
@@ -57,6 +57,9 @@ DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
         "*": {"INFORMATION_SCHEMA": None},
     }
 )
+
+# max number of tables' information to fetch in one query
+TABLE_INFO_FETCH_SIZE = 100
 
 
 class SnowflakeExtractor(BaseExtractor):
@@ -214,9 +217,15 @@ class SnowflakeExtractor(BaseExtractor):
             )
 
     def _fetch_table_info(self, tables: Dict[str, DatasetInfo], shared: bool) -> None:
+        for chunk in chunks([item for item in tables.items()], TABLE_INFO_FETCH_SIZE):
+            self._fetch_table_info_internal(chunk, shared)
+
+    def _fetch_table_info_internal(
+        self, tables: List[Tuple[str, DatasetInfo]], shared: bool
+    ) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
-        for fullname, table in tables.items():
+        for fullname, table in tables:
             # fetch last_update_time and DDL for tables, and fetch only DDL for views
             if table.type == SnowflakeTableType.BASE_TABLE.value:
                 queries.append(
