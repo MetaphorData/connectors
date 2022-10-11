@@ -1,18 +1,42 @@
 [
   {
     "logicalId": {
+      "name": "worksheet1",
+      "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "thoughtSpot": {
+      "name": "Worksheet 1",
+      "description": "This is worksheet1",
+      "type": "WORKSHEET",
+      "url": "http://base.url/#/data/tables/worksheet1",
+      "columns": [],
+      "sourceVirtualViews": [],
+      "tags": [
+        "tag1"
+      ]
+    }
+  },
+  {
+    "logicalId": {
       "name": "table1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
     "thoughtSpot": {
       "name": "Table 1",
       "description": "This is table1",
-      "type": "WORKSHEET",
+      "type": "TABLE",
       "url": "http://base.url/#/data/tables/table1",
-      "columns": [],
-      "sourceVirtualViews": [],
+      "columns": [
+        {
+          "name": "col1",
+          "type": "VARCHAR"
+        }
+      ],
+      "sourceDatasets": [
+        "DATASET~29779E6A8F6548832D2305896A583002"
+      ],
       "tags": [
-        "tag1"
+        "table"
       ]
     }
   },
