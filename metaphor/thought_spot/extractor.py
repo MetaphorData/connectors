@@ -303,6 +303,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.LIVEBOARD,
                         tags=self._tag_names(board.header.tags),
+                        embed_url=f"{self._base_url}/#/embed/viz/{board_id}",
                     ),
                 ),
                 source_info=SourceInfo(
