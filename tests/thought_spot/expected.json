@@ -5,15 +5,15 @@
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
     "thoughtSpot": {
-      "name": "Worksheet 1",
-      "description": "This is worksheet1",
-      "type": "WORKSHEET",
-      "url": "http://base.url/#/data/tables/worksheet1",
       "columns": [],
+      "description": "This is worksheet1",
+      "name": "Worksheet 1",
       "sourceVirtualViews": [],
       "tags": [
         "tag1"
-      ]
+      ],
+      "type": "WORKSHEET",
+      "url": "http://base.url/#/data/tables/worksheet1"
     }
   },
   {
@@ -22,22 +22,22 @@
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
     "thoughtSpot": {
-      "name": "Table 1",
-      "description": "This is table1",
-      "type": "TABLE",
-      "url": "http://base.url/#/data/tables/table1",
       "columns": [
         {
           "name": "col1",
           "type": "VARCHAR"
         }
       ],
+      "description": "This is table1",
+      "name": "Table 1",
       "sourceDatasets": [
         "DATASET~29779E6A8F6548832D2305896A583002"
       ],
       "tags": [
         "table"
-      ]
+      ],
+      "type": "TABLE",
+      "url": "http://base.url/#/data/tables/table1"
     }
   },
   {
@@ -46,49 +46,49 @@
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
     "thoughtSpot": {
-      "name": "View 1",
-      "description": "This is view1",
-      "type": "VIEW",
-      "url": "http://base.url/#/data/tables/view1",
       "columns": [
         {
           "name": "col1",
           "type": "VARCHAR"
         },
         {
+          "formula": "TML expression",
           "name": "col2",
           "optionalType": "FORMULA",
-          "formula": "TML expression",
           "type": "VARCHAR"
         }
       ],
+      "description": "This is view1",
+      "name": "View 1",
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ],
-      "tags": []
+      "tags": [],
+      "type": "VIEW",
+      "url": "http://base.url/#/data/tables/view1"
     }
   },
   {
-    "logicalId": {
-      "dashboardId": "answer1",
-      "platform": "THOUGHT_SPOT"
-    },
     "dashboardInfo": {
-      "title": "Answer 1",
-      "description": "This is answer1",
       "charts": [
         {
           "chartType": "LINE",
-          "title": "Answer 1",
-          "description": "This is answer1"
+          "description": "This is answer1",
+          "title": "Answer 1"
         }
       ],
+      "description": "This is answer1",
       "thoughtSpot": {
-        "type": "ANSWER",
         "tags": [
           "tag2"
-        ]
-      }
+        ],
+        "type": "ANSWER"
+      },
+      "title": "Answer 1"
+    },
+    "logicalId": {
+      "dashboardId": "answer1",
+      "platform": "THOUGHT_SPOT"
     },
     "sourceInfo": {
       "mainUrl": "http://base.url/#/saved-answer/answer1"
@@ -100,27 +100,28 @@
     }
   },
   {
-    "logicalId": {
-      "dashboardId": "board1",
-      "platform": "THOUGHT_SPOT"
-    },
     "dashboardInfo": {
-      "title": "Board 1",
-      "description": "This is board1",
       "charts": [
         {
           "chartType": "LINE",
-          "title": "Answer 1",
           "description": "This is answer1",
+          "title": "Answer 1",
           "url": "http://base.url#/embed/viz/board1/viz2"
         }
       ],
+      "description": "This is board1",
       "thoughtSpot": {
-        "type": "LIVEBOARD",
+        "embedUrl": "http://base.url/#/embed/viz/board1",
         "tags": [
           "tag3"
-        ]
-      }
+        ],
+        "type": "LIVEBOARD"
+      },
+      "title": "Board 1"
+    },
+    "logicalId": {
+      "dashboardId": "board1",
+      "platform": "THOUGHT_SPOT"
     },
     "sourceInfo": {
       "mainUrl": "http://base.url/#/pinboard/board1"
