@@ -42,6 +42,34 @@
   },
   {
     "logicalId": {
+      "name": "view1",
+      "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "thoughtSpot": {
+      "name": "View 1",
+      "description": "This is view1",
+      "type": "VIEW",
+      "url": "http://base.url/#/data/tables/view1",
+      "columns": [
+        {
+          "name": "col1",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "col2",
+          "optionalType": "FORMULA",
+          "formula": "TML expression",
+          "type": "VARCHAR"
+        }
+      ],
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+      ],
+      "tags": []
+    }
+  },
+  {
+    "logicalId": {
       "dashboardId": "answer1",
       "platform": "THOUGHT_SPOT"
     },

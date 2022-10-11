@@ -132,7 +132,7 @@ class ThoughtSpotExtractor(BaseExtractor):
             self._virtual_views[table_id] = view
 
     @staticmethod
-    def build_column_expr_map(tml):
+    def build_column_expr_map(tml: TMLObject):
         def build_formula_map(tml_table):
             formula_map = {}
             for f in tml_table.formulas:

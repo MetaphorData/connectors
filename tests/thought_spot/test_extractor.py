@@ -33,7 +33,9 @@ async def test_extractor(test_root_dir):
         "metaphor.thought_spot.utils.ThoughtSpot._fetch_headers"
     ) as mock_fetch_headers, patch(
         "metaphor.thought_spot.utils.ThoughtSpot._fetch_object_detail"
-    ) as mock_fetch_object_detail:
+    ) as mock_fetch_object_detail, patch(
+        "metaphor.thought_spot.utils.ThoughtSpot._fetch_tml"
+    ) as mock_fetch_tml:
         mock_create_client.return_value = create_mock_client()
         mock_fetch_headers.return_value = []
         mock_fetch_object_detail.side_effect = [
@@ -44,6 +46,9 @@ async def test_extractor(test_root_dir):
             load_json(f"{test_root_dir}/thought_spot/data/answers.json"),
             load_json(f"{test_root_dir}/thought_spot/data/liveboards.json"),
         ]
+        mock_fetch_tml.return_value = load_json(
+            f"{test_root_dir}/thought_spot/data/tml.json"
+        )
 
         extractor = ThoughtSpotExtractor(dummy_config())
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]

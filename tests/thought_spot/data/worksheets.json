@@ -3,13 +3,7 @@
     "columns": [],
     "logicalTableContent": {
       "joinType": "INNER",
-      "worksheetType": "CONTAINER",
-      "tableMappingInfo": {
-        "databaseName": "project",
-        "schemaName": "schema",
-        "tableName": "table",
-        "tableType": "TABLE"
-      }
+      "worksheetType": "CONTAINER"
     },
     "type": "WORKSHEET",
     "dataSourceId": "conn1",
