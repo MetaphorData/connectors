@@ -4,10 +4,9 @@ from typing import Collection, Dict, List, Mapping, Optional, Tuple
 
 from pydantic import parse_raw_as
 
-from metaphor.common import utils
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.utils import md5_digest, start_of_day
+from metaphor.common.utils import chunks, md5_digest, start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 
 try:
@@ -218,8 +217,7 @@ class SnowflakeExtractor(BaseExtractor):
             )
 
     def _fetch_table_info(self, tables: Dict[str, DatasetInfo], shared: bool) -> None:
-        chunks = utils.chunks([item for item in tables.items()], TABLE_INFO_FETCH_SIZE)
-        for chunk in chunks:
+        for chunk in chunks([item for item in tables.items()], TABLE_INFO_FETCH_SIZE):
             self._fetch_table_info_internal(chunk, shared)
 
     def _fetch_table_info_internal(
