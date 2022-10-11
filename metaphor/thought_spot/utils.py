@@ -209,7 +209,6 @@ class ThoughtSpot:
         logger.info(f"Fetching tml for ids: {ids}")
 
         obj = ThoughtSpot._fetch_tml(client.metadata, ids)
-        print(obj)
         logger.debug(f"[TML] fetch_object_detail: {json.dumps(obj)}")
 
         return parse_obj_as(List[TMLResult], obj)
