@@ -184,6 +184,7 @@ class ThoughtSpot:
         obj = ThoughtSpot._fetch_object_detail(
             client.metadata, ids, GetObjectDetailTypeEnum.CONNECTION
         )
+        logger.debug(f"[connection] fetch_object_detail: {json.dumps(obj)}")
         return parse_obj_as(List[ConnectionMetadata], obj)
 
     @classmethod
@@ -208,6 +209,7 @@ class ThoughtSpot:
         logger.info(f"Fetching tml for ids: {ids}")
 
         obj = ThoughtSpot._fetch_tml(client.metadata, ids)
+        logger.debug(f"[TML] fetch_object_detail: {json.dumps(obj)}")
 
         return parse_obj_as(List[TMLResult], obj)
 

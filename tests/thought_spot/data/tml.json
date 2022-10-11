@@ -1,0 +1,9 @@
+[
+  {
+    "info": {
+      "id": "view1",
+      "name": "View 1"
+    },
+    "edoc": "{\"guid\":\"view1\",\"view\":{\"name\":\"View 1\",\"formulas\":[{\"name\":\"formula1\",\"expr\":\"TML expression\"}],\"view_columns\":[{\"name\":\"col1\",\"column_id\":\"TABLE1::COL1\"},{\"name\":\"col2\",\"formula_id\":\"formula1\"}]}}"
+  }
+]

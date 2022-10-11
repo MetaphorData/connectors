@@ -118,7 +118,7 @@ class Question(BaseModel):
 
 class Sheet(Metadata):
     sheetContent: SheetContent
-    sheetContentType: Optional[str]
+    sheetType: Optional[str]
     question: Optional[Question]
 
 
