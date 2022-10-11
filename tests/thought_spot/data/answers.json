@@ -1,0 +1,57 @@
+[
+  {
+    "reportContent": {
+      "sheets": [
+        {
+          "sheetType": "QUESTION",
+          "sheetContent": {
+            "visualizations": [
+              {
+                "vizContent": {
+                  "chartType": "LINE",
+                  "columns": [
+                    {
+                      "referencedTableHeaders": [
+                        {
+                          "id": "data1",
+                          "name": "__unused__"
+                        }
+                      ]
+                    }
+                  ],
+                  "vizType": "CHART"
+                },
+                "relatedLinks": [],
+                "header": {
+                  "id": "viz1",
+                  "name": "__unused__"
+                }
+              }
+            ]
+          },
+          "header": {
+            "id": "answer1",
+            "name": "Answer 1",
+            "description": "This is answer1"
+          }
+        }
+      ]
+    },
+    "type": "QUESTION",
+    "header": {
+      "id": "answer1",
+      "name": "Answer 1",
+      "description": "This is answer1",
+      "tags": [
+        {
+          "name": "tag2",
+          "isDeleted": false,
+          "isHidden": false,
+          "isDeprecated": false
+        }
+      ]
+    },
+    "complete": true,
+    "incompleteDetail": []
+  }
+]

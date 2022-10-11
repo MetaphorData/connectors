@@ -1,0 +1,16 @@
+[
+  {
+    "header": {
+      "id": "conn1",
+      "name": "Connection 1",
+      "description": "connection 1 description",
+      "tags": []
+    },
+    "type": "RDBMS_GCP_BIGQUERY",
+    "dataSourceContent": {
+      "configuration": {
+        "project_id": "project"
+      }
+    }
+  }
+]

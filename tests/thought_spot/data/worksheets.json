@@ -1,0 +1,25 @@
+[
+  {
+    "columns": [],
+    "logicalTableContent": {
+      "joinType": "INNER",
+      "worksheetType": "CONTAINER"
+    },
+    "type": "WORKSHEET",
+    "dataSourceId": "conn1",
+    "dataSourceTypeEnum": "DEFAULT",
+    "header": {
+      "id": "table1",
+      "name": "Table 1",
+      "description": "This is table1",
+      "tags": [
+        {
+          "name": "tag1",
+          "isDeleted": false,
+          "isHidden": false,
+          "isDeprecated": false
+        }
+      ]
+    }
+  }
+]
