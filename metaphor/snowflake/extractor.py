@@ -111,7 +111,7 @@ class SnowflakeExtractor(BaseExtractor):
                 self._fetch_columns(cursor, database)
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
-                self._fetch_table_information(tables, database in shared_databases)
+                self._fetch_table_info(tables, database in shared_databases)
 
             self._fetch_tags(cursor)
 
@@ -217,65 +217,65 @@ class SnowflakeExtractor(BaseExtractor):
                 )
             )
 
-    def _fetch_table_information(
-        self, tables: Dict[str, DatasetInfo], shared: bool
-    ) -> None:
+    def _fetch_table_info(self, tables: Dict[str, DatasetInfo], shared: bool) -> None:
+        def _fetch_table_info_internal(
+            table_list: List[Tuple[str, DatasetInfo]]
+        ) -> None:
+            queries, params = [], []
+            ddl_tables, updated_time_tables = [], []
+            for fullname, table in table_list:
+                # fetch last_update_time and DDL for tables, and fetch only DDL for views
+                if table.type == SnowflakeTableType.BASE_TABLE.value:
+                    queries.append(
+                        f'SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as "UPDATED_{fullname}"'
+                    )
+                    params.append(fullname)
+                    updated_time_tables.append(fullname)
+
+                if not shared:
+                    queries.append(f"get_ddl('table', %s) as \"DDL_{fullname}\"")
+                    params.append(fullname)
+                    ddl_tables.append(fullname)
+
+            if not queries:
+                return
+            query = f"SELECT {','.join(queries)}"
+
+            cursor = self._conn.cursor(DictCursor)
+
+            try:
+                cursor.execute(query, tuple(params))
+            except Exception as e:
+                logger.exception(f"Failed to execute query:\n{query}\n{e}")
+                return
+
+            results = cursor.fetchone()
+            assert isinstance(results, Mapping)
+            cursor.close()
+
+            for fullname in ddl_tables:
+                dataset = self._datasets[fullname]
+                assert (
+                    dataset.schema is not None and dataset.schema.sql_schema is not None
+                )
+
+                dataset.schema.sql_schema.table_schema = results[f"DDL_{fullname}"]
+
+            for fullname in updated_time_tables:
+                dataset = self._datasets[fullname]
+                assert dataset.schema.sql_schema is not None
+
+                # Timestamp is in nanosecond.
+                # See https://docs.snowflake.com/en/sql-reference/functions/system_last_change_commit_time.html
+                timestamp = results[f"UPDATED_{fullname}"]
+                if timestamp > 0:
+                    dataset.statistics.last_updated = datetime.utcfromtimestamp(
+                        timestamp / 1000000000
+                    ).replace(tzinfo=timezone.utc)
+
         chunks = utils.chunks([item for item in tables.items()], TABLE_INFO_FETCH_SIZE)
         for chunk in chunks:
-            self._fetch_table_info(chunk, shared)
-
-    def _fetch_table_info(
-        self, tables: List[Tuple[str, DatasetInfo]], shared: bool
-    ) -> None:
-        queries, params = [], []
-        ddl_tables, updated_time_tables = [], []
-        for fullname, table in tables:
-            # fetch last_update_time and DDL for tables, and fetch only DDL for views
-            if table.type == SnowflakeTableType.BASE_TABLE.value:
-                queries.append(
-                    f'SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as "UPDATED_{fullname}"'
-                )
-                params.append(fullname)
-                updated_time_tables.append(fullname)
-
-            if not shared:
-                queries.append(f"get_ddl('table', %s) as \"DDL_{fullname}\"")
-                params.append(fullname)
-                ddl_tables.append(fullname)
-
-        if not queries:
-            return
-        query = f"SELECT {','.join(queries)}"
-
-        cursor = self._conn.cursor(DictCursor)
-
-        try:
-            cursor.execute(query, tuple(params))
-        except Exception as e:
-            logger.exception(f"Failed to execute query:\n{query}\n{e}")
-            return
-
-        results = cursor.fetchone()
-        assert isinstance(results, Mapping)
-        cursor.close()
-
-        for fullname in ddl_tables:
-            dataset = self._datasets[fullname]
-            assert dataset.schema is not None and dataset.schema.sql_schema is not None
-
-            dataset.schema.sql_schema.table_schema = results[f"DDL_{fullname}"]
-
-        for fullname in updated_time_tables:
-            dataset = self._datasets[fullname]
-            assert dataset.schema.sql_schema is not None
-
-            # Timestamp is in nanosecond.
-            # See https://docs.snowflake.com/en/sql-reference/functions/system_last_change_commit_time.html
-            timestamp = results[f"UPDATED_{fullname}"]
-            if timestamp > 0:
-                dataset.statistics.last_updated = datetime.utcfromtimestamp(
-                    timestamp / 1000000000
-                ).replace(tzinfo=timezone.utc)
+            _fetch_table_info_internal(chunk)
 
     def _fetch_unique_keys(self, cursor: SnowflakeCursor, database: str) -> None:
         cursor.execute(f"SHOW UNIQUE KEYS IN DATABASE {database}")
