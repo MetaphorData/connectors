@@ -1,12 +1,13 @@
-import json
 import tempfile
 from enum import Enum
 from time import sleep
-from typing import Any, Callable, List, Optional, Type, TypeVar
+from typing import Any, List, Optional
 
 import requests
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel
 
+from metaphor.common.api_request import call_get
+from metaphor.common.exception import EntityNotFoundError
 from metaphor.common.logger import get_logger
 from metaphor.power_bi.config import PowerBIRunConfig
 
@@ -142,21 +143,6 @@ class WorkspaceInfo(BaseModel):
     dashboards: List[WorkspaceInfoDashboard] = []
 
 
-class AuthenticationError(Exception):
-    def __init__(self, body) -> None:
-        super().__init__(
-            f"Authentication error: {body}.\n"
-            f"Please\n"
-            f"  1. Enable Power BI admin read-only API for the app\n"
-            f"  2. Enable service principal to use Power BI APIs for the app\n"
-        )
-
-
-class EntityNotFoundError(Exception):
-    def __init__(self, body) -> None:
-        super().__init__(f"EntityNotFound error: {body}")
-
-
 class PowerBIClient:
     AUTHORITY = "https://login.microsoftonline.com/{tenant_id}"
     SCOPES = ["https://analysis.windows.net/powerbi/api/.default"]
@@ -190,43 +176,61 @@ class PowerBIClient:
     def get_groups(self) -> List[PowerBIWorkspace]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/groups-get-groups-as-admin
         url = f"{self.API_ENDPOINT}/admin/groups?$top=5000&$filter={PowerBIClient.GROUPS_FILTER}"
-        return self._call_get(
-            url, List[PowerBIWorkspace], transform_response=lambda r: r.json()["value"]
+        return call_get(
+            url,
+            self._headers,
+            List[PowerBIWorkspace],
+            transform_response=lambda r: r.json()["value"],
         )
 
     def get_apps(self) -> List[PowerBIApp]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/apps-get-apps-as-admin
         url = f"{self.API_ENDPOINT}/admin/apps?$top=5000"
-        return self._call_get(
-            url, List[PowerBIApp], transform_response=lambda r: r.json()["value"]
+        return call_get(
+            url,
+            self._headers,
+            List[PowerBIApp],
+            transform_response=lambda r: r.json()["value"],
         )
 
     def get_tiles(self, dashboard_id: str) -> List[PowerBITile]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-tiles-as-admin
         url = f"{self.API_ENDPOINT}/admin/dashboards/{dashboard_id}/tiles"
-        return self._call_get(
-            url, List[PowerBITile], transform_response=lambda r: r.json()["value"]
+        return call_get(
+            url,
+            self._headers,
+            List[PowerBITile],
+            transform_response=lambda r: r.json()["value"],
         )
 
     def get_datasets(self, group_id: str) -> List[PowerBIDataset]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-in-group-as-admin
         url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/datasets"
-        return self._call_get(
-            url, List[PowerBIDataset], transform_response=lambda r: r.json()["value"]
+        return call_get(
+            url,
+            self._headers,
+            List[PowerBIDataset],
+            transform_response=lambda r: r.json()["value"],
         )
 
     def get_dashboards(self, group_id: str) -> List[PowerBIDashboard]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-dashboards-in-group-as-admin
         url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/dashboards"
-        return self._call_get(
-            url, List[PowerBIDashboard], transform_response=lambda r: r.json()["value"]
+        return call_get(
+            url,
+            self._headers,
+            List[PowerBIDashboard],
+            transform_response=lambda r: r.json()["value"],
         )
 
     def get_reports(self, group_id: str) -> List[PowerBIReport]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-in-group-as-admin
         url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/reports"
-        return self._call_get(
-            url, List[PowerBIReport], transform_response=lambda r: r.json()["value"]
+        return call_get(
+            url,
+            self._headers,
+            List[PowerBIReport],
+            transform_response=lambda r: r.json()["value"],
         )
 
     def get_pages(self, group_id: str, report_id: str) -> List[PowerBIPage]:
@@ -234,8 +238,11 @@ class PowerBIClient:
         url = f"{self.API_ENDPOINT}/groups/{group_id}/reports/{report_id}/pages"
 
         try:
-            return self._call_get(
-                url, List[PowerBIPage], transform_response=lambda r: r.json()["value"]
+            return call_get(
+                url,
+                self._headers,
+                List[PowerBIPage],
+                transform_response=lambda r: r.json()["value"],
             )
         except EntityNotFoundError as e:
             logger.error(
@@ -249,8 +256,9 @@ class PowerBIClient:
         url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}/refreshes"
 
         try:
-            return self._call_get(
+            return call_get(
                 url,
+                self._headers,
                 List[PowerBIRefresh],
                 transform_response=lambda r: r.json()["value"],
             )
@@ -324,30 +332,9 @@ class PowerBIClient:
 
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/workspace-info-get-scan-result
         url = f"{self.API_ENDPOINT}/admin/workspaces/scanResult/{scan_id}"
-        return self._call_get(
+        return call_get(
             url,
+            self._headers,
             List[WorkspaceInfo],
             transform_response=transform_scan_result,
         )
-
-    T = TypeVar("T")
-
-    def _call_get(
-        self,
-        url: str,
-        type_: Type[T],
-        transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
-    ) -> T:
-        result = requests.get(url, headers=self._headers)
-        body = result.content.decode()
-
-        if result.status_code == 401:
-            raise AuthenticationError(body)
-        elif result.status_code == 404:
-            raise EntityNotFoundError(body)
-        elif result.status_code != 200:
-            raise AssertionError(f"GET {url} failed: {result.status_code}\n{body}")
-
-        logger.debug(f"Response from {url}:")
-        logger.debug(json.dumps(result.json(), indent=2))
-        return parse_obj_as(type_, transform_response(result))
