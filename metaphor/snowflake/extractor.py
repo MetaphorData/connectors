@@ -4,6 +4,7 @@ from typing import Collection, Dict, List, Mapping, Optional, Tuple
 
 from pydantic import parse_raw_as
 
+from metaphor.common import utils
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.utils import md5_digest, start_of_day
@@ -58,6 +59,9 @@ DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
     }
 )
 
+# max number of tables' information to fetch in one query
+TABLE_INFO_FETCH_SIZE = 100
+
 
 class SnowflakeExtractor(BaseExtractor):
     """Snowflake metadata extractor"""
@@ -107,7 +111,7 @@ class SnowflakeExtractor(BaseExtractor):
                 self._fetch_columns(cursor, database)
                 self._fetch_primary_keys(cursor, database)
                 self._fetch_unique_keys(cursor, database)
-                self._fetch_table_info(tables, database in shared_databases)
+                self._fetch_table_information(tables, database in shared_databases)
 
             self._fetch_tags(cursor)
 
@@ -213,10 +217,19 @@ class SnowflakeExtractor(BaseExtractor):
                 )
             )
 
-    def _fetch_table_info(self, tables: Dict[str, DatasetInfo], shared: bool) -> None:
+    def _fetch_table_information(
+        self, tables: Dict[str, DatasetInfo], shared: bool
+    ) -> None:
+        chunks = utils.chunks([item for item in tables.items()], TABLE_INFO_FETCH_SIZE)
+        for chunk in chunks:
+            self._fetch_table_info(chunk, shared)
+
+    def _fetch_table_info(
+        self, tables: List[Tuple[str, DatasetInfo]], shared: bool
+    ) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
-        for fullname, table in tables.items():
+        for fullname, table in tables:
             # fetch last_update_time and DDL for tables, and fetch only DDL for views
             if table.type == SnowflakeTableType.BASE_TABLE.value:
                 queries.append(
