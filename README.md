@@ -40,10 +40,9 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | Connector Name                                               | Metadata                                 |
 |--------------------------------------------------------------|------------------------------------------|  
 | [airflow_plugin](metaphor/airflow_plugin/README.md)          | Lineage                                  |
-| [bigquery](metaphor/bigquery/README.md)                      | Schema, description, statistics          |
+| [bigquery](metaphor/bigquery/README.md)                      | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/README.md)      | Lineage                                  |
 | [bigquery.profile](metaphor/bigquery/profile/README.md)      | Data profile                             |
-| [bigquery.query](metaphor/bigquery/query/README.md)          | Queries                                  |
 | [bigquery.usage](metaphor/bigquery/usage/README.md)          | Data usage                               |
 | [dbt](metaphor/dbt/README.md)                                | dbt model, test, lineage                 |
 | [dbt.cloud](metaphor/dbt/cloud/README.md)                    | dbt model, test, lineage                 |
@@ -62,10 +61,9 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [redshift.profile](metaphor/redshift/profile/README.md)      | Data profile                             |
 | [redshift.query](metaphor/redshift/query/README.md)          | Queries                                  |
 | [redshift.usage](metaphor/redshift/usage/README.md)          | Usage                                    |
-| [snowflake](metaphor/snowflake/README.md)                    | Schema, description, statistics          |
+| [snowflake](metaphor/snowflake/README.md)                    | Schema, description, statistics, queries |
 | [snowflake.lineage](metaphor/snowflake/lineage/README.md)    | Lineage                                  |
 | [snowflake.profile](metaphor/snowflake/profile/README.md)    | Data profile                             |
-| [snowflake.query](metaphor/snowflake/query/README.md)        | Queries                                  |
 | [snowflake.usage](metaphor/snowflake/usage/README.md)        | Data usage                               |
 | [tableau](metaphor/tableau/README.md)                        | Dashboard, lineage                       |
 | [unity_catalog](metaphor/unity_catalog/README.md)            | Schema, description                      |
