@@ -87,7 +87,7 @@
   {
     "logs": [
       {
-        "_id": "DataPlatform.BIGQUERY:projects/metaphor-data/jobs/bquxjob_70ddc06_17f574eca64",
+        "_id": "BIGQUERY:projects/metaphor-data/jobs/bquxjob_70ddc06_17f574eca64",
         "queryId": "projects/metaphor-data/jobs/bquxjob_70ddc06_17f574eca64",
         "bytesRead": 216.0,
         "duration": 0.26,
@@ -113,7 +113,7 @@
         ]
       },
       {
-        "_id": "DataPlatform.BIGQUERY:projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
+        "_id": "BIGQUERY:projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
         "queryId": "projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
         "bytesRead": 72.0,
         "duration": 0.376,
