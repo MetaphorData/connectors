@@ -424,6 +424,7 @@ class SnowflakeExtractor(BaseExtractor):
                     id=f"{str(DataPlatform.SNOWFLAKE)}:{query_id}",
                     query_id=query_id,
                     platform=DataPlatform.SNOWFLAKE,
+                    account=self._account,
                     start_time=start_time,
                     duration=float(elapsed_time / 1000.0),
                     user_id=username,
