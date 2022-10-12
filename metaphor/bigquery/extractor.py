@@ -302,7 +302,7 @@ class BigQueryExtractor(BaseExtractor):
         )
 
         return QueryLog(
-            id=f"{str(DataPlatform.BIGQUERY)}:{job_change.job_name}",
+            id=f"{DataPlatform.BIGQUERY.name}:{job_change.job_name}",
             query_id=job_change.job_name,
             platform=DataPlatform.BIGQUERY,
             start_time=job_change.start_time,

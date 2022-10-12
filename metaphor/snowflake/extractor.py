@@ -421,7 +421,7 @@ class SnowflakeExtractor(BaseExtractor):
                 targets = self._parse_accessed_objects(modified_objects)
 
                 query_log = QueryLog(
-                    id=f"{str(DataPlatform.SNOWFLAKE)}:{query_id}",
+                    id=f"{DataPlatform.SNOWFLAKE.name}:{query_id}",
                     query_id=query_id,
                     platform=DataPlatform.SNOWFLAKE,
                     start_time=start_time,
