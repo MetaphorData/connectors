@@ -41,6 +41,8 @@ class RedshiftExtractor(PostgreSQLExtractor):
                 await self._fetch_tables(conn, db, True)
                 await self._fetch_columns(conn, db, True)
                 await self._fetch_redshift_table_stats(conn, db)
+            except Exception as ex:
+                logger.exception(ex)
             finally:
                 await conn.close()
 
