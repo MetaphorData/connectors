@@ -8,6 +8,8 @@ REDSHIFT_USAGE_SQL_TEMPLATE = """
 SELECT DISTINCT ss.userid,
     ss.query,
     sui.usename,
+    ss.rows,
+    ss.bytes,
     ss.tbl,
     sq.querytxt,
     sti.database,
@@ -33,6 +35,8 @@ class AccessEvent:
     query: int
     usename: str
     tbl: int
+    rows: int
+    bytes: int
     querytxt: str
     database: str
     schema: str
