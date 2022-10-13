@@ -73,3 +73,30 @@ class Table(BaseModel):
 def parse_table_from_object(obj: object):
     logger.debug(f"table object: {json.dumps(obj)}")
     return parse_obj_as(Table, obj)
+
+
+class LineageColumnInfo(BaseModel):
+    name: str
+    catalog_name: str
+    schema_name: str
+    table_name: str
+
+
+class ColumnLineage(BaseModel):
+    upstream_cols: List[LineageColumnInfo] = []
+    downstream_cols: List[LineageColumnInfo] = []
+
+
+class TableInfo(BaseModel):
+    name: str
+    catalog_name: str
+    schema_name: str
+
+
+class LineageInfo(BaseModel):
+    tableInfo: TableInfo
+
+
+class TableLineage(BaseModel):
+    upstreams: List[LineageInfo] = []
+    downstreams: List[LineageInfo] = []
