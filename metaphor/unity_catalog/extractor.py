@@ -1,3 +1,4 @@
+import logging
 from typing import Collection, Dict, Generator, List
 
 from databricks_cli.sdk.api_client import ApiClient
@@ -160,6 +161,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
         # Skip table without upstream
         if not lineage.upstreams:
+            logging.info(f"Skip table: {table_name} for no upstream")
             return
 
         source_datasets = []
