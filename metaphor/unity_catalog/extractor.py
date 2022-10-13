@@ -4,18 +4,23 @@ from databricks_cli.sdk.api_client import ApiClient
 from databricks_cli.unity_catalog.api import UnityCatalogApi
 
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.entity_id import to_dataset_entity_id_from_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     CustomMetadata,
     DataPlatform,
     Dataset,
+    DatasetField,
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
+    DatasetUpstream,
     EntityType,
+    FieldMapping,
     MaterializationType,
     SchemaField,
     SchemaType,
@@ -23,6 +28,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.models import Table, TableType, parse_table_from_object
+from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
 
 logger = get_logger(__name__)
 
@@ -72,12 +78,12 @@ class UnityCatalogExtractor(BaseExtractor):
                     continue
 
                 for table in self._get_tables(catalog, schema):
+                    table_name = f"{catalog}.{schema}.{table.name}"
                     if not self._filter.include_table(catalog, schema, table.name):
-                        logger.info(
-                            f"Ignore table: {catalog}.{schema}.{table.name} due to filter config"
-                        )
+                        logger.info(f"Ignore table: {table_name} due to filter config")
                         continue
-                    self._init_dataset(table)
+                    dataset = self._init_dataset(table)
+                    self._populate_lineage(dataset)
         return self._datasets.values()
 
     def _get_catalogs(self) -> List[str]:
@@ -103,7 +109,7 @@ class UnityCatalogExtractor(BaseExtractor):
         for table in response.get("tables", []):
             yield parse_table_from_object(table)
 
-    def _init_dataset(self, table: Table):
+    def _init_dataset(self, table: Table) -> Dataset:
         table_name = table.name
         schema_name = table.schema_name
         database = table.catalog_name
@@ -145,6 +151,42 @@ class UnityCatalogExtractor(BaseExtractor):
         dataset.custom_metadata = CustomMetadata(metadata=table.extra_metadata())
 
         self._datasets[full_name] = dataset
+
+        return dataset
+
+    def _populate_lineage(self, dataset: Dataset):
+        table_name = f"{dataset.structure.database}.{dataset.structure.schema}.{dataset.structure.table}"
+        lineage = list_table_lineage(self._api.client.client, table_name)
+
+        # Skip table without upstream
+        if not lineage.upstreams:
+            return
+
+        source_datasets = []
+        field_mappings = []
+        for field in dataset.schema.fields:
+            column_name = field.field_name
+            column_lineage = list_column_lineage(
+                self._api.client.client, table_name, column_name
+            )
+
+            field_mapping = FieldMapping(destination=column_name, sources=[])
+            for upstream_col in column_lineage.upstream_cols:
+                full_name = f"{upstream_col.catalog_name}.{upstream_col.schema_name}.{upstream_col.table_name}"
+                source_logical_id = DatasetLogicalID(
+                    name=full_name.lower(), platform=DataPlatform.UNITY_CATALOG
+                )
+                source_datasets.append(
+                    str(to_dataset_entity_id_from_logical_id(source_logical_id))
+                )
+                field_mapping.sources.append(
+                    DatasetField(dataset=source_logical_id, field=upstream_col.name)
+                )
+            field_mappings.append(field_mapping)
+
+        dataset.upstream = DatasetUpstream(
+            source_datasets=unique_list(source_datasets), field_mappings=field_mappings
+        )
 
     @staticmethod
     def create_api(host: str, token: str) -> UnityCatalogApi:

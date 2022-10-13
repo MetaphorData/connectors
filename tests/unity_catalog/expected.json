@@ -48,6 +48,25 @@
       "database": "catalog",
       "schema": "schema",
       "table": "table"
+    },
+    "upstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "name": "db.schema.upstream",
+                "platform": "UNITY_CATALOG"
+              },
+              "field": "col1"
+            }
+          ]
+        }
+      ],
+      "sourceDatasets": [
+        "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84"
+      ]
     }
   },
   {

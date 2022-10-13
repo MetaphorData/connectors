@@ -7,6 +7,13 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.extractor import UnityCatalogExtractor
+from metaphor.unity_catalog.models import (
+    ColumnLineage,
+    LineageColumnInfo,
+    LineageInfo,
+    TableInfo,
+    TableLineage,
+)
 from tests.test_utils import load_json
 
 
@@ -96,11 +103,39 @@ async def test_extractor(test_root_dir):
 
     with patch(
         "metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api"
-    ) as mock_create_api:
+    ) as mock_create_api, patch(
+        "metaphor.unity_catalog.extractor.list_table_lineage"
+    ) as mock_list_table_lineage, patch(
+        "metaphor.unity_catalog.extractor.list_column_lineage"
+    ) as mock_list_column_lineage:
         mock_client = MagicMock()
         mock_client.list_catalogs = mock_list_catalogs
         mock_client.list_schemas = mock_list_schemas
         mock_client.list_tables = mock_list_tables
+        mock_list_table_lineage.side_effect = [
+            TableLineage(
+                upstreams=[
+                    LineageInfo(
+                        tableInfo=TableInfo(
+                            name="upstream", catalog_name="db", schema_name="schema"
+                        )
+                    )
+                ]
+            ),
+            TableLineage(),
+        ]
+        mock_list_column_lineage.side_effect = [
+            ColumnLineage(
+                upstream_cols=[
+                    LineageColumnInfo(
+                        name="col1",
+                        catalog_name="db",
+                        schema_name="schema",
+                        table_name="upstream",
+                    )
+                ]
+            )
+        ]
         mock_create_api.return_value = mock_client
 
         extractor = UnityCatalogExtractor(dummy_config())
