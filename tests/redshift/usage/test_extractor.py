@@ -25,6 +25,8 @@ def load_records(path):
                 "query",
                 "usename",
                 "tbl",
+                "rows",
+                "bytes",
                 "querytxt",
                 "database",
                 "schema",

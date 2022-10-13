@@ -1,11 +1,14 @@
-from typing import Collection
+from typing import Collection, List
 
 from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import DataPlatform
+from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, QueryLog
 from metaphor.postgresql.extractor import PostgreSQLExtractor
+from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.config import RedshiftRunConfig
 
 logger = get_logger(__name__)
@@ -25,6 +28,10 @@ class RedshiftExtractor(PostgreSQLExtractor):
             Platform.REDSHIFT,
             DataPlatform.REDSHIFT,
         )
+        self._query_log_lookback_days = config.query_log.lookback_days
+        self._query_log_excluded_usernames = config.query_log.excluded_usernames
+
+        self._logs: List[QueryLog] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from redshift host {self._host}")
@@ -41,12 +48,16 @@ class RedshiftExtractor(PostgreSQLExtractor):
                 await self._fetch_tables(conn, db, True)
                 await self._fetch_columns(conn, db, True)
                 await self._fetch_redshift_table_stats(conn, db)
+                await self._fetch_query_logs(conn)
             except Exception as ex:
                 logger.exception(ex)
             finally:
                 await conn.close()
 
-        return self._datasets.values()
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(self._datasets.values())
+        entities.extend(chunk_query_logs(self._logs))
+        return entities
 
     async def _fetch_redshift_table_stats(self, conn, catalog: str) -> None:
         results = await conn.fetch(
@@ -71,3 +82,45 @@ class RedshiftExtractor(PostgreSQLExtractor):
             dataset.statistics.data_size = (
                 float(result["size"]) if result["size"] is not None else None
             )
+
+    async def _fetch_query_logs(self, conn) -> None:
+        logger.info("Fetching query logs")
+
+        start_date = start_of_day(self._query_log_lookback_days)
+        end_date = start_of_day()
+
+        async for record in AccessEvent.fetch_access_event(conn, start_date, end_date):
+            self._process_record(record)
+
+    def _process_record(self, access_event: AccessEvent):
+        if not self._filter.include_table(
+            access_event.database, access_event.schema, access_event.table
+        ):
+            return
+
+        if access_event.usename in self._query_log_excluded_usernames:
+            return
+
+        dataset = QueriedDataset(
+            database=access_event.database,
+            schema=access_event.schema,
+            table=access_event.table,
+        )
+
+        query_log = QueryLog(
+            id=f"{DataPlatform.REDSHIFT.name}:{access_event.query}",
+            query_id=str(access_event.query),
+            platform=DataPlatform.REDSHIFT,
+            start_time=access_event.starttime,
+            duration=float(
+                (access_event.endtime - access_event.starttime).total_seconds()
+            ),
+            user_id=access_event.usename,
+            rows_read=float(access_event.rows),
+            bytes_read=float(access_event.bytes),
+            sources=[dataset],
+            sql=access_event.querytxt,
+            sql_hash=md5_digest(access_event.querytxt.encode("utf-8")),
+        )
+
+        self._logs.append(query_log)
