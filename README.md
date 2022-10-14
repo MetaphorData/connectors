@@ -1,4 +1,4 @@
-<a href="https://metaphor.io"><img src="./logo.png" width="300" /></a>
+<a href="https://metaphor.io"><img src="https://github.com/MetaphorData/connectors/raw/main/logo.png" width="300" /></a>
 
 # Metaphor Connectors
 
@@ -56,10 +56,9 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [postgresql.profile](metaphor/postgresql/profile/README.md)  | Data profile                             |
 | [postgresql.usage](metaphor/postgresql/usage/README.md)      | Usage                                    |
 | [power_bi](metaphor/power_bi/README.md)                      | Dashboard, lineage                       |
-| [redshift](metaphor/redshift/README.md)                      | Schema, description, statistics          |
+| [redshift](metaphor/redshift/README.md)                      | Schema, description, statistics, queries |
 | [redshift.lineage](metaphor/redshift/lineage/README.md)      | Lineage                                  |
 | [redshift.profile](metaphor/redshift/profile/README.md)      | Data profile                             |
-| [redshift.query](metaphor/redshift/query/README.md)          | Queries                                  |
 | [redshift.usage](metaphor/redshift/usage/README.md)          | Usage                                    |
 | [snowflake](metaphor/snowflake/README.md)                    | Schema, description, statistics, queries |
 | [snowflake.lineage](metaphor/snowflake/lineage/README.md)    | Lineage                                  |
