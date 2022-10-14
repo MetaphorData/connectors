@@ -111,13 +111,12 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         sql = """
         WITH
         full_queries AS (
-          SELECT
+            SELECT
                 query,
-                LISTAGG(CASE WHEN LEN(RTRIM(text)) = 0 THEN text ELSE RTRIM(text) END, '')
-                  WITHIN GROUP (ORDER BY sequence) AS query_text
+                LISTAGG(CASE WHEN LEN(RTRIM(text)) = 0 THEN text ELSE RTRIM(text) END, '') within group (order by sequence) AS querytxt
             FROM pg_catalog.stl_querytext
-            WHERE sequence < 327 -- each chunk contains up to 200, RS has a maximum str length of 65535.
-          GROUP BY query
+            WHERE sequence < 163
+            GROUP BY query
         ),
         queries AS (
             SELECT *
@@ -131,7 +130,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
 
         )
         SELECT DISTINCT
-            trim(fq.query_text) AS querytxt,
+            trim(fq.querytxt) AS querytxt,
             trim(q.database) AS database
         FROM
             queries AS q
@@ -146,7 +145,8 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             database = row["database"]
 
             try:
-                self._populate_lineage_from_sql(query, database)
+                unescaped_query = query.encode().decode("unicode-escape")
+                self._populate_lineage_from_sql(unescaped_query, database)
             except SQLLineageException as e:
                 logger.warning(f"Cannot parse SQL. Query: {query}, Error: {e}")
                 return
@@ -159,6 +159,9 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
 
         if len(parser.target_tables) != 1:
             logger.warning(f"Cannot extract lineage for the query: {query}")
+            return
+
+        if len(parser.source_tables) < 1:
             return
 
         if any(
