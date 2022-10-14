@@ -2,6 +2,7 @@ from typing import Collection, Dict, List, Optional, Tuple
 
 from asyncpg import Connection
 from sqllineage.core.models import Schema, Table
+from sqllineage.exceptions import SQLLineageException
 from sqllineage.runner import LineageRunner
 
 from metaphor.common.entity_id import to_dataset_entity_id
@@ -108,10 +109,16 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
 
     async def _fetch_lineage_from_stl_query(self, conn):
         sql = """
-        SELECT DISTINCT
-            trim(q.querytxt) AS querytxt,
-            trim(q.database) AS database
-        FROM (
+        WITH
+        full_queries AS (
+            SELECT
+                query,
+                LISTAGG(CASE WHEN LEN(RTRIM(text)) = 0 THEN text ELSE RTRIM(text) END, '') within group (order by sequence) AS querytxt
+            FROM pg_catalog.stl_querytext
+            WHERE sequence < 163
+            GROUP BY query
+        ),
+        queries AS (
             SELECT *
             FROM pg_catalog.stl_query
             WHERE userid > 1
@@ -120,50 +127,68 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                     OR querytxt ILIKE 'insert %%'
                 )
                 AND aborted = 0
-        ) q
+
+        )
+        SELECT DISTINCT
+            trim(fq.querytxt) AS querytxt,
+            trim(q.database) AS database
+        FROM
+            queries AS q
+            INNER JOIN full_queries AS fq
+            ON q.query = fq.query
         ORDER BY q.endtime DESC;
         """
         results = await conn.fetch(sql)
 
-        def format_table_name(table: Table, database: str) -> str:
-            return f"{database}.{str(table)}"
-
         for row in results:
             query = row["querytxt"]
             database = row["database"]
-            parser = LineageRunner(query.replace('"', ""))
 
-            if len(parser.target_tables) != 1:
-                logger.warning(f"Cannot extract lineage for the query: {query}")
-                continue
+            try:
+                unescaped_query = query.encode().decode("unicode-escape")
+                self._populate_lineage_from_sql(unescaped_query, database)
+            except SQLLineageException as e:
+                logger.warning(f"Cannot parse SQL. Query: {query}, Error: {e}")
+                return
 
-            if any(
-                [
-                    table.schema.raw_name == Schema.unknown
-                    for table in set(parser.source_tables + parser.target_tables)
-                ]
-            ):
-                # TODO: find the default schema name
-                logger.warning(f"Skip query missing explicit schema: {query}")
-                continue
+    def _populate_lineage_from_sql(self, query, database):
+        def format_table_name(table: Table, database: str) -> str:
+            return f"{database}.{str(table)}"
 
-            target = format_table_name(parser.target_tables[0], database)
-            sources = [
-                format_table_name(table, database) for table in parser.source_tables
+        parser = LineageRunner(query)
+
+        if len(parser.target_tables) != 1:
+            logger.warning(f"Cannot extract lineage for the query: {query}")
+            return
+
+        if len(parser.source_tables) < 1:
+            return
+
+        if any(
+            [
+                table.schema.raw_name == Schema.unknown
+                for table in set(parser.source_tables + parser.target_tables)
             ]
+        ):
+            # TODO: find the default schema name
+            logger.warning(f"Skip query missing explicit schema: {query}")
+            return
 
-            if (not self._include_self_lineage) and target in sources:
-                continue
+        target = format_table_name(parser.target_tables[0], database)
+        sources = [format_table_name(table, database) for table in parser.source_tables]
 
-            source_ids = [
-                str(to_dataset_entity_id(source, DataPlatform.REDSHIFT))
-                for source in sources
-            ]
+        if (not self._include_self_lineage) and target in sources:
+            return
 
-            self._init_dataset(
-                target,
-                DatasetUpstream(source_datasets=source_ids, transformation=query),
-            )
+        source_ids = [
+            str(to_dataset_entity_id(source, DataPlatform.REDSHIFT))
+            for source in sources
+        ]
+
+        self._init_dataset(
+            target,
+            DatasetUpstream(source_datasets=source_ids, transformation=query),
+        )
 
     async def _fetch_lineage(self, sql, conn, db):
         results = await conn.fetch(sql)
