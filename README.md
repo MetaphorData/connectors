@@ -1,4 +1,4 @@
-<a href="https://metaphor.io"><img src="./logo.png" width="300" /></a>
+<a href="https://metaphor.io"><img src="https://github.com/MetaphorData/connectors/raw/main/logo.png" width="300" /></a>
 
 # Metaphor Connectors
 
