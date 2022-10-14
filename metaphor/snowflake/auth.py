@@ -44,6 +44,9 @@ class SnowflakeAuthConfig(BaseConfig):
     # role to use when opening a connection
     role: Optional[str] = None
 
+    # warehouse to use when opening a connection
+    warehouse: Optional[str] = None
+
     # database context when opening a connection
     default_database: Optional[str] = None
 
@@ -83,6 +86,7 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
         password=config.password,
         private_key=pkb,
         role=config.role,
+        warehouse=config.warehouse,
         database=config.default_database,
         application=METAPHOR_DATA_SNOWFLAKE_CONNECTOR,
         session_parameters={
