@@ -3,6 +3,7 @@ account: account
 user: user
 password: password
 role: role
+warehouse: warehouse
 default_database: database
 filter:
   includes:
