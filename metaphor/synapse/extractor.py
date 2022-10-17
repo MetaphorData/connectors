@@ -3,7 +3,6 @@ from typing import Collection, Dict, List
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AspectType,
     Dataset,
@@ -35,7 +34,8 @@ class SynapseExtractor(BaseExtractor):
         return SynapseExtractor(SynapseConfig.from_yaml_file(config_file))
 
     def __init__(self, config: SynapseConfig):
-        super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
+        # super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
+        super().__init__(config, "Synapse metadata crawler", None)
         self._tenant_id = config.tenant_id
         self._client = AuthClient(config)
         self._databases: List[WorkspaceDatabase] = []
