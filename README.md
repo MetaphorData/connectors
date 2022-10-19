@@ -43,7 +43,6 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [bigquery](metaphor/bigquery/README.md)                      | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/README.md)      | Lineage                                  |
 | [bigquery.profile](metaphor/bigquery/profile/README.md)      | Data profile                             |
-| [bigquery.usage](metaphor/bigquery/usage/README.md)          | Data usage                               |
 | [dbt](metaphor/dbt/README.md)                                | dbt model, test, lineage                 |
 | [dbt.cloud](metaphor/dbt/cloud/README.md)                    | dbt model, test, lineage                 |
 | [glue](metaphor/glue/README.md)                              | Schema, description                      |
@@ -59,11 +58,9 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [redshift](metaphor/redshift/README.md)                      | Schema, description, statistics, queries |
 | [redshift.lineage](metaphor/redshift/lineage/README.md)      | Lineage                                  |
 | [redshift.profile](metaphor/redshift/profile/README.md)      | Data profile                             |
-| [redshift.usage](metaphor/redshift/usage/README.md)          | Usage                                    |
 | [snowflake](metaphor/snowflake/README.md)                    | Schema, description, statistics, queries |
 | [snowflake.lineage](metaphor/snowflake/lineage/README.md)    | Lineage                                  |
 | [snowflake.profile](metaphor/snowflake/profile/README.md)    | Data profile                             |
-| [snowflake.usage](metaphor/snowflake/usage/README.md)        | Data usage                               |
 | [tableau](metaphor/tableau/README.md)                        | Dashboard, lineage                       |
 | [unity_catalog](metaphor/unity_catalog/README.md)            | Schema, description                      |
 
