@@ -1,9 +1,12 @@
 from typing import List
 
-from metaphor.common.api_request import call_get
 from metaphor.common.logger import get_logger
 from metaphor.synapse.config import SynapseConfig
-from metaphor.synapse.workspace_client import SynapseWorkspace, WorkspaceClient
+from metaphor.synapse.workspace_client import (
+    SynapseWorkspace,
+    WorkspaceClient,
+    call_get,
+)
 
 try:
     import msal

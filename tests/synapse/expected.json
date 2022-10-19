@@ -1,43 +1,43 @@
 [
-    {
-      "displayName": "mock_synapse_table_name",
-      "entityType": "DATASET",
-      "logicalId": {
-        "name": "mock_synapse_table_id"
-      },
-      "schema": {
-        "aspectType": "DATASET_SCHEMA",
-        "fields": [
-          {
-            "description": "mock_column_description_2",
-            "fieldName": "mock_column_name_1",
-            "maxLength": 0.0,
-            "nativeType": "mock_column_type_2",
-            "nullable": false,
-            "precision": 0.0
-          },
-          {
-            "description": "mock_column_description_2",
-            "fieldName": "mock_column_name_2",
-            "maxLength": 0.0,
-            "nativeType": "mock_column_type_2",
-            "nullable": true,
-            "precision": 0.0
-          }
-        ],
-        "schemaType": "SQL",
-        "sqlSchema": {
-          "materialization": "TABLE",
-          "tableSchema": "mock_table_type"
+  {
+    "displayName": "mock_synapse_table_name",
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "mock_synapse_table_id",
+      "platform": "SYNAPSE"
+    },
+    "schema": {
+      "aspectType": "DATASET_SCHEMA",
+      "fields": [
+        {
+          "description": "mock_column_description_2",
+          "fieldName": "mock_column_name_1",
+          "maxLength": 0.0,
+          "nativeType": "mock_column_type_2",
+          "nullable": false,
+          "precision": 0.0
+        },
+        {
+          "description": "mock_column_description_2",
+          "fieldName": "mock_column_name_2",
+          "maxLength": 0.0,
+          "nativeType": "mock_column_type_2",
+          "nullable": true,
+          "precision": 0.0
         }
-      },
-      "structure": {
-        "aspectType": "NAMESPACE_INFO",
-        "database": "mock_database_name",
-        "id": "mock_database_id",
-        "schema": "mock_database_type",
-        "table": "mock_synapse_table_name"
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "mock_table_type"
       }
+    },
+    "structure": {
+      "aspectType": "NAMESPACE_INFO",
+      "database": "mock_database_name",
+      "id": "mock_database_id",
+      "schema": "mock_database_type",
+      "table": "mock_synapse_table_name"
     }
-  ]
-  
+  }
+]

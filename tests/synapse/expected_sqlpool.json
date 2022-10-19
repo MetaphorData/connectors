@@ -1,32 +1,33 @@
 [
-    {
-      "displayName": "mock_sql_pool_name",
-      "logicalId": {
-        "name": "mock_sql_pool_table_id"
-      },
-      "schema": {
-        "aspectType": "DATASET_SCHEMA",
-        "fields": [
-          {
-            "fieldName": "mock_sql_pool_schema_column_name_1",
-            "nativeType": "int"
-          },
-          {
-            "fieldName": "mock_sql_pool_schema_column_name_2",
-            "nativeType": "nvarchar"
-          }
-        ],
-        "id": "mock_sql_pool_schema_id",
-        "sqlSchema": {
-          "materialization": "TABLE",
-          "tableSchema": "dbo"
+  {
+    "displayName": "mock_sql_pool_name",
+    "logicalId": {
+      "name": "mock_sql_pool_table_id",
+      "platform": "SYNAPSE"
+    },
+    "schema": {
+      "aspectType": "DATASET_SCHEMA",
+      "fields": [
+        {
+          "fieldName": "mock_sql_pool_schema_column_name_1",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "mock_sql_pool_schema_column_name_2",
+          "nativeType": "nvarchar"
         }
-      },
-      "structure": {
-        "aspectType": "NAMESPACE_INFO",
-        "database": "mock_sql_pool_database_name",
-        "id": "mock_sql_pool_database_id",
-        "table": "mock_sql_pool_name"
+      ],
+      "id": "mock_sql_pool_schema_id",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "dbo"
       }
+    },
+    "structure": {
+      "aspectType": "NAMESPACE_INFO",
+      "database": "mock_sql_pool_database_name",
+      "id": "mock_sql_pool_database_id",
+      "table": "mock_sql_pool_name"
     }
-  ]
+  }
+]
