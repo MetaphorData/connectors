@@ -1,12 +1,9 @@
 from typing import List
 
+from metaphor.common.api_request import get_request
 from metaphor.common.logger import get_logger
 from metaphor.synapse.config import SynapseConfig
-from metaphor.synapse.workspace_client import (
-    SynapseWorkspace,
-    WorkspaceClient,
-    call_get,
-)
+from metaphor.synapse.workspace_client import SynapseWorkspace, WorkspaceClient
 
 try:
     import msal
@@ -22,6 +19,7 @@ class AuthClient:
     AZURE_SYNAPSE_SCOPES = ["https://dev.azuresynapse.net/.default"]
     AZURE_MANGEMENT_SCOPES = ["https://management.azure.com/.default"]
     AZURE_MANGEMENT_ENDPOINT = "https://management.azure.com"
+    AZURE_STORAGE_SCOPES = ["https://storage.azure.com/.default"]
 
     def __init__(self, config: SynapseConfig):
         self._subscription_id = config.subscription_id
@@ -33,6 +31,12 @@ class AuthClient:
         self._azure_synapse_headers = {
             "Authorization": self.retrieve_access_token(
                 config, self.AZURE_SYNAPSE_SCOPES
+            )
+        }
+
+        self._azure_storage_headers = {
+            "Authorization": self.retrieve_access_token(
+                config, self.AZURE_STORAGE_SCOPES
             )
         }
 
@@ -50,12 +54,11 @@ class AuthClient:
                 "No suitable token exists in cache. Let's get a new one from AAD."
             )
             token = app.acquire_token_for_client(scopes=scopes)
-
         return f"Bearer {token['access_token']}"
 
     def get_list_workspace_clients(self) -> List[WorkspaceClient]:
         url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/providers/Microsoft.Synapse/workspaces?api-version=2021-06-01"
-        workspaces = call_get(
+        workspaces = get_request(
             url,
             self._azure_management_headers,
             List[SynapseWorkspace],
@@ -70,6 +73,7 @@ class AuthClient:
                         self._subscription_id,
                         self._azure_synapse_headers,
                         self._azure_management_headers,
+                        self._azure_storage_headers,
                     )
                 ),
                 workspaces,

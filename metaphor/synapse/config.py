@@ -5,7 +5,7 @@ from metaphor.common.base_config import BaseConfig
 
 @dataclass
 class SynapseConfig(BaseConfig):
-    # Power BI Directory (tenant) ID
+    # Azure Directory (tenant) ID
     tenant_id: str
 
     # Azure AD application client ID
@@ -14,5 +14,5 @@ class SynapseConfig(BaseConfig):
     # Azure AD Application client secret
     secret: str
 
-    # The Azure Subscription id
+    # The Azure Subscription ID
     subscription_id: str

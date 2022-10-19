@@ -6,15 +6,17 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
 
 We recommend creating a dedicated Azure AD Application and a dedicated security group for the connector to use.
 
-<!-- 1. Follow [Step 1 of this doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-1---create-an-azure-ad-app) to create an Azure AD app and a client secret.
+1. Follow [this doc](https://learn.microsoft.com/en-us/azure/synapse-analytics/quickstart-create-workspace) to create a synapse workspace for you.
 
-2. Follow [this doc](https://learn.microsoft.com/en-us/azure/storage/blobs/create-data-lake-storage-account) to create Data Lake Storage Gen2 which set as the default storage warehouse for synapse in the next step. -->
-
-3. Follow [this doc](https://learn.microsoft.com/en-us/azure/synapse-analytics/quickstart-create-workspace) to create a synapse workspace for you.
-
-4. Access control in Azure Portal
+<!-- Pending to write and limit necessary permission for api   -->
+2. Access control in Azure Portal
+   - asure workspace
+   - storage account
+     - IAM: add storage Queue Data Contributor
 
 5. Access control in Microsoft Azure Synapse Portal
+
+   - 
 ## Config File
 
 Create a YAML config file based on the following template.

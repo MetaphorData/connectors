@@ -20,6 +20,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.synapse.auth_client import AuthClient
 from metaphor.synapse.config import SynapseConfig
 from metaphor.synapse.workspace_client import (
+    DataLakeStorage,
     SqlPoolTable,
     SynapseTable,
     WorkspaceDatabase,
@@ -51,19 +52,24 @@ class SynapseExtractor(BaseExtractor):
             try:
                 for database in workspaceClient.get_databases():
                     tables = workspaceClient.get_tables(database.name)
-                    # views = self._client.get_view(workspace.name, database.name)
                     self._map_tables_to_dataset(database, tables)
-            except Exception as e:
-                logger.exception(e)
+            except Exception as error:
+                logger.exception(error)
 
             # sqlpool database
             try:
                 for database in workspaceClient.get_sqlpool_databases():
                     tables = workspaceClient.get_sqlpool_tables(database.name)
-                    # views = self._client.get_view(workspace.name, database.name)
                     self._map_sqlpool_tables_to_dataset(database, tables)
-            except Exception as e:
-                logger.exception(e)
+            except Exception as error:
+                logger.exception(error)
+
+            # azure storage
+            try:
+                storages = workspaceClient.get_links()
+                self._map_storage_to_dataset(storages)
+            except Exception as error:
+                logger.exception(error)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._dataset_map.values())
@@ -154,3 +160,18 @@ class SynapseExtractor(BaseExtractor):
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
             self._dataset_map[table.id] = dataset
+
+    def _map_storage_to_dataset(self, storages: List[DataLakeStorage]):
+        for storage in storages:
+            dataset = Dataset()
+            dataset.logical_id = DatasetLogicalID(
+                name=storage.name, platform=DataPlatform.SYNAPSE
+            )
+            dataset.display_name = storage.name
+            data_type = "directory" if storage.isDirectory else "file"
+            dataset.schema = DatasetSchema(
+                aspect_type=AspectType.NAMESPACE_INFO,
+                tags=[f"etag={storage.etag}", f"contentLength={storage.contentLength}"],
+                description=f"This is a {data_type} in the storage",
+            )
+            self._dataset_map[storage.etag] = dataset
