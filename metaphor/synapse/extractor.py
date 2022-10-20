@@ -5,7 +5,8 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
-    AspectType,
+    CustomMetadata,
+    CustomMetadataItem,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -20,8 +21,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.synapse.auth_client import AuthClient
 from metaphor.synapse.config import SynapseConfig
 from metaphor.synapse.workspace_client import (
-    DataLakeStorage,
-    SqlPoolTable,
+    DedicatedSqlPoolTable,
     SynapseTable,
     WorkspaceDatabase,
 )
@@ -38,7 +38,6 @@ class SynapseExtractor(BaseExtractor):
 
     def __init__(self, config: SynapseConfig):
         super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
-        self._tenant_id = config.tenant_id
         self._client = AuthClient(config)
         self._databases: List[WorkspaceDatabase] = []
         self._dataset_map: Dict[str, Dataset] = {}
@@ -56,18 +55,13 @@ class SynapseExtractor(BaseExtractor):
             except Exception as error:
                 logger.exception(error)
 
-            # sqlpool database
+            # dedicated sqlpool database
             try:
-                for database in workspaceClient.get_sqlpool_databases():
-                    tables = workspaceClient.get_sqlpool_tables(database.name)
-                    self._map_sqlpool_tables_to_dataset(database, tables)
-            except Exception as error:
-                logger.exception(error)
-
-            # azure storage
-            try:
-                storages = workspaceClient.get_links()
-                self._map_storage_to_dataset(storages)
+                for database in workspaceClient.get_dedicated_sql_pool_databases():
+                    tables = workspaceClient.get_dedicated_sql_pool_tables(
+                        database.name
+                    )
+                    self._map_dedicated_sql_pool_tables_to_dataset(database, tables)
             except Exception as error:
                 logger.exception(error)
 
@@ -84,10 +78,7 @@ class SynapseExtractor(BaseExtractor):
             dataset.logical_id = DatasetLogicalID(
                 name=table.id, platform=DataPlatform.SYNAPSE
             )
-            dataset.display_name = table.name
             dataset.structure = DatasetStructure(
-                id=database.id,
-                aspect_type=AspectType.NAMESPACE_INFO,
                 database=database.name,
                 schema=database.properties["Origin"]["Type"],
                 table=table.name,
@@ -98,6 +89,7 @@ class SynapseExtractor(BaseExtractor):
                     SchemaField(
                         subfields=None,
                         field_name=column["Name"],
+                        field_path=column["Name"],
                         description=column["Description"],
                         max_length=float(column["OriginDataTypeName"]["Length"]),
                         nullable=column["OriginDataTypeName"]["IsNullable"],
@@ -107,10 +99,13 @@ class SynapseExtractor(BaseExtractor):
                 )
 
             dataset.schema = DatasetSchema(
-                aspect_type=AspectType.DATASET_SCHEMA,
                 schema_type=SchemaType.SQL,
                 sql_schema=SQLSchema(table_schema=table.properties["TableType"]),
                 fields=fields,
+            )
+
+            dataset.custom_metadata = CustomMetadata(
+                metadata=self._get_metadata(table.properties["StorageDescriptor"])
             )
 
             if table.properties["TableType"] == "EXTERNAL":
@@ -122,18 +117,26 @@ class SynapseExtractor(BaseExtractor):
 
             self._dataset_map[table.id] = dataset
 
-    def _map_sqlpool_tables_to_dataset(
-        self, database: WorkspaceDatabase, tables: List[SqlPoolTable]
+    def _get_metadata(self, meta_data: Dict[str, Dict]) -> List[CustomMetadataItem]:
+        items: List[CustomMetadataItem] = []
+        if "Format" in meta_data and "FormatType" in meta_data["Format"]:
+            items.append(
+                CustomMetadataItem("format", meta_data["Format"]["FormatType"])
+            )
+
+        if "Source" in meta_data and "Location" in meta_data["Source"]:
+            items.append(CustomMetadataItem("source", meta_data["Source"]["Location"]))
+        return items
+
+    def _map_dedicated_sql_pool_tables_to_dataset(
+        self, database: WorkspaceDatabase, tables: List[DedicatedSqlPoolTable]
     ):
         for table in tables:
             dataset = Dataset()
             dataset.logical_id = DatasetLogicalID(
                 name=table.id, platform=DataPlatform.SYNAPSE
             )
-            dataset.display_name = table.name
             dataset.structure = DatasetStructure(
-                id=database.id,
-                aspect_type=AspectType.NAMESPACE_INFO,
                 database=database.name,
                 table=table.name,
             )
@@ -143,13 +146,12 @@ class SynapseExtractor(BaseExtractor):
                     SchemaField(
                         subfields=None,
                         field_name=column["name"],
+                        field_path=column["name"],
                         native_type=column["properties"]["columnType"],
                     )
                 )
 
             dataset.schema = DatasetSchema(
-                id=table.sqlSchema.id,
-                aspect_type=AspectType.DATASET_SCHEMA,
                 sql_schema=SQLSchema(table_schema=table.sqlSchema.name),
                 fields=fields,
             )
@@ -160,18 +162,3 @@ class SynapseExtractor(BaseExtractor):
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
             self._dataset_map[table.id] = dataset
-
-    def _map_storage_to_dataset(self, storages: List[DataLakeStorage]):
-        for storage in storages:
-            dataset = Dataset()
-            dataset.logical_id = DatasetLogicalID(
-                name=storage.name, platform=DataPlatform.SYNAPSE
-            )
-            dataset.display_name = storage.name
-            data_type = "directory" if storage.isDirectory else "file"
-            dataset.schema = DatasetSchema(
-                aspect_type=AspectType.NAMESPACE_INFO,
-                tags=[f"etag={storage.etag}", f"contentLength={storage.contentLength}"],
-                description=f"This is a {data_type} in the storage",
-            )
-            self._dataset_map[storage.etag] = dataset

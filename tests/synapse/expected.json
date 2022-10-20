@@ -1,25 +1,37 @@
 [
   {
-    "displayName": "mock_synapse_table_name",
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "format",
+          "value": "csv"
+        },
+        {
+          "key": "source",
+          "value": "mock_storage_location"
+        }
+      ]
+    },
     "entityType": "DATASET",
     "logicalId": {
       "name": "mock_synapse_table_id",
       "platform": "SYNAPSE"
     },
     "schema": {
-      "aspectType": "DATASET_SCHEMA",
       "fields": [
         {
-          "description": "mock_column_description_2",
+          "description": "mock_column_description_1",
           "fieldName": "mock_column_name_1",
+          "fieldPath": "mock_column_name_1",
           "maxLength": 0.0,
-          "nativeType": "mock_column_type_2",
+          "nativeType": "mock_column_type_1",
           "nullable": false,
           "precision": 0.0
         },
         {
           "description": "mock_column_description_2",
           "fieldName": "mock_column_name_2",
+          "fieldPath": "mock_column_name_2",
           "maxLength": 0.0,
           "nativeType": "mock_column_type_2",
           "nullable": true,
@@ -33,9 +45,7 @@
       }
     },
     "structure": {
-      "aspectType": "NAMESPACE_INFO",
       "database": "mock_database_name",
-      "id": "mock_database_id",
       "schema": "mock_database_type",
       "table": "mock_synapse_table_name"
     }

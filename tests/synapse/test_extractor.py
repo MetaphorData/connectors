@@ -7,9 +7,8 @@ from metaphor.common.event_util import EventUtil
 from metaphor.synapse.config import SynapseConfig
 from metaphor.synapse.extractor import SynapseExtractor
 from metaphor.synapse.workspace_client import (
-    DataLakeStorage,
-    SqlPoolSchema,
-    SqlPoolTable,
+    DedicatedSqlPoolSchema,
+    DedicatedSqlPoolTable,
     SynapseTable,
     WorkspaceDatabase,
 )
@@ -37,12 +36,12 @@ async def test_extractor(test_root_dir):
                 "Columns": [
                     {
                         "Name": "mock_column_name_1",
-                        "Description": "mock_column_description_2",
+                        "Description": "mock_column_description_1",
                         "OriginDataTypeName": {
                             "Length": 0,
                             "IsNullable": False,
                             "Precision": 0,
-                            "TypeName": "mock_column_type_2",
+                            "TypeName": "mock_column_type_1",
                         },
                     },
                     {
@@ -55,7 +54,11 @@ async def test_extractor(test_root_dir):
                             "TypeName": "mock_column_type_2",
                         },
                     },
-                ]
+                ],
+                "Format": {
+                    "FormatType": "csv",
+                },
+                "Source": {"Location": "mock_storage_location"},
             },
             "TableType": "mock_table_type",
         },
@@ -84,7 +87,7 @@ async def test_extractor(test_root_dir):
 
 
 @pytest.mark.asyncio
-async def test_sqlpool_extractor(test_root_dir):
+async def test_dedicated_sql_pool_extractor(test_root_dir):
     mock_auth_instance = MagicMock()
     mock_workspace_instance = MagicMock()
 
@@ -94,11 +97,11 @@ async def test_sqlpool_extractor(test_root_dir):
         type="Microsoft.Synapse/workspaces/sqlPools",
     )
 
-    sqlpool_table = SqlPoolTable(
+    sqlpool_table = DedicatedSqlPoolTable(
         id="mock_sql_pool_table_id",
         name="mock_sql_pool_name",
         type="Microsoft.Synapse/workspaces/sqlPools/schemas/tables",
-        sqlSchema=SqlPoolSchema(
+        sqlSchema=DedicatedSqlPoolSchema(
             id="mock_sql_pool_schema_id",
             name="dbo",
             type="Microsoft.Synapse/workspaces/sqlPools/schemas",
@@ -122,10 +125,12 @@ async def test_sqlpool_extractor(test_root_dir):
     mock_auth_instance.get_list_workspace_clients = MagicMock(
         return_value=[mock_workspace_instance]
     )
-    mock_workspace_instance.get_sqlpool_databases = MagicMock(
+    mock_workspace_instance.get_dedicated_sql_pool_databases = MagicMock(
         return_value=[workspaceSqlPoolDatabase]
     )
-    mock_workspace_instance.get_sqlpool_tables = MagicMock(return_value=[sqlpool_table])
+    mock_workspace_instance.get_dedicated_sql_pool_tables = MagicMock(
+        return_value=[sqlpool_table]
+    )
 
     with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
         mock_client.return_value = mock_auth_instance
@@ -141,46 +146,3 @@ async def test_sqlpool_extractor(test_root_dir):
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/synapse/expected_sqlpool.json")
-
-
-@pytest.mark.asyncio
-async def test_storage_extractor(test_root_dir):
-    mock_auth_instance = MagicMock()
-    mock_workspace_instance = MagicMock()
-
-    dataLakeStorage1 = DataLakeStorage(
-        name="mock_data_lake_storage_directory",
-        isDirectory=True,
-        lastModified="Wed, 05 Oct 2022 20:29:17 GMT",
-        contentLength=0,
-        etag="mock_etag_1",
-    )
-
-    dataLakeStorage2 = DataLakeStorage(
-        name="mock_data_lake_storage_file.txt",
-        lastModified="Mon, 10 Oct 2022 20:29:17 GMT",
-        contentLength=0,
-        etag="mock_etag_2",
-    )
-
-    mock_auth_instance.get_list_workspace_clients = MagicMock(
-        return_value=[mock_workspace_instance]
-    )
-
-    mock_workspace_instance.get_links = MagicMock(
-        return_value=[dataLakeStorage1, dataLakeStorage2]
-    )
-
-    with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
-        mock_client.return_value = mock_auth_instance
-
-        config = SynapseConfig(
-            output=OutputConfig(),
-            tenant_id="mock_tenat_id",
-            client_id="mock_client_id",
-            secret="mock_secret",
-            subscription_id="mock_subscription_id",
-        )
-        extractor = SynapseExtractor(config)
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    assert events == load_json(f"{test_root_dir}/synapse/expected_storage.json")
