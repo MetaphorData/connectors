@@ -53,9 +53,7 @@ class PostgreSQLUsageExtractor(PostgreSQLExtractor):
                         logger.info(f"Ignore {full_name} due to filter config")
                         continue
 
-                    dataset = UsageUtil.init_dataset(
-                        None, full_name, DataPlatform.POSTGRESQL
-                    )
+                    dataset = UsageUtil.init_dataset(full_name, DataPlatform.POSTGRESQL)
 
                     # don't have exact time of query, so set all time window to be same query count
                     dataset.usage.query_counts.last24_hours.count = float(read_count)

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 
 from metaphor.common.usage_util import UsageUtil
@@ -7,11 +6,9 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUsage,
-    DatasetUsageHistory,
     EntityType,
     FieldQueryCount,
     FieldQueryCounts,
-    HistoryType,
     QueryCount,
     QueryCounts,
     UserQueryCounts,
@@ -32,8 +29,7 @@ def make_dataset_with_usage(counts: List[int]):
 
 
 def test_init_dataset():
-    now = datetime.now()
-    dataset1 = UsageUtil.init_dataset(None, "foo", DataPlatform.S3, False, now)
+    dataset1 = UsageUtil.init_dataset("foo", DataPlatform.S3)
     assert dataset1 == Dataset(
         entity_type=EntityType.DATASET,
         logical_id=DatasetLogicalID(name="foo", platform=DataPlatform.S3),
@@ -59,20 +55,6 @@ def test_init_dataset():
                 last7_days=[],
                 last90_days=[],
             ),
-        ),
-        usage_history=None,
-    )
-
-    dataset2 = UsageUtil.init_dataset(None, "bar", DataPlatform.S3, True, now)
-    assert dataset2 == Dataset(
-        entity_type=EntityType.DATASET,
-        logical_id=DatasetLogicalID(name="bar", platform=DataPlatform.S3),
-        usage_history=DatasetUsageHistory(
-            field_query_counts=[],
-            history_date=now,
-            history_type=HistoryType.DATASET_USAGE_HISTORY,
-            query_count=QueryCount(count=0.0, percentile=0.0),
-            user_query_counts=[],
         ),
     )
 

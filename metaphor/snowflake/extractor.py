@@ -369,7 +369,7 @@ class SnowflakeExtractor(BaseExtractor):
         queries = {
             x: QueryWithParam(
                 f"""
-                SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME,
+                SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
@@ -410,6 +410,7 @@ class SnowflakeExtractor(BaseExtractor):
             query_text,
             start_time,
             elapsed_time,
+            credit,
             bytes_scanned,
             bytes_written,
             rows_produced,
@@ -427,6 +428,7 @@ class SnowflakeExtractor(BaseExtractor):
                     account=self._account,
                     start_time=start_time,
                     duration=float(elapsed_time / 1000.0),
+                    cost=float(credit) if credit else None,
                     user_id=username,
                     rows_written=float(rows_produced) if rows_produced else None,
                     bytes_read=float(bytes_scanned) if bytes_scanned else None,
