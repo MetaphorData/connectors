@@ -292,6 +292,7 @@ class ManifestParserV5:
             description=metric.description or None,
             label=metric.label,
             tags=metric.tags,
+            timestamp=metric.timestamp,
             time_grains=metric.time_grains,
             dimensions=metric.dimensions,
             sql=metric.sql,

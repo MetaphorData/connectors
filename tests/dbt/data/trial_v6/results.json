@@ -722,6 +722,7 @@
       "timeGrains": [
         "year"
       ],
+      "timestamp": "release_year",
       "type": "count"
     },
     "logicalId": {
