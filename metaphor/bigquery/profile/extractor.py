@@ -303,11 +303,11 @@ class BigQueryProfileExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def _init_dataset(full_name: str) -> Dataset:
+    def _init_dataset(normalized_name: str) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, platform=DataPlatform.BIGQUERY
+            name=normalized_name, platform=DataPlatform.BIGQUERY
         )
 
         dataset.field_statistics = DatasetFieldStatistics(field_statistics=[])

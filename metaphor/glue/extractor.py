@@ -149,11 +149,11 @@ class GlueExtractor(BaseExtractor):
         row_count: int,
         last_updated: datetime,
     ) -> Dataset:
-        full_name = dataset_normalized_name(schema=schema, table=name)
+        normalized_name = dataset_normalized_name(schema=schema, table=name)
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
         dataset.logical_id.platform = DataPlatform.GLUE
-        dataset.logical_id.name = full_name
+        dataset.logical_id.name = normalized_name
 
         dataset.schema = DatasetSchema()
         dataset.schema.schema_type = SchemaType.SQL
@@ -174,6 +174,6 @@ class GlueExtractor(BaseExtractor):
 
         dataset.structure = DatasetStructure(schema=schema, table=name)
 
-        self._datasets[full_name] = dataset
+        self._datasets[normalized_name] = dataset
 
         return dataset

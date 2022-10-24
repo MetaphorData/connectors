@@ -197,7 +197,7 @@ def test_parse_profiling_result_default():
         # json
         5,
     ]
-    dataset = BigQueryProfileExtractor._init_dataset(full_name="foo")
+    dataset = BigQueryProfileExtractor._init_dataset(normalized_name="foo")
 
     column_statistics = ColumnStatistics()
 

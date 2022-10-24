@@ -131,7 +131,9 @@ def test_parse_profiling_result():
         13,
         14,
     )
-    dataset = SnowflakeProfileExtractor._init_dataset(account="a", full_name="foo")
+    dataset = SnowflakeProfileExtractor._init_dataset(
+        account="a", normalized_name="foo"
+    )
 
     SnowflakeProfileExtractor._parse_profiling_result(
         columns, results, dataset, column_statistics_config()

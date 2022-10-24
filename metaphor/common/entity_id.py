@@ -39,14 +39,14 @@ class EntityId:
 
 
 def to_dataset_entity_id(
-    full_name: str, platform: DataPlatform, account: Optional[str] = None
+    normalized_name: str, platform: DataPlatform, account: Optional[str] = None
 ) -> EntityId:
     """
     converts a dataset name, platform and account into a dataset entity ID
     """
     return EntityId(
         EntityType.DATASET,
-        DatasetLogicalID(name=full_name, platform=platform, account=account),
+        DatasetLogicalID(name=normalized_name, platform=platform, account=account),
     )
 
 

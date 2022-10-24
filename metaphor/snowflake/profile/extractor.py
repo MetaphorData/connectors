@@ -301,11 +301,11 @@ class SnowflakeProfileExtractor(BaseExtractor):
         return data_type in ("VARIANT", "ARRAY", "OBJECT", "GEOGRAPHY")
 
     @staticmethod
-    def _init_dataset(account: str, full_name: str) -> Dataset:
+    def _init_dataset(account: str, normalized_name: str) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, account=account, platform=DataPlatform.SNOWFLAKE
+            name=normalized_name, account=account, platform=DataPlatform.SNOWFLAKE
         )
 
         dataset.field_statistics = DatasetFieldStatistics(field_statistics=[])
