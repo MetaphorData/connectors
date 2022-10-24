@@ -68,14 +68,14 @@ class RedshiftExtractor(PostgreSQLExtractor):
         )
 
         for result in results:
-            full_name = dataset_normalized_name(
+            normalized_name = dataset_normalized_name(
                 catalog, result["schema"], result["table"]
             )
-            if full_name not in self._datasets:
-                logger.warning(f"table {full_name} not found")
+            if normalized_name not in self._datasets:
+                logger.warning(f"table {normalized_name} not found")
                 continue
 
-            dataset = self._datasets[full_name]
+            dataset = self._datasets[normalized_name]
             assert dataset.statistics is not None
 
             dataset.statistics.record_count = (

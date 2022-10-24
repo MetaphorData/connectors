@@ -102,13 +102,15 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 # exclude both view and temporary table
                 continue
 
-            full_name = dataset_normalized_name(database, schema, name)
+            normalized_name = dataset_normalized_name(database, schema, name)
             if not self._filter.include_table(database, schema, name):
-                logger.info(f"Ignore {full_name} due to filter config")
+                logger.info(f"Ignore {normalized_name} due to filter config")
                 continue
 
-            self._datasets[full_name] = self._init_dataset(self._account, full_name)
-            tables[full_name] = DatasetInfo(
+            self._datasets[normalized_name] = self._init_dataset(
+                self._account, normalized_name
+            )
+            tables[normalized_name] = DatasetInfo(
                 database, schema, name, table_type, int(row_count)
             )
 
@@ -137,19 +139,23 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 column_name,
                 data_type,
             ) = row
-            full_name = dataset_normalized_name(table_catalog, table_schema, table_name)
-            if full_name not in tables:
+            normalized_name = dataset_normalized_name(
+                table_catalog, table_schema, table_name
+            )
+            if normalized_name not in tables:
                 continue
 
-            column_info_map.setdefault(full_name, []).append((column_name, data_type))
+            column_info_map.setdefault(normalized_name, []).append(
+                (column_name, data_type)
+            )
 
         # Build profile query for each table
         profile_queries = {}
-        for full_name, column_info in column_info_map.items():
-            dataset_info = tables.get(full_name)
+        for normalized_name, column_info in column_info_map.items():
+            dataset_info = tables.get(normalized_name)
             assert dataset_info is not None
 
-            profile_queries[full_name] = QueryWithParam(
+            profile_queries[normalized_name] = QueryWithParam(
                 SnowflakeProfileExtractor._build_profiling_query(
                     column_info,
                     dataset_info.schema,
@@ -164,11 +170,14 @@ class SnowflakeProfileExtractor(BaseExtractor):
             self._conn, profile_queries, "profile_columns", self._max_concurrency
         )
 
-        for full_name, profile in profiles.items():
-            dataset = self._datasets[full_name]
+        for normalized_name, profile in profiles.items():
+            dataset = self._datasets[normalized_name]
 
             SnowflakeProfileExtractor._parse_profiling_result(
-                column_info_map[full_name], profile[0], dataset, self._column_statistics
+                column_info_map[normalized_name],
+                profile[0],
+                dataset,
+                self._column_statistics,
             )
 
     @staticmethod

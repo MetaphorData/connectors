@@ -155,22 +155,22 @@ class SnowflakeExtractor(BaseExtractor):
 
         tables: Dict[str, DatasetInfo] = {}
         for schema, name, table_type, comment, row_count, table_bytes in cursor:
-            full_name = dataset_normalized_name(database, schema, name)
+            normalized_name = dataset_normalized_name(database, schema, name)
             if not self._filter.include_table(database, schema, name):
-                logger.info(f"Ignore {full_name} due to filter config")
+                logger.info(f"Ignore {normalized_name} due to filter config")
                 continue
 
             # TODO: Support dots in database/schema/table name
             if "." in database or "." in schema or "." in name:
                 logger.info(
-                    f"Ignore {full_name} due to dot in database, schema, or table name"
+                    f"Ignore {normalized_name} due to dot in database, schema, or table name"
                 )
                 continue
 
-            self._datasets[full_name] = self._init_dataset(
+            self._datasets[normalized_name] = self._init_dataset(
                 database, schema, name, table_type, comment, row_count, table_bytes
             )
-            tables[full_name] = DatasetInfo(database, schema, name, table_type)
+            tables[normalized_name] = DatasetInfo(database, schema, name, table_type)
 
         return tables
 
@@ -196,11 +196,13 @@ class SnowflakeExtractor(BaseExtractor):
             default,
             comment,
         ) in cursor:
-            full_name = dataset_normalized_name(database, table_schema, table_name)
-            if full_name not in self._datasets:
+            normalized_name = dataset_normalized_name(
+                database, table_schema, table_name
+            )
+            if normalized_name not in self._datasets:
                 continue
 
-            dataset = self._datasets[full_name]
+            dataset = self._datasets[normalized_name]
 
             assert dataset.schema is not None and dataset.schema.fields is not None
 
@@ -284,12 +286,12 @@ class SnowflakeExtractor(BaseExtractor):
                 entry[4],
                 entry[6],
             )
-            table = dataset_normalized_name(database, schema, table_name)
+            normalized_name = dataset_normalized_name(database, schema, table_name)
 
-            dataset = self._datasets.get(table)
+            dataset = self._datasets.get(normalized_name)
             if dataset is None or dataset.schema is None:
                 logger.warning(
-                    f"Table {table} schema not found for unique key {constraint_name}"
+                    f"Table {normalized_name} schema not found for unique key {constraint_name}"
                 )
                 continue
 
@@ -299,7 +301,7 @@ class SnowflakeExtractor(BaseExtractor):
             )
             if not field:
                 logger.warning(
-                    f"Column {column} not found in table {table} for unique key {constraint_name}"
+                    f"Column {column} not found in table {normalized_name} for unique key {constraint_name}"
                 )
                 continue
 
@@ -315,12 +317,12 @@ class SnowflakeExtractor(BaseExtractor):
                 entry[4],
                 entry[6],
             )
-            table = dataset_normalized_name(database, schema, table_name)
+            normalized_name = dataset_normalized_name(database, schema, table_name)
 
-            dataset = self._datasets.get(table)
+            dataset = self._datasets.get(normalized_name)
             if dataset is None or dataset.schema is None:
                 logger.error(
-                    f"Table {table} schema not found for primary key {constraint_name}"
+                    f"Table {normalized_name} schema not found for primary key {constraint_name}"
                 )
                 continue
 
@@ -342,12 +344,12 @@ class SnowflakeExtractor(BaseExtractor):
         )
 
         for key, value, database, schema, table_name in cursor:
-            table = dataset_normalized_name(database, schema, table_name)
+            normalized_name = dataset_normalized_name(database, schema, table_name)
 
-            dataset = self._datasets.get(table)
+            dataset = self._datasets.get(normalized_name)
             if dataset is None or dataset.schema is None:
                 logger.error(
-                    f"Table {table} not found for tag {self._build_tag_string(key, value)}"
+                    f"Table {normalized_name} not found for tag {self._build_tag_string(key, value)}"
                 )
                 continue
 
@@ -458,15 +460,15 @@ class SnowflakeExtractor(BaseExtractor):
         row_count: Optional[int],
         table_bytes: Optional[float],
     ) -> Dataset:
-        full_name = dataset_normalized_name(database, schema, table)
+        normalized_name = dataset_normalized_name(database, schema, table)
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, account=self._account, platform=DataPlatform.SNOWFLAKE
+            name=normalized_name, account=self._account, platform=DataPlatform.SNOWFLAKE
         )
 
         dataset.source_info = SourceInfo(
-            main_url=SnowflakeExtractor.build_table_url(self._account, full_name)
+            main_url=SnowflakeExtractor.build_table_url(self._account, normalized_name)
         )
 
         dataset.schema = DatasetSchema(

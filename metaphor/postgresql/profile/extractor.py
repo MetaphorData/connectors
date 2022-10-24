@@ -216,8 +216,8 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
         super()._init_dataset(
             database, schema, table, table_type, description, row_count, table_size
         )
-        full_name = dataset_normalized_name(database, schema, table)
-        self._datasets[full_name].field_statistics = DatasetFieldStatistics(
+        normalized_name = dataset_normalized_name(database, schema, table)
+        self._datasets[normalized_name].field_statistics = DatasetFieldStatistics(
             field_statistics=[]
         )
 
