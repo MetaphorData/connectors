@@ -19,6 +19,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
+    DatasetStructure,
     MaterializationType,
     SchemaField,
     SchemaType,
@@ -108,7 +109,8 @@ class GlueExtractor(BaseExtractor):
                 description = table.get("Description")
 
                 dataset = self._init_dataset(
-                    full_name=f"{database}.{name}",
+                    schema=database,
+                    table_name=name,
                     table_type="TABLE",
                     description=description,
                     row_count=row_count,
@@ -139,12 +141,14 @@ class GlueExtractor(BaseExtractor):
 
     def _init_dataset(
         self,
-        full_name: str,
+        schema: str,
+        table_name: str,
         table_type: str,
         description: str,
         row_count: int,
         last_updated: datetime,
     ) -> Dataset:
+        full_name = f"{schema}.{table_name}"
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
         dataset.logical_id.platform = DataPlatform.GLUE
@@ -166,6 +170,8 @@ class GlueExtractor(BaseExtractor):
         dataset.statistics = DatasetStatistics()
         dataset.statistics.record_count = float(row_count) if row_count else None
         dataset.statistics.last_updated = last_updated
+
+        dataset.structure = DatasetStructure(schema=schema, table=table_name)
 
         self._datasets[full_name] = dataset
 

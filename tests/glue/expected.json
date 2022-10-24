@@ -30,6 +30,10 @@
     "statistics": {
       "lastUpdated": "2022-09-20T08:30:00",
       "recordCount": 100000.0
+    },
+    "structure": {
+      "schema": "db1",
+      "table": "table1"
     }
   },
   {
@@ -63,6 +67,10 @@
     "statistics": {
       "lastUpdated": "2022-09-20T08:30:00",
       "recordCount": 100000.0
+    },
+    "structure": {
+      "schema": "db2",
+      "table": "table2"
     }
   }
 ]

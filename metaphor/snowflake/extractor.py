@@ -28,6 +28,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
+    DatasetStructure,
     EntityType,
     MaterializationType,
     QueriedDataset,
@@ -167,7 +168,7 @@ class SnowflakeExtractor(BaseExtractor):
                 continue
 
             self._datasets[full_name] = self._init_dataset(
-                full_name, table_type, comment, row_count, table_bytes
+                database, schema, name, table_type, comment, row_count, table_bytes
             )
             tables[full_name] = DatasetInfo(database, schema, name, table_type)
 
@@ -449,12 +450,15 @@ class SnowflakeExtractor(BaseExtractor):
 
     def _init_dataset(
         self,
-        full_name: str,
+        database: str,
+        schema: str,
+        table: str,
         table_type: str,
         comment: str,
         row_count: Optional[int],
         table_bytes: Optional[float],
     ) -> Dataset:
+        full_name = dataset_fullname(database, schema, table)
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
@@ -483,6 +487,10 @@ class SnowflakeExtractor(BaseExtractor):
             dataset.statistics.record_count = float(row_count)
         if table_bytes:
             dataset.statistics.data_size = table_bytes / (1000 * 1000)  # in MB
+
+        dataset.structure = DatasetStructure(
+            database=database, schema=schema, table=table
+        )
 
         return dataset
 

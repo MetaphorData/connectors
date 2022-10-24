@@ -17,6 +17,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
+    DatasetStructure,
     ForeignKey,
     MaterializationType,
     SchemaField,
@@ -155,13 +156,19 @@ class PostgreSQLExtractor(BaseExtractor):
             row_count = table["row_count"]
             table_size = table["table_size"]
             table_type = table["table_type"]
-            full_name = dataset_fullname(catalog, schema, name)
             if not self._filter.include_table(catalog, schema, name):
+                full_name = dataset_fullname(catalog, schema, name)
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
             datasets.append(
                 self._init_dataset(
-                    full_name, table_type, description, row_count, table_size
+                    database=catalog,
+                    schema=schema,
+                    table=name,
+                    table_type=table_type,
+                    description=description,
+                    row_count=row_count,
+                    table_size=table_size,
                 )
             )
 
@@ -310,12 +317,16 @@ class PostgreSQLExtractor(BaseExtractor):
 
     def _init_dataset(
         self,
-        full_name: str,
+        database: str,
+        schema: str,
+        table: str,
         table_type: str,
         description: str,
         row_count: int,
         table_size: int,
     ) -> Dataset:
+        full_name = dataset_fullname(database, schema, table)
+
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
         dataset.logical_id.platform = self._dataset_platform
@@ -341,6 +352,10 @@ class PostgreSQLExtractor(BaseExtractor):
         )  # in MB
         # There is no reliable way to directly get data last modified time, can explore alternatives in future
         # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
+
+        dataset.structure = DatasetStructure(
+            database=database, schema=schema, table=table
+        )
 
         self._datasets[full_name] = dataset
 

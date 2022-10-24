@@ -14,6 +14,7 @@ from metaphor.bigquery.extractor import BigQueryExtractor, build_client
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.column_statistics import ColumnStatistics
+from metaphor.common.entity_id import dataset_fullname
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -139,7 +140,9 @@ class BigQueryProfileExtractor(BaseExtractor):
             jobs.remove(job.job_id)
 
         dataset = BigQueryProfileExtractor._init_dataset(
-            f"{table.project}.{table.dataset_id}.{table.table_id}"
+            dataset_fullname(
+                db=table.project, schema=table.dataset_id, table=table.table_id
+            )
         )
         bq_table = self._client.get_table(table)
         row_count = bq_table.num_rows

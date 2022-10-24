@@ -35,6 +35,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
+    DatasetStructure,
     MaterializationType,
     QueriedDataset,
     QueryLog,
@@ -163,6 +164,9 @@ class BigQueryExtractor(BaseExtractor):
             logical_id=dataset_id,
             schema=schema,
             statistics=statistics,
+            structure=DatasetStructure(
+                database=project_id, schema=bq_table.dataset_id, table=bq_table.table_id
+            ),
         )
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
