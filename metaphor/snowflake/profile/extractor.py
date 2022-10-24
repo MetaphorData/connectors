@@ -10,7 +10,7 @@ except ImportError:
     raise
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_fullname
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
@@ -102,7 +102,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 # exclude both view and temporary table
                 continue
 
-            full_name = dataset_fullname(database, schema, name)
+            full_name = dataset_normalized_name(database, schema, name)
             if not self._filter.include_table(database, schema, name):
                 logger.info(f"Ignore {full_name} due to filter config")
                 continue
@@ -137,7 +137,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 column_name,
                 data_type,
             ) = row
-            full_name = dataset_fullname(table_catalog, table_schema, table_name)
+            full_name = dataset_normalized_name(table_catalog, table_schema, table_name)
             if full_name not in tables:
                 continue
 

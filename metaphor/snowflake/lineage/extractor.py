@@ -6,7 +6,7 @@ from pydantic import parse_raw_as
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
-    dataset_fullname,
+    dataset_normalized_name,
     to_dataset_entity_id,
     to_dataset_entity_id_from_logical_id,
 )
@@ -190,7 +190,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 continue
 
             database, schema, name = parts
-            full_name = dataset_fullname(database, schema, name)
+            full_name = dataset_normalized_name(database, schema, name)
             if not self._filter.include_table(database, schema, name):
                 logger.info(f"Excluding table {full_name}")
                 continue
@@ -237,14 +237,18 @@ class SnowflakeLineageExtractor(BaseExtractor):
             ):
                 continue
 
-            source_fullname = dataset_fullname(source_db, source_schema, source_table)
+            source_fullname = dataset_normalized_name(
+                source_db, source_schema, source_table
+            )
             source_entity_id_str = str(
                 to_dataset_entity_id(
                     source_fullname, DataPlatform.SNOWFLAKE, self._account
                 )
             )
 
-            target_fullname = dataset_fullname(target_db, target_schema, target_table)
+            target_fullname = dataset_normalized_name(
+                target_db, target_schema, target_table
+            )
 
             if not self._filter.include_table(target_db, target_schema, target_table):
                 logger.info(f"Excluding table {target_fullname}")

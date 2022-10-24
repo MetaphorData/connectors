@@ -2,7 +2,7 @@ from typing import Optional
 
 import attr
 
-from metaphor.common.entity_id import dataset_fullname
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 
 
@@ -22,5 +22,7 @@ class MetaphorDataset:
             account = obj.snowflake_account
 
         return DatasetLogicalID(
-            account, dataset_fullname(obj.database, obj.schema, obj.table), obj.platform
+            account,
+            dataset_normalized_name(obj.database, obj.schema, obj.table),
+            obj.platform,
         )

@@ -1,4 +1,4 @@
-from metaphor.common.entity_id import EntityId
+from metaphor.common.entity_id import EntityId, dataset_normalized_name
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     DatasetLogicalID,
@@ -24,3 +24,10 @@ def test_to_str():
 
     # md5({"account":"account","name":"name","platform":"SNOWFLAKE"}) == 5AC8814ADBAFDA3D2B6D1AC58782C5D4
     assert str(id) == "DATASET~5AC8814ADBAFDA3D2B6D1AC58782C5D4"
+
+
+def test_dataset_normalized_name():
+    assert "a.b.c" == dataset_normalized_name("A", "b", "C")
+    assert "b.c" == dataset_normalized_name("b", "C")
+    assert "b.c" == dataset_normalized_name(schema="b", table="C")
+    assert "a.c" == dataset_normalized_name(db="A", table="C")

@@ -77,6 +77,8 @@ def to_person_entity_id(email: str) -> EntityId:
     )
 
 
-def dataset_fullname(db: str, schema: str, table: str) -> str:
-    """builds dataset fullname"""
-    return f"{db}.{schema}.{table}".lower()
+def dataset_normalized_name(
+    db: Optional[str] = None, schema: Optional[str] = None, table: Optional[str] = None
+) -> str:
+    """builds dataset normalized name"""
+    return ".".join([part for part in [db, schema, table] if part]).lower()
