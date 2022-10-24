@@ -11,11 +11,11 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 2.  Follow steps to set up/check enough permissions in Azure portal to perform Azure Synapse connector:
     1. Access control in Azure Portal, go to your Azure Synapse workspace in [Azure Portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
     2. Click the workspace which will be used in the Synapse connector.
-    3. Click **Access control(IAM)** tab on the left-hand panels.
-    4. Click **+Add** and select **Add role assignment** to add role-based permissions to the AD app we created in the first step.
-    5. add build-in role **Reader** or custom role to the app and wait for a few minutes for applied to all resources.
+    3. Click `Access control(IAM)` tab on the left-hand panels.
+    4. Click `+Add` and select `Add role assignment` to add role-based permissions to the AD app we created in the first step.
+    5. add build-in role `Reader` or custom role to the app and wait for a few minutes for applied to all resources.
 
-       - the build-in **Reader** role has too many permissions than the connector request. To limit permission, you can create custom role with ony **"Microsoft.Synapse/*/read"** permission.
+       - the build-in `Reader` role has more permissions than required by the connector. To limit the permission, you can create a custom role with only `"Microsoft.Synapse/*/read"` permission.
       Sample permission JSON file as follow:
             ```json
             {
@@ -40,11 +40,11 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 
 3. Follow the steps to set up/check enough permissions in Microsoft Azure Synapse portal to perform Azure Synapse connector:
     1. Go to your synapse workspace portal.
-       - if you cannot find it, go to [Azure Portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces) then click the workspace and you could find Workspace web URL in **Overview** section
-    2. Click **Manage** on the left-hand panel
-    3. Select **Access control** (Security -> Access control)
-    4. Click **+ Add** then add role-based permissions to the AD app we created in the first step.
-    5. Role select **Synapse Monitoring Operator**
+       - if you cannot find it, go to [Azure Portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces) then click the workspace and you could find Workspace web URL in `Overview` section
+    2. Click `Manage` on the left-hand panel
+    3. Select `Access control` (Security -> Access control)
+    4. Click `+ Add` then add role-based permissions to the AD app we created in the first step.
+    5. Role select `Synapse Monitoring Operator`
     6. Wait for a few minutes for permission apply and then could start to use Synapse connector.
 
 ## Config File
@@ -52,7 +52,7 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 Create a YAML config file based on the following template.
 
 ### Required Configurations
-To speceify workspaces to crawl, need to also assign **Resource Group Name**. Otherwise, the connector will crawl all authorized synapse workspaces.
+To specify workspaces to crawl, need to also assign a `Resource Group Name`. Otherwise, the connector will crawl all authorized synapse workspaces.
 
 ```yaml
 tenant_id: <tenant_id>  # The azure directory (tenant) id
