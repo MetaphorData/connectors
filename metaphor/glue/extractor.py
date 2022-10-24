@@ -6,6 +6,7 @@ import boto3
 from aws_assume_role_lib import assume_role
 
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
@@ -110,7 +111,7 @@ class GlueExtractor(BaseExtractor):
 
                 dataset = self._init_dataset(
                     schema=database,
-                    table_name=name,
+                    name=name,
                     table_type="TABLE",
                     description=description,
                     row_count=row_count,
@@ -142,13 +143,13 @@ class GlueExtractor(BaseExtractor):
     def _init_dataset(
         self,
         schema: str,
-        table_name: str,
+        name: str,
         table_type: str,
         description: str,
         row_count: int,
         last_updated: datetime,
     ) -> Dataset:
-        full_name = f"{schema}.{table_name}"
+        full_name = dataset_normalized_name(schema=schema, table=name)
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
         dataset.logical_id.platform = DataPlatform.GLUE
@@ -171,7 +172,7 @@ class GlueExtractor(BaseExtractor):
         dataset.statistics.record_count = float(row_count) if row_count else None
         dataset.statistics.last_updated = last_updated
 
-        dataset.structure = DatasetStructure(schema=schema, table=table_name)
+        dataset.structure = DatasetStructure(schema=schema, table=name)
 
         self._datasets[full_name] = dataset
 
