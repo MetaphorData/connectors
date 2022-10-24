@@ -6,11 +6,9 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUsage,
-    DatasetUsageHistory,
     EntityType,
     FieldQueryCount,
     FieldQueryCounts,
-    HistoryType,
     QueryCount,
     QueryCounts,
     UserQueryCount,
@@ -21,54 +19,42 @@ from metaphor.models.metadata_change_event import (
 class UsageUtil:
     @staticmethod
     def init_dataset(
-        account: Optional[str],
         full_name: str,
         platform: DataPlatform,
-        useHistory: bool = False,
-        utc_now: Optional[datetime] = None,
+        account: Optional[str] = None,
     ) -> Dataset:
-        dataset = Dataset()
-        dataset.entity_type = EntityType.DATASET
-        dataset.logical_id = DatasetLogicalID(
-            name=full_name, account=account, platform=platform
+        dataset = Dataset(
+            entity_type=EntityType.DATASET,
+            logical_id=DatasetLogicalID(
+                name=full_name, account=account, platform=platform
+            ),
         )
 
-        # write to dataset usage history
-        if useHistory:
-            dataset.usage_history = DatasetUsageHistory(
-                history_type=HistoryType.DATASET_USAGE_HISTORY,
-                history_date=utc_now,
-                query_count=QueryCount(count=0.0, percentile=0.0),
-                field_query_counts=[],
-                user_query_counts=[],
-            )
-        # write to dataset usage aspect
-        else:
-            dataset.usage = DatasetUsage(
-                query_counts=QueryCounts(
-                    # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
-                    # See https://github.com/quicktype/quicktype/issues/1375
-                    last24_hours=QueryCount(count=0.0),
-                    last7_days=QueryCount(count=0.0),
-                    last30_days=QueryCount(count=0.0),
-                    last90_days=QueryCount(count=0.0),
-                    last365_days=QueryCount(count=0.0),
-                ),
-                field_query_counts=FieldQueryCounts(
-                    last24_hours=[],
-                    last7_days=[],
-                    last30_days=[],
-                    last90_days=[],
-                    last365_days=[],
-                ),
-                user_query_counts=UserQueryCounts(
-                    last24_hours=[],
-                    last7_days=[],
-                    last30_days=[],
-                    last90_days=[],
-                    last365_days=[],
-                ),
-            )
+        dataset.usage = DatasetUsage(
+            query_counts=QueryCounts(
+                # quicktype bug: if use integer 0, "to_dict" will throw AssertionError as it expect float
+                # See https://github.com/quicktype/quicktype/issues/1375
+                last24_hours=QueryCount(count=0.0),
+                last7_days=QueryCount(count=0.0),
+                last30_days=QueryCount(count=0.0),
+                last90_days=QueryCount(count=0.0),
+                last365_days=QueryCount(count=0.0),
+            ),
+            field_query_counts=FieldQueryCounts(
+                last24_hours=[],
+                last7_days=[],
+                last30_days=[],
+                last90_days=[],
+                last365_days=[],
+            ),
+            user_query_counts=UserQueryCounts(
+                last24_hours=[],
+                last7_days=[],
+                last30_days=[],
+                last90_days=[],
+                last365_days=[],
+            ),
+        )
 
         return dataset
 
@@ -104,18 +90,6 @@ class UsageUtil:
             UsageUtil._update_user_query_counts(
                 usage.user_query_counts, username, start_time, utc_now
             )
-
-    @staticmethod
-    def update_table_and_columns_usage_history(
-        history: DatasetUsageHistory,
-        columns: List[str],
-        username: Optional[str],
-    ):
-        history.query_count.count += 1
-        for column_name in columns:
-            UsageUtil._update_field_query_count(history.field_query_counts, column_name)
-        if username:
-            UsageUtil._update_user_query_count(history.user_query_counts, username)
 
     @staticmethod
     def _update_field_query_counts(
