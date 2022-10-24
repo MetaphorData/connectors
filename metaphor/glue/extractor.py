@@ -6,6 +6,7 @@ import boto3
 from aws_assume_role_lib import assume_role
 
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
@@ -19,6 +20,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
+    DatasetStructure,
     MaterializationType,
     SchemaField,
     SchemaType,
@@ -108,7 +110,8 @@ class GlueExtractor(BaseExtractor):
                 description = table.get("Description")
 
                 dataset = self._init_dataset(
-                    full_name=f"{database}.{name}",
+                    schema=database,
+                    name=name,
                     table_type="TABLE",
                     description=description,
                     row_count=row_count,
@@ -139,16 +142,18 @@ class GlueExtractor(BaseExtractor):
 
     def _init_dataset(
         self,
-        full_name: str,
+        schema: str,
+        name: str,
         table_type: str,
         description: str,
         row_count: int,
         last_updated: datetime,
     ) -> Dataset:
+        normalized_name = dataset_normalized_name(schema=schema, table=name)
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
         dataset.logical_id.platform = DataPlatform.GLUE
-        dataset.logical_id.name = full_name
+        dataset.logical_id.name = normalized_name
 
         dataset.schema = DatasetSchema()
         dataset.schema.schema_type = SchemaType.SQL
@@ -167,6 +172,8 @@ class GlueExtractor(BaseExtractor):
         dataset.statistics.record_count = float(row_count) if row_count else None
         dataset.statistics.last_updated = last_updated
 
-        self._datasets[full_name] = dataset
+        dataset.structure = DatasetStructure(schema=schema, table=name)
+
+        self._datasets[normalized_name] = dataset
 
         return dataset

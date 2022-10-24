@@ -2,7 +2,11 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from pydantic.utils import unique_list
 
-from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
+from metaphor.common.entity_id import (
+    EntityId,
+    dataset_normalized_name,
+    to_dataset_entity_id,
+)
 from metaphor.common.logger import get_logger
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.models.metadata_change_event import (
@@ -116,7 +120,9 @@ class ManifestParserV6:
         for key, source in sources.items():
             assert source.database is not None
             source_map[key] = to_dataset_entity_id(
-                dataset_fullname(source.database, source.schema_, source.identifier),
+                dataset_normalized_name(
+                    source.database, source.schema_, source.identifier
+                ),
                 self._platform,
                 self._account,
             )
@@ -226,7 +232,7 @@ class ManifestParserV6:
                 type=materialization_type,
                 target_dataset=str(
                     to_dataset_entity_id(
-                        dataset_fullname(
+                        dataset_normalized_name(
                             model.database, model.schema_, model.alias or model.name
                         ),
                         self._platform,

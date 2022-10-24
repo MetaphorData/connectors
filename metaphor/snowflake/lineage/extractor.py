@@ -6,7 +6,7 @@ from pydantic import parse_raw_as
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
-    dataset_fullname,
+    dataset_normalized_name,
     to_dataset_entity_id,
     to_dataset_entity_id_from_logical_id,
 )
@@ -165,9 +165,9 @@ class SnowflakeLineageExtractor(BaseExtractor):
             ):
                 continue
 
-            full_name = obj.objectName.lower().replace('"', "")
+            normalized_name = obj.objectName.lower().replace('"', "")
             entity_id = to_dataset_entity_id(
-                full_name, DataPlatform.SNOWFLAKE, self._account
+                normalized_name, DataPlatform.SNOWFLAKE, self._account
             )
             source_datasets.append(str(entity_id))
 
@@ -190,13 +190,15 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 continue
 
             database, schema, name = parts
-            full_name = dataset_fullname(database, schema, name)
+            normalized_name = dataset_normalized_name(database, schema, name)
             if not self._filter.include_table(database, schema, name):
-                logger.info(f"Excluding table {full_name}")
+                logger.info(f"Excluding table {normalized_name}")
                 continue
 
             logical_id = DatasetLogicalID(
-                name=full_name, account=self._account, platform=DataPlatform.SNOWFLAKE
+                name=normalized_name,
+                account=self._account,
+                platform=DataPlatform.SNOWFLAKE,
             )
 
             filtered_source_datasets = source_datasets.copy()
@@ -212,7 +214,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 source_datasets=filtered_source_datasets, transformation=query
             )
 
-            self._datasets[full_name] = Dataset(
+            self._datasets[normalized_name] = Dataset(
                 logical_id=logical_id, upstream=upstream
             )
 
@@ -237,31 +239,35 @@ class SnowflakeLineageExtractor(BaseExtractor):
             ):
                 continue
 
-            source_fullname = dataset_fullname(source_db, source_schema, source_table)
+            source_normalized_name = dataset_normalized_name(
+                source_db, source_schema, source_table
+            )
             source_entity_id_str = str(
                 to_dataset_entity_id(
-                    source_fullname, DataPlatform.SNOWFLAKE, self._account
+                    source_normalized_name, DataPlatform.SNOWFLAKE, self._account
                 )
             )
 
-            target_fullname = dataset_fullname(target_db, target_schema, target_table)
+            target_normalized_name = dataset_normalized_name(
+                target_db, target_schema, target_table
+            )
 
             if not self._filter.include_table(target_db, target_schema, target_table):
-                logger.info(f"Excluding table {target_fullname}")
+                logger.info(f"Excluding table {target_normalized_name}")
                 continue
 
             target_logical_id = DatasetLogicalID(
-                name=target_fullname,
+                name=target_normalized_name,
                 account=self._account,
                 platform=DataPlatform.SNOWFLAKE,
             )
 
-            if target_fullname in self._datasets:
-                self._datasets[target_fullname].upstream.source_datasets.append(
+            if target_normalized_name in self._datasets:
+                self._datasets[target_normalized_name].upstream.source_datasets.append(
                     source_entity_id_str
                 )
             else:
-                self._datasets[target_fullname] = Dataset(
+                self._datasets[target_normalized_name] = Dataset(
                     logical_id=target_logical_id,
                     upstream=DatasetUpstream(source_datasets=[source_entity_id_str]),
                 )

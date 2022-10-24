@@ -1,6 +1,6 @@
 from typing import Collection, List
 
-from metaphor.common.entity_id import dataset_fullname
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import chunk_query_logs
@@ -68,12 +68,14 @@ class RedshiftExtractor(PostgreSQLExtractor):
         )
 
         for result in results:
-            full_name = dataset_fullname(catalog, result["schema"], result["table"])
-            if full_name not in self._datasets:
-                logger.warning(f"table {full_name} not found")
+            normalized_name = dataset_normalized_name(
+                catalog, result["schema"], result["table"]
+            )
+            if normalized_name not in self._datasets:
+                logger.warning(f"table {normalized_name} not found")
                 continue
 
-            dataset = self._datasets[full_name]
+            dataset = self._datasets[normalized_name]
             assert dataset.statistics is not None
 
             dataset.statistics.record_count = (

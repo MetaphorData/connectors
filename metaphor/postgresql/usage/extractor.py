@@ -1,6 +1,6 @@
 from typing import Collection
 
-from metaphor.common.entity_id import dataset_fullname
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.usage_util import UsageUtil
@@ -47,13 +47,15 @@ class PostgreSQLUsageExtractor(PostgreSQLExtractor):
                     schema = row["schemaname"]
                     table_name = row["relname"]
                     read_count = row["seq_scan"]
-                    full_name = dataset_fullname(db, schema, table_name)
+                    normalized_name = dataset_normalized_name(db, schema, table_name)
 
                     if not self._filter.include_table(db, schema, table_name):
-                        logger.info(f"Ignore {full_name} due to filter config")
+                        logger.info(f"Ignore {normalized_name} due to filter config")
                         continue
 
-                    dataset = UsageUtil.init_dataset(full_name, DataPlatform.POSTGRESQL)
+                    dataset = UsageUtil.init_dataset(
+                        normalized_name, DataPlatform.POSTGRESQL
+                    )
 
                     # don't have exact time of query, so set all time window to be same query count
                     dataset.usage.query_counts.last24_hours.count = float(read_count)

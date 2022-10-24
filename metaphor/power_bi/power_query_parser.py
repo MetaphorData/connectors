@@ -3,7 +3,11 @@ from typing import List, Optional, Tuple
 
 from sql_metadata import Parser
 
-from metaphor.common.entity_id import EntityId, dataset_fullname, to_dataset_entity_id
+from metaphor.common.entity_id import (
+    EntityId,
+    dataset_normalized_name,
+    to_dataset_entity_id,
+)
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import DataPlatform
 
@@ -67,7 +71,7 @@ class PowerQueryParser:
             raise AssertionError(f"Unknown platform ${platform_str}")
 
         return to_dataset_entity_id(
-            dataset_fullname(db, schema, table), platform, account
+            dataset_normalized_name(db, schema, table), platform, account
         )
 
     @staticmethod
@@ -190,7 +194,9 @@ class PowerQueryParser:
         tables = PowerQueryParser.parse_tables(parameters[1], default_db)
 
         return [
-            to_dataset_entity_id(dataset_fullname(db, schema, table), platform, account)
+            to_dataset_entity_id(
+                dataset_normalized_name(db, schema, table), platform, account
+            )
             for db, schema, table in tables
         ]
 

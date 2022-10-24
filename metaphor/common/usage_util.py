@@ -19,14 +19,14 @@ from metaphor.models.metadata_change_event import (
 class UsageUtil:
     @staticmethod
     def init_dataset(
-        full_name: str,
+        normalized_name: str,
         platform: DataPlatform,
         account: Optional[str] = None,
     ) -> Dataset:
         dataset = Dataset(
             entity_type=EntityType.DATASET,
             logical_id=DatasetLogicalID(
-                name=full_name, account=account, platform=platform
+                name=normalized_name, account=account, platform=platform
             ),
         )
 

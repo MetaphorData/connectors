@@ -39,14 +39,14 @@ class EntityId:
 
 
 def to_dataset_entity_id(
-    full_name: str, platform: DataPlatform, account: Optional[str] = None
+    normalized_name: str, platform: DataPlatform, account: Optional[str] = None
 ) -> EntityId:
     """
     converts a dataset name, platform and account into a dataset entity ID
     """
     return EntityId(
         EntityType.DATASET,
-        DatasetLogicalID(name=full_name, platform=platform, account=account),
+        DatasetLogicalID(name=normalized_name, platform=platform, account=account),
     )
 
 
@@ -77,6 +77,8 @@ def to_person_entity_id(email: str) -> EntityId:
     )
 
 
-def dataset_fullname(db: str, schema: str, table: str) -> str:
-    """builds dataset fullname"""
-    return f"{db}.{schema}.{table}".lower()
+def dataset_normalized_name(
+    db: Optional[str] = None, schema: Optional[str] = None, table: Optional[str] = None
+) -> str:
+    """builds dataset normalized name"""
+    return ".".join([part for part in [db, schema, table] if part]).lower()

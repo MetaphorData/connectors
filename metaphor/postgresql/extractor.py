@@ -7,7 +7,7 @@ except ImportError:
     raise
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_fullname
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
@@ -17,6 +17,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
+    DatasetStructure,
     ForeignKey,
     MaterializationType,
     SchemaField,
@@ -155,13 +156,19 @@ class PostgreSQLExtractor(BaseExtractor):
             row_count = table["row_count"]
             table_size = table["table_size"]
             table_type = table["table_type"]
-            full_name = dataset_fullname(catalog, schema, name)
             if not self._filter.include_table(catalog, schema, name):
-                logger.info(f"Ignore {full_name} due to filter config")
+                normalized_name = dataset_normalized_name(catalog, schema, name)
+                logger.info(f"Ignore {normalized_name} due to filter config")
                 continue
             datasets.append(
                 self._init_dataset(
-                    full_name, table_type, description, row_count, table_size
+                    database=catalog,
+                    schema=schema,
+                    table=name,
+                    table_type=table_type,
+                    description=description,
+                    row_count=row_count,
+                    table_size=table_size,
                 )
             )
 
@@ -222,17 +229,17 @@ class PostgreSQLExtractor(BaseExtractor):
 
         for column in columns:
             schema, name = column["table_schema"], column["table_name"]
-            full_name = dataset_fullname(catalog, schema, name)
+            normalized_name = dataset_normalized_name(catalog, schema, name)
             if not self._filter.include_table(catalog, schema, name):
-                logger.info(f"Ignore {full_name} due to filter config")
+                logger.info(f"Ignore {normalized_name} due to filter config")
                 continue
-            dataset = self._datasets[full_name]
+            dataset = self._datasets[normalized_name]
             assert dataset.schema is not None and dataset.schema.fields is not None
 
             dataset.schema.fields.append(PostgreSQLExtractor._build_field(column))
-            if full_name not in seen:
+            if normalized_name not in seen:
                 datasets.append(dataset)
-                seen.add(full_name)
+                seen.add(normalized_name)
 
         # Fetch view definitions
         # See https://www.postgresql.org/docs/current/view-pg-views.html
@@ -246,13 +253,13 @@ class PostgreSQLExtractor(BaseExtractor):
         for view_definition in view_definitions:
             schema = view_definition["schemaname"]
             name = view_definition["viewname"]
-            full_name = dataset_fullname(catalog, schema, name)
+            normalized_name = dataset_normalized_name(catalog, schema, name)
             if not self._filter.include_table(catalog, schema, name):
                 continue
 
-            dataset = self._datasets.get(full_name)
+            dataset = self._datasets.get(normalized_name)
             if dataset is None:
-                logger.warning(f"view {full_name} not found")
+                logger.warning(f"view {normalized_name} not found")
                 continue
 
             dataset.schema.sql_schema.table_schema = view_definition["definition"]
@@ -296,30 +303,34 @@ class PostgreSQLExtractor(BaseExtractor):
             return
 
         for constraint in constraints:
-            full_name = dataset_fullname(
+            normalized_name = dataset_normalized_name(
                 catalog, constraint["table_schema"], constraint["table_name"]
             )
-            if full_name not in self._datasets:
-                logger.warning(f"Table {full_name} not found")
+            if normalized_name not in self._datasets:
+                logger.warning(f"Table {normalized_name} not found")
                 continue
 
-            dataset = self._datasets[full_name]
+            dataset = self._datasets[normalized_name]
             assert dataset.schema is not None and dataset.schema.sql_schema is not None
 
             self._build_constraint(constraint, dataset.schema.sql_schema)
 
     def _init_dataset(
         self,
-        full_name: str,
+        database: str,
+        schema: str,
+        table: str,
         table_type: str,
         description: str,
         row_count: int,
         table_size: int,
     ) -> Dataset:
+        normalized_name = dataset_normalized_name(database, schema, table)
+
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
         dataset.logical_id.platform = self._dataset_platform
-        dataset.logical_id.name = full_name
+        dataset.logical_id.name = normalized_name
 
         dataset.schema = DatasetSchema()
         dataset.schema.schema_type = SchemaType.SQL
@@ -342,7 +353,11 @@ class PostgreSQLExtractor(BaseExtractor):
         # There is no reliable way to directly get data last modified time, can explore alternatives in future
         # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 
-        self._datasets[full_name] = dataset
+        dataset.structure = DatasetStructure(
+            database=database, schema=schema, table=table
+        )
+
+        self._datasets[normalized_name] = dataset
 
         return dataset
 
@@ -372,7 +387,7 @@ class PostgreSQLExtractor(BaseExtractor):
             foreign_key = ForeignKey()
             foreign_key.field_path = constraint["key_columns"]
             foreign_key.parent = DatasetLogicalID()
-            foreign_key.parent.name = dataset_fullname(
+            foreign_key.parent.name = dataset_normalized_name(
                 constraint["constraint_db"],
                 constraint["constraint_schema"],
                 constraint["constraint_table"],

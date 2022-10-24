@@ -14,6 +14,7 @@ from metaphor.bigquery.extractor import BigQueryExtractor, build_client
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.column_statistics import ColumnStatistics
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -139,7 +140,9 @@ class BigQueryProfileExtractor(BaseExtractor):
             jobs.remove(job.job_id)
 
         dataset = BigQueryProfileExtractor._init_dataset(
-            f"{table.project}.{table.dataset_id}.{table.table_id}"
+            dataset_normalized_name(
+                db=table.project, schema=table.dataset_id, table=table.table_id
+            )
         )
         bq_table = self._client.get_table(table)
         row_count = bq_table.num_rows
@@ -300,11 +303,11 @@ class BigQueryProfileExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def _init_dataset(full_name: str) -> Dataset:
+    def _init_dataset(normalized_name: str) -> Dataset:
         dataset = Dataset()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, platform=DataPlatform.BIGQUERY
+            name=normalized_name, platform=DataPlatform.BIGQUERY
         )
 
         dataset.field_statistics = DatasetFieldStatistics(field_statistics=[])

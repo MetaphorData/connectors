@@ -6,7 +6,7 @@ from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderT
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
-    dataset_fullname,
+    dataset_normalized_name,
     to_dataset_entity_id,
     to_virtual_view_entity_id,
 )
@@ -190,7 +190,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 view.thought_spot.source_datasets = [
                     str(
                         to_dataset_entity_id(
-                            dataset_fullname(
+                            dataset_normalized_name(
                                 db=mapping.databaseName,
                                 schema=mapping.schemaName,
                                 table=mapping.tableName,

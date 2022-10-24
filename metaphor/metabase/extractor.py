@@ -6,7 +6,7 @@ import requests
 from sql_metadata import Parser
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_fullname, to_dataset_entity_id
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.metabase.config import MetabaseRunConfig
@@ -268,7 +268,9 @@ class MetabaseExtractor(BaseExtractor):
 
         dataset_id = str(
             to_dataset_entity_id(
-                dataset_fullname(database.database, schema or database.schema, name),
+                dataset_normalized_name(
+                    database.database, schema or database.schema, name
+                ),
                 database.platform,
                 database.account,
             )

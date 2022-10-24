@@ -31,6 +31,11 @@
       "dataSize": 5.0,
       "recordCount": 100.0,
       "lastUpdated": "2000-01-02T00:00:00+00:00"
+    },
+    "structure": {
+      "database": "project1",
+      "schema": "dataset1",
+      "table": "table1"
     }
   },
   {
@@ -82,6 +87,11 @@
       "dataSize": 0.5,
       "recordCount": 1000.0,
       "lastUpdated": "2000-01-02T00:00:00+00:00"
+    },
+    "structure": {
+      "database": "project1",
+      "schema": "dataset1",
+      "table": "table2"
     }
   },
   {

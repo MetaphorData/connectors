@@ -8,6 +8,7 @@ except ImportError:
     print("Please install metaphor[postgresql] extra\n")
     raise
 
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
@@ -203,15 +204,20 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
     def _init_dataset(
         self,
-        full_name: str,
+        database: str,
+        schema: str,
+        table: str,
         table_type: str,
         description: str,
         row_count: int,
         table_size: int,
     ) -> None:
         """Overwrite PostgreSQLExtractor._init_dataset"""
-        super()._init_dataset(full_name, table_type, description, row_count, table_size)
-        self._datasets[full_name].field_statistics = DatasetFieldStatistics(
+        super()._init_dataset(
+            database, schema, table, table_type, description, row_count, table_size
+        )
+        normalized_name = dataset_normalized_name(database, schema, table)
+        self._datasets[normalized_name].field_statistics = DatasetFieldStatistics(
             field_statistics=[]
         )
 

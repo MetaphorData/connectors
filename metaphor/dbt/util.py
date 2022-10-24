@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Union
 
 from metaphor.common.entity_id import (
     EntityId,
-    dataset_fullname,
+    dataset_normalized_name,
     to_dataset_entity_id,
     to_person_entity_id,
     to_virtual_view_entity_id,
@@ -50,7 +50,7 @@ EMAIL_REGEX = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
 def get_dataset_entity_id(self, db: str, schema: str, table: str) -> EntityId:
     return to_dataset_entity_id(
-        dataset_fullname(db, schema, table), self._platform, self._account
+        dataset_normalized_name(db, schema, table), self._platform, self._account
     )
 
 
@@ -130,7 +130,7 @@ def init_dataset(
     if unique_id not in datasets:
         datasets[unique_id] = Dataset(
             logical_id=DatasetLogicalID(
-                name=dataset_fullname(database, schema, name),
+                name=dataset_normalized_name(database, schema, name),
                 platform=platform,
                 account=account,
             )

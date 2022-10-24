@@ -5,7 +5,10 @@ from databricks_cli.sdk.api_client import ApiClient
 from databricks_cli.unity_catalog.api import UnityCatalogApi
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import to_dataset_entity_id_from_logical_id
+from metaphor.common.entity_id import (
+    dataset_normalized_name,
+    to_dataset_entity_id_from_logical_id,
+)
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.logger import get_logger
@@ -115,13 +118,13 @@ class UnityCatalogExtractor(BaseExtractor):
         schema_name = table.schema_name
         database = table.catalog_name
 
-        full_name = f"{database}.{schema_name}.{table_name}".lower()
+        normalized_name = dataset_normalized_name(database, schema_name, table_name)
 
         dataset = Dataset()
         dataset.structure = DatasetStructure()
         dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
-            name=full_name, platform=DataPlatform.UNITY_CATALOG
+            name=normalized_name, platform=DataPlatform.UNITY_CATALOG
         )
 
         dataset.structure = DatasetStructure(
@@ -151,7 +154,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
         dataset.custom_metadata = CustomMetadata(metadata=table.extra_metadata())
 
-        self._datasets[full_name] = dataset
+        self._datasets[normalized_name] = dataset
 
         return dataset
 
@@ -174,9 +177,13 @@ class UnityCatalogExtractor(BaseExtractor):
 
             field_mapping = FieldMapping(destination=column_name, sources=[])
             for upstream_col in column_lineage.upstream_cols:
-                full_name = f"{upstream_col.catalog_name}.{upstream_col.schema_name}.{upstream_col.table_name}"
+                normalized_name = dataset_normalized_name(
+                    upstream_col.catalog_name,
+                    upstream_col.schema_name,
+                    upstream_col.table_name,
+                )
                 source_logical_id = DatasetLogicalID(
-                    name=full_name.lower(), platform=DataPlatform.UNITY_CATALOG
+                    name=normalized_name.lower(), platform=DataPlatform.UNITY_CATALOG
                 )
                 source_datasets.append(
                     str(to_dataset_entity_id_from_logical_id(source_logical_id))
