@@ -1,0 +1,30 @@
+[
+  {
+    "logicalId": {
+      "name": "mock_sql_pool_table_id",
+      "platform": "SYNAPSE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "mock_sql_pool_schema_column_name_1",
+          "fieldPath": "mock_sql_pool_schema_column_name_1",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "mock_sql_pool_schema_column_name_2",
+          "fieldPath": "mock_sql_pool_schema_column_name_2",
+          "nativeType": "nvarchar"
+        }
+      ],
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "dbo"
+      }
+    },
+    "structure": {
+      "database": "mock_sql_pool_database_name",
+      "table": "mock_sql_pool_name"
+    }
+  }
+]

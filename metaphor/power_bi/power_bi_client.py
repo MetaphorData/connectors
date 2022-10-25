@@ -1,12 +1,12 @@
-import json
 import tempfile
 from enum import Enum
 from time import sleep
 from typing import Any, Callable, List, Optional, Type, TypeVar
 
 import requests
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel
 
+from metaphor.common.api_request import ApiError, get_request
 from metaphor.common.logger import get_logger
 from metaphor.power_bi.config import PowerBIRunConfig
 
@@ -338,16 +338,19 @@ class PowerBIClient:
         type_: Type[T],
         transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
     ) -> T:
-        result = requests.get(url, headers=self._headers)
-        body = result.content.decode()
-
-        if result.status_code == 401:
-            raise AuthenticationError(body)
-        elif result.status_code == 404:
-            raise EntityNotFoundError(body)
-        elif result.status_code != 200:
-            raise AssertionError(f"GET {url} failed: {result.status_code}\n{body}")
-
-        logger.debug(f"Response from {url}:")
-        logger.debug(json.dumps(result.json(), indent=2))
-        return parse_obj_as(type_, transform_response(result))
+        try:
+            return get_request(
+                url,
+                self._headers,
+                type_,
+                transform_response,
+            )
+        except ApiError as error:
+            if error.status_code == 401:
+                raise AuthenticationError(error.error_msg)
+            elif error.status_code == 404:
+                raise EntityNotFoundError(error.error_msg)
+            else:
+                raise AssertionError(
+                    f"GET {url} failed: {error.status_code}\n{error.error_msg}"
+                )
