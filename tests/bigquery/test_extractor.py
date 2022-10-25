@@ -113,7 +113,7 @@ async def test_extractor(test_root_dir):
             {
                 "dataset1": [
                     mock_table("dataset1", "table1"),
-                    mock_table("dataset1", "table2"),
+                    mock_table("dataset1", "Table2"),
                 ],
             },
         )
@@ -144,9 +144,9 @@ async def test_extractor(test_root_dir):
                     num_bytes=5 * 1024 * 1024,
                     num_rows=100,
                 ),
-                ("dataset1", "table2"): mock_table_full(
+                ("dataset1", "Table2"): mock_table_full(
                     dataset_id="dataset1",
-                    table_id="table2",
+                    table_id="Table2",
                     table_type="VIEW",
                     description="description",
                     schema=[

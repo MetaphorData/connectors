@@ -12,6 +12,7 @@ from typing import (
 )
 
 from metaphor.bigquery.logEvent import JobChangeEvent
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.utils import md5_digest, start_of_day
 
@@ -154,7 +155,9 @@ class BigQueryExtractor(BaseExtractor):
     def _parse_table(project_id, bq_table: bigquery.table.Table) -> Dataset:
         dataset_id = DatasetLogicalID(
             platform=DataPlatform.BIGQUERY,
-            name=f"{project_id}.{bq_table.dataset_id}.{bq_table.table_id}",
+            name=dataset_normalized_name(
+                project_id, bq_table.dataset_id, bq_table.table_id
+            ),
         )
 
         schema = BigQueryExtractor.parse_schema(bq_table)

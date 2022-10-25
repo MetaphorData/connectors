@@ -91,7 +91,7 @@
     "structure": {
       "database": "project1",
       "schema": "dataset1",
-      "table": "table2"
+      "table": "Table2"
     }
   },
   {
