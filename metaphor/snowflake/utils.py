@@ -114,8 +114,8 @@ def check_access_history(
         LIMIT 1
         """
     )
-    result = cursor.fetchone()
-    return result is not None
+    result = cursor.fetchall()
+    return len(result) > 0
 
 
 def fetch_query_history_count(
@@ -123,7 +123,7 @@ def fetch_query_history_count(
     start_date: datetime,
     excluded_usernames: Set[str],
     end_date: datetime = datetime.now(),
-    has_access_history: bool = False,
+    has_access_history: bool = True,
 ) -> int:
     """
     Fetch query history count
