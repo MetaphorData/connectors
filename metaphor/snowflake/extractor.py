@@ -45,6 +45,7 @@ from metaphor.snowflake.utils import (
     QueryWithParam,
     SnowflakeTableType,
     async_execute,
+    check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
 )
@@ -363,15 +364,23 @@ class SnowflakeExtractor(BaseExtractor):
         start_date = start_of_day(self._query_log_lookback_days)
         end_date = start_of_day()
 
+        has_access_history = check_access_history(self._conn)
+        logger.info(f"has access history: {has_access_history}")
+
         count = fetch_query_history_count(
-            self._conn, start_date, self._query_log_excluded_usernames, end_date
+            self._conn,
+            start_date,
+            self._query_log_excluded_usernames,
+            end_date,
+            has_access_history,
         )
         batches = math.ceil(count / self._query_log_fetch_size)
         logger.info(f"Total {count} queries, dividing into {batches} batches")
 
-        queries = {
-            x: QueryWithParam(
-                f"""
+        queries = (
+            {
+                x: QueryWithParam(
+                    f"""
                 SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
@@ -384,29 +393,53 @@ class SnowflakeExtractor(BaseExtractor):
                 ORDER BY q.QUERY_ID
                 LIMIT {self._query_log_fetch_size} OFFSET %s
                 """,
-                (
-                    start_date,
-                    end_date,
-                    start_date,
-                    end_date,
-                    *self._query_log_excluded_usernames,
-                    x * self._query_log_fetch_size,
-                ),
-            )
-            for x in range(batches)
-        }
+                    (
+                        start_date,
+                        end_date,
+                        start_date,
+                        end_date,
+                        *self._query_log_excluded_usernames,
+                        x * self._query_log_fetch_size,
+                    ),
+                )
+                for x in range(batches)
+            }
+            if has_access_history
+            else {
+                x: QueryWithParam(
+                    f"""
+                SELECT QUERY_ID, USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
+                  BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED
+                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+                WHERE EXECUTION_STATUS = 'SUCCESS'
+                  AND START_TIME > %s AND START_TIME <= %s
+                  {exclude_username_clause(self._query_log_excluded_usernames)}
+                ORDER BY QUERY_ID
+                LIMIT {self._query_log_fetch_size} OFFSET %s
+                """,
+                    (
+                        start_date,
+                        end_date,
+                        *self._query_log_excluded_usernames,
+                        x * self._query_log_fetch_size,
+                    ),
+                )
+                for x in range(batches)
+            }
+        )
+
         async_execute(
             self._conn,
             queries,
             "fetch_query_logs",
             self._max_concurrency,
-            self._parse_access_logs,
+            self._parse_query_logs,
         )
 
         logger.info(f"Fetched {len(self._logs)} query logs")
 
-    def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
-        logger.info(f"access logs batch #{batch_number}")
+    def _parse_query_logs(self, batch_number: str, query_logs: List[Tuple]) -> None:
+        logger.info(f"query logs batch #{batch_number}")
         for (
             query_id,
             username,
@@ -417,12 +450,19 @@ class SnowflakeExtractor(BaseExtractor):
             bytes_scanned,
             bytes_written,
             rows_produced,
-            accessed_objects,
-            modified_objects,
-        ) in access_logs:
+            *access_objects,
+        ) in query_logs:
             try:
-                sources = self._parse_accessed_objects(accessed_objects)
-                targets = self._parse_accessed_objects(modified_objects)
+                sources = (
+                    self._parse_accessed_objects(access_objects[0])
+                    if len(access_objects) == 2
+                    else None
+                )
+                targets = (
+                    self._parse_accessed_objects(access_objects[1])
+                    if len(access_objects) == 2
+                    else None
+                )
 
                 query_log = QueryLog(
                     id=f"{DataPlatform.SNOWFLAKE.name}:{query_id}",
@@ -444,7 +484,7 @@ class SnowflakeExtractor(BaseExtractor):
 
                 self._logs.append(query_log)
             except Exception:
-                logger.exception(f"access log processing error, query id: {query_id}")
+                logger.exception(f"query log processing error, query id: {query_id}")
 
     @staticmethod
     def _build_tag_string(tag_key: str, tag_value: str) -> str:
