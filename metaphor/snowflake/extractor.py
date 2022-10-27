@@ -400,7 +400,8 @@ class SnowflakeExtractor(BaseExtractor):
             x: QueryWithParam(
                 f"""
                 SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
-                  BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
+                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED,
+                  DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                   ON a.QUERY_ID = q.QUERY_ID
@@ -430,7 +431,7 @@ class SnowflakeExtractor(BaseExtractor):
             x: QueryWithParam(
                 f"""
                 SELECT QUERY_ID, USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
-                  BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED
+                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
                 WHERE EXECUTION_STATUS = 'SUCCESS'
                   AND START_TIME > %s AND START_TIME <= %s
@@ -457,6 +458,8 @@ class SnowflakeExtractor(BaseExtractor):
             start_time,
             elapsed_time,
             credit,
+            default_database,
+            default_schema,
             bytes_scanned,
             bytes_written,
             rows_produced,
@@ -483,6 +486,8 @@ class SnowflakeExtractor(BaseExtractor):
                     duration=float(elapsed_time / 1000.0),
                     cost=float(credit) if credit else None,
                     user_id=username,
+                    default_database=default_database,
+                    default_schema=default_schema,
                     rows_written=float(rows_produced) if rows_produced else None,
                     bytes_read=float(bytes_scanned) if bytes_scanned else None,
                     bytes_written=float(bytes_written) if bytes_written else None,
