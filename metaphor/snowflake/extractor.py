@@ -365,7 +365,7 @@ class SnowflakeExtractor(BaseExtractor):
         end_date = start_of_day()
 
         has_access_history = check_access_history(self._conn)
-        logger.info(f"has access history: {has_access_history}")
+        logger.info(f"Using Snowflake Enterprise edition: {has_access_history}")
 
         count = fetch_query_history_count(
             self._conn,
