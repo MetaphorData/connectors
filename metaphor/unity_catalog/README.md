@@ -6,6 +6,8 @@ This connector extracts technical metadata from Unity Catalog using the [Unity C
 
 Create an access token in the Databrick workspace > `User setting` > `Access tokens`.
 
+Follow [these instructions](https://docs.databricks.com/data-governance/unity-catalog/data-lineage.html) to enable data lineage for Unity Catalog and understand the associated [limitations](https://docs.databricks.com/data-governance/unity-catalog/data-lineage.html#limitations).
+
 ## Config File
 
 Create a YAML config file based on the following template.
