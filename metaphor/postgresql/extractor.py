@@ -26,7 +26,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.postgresql.config import PostgreSQLRunConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 _ignored_dbs = ["template0", "template1", "rdsadmin"]
 _ignored_schemas = [

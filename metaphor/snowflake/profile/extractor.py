@@ -35,7 +35,7 @@ from metaphor.snowflake.utils import (
     async_execute,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 

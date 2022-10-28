@@ -44,7 +44,7 @@ from metaphor.power_bi.power_bi_client import (
 )
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class PowerBIExtractor(BaseExtractor):

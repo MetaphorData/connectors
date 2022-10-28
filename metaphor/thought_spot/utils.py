@@ -54,7 +54,7 @@ from metaphor.thought_spot.models import (
     TMLResult,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 def mapping_data_object_type(type_: SourceType) -> ThoughtSpotDataObjectType:

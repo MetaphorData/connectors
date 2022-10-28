@@ -16,7 +16,7 @@ from .logger import LOG_FILE, get_logger
 from .sink import Sink
 from .storage import BaseStorage, LocalStorage, S3Storage, S3StorageConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 @dataclass

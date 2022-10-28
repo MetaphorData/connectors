@@ -50,7 +50,7 @@ from metaphor.snowflake.utils import (
     fetch_query_history_count,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 # Filter out "Snowflake" database & all "information_schema" schemas
 DEFAULT_FILTER: DatabaseFilter = DatasetFilter(

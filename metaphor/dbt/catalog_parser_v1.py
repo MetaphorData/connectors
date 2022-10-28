@@ -20,7 +20,7 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class CatalogParserV1:

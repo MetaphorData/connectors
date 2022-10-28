@@ -6,7 +6,7 @@ from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.snowflake.query.config import SnowflakeQueryRunConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class SnowflakeQueryExtractor(BaseExtractor):

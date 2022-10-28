@@ -11,7 +11,7 @@ from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.config import RedshiftRunConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class RedshiftExtractor(PostgreSQLExtractor):

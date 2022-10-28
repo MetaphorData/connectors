@@ -9,7 +9,7 @@ from metaphor.bigquery.utils import BigQueryResource, LogEntry
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 
-logger = get_logger(__name__)
+logger = get_logger()
 logger.setLevel(logging.INFO)
 
 

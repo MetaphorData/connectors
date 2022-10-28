@@ -6,7 +6,7 @@ from pydantic import parse_obj_as
 
 from metaphor.common.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger()
 T = TypeVar("T")
 
 

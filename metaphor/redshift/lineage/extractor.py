@@ -20,7 +20,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.lineage.config import RedshiftLineageRunConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class RedshiftLineageExtractor(PostgreSQLExtractor):

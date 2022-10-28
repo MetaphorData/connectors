@@ -23,7 +23,7 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 @dataclass()

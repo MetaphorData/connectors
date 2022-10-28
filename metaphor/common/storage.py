@@ -10,7 +10,7 @@ from smart_open import open
 
 from metaphor.common.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 # Give S3 bucket owner full control over the new object
 # See https://github.com/RaRe-Technologies/smart_open/blob/develop/howto.md#how-to-pass-additional-parameters-to-boto3

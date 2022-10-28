@@ -13,7 +13,7 @@ from .base_config import BaseConfig
 from .event_util import ENTITY_TYPES, EventUtil
 from .file_sink import FileSink
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class BaseExtractor(ABC):

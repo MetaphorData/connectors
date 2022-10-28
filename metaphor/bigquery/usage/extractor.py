@@ -6,7 +6,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class BigQueryUsageExtractor(BaseExtractor):

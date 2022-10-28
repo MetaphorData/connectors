@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from metaphor.common.api_request import get_request
 from metaphor.common.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class SynapseDataModel(BaseModel):

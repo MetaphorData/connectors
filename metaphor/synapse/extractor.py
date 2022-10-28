@@ -26,7 +26,7 @@ from metaphor.synapse.workspace_client import (
     WorkspaceDatabase,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class SynapseExtractor(BaseExtractor):
