@@ -101,7 +101,14 @@ class LookerExtractor(BaseExtractor):
         dashboards: List[Dashboard] = []
         for basic_dashboard in self._sdk.all_dashboards():
             assert basic_dashboard.id is not None
-            dashboard = self._sdk.dashboard(dashboard_id=basic_dashboard.id)
+
+            try:
+                dashboard = self._sdk.dashboard(dashboard_id=basic_dashboard.id)
+            except looker_sdk.error.SDKError as error:
+                logger.error(f"Failed to fetch dashboard {basic_dashboard.id}: {error}")
+                continue
+
+            logger.info(f"Processing dashboard {basic_dashboard.id}")
 
             dashboard_info = DashboardInfo(
                 title=dashboard.title,

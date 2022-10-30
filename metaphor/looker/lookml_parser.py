@@ -21,6 +21,7 @@ from metaphor.common.entity_id import (
     to_dataset_entity_id,
     to_virtual_view_entity_id,
 )
+from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import (
     LookerExplore,
     LookerExploreJoin,
@@ -32,8 +33,7 @@ from metaphor.models.metadata_change_event import (
     VirtualViewType,
 )
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger()
 
 # lkml parser's debug log can be very noisy
 logging.getLogger("lkml.parser").setLevel(logging.WARNING)
