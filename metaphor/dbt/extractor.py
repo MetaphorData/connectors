@@ -18,7 +18,7 @@ from .manifest_parser_v3 import ManifestParserV3
 from .manifest_parser_v5 import ManifestParserV5
 from .manifest_parser_v6 import ManifestParserV6
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class DbtExtractor(BaseExtractor):

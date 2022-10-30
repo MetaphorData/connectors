@@ -49,7 +49,7 @@ from metaphor.tableau.query import (
     workbooks_graphql_query,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class TableauExtractor(BaseExtractor):

@@ -50,7 +50,7 @@ from metaphor.thought_spot.utils import (
     mapping_data_platform,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class ThoughtSpotExtractor(BaseExtractor):

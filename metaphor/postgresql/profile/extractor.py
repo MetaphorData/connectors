@@ -23,7 +23,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.postgresql.profile.config import PostgreSQLProfileRunConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class PostgreSQLProfileExtractor(PostgreSQLExtractor):

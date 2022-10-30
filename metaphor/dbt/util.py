@@ -37,7 +37,7 @@ from metaphor.models.metadata_change_event import (
     VirtualViewType,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 MODEL_NODE_TYPE = Union[

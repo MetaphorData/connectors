@@ -12,7 +12,7 @@ from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.extractor import DbtExtractor
 from metaphor.models.crawler_run_metadata import Platform
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 ADMIN_API_BASE_URL = "https://cloud.getdbt.com/api/v2"
 DBT_DOC_BASE_URL = "https://cloud.getdbt.com/accounts/%d/runs/%s/docs"

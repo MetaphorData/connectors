@@ -26,7 +26,7 @@ from metaphor.snowflake.extractor import DEFAULT_FILTER
 from metaphor.snowflake.lineage.config import SnowflakeLineageRunConfig
 from metaphor.snowflake.utils import QueryWithParam, async_execute
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 # disable logging from sql_metadata
 logging.getLogger("Parser").setLevel(logging.CRITICAL)

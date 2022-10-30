@@ -12,7 +12,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class ManualLineageExtractor(BaseExtractor):

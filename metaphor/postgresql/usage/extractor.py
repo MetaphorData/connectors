@@ -8,7 +8,7 @@ from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.postgresql.usage.config import PostgreSQLUsageRunConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 USAGE_SQL = """

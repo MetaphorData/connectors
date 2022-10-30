@@ -44,7 +44,7 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class BigQueryExtractor(BaseExtractor):

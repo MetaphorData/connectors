@@ -1,6 +1,9 @@
 import argparse
-import logging
 from importlib import import_module
+
+from metaphor.common.logger import get_logger
+
+logger = get_logger()
 
 
 def main():
@@ -16,7 +19,7 @@ def main():
     if package_main is None:
         raise ValueError(f"Unable to load {args.package}:main")
 
-    logging.info(f"Executing {args.name} connector with config file {args.config}")
+    logger.info(f"Executing {args.name} connector with config file {args.config}")
     package_main(args.config)
 
 

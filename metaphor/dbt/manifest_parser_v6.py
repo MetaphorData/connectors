@@ -52,7 +52,7 @@ from .util import (
     init_virtual_view,
 )
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 # compiled node has 'compiled_sql' field
 MODEL_NODE_TYPE = Union[CompiledModelNode, ParsedModelNode]

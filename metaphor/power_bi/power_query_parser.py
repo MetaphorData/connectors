@@ -11,7 +11,7 @@ from metaphor.common.entity_id import (
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import DataPlatform
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class PowerQueryParser:

@@ -11,7 +11,7 @@ except ImportError:
     print("Please install metaphor[synapse] extra\n")
     raise
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class AuthClient:

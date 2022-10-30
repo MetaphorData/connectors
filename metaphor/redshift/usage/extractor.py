@@ -7,7 +7,7 @@ from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.usage.config import RedshiftUsageRunConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class RedshiftUsageExtractor(PostgreSQLExtractor):

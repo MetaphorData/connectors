@@ -34,7 +34,7 @@ from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.models import Table, TableType, parse_table_from_object
 from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 # Filter out "system" database & all "information_schema" schemas
 DEFAULT_FILTER: DatabaseFilter = DatasetFilter(

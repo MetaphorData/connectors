@@ -4,7 +4,7 @@ from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.postgresql.profile.extractor import PostgreSQLProfileExtractor
 from metaphor.redshift.profile.config import RedshiftProfileRunConfig
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class RedshiftProfileExtractor(PostgreSQLProfileExtractor):

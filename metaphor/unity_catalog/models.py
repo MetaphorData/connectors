@@ -7,7 +7,7 @@ from pydantic import BaseModel, parse_obj_as
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import CustomMetadataItem
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 
 class Column(BaseModel):
