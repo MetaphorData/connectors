@@ -327,7 +327,7 @@ class PowerBIExtractor(BaseExtractor):
         iso_time = ".".join(refresh.endTime.split(".")[0:-1])
         return datetime.fromisoformat(iso_time).replace(tzinfo=timezone.utc)
 
-    def _get_original_id_from_url(self, url: str) -> str:
+    def _get_dashboard_id_from_url(self, url: str) -> str:
         return url.rstrip("/").split("/")[-1]
 
     @staticmethod
