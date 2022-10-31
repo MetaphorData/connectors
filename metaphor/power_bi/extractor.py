@@ -87,6 +87,7 @@ class PowerBIExtractor(BaseExtractor):
                     self.map_wi_datasets_to_virtual_views(workspace)
                     self.map_wi_reports_to_dashboard(workspace, app_map)
                     self.map_wi_dashboards_to_dashboard(workspace, app_map)
+                    self.merge_app_version_into_original_version()
                 except Exception as e:
                     logger.exception(e)
 
@@ -276,6 +277,19 @@ class PowerBIExtractor(BaseExtractor):
             )
             self._dashboards[wi_dashboard.id] = dashboard
 
+    def merge_app_version_into_original_version(self):
+        for dashboard_id in list(self._dashboards.keys()):
+            dashboard = self._dashboards.get(dashboard_id)
+            if dashboard.dashboard_info.power_bi.app:
+                original_id = self._get_original_id_from_url(
+                    dashboard.source_info.main_url
+                )
+                original_dashboard = self._dashboards.get(original_id)
+                original_dashboard.dashboard_info.power_bi.app = (
+                    dashboard.dashboard_info.power_bi.app
+                )
+                del self._dashboards[dashboard_id]
+
     def _make_power_bi_info(
         self,
         type: PowerBIDashboardType,
@@ -312,6 +326,9 @@ class PowerBIExtractor(BaseExtractor):
         # Make time ISO-compliant by stripping off non-zero padded ms and "Z"
         iso_time = ".".join(refresh.endTime.split(".")[0:-1])
         return datetime.fromisoformat(iso_time).replace(tzinfo=timezone.utc)
+
+    def _get_original_id_from_url(self, url: str) -> str:
+        return url.rstrip("/").split("/")[-1]
 
     @staticmethod
     def transform_tiles_to_charts(tiles: List[PowerBITile]) -> List[Chart]:

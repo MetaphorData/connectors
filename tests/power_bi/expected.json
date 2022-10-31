@@ -5,6 +5,8 @@
       "type": "POWER_BI_DATASET"
     },
     "powerBIDataset": {
+      "description": "This is a dataset",
+      "lastRefreshed": "2022-01-01T01:02:03+00:00",
       "name": "Foo Dataset",
       "sourceDatasets": [
         "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
@@ -23,9 +25,9 @@
           ],
           "measures": [
             {
+              "description": "this is exp1",
               "expression": "avg(col1)",
-              "field": "exp1",
-              "description": "this is exp1"
+              "field": "exp1"
             },
             {
               "expression": "max(col1)",
@@ -36,12 +38,10 @@
         }
       ],
       "url": "https://powerbi.com/dataset-1",
-      "description": "This is a dataset",
       "workspace": {
         "id": "workspace-1",
         "name": "Workspace"
-      },
-      "lastRefreshed": "2022-01-01T01:02:03+00:00"
+      }
     }
   },
   {
@@ -50,6 +50,7 @@
       "type": "POWER_BI_DATASET"
     },
     "powerBIDataset": {
+      "description": "This is another dataset",
       "name": "Bar Dataset",
       "sourceDatasets": [
         "DATASET~6D79656CAC3AB97C1FC567A817F7D611",
@@ -86,7 +87,6 @@
         }
       ],
       "url": "https://powerbi.com/dataset-2",
-      "description": "This is another dataset",
       "workspace": {
         "id": "workspace-1",
         "name": "Workspace"
@@ -95,26 +95,27 @@
   },
   {
     "dashboardInfo": {
+      "charts": [],
       "description": "This is a report about foo",
-      "title": "Foo Report",
       "powerBi": {
+        "app": {
+          "id": "app-1",
+          "name": "foo app"
+        },
         "powerBiDashboardType": "REPORT",
         "workspace": {
           "id": "workspace-1",
           "name": "Workspace"
-        },
-        "app": {
-          "id": "app-1",
-          "name": "foo app"
         }
-      }
-    },
-    "sourceInfo": {
-      "mainUrl": "https://powerbi.com/report/report-1"
+      },
+      "title": "Foo Report"
     },
     "logicalId": {
       "dashboardId": "report-1",
       "platform": "POWER_BI"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/report/report-1"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -124,8 +125,17 @@
   },
   {
     "dashboardInfo": {
+      "charts": [
+        {
+          "chartType": "OTHER",
+          "title": "First Page"
+        },
+        {
+          "chartType": "OTHER",
+          "title": "Second Page"
+        }
+      ],
       "description": "This is a report about bar",
-      "title": "Bar Report",
       "powerBi": {
         "powerBiDashboardType": "REPORT",
         "workspace": {
@@ -133,23 +143,14 @@
           "name": "Workspace"
         }
       },
-      "charts": [
-        {
-          "title": "First Page",
-          "chartType": "OTHER"
-        },
-        {
-          "title": "Second Page",
-          "chartType": "OTHER"
-        }
-      ]
-    },
-    "sourceInfo": {
-      "mainUrl": "https://powerbi.com/report/report-2"
+      "title": "Bar Report"
     },
     "logicalId": {
       "dashboardId": "report-2",
       "platform": "POWER_BI"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/report/report-2"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -161,35 +162,35 @@
     "dashboardInfo": {
       "charts": [
         {
+          "chartType": "OTHER",
           "title": "First Chart",
-          "url": "",
-          "chartType": "OTHER"
+          "url": ""
         },
         {
+          "chartType": "OTHER",
           "title": "Third Chart",
-          "url": "",
-          "chartType": "OTHER"
+          "url": ""
         }
       ],
-      "title": "Dashboard A",
       "powerBi": {
+        "app": {
+          "id": "app-2",
+          "name": "bar app"
+        },
         "powerBiDashboardType": "DASHBOARD",
         "workspace": {
           "id": "workspace-1",
           "name": "Workspace"
-        },
-        "app": {
-          "id": "app-2",
-          "name": "bar app"
         }
-      }
-    },
-    "sourceInfo": {
-      "mainUrl": "https://powerbi.com/dashboard/dashboard-1"
+      },
+      "title": "Dashboard A"
     },
     "logicalId": {
       "dashboardId": "dashboard-1",
       "platform": "POWER_BI"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/dashboard/dashboard-1"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -202,31 +203,31 @@
     "dashboardInfo": {
       "charts": [
         {
+          "chartType": "OTHER",
           "title": "Second Chart",
-          "url": "",
-          "chartType": "OTHER"
+          "url": ""
         },
         {
+          "chartType": "OTHER",
           "title": "Third Chart",
-          "url": "",
-          "chartType": "OTHER"
+          "url": ""
         }
       ],
-      "title": "Dashboard B",
       "powerBi": {
         "powerBiDashboardType": "DASHBOARD",
         "workspace": {
           "id": "workspace-1",
           "name": "Workspace"
         }
-      }
-    },
-    "sourceInfo": {
-      "mainUrl": "https://powerbi.com/dashboard/dashboard-2"
+      },
+      "title": "Dashboard B"
     },
     "logicalId": {
       "dashboardId": "dashboard-2",
       "platform": "POWER_BI"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/dashboard/dashboard-2"
     },
     "upstream": {
       "sourceVirtualViews": [

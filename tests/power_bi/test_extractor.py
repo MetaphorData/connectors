@@ -63,6 +63,15 @@ async def test_extractor(test_root_dir):
         webUrl=f"https://powerbi.com/report/{report1_id}",
     )
 
+    report1_app_id = "report-1-app"
+    report1_app = PowerBIReport(
+        id=report1_app_id,
+        name="Foo Report",
+        datasetId=dataset1_id,
+        reportType="",
+        webUrl=f"https://powerbi.com/groups/me/apps/{app1.id}reports/{report1_id}",
+    )
+
     report2_id = "report-2"
     report2 = PowerBIReport(
         id=report2_id,
@@ -77,6 +86,13 @@ async def test_extractor(test_root_dir):
         id=dashboard1_id,
         displayName="Dashboard A",
         webUrl=f"https://powerbi.com/dashboard/{dashboard1_id}",
+    )
+
+    dashboard1_app_id = "dashboard-1-app"
+    dashboard1_app = PowerBIDashboard(
+        id=dashboard1_app_id,
+        displayName="Dashboard A",
+        webUrl=f"https://powerbi.com/groups/me/apps/{app2.id}/dashboards/{dashboard1_id}",
     )
 
     dashboard2_id = "dashboard-2"
@@ -110,13 +126,19 @@ async def test_extractor(test_root_dir):
         embedUrl="",
     )
 
-    tiles = {dashboard1_id: [tile1, tile3], dashboard2_id: [tile2, tile3]}
+    tiles = {
+        dashboard1_id: [tile1, tile3],
+        dashboard2_id: [tile2, tile3],
+        dashboard1_app_id: [],
+    }
 
     page1 = PowerBIPage(name="name-1", displayName="First Page", order=1)
 
     page2 = PowerBIPage(name="name-2", displayName="Second Page", order=2)
 
-    pages = {workspace1_id: {report1_id: [], report2_id: [page1, page2]}}
+    pages = {
+        workspace1_id: {report1_id: [], report2_id: [page1, page2], report1_app_id: []}
+    }
 
     refreshes = {
         workspace1_id: {
@@ -140,10 +162,16 @@ async def test_extractor(test_root_dir):
                 reports=[
                     WorkspaceInfoReport(
                         id=report1.id,
-                        appId=app1.id,
                         name=report1.name,
                         datasetId=report1.datasetId,
                         description="This is a report about foo",
+                    ),
+                    WorkspaceInfoReport(
+                        id=report1_app.id,
+                        appId=app1.id,
+                        name=report1_app.name,
+                        datasetId=report1_app.datasetId,
+                        description="[app] This is a report about foo",
                     ),
                     WorkspaceInfoReport(
                         id=report2.id,
@@ -222,6 +250,10 @@ async def test_extractor(test_root_dir):
                     WorkspaceInfoDashboard(
                         displayName="Dashboard A",
                         id="dashboard-1",
+                    ),
+                    WorkspaceInfoDashboard(
+                        displayName="Dashboard A",
+                        id="dashboard-1-app",
                         appId=app2.id,
                     ),
                     WorkspaceInfoDashboard(displayName="Dashboard B", id="dashboard-2"),
@@ -234,10 +266,10 @@ async def test_extractor(test_root_dir):
         return [dataset1, dataset2]
 
     def fake_get_reports(workspace_id) -> List[PowerBIReport]:
-        return [report1, report2]
+        return [report1, report2, report1_app]
 
     def fake_get_dashboards(workspace_id) -> List[PowerBIReport]:
-        return [dashboard1, dashboard2]
+        return [dashboard1, dashboard2, dashboard1_app]
 
     def fake_get_tiles(dashboard_id) -> List[PowerBITile]:
         return tiles.get(dashboard_id)
@@ -272,5 +304,9 @@ async def test_extractor(test_root_dir):
         extractor = PowerBIExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+
+        import json
+
+        print(json.dumps(events))
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")
