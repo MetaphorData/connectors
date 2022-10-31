@@ -280,15 +280,22 @@ class PowerBIExtractor(BaseExtractor):
     def merge_app_version_into_original_version(self):
         for dashboard_id in list(self._dashboards.keys()):
             dashboard = self._dashboards.get(dashboard_id)
-            if dashboard.dashboard_info.power_bi.app is not None:
-                original_id = self._get_original_id_from_url(
-                    dashboard.source_info.main_url
-                )
-                original_dashboard = self._dashboards.get(original_id)
-                original_dashboard.dashboard_info.power_bi.app = (
-                    dashboard.dashboard_info.power_bi.app
-                )
-                del self._dashboards[dashboard_id]
+            if dashboard.dashboard_info.power_bi.app is None:
+                # Non-app dashboard
+                continue
+
+            original_dashboard_id = self._get_dashboard_id_from_url(
+                dashboard.source_info.main_url
+            )
+            original_dashboard = self._dashboards.get(original_dashboard_id)
+            if original_dashboard is None:
+                # Cannot not found corresponding non-app dashboard
+                continue
+
+            original_dashboard.dashboard_info.power_bi.app = (
+                dashboard.dashboard_info.power_bi.app
+            )
+            del self._dashboards[dashboard_id]
 
     def _make_power_bi_info(
         self,
