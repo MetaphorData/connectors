@@ -1,3 +1,4 @@
+import json
 from typing import Collection, Dict, List
 
 from metaphor.common.base_extractor import BaseExtractor
@@ -121,11 +122,17 @@ class SynapseExtractor(BaseExtractor):
         items: List[CustomMetadataItem] = []
         if "Format" in meta_data and "FormatType" in meta_data["Format"]:
             items.append(
-                CustomMetadataItem("format", meta_data["Format"]["FormatType"])
+                CustomMetadataItem(
+                    "format", json.dumps(meta_data["Format"]["FormatType"])
+                )
             )
 
         if "Source" in meta_data and "Location" in meta_data["Source"]:
-            items.append(CustomMetadataItem("source", meta_data["Source"]["Location"]))
+            items.append(
+                CustomMetadataItem(
+                    "source", json.dumps(meta_data["Source"]["Location"])
+                )
+            )
         return items
 
     def _map_dedicated_sql_pool_tables_to_dataset(

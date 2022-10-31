@@ -4,11 +4,11 @@
       "metadata": [
         {
           "key": "format",
-          "value": "csv"
+          "value": "\"CSV\""
         },
         {
           "key": "source",
-          "value": "mock_storage_location"
+          "value": "\"mock_storage_location\""
         }
       ]
     },
