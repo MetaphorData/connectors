@@ -1,5 +1,7 @@
+import re
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Optional
+from urllib import parse
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import EntityId
@@ -291,7 +293,7 @@ class PowerBIExtractor(BaseExtractor):
             if original_dashboard is None:
                 # Cannot not found corresponding non-app dashboard
                 logger.warning(
-                    f"Non-app version dashboard not found, id: {dashboard_id}"
+                    f"Non-app version dashboard not found, id: {original_dashboard_id}"
                 )
                 continue
 
@@ -337,8 +339,19 @@ class PowerBIExtractor(BaseExtractor):
         iso_time = ".".join(refresh.endTime.split(".")[0:-1])
         return datetime.fromisoformat(iso_time).replace(tzinfo=timezone.utc)
 
-    def _get_dashboard_id_from_url(self, url: str) -> str:
-        return url.rstrip("/").split("/")[-1]
+    def _get_dashboard_id_from_url(self, url: str) -> Optional[str]:
+        path = parse.urlparse(url).path
+        print(path)
+        pattern = re.compile(
+            r"apps/"
+            r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/"
+            r"(reports|dashboards)/"
+            r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"
+        )
+        match = pattern.search(path)
+        if match and len(match.groups()) == 3:
+            return match.group(3)
+        return None
 
     @staticmethod
     def transform_tiles_to_charts(tiles: List[PowerBITile]) -> List[Chart]:
