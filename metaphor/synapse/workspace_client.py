@@ -131,3 +131,14 @@ class WorkspaceClient:
                 )
                 sql_pool_tables.append(table)
         return sql_pool_tables
+
+    def get_spark_monitor(self):
+        # https://meteaphor-workspace.dev.azuresynapse.net/monitoring/workloadTypes/spark/applications?api-version=2020-10-01-preview&filter=(submitTime%20ge%202022-10-26T18:52:29Z%20and%20submitTime%20le%202022-10-27T18:52:29Z)&skip=0
+        pass
+
+    def get_sql_monitor(self):
+        # sql query
+        # https://meteaphor-workspace.dev.azuresynapse.net/monitoring/workloadTypes/sql/querystring?api-version=2020-10-01-preview&use-workspace-token=true&isGen3Pool=false&filter=(((PoolName%20eq%20%27On-demand%27))%20and%20(submitTime%20ge%202022-10-26T18:57:15Z%20and%20submitTime%20le%202022-10-27T18:57:15Z))&skip=0
+        # sql
+        # https://meteaphor-workspace-ondemand.sql.azuresynapse.net//databases/master/query?api-version=2018-08-01-preview&application=AzureSynapseMonitoring
+        pass
