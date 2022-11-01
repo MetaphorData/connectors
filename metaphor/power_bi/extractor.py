@@ -341,13 +341,7 @@ class PowerBIExtractor(BaseExtractor):
 
     def _get_dashboard_id_from_url(self, url: str) -> Optional[str]:
         path = parse.urlparse(url).path
-        print(path)
-        pattern = re.compile(
-            r"apps/"
-            r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/"
-            r"(reports|dashboards)/"
-            r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"
-        )
+        pattern = re.compile(r"apps/([^/]+)/(reports|dashboards)/([^/]+)")
         match = pattern.search(path)
         if match and len(match.groups()) == 3:
             return match.group(3)
