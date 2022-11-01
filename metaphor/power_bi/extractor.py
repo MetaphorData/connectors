@@ -290,6 +290,9 @@ class PowerBIExtractor(BaseExtractor):
             original_dashboard = self._dashboards.get(original_dashboard_id)
             if original_dashboard is None:
                 # Cannot not found corresponding non-app dashboard
+                logger.warning(
+                    f"Non app version dashboard not found, id: {dashboard_id}"
+                )
                 continue
 
             original_dashboard.dashboard_info.power_bi.app = (
