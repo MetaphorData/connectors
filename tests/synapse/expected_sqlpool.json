@@ -24,6 +24,7 @@
     },
     "structure": {
       "database": "mock_sql_pool_database_name",
+      "schema": "dbo",
       "table": "mock_sql_pool_name"
     }
   }

@@ -16,7 +16,6 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     MaterializationType,
     SchemaField,
-    SchemaType,
     SQLSchema,
 )
 from metaphor.synapse.auth_client import AuthClient
@@ -100,8 +99,10 @@ class SynapseExtractor(BaseExtractor):
                 )
 
             dataset.schema = DatasetSchema(
-                schema_type=SchemaType.SQL,
-                sql_schema=SQLSchema(table_schema=table.properties["TableType"]),
+                sql_schema=SQLSchema(
+                    table_schema=table.properties["TableType"],
+                    primary_key=self._get_primary_keys(table.properties["Properties"]),
+                ),
                 fields=fields,
             )
 
@@ -117,6 +118,12 @@ class SynapseExtractor(BaseExtractor):
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
             self._dataset_map[table.id] = dataset
+
+    def _get_primary_keys(self, properties: Dict[str, str]) -> List[str]:
+        primary_keys = []
+        if "PrimaryKeys" in properties:
+            primary_keys = properties["PrimaryKeys"].split(",")
+        return primary_keys
 
     def _get_metadata(self, meta_data: Dict[str, Dict]) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
@@ -145,6 +152,7 @@ class SynapseExtractor(BaseExtractor):
             )
             dataset.structure = DatasetStructure(
                 database=database.name,
+                schema=table.sqlSchema.name,
                 table=table.name,
             )
             fields = []
