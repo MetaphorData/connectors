@@ -277,7 +277,7 @@ class PowerBIExtractor(BaseExtractor):
             )
             self._dashboards[wi_dashboard.id] = dashboard
 
-    def merge_app_version_into_original_version(self):
+    def dedupe_app_version_dashboards(self):
         for dashboard_id in list(self._dashboards.keys()):
             dashboard = self._dashboards.get(dashboard_id)
             if dashboard.dashboard_info.power_bi.app is None:
