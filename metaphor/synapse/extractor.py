@@ -1,3 +1,4 @@
+import json
 from typing import Collection, Dict, List
 
 from metaphor.common.base_extractor import BaseExtractor
@@ -15,7 +16,6 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     MaterializationType,
     SchemaField,
-    SchemaType,
     SQLSchema,
 )
 from metaphor.synapse.auth_client import AuthClient
@@ -99,8 +99,10 @@ class SynapseExtractor(BaseExtractor):
                 )
 
             dataset.schema = DatasetSchema(
-                schema_type=SchemaType.SQL,
-                sql_schema=SQLSchema(table_schema=table.properties["TableType"]),
+                sql_schema=SQLSchema(
+                    table_schema=table.properties["TableType"],
+                    primary_key=self._get_primary_keys(table.properties["Properties"]),
+                ),
                 fields=fields,
             )
 
@@ -117,15 +119,27 @@ class SynapseExtractor(BaseExtractor):
 
             self._dataset_map[table.id] = dataset
 
+    def _get_primary_keys(self, properties: Dict[str, str]) -> List[str]:
+        primary_keys = []
+        if "PrimaryKeys" in properties:
+            primary_keys = properties["PrimaryKeys"].split(",")
+        return primary_keys
+
     def _get_metadata(self, meta_data: Dict[str, Dict]) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
         if "Format" in meta_data and "FormatType" in meta_data["Format"]:
             items.append(
-                CustomMetadataItem("format", meta_data["Format"]["FormatType"])
+                CustomMetadataItem(
+                    "format", json.dumps(meta_data["Format"]["FormatType"])
+                )
             )
 
         if "Source" in meta_data and "Location" in meta_data["Source"]:
-            items.append(CustomMetadataItem("source", meta_data["Source"]["Location"]))
+            items.append(
+                CustomMetadataItem(
+                    "source", json.dumps(meta_data["Source"]["Location"])
+                )
+            )
         return items
 
     def _map_dedicated_sql_pool_tables_to_dataset(
@@ -138,6 +152,7 @@ class SynapseExtractor(BaseExtractor):
             )
             dataset.structure = DatasetStructure(
                 database=database.name,
+                schema=table.sqlSchema.name,
                 table=table.name,
             )
             fields = []

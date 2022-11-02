@@ -4,11 +4,11 @@
       "metadata": [
         {
           "key": "format",
-          "value": "csv"
+          "value": "\"CSV\""
         },
         {
           "key": "source",
-          "value": "mock_storage_location"
+          "value": "\"mock_storage_location\""
         }
       ]
     },
@@ -38,9 +38,12 @@
           "precision": 0.0
         }
       ],
-      "schemaType": "SQL",
       "sqlSchema": {
         "materialization": "TABLE",
+        "primaryKey": [
+          "primarykey1",
+          "primarykey2"
+        ],
         "tableSchema": "mock_table_type"
       }
     },

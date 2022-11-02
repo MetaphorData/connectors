@@ -49,13 +49,11 @@ class WorkspaceClient:
         subscription_id: str,
         synapse_headers: Dict[str, str],
         management_headers: Dict[str, str],
-        storage_headers: Dict[str, str],
     ):
         self._workspace = workspace
         self._subscription_id = subscription_id
         self._azure_synapse_headers = synapse_headers
         self._azure_management_headers = management_headers
-        self._azure_storage_headers = storage_headers
         self._dev_endpoint = workspace.properties["connectivityEndpoints"]["dev"]
         self._sql_query_endpoint = workspace.properties["connectivityEndpoints"]["sql"]
         self._sql_on_demand_query_endpoint = workspace.properties[
