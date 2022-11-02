@@ -56,10 +56,11 @@ async def test_extractor(test_root_dir):
                     },
                 ],
                 "Format": {
-                    "FormatType": "csv",
+                    "FormatType": "CSV",
                 },
                 "Source": {"Location": "mock_storage_location"},
             },
+            "Properties": {"PrimaryKeys": "primarykey1,primarykey2"},
             "TableType": "mock_table_type",
         },
     )

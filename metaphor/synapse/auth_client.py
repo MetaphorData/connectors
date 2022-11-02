@@ -19,7 +19,6 @@ class AuthClient:
     AZURE_SYNAPSE_SCOPES = ["https://dev.azuresynapse.net/.default"]
     AZURE_MANGEMENT_SCOPES = ["https://management.azure.com/.default"]
     AZURE_MANGEMENT_ENDPOINT = "https://management.azure.com"
-    AZURE_STORAGE_SCOPES = ["https://storage.azure.com/.default"]
 
     def __init__(self, config: SynapseConfig):
         self._subscription_id = config.subscription_id
@@ -33,12 +32,6 @@ class AuthClient:
         self._azure_synapse_headers = {
             "Authorization": self.retrieve_access_token(
                 config, self.AZURE_SYNAPSE_SCOPES
-            )
-        }
-
-        self._azure_storage_headers = {
-            "Authorization": self.retrieve_access_token(
-                config, self.AZURE_STORAGE_SCOPES
             )
         }
 
@@ -94,5 +87,4 @@ class AuthClient:
                 self._subscription_id,
                 self._azure_synapse_headers,
                 self._azure_management_headers,
-                self._azure_storage_headers,
             )
