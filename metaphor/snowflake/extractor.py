@@ -539,9 +539,9 @@ class SnowflakeExtractor(BaseExtractor):
 
         dataset.statistics = DatasetStatistics(
             record_count=float(row_count) if row_count is not None else None,
-            data_size=table_bytes / (1000 * 1000)
+            data_size=table_bytes / (1000 * 1000)  # in MB
             if table_bytes is not None
-            else None,  # in MB
+            else None,
         )
 
         dataset.structure = DatasetStructure(
