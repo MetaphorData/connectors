@@ -3,6 +3,7 @@ import logging
 import math
 import tempfile
 from dataclasses import field
+from datetime import datetime, timezone
 from os import path
 from typing import List, Optional
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -82,9 +83,10 @@ class FileSink(Sink):
         logging.shutdown()
 
         _, zip_file = tempfile.mkstemp(suffix=".zip")
-        arcname = f"{path.basename(self.path)}.log"
+        timestamp = datetime.now(timezone.utc).isoformat()
+        log_filename = f"{path.basename(self.path)}_{timestamp}.log"
         with ZipFile(zip_file, "w", ZIP_DEFLATED) as file:
-            file.write(LOG_FILE, arcname=arcname)
+            file.write(LOG_FILE, arcname=log_filename)
 
         with open(zip_file, "rb") as file:
             self._storage.write_file(f"{self.path}/log.zip", file.read(), True)
