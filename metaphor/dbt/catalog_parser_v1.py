@@ -6,7 +6,7 @@ from metaphor.common.logger import get_logger
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.generated.dbt_catalog_v1 import CatalogTable, DbtCatalog
 from metaphor.dbt.util import (
-    build_docs_url,
+    build_model_docs_url,
     init_dataset,
     init_documentation,
     init_field,
@@ -66,7 +66,7 @@ class CatalogParserV1:
         dbt_model = virtual_view.dbt_model
 
         dbt_model.description = dbt_model.description or model.metadata.comment
-        dbt_model.docs_url = dbt_model.docs_url or build_docs_url(
+        dbt_model.docs_url = dbt_model.docs_url or build_model_docs_url(
             self._docs_base_url, model.unique_id
         )
 

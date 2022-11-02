@@ -216,8 +216,14 @@ def init_field_doc(dataset: Dataset, column: str) -> FieldDocumentation:
     return doc
 
 
-def build_docs_url(docs_base_url: Optional[str], unique_id: str) -> Optional[str]:
+def build_model_docs_url(docs_base_url: Optional[str], unique_id: str) -> Optional[str]:
     return f"{docs_base_url}/#!/model/{unique_id}" if docs_base_url else None
+
+
+def build_metric_docs_url(
+    docs_base_url: Optional[str], unique_id: str
+) -> Optional[str]:
+    return f"{docs_base_url}/#!/metric/{unique_id}" if docs_base_url else None
 
 
 def build_source_code_url(

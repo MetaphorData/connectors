@@ -15,7 +15,7 @@ from metaphor.models.crawler_run_metadata import Platform
 logger = get_logger()
 
 ADMIN_API_BASE_URL = "https://cloud.getdbt.com/api/v2"
-DBT_DOC_BASE_URL = "https://cloud.getdbt.com/accounts/%d/runs/%s/docs"
+DBT_DOC_BASE_URL = "https://cloud.getdbt.com/accounts/%d/jobs/%s/docs"
 
 
 class DbtAdminAPIClient:
@@ -136,7 +136,7 @@ class DbtCloudExtractor(BaseExtractor):
             DbtRunConfig(
                 manifest=manifest_json,
                 account=account,
-                docs_base_url=DBT_DOC_BASE_URL % (self._account_id, run_id),
+                docs_base_url=DBT_DOC_BASE_URL % (self._account_id, self._job_id),
                 output=self._output,
                 meta_ownerships=self._meta_ownerships,
                 meta_tags=self._meta_tags,
