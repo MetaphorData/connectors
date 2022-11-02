@@ -30,6 +30,9 @@ class SnowflakeRunConfig(SnowflakeAuthConfig):
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
 
+    # Whether to fetch extra table information such as LAST_CHANGE_COMMIT_TIME and DDL
+    fetch_extra_table_info: bool = True
+
     # Max number of concurrent queries to database
     max_concurrency: int = DEFAULT_THREAD_POOL_SIZE
 
