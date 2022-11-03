@@ -38,7 +38,8 @@ from .generated.dbt_manifest_v6 import (
     ParsedSourceDefinition,
 )
 from .util import (
-    build_docs_url,
+    build_metric_docs_url,
+    build_model_docs_url,
     build_source_code_url,
     get_ownerships_from_meta,
     get_tags_from_meta,
@@ -208,7 +209,7 @@ class ManifestParserV6:
             url=build_source_code_url(
                 self._project_source_url, model.original_file_path
             ),
-            docs_url=build_docs_url(self._docs_base_url, model.unique_id),
+            docs_url=build_model_docs_url(self._docs_base_url, model.unique_id),
             tags=model.tags,
             raw_sql=model.raw_sql,
             fields=[],
@@ -305,6 +306,7 @@ class ManifestParserV6:
                 MetricFilter(field=f.field, operator=f.operator, value=f.value)
                 for f in metric.filters
             ],
+            url=build_metric_docs_url(self._docs_base_url, metric.unique_id),
         )
 
         dbt_metric = metric_entity.dbt_metric
