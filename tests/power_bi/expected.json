@@ -115,7 +115,7 @@
       "platform": "POWER_BI"
     },
     "sourceInfo": {
-      "mainUrl": "https://powerbi.com/report/00000000-0000-0000-0000-000000000004"
+      "mainUrl": "https://powerbi.com/groups/me/apps/00000000-0000-0000-0000-000000000000/reports/00000000-0000-0000-0000-000000000004"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -190,7 +190,7 @@
       "platform": "POWER_BI"
     },
     "sourceInfo": {
-      "mainUrl": "https://powerbi.com/dashboard/00000000-0000-0000-0000-000000000007"
+      "mainUrl": "https://powerbi.com/groups/me/apps/00000000-0000-0000-0000-000000000001/dashboards/00000000-0000-0000-0000-000000000007"
     },
     "upstream": {
       "sourceVirtualViews": [

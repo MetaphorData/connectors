@@ -286,6 +286,7 @@ class PowerBIExtractor(BaseExtractor):
                 # Non-app dashboard
                 continue
 
+            app_url = dashboard.source_info.main_url
             original_dashboard_id = self._get_dashboard_id_from_url(
                 dashboard.source_info.main_url
             )
@@ -299,6 +300,13 @@ class PowerBIExtractor(BaseExtractor):
 
             original_dashboard.dashboard_info.power_bi.app = (
                 dashboard.dashboard_info.power_bi.app
+            )
+
+            # replace source url with app_url if possible
+            original_dashboard.source_info.main_url = (
+                app_url
+                if app_url is not None
+                else original_dashboard.source_info.main_url
             )
             del self._dashboards[dashboard_id]
 
