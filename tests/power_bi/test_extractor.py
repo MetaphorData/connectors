@@ -35,18 +35,26 @@ async def test_extractor(test_root_dir):
 
     workspace1_id = "workspace-1"
 
-    app1 = PowerBIApp(id="app-1", name="foo app", workspaceId=workspace1_id)
+    app1 = PowerBIApp(
+        id="00000000-0000-0000-0000-000000000000",
+        name="foo app",
+        workspaceId=workspace1_id,
+    )
 
-    app2 = PowerBIApp(id="app-2", name="bar app", workspaceId=workspace1_id)
+    app2 = PowerBIApp(
+        id="00000000-0000-0000-0000-000000000001",
+        name="bar app",
+        workspaceId=workspace1_id,
+    )
 
-    dataset1_id = "dataset-1"
+    dataset1_id = "00000000-0000-0000-0000-000000000002"
     dataset1 = PowerBIDataset(
         id=dataset1_id,
         name="Foo Dataset",
         isRefreshable=True,
         webUrl=f"https://powerbi.com/{dataset1_id}",
     )
-    dataset2_id = "dataset-2"
+    dataset2_id = "00000000-0000-0000-0000-000000000003"
     dataset2 = PowerBIDataset(
         id=dataset2_id,
         name="Bar Dataset",
@@ -54,7 +62,7 @@ async def test_extractor(test_root_dir):
         webUrl=f"https://powerbi.com/{dataset2_id}",
     )
 
-    report1_id = "report-1"
+    report1_id = "00000000-0000-0000-0000-000000000004"
     report1 = PowerBIReport(
         id=report1_id,
         name="Foo Report",
@@ -63,7 +71,16 @@ async def test_extractor(test_root_dir):
         webUrl=f"https://powerbi.com/report/{report1_id}",
     )
 
-    report2_id = "report-2"
+    report1_app_id = "00000000-0000-0000-0000-000000000005"
+    report1_app = PowerBIReport(
+        id=report1_app_id,
+        name="Foo Report",
+        datasetId=dataset1_id,
+        reportType="",
+        webUrl=f"https://powerbi.com/groups/me/apps/{app1.id}/reports/{report1_id}",
+    )
+
+    report2_id = "00000000-0000-0000-0000-000000000006"
     report2 = PowerBIReport(
         id=report2_id,
         name="Bar Report",
@@ -72,14 +89,21 @@ async def test_extractor(test_root_dir):
         webUrl=f"https://powerbi.com/report/{report2_id}",
     )
 
-    dashboard1_id = "dashboard-1"
+    dashboard1_id = "00000000-0000-0000-0000-000000000007"
     dashboard1 = PowerBIDashboard(
         id=dashboard1_id,
         displayName="Dashboard A",
         webUrl=f"https://powerbi.com/dashboard/{dashboard1_id}",
     )
 
-    dashboard2_id = "dashboard-2"
+    dashboard1_app_id = "00000000-0000-0000-0000-000000000008"
+    dashboard1_app = PowerBIDashboard(
+        id=dashboard1_app_id,
+        displayName="Dashboard A",
+        webUrl=f"https://powerbi.com/groups/me/apps/{app2.id}/dashboards/{dashboard1_id}",
+    )
+
+    dashboard2_id = "00000000-0000-0000-0000-000000000009"
     dashboard2 = PowerBIDashboard(
         id=dashboard2_id,
         displayName="Dashboard B",
@@ -87,7 +111,7 @@ async def test_extractor(test_root_dir):
     )
 
     tile1 = PowerBITile(
-        id="tile-1",
+        id="00000000-0000-0000-0000-00000000000A",
         title="First Chart",
         datasetId=dataset1_id,
         reportId=report1_id,
@@ -95,7 +119,7 @@ async def test_extractor(test_root_dir):
     )
 
     tile2 = PowerBITile(
-        id="tile-2",
+        id="00000000-0000-0000-0000-00000000000B",
         title="Second Chart",
         datasetId=dataset1_id,
         reportId=report1_id,
@@ -103,20 +127,26 @@ async def test_extractor(test_root_dir):
     )
 
     tile3 = PowerBITile(
-        id="tile-3",
+        id="00000000-0000-0000-0000-00000000000C",
         title="Third Chart",
         datasetId=dataset2_id,
         reportId=report2_id,
         embedUrl="",
     )
 
-    tiles = {dashboard1_id: [tile1, tile3], dashboard2_id: [tile2, tile3]}
+    tiles = {
+        dashboard1_id: [tile1, tile3],
+        dashboard2_id: [tile2, tile3],
+        dashboard1_app_id: [],
+    }
 
     page1 = PowerBIPage(name="name-1", displayName="First Page", order=1)
 
     page2 = PowerBIPage(name="name-2", displayName="Second Page", order=2)
 
-    pages = {workspace1_id: {report1_id: [], report2_id: [page1, page2]}}
+    pages = {
+        workspace1_id: {report1_id: [], report2_id: [page1, page2], report1_app_id: []}
+    }
 
     refreshes = {
         workspace1_id: {
@@ -140,10 +170,16 @@ async def test_extractor(test_root_dir):
                 reports=[
                     WorkspaceInfoReport(
                         id=report1.id,
-                        appId=app1.id,
                         name=report1.name,
                         datasetId=report1.datasetId,
                         description="This is a report about foo",
+                    ),
+                    WorkspaceInfoReport(
+                        id=report1_app.id,
+                        appId=app1.id,
+                        name=report1_app.name,
+                        datasetId=report1_app.datasetId,
+                        description="[app] This is a report about foo",
                     ),
                     WorkspaceInfoReport(
                         id=report2.id,
@@ -221,10 +257,14 @@ async def test_extractor(test_root_dir):
                 dashboards=[
                     WorkspaceInfoDashboard(
                         displayName="Dashboard A",
-                        id="dashboard-1",
+                        id=dashboard1_id,
+                    ),
+                    WorkspaceInfoDashboard(
+                        displayName="Dashboard A",
+                        id=dashboard1_app_id,
                         appId=app2.id,
                     ),
-                    WorkspaceInfoDashboard(displayName="Dashboard B", id="dashboard-2"),
+                    WorkspaceInfoDashboard(displayName="Dashboard B", id=dashboard2_id),
                 ],
             )
         ]
@@ -234,10 +274,10 @@ async def test_extractor(test_root_dir):
         return [dataset1, dataset2]
 
     def fake_get_reports(workspace_id) -> List[PowerBIReport]:
-        return [report1, report2]
+        return [report1, report2, report1_app]
 
     def fake_get_dashboards(workspace_id) -> List[PowerBIReport]:
-        return [dashboard1, dashboard2]
+        return [dashboard1, dashboard2, dashboard1_app]
 
     def fake_get_tiles(dashboard_id) -> List[PowerBITile]:
         return tiles.get(dashboard_id)
