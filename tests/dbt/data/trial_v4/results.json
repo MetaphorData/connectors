@@ -512,7 +512,8 @@
         "year"
       ],
       "timestamp": "release_year",
-      "type": "count"
+      "type": "count",
+      "url": "http://localhost:8080/#!/metric/metric.trial.trial_metric_1"
     },
     "logicalId": {
       "name": "trial.trial_metric_1",
