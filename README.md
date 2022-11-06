@@ -63,7 +63,9 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [snowflake.profile](metaphor/snowflake/profile/README.md)    | Data profile                             |
 | [synapse](metaphor/synapse//README.md)                       | Schema                                   |
 | [tableau](metaphor/tableau/README.md)                        | Dashboard, lineage                       |
+| [thoughtspot](metaphor/thoughtspot/README.md)                | Dashboard, lineage                       |
 | [unity_catalog](metaphor/unity_catalog/README.md)            | Schema, description                      |
+
 ## Development
 
 See [Development Environment](docs/develop.md) for more instructions on how to setup your local development environment.
