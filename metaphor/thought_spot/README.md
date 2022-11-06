@@ -23,11 +23,11 @@ Create a YAML config file based on the following template.
 base_url: <your_instance_url>  # e.g. https://my1.thoughtspot.cloud
 user: <user_id>
 
-# If using secret key
+# If using secret key to authenticate
 secret_key: <secret>
 
-# If using password
-password: <user_password>
+# If using password to authenticate
+password: <password>
 
 output:
   file:
