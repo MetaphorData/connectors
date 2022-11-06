@@ -21,7 +21,6 @@ Create a YAML config file based on the following template.
 
 ```yaml
 base_url: <your_instance_url>  # e.g. https://my1.thoughtspot.cloud
-
 user: <user_id>
 
 # If using secret key
