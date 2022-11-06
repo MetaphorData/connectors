@@ -4,7 +4,7 @@ This connector extracts technical metadata from ThoughtSpot using [ThoughtSpot R
 
 ## Setup
 
-This connector requires a [ThoughtSpot Everywhere](https://www.thoughtspot.com/everywhere) Edition license to use ThoughtSpot REST API v2. See this documentation [Difference between REST v2 and v2 APIs](https://try-everywhere.thoughtspot.cloud/v2/#/everywhere/documentation/en/?pageid=v1v2-comparison) for more details.
+This connector requires a [ThoughtSpot Everywhere](https://www.thoughtspot.com/everywhere) Edition license to use ThoughtSpot REST API v2. See [REST v1 and REST v2 API comparison](https://try-everywhere.thoughtspot.cloud/v2/#/everywhere/documentation/en/?pageid=v1v2-comparison) for more details.
 
 We recommend creating a secret key for the connector.
 
