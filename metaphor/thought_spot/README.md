@@ -9,8 +9,8 @@ This connector requires a [ThoughtSpot Everywhere](https://www.thoughtspot.com/e
 We recommend creating a secret key for the connector.
 
 1. Log into your ThoughtSpot instance as an administrator (with the "Can administer ThoughtSpot" [privilege](https://docs.thoughtspot.com/software/latest/groups-privileges)).
-2. Go to `Develop` tab, click `Customizations` > `Security settings`.
-3. Enable trusted authentication.
+2. Go to `Develop` tab, click `Security settings` under **Customizations**.
+3. Enable `Trusted authentication`.
 4. A `secret_key` for trusted authentication is generated.
 
 ## Config File
