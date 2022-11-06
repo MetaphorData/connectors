@@ -20,21 +20,19 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 ```yaml
+base_url: <your_instance_url>  # e.g. https://my1.thoughtspot.cloud
+
 user: <user_id>
+
+# If using secret key
 secret_key: <secret>
-base_url: <your_instance_url>  # E.g. https://my1.thoughtspot.cloud
+
+# If using password
+password: <user_password>
 
 output:
   file:
     directory: <output_directory>
-```
-
-### Optional Configurations
-
-We also provide alternative authentication using password.
-
-```yaml
-password: <user_password>
 ```
 
 ## Testing
