@@ -8,12 +8,12 @@ Each custom connector should expose a function that takes no input argument and 
 
 ```py
 def custom_connector() -> Collection[ENTITY_TYPES]:
-  # fetch metadata from the system and build a list of entities
-  datasets = []
-  for item in fetch_metadata():
-    datasets.append(map_item_to_dataset(item))
+    # fetch metadata from the system and build a list of entities
+    datasets = []
+    for item in fetch_metadata():
+        datasets.append(map_item_to_dataset(item))
   
-  return datasets
+    return datasets
 ```
 
 ## Entity Classes
@@ -126,18 +126,18 @@ from metaphor.common.runner import run_connector
 # The connector function that produces a list of entities
 def custom_lineage_connector() -> Collection[ENTITY_TYPES]:
 
-  # Create string-based entity IDs for src1 & src2
-  src1_id = str(to_dataset_entity_id('db.schema.src1', DataPlatform.BIGQUERY))
-  src2_id = str(to_dataset_entity_id('db.schema.src2', DataPlatform.BIGQUERY))
+    # Create string-based entity IDs for src1 & src2
+    src1_id = str(to_dataset_entity_id('db.schema.src1', DataPlatform.BIGQUERY))
+    src2_id = str(to_dataset_entity_id('db.schema.src2', DataPlatform.BIGQUERY))
 
-  # Set the upstream aspect
-  dataset = Dataset(
-      logical_id = DatasetLogicalID(name='db.schema.dest', platform=DataPlatform.BIGQUERY),
-      upstream = DatasetUpstream(source_datasets=[src1_id, src2_id]),
-  )
+    # Set the upstream aspect
+    dataset = Dataset(
+        logical_id = DatasetLogicalID(name='db.schema.dest', platform=DataPlatform.BIGQUERY),
+        upstream = DatasetUpstream(source_datasets=[src1_id, src2_id]),
+    )
 
-  # Return a list of datasets
-  return [dataset]
+    # Return a list of datasets
+    return [dataset]
 
 # Use the runner to run the connector and output events to the tenant's S3 bucket
 connector_name = "custom_lineage_connector"
