@@ -5,7 +5,9 @@ from metaphor.common.entity_id import to_person_entity_id
 from metaphor.common.logger import get_logger
 from metaphor.manual.governance.config import ManualGovernanceConfig
 from metaphor.models.metadata_change_event import (
+    AssetDescription,
     Dataset,
+    DescriptionAssignment,
     MetadataChangeEvent,
     Ownership,
     OwnershipAssignment,
@@ -51,5 +53,18 @@ class ManualGovernanceExtractor(BaseExtractor):
 
             if len(governance.tags) > 0:
                 dataset.tag_assignment = TagAssignment(tag_names=governance.tags)
+
+            if len(governance.descriptions) > 0:
+                asset_descriptions = [
+                    AssetDescription(
+                        description=d.description,
+                        author=str(to_person_entity_id(d.email)),
+                    )
+                    for d in governance.descriptions
+                ]
+
+                dataset.description_assignment = DescriptionAssignment(
+                    asset_descriptions=asset_descriptions
+                )
 
         return datasets

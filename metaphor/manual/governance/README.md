@@ -1,6 +1,6 @@
 # Manual Governance Connector
 
-This connector assigns manually specified ownership and tagging information to tables.
+This connector assigns manually specified ownership, tagging information, and descriptions to tables.
 
 ## Setup
 
@@ -27,6 +27,9 @@ datasets:
     tags:
       - <tag_name>
       ...
+    descriptions:
+      - description: <description_text>
+        email: <author_email>
   ...
 output:
   file:
@@ -67,6 +70,21 @@ datasets:
     tags:
       - pii
       - golden 
+output:
+  file:
+    directory: /output
+```
+
+The following example shows how to add a description to a Redshift table.
+
+```yaml
+datasets:
+  - id:
+      platform: REDSHIFT
+      name: database.schema.table1
+    descriptions:
+      - description: A fancy description for the table
+        email: charlie@test.com
 output:
   file:
     directory: /output

@@ -11,4 +11,7 @@ datasets:
     tags:
       - pii
       - golden
+    descriptions:
+      - description: Quick brown fox
+        email: foo3@bar.com
 output: {}

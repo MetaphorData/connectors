@@ -21,6 +21,14 @@
         "pii",
         "golden"
       ]
+    },
+    "descriptionAssignment": {
+      "assetDescriptions": [
+        {
+          "author": "PERSON~415B746E7471B6C410D0A6580A390DC6",
+          "description": "Quick brown fox"
+        }
+      ]
     }
   }
 ]
