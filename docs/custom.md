@@ -107,6 +107,20 @@ run_connector(
 
 Once the output content has been verified, you can change [`local_file_sink_config`](../metaphor/common/runner.py) to [`metaphor_file_sink_config`](../metaphor/common/runner.py) to publish to S3 buckets.
 
+## Logging
+
+We provide a custom logger such that all logs will be automatically formatted and outputted as a zip file along with the events. Use the following code to leverage the logger:
+
+```py
+from metaphor.common.logger import get_logger
+
+
+logger = get_logger()
+logger.info('info message')
+logger.warn('warning message')
+logger.error('error message')
+```
+
 ## Full Example
 
 Here is a full example that showcases a custom connector that publishes the lineage. It specifies `db.schema.src1` & `db.schema.src2` as the upstream lineage (sources) of `db.schema.dest` in BigQuery.
