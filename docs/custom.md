@@ -28,10 +28,10 @@ from metaphor.models.metadata_change_event import (
 
 
 dataset = Dataset(
-  logicalId=...,
-  schema=...,
-  statistics=...,
-  upstreamLineage=...,
+    logicalId=...,
+    schema=...,
+    statistics=...,
+    upstreamLineage=...,
 )
 ```
 
@@ -59,9 +59,9 @@ from metaphor.models.metadata_change_event import DataPlatform
 
 
 entityId = to_dataset_entity_id(
-  name="db1.schema1.table1",
-  platform=DataPlatform.SNOWFLAKE,
-  account="my_snowflake_account",
+    name="db1.schema1.table1",
+    platform=DataPlatform.SNOWFLAKE,
+    account="my_snowflake_account",
 )
 ```
 
@@ -97,11 +97,11 @@ from metaphor.common.runner import run_connector
 
 
 run_connector(
-  connector_func=custom_connector,  # custom_connector from above example
-  name="connector_name",  # name should contain only alphanumeric characters plus underscores
-  platform=Platform.OTHER,  # use other unless there's a matching platform
-  description="connector description",  # user-facing description for the connector
-  file_sink_config=local_file_sink_config("/path/to/output"),  
+    connector_func=custom_connector,  # custom_connector from above example
+    name="connector_name",  # name should contain only alphanumeric characters plus underscores
+    platform=Platform.OTHER,  # use other unless there's a matching platform
+    description="connector description",  # user-facing description for the connector
+    file_sink_config=local_file_sink_config("/path/to/output"),  
 )
 ```
 
@@ -142,10 +142,10 @@ def custom_lineage_connector() -> Collection[ENTITY_TYPES]:
 # Use the runner to run the connector and output events to the tenant's S3 bucket
 connector_name = "custom_lineage_connector"
 run_connector(
-  connector_func=custom_connector,
-  name=connector_name,
-  platform=Platform.OTHER,
-  description="This is a custom connector made by Acme, Inc.",
-  file_sink_config=metaphor_file_sink_config("tenant_name", connector_name),  
+    connector_func=custom_lineage_connector,
+    name=connector_name,
+    platform=Platform.OTHER,
+    description="This is a custom connector made by Acme, Inc.",
+    file_sink_config=metaphor_file_sink_config("tenant_name", connector_name),  
 )
 ```
