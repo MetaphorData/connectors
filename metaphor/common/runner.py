@@ -2,6 +2,7 @@ import traceback
 from datetime import datetime
 from typing import Callable, Collection, List, Optional
 
+from metaphor.common.api_sink import ApiSink, ApiSinkConfig
 from metaphor.common.event_util import ENTITY_TYPES, EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig
 from metaphor.common.logger import get_logger
@@ -16,9 +17,10 @@ def run_connector(
     name: str,
     platform: Platform,
     description: str,
-    file_sink_config: Optional[FileSinkConfig],
+    file_sink_config: Optional[FileSinkConfig] = None,
+    api_sink_config: Optional[ApiSinkConfig] = None,
 ) -> List[MetadataChangeEvent]:
-    """Run a connector and write the resulting events to a directory or cloud storage.
+    """Run a connector and write the resulting events to files and/or API.
 
     Parameters
     ----------
@@ -30,8 +32,10 @@ def run_connector(
         Platform of the connector
     description : str
         Textual description of the connector
-    file_sink_config : FileSinkConfig
-        The output configuration
+    file_sink_config : Optional[FileSinkConfig]
+        Optional configuration for outputting events to files or cloud storage
+    api_sink_config : Optional[ApiSinkConfig]
+        (Deprecated) Optional  configuration for outputting events to an API
 
     Returns
     -------
@@ -80,6 +84,10 @@ def run_connector(
         file_sink.sink(events)
         file_sink.sink_metadata(run_metadata)
         file_sink.sink_logs()
+
+    if api_sink_config is not None:
+        api_sink = ApiSink(file_sink_config)
+        api_sink.sink(events)
 
     return events
 
