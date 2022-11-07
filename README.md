@@ -69,3 +69,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 ## Development
 
 See [Development Environment](docs/develop.md) for more instructions on how to setup your local development environment.
+
+## Custom Connectors
+
+See [Adding a Custom Connector](docs/custom.md) for instructions and a full example on how to create your custom connectors.
