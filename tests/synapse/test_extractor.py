@@ -10,9 +10,12 @@ from metaphor.synapse.workspace_client import (
     DedicatedSqlPoolSchema,
     DedicatedSqlPoolTable,
     SynapseTable,
+    SynapseWorkspace,
     WorkspaceDatabase,
 )
 from tests.test_utils import load_json
+
+mock_tenant_id = "mock_tenant_id"
 
 
 @pytest.mark.asyncio
@@ -65,9 +68,18 @@ async def test_extractor(test_root_dir):
         },
     )
 
+    synapseWorkspace = SynapseWorkspace(
+        id="mock_synapse_workspace_id",
+        name="mock_synapse_workspace_name",
+        type="WORKSPACE",
+    )
+
+    mock_auth_instance._tenant_id = mock_tenant_id
+
     mock_auth_instance.get_list_workspace_clients = MagicMock(
         return_value=[mock_workspace_instance]
     )
+    mock_workspace_instance._workspace = synapseWorkspace
     mock_workspace_instance.get_databases = MagicMock(return_value=[workspaceDatabase])
     mock_workspace_instance.get_tables = MagicMock(return_value=[synapseTable])
 
@@ -76,7 +88,7 @@ async def test_extractor(test_root_dir):
 
         config = SynapseConfig(
             output=OutputConfig(),
-            tenant_id="mock_tenat_id",
+            tenant_id=mock_tenant_id,
             client_id="mock_client_id",
             secret="mock_secret",
             subscription_id="mock_subscription_id",
@@ -123,9 +135,20 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
         ],
     )
 
+    synapseWorkspace = SynapseWorkspace(
+        id="mock_synapse_workspace_id",
+        name="mock_synapse_workspace_name",
+        type="WORKSPACE",
+    )
+
+    mock_auth_instance._tenant_id = mock_tenant_id
+
     mock_auth_instance.get_list_workspace_clients = MagicMock(
         return_value=[mock_workspace_instance]
     )
+
+    mock_workspace_instance._workspace = synapseWorkspace
+
     mock_workspace_instance.get_dedicated_sql_pool_databases = MagicMock(
         return_value=[workspaceSqlPoolDatabase]
     )
@@ -138,7 +161,7 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
 
         config = SynapseConfig(
             output=OutputConfig(),
-            tenant_id="mock_tenat_id",
+            tenant_id=mock_tenant_id,
             client_id="mock_client_id",
             secret="mock_secret",
             subscription_id="mock_subscription_id",

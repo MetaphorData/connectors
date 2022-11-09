@@ -1,7 +1,16 @@
 [
   {
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "tenant_id",
+          "value": "\"mock_tenant_id\""
+        }
+      ]
+    },
     "logicalId": {
-      "name": "mock_sql_pool_table_id",
+      "account": "mock_synapse_workspace_name",
+      "name": "mock_sql_pool_database_name.dbo.mock_sql_pool_name",
       "platform": "SYNAPSE"
     },
     "schema": {

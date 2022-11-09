@@ -21,9 +21,10 @@ class AuthClient:
     AZURE_MANGEMENT_ENDPOINT = "https://management.azure.com"
 
     def __init__(self, config: SynapseConfig):
+        self._tenant_id = config.tenant_id
         self._subscription_id = config.subscription_id
-        self.workspace_names = config.workspaces
-        self.resource_group_name = config.resource_group_name
+        self._workspace_names = config.workspaces
+        self._resource_group_name = config.resource_group_name
         self._azure_management_headers = {
             "Authorization": self.retrieve_access_token(
                 config, self.AZURE_MANGEMENT_SCOPES
@@ -53,7 +54,7 @@ class AuthClient:
 
     def _get_workspace(self, workspace_name: str) -> WorkspaceClient:
         # https://learn.microsoft.com/en-us/rest/api/synapse/workspaces/get?tabs=HTTP
-        url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/resourceGroups/{self.resource_group_name}/providers/Microsoft.Synapse/workspaces/{workspace_name}?api-version=2021-06-01"
+        url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/resourceGroups/{self._resource_group_name}/providers/Microsoft.Synapse/workspaces/{workspace_name}?api-version=2021-06-01"
         return get_request(
             url,
             self._azure_management_headers,
@@ -73,10 +74,10 @@ class AuthClient:
 
     def get_list_workspace_clients(self) -> Iterable[WorkspaceClient]:
         workspaces: List[SynapseWorkspace] = []
-        if self.resource_group_name and len(self.workspace_names) > 0:
+        if self._resource_group_name and len(self._workspace_names) > 0:
             workspaces = [
                 self._get_workspace(workspace_name)
-                for workspace_name in self.workspace_names
+                for workspace_name in self._workspace_names
             ]
         else:
             workspaces = self._get_workspaces()
