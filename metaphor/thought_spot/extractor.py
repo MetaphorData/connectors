@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from itertools import chain
 from typing import Collection, Dict, List, Tuple
 
@@ -6,6 +7,7 @@ from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderT
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
+    EntityId,
     dataset_normalized_name,
     to_dataset_entity_id,
     to_virtual_view_entity_id,
@@ -21,6 +23,10 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
+    EntityType,
+    EntityUpstream,
+    FieldMapping,
+    SourceField,
     SourceInfo,
     ThoughtSpotColumn,
     ThoughtSpotDashboardType,
@@ -36,7 +42,7 @@ from metaphor.thought_spot.models import (
     ConnectionMetadata,
     DataSourceTypeEnum,
     Header,
-    LiveBoardMetadate,
+    LiveBoardMetadata,
     SourceMetadata,
     Tag,
     TMLObject,
@@ -53,6 +59,12 @@ from metaphor.thought_spot.utils import (
 logger = get_logger()
 
 
+@dataclass
+class ColumnReference:
+    entity_id: str
+    field: str
+
+
 class ThoughtSpotExtractor(BaseExtractor):
     """ThoughtSpot metadata extractor"""
 
@@ -67,6 +79,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         self._client = ThoughtSpot.create_client(config)
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
+        self._column_references: Dict[str, ColumnReference] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
 
@@ -77,6 +90,8 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def fetch_virtual_views(self):
         connections = from_list(ThoughtSpot.fetch_connections(self._client))
+
+        self.populate_physical_column_mapping(connections)
 
         tables = ThoughtSpot.fetch_objects(
             self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_TABLE
@@ -99,15 +114,97 @@ class ThoughtSpotExtractor(BaseExtractor):
         # In ThoughtSpot, Tables, Worksheets, and Views can be treated as a kind of Table.
         tables = from_list(chain(valid_tables, sheets, views))
 
+        self.populate_logical_column_mapping(tables)
+
         self.populate_virtual_views(tables)
         self.populate_lineage(connections, tables)
         self.populate_formula()
+
+    def populate_physical_column_mapping(
+        self, connections: Dict[str, ConnectionMetadata]
+    ):
+        for connection in connections.values():
+            for logical_table in connection.logicalTableList:
+                mapping = logical_table.logicalTableContent.tableMappingInfo
+                source_entity_id = str(
+                    to_dataset_entity_id(
+                        dataset_normalized_name(
+                            db=mapping.databaseName,
+                            schema=mapping.schemaName,
+                            table=mapping.tableName,
+                        ),
+                        mapping_data_platform(connection.type),
+                        account=connection.dataSourceContent.configuration.accountName,
+                    )
+                )
+                for column in logical_table.columns:
+                    physical_column_id = column.physicalColumnGUID
+                    physical_column_name = column.physicalColumnName
+                    if not physical_column_id or not physical_column_name:
+                        logger.warning(f"Cannot map column: ${column.header.name}")
+                        continue
+                    self._column_references[physical_column_id] = ColumnReference(
+                        entity_id=source_entity_id,
+                        field=physical_column_name,
+                    )
+
+    def populate_logical_column_mapping(self, tables: Dict[str, SourceMetadata]):
+        for table in tables.values():
+            table_id = table.header.id
+            view_id = VirtualViewLogicalID(
+                name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
+            )
+            for column in table.columns:
+                self._column_references[column.header.id] = ColumnReference(
+                    entity_id=str(EntityId(EntityType.VIRTUAL_VIEW, view_id)),
+                    field=column.header.name,
+                )
 
     def populate_virtual_views(self, tables: Dict[str, SourceMetadata]):
         for table in tables.values():
             logger.debug(f"table: {table}")
 
             table_id = table.header.id
+
+            fieldMappings = []
+            for column in table.columns:
+                fieldMapping = FieldMapping(destination=column.header.name, sources=[])
+                column_id = column.header.id
+
+                if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
+                    # the table upstream is external source, i.e. BigQuery
+                    if column.physicalColumnGUID is None:
+                        logger.warning(
+                            f"Missing physical column GUID, column_id: {column_id}"
+                        )
+                        continue
+                    column_reference = self._column_references.get(
+                        column.physicalColumnGUID
+                    )
+                    if column_reference is None:
+                        logger.warning(
+                            f"Missing physical column reference: physical column GUID: {column.physicalColumnGUID}"
+                        )
+                        continue
+                    fieldMapping.sources.append(
+                        SourceField(
+                            field=column_reference.field,
+                            source_entity_id=column_reference.entity_id,
+                        )
+                    )
+                else:
+                    fieldMapping.sources += [
+                        SourceField(
+                            source_entity_id=self._column_references[
+                                source.columnId
+                            ].entity_id,
+                            field=self._column_references[source.columnId].field,
+                        )
+                        for source in column.sources
+                        if source.columnId in self._column_references
+                    ]
+                fieldMappings.append(fieldMapping)
+
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
@@ -127,6 +224,9 @@ class ThoughtSpotExtractor(BaseExtractor):
                     type=mapping_data_object_type(table.type),
                     url=f"{self._base_url}/#/data/tables/{table_id}",
                     tags=self._tag_names(table.header.tags),
+                ),
+                entity_upstream=EntityUpstream(
+                    field_mappings=fieldMappings if fieldMappings else None
                 ),
             )
             self._virtual_views[table_id] = view
@@ -180,6 +280,9 @@ class ThoughtSpotExtractor(BaseExtractor):
         connections: Dict[str, ConnectionMetadata],
         tables: Dict[str, SourceMetadata],
     ):
+        """
+        Populate lineage between tables/worksheets/views
+        """
         for view in self._virtual_views.values():
             table = tables[view.logical_id.name]
 
@@ -200,6 +303,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         )
                     )
                 ]
+                view.entity_upstream.source_entities = view.thought_spot.source_datasets
             else:
                 # use unique_list later to make order of sources stable
                 source_virtual_views = [
@@ -215,6 +319,9 @@ class ThoughtSpotExtractor(BaseExtractor):
                 ]
                 view.thought_spot.source_virtual_views = unique_list(
                     source_virtual_views
+                )
+                view.entity_upstream.source_entities = (
+                    view.thought_spot.source_virtual_views
                 )
 
     def fetch_dashboards(self):
@@ -269,7 +376,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
             self._dashboards[answer_id] = dashboard
 
-    def populate_liveboards(self, liveboards: List[LiveBoardMetadate]):
+    def populate_liveboards(self, liveboards: List[LiveBoardMetadata]):
         for board in liveboards:
             logger.debug(f"board: {board}")
             board_id = board.header.id
