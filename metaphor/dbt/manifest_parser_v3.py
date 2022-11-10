@@ -113,9 +113,7 @@ class ManifestParserV3:
             source_map[key] = to_dataset_entity_id(
                 dataset_normalized_name(
                     source.database, source.schema_, source.identifier
-                )
-                if self._platform != DataPlatform.BIGQUERY
-                else f"{source.database}.{source.schema_}.{source.identifier}",
+                ),
                 self._platform,
                 self._account,
             )
