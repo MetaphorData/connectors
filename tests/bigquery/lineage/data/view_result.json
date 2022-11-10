@@ -9,7 +9,33 @@
       "sourceDatasets": [
         "DATASET~A6BA6F986B360A57CF65200F29F5B251"
       ],
-      "transformation": "select * from FOO"
+      "transformation": "select * from `foo`"
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "project1.dataset1.table2",
+      "platform": "BIGQUERY"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~95E9386770B364A44764439A4520D14B"
+      ],
+      "transformation": "select * from `Foo`"
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "project1.dataset1.table3",
+      "platform": "BIGQUERY"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~A6BA6F986B360A57CF65200F29F5B251"
+      ],
+      "transformation": "select * from foo"
     }
   }
 ]
