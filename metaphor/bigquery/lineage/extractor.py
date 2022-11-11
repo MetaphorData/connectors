@@ -120,7 +120,7 @@ class BigQueryLineageExtractor(BaseExtractor):
             dataset_ids.add(
                 str(
                     to_dataset_entity_id(
-                        dataset_name.replace("`", "").lower(),
+                        dataset_normalized_name(table=dataset_name).replace("`", ""),
                         DataPlatform.BIGQUERY,
                         None,
                     )
