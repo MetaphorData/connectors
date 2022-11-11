@@ -62,7 +62,9 @@ class DbtExtractor(BaseExtractor):
             .split(".")[0]
         )
 
-        manifest_parser: Union[ManifestParserV3, ManifestParserV5, ManifestParserV6]
+        manifest_parser: Union[
+            ManifestParserV3, ManifestParserV5, ManifestParserV6, ManifestParserV7
+        ]
         if schema_version in ("v1", "v2", "v3"):
             manifest_parser = ManifestParserV3(
                 self._config,
