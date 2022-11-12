@@ -13,7 +13,7 @@ from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
 from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.bigquery.utils import LogEntry, build_client, build_logging_client
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import start_of_day
@@ -98,7 +98,9 @@ class BigQueryLineageExtractor(BaseExtractor):
         if not view_query:
             return
 
-        view_name = f"{project_id}.{bq_table.dataset_id}.{bq_table.table_id}"
+        view_name = dataset_normalized_name(
+            db=project_id, schema=bq_table.dataset_id, table=bq_table.table_id
+        )
         logger.info(f"Found view {view_name}")
 
         tables = Parser(view_query).tables
@@ -118,7 +120,7 @@ class BigQueryLineageExtractor(BaseExtractor):
             dataset_ids.add(
                 str(
                     to_dataset_entity_id(
-                        dataset_name.replace("`", "").lower(),
+                        dataset_normalized_name(table=dataset_name),
                         DataPlatform.BIGQUERY,
                         None,
                     )

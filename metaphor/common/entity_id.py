@@ -78,7 +78,13 @@ def to_person_entity_id(email: str) -> EntityId:
 
 
 def dataset_normalized_name(
-    db: Optional[str] = None, schema: Optional[str] = None, table: Optional[str] = None
+    db: Optional[str] = None,
+    schema: Optional[str] = None,
+    table: Optional[str] = None,
 ) -> str:
     """builds dataset normalized name"""
-    return ".".join([part for part in [db, schema, table] if part]).lower()
+    return (
+        ".".join([part for part in [db, schema, table] if part])
+        .lower()
+        .replace("`", "")
+    )
