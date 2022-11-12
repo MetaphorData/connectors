@@ -27,7 +27,21 @@ def test_to_str():
 
 
 def test_dataset_normalized_name():
+    # should lower case
     assert "a.b.c" == dataset_normalized_name("A", "b", "C")
+
+    # 2 segment format
     assert "b.c" == dataset_normalized_name("b", "C")
+
+    # named argument
     assert "b.c" == dataset_normalized_name(schema="b", table="C")
     assert "a.c" == dataset_normalized_name(db="A", table="C")
+
+    # should strip backquote
+    assert "a.b.c" == dataset_normalized_name("`A`", "b", "C")
+
+    # should not strip backquote
+    assert "`a`.b.c" == dataset_normalized_name("`A`", "b", "C", strip_backquote=False)
+
+    # should not lower case
+    assert "A.b.C" == dataset_normalized_name("A", "b", "C", lower_case=False)
