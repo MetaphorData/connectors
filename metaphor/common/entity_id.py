@@ -81,15 +81,12 @@ def dataset_normalized_name(
     db: Optional[str] = None,
     schema: Optional[str] = None,
     table: Optional[str] = None,
-    lower_case: bool = True,
     strip_backquote: bool = True,
 ) -> str:
     """builds dataset normalized name"""
 
-    name = ".".join([part for part in [db, schema, table] if part])
+    name = ".".join([part for part in [db, schema, table] if part]).lower()
 
-    if lower_case:
-        name = name.lower()
     if strip_backquote:
         name = name.replace("`", "")
 

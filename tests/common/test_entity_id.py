@@ -42,6 +42,3 @@ def test_dataset_normalized_name():
 
     # should not strip backquote
     assert "`a`.b.c" == dataset_normalized_name("`A`", "b", "C", strip_backquote=False)
-
-    # should not lower case
-    assert "A.b.C" == dataset_normalized_name("A", "b", "C", lower_case=False)
