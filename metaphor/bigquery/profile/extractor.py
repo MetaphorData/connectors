@@ -3,6 +3,8 @@ from functools import partial
 from time import sleep
 from typing import Collection, List, Set, Union
 
+from metaphor.common.entity_id import dataset_normalized_name
+
 try:
     import google.cloud.bigquery as bigquery
     from google.cloud.bigquery import QueryJob, TableReference
@@ -139,7 +141,9 @@ class BigQueryProfileExtractor(BaseExtractor):
             jobs.remove(job.job_id)
 
         dataset = BigQueryProfileExtractor._init_dataset(
-            f"{table.project}.{table.dataset_id}.{table.table_id}"
+            dataset_normalized_name(
+                db=table.project, schema=table.dataset_id, table=table.table_id
+            )
         )
         bq_table = self._client.get_table(table)
         row_count = bq_table.num_rows

@@ -59,7 +59,8 @@
                 "name": "db.schema.upstream",
                 "platform": "UNITY_CATALOG"
               },
-              "field": "col1"
+              "field": "col1",
+              "sourceEntityId": "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84"
             }
           ]
         }

@@ -47,7 +47,7 @@ from metaphor.thought_spot.models import (
     ConnectionMetadata,
     ConnectionType,
     Header,
-    LiveBoardMetadate,
+    LiveBoardMetadata,
     Metadata,
     SourceMetadata,
     SourceType,
@@ -139,7 +139,7 @@ class ThoughtSpot:
         ),
         SearchObjectHeaderTypeEnum.LIVEBOARD: (
             GetObjectDetailTypeEnum.LIVEBOARD,
-            LiveBoardMetadate,
+            LiveBoardMetadata,
         ),
     }
 

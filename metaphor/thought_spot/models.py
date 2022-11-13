@@ -77,6 +77,8 @@ class ColumnSource(BaseModel):
 
 class ColumnMetadata(Metadata):
     type: str
+    physicalColumnGUID: Optional[str]
+    physicalColumnName: Optional[str]
     sources: List[ColumnSource]
     dataType: Optional[str]
     optionalType: Optional[str]
@@ -139,10 +141,16 @@ class ConnectionHeader(Header):
     authorName: str = ""
 
 
+class LogicalTable(Metadata):
+    columns: List[ColumnMetadata]
+    logicalTableContent: LogicalTableContent
+
+
 class ConnectionMetadata(Metadata):
     header: Header
     type: ConnectionType
     dataSourceContent: DataSourceContent
+    logicalTableList: List[LogicalTable]
 
 
 class SourceMetadata(Metadata):
@@ -158,7 +166,7 @@ class AnswerMetadata(Metadata):
     reportContent: ReportContent
 
 
-class LiveBoardMetadate(Metadata):
+class LiveBoardMetadata(Metadata):
     header: LiveBoardHeader
     type: str
     reportContent: ReportContent
