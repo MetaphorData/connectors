@@ -17,6 +17,7 @@ from .catalog_parser_v1 import CatalogParserV1
 from .manifest_parser_v3 import ManifestParserV3
 from .manifest_parser_v5 import ManifestParserV5
 from .manifest_parser_v6 import ManifestParserV6
+from .manifest_parser_v7 import ManifestParserV7
 
 logger = get_logger()
 
@@ -65,7 +66,9 @@ class DbtExtractor(BaseExtractor):
             .split(".")[0]
         )
 
-        manifest_parser: Union[ManifestParserV3, ManifestParserV5, ManifestParserV6]
+        manifest_parser: Union[
+            ManifestParserV3, ManifestParserV5, ManifestParserV6, ManifestParserV7
+        ]
         if schema_version in ("v1", "v2", "v3"):
             manifest_parser = ManifestParserV3(
                 self._config,
@@ -83,6 +86,14 @@ class DbtExtractor(BaseExtractor):
             )
         elif schema_version == "v6":
             manifest_parser = ManifestParserV6(
+                self._config,
+                self._data_platform,
+                self._datasets,
+                self._virtual_views,
+                self._metrics,
+            )
+        elif schema_version == "v7":
+            manifest_parser = ManifestParserV7(
                 self._config,
                 self._data_platform,
                 self._datasets,
