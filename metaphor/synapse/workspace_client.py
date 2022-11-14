@@ -1,43 +1,19 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List
 
-from pydantic import BaseModel
+import pyodbc
 
 from metaphor.common.api_request import get_request
 from metaphor.common.logger import get_logger
+from metaphor.synapse.model import (
+    DedicatedSqlPoolSchema,
+    DedicatedSqlPoolTable,
+    QueryTable,
+    SynapseTable,
+    SynapseWorkspace,
+    WorkspaceDatabase,
+)
 
 logger = get_logger()
-
-
-class SynapseDataModel(BaseModel):
-    id: str
-    name: str
-    type: str
-
-
-class SynapseWorkspace(SynapseDataModel):
-    properties: Any
-
-
-class WorkspaceDatabase(SynapseDataModel):
-    properties: Any
-
-
-class DedicatedSqlPoolSchema(SynapseDataModel):
-    pass
-
-
-class DedicatedSqlPoolColumn(SynapseDataModel):
-    properties: Any
-
-
-class DedicatedSqlPoolTable(SynapseDataModel):
-    properties: Any
-    sqlSchema: Optional[DedicatedSqlPoolSchema]
-    columns: Optional[List]
-
-
-class SynapseTable(SynapseDataModel):
-    properties: Any
 
 
 class WorkspaceClient:
@@ -132,13 +108,109 @@ class WorkspaceClient:
                 sql_pool_tables.append(table)
         return sql_pool_tables
 
-    def get_spark_monitor(self):
-        # https://meteaphor-workspace.dev.azuresynapse.net/monitoring/workloadTypes/spark/applications?api-version=2020-10-01-preview&filter=(submitTime%20ge%202022-10-26T18:52:29Z%20and%20submitTime%20le%202022-10-27T18:52:29Z)&skip=0
-        pass
+    # def get_serverless_sql_pool_query_log(self, username:str, password:str, lookback_days: int) -> List[QueryTable]:
+    def get_serverless_sql_pool_query_log(
+        self, username: str, password: str, lookback_days: int
+    ) -> Iterable[QueryTable]:
+        driver = "{ODBC Driver 18 for SQL Server}"
+        server = self._sql_on_demand_query_endpoint
+        query_str = """
+            SELECT h.status, h.transaction_id, h.query_hash, h.login_name, h.start_time, h.end_time,
+            h.query_text as query_string, h.total_elapsed_time_ms as elapsed_time, data_processed_mb as data_size_mb,
+            error, error_code, rejected_rows_path
+            FROM sys.dm_exec_requests_history AS h
+            WHERE h.login_name LIKE '%live.com#%'
+            AND h.start_time > DATEADD(day,-{},GETDATE())
+            ORDER BY h.start_time DESC
+        """.format(
+            lookback_days
+        )
+        connect_str = (
+            "DRIVER="
+            + driver
+            + ";SERVER=tcp:"
+            + server
+            + ";PORT=1433"
+            + ";UID="
+            + username
+            + ";PWD="
+            + password
+            + ";Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+        )
+        conn = pyodbc.connect(connect_str)
+        cursor = conn.cursor()
+        cursor.execute(query_str)
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
 
-    def get_sql_monitor(self):
-        # sql query
-        # https://meteaphor-workspace.dev.azuresynapse.net/monitoring/workloadTypes/sql/querystring?api-version=2020-10-01-preview&use-workspace-token=true&isGen3Pool=false&filter=(((PoolName%20eq%20%27On-demand%27))%20and%20(submitTime%20ge%202022-10-26T18:57:15Z%20and%20submitTime%20le%202022-10-27T18:57:15Z))&skip=0
-        # sql
-        # https://meteaphor-workspace-ondemand.sql.azuresynapse.net//databases/master/query?api-version=2018-08-01-preview&application=AzureSynapseMonitoring
-        pass
+        for row in rows:
+            yield QueryTable(
+                request_id=row.transaction_id,
+                sql_query=row.query_string,
+                start_time=QueryTable.to_utc_time(row.start_time),
+                end_time=QueryTable.to_utc_time(row.end_time),
+                duration=row.elapsed_time,
+                login_name=row.login_name,
+                query_size=row.data_size_mb,
+                error=row.error,
+            )
+
+    # check with muliple de-sql pool
+    # def get_dedicated_sql_pool_query_log(self, database: str, username:str, password:str, lookback_days=0)-> List[QueryTable]:
+    def get_dedicated_sql_pool_query_log(
+        self, database: str, username: str, password: str, lookback_days=0
+    ) -> Iterable[QueryTable]:
+        server = f"{self._sql_query_endpoint}"
+        query_str = """
+            SELECT r.request_id, r.session_id, r.command, r.start_time, r.end_time, r.total_elapsed_time,
+            stps.row_count, stps.location_type, stps.operation_type,
+            s.login_name, s.app_name, s.query_count,
+            e.error_id, e.details as error
+            FROM sys.dm_pdw_exec_requests r
+            INNER JOIN sys.dm_pdw_exec_sessions s ON r.session_id = s.session_id
+            LEFT JOIN sys.dm_pdw_errors e ON r.session_id = e.session_id
+            LEFT JOIN sys.dm_pdw_request_steps stps ON r.request_id = stps.request_id
+            WHERE stps.location_type in ('Compute', 'DMS')
+            AND s.login_name LIKE '%live.com%'
+            AND r.start_time > DATEADD(day,-{},GETDATE())
+            AND s.session_id NOT IN (
+                SELECT DISTINCT session_id FROM sys.dm_pdw_exec_requests  WHERE command LIKE '%@@Azure.Synapse.Monitoring.SQLQuerylist%'
+            )
+            ORDER BY r.start_time DESC;
+        """.format(
+            lookback_days
+        )
+        driver = "{ODBC Driver 18 for SQL Server}"
+        connect_str = (
+            "DRIVER="
+            + driver
+            + ";SERVER=tcp:"
+            + server
+            + ";PORT=1433;DATABASE="
+            + database
+            + ";UID="
+            + username
+            + ";PWD="
+            + password
+            + ";Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+        )
+        conn = pyodbc.connect(connect_str)
+        cursor = conn.cursor()
+        cursor.execute(query_str)
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        for row in rows:
+            yield QueryTable(
+                request_id=row.request_id,
+                session_id=row.session_id,
+                sql_query=row.command,
+                login_name=row.login_name,
+                start_time=QueryTable.to_utc_time(row.start_time),
+                end_time=QueryTable.to_utc_time(row.end_time),
+                duration=row.total_elapsed_time,
+                error=row.error,
+                row_count=row.row_count,
+            )

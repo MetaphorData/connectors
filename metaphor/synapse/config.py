@@ -25,3 +25,12 @@ class SynapseConfig(BaseConfig):
 
     # (Optional) The workspace names, need to set resource_group_name
     workspaces: List[str] = field(default_factory=lambda: list())
+
+    # (Optional) The  username for query logs
+    username: Optional[str] = None
+
+    # (Optional) The password for query logs
+    password: Optional[str] = None
+
+    # (Optional) Number of days back of query logs to fetch, if 0, don't fetch query logs
+    lookback_days: Optional[int] = 0

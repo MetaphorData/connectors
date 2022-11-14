@@ -1,10 +1,12 @@
 import json
-from typing import Collection, Dict, List
+from typing import Collection, Dict, Iterable, List
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.utils import md5_digest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     CustomMetadata,
@@ -16,13 +18,16 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     EntityType,
     MaterializationType,
+    Parsing,
+    QueryLog,
     SchemaField,
     SQLSchema,
 )
 from metaphor.synapse.auth_client import AuthClient
 from metaphor.synapse.config import SynapseConfig
-from metaphor.synapse.workspace_client import (
+from metaphor.synapse.model import (
     DedicatedSqlPoolTable,
+    QueryTable,
     SynapseTable,
     SynapseWorkspace,
     WorkspaceDatabase,
@@ -41,14 +46,20 @@ class SynapseExtractor(BaseExtractor):
     def __init__(self, config: SynapseConfig):
         super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
         self._client = AuthClient(config)
+        self._config = config
         self._databases: List[WorkspaceDatabase] = []
         self._dataset_map: Dict[str, Dataset] = {}
+        self._querylist: List[QueryLog] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         for workspaceClient in self._client.get_list_workspace_clients():
             logger.info(
                 f"Fetching metadata from Synapse workspace ID: {workspaceClient._workspace.id}"
             )
+            # The needed condig dat to query querylog
+            username = self._config.username
+            password = self._config.password
+            lookback_days = self._config.lookback_days
             # serverless sqlpool
             try:
                 for database in workspaceClient.get_databases():
@@ -56,13 +67,19 @@ class SynapseExtractor(BaseExtractor):
                     self._map_tables_to_dataset(
                         workspaceClient._workspace, database, tables
                     )
-
-                # workspaceClient.get_dedicated_sql_pool_query_log()
+                    pass
+                if username and password and lookback_days > 0:
+                    self._map_query_log(
+                        workspaceClient.get_serverless_sql_pool_query_log(
+                            username, password, lookback_days
+                        )
+                    )
             except Exception as error:
                 logger.exception(error)
 
             # dedicated sqlpool
             try:
+                # 測不同sql pool
                 for database in workspaceClient.get_dedicated_sql_pool_databases():
                     tables = workspaceClient.get_dedicated_sql_pool_tables(
                         database.name
@@ -70,13 +87,18 @@ class SynapseExtractor(BaseExtractor):
                     self._map_dedicated_sql_pool_tables_to_dataset(
                         workspaceClient._workspace, database, tables
                     )
-
-                    # workspaceClient.get_dedicated_sql_pool_query_log(database.name, True)
+                    if username and password and lookback_days > 0:
+                        self._map_query_log(
+                            workspaceClient.get_dedicated_sql_pool_query_log(
+                                database.name, username, password, lookback_days
+                            )
+                        )
             except Exception as error:
                 logger.exception(error)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._dataset_map.values())
+        entities.extend(chunk_query_logs(self._querylist))
         return entities
 
     def _map_tables_to_dataset(
@@ -210,3 +232,26 @@ class SynapseExtractor(BaseExtractor):
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
             self._dataset_map[table.id] = dataset
+
+    def _map_query_log(self, rows: Iterable[QueryTable]):
+        for row in rows:
+            queryLog = QueryLog()
+            queryLog.id = f"{DataPlatform.SYNAPSE.name}:{row.session_id}"
+            queryLog.query_id = (
+                f"{row.request_id}:{row.session_id}"
+                if row.session_id
+                else row.request_id
+            )
+            queryLog.platform = DataPlatform.SYNAPSE
+            queryLog.start_time = row.start_time
+            queryLog.duration = row.duration / 1000.0
+            queryLog.user_id = row.login_name
+            queryLog.sql = row.sql_query
+            queryLog.sql_hash = md5_digest(row.sql_query.encode("utf-8"))
+            if row.row_count:
+                queryLog.rows_read = float(row.row_count)
+            if row.query_size:
+                queryLog.bytes_read = float(row.query_size * 1024)
+            if row.error:
+                queryLog.parsing = Parsing(error_message=row.error)
+            self._querylist.append(queryLog)
