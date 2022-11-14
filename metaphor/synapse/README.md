@@ -47,6 +47,13 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
     5. Role select `Synapse Monitoring Operator`.
     6. Wait for a few minutes for permission apply and then could start to use Synapse connector.
 
+### (Optional) Quey log setup
+we use Microsoft ODBC driver for sql to get query logs and follow steps to set up the environment.
+1. Set up sql admin username and admin password for Synapse workspace in [Azure protal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
+
+2. Setup the [Microsoft ODBC driver](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver16).
+
+
 ## Config File
 
 Create a YAML config file based on the following template.

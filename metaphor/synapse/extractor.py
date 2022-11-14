@@ -6,7 +6,7 @@ from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.utils import md5_digest
+from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     CustomMetadata,
@@ -22,12 +22,13 @@ from metaphor.models.metadata_change_event import (
     QueryLog,
     SchemaField,
     SQLSchema,
+    TypeEnum,
 )
 from metaphor.synapse.auth_client import AuthClient
 from metaphor.synapse.config import SynapseConfig
 from metaphor.synapse.model import (
     DedicatedSqlPoolTable,
-    QueryTable,
+    QueryLogTable,
     SynapseTable,
     SynapseWorkspace,
     WorkspaceDatabase,
@@ -49,37 +50,42 @@ class SynapseExtractor(BaseExtractor):
         self._config = config
         self._databases: List[WorkspaceDatabase] = []
         self._dataset_map: Dict[str, Dataset] = {}
-        self._querylist: List[QueryLog] = []
+        self._querylog_map: Dict[str, QueryLog] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         for workspaceClient in self._client.get_list_workspace_clients():
             logger.info(
                 f"Fetching metadata from Synapse workspace ID: {workspaceClient._workspace.id}"
             )
-            # The needed condig dat to query querylog
-            username = self._config.username
-            password = self._config.password
-            lookback_days = self._config.lookback_days
-            # serverless sqlpool
+
+            start_date = (
+                start_of_day(self._config.query_log.lookback_days)
+                if self._config.query_log and self._config.query_log.lookback_days > 0
+                else start_of_day()
+            )
+            end_date = start_of_day()
+
+            # Serverless sqlpool
             try:
                 for database in workspaceClient.get_databases():
                     tables = workspaceClient.get_tables(database.name)
                     self._map_tables_to_dataset(
                         workspaceClient._workspace, database, tables
                     )
-                    pass
-                if username and password and lookback_days > 0:
+                if self._config.query_log and self._config.query_log.lookback_days > 0:
                     self._map_query_log(
-                        workspaceClient.get_serverless_sql_pool_query_log(
-                            username, password, lookback_days
+                        workspaceClient.get_sql_pool_query_logs(
+                            self._config.query_log.username,
+                            self._config.query_log.password,
+                            start_date,
+                            end_date,
                         )
                     )
             except Exception as error:
                 logger.exception(error)
 
-            # dedicated sqlpool
+            # Dedicated sqlpool
             try:
-                # 測不同sql pool
                 for database in workspaceClient.get_dedicated_sql_pool_databases():
                     tables = workspaceClient.get_dedicated_sql_pool_tables(
                         database.name
@@ -87,10 +93,17 @@ class SynapseExtractor(BaseExtractor):
                     self._map_dedicated_sql_pool_tables_to_dataset(
                         workspaceClient._workspace, database, tables
                     )
-                    if username and password and lookback_days > 0:
+                    if (
+                        self._config.query_log
+                        and self._config.query_log.lookback_days > 0
+                    ):
                         self._map_query_log(
-                            workspaceClient.get_dedicated_sql_pool_query_log(
-                                database.name, username, password, lookback_days
+                            workspaceClient.get_dedicated_sql_pool_query_logs(
+                                database.name,
+                                self._config.query_log.username,
+                                self._config.query_log.password,
+                                start_date,
+                                end_date,
                             )
                         )
             except Exception as error:
@@ -98,7 +111,7 @@ class SynapseExtractor(BaseExtractor):
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._dataset_map.values())
-        entities.extend(chunk_query_logs(self._querylist))
+        entities.extend(chunk_query_logs(list(self._querylog_map.values())))
         return entities
 
     def _map_tables_to_dataset(
@@ -233,15 +246,21 @@ class SynapseExtractor(BaseExtractor):
 
             self._dataset_map[table.id] = dataset
 
-    def _map_query_log(self, rows: Iterable[QueryTable]):
+    def _map_query_log(self, rows: Iterable[QueryLogTable]):
         for row in rows:
-            queryLog = QueryLog()
-            queryLog.id = f"{DataPlatform.SYNAPSE.name}:{row.session_id}"
-            queryLog.query_id = (
+            query_id = (
                 f"{row.request_id}:{row.session_id}"
                 if row.session_id
                 else row.request_id
             )
+
+            if query_id in self._querylog_map:
+                continue
+
+            queryLog = QueryLog()
+            queryLog.id = f"{DataPlatform.SYNAPSE.name}:{row.request_id}"
+            queryLog.query_id = query_id
+            queryLog.type = self._map_query_type(row.query_operation)
             queryLog.platform = DataPlatform.SYNAPSE
             queryLog.start_time = row.start_time
             queryLog.duration = row.duration / 1000.0
@@ -254,4 +273,13 @@ class SynapseExtractor(BaseExtractor):
                 queryLog.bytes_read = float(row.query_size * 1024)
             if row.error:
                 queryLog.parsing = Parsing(error_message=row.error)
-            self._querylist.append(queryLog)
+            self._querylog_map[query_id] = queryLog
+
+    def _map_query_type(self, operation: str) -> TypeEnum:
+        operation = operation.upper()
+        if operation in ["CREATE", "DROP", "ALTER", "TRUNCATE"]:
+            return TypeEnum.DDL
+        if operation in ["INSERT", "UPATE", "DELETE", "CALL", "EXPALIN CALL", "LOCK"]:
+            return TypeEnum.DML
+        else:
+            return None

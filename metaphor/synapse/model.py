@@ -36,7 +36,7 @@ class SynapseTable(SynapseDataModel):
     properties: Any
 
 
-class QueryTable(BaseModel):
+class QueryLogTable(BaseModel):
     # transaction_id for serverless sql pool
     request_id: str
     session_id: Optional[str]
@@ -50,6 +50,7 @@ class QueryTable(BaseModel):
     query_size: Optional[int]
     error: Optional[str]
     row_count: Optional[int]
+    query_operation: Optional[str]
 
     @staticmethod
     def to_utc_time(time: datetime) -> "datetime":

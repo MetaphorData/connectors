@@ -7,6 +7,18 @@ from metaphor.common.base_config import BaseConfig
 
 
 @dataclass
+class SynapseQueryLogConfig:
+    # (Optional) The  username for query logs
+    username: str = ""
+
+    # (Optional) The password for query logs
+    password: str = ""
+
+    # (Optional) Number of days back of query logs to fetch, if 0, don't fetch query logs
+    lookback_days: int = 0
+
+
+@dataclass
 class SynapseConfig(BaseConfig):
     # Azure Directory (tenant) ID
     tenant_id: str
@@ -26,11 +38,4 @@ class SynapseConfig(BaseConfig):
     # (Optional) The workspace names, need to set resource_group_name
     workspaces: List[str] = field(default_factory=lambda: list())
 
-    # (Optional) The  username for query logs
-    username: Optional[str] = None
-
-    # (Optional) The password for query logs
-    password: Optional[str] = None
-
-    # (Optional) Number of days back of query logs to fetch, if 0, don't fetch query logs
-    lookback_days: Optional[int] = 0
+    query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()
