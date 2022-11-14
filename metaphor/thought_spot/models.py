@@ -92,6 +92,7 @@ class SourceType(Enum):
 
 class VizColumn(BaseModel):
     referencedTableHeaders: Optional[List[Reference]]
+    referencedColumnHeaders: Optional[List[Reference]]
 
 
 class RefAnswerBook(BaseModel):
