@@ -23,3 +23,10 @@ def get_logger() -> logging.Logger:
     logger.addHandler(file)
 
     return logger
+
+
+debug_files = []
+
+
+def add_debug_file(file: str) -> None:
+    debug_files.append(file)
