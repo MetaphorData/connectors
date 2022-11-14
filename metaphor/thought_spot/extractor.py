@@ -348,6 +348,8 @@ class ThoughtSpotExtractor(BaseExtractor):
                 if viz.vizContent.vizType == "CHART"
             ]
 
+            source_entities = self._populate_source_virtual_views(visualizations)
+
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=answer_id,
@@ -367,10 +369,12 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
-                upstream=DashboardUpstream(
-                    source_virtual_views=self._populate_source_virtual_views(
+                upstream=DashboardUpstream(source_virtual_views=source_entities),
+                entity_upstream=EntityUpstream(
+                    source_entities=source_entities,
+                    field_mappings=self._get_field_mapping_from_visualizations(
                         visualizations
-                    )
+                    ),
                 ),
             )
 
@@ -396,6 +400,8 @@ class ThoughtSpotExtractor(BaseExtractor):
                 if viz.vizContent.vizType == "CHART"
             ]
 
+            source_entities = self._populate_source_virtual_views(visualizations)
+
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=board_id,
@@ -416,10 +422,12 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/pinboard/{board_id}",
                 ),
-                upstream=DashboardUpstream(
-                    source_virtual_views=self._populate_source_virtual_views(
+                upstream=DashboardUpstream(source_virtual_views=source_entities),
+                entity_upstream=EntityUpstream(
+                    source_entities=source_entities,
+                    field_mappings=self._get_field_mapping_from_visualizations(
                         visualizations
-                    )
+                    ),
                 ),
             )
 
@@ -458,6 +466,28 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for reference in column.referencedTableHeaders
             ]
         )
+
+    def _get_field_mapping_from_visualizations(
+        self,
+        charts: List[Tuple[Visualization, Header, str]],
+    ) -> List[FieldMapping]:
+        return [
+            FieldMapping(
+                destination=header.name,
+                sources=[
+                    SourceField(
+                        source_entity_id=self._column_references[
+                            reference.id
+                        ].entity_id,
+                        field=self._column_references[reference.id].field,
+                    )
+                    for column in viz.vizContent.columns
+                    for reference in column.referencedColumnHeaders
+                    if reference is not None and reference.id in self._column_references
+                ],
+            )
+            for viz, header, *_ in charts
+        ]
 
     @staticmethod
     def _tag_names(tags: List[Tag]) -> List[str]:

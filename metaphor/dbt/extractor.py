@@ -3,7 +3,7 @@ from typing import Collection, Dict, List, Union
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import add_debug_file, get_logger
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -42,6 +42,10 @@ class DbtExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._metrics: Dict[str, Metric] = {}
+
+        add_debug_file(config.manifest)
+        if config.catalog:
+            add_debug_file(config.catalog)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
 

@@ -1,5 +1,7 @@
 import json
+import shutil
 import tempfile
+from os import path
 from typing import Collection, Dict, Optional, Tuple
 
 import requests
@@ -92,10 +94,13 @@ class DbtAdminAPIClient:
         # https://docs.getdbt.com/dbt-cloud/api-v2#operation/getArtifactsByRunId
         artifact_json = self._get(f"runs/{run_id}/artifacts/{artifact}")
 
-        fd, name = tempfile.mkstemp()
+        fd, temp_name = tempfile.mkstemp()
         with open(fd, "w") as fp:
             json.dump(artifact_json, fp)
-            return name
+
+        pretty_name = f"{path.dirname(temp_name)}/{artifact}"
+        shutil.copyfile(temp_name, pretty_name)
+        return pretty_name
 
 
 class DbtCloudExtractor(BaseExtractor):
