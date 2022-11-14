@@ -52,6 +52,12 @@
                                 "id": "data1",
                                 "name": "__unused__"
                               }
+                            ],
+                            "referencedColumnHeaders": [
+                              {
+                                "id": "table1.col1",
+                                "name": "__unused__"
+                              }
                             ]
                           }
                         ],
