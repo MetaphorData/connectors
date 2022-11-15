@@ -121,7 +121,7 @@ class FileSink(Sink):
         """
         self._storage.write_file(f"{self.path}/{filename}", content.encode(), True)
 
-    def remove_file_in_sink(self, filename: str):
+    def remove_file(self, filename: str):
         """Remove a file in the output sink
 
         Parameters
