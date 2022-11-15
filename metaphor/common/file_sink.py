@@ -108,3 +108,25 @@ class FileSink(Sink):
         content = json.dumps(EventUtil.clean_nones(metadata.to_dict())).encode()
 
         self._storage.write_file(f"{self.path}/run.metadata", content, True)
+
+    def sink_file(self, filename: str, content: str):
+        """Write content into a file in the output sink
+
+        Parameters
+        -------
+        filename : str
+            The filename to store the content under the output sink
+        content : str
+            The content to write to the file
+        """
+        self._storage.write_file(f"{self.path}/{filename}", content.encode(), True)
+
+    def remove_file_in_sink(self, filename: str):
+        """Remove a file in the output sink
+
+        Parameters
+        -------
+        filename : str
+            The file to remove
+        """
+        self._storage.delete_files([f"{self.path}/{filename}"])
