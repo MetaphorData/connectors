@@ -87,3 +87,21 @@ def test_sink_logs(test_root_dir):
 
     assert path.basename(f"{path.basename(directory)}.log") in base_names
     assert path.basename(debug_file) in base_names
+
+
+def test_sink_file(test_root_dir):
+    directory = tempfile.mkdtemp()
+
+    sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
+    filename = "test.txt"
+    sink.write_file(filename, "the content")
+
+    full_path = f"{directory}/{filename}"
+    assert path.exists(full_path)
+
+    with open(full_path) as f:
+        content = f.read()
+    assert content == "the content"
+
+    sink.remove_file(filename)
+    assert path.exists(full_path) is False
