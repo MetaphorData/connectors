@@ -43,7 +43,7 @@ jobs:
 
       - name: Test
         run: |
-          poetry run pytest --cov-report=coverage.xml
+          poetry run pytest --cov-report coverage.xml
 
       - name: Pytest coverage comment
         uses: orgoro/coverage@v3
