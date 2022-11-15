@@ -43,7 +43,7 @@ jobs:
 
       - name: Test
         run: |
-         poetry run pytest --junitxml=coverage.xml --cov-report=term-missing:skip-covered --cov=metaphor tests/
+         poetry run pytest --cov-report=xml:coverage.xml --cov=metaphor tests/
 
       - name: Pytest coverage comment
         uses: orgoro/coverage@v3
