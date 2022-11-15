@@ -109,7 +109,7 @@ class FileSink(Sink):
 
         self._storage.write_file(f"{self.path}/run.metadata", content, True)
 
-    def sink_file(self, filename: str, content: str):
+    def write_file(self, filename: str, content: str):
         """Write content into a file in the output sink
 
         Parameters
