@@ -94,7 +94,7 @@ def test_sink_file(test_root_dir):
 
     sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
     filename = "test.txt"
-    sink.sink_file(filename, "the content")
+    sink.write_file(filename, "the content")
 
     full_path = f"{directory}/{filename}"
     assert path.exists(full_path)
@@ -103,5 +103,5 @@ def test_sink_file(test_root_dir):
         content = f.read()
     assert content == "the content"
 
-    sink.remove_file_in_sink(filename)
+    sink.remove_file(filename)
     assert path.exists(full_path) is False
