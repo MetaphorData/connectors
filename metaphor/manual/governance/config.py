@@ -17,6 +17,15 @@ class Ownership:
 
 
 @dataclass
+class ColumnTags:
+    # Name of the column
+    column: str
+
+    # List of associated tags
+    tags: List[str]
+
+
+@dataclass
 class Description:
     # The description to assign
     description: str
@@ -32,6 +41,8 @@ class DatasetGovernance:
     ownerships: List[Ownership] = dataclass_field(default_factory=lambda: [])
 
     tags: List[str] = dataclass_field(default_factory=lambda: [])
+
+    column_tags: List[ColumnTags] = dataclass_field(default_factory=lambda: [])
 
     descriptions: List[Description] = dataclass_field(default_factory=lambda: [])
 
