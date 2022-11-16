@@ -43,11 +43,14 @@ jobs:
 
       - name: Test
         run: |
-          poetry run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=metaphor tests/ | tee pytest-coverage.txt
+         poetry run pytest --cov-report=xml:coverage.xml --cov=metaphor tests/
 
       - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@main
+        uses: orgoro/coverage@v3
         with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest.xml
+          coverageFile: ./coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          thresholdAll: 0.7
+          thresholdNew: 0.8
+          thresholdModified: 0.8
 
