@@ -66,7 +66,7 @@ output:
     directory: /output
 ```
 
-Here's another example showing how to tag a Snowflake table as `golden`, and a the `email` column as `pii`.
+Here's another example showing how to tag a Snowflake table as `golden`, and the `email` column as `pii`.
 
 ```yaml
 datasets:
