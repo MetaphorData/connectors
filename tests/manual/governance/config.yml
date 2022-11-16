@@ -11,6 +11,14 @@ datasets:
     tags:
       - pii
       - golden
+    column_tags:
+      - column: col1
+        tags:
+          - phi
+      - column: col2
+        tags:
+          - deprecated
+          - do_not_use
     descriptions:
       - description: Quick brown fox
         email: foo3@bar.com

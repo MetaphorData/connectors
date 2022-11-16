@@ -20,6 +20,21 @@
       "tagNames": [
         "pii",
         "golden"
+      ],
+      "columnTagAssignments": [
+        {
+          "columnName": "col1",
+          "tagNames": [
+            "phi"
+          ]
+        },
+        {
+          "columnName": "col2",
+          "tagNames": [
+            "deprecated",
+            "do_not_use"
+          ]
+        }
       ]
     },
     "descriptionAssignment": {

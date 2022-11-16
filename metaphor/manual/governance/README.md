@@ -27,9 +27,16 @@ datasets:
     tags:
       - <tag_name>
       ...
+    column_tags:
+      - column: <column_name>
+        tags:
+          - <tag_name>
+          ...
+      ...
     descriptions:
       - description: <description_text>
         email: <author_email>
+      ...
   ...
 output:
   file:
@@ -59,7 +66,7 @@ output:
     directory: /output
 ```
 
-Here's another example showing how to tag a Snowflake table as `pii` and `golden`.
+Here's another example showing how to tag a Snowflake table as `golden`, and the `email` column as `pii`.
 
 ```yaml
 datasets:
@@ -68,8 +75,11 @@ datasets:
       account: test_account
       name: database.schema.table1
     tags:
-      - pii
-      - golden 
+      - golden
+    column_tags:
+      - column: email
+        tags:
+          - pii
 output:
   file:
     directory: /output
