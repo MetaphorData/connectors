@@ -1,0 +1,75 @@
+[
+  {
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "tenant_id",
+          "value": "\"mock_tenant_id\""
+        },
+        {
+          "key": "format",
+          "value": "\"CSV\""
+        },
+        {
+          "key": "source",
+          "value": "\"mock_storage_location\""
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "account": "mock_synapse_workspace_name",
+      "name": "mock_database_name.mock_synapse_table_name",
+      "platform": "SYNAPSE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "description": "mock_column_description_1",
+          "fieldName": "mock_column_name_1",
+          "fieldPath": "mock_column_name_1",
+          "maxLength": 0.0,
+          "nativeType": "mock_column_type_1",
+          "nullable": false,
+          "precision": 0.0
+        },
+        {
+          "description": "mock_column_description_2",
+          "fieldName": "mock_column_name_2",
+          "fieldPath": "mock_column_name_2",
+          "maxLength": 0.0,
+          "nativeType": "mock_column_type_2",
+          "nullable": true,
+          "precision": 0.0
+        }
+      ],
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "primaryKey": [
+          "primarykey1",
+          "primarykey2"
+        ],
+        "tableSchema": "mock_table_type"
+      }
+    },
+    "structure": {
+      "database": "mock_database_name",
+      "table": "mock_synapse_table_name"
+    }
+  },
+  {
+    "logs": [
+      {
+        "_id": "SYNAPSE:mock_request_id",
+        "bytesRead": 10240.0,
+        "duration": 1.0,
+        "platform": "SYNAPSE",
+        "queryId": "mock_request_id",
+        "sql": "SELECT TOP 10(*) FROM mock_query_table",
+        "sqlHash": "b7c58ff046d625445d8fd387d5447f4e",
+        "startTime": "2022-11-15T13:10:10.922321+00:00",
+        "userId": "mock_user@gmail.com"
+      }
+    ]
+  }
+]

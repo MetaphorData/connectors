@@ -1,0 +1,12 @@
+---
+tenant_id: tenant_id
+client_id: client_id
+secret: client_secret
+subscription_id: client_subscription_id
+query_log:
+  username: username
+  password: password
+  lookback_days: 15
+output:
+  file:
+    directory: ./synapse_result
