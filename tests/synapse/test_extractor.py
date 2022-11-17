@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -9,13 +10,12 @@ from metaphor.synapse.extractor import SynapseExtractor
 from metaphor.synapse.model import (
     DedicatedSqlPoolSchema,
     DedicatedSqlPoolTable,
+    QueryLogTable,
     SynapseTable,
     SynapseWorkspace,
     WorkspaceDatabase,
-    QueryLogTable
 )
 from tests.test_utils import load_json
-from datetime import datetime
 
 mock_tenant_id = "mock_tenant_id"
 
@@ -229,17 +229,19 @@ async def test_extractor_with_query_log(test_root_dir):
         name="mock_synapse_workspace_name",
         type="WORKSPACE",
     )
-    
+
     qyeryLogTable = QueryLogTable(
         request_id="mock_request_id",
         sql_query="SELECT TOP 10(*) FROM mock_query_table",
         login_name="mock_user@gmail.com",
-        start_time=QueryLogTable.to_utc_time(datetime(2022, 11, 15, 13, 10, 10, 922321)),
+        start_time=QueryLogTable.to_utc_time(
+            datetime(2022, 11, 15, 13, 10, 10, 922321)
+        ),
         end_time=QueryLogTable.to_utc_time(datetime(2022, 11, 15, 13, 10, 11, 922321)),
-        duration= 1000,
+        duration=1000,
         query_size=10,
         error=None,
-        query_operation="SELECT"
+        query_operation="SELECT",
     )
 
     mock_auth_instance._tenant_id = mock_tenant_id
@@ -250,7 +252,9 @@ async def test_extractor_with_query_log(test_root_dir):
     mock_workspace_instance._workspace = synapseWorkspace
     mock_workspace_instance.get_databases = MagicMock(return_value=[workspaceDatabase])
     mock_workspace_instance.get_tables = MagicMock(return_value=[synapseTable])
-    mock_workspace_instance.get_sql_pool_query_logs = MagicMock(return_value=[qyeryLogTable])
+    mock_workspace_instance.get_sql_pool_query_logs = MagicMock(
+        return_value=[qyeryLogTable]
+    )
 
     with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
         mock_client.return_value = mock_auth_instance
@@ -262,16 +266,14 @@ async def test_extractor_with_query_log(test_root_dir):
             secret="mock_secret",
             subscription_id="mock_subscription_id",
             query_log=SynapseQueryLogConfig(
-                username="mock_username",
-                password="mock_password",
-                lookback_days=1
-            )
+                username="mock_username", password="mock_password", lookback_days=1
+            ),
         )
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/synapse/expected_with_query_log.json")
-    
+
 
 @pytest.mark.asyncio
 async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
@@ -314,7 +316,7 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
         name="mock_synapse_workspace_name",
         type="WORKSPACE",
     )
-    
+
     qyeryLogTable = QueryLogTable(
         request_id="mock_request_id",
         session_id="mock_session_id",
@@ -322,10 +324,10 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
         login_name="mock_user@gmail.com",
         start_time=QueryLogTable.to_utc_time(datetime(2022, 11, 11, 13, 9, 11, 822321)),
         end_time=QueryLogTable.to_utc_time(datetime(2022, 11, 11, 13, 9, 11, 922321)),
-        duration= 100,
+        duration=100,
         row_count=1,
         error=None,
-        query_operation="INSERT"
+        query_operation="INSERT",
     )
 
     mock_auth_instance._tenant_id = mock_tenant_id
@@ -342,9 +344,10 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
     mock_workspace_instance.get_dedicated_sql_pool_tables = MagicMock(
         return_value=[sqlpool_table]
     )
-    
-    mock_workspace_instance.get_sql_pool_query_logs = MagicMock(return_value=[qyeryLogTable])
-    
+
+    mock_workspace_instance.get_sql_pool_query_logs = MagicMock(
+        return_value=[qyeryLogTable]
+    )
 
     with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
         mock_client.return_value = mock_auth_instance
@@ -356,12 +359,12 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
             secret="mock_secret",
             subscription_id="mock_subscription_id",
             query_log=SynapseQueryLogConfig(
-                username="mock_username",
-                password="mock_password",
-                lookback_days=10
-            )
+                username="mock_username", password="mock_password", lookback_days=10
+            ),
         )
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    assert events == load_json(f"{test_root_dir}/synapse/expected_sqlpool_with_query_log.json")
+    assert events == load_json(
+        f"{test_root_dir}/synapse/expected_sqlpool_with_query_log.json"
+    )
