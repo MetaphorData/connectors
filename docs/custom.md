@@ -54,12 +54,12 @@ The `logicalId` mentioned in the previous section is an object containing multip
 However, when referencing another logical ID inside a metadata aspect, it's more common to use a string-based ID known as "Entity ID." This ID is used internally as the database's primary & foreign keys. An Entity ID can be directly generated from the corresponding logical ID by taking the MD5 hash of its canonical JSON string (see [RFC 8785](https://datatracker.ietf.org/doc/html/rfc8785) for more details). The actual implementation is hidden from the users through utility methods such as [`to_dataset_entity_id`](../metaphor/common/entity_id.py), e.g.
 
 ```py
-from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.models.metadata_change_event import DataPlatform
 
 
 entityId = to_dataset_entity_id(
-    name="db1.schema1.table1",
+    name=dataset_normalized_name("db1", "schema1", "table1"),
     platform=DataPlatform.SNOWFLAKE,
     account="my_snowflake_account",
 )
@@ -121,37 +121,55 @@ logger.warn('warning message')
 logger.error('error message')
 ```
 
-## Full Example
+## Full Examples
+
+### Custom Lineage Connector
 
 Here is a full example that showcases a custom connector that publishes the lineage. It specifies `db.schema.src1` & `db.schema.src2` as the upstream lineage (sources) of `db.schema.dest` in BigQuery.
 
 ```py
-from metaphor.common.entity_id import to_dataset_entity_id
-from metaphor.common.event_util import ENTITY_TYPES, EventUtil
+from typing import Collection
+
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.runner import metaphor_file_sink_config, run_connector
 from metaphor.models.metadata_change_event import (
+    DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DataPlatform,
     DatasetUpstream,
+    Platform,
 )
-from metaphor.common.runner import run_connector
 
 
 # The connector function that produces a list of entities
 def custom_lineage_connector() -> Collection[ENTITY_TYPES]:
 
     # Create string-based entity IDs for src1 & src2
-    src1_id = str(to_dataset_entity_id('db.schema.src1', DataPlatform.BIGQUERY))
-    src2_id = str(to_dataset_entity_id('db.schema.src2', DataPlatform.BIGQUERY))
+    src1_id = str(
+        to_dataset_entity_id(
+            dataset_normalized_name("db", "schema", "src1"), DataPlatform.BIGQUERY
+        )
+    )
+    src2_id = str(
+        to_dataset_entity_id(
+            dataset_normalized_name("db", "schema", "src2"), DataPlatform.BIGQUERY
+        )
+    )
 
     # Set the upstream aspect
     dataset = Dataset(
-        logical_id = DatasetLogicalID(name='db.schema.dest', platform=DataPlatform.BIGQUERY),
-        upstream = DatasetUpstream(source_datasets=[src1_id, src2_id]),
+        logical_id=DatasetLogicalID(
+            name=dataset_normalized_name(
+                "db", "schema", "dest", platform=DataPlatform.BIGQUERY
+            )
+        ),
+        upstream=DatasetUpstream(source_datasets=[src1_id, src2_id]),
     )
 
     # Return a list of datasets
     return [dataset]
+
 
 # Use the runner to run the connector and output events to the tenant's S3 bucket
 connector_name = "custom_lineage_connector"
@@ -160,6 +178,57 @@ run_connector(
     name=connector_name,
     platform=Platform.OTHER,
     description="This is a custom connector made by Acme, Inc.",
-    file_sink_config=metaphor_file_sink_config("tenant_name", connector_name),  
+    file_sink_config=metaphor_file_sink_config("tenant_name", connector_name),
+)
+```
+
+### Custom Data Quality Connector
+
+Here is another example demonstrating a custom connector that publishes data quality metadata.
+
+```py
+from typing import Collection
+
+from metaphor.common.entity_id import dataset_normalized_name
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.runner import metaphor_file_sink_config, run_connector
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetDataQuality,
+    DatasetLogicalID,
+    Platform,
+)
+
+
+# Run actual DQ tests and fill out DatasetDataQuality 
+def run_dq_tests() -> DatasetDataQuality:
+    pass
+
+
+# The connector function that produces a list of entities
+def custom_dq_connector() -> Collection[ENTITY_TYPES]:
+
+    # Set the upstream aspect
+    dataset = Dataset(
+        logical_id=DatasetLogicalID(
+            name=dataset_normalized_name("db", "schema", "dest"),
+            platform=DataPlatform.BIGQUERY,
+        ),
+        data_quality=run_dq_tests(),
+    )
+
+    # Return a list of datasets
+    return [dataset]
+
+
+# Use the runner to run the connector and output events to the tenant's S3 bucket
+connector_name = "custom_dq_connector"
+run_connector(
+    connector_func=custom_dq_connector,
+    name=connector_name,
+    platform=Platform.OTHER,
+    description="This is a custom connector made by Acme, Inc.",
+    file_sink_config=metaphor_file_sink_config("tenant_name", connector_name),
 )
 ```
