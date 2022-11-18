@@ -2886,7 +2886,7 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "74c5fbbfc4f83f27204e230ce7a443a1a45dbbb2f6e48e3f75012a7dc4346add"
+content-hash = "4a404922ffebf7516eaf46a38e2290d44b17b585ff511b83c6dfa58d49af50e7"
 
 [metadata.files]
 alembic = [
