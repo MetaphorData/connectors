@@ -1,6 +1,6 @@
 from typing import Iterable, List
 
-from metaphor.common.api_request import get_request
+from metaphor.common.api_request import ApiReqest
 from metaphor.common.logger import get_logger
 from metaphor.synapse.config import SynapseConfig
 from metaphor.synapse.workspace_client import SynapseWorkspace, WorkspaceClient
@@ -55,7 +55,7 @@ class AuthClient:
     def _get_workspace(self, workspace_name: str) -> WorkspaceClient:
         # https://learn.microsoft.com/en-us/rest/api/synapse/workspaces/get?tabs=HTTP
         url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/resourceGroups/{self._resource_group_name}/providers/Microsoft.Synapse/workspaces/{workspace_name}?api-version=2021-06-01"
-        return get_request(
+        return ApiReqest.get_request(
             url,
             self._azure_management_headers,
             SynapseWorkspace,
@@ -65,7 +65,7 @@ class AuthClient:
     def _get_workspaces(self) -> List[SynapseWorkspace]:
         # https://learn.microsoft.com/en-us/rest/api/synapse/workspaces/list?tabs=HTTP
         url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/providers/Microsoft.Synapse/workspaces?api-version=2021-06-01"
-        return get_request(
+        return ApiReqest.get_request(
             url,
             self._azure_management_headers,
             List[SynapseWorkspace],

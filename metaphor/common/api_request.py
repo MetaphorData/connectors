@@ -17,17 +17,19 @@ class ApiError(Exception):
         super().__init__(f"call {url} api failed: {status_code}\n{error_msg}")
 
 
-def get_request(
-    url: str,
-    headers: Dict[str, str],
-    type_: Type[T],
-    transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
-) -> T:
-    """Generic get api request to make third part api call and return with customized data class"""
+class ApiReqest:
+    @staticmethod
+    def get_request(
+        url: str,
+        headers: Dict[str, str],
+        type_: Type[T],
+        transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
+    ) -> T:
+        """Generic get api request to make third part api call and return with customized data class"""
 
-    result = requests.get(url, headers=headers)
-    if result.status_code == 200:
-        logger.debug(json.dumps(result.json(), indent=2))
-        return parse_obj_as(type_, transform_response(result))
-    else:
-        raise ApiError(url, result.status_code, result.content.decode())
+        result = requests.get(url, headers=headers)
+        if result.status_code == 200:
+            logger.debug(json.dumps(result.json(), indent=2))
+            return parse_obj_as(type_, transform_response(result))
+        else:
+            raise ApiError(url, result.status_code, result.content.decode())

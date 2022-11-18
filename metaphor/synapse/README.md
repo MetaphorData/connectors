@@ -47,11 +47,11 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
     5. Role select `Synapse Monitoring Operator`.
     6. Wait for a few minutes for permission apply and then could start to use Synapse connector.
 
-### (Optional) Quey log setup
+#### (Optional) Quey log setup
 we use Microsoft ODBC driver for sql to get query logs and follow steps to set up the environment.
 1. Set up sql admin username and admin password for Synapse workspace in [Azure protal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
 
-2. Setup the [Microsoft ODBC driver](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver16).
+2. (Optional) may need to install [FreeTDS](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16) if running query log into errors.
 
 
 ## Config File
@@ -85,10 +85,41 @@ You can explicitly configure the workspaces and related `Resource Group Name` yo
 ```yaml
 resource_group_name: <resource_group_name>  # Rescource group name
 
-workspaces:  # The workspace names
-  - <workspace1>
-  - <workspace2>
+workspaces:  # Assigned workspaces
+  - name: <workspace1>
+  - name: <workspace2>
   ...
+```
+
+#### Query Log
+To query the query log need to have SQL admin username and SQL admin password setup.
+```yaml
+query_log:
+  username: <username>
+  password: <password>
+  lookback_days: <days>
+```
+
+for multiple workspace use case, each workspace can set pair of username and password independently. Otherwise, use top level username and password as default (還沒做)
+
+```yaml
+query_log:
+  username: <username>
+  password: <password>
+  lookback_days: <days>
+
+#還沒弄
+workspaces:  # Assigned workspaces
+  -
+    name: <workspace1>
+    username: <username>
+    password: <password>
+    lookback_days: <days>
+  -
+    name: <workspace2>
+    username: <username>
+    password: <password>
+    lookback_days: <days>
 ```
 
 ## Testing

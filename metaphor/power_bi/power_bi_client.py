@@ -6,7 +6,7 @@ from typing import Any, Callable, List, Optional, Type, TypeVar
 import requests
 from pydantic import BaseModel
 
-from metaphor.common.api_request import ApiError, get_request
+from metaphor.common.api_request import ApiError, ApiReqest
 from metaphor.common.logger import get_logger
 from metaphor.power_bi.config import PowerBIRunConfig
 
@@ -339,7 +339,7 @@ class PowerBIClient:
         transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
     ) -> T:
         try:
-            return get_request(
+            return ApiReqest.get_request(
                 url,
                 self._headers,
                 type_,
