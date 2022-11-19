@@ -1,5 +1,4 @@
 import pytest
-from freezegun import freeze_time
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
@@ -81,7 +80,6 @@ async def test_shopify_project(test_root_dir):
     await _test_project(test_root_dir + "/dbt/data/shopify", None, None, True)
 
 
-@freeze_time("2000-01-01")
 async def _test_project(
     data_dir, docs_base_url=None, project_source_url=None, useCatalog=False
 ):

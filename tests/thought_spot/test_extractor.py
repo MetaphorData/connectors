@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from freezegun import freeze_time
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
@@ -20,7 +19,6 @@ def dummy_config():
 
 
 @pytest.mark.asyncio
-@freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     def create_mock_client():
         mock = MagicMock()
