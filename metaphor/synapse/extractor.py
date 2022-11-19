@@ -37,6 +37,7 @@ from metaphor.synapse.model import (
 logger = get_logger()
 
 
+# test the change for ci
 class SynapseExtractor(BaseExtractor):
     """Synapse metadata extractor"""
 
