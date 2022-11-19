@@ -43,7 +43,9 @@ jobs:
 
       - name: Test
         run: |
-         poetry run pytest --cov-report=xml:coverage.xml --cov=metaphor tests/
+          poetry run coverage run --source=metaphor -m pytest
+          poetry run coverage lcov
+          poetry run coverage xml
 
       - name: Pytest coverage comment
         uses: orgoro/coverage@v3
@@ -53,4 +55,10 @@ jobs:
           thresholdAll: 0.7
           thresholdNew: 0.8
           thresholdModified: 0.8
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage.lcov
 

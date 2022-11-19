@@ -670,7 +670,7 @@ tests = ["MarkupSafe (>=0.23)", "aiohttp (>=2.3.10,<4)", "aiohttp-jinja2 (>=0.14
 name = "coverage"
 version = "6.5.0"
 description = "Code coverage measurement for Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -2886,7 +2886,7 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "4a404922ffebf7516eaf46a38e2290d44b17b585ff511b83c6dfa58d49af50e7"
+content-hash = "cab1bba273b458a0ec1e85386c0e79ff192630ae3f7b71d97e6b0237e3105c21"
 
 [metadata.files]
 alembic = [
