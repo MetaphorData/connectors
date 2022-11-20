@@ -529,7 +529,7 @@ class ManifestParser:
             url=build_metric_docs_url(self._docs_base_url, metric.unique_id),
         )
 
-        if isinstance(metric, ParsedMetricV5) or isinstance(metric, ParsedMetricV6):
+        if isinstance(metric, (ParsedMetricV5, ParsedMetricV6)):
             metric_entity.dbt_metric.sql = metric.sql
             metric_entity.dbt_metric.type = metric.type
         elif isinstance(metric, ParsedMetricV7):
