@@ -3,7 +3,7 @@ name: CD
 
 env:
   PYTHON_VERSION: 3.7
-  POETRY_VERSION: 1.1.12
+  POETRY_VERSION: 1.2.2
   NODE_VERSION: 16
   DOCKER_IMAGE: metaphordata/connectors
 
@@ -48,6 +48,35 @@ jobs:
             core.setOutput('full', version);
             core.setOutput('major', version.split('.').slice(0, 1).join('.'));
             core.setOutput('minor', version.split('.').slice(0, 2).join('.'));
+
+  publish-coverage:
+    name: Publish coverage stats
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Test
+        run: |
+          poetry install -E all
+          poetry run coverage run --source=metaphor -m pytest
+          poetry run coverage lcov
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage.lcov
 
   pypi:
     name: Publish to PyPI
