@@ -44,7 +44,7 @@ jobs:
       # TODO(SC-14236): Include __init__.py back to coverage after fixing async testing issues
       - name: Test
         run: |
-          poetry run coverage run --source=metaphor --omit __init__.py -m pytest
+          poetry run coverage run --source=metaphor --omit='**/__init__.py' -m pytest
           poetry run coverage lcov
           poetry run coverage xml
 
