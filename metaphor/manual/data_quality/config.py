@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List, Literal, Optional
+from typing import List, Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -18,7 +18,8 @@ class DataQualityMonitorTarget:
 class DataQualityMonitor:
     title: str
 
-    status: Literal["PASSED", "WARNING", "ERROR"]
+    # Change type to Literal["PASSED", "WARNING", "ERROR"] in Python 3.8+
+    status: str
 
     targets: List[DataQualityMonitorTarget]
 
@@ -28,7 +29,8 @@ class DataQualityMonitor:
 
     owner: Optional[str] = None
 
-    severity: Optional[Literal["LOW", "MEDIUM", "HIGH"]] = None
+    # Change type to Optional[Literal["LOW", "MEDIUM", "HIGH"]] in Python 3.8+
+    severity: Optional[str] = None
 
     last_run: Optional[datetime] = datetime.now(tz=timezone.utc)
 
@@ -39,7 +41,8 @@ class DataQualityMonitor:
 class DataQuality:
     monitors: List[DataQualityMonitor]
 
-    provider: Optional[Literal["SODA", "LIGHTUP", "BIGEYE"]] = None
+    # Change type to Optional[Literal["SODA", "LIGHTUP", "BIGEYE"]]
+    provider: Optional[str] = None
 
     url: Optional[str] = None
 
