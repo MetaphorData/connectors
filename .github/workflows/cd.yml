@@ -98,11 +98,9 @@ jobs:
 
       - name: Publish to PyPI
         run: >
-          poetry publish --build
+          poetry publish --build --skip-existing
           -u ${{ secrets.PYPI_USERNAME }}
           -p ${{ secrets.PYPI_PASSWORD }}
-          2>&1 | tee ${{ runner.temp }}/logs
-          || grep -qiE 'File already exists' ${{ runner.temp }}/logs
 
       - name: Create tag
         uses: actions/github-script@v5
