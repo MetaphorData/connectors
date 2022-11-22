@@ -456,10 +456,13 @@ class ManifestParser:
             return
 
         dataset = get_dataset()
-        if dataset.col_tag_assignments is None:
-            dataset.col_tag_assignments = []
+        if dataset.tag_assignment is None:
+            dataset.tag_assignment = TagAssignment()
 
-        dataset.col_tag_assignments.append(
+        if dataset.tag_assignment.column_tag_assignments is None:
+            dataset.tag_assignment.column_tag_assignments = []
+
+        dataset.tag_assignment.column_tag_assignments.append(
             ColumnTagAssignment(
                 column_name=column_name,
                 tag_names=tag_names,
