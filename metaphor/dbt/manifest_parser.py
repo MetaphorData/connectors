@@ -440,22 +440,19 @@ class ManifestParser:
     def _parse_column_meta(
         self, model: MODEL_NODE_TYPE, column_name: str, meta: Dict
     ) -> None:
-        def get_dataset():
-            return init_dataset(
-                self._datasets,
-                model.database,
-                model.schema_,
-                model.alias or model.name,
-                self._platform,
-                self._account,
-                model.unique_id,
-            )
-
         tag_names = get_tags_from_meta(meta, self._meta_tags)
         if len(tag_names) == 0:
             return
 
-        dataset = get_dataset()
+        dataset = init_dataset(
+            self._datasets,
+            model.database,
+            model.schema_,
+            model.alias or model.name,
+            self._platform,
+            self._account,
+            model.unique_id,
+        )
         if dataset.tag_assignment is None:
             dataset.tag_assignment = TagAssignment()
 
