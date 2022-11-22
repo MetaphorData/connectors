@@ -1,12 +1,12 @@
 {
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v1.json",
-    "dbt_version": "0.19.2",
-    "generated_at": "2022-06-17T14:01:07.063063Z",
-    "invocation_id": "f73bc1a8-9e10-44a7-a059-16fb2bcb20da",
+    "dbt_version": "0.19.1",
+    "generated_at": "2022-11-22T14:59:22.194380Z",
+    "invocation_id": "9f9607d0-b59e-478b-9122-8fd05895084d",
     "env": {},
     "project_id": "58723627fcebc230ab0d53ddf5f16e34",
-    "user_id": "dc11e54b-2d7a-4ccb-beca-8ed0b96d6eee",
+    "user_id": "ecfb9c0c-0245-4d13-b9be-89a49da67e07",
     "send_anonymous_usage_stats": true,
     "adapter_type": "snowflake"
   },
@@ -37,7 +37,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -63,7 +63,9 @@
         "id": {
           "name": "id",
           "description": "The primary key for this table, auto generated id",
-          "meta": {},
+          "meta": {
+            "pii": true
+          },
           "data_type": null,
           "quote": null,
           "tags": []
@@ -89,7 +91,7 @@
       "compiled_sql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
       "extra_ctes_injected": true,
       "extra_ctes": [],
-      "relation_name": "DEMO_DB.DBT_DEV.my_first_dbt_model"
+      "relation_name": "DEV_DB.DBT_DEV.my_first_dbt_model"
     },
     "model.trial.my_second_dbt_model": {
       "raw_sql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
@@ -119,7 +121,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -169,10 +171,10 @@
         },
         "materialized": "view"
       },
-      "compiled_sql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
+      "compiled_sql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
       "extra_ctes_injected": true,
       "extra_ctes": [],
-      "relation_name": "DEMO_DB.DBT_DEV.my_second_dbt_model"
+      "relation_name": "DEV_DB.DBT_DEV.my_second_dbt_model"
     },
     "model.trial.trial_model_1": {
       "raw_sql": "{{ config(materialized='table') }}\n\nselect show_id, type, title, country, release_year \nfrom {{ source('DBT_DEV', 'NETFLIX') }}",
@@ -202,7 +204,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -285,10 +287,10 @@
         },
         "materialized": "table"
       },
-      "compiled_sql": "\n\nselect show_id, type, title, country, release_year \nfrom DEMO_DB.DBT_DEV.NETFLIX",
+      "compiled_sql": "\n\nselect show_id, type, title, country, release_year \nfrom DEV_DB.DBT_DEV.NETFLIX",
       "extra_ctes_injected": true,
       "extra_ctes": [],
-      "relation_name": "DEMO_DB.DBT_DEV.trial_model_1"
+      "relation_name": "DEV_DB.DBT_DEV.trial_model_1"
     },
     "model.trial.trial_model_2": {
       "raw_sql": "{{ config(materialized='table', alias='sales_summary') }}\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom {{ source('DBT_DEV', 'SALES_RECORDS') }}\ngroup by country, item_type, year(order_date)\norder by revenue desc",
@@ -318,7 +320,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -402,10 +404,10 @@
         "materialized": "table",
         "alias": "sales_summary"
       },
-      "compiled_sql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
+      "compiled_sql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
       "extra_ctes_injected": true,
       "extra_ctes": [],
-      "relation_name": "DEMO_DB.DBT_DEV.sales_summary"
+      "relation_name": "DEV_DB.DBT_DEV.sales_summary"
     },
     "test.trial.unique_my_first_dbt_model_id": {
       "raw_sql": "{{ config(severity='ERROR') }}{{ test_unique(**_dbt_schema_test_kwargs) }}",
@@ -446,7 +448,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -489,7 +491,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        id\n\n    from DEMO_DB.DBT_DEV.my_first_dbt_model\n    where id is not null\n    group by id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        id\n\n    from DEV_DB.DBT_DEV.my_first_dbt_model\n    where id is not null\n    group by id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -534,7 +536,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -577,7 +579,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -622,7 +624,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -665,7 +667,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        id\n\n    from DEMO_DB.DBT_DEV.my_second_dbt_model\n    where id is not null\n    group by id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        id\n\n    from DEV_DB.DBT_DEV.my_second_dbt_model\n    where id is not null\n    group by id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -710,7 +712,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -753,7 +755,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -798,7 +800,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -841,7 +843,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        show_id\n\n    from DEMO_DB.DBT_DEV.trial_model_1\n    where show_id is not null\n    group by show_id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        show_id\n\n    from DEV_DB.DBT_DEV.trial_model_1\n    where show_id is not null\n    group by show_id\n    having count(*) > 1\n\n) validation_errors\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -886,7 +888,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -929,7 +931,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -974,7 +976,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1017,7 +1019,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1062,7 +1064,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1105,7 +1107,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1150,7 +1152,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1193,7 +1195,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere country is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere country is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1238,7 +1240,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1281,7 +1283,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere item_type is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere item_type is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1326,7 +1328,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1369,7 +1371,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere year is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere year is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1414,7 +1416,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1457,7 +1459,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere revenue is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere revenue is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1502,7 +1504,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1545,7 +1547,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.sales_summary\nwhere profit is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere profit is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1590,7 +1592,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1634,7 +1636,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere COUNTRY is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere COUNTRY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1679,7 +1681,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1723,7 +1725,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere REGION is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere REGION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1768,7 +1770,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1812,7 +1814,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ITEM_TYPE is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ITEM_TYPE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1857,7 +1859,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1901,7 +1903,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere SALES_CHANNEL is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere SALES_CHANNEL is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -1946,7 +1948,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -1990,7 +1992,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_PRIORITY is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_PRIORITY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2035,7 +2037,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2079,7 +2081,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_DATE is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_DATE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2124,7 +2126,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2168,7 +2170,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_ID is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_ID is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2213,7 +2215,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2257,7 +2259,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        ORDER_ID\n\n    from DEMO_DB.DBT_DEV.SALES_RECORDS\n    where ORDER_ID is not null\n    group by ORDER_ID\n    having count(*) > 1\n\n) validation_errors\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        ORDER_ID\n\n    from DEV_DB.DBT_DEV.SALES_RECORDS\n    where ORDER_ID is not null\n    group by ORDER_ID\n    having count(*) > 1\n\n) validation_errors\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2302,7 +2304,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2346,7 +2348,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere SHIP_DATE is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere SHIP_DATE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2391,7 +2393,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2435,7 +2437,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere UNITS_SOLD is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere UNITS_SOLD is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2480,7 +2482,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2524,7 +2526,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere UNIT_PRICE is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere UNIT_PRICE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2569,7 +2571,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2613,7 +2615,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere UNIT_COST is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere UNIT_COST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2658,7 +2660,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2702,7 +2704,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_REVENUE is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_REVENUE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2747,7 +2749,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2791,7 +2793,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_COST is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_COST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2836,7 +2838,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2880,7 +2882,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_PROFIT is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_PROFIT is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -2925,7 +2927,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -2969,7 +2971,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere SHOW_ID is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere SHOW_ID is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3014,7 +3016,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3058,7 +3060,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        SHOW_ID\n\n    from DEMO_DB.DBT_DEV.NETFLIX\n    where SHOW_ID is not null\n    group by SHOW_ID\n    having count(*) > 1\n\n) validation_errors\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom (\n\n    select\n        SHOW_ID\n\n    from DEV_DB.DBT_DEV.NETFLIX\n    where SHOW_ID is not null\n    group by SHOW_ID\n    having count(*) > 1\n\n) validation_errors\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3103,7 +3105,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3147,7 +3149,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere TYPE is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere TYPE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3192,7 +3194,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3236,7 +3238,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere TITLE is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere TITLE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3281,7 +3283,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3325,7 +3327,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere DIRECTOR is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere DIRECTOR is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3370,7 +3372,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3414,7 +3416,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere CAST is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere CAST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3459,7 +3461,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3503,7 +3505,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere COUNTRY is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere COUNTRY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3548,7 +3550,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3592,7 +3594,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere DATE_ADDED is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere DATE_ADDED is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3637,7 +3639,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3681,7 +3683,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere RELEASE_YEAR is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere RELEASE_YEAR is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3726,7 +3728,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3770,7 +3772,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere RATING is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere RATING is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3815,7 +3817,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3859,7 +3861,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere DURATION is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere DURATION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3904,7 +3906,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -3948,7 +3950,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere LISTED_IN is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere LISTED_IN is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -3993,7 +3995,7 @@
         "post-hook": [],
         "pre-hook": []
       },
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "fqn": [
         "trial",
@@ -4037,7 +4039,7 @@
         },
         "severity": "ERROR"
       },
-      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEMO_DB.DBT_DEV.NETFLIX\nwhere DESCRIPTION is null\n\n\n",
+      "compiled_sql": "\n    \n    \n\n\n\nselect count(*) as validation_errors\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere DESCRIPTION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": null,
@@ -4052,7 +4054,7 @@
         "DBT_DEV",
         "SALES_RECORDS"
       ],
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "unique_id": "source.trial.DBT_DEV.SALES_RECORDS",
       "package_name": "trial",
@@ -4201,7 +4203,7 @@
       },
       "patch_path": null,
       "unrendered_config": {},
-      "relation_name": "DEMO_DB.DBT_DEV.SALES_RECORDS"
+      "relation_name": "DEV_DB.DBT_DEV.SALES_RECORDS"
     },
     "source.trial.DBT_DEV.NETFLIX": {
       "fqn": [
@@ -4210,7 +4212,7 @@
         "DBT_DEV",
         "NETFLIX"
       ],
-      "database": "DEMO_DB",
+      "database": "DEV_DB",
       "schema": "DBT_DEV",
       "unique_id": "source.trial.DBT_DEV.NETFLIX",
       "package_name": "trial",
@@ -4343,7 +4345,7 @@
       },
       "patch_path": null,
       "unrendered_config": {},
-      "relation_name": "DEMO_DB.DBT_DEV.NETFLIX"
+      "relation_name": "DEV_DB.DBT_DEV.NETFLIX"
     }
   },
   "macros": {
@@ -4400,9 +4402,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4423,9 +4423,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4446,9 +4444,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4469,9 +4465,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4534,9 +4528,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.current_timestamp"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4557,9 +4549,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4580,9 +4570,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4645,9 +4633,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4668,10 +4654,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.get_current_query_tag",
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4692,9 +4675,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4715,9 +4696,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4738,12 +4717,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.set_query_tag",
-          "macro.dbt.create_or_replace_view",
-          "macro.dbt.persist_docs",
-          "macro.dbt_snowflake.unset_query_tag"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4764,15 +4738,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.set_query_tag",
-          "macro.dbt.run_hooks",
-          "macro.dbt.drop_relation_if_exists",
-          "macro.dbt.statement",
-          "macro.dbt.create_table_as",
-          "macro.dbt.persist_docs",
-          "macro.dbt_snowflake.unset_query_tag"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4793,10 +4759,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.get_quoted_csv",
-          "macro.dbt.default__get_merge_sql"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4838,10 +4801,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.get_merge_sql",
-          "macro.dbt.get_delete_insert_merge_sql"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4862,20 +4822,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.set_query_tag",
-          "macro.dbt.should_full_refresh",
-          "macro.dbt.load_relation",
-          "macro.dbt.make_temp_relation",
-          "macro.dbt_snowflake.dbt_snowflake_validate_get_incremental_strategy",
-          "macro.dbt.run_hooks",
-          "macro.dbt.create_table_as",
-          "macro.dbt.run_query",
-          "macro.dbt_snowflake.dbt_snowflake_get_incremental_sql",
-          "macro.dbt.statement",
-          "macro.dbt.persist_docs",
-          "macro.dbt_snowflake.unset_query_tag"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -4959,9 +4906,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__test_relationships"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5003,9 +4948,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__test_not_null"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5047,9 +4990,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__test_accepted_values"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5091,9 +5032,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__test_unique"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5114,9 +5053,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5200,9 +5137,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.make_hook_config"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5223,9 +5158,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.make_hook_config"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5246,9 +5179,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.make_hook_config"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5332,9 +5263,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__get_merge_sql"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5355,9 +5284,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__get_delete_insert_merge_sql"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5378,9 +5305,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__get_insert_overwrite_merge_sql"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5401,9 +5326,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.get_quoted_csv"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5445,9 +5368,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.get_quoted_csv"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5468,9 +5389,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.common_get_delete_insert_merge_sql"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5491,9 +5410,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.get_quoted_csv"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5514,9 +5431,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__handle_existing_table"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5558,13 +5473,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_hooks",
-          "macro.dbt.handle_existing_table",
-          "macro.dbt.should_full_refresh",
-          "macro.dbt.statement",
-          "macro.dbt.create_view_as"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5585,13 +5494,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_hooks",
-          "macro.dbt.statement",
-          "macro.dbt.create_view_as",
-          "macro.dbt.persist_docs",
-          "macro.dbt.drop_relation_if_exists"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5612,9 +5515,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__create_csv_table"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5635,9 +5536,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__reset_csv_table"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5658,9 +5557,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__load_csv_rows"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5681,9 +5578,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5704,9 +5599,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.create_csv_table"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5748,9 +5641,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.get_seed_column_quoted_csv"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5771,9 +5662,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.basic_load_csv_rows"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5794,15 +5683,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.should_full_refresh",
-          "macro.dbt.run_hooks",
-          "macro.dbt.reset_csv_table",
-          "macro.dbt.create_csv_table",
-          "macro.dbt.load_csv_rows",
-          "macro.dbt.noop_statement",
-          "macro.dbt.persist_docs"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5844,17 +5725,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.load_relation",
-          "macro.dbt.make_temp_relation",
-          "macro.dbt.run_hooks",
-          "macro.dbt.create_table_as",
-          "macro.dbt.should_full_refresh",
-          "macro.dbt.run_query",
-          "macro.dbt.incremental_upsert",
-          "macro.dbt.statement",
-          "macro.dbt.persist_docs"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5875,13 +5746,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_hooks",
-          "macro.dbt.statement",
-          "macro.dbt.create_table_as",
-          "macro.dbt.persist_docs",
-          "macro.dbt.drop_relation_if_exists"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5902,9 +5767,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__create_columns"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5925,9 +5788,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5948,9 +5809,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__post_snapshot"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -5992,9 +5851,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.snapshot_get_time"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6057,12 +5914,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.make_temp_relation",
-          "macro.dbt.snapshot_staging_table",
-          "macro.dbt.statement",
-          "macro.dbt.create_table_as"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6083,20 +5935,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.create_schema",
-          "macro.dbt.get_or_create_relation",
-          "macro.dbt.run_hooks",
-          "macro.dbt.strategy_dispatch",
-          "macro.dbt.build_snapshot_table",
-          "macro.dbt.create_table_as",
-          "macro.dbt.build_snapshot_staging_table",
-          "macro.dbt.create_columns",
-          "macro.dbt.snapshot_merge_sql",
-          "macro.dbt.statement",
-          "macro.dbt.persist_docs",
-          "macro.dbt.post_snapshot"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6117,9 +5956,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__snapshot_merge_sql"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6182,9 +6019,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__snapshot_hash_arguments"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6226,9 +6061,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__snapshot_get_time"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6249,9 +6082,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.current_timestamp"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6272,9 +6103,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.snapshot_hash_arguments"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6295,9 +6124,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__snapshot_string_as_time"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6339,9 +6166,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.get_columns_in_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6362,13 +6187,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.snapshot_get_time",
-          "macro.dbt.run_query",
-          "macro.dbt.snapshot_string_as_time",
-          "macro.dbt.snapshot_check_all_get_existing_columns",
-          "macro.dbt.snapshot_hash_arguments"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6517,9 +6336,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.convert_datetime"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6540,9 +6357,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.dates_in_range"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6584,9 +6399,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6607,9 +6420,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.should_full_refresh"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6630,9 +6441,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__get_columns_in_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6653,9 +6462,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6676,9 +6483,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__create_schema"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6699,9 +6504,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6722,9 +6525,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__drop_schema"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6745,9 +6546,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6768,9 +6567,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__create_table_as"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6812,9 +6609,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__create_view_as"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6900,9 +6695,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__get_columns_in_relation"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6965,9 +6758,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__alter_column_type"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -6988,9 +6779,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__alter_column_comment"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7032,9 +6821,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__alter_relation_comment"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7076,9 +6863,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__persist_docs"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7099,11 +6884,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_query",
-          "macro.dbt.alter_relation_comment",
-          "macro.dbt.alter_column_comment"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7124,9 +6905,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7147,9 +6926,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__drop_relation"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7170,9 +6947,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7193,9 +6968,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__truncate_relation"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7216,9 +6989,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7239,9 +7010,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__rename_relation"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7262,9 +7031,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7285,9 +7052,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__information_schema_name"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7329,9 +7094,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__list_schemas"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7352,10 +7115,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.information_schema_name",
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7376,9 +7136,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__check_schema_exists"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7399,9 +7157,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.run_query"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7466,9 +7222,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt_snowflake.snowflake__current_timestamp"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7510,9 +7264,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__collect_freshness"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7533,10 +7285,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.statement",
-          "macro.dbt.current_timestamp"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},
@@ -7557,9 +7306,7 @@
       "resource_type": "macro",
       "tags": [],
       "depends_on": {
-        "macros": [
-          "macro.dbt.default__make_temp_relation"
-        ]
+        "macros": []
       },
       "description": "",
       "meta": {},

@@ -23,6 +23,7 @@ from metaphor.dbt.util import (
     to_dataset_entity_id,
 )
 from metaphor.models.metadata_change_event import (
+    ColumnTagAssignment,
     DataPlatform,
     Dataset,
     DbtMacro,
@@ -432,6 +433,38 @@ class ManifestParser:
                 field = init_field(dbt_model.fields, column_name)
                 field.description = col.description
                 field.native_type = col.data_type or "Not Set"
+
+                if col.meta is not None:
+                    self._parse_column_meta(model, column_name, col.meta)
+
+    def _parse_column_meta(
+        self, model: MODEL_NODE_TYPE, column_name: str, meta: Dict
+    ) -> None:
+        tag_names = get_tags_from_meta(meta, self._meta_tags)
+        if len(tag_names) == 0:
+            return
+
+        dataset = init_dataset(
+            self._datasets,
+            model.database,
+            model.schema_,
+            model.alias or model.name,
+            self._platform,
+            self._account,
+            model.unique_id,
+        )
+        if dataset.tag_assignment is None:
+            dataset.tag_assignment = TagAssignment()
+
+        if dataset.tag_assignment.column_tag_assignments is None:
+            dataset.tag_assignment.column_tag_assignments = []
+
+        dataset.tag_assignment.column_tag_assignments.append(
+            ColumnTagAssignment(
+                column_name=column_name,
+                tag_names=tag_names,
+            )
+        )
 
     def _parse_sources(
         self, sources: PARSED_SOURCE_DEFINITION_MAP
