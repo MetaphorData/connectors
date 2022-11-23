@@ -1,19 +1,27 @@
+import copy
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
-from metaphor.synapse.model import QueryLogTable, SynapseWorkspace
+from metaphor.synapse.model import (
+    DedicatedSqlPoolSchema,
+    DedicatedSqlPoolTable,
+    QueryLogTable,
+    SynapseTable,
+    SynapseWorkspace,
+    WorkspaceDatabase,
+)
 from metaphor.synapse.workspace_client import ApiReqest, WorkspaceClient, pymssql
 
 synapseWorkspace = SynapseWorkspace(
-    id="mock_database_id/resourceGroups/mock_resource_group/providers/",
-    name="mock_database_name",
+    id="mock_workspace_id/resourceGroups/mock_resource_group/providers/",
+    name="mock_workspace_name",
     type="WORKSPACE",
     properties={
         "Origin": {"Type": "mock_database_type"},
         "connectivityEndpoints": {
-            "dev": "mock_database_name-dev.synapse.net",
-            "sql": "mock_database_name-dev.sql.synapse.net",
-            "sqlOnDemand": "mock_database_name-dev-on-demand.sql.synapse.net",
+            "dev": "mock_workspace_name-dev.synapse.net",
+            "sql": "mock_workspace_name-dev.sql.synapse.net",
+            "sqlOnDemand": "mock_workspace_name-dev-on-demand.sql.synapse.net",
         },
         "defaultDataLakeStorage": {
             "accountUrl": "mock_accunt_url.synapse.net",
@@ -22,21 +30,75 @@ synapseWorkspace = SynapseWorkspace(
     },
 )
 
+workspaceDatabase = WorkspaceDatabase(
+    id="mock_workspace_id/database/mock_database",
+    name="mock_database",
+    type="DATABASE",
+    properties={},
+)
+
 workspaceClient = WorkspaceClient(synapseWorkspace, "mock_subscription_id", {}, {})
 
 
 def test_get_database():
-    with patch.object(ApiReqest, "get_request", return_value=[synapseWorkspace]):
+    with patch.object(ApiReqest, "get_request", return_value=[workspaceDatabase]):
         dbs = workspaceClient.get_databases()
         assert len(dbs) == 1
-        assert dbs[0] == synapseWorkspace
+        assert dbs[0] == workspaceDatabase
 
 
 def test_get_dedicated_sql_pool_databases():
-    with patch.object(ApiReqest, "get_request", return_value=[synapseWorkspace]):
+    with patch.object(ApiReqest, "get_request", return_value=[workspaceDatabase]):
         dbs = workspaceClient.get_dedicated_sql_pool_databases()
         assert len(dbs) == 1
-        assert dbs[0] == synapseWorkspace
+        assert dbs[0] == workspaceDatabase
+
+
+def test_get_tables():
+    table = SynapseTable(
+        id="/tables/mock_table", name="mock_table", type="tables", properties={}
+    )
+    with patch.object(ApiReqest, "get_request", return_value=[table]):
+        tables = workspaceClient.get_tables("mock_database")
+        assert len(tables) == 1
+        assert tables[0] == table
+
+
+def test_get_dedicated_sql_pool_tables():
+    schema = DedicatedSqlPoolSchema(
+        id="/schemas/mock_schema", name="mock_shcema", type="schemas"
+    )
+
+    table = DedicatedSqlPoolTable(
+        id="/schemas/mock_schema/tables/mock_table", name="mock_table", type="tables"
+    )
+
+    columns = [
+        {
+            "id": "/schemas/mock_schema/tables/mock_table/columns/mock_col1",
+            "name": "mock_col1",
+            "type": "columns",
+            "properties": {"columnType": "nvarchar"},
+        },
+        {
+            "id": "/schemas/mock_schema/tables/mock_table/columns/mock_col2",
+            "name": "mock_col2",
+            "type": "columns",
+            "properties": {"columnType": "bit"},
+        },
+    ]
+
+    with patch.object(
+        ApiReqest, "get_request", side_effect=[[schema], [table], columns]
+    ):
+        tables = workspaceClient.get_dedicated_sql_pool_tables("mock_database")
+
+        verify_table = copy.deepcopy(table)
+        verify_table.sqlSchema = schema
+        verify_table.columns = columns
+
+        assert len(tables) == 1
+        assert tables[0] == verify_table
 
 
 def test_get_sql_pool_query_log():
