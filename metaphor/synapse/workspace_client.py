@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, Iterable, List
 
-from metaphor.common.api_request import ApiReqest
+from metaphor.common.api_request import get_request
 from metaphor.common.logger import get_logger
 from metaphor.synapse.model import (
     DedicatedSqlPoolSchema,
@@ -52,7 +52,7 @@ class WorkspaceClient:
 
     def get_databases(self):
         url = f"{self._dev_endpoint}/databases?api-version=2021-04-01"
-        return ApiReqest.get_request(
+        return get_request(
             url,
             self._azure_synapse_headers,
             List[WorkspaceDatabase],
@@ -62,7 +62,7 @@ class WorkspaceClient:
     def get_dedicated_sql_pool_databases(self):
         # https://learn.microsoft.com/en-us/rest/api/synapse/sql-pools/list-by-workspace?tabs=HTTP
         url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/resourceGroups/{self._resource_group_name}/providers/Microsoft.Synapse/workspaces/{self._workspace.name}/sqlPools?api-version=2021-06-01"
-        return ApiReqest.get_request(
+        return get_request(
             url,
             self._azure_management_headers,
             List[WorkspaceDatabase],
@@ -71,7 +71,7 @@ class WorkspaceClient:
 
     def get_tables(self, database_name: str) -> List[SynapseTable]:
         url = f"{self._dev_endpoint}/databases/{database_name}/tables?api-version=2021-04-01"
-        return ApiReqest.get_request(
+        return get_request(
             url,
             self._azure_synapse_headers,
             List[SynapseTable],
@@ -85,7 +85,7 @@ class WorkspaceClient:
         # https://learn.microsoft.com/en-us/rest/api/synapse/sql-pool-schemas/list?tabs=HTTP
         url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/resourceGroups/{self._resource_group_name}/providers/Microsoft.Synapse/workspaces/{self._workspace.name}/sqlPools/{database_name}"
         sql_pool_tables = []
-        schemas = ApiReqest.get_request(
+        schemas = get_request(
             f"{url}/schemas?{api_version}",
             self._azure_management_headers,
             List[DedicatedSqlPoolSchema],
@@ -93,7 +93,7 @@ class WorkspaceClient:
         )
 
         for schema in schemas:
-            tables = ApiReqest.get_request(
+            tables = get_request(
                 # https://learn.microsoft.com/en-us/rest/api/synapse/sql-pool-tables/list-by-schema?tabs=HTTP
                 f"{url}/schemas/{schema.name}/tables?{api_version}",
                 self._azure_management_headers,
@@ -103,7 +103,7 @@ class WorkspaceClient:
 
             for table in tables:
                 table.sqlSchema = schema
-                table.columns = ApiReqest.get_request(
+                table.columns = get_request(
                     # https://learn.microsoft.com/en-us/rest/api/synapse/sql-pool-table-columns/list-by-table-name?tabs=HTTP
                     f"{url}/schemas/{schema.name}/tables/{table.name}/columns?{api_version}",
                     self._azure_management_headers,

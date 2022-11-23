@@ -37,7 +37,6 @@ from metaphor.synapse.model import (
 logger = get_logger()
 
 
-# test the change for ci
 class SynapseExtractor(BaseExtractor):
     """Synapse metadata extractor"""
 
@@ -54,61 +53,56 @@ class SynapseExtractor(BaseExtractor):
         self._querylog_map: Dict[str, QueryLog] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        for workspaceClient in self._client.get_list_workspace_clients():
-            logger.info(
-                f"Fetching metadata from Synapse workspace ID: {workspaceClient._workspace.id}"
-            )
+        workspaceClient = self._client.get_workspace_client()
+        logger.info(
+            f"Fetching metadata from Synapse workspace ID: {workspaceClient._workspace.id}"
+        )
 
-            start_date = (
-                start_of_day(self._config.query_log.lookback_days)
-                if self._config.query_log and self._config.query_log.lookback_days > 0
-                else start_of_day()
-            )
-            end_date = start_of_day()
+        start_date = (
+            start_of_day(self._config.query_log.lookback_days)
+            if self._config.query_log and self._config.query_log.lookback_days > 0
+            else start_of_day()
+        )
+        end_date = start_of_day()
 
-            # Serverless sqlpool
-            try:
-                for database in workspaceClient.get_databases():
-                    tables = workspaceClient.get_tables(database.name)
-                    self._map_tables_to_dataset(
-                        workspaceClient._workspace, database, tables
+        # Serverless sqlpool
+        try:
+            for database in workspaceClient.get_databases():
+                tables = workspaceClient.get_tables(database.name)
+                self._map_tables_to_dataset(
+                    workspaceClient._workspace, database, tables
+                )
+            if self._config.query_log and self._config.query_log.lookback_days > 0:
+                self._map_query_log(
+                    workspaceClient.get_sql_pool_query_logs(
+                        self._config.query_log.username,
+                        self._config.query_log.password,
+                        start_date,
+                        end_date,
                     )
+                )
+        except Exception as error:
+            logger.exception(error)
+
+        # Dedicated sqlpool
+        try:
+            for database in workspaceClient.get_dedicated_sql_pool_databases():
+                tables = workspaceClient.get_dedicated_sql_pool_tables(database.name)
+                self._map_dedicated_sql_pool_tables_to_dataset(
+                    workspaceClient._workspace, database, tables
+                )
                 if self._config.query_log and self._config.query_log.lookback_days > 0:
                     self._map_query_log(
-                        workspaceClient.get_sql_pool_query_logs(
+                        workspaceClient.get_dedicated_sql_pool_query_logs(
+                            database.name,
                             self._config.query_log.username,
                             self._config.query_log.password,
                             start_date,
                             end_date,
                         )
                     )
-            except Exception as error:
-                logger.exception(error)
-
-            # Dedicated sqlpool
-            try:
-                for database in workspaceClient.get_dedicated_sql_pool_databases():
-                    tables = workspaceClient.get_dedicated_sql_pool_tables(
-                        database.name
-                    )
-                    self._map_dedicated_sql_pool_tables_to_dataset(
-                        workspaceClient._workspace, database, tables
-                    )
-                    if (
-                        self._config.query_log
-                        and self._config.query_log.lookback_days > 0
-                    ):
-                        self._map_query_log(
-                            workspaceClient.get_dedicated_sql_pool_query_logs(
-                                database.name,
-                                self._config.query_log.username,
-                                self._config.query_log.password,
-                                start_date,
-                                end_date,
-                            )
-                        )
-            except Exception as error:
-                logger.exception(error)
+        except Exception as error:
+            logger.exception(error)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._dataset_map.values())

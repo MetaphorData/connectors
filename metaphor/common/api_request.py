@@ -19,24 +19,25 @@ class ApiError(Exception):
         super().__init__(f"call {url} api failed: {status_code}\n{error_msg}")
 
 
-class ApiReqest:
-    @staticmethod
-    def get_request(
-        url: str,
-        headers: Dict[str, str],
-        type_: Type[T],
-        transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
-    ) -> T:
-        """Generic get api request to make third part api call and return with customized data class"""
-        result = requests.get(url, headers=headers)
-        if result.status_code == 200:
-            # Add JSON response to log.zip
-            file_name = f"{urlparse(url).path[1:].replace('/', u'__')}.json"
-            out_file = f"{tempfile.mkdtemp()}/{file_name}"
-            with open(out_file, "w") as fp:
-                json.dump(result.json(), fp, indent=2)
-            debug_files.append(out_file)
+def get_request(
+    url: str,
+    headers: Dict[str, str],
+    type_: Type[T],
+    transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
+) -> T:
+    """Generic get api request to make third part api call and return with customized data class"""
 
-            return parse_obj_as(type_, transform_response(result))
-        else:
-            raise ApiError(url, result.status_code, result.content.decode())
+    result = requests.get(url, headers=headers)
+    if result.status_code == 200:
+        # Add JSON response to log.zip
+        file_name = f"{urlparse(url).path[1:].replace('/', u'__')}"
+        file_name = (
+            file_name + ".json" if len(file_name) <= 150 else file_name[50:] + ".json"
+        )
+        out_file = f"{tempfile.mkdtemp()}/{file_name}"
+        with open(out_file, "w") as fp:
+            json.dump(result.json(), fp, indent=2)
+        debug_files.append(out_file)
+        return parse_obj_as(type_, transform_response(result))
+    else:
+        raise ApiError(url, result.status_code, result.content.decode())

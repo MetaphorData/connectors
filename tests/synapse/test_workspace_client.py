@@ -10,7 +10,7 @@ from metaphor.synapse.model import (
     SynapseWorkspace,
     WorkspaceDatabase,
 )
-from metaphor.synapse.workspace_client import ApiReqest, WorkspaceClient, pymssql
+from metaphor.synapse.workspace_client import WorkspaceClient, pymssql
 
 synapseWorkspace = SynapseWorkspace(
     id="mock_workspace_id/resourceGroups/mock_resource_group/providers/",
@@ -41,14 +41,20 @@ workspaceClient = WorkspaceClient(synapseWorkspace, "mock_subscription_id", {}, 
 
 
 def test_get_database():
-    with patch.object(ApiReqest, "get_request", return_value=[workspaceDatabase]):
+    with patch(
+        "metaphor.synapse.workspace_client.get_request",
+        return_value=[workspaceDatabase],
+    ):
         dbs = workspaceClient.get_databases()
         assert len(dbs) == 1
         assert dbs[0] == workspaceDatabase
 
 
 def test_get_dedicated_sql_pool_databases():
-    with patch.object(ApiReqest, "get_request", return_value=[workspaceDatabase]):
+    with patch(
+        "metaphor.synapse.workspace_client.get_request",
+        return_value=[workspaceDatabase],
+    ):
         dbs = workspaceClient.get_dedicated_sql_pool_databases()
         assert len(dbs) == 1
         assert dbs[0] == workspaceDatabase
@@ -58,7 +64,7 @@ def test_get_tables():
     table = SynapseTable(
         id="/tables/mock_table", name="mock_table", type="tables", properties={}
     )
-    with patch.object(ApiReqest, "get_request", return_value=[table]):
+    with patch("metaphor.synapse.workspace_client.get_request", return_value=[table]):
         tables = workspaceClient.get_tables("mock_database")
         assert len(tables) == 1
         assert tables[0] == table
@@ -88,8 +94,9 @@ def test_get_dedicated_sql_pool_tables():
         },
     ]
 
-    with patch.object(
-        ApiReqest, "get_request", side_effect=[[schema], [table], columns]
+    with patch(
+        "metaphor.synapse.workspace_client.get_request",
+        side_effect=[[schema], [table], columns],
     ):
         tables = workspaceClient.get_dedicated_sql_pool_tables("mock_database")
 

@@ -78,8 +78,8 @@ async def test_extractor(test_root_dir):
 
     mock_auth_instance._tenant_id = mock_tenant_id
 
-    mock_auth_instance.get_list_workspace_clients = MagicMock(
-        return_value=[mock_workspace_instance]
+    mock_auth_instance.get_workspace_client = MagicMock(
+        return_value=mock_workspace_instance
     )
     mock_workspace_instance._workspace = synapseWorkspace
     mock_workspace_instance.get_databases = MagicMock(return_value=[workspaceDatabase])
@@ -94,6 +94,8 @@ async def test_extractor(test_root_dir):
             client_id="mock_client_id",
             secret="mock_secret",
             subscription_id="mock_subscription_id",
+            workspace_name="mock_workspace_name",
+            resource_group_name="mock_resource_group_name",
         )
         extractor = SynapseExtractor(config)
 
@@ -145,8 +147,8 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
 
     mock_auth_instance._tenant_id = mock_tenant_id
 
-    mock_auth_instance.get_list_workspace_clients = MagicMock(
-        return_value=[mock_workspace_instance]
+    mock_auth_instance.get_workspace_client = MagicMock(
+        return_value=mock_workspace_instance
     )
 
     mock_workspace_instance._workspace = synapseWorkspace
@@ -167,6 +169,8 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
             client_id="mock_client_id",
             secret="mock_secret",
             subscription_id="mock_subscription_id",
+            workspace_name="mock_workspace_name",
+            resource_group_name="mock_resource_group_name",
         )
         extractor = SynapseExtractor(config)
 
@@ -246,8 +250,8 @@ async def test_extractor_with_query_log(test_root_dir):
 
     mock_auth_instance._tenant_id = mock_tenant_id
 
-    mock_auth_instance.get_list_workspace_clients = MagicMock(
-        return_value=[mock_workspace_instance]
+    mock_auth_instance.get_workspace_client = MagicMock(
+        return_value=mock_workspace_instance
     )
     mock_workspace_instance._workspace = synapseWorkspace
     mock_workspace_instance.get_databases = MagicMock(return_value=[workspaceDatabase])
@@ -265,6 +269,8 @@ async def test_extractor_with_query_log(test_root_dir):
             client_id="mock_client_id",
             secret="mock_secret",
             subscription_id="mock_subscription_id",
+            workspace_name="mock_workspace_name",
+            resource_group_name="mock_resource_group_name",
             query_log=SynapseQueryLogConfig(
                 username="mock_username", password="mock_password", lookback_days=1
             ),
@@ -332,8 +338,8 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
 
     mock_auth_instance._tenant_id = mock_tenant_id
 
-    mock_auth_instance.get_list_workspace_clients = MagicMock(
-        return_value=[mock_workspace_instance]
+    mock_auth_instance.get_workspace_client = MagicMock(
+        return_value=mock_workspace_instance
     )
 
     mock_workspace_instance._workspace = synapseWorkspace
@@ -358,6 +364,8 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
             client_id="mock_client_id",
             secret="mock_secret",
             subscription_id="mock_subscription_id",
+            workspace_name="mock_workspace_name",
+            resource_group_name="mock_resource_group_name",
             query_log=SynapseQueryLogConfig(
                 username="mock_username", password="mock_password", lookback_days=10
             ),

@@ -71,6 +71,10 @@ secret: <secret>  # The azure application client secret
 
 subscription_id: <subscription_id>  # The Azure Subscription id
 
+workspace_name: <workspace_name> # The Microsoft Synapse workspace name
+
+resource_group_name: <resource_group_name>  # Rescource group name
+
 output:
   file:
     directory: <output_directory>  # the output result directory
@@ -79,18 +83,6 @@ output:
 See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
-By default, the connector will crawl all authorized synapse workspaces.
-You can explicitly configure the workspaces and related `Resource Group Name` you want to connect.
-
-```yaml
-resource_group_name: <resource_group_name>  # Rescource group name
-
-workspaces:  # Assigned workspaces
-  - name: <workspace1>
-  - name: <workspace2>
-  ...
-```
-
 #### Query Log
 To query the query log need to have SQL admin username and SQL admin password setup.
 ```yaml
@@ -98,28 +90,6 @@ query_log:
   username: <username>
   password: <password>
   lookback_days: <days>
-```
-
-for multiple workspace use case, each workspace can set pair of username and password independently. Otherwise, use top level username and password as default (還沒做)
-
-```yaml
-query_log:
-  username: <username>
-  password: <password>
-  lookback_days: <days>
-
-#還沒弄
-workspaces:  # Assigned workspaces
-  -
-    name: <workspace1>
-    username: <username>
-    password: <password>
-    lookback_days: <days>
-  -
-    name: <workspace2>
-    username: <username>
-    password: <password>
-    lookback_days: <days>
 ```
 
 ## Testing

@@ -3,6 +3,8 @@ tenant_id: tenant_id
 client_id: client_id
 secret: client_secret
 subscription_id: client_subscription_id
+workspace_name: workspace_name
+resource_group_name: resource_group_name
 query_log:
   username: username
   password: password

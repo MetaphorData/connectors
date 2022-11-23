@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from pydantic import BaseModel
 
-from metaphor.common.api_request import ApiError, ApiReqest
+from metaphor.common.api_request import ApiError, get_request
 
 
 class DummyResult(BaseModel):
@@ -17,7 +17,7 @@ def test_get_request_200():
         mock_response.json.return_value = {"foo": "bar"}
         mock_get.return_value = mock_response
 
-        result = ApiReqest.get_request("http://test.com", {}, DummyResult)
+        result = get_request("http://test.com", {}, DummyResult)
         assert result.foo == "bar"
 
 
@@ -28,7 +28,7 @@ def test_get_request_not_200():
         mock_get.return_value = mock_response
 
         try:
-            ApiReqest.get_request("http://test.com", {}, Dict)
+            get_request("http://test.com", {}, Dict)
             assert False, "ApiError not thrown"
         except ApiError:
             assert True
