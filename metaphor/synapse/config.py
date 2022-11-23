@@ -37,7 +37,4 @@ class SynapseConfig(BaseConfig):
     # The Rescource Group Name
     resource_group_name: str
 
-    # # (Optional) The workspace names, need to set resource_group_name
-    # workspaces: List[str] = field(default_factory=lambda: list())
-
     query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()

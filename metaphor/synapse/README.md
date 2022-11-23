@@ -48,10 +48,12 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
     6. Wait for a few minutes for permission apply and then could start to use Synapse connector.
 
 #### (Optional) Quey log setup
-we use Microsoft ODBC driver for sql to get query logs and follow steps to set up the environment.
+we use the Microsoft pymssql library to get query logs and follow steps to set up the environment.
 1. Set up sql admin username and admin password for Synapse workspace in [Azure protal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
 
-2. (Optional) may need to install [FreeTDS](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16) if running query log into errors.
+2. Follow tutorial to install [pymssql](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16)
+
+3. (Optional) may need to install [FreeTDS](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16) if running query log into errors.
 
 
 ## Config File
