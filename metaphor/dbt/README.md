@@ -78,7 +78,7 @@ Similar to [Ownership](#ownership), you can optionally specify certain attribute
 
 ```yaml
 models:
-  - name: users
+  - name: dbt_model_name
     config:
       meta:
         pii: true
@@ -96,7 +96,7 @@ By default, only attributes with a value of `true` will be mapped. You can optio
 
 ```yaml
 models:
-  - name: users
+  - name: dbt_model_name
     config:
       meta:
         team: sales
@@ -109,6 +109,17 @@ meta_tags:
   - meta_key: team
     meta_value_matcher: sales
     tag_type: SALES
+```
+
+You can also tag a column by using its `meta` config:
+
+```yaml
+models:
+  - name: dbt_model_name
+    columns:
+      - name: column_name
+        meta:
+          pii: true
 ```
 
 ## Testing
