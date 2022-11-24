@@ -1,0 +1,30 @@
+[
+  {
+    "logicalId": {
+      "name": "foo",
+      "platform": "BIGQUERY"
+    },
+    "dataQuality": {
+      "provider": "SODA",
+      "url": "https://soda.io",
+      "monitors": [
+        {
+          "title": "monitor_title",
+          "description": "monitor_description",
+          "url": "https://soda.io/monitor1",
+          "owner": "foo@bar.com",
+          "status": "PASSED",
+          "severity": "LOW",
+          "lastRun": "2000-01-01T00:00:00+00:00",
+          "value": 100.0,
+          "targets": [
+            {
+              "dataset": "dataset1",
+              "column": "col1"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

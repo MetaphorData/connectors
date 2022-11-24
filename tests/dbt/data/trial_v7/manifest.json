@@ -2,8 +2,8 @@
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v7.json",
     "dbt_version": "1.3.0",
-    "generated_at": "2022-11-11T14:19:17.857998Z",
-    "invocation_id": "bf22f447-a4a4-4b66-9ba5-456bfdae8713",
+    "generated_at": "2022-11-21T21:02:41.996617Z",
+    "invocation_id": "071d91ac-bfed-4bbb-88e1-a1af5d788221",
     "env": {},
     "project_id": "58723627fcebc230ab0d53ddf5f16e34",
     "user_id": "4aedd7ee-da72-4a59-bad3-b64b6f4dbb55",
@@ -11,107 +11,6 @@
     "adapter_type": "snowflake"
   },
   "nodes": {
-    "model.trial.my_first_dbt_model": {
-      "compiled": true,
-      "resource_type": "model",
-      "depends_on": {
-        "macros": [],
-        "nodes": []
-      },
-      "config": {
-        "enabled": true,
-        "alias": null,
-        "schema": null,
-        "database": null,
-        "tags": [],
-        "meta": {
-          "owner": "yi@metaphor.io",
-          "pii": true
-        },
-        "materialized": "view",
-        "incremental_strategy": null,
-        "persist_docs": {
-          "relation": true,
-          "columns": true
-        },
-        "quoting": {},
-        "column_types": {},
-        "full_refresh": null,
-        "unique_key": null,
-        "on_schema_change": "ignore",
-        "grants": {},
-        "packages": [],
-        "docs": {
-          "show": true,
-          "node_color": null
-        },
-        "post-hook": [],
-        "pre-hook": []
-      },
-      "database": "DEV_DB",
-      "schema": "DBT_DEV",
-      "fqn": [
-        "trial",
-        "example",
-        "my_first_dbt_model"
-      ],
-      "unique_id": "model.trial.my_first_dbt_model",
-      "raw_code": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
-      "language": "sql",
-      "package_name": "trial",
-      "root_path": "/Users/marslan/Metaphor/dbt/trial",
-      "path": "example/my_first_dbt_model.sql",
-      "original_file_path": "models/example/my_first_dbt_model.sql",
-      "name": "my_first_dbt_model",
-      "alias": "my_first_dbt_model",
-      "checksum": {
-        "name": "sha256",
-        "checksum": "19723996b16262b4d4a31d9c821866f16a0cc1e2bea514d8c221d6aae2e1cc76"
-      },
-      "tags": [],
-      "refs": [],
-      "sources": [],
-      "metrics": [],
-      "description": "A starter dbt model, my_first_dbt_model",
-      "columns": {
-        "id": {
-          "name": "id",
-          "description": "The primary key for this table, auto generated id",
-          "meta": {},
-          "data_type": null,
-          "quote": null,
-          "tags": []
-        }
-      },
-      "meta": {
-        "owner": "yi@metaphor.io",
-        "pii": true
-      },
-      "docs": {
-        "show": true,
-        "node_color": null
-      },
-      "patch_path": "trial://models/example/schema.yml",
-      "compiled_path": "target/compiled/trial/models/example/my_first_dbt_model.sql",
-      "build_path": null,
-      "deferred": false,
-      "unrendered_config": {
-        "persist_docs": {
-          "relation": true,
-          "columns": true
-        },
-        "materialized": "view",
-        "meta": {
-          "owner": "yi@metaphor.io",
-          "pii": true
-        }
-      },
-      "created_at": 1668176358.267659,
-      "compiled_code": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
-      "extra_ctes_injected": true,
-      "extra_ctes": [],
-      "relation_name": "DEV_DB.DBT_DEV.my_first_dbt_model"
-    },
     "model.trial.trial_model_1": {
       "compiled": true,
       "resource_type": "model",
@@ -479,174 +378,6 @@
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "relation_name": "DEV_DB.DBT_DEV.my_second_dbt_model"
-    },
-    "test.trial.unique_my_first_dbt_model_id.16e066b321": {
-      "test_metadata": {
-        "name": "unique",
-        "kwargs": {
-          "column_name": "id",
-          "model": "{{ get_where_subquery(ref('my_first_dbt_model')) }}"
-        },
-        "namespace": null
-      },
-      "compiled": true,
-      "resource_type": "test",
-      "depends_on": {
-        "macros": [
-          "macro.dbt.test_unique",
-          "macro.dbt.get_where_subquery"
-        ],
-        "nodes": [
-          "model.trial.my_first_dbt_model"
-        ]
-      },
-      "config": {
-        "enabled": true,
-        "alias": null,
-        "schema": "dbt_test__audit",
-        "database": null,
-        "tags": [],
-        "meta": {},
-        "materialized": "test",
-        "severity": "ERROR",
-        "store_failures": null,
-        "where": null,
-        "limit": null,
-        "fail_calc": "count(*)",
-        "warn_if": "!= 0",
-        "error_if": "!= 0"
-      },
-      "database": "DEV_DB",
-      "schema": "DBT_DEV_dbt_test__audit",
-      "fqn": [
-        "trial",
-        "example",
-        "unique_my_first_dbt_model_id"
-      ],
-      "unique_id": "test.trial.unique_my_first_dbt_model_id.16e066b321",
-      "raw_code": "{{ test_unique(**_dbt_generic_test_kwargs) }}",
-      "language": "sql",
-      "package_name": "trial",
-      "root_path": "/Users/marslan/Metaphor/dbt/trial",
-      "path": "unique_my_first_dbt_model_id.sql",
-      "original_file_path": "models/example/schema.yml",
-      "name": "unique_my_first_dbt_model_id",
-      "alias": "unique_my_first_dbt_model_id",
-      "checksum": {
-        "name": "none",
-        "checksum": ""
-      },
-      "tags": [],
-      "refs": [
-        [
-          "my_first_dbt_model"
-        ]
-      ],
-      "sources": [],
-      "metrics": [],
-      "description": "",
-      "columns": {},
-      "meta": {},
-      "docs": {
-        "show": true,
-        "node_color": null
-      },
-      "patch_path": null,
-      "compiled_path": "target/compiled/trial/models/example/schema.yml/unique_my_first_dbt_model_id.sql",
-      "build_path": null,
-      "deferred": false,
-      "unrendered_config": {},
-      "created_at": 1668176358.276711,
-      "compiled_code": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
-      "extra_ctes_injected": true,
-      "extra_ctes": [],
-      "relation_name": null,
-      "column_name": "id",
-      "file_key_name": "models.my_first_dbt_model"
-    },
-    "test.trial.not_null_my_first_dbt_model_id.5fb22c2710": {
-      "test_metadata": {
-        "name": "not_null",
-        "kwargs": {
-          "column_name": "id",
-          "model": "{{ get_where_subquery(ref('my_first_dbt_model')) }}"
-        },
-        "namespace": null
-      },
-      "compiled": true,
-      "resource_type": "test",
-      "depends_on": {
-        "macros": [
-          "macro.dbt.test_not_null",
-          "macro.dbt.get_where_subquery"
-        ],
-        "nodes": [
-          "model.trial.my_first_dbt_model"
-        ]
-      },
-      "config": {
-        "enabled": true,
-        "alias": null,
-        "schema": "dbt_test__audit",
-        "database": null,
-        "tags": [],
-        "meta": {},
-        "materialized": "test",
-        "severity": "ERROR",
-        "store_failures": null,
-        "where": null,
-        "limit": null,
-        "fail_calc": "count(*)",
-        "warn_if": "!= 0",
-        "error_if": "!= 0"
-      },
-      "database": "DEV_DB",
-      "schema": "DBT_DEV_dbt_test__audit",
-      "fqn": [
-        "trial",
-        "example",
-        "not_null_my_first_dbt_model_id"
-      ],
-      "unique_id": "test.trial.not_null_my_first_dbt_model_id.5fb22c2710",
-      "raw_code": "{{ test_not_null(**_dbt_generic_test_kwargs) }}",
-      "language": "sql",
-      "package_name": "trial",
-      "root_path": "/Users/marslan/Metaphor/dbt/trial",
-      "path": "not_null_my_first_dbt_model_id.sql",
-      "original_file_path": "models/example/schema.yml",
-      "name": "not_null_my_first_dbt_model_id",
-      "alias": "not_null_my_first_dbt_model_id",
-      "checksum": {
-        "name": "none",
-        "checksum": ""
-      },
-      "tags": [],
-      "refs": [
-        [
-          "my_first_dbt_model"
-        ]
-      ],
-      "sources": [],
-      "metrics": [],
-      "description": "",
-      "columns": {},
-      "meta": {},
-      "docs": {
-        "show": true,
-        "node_color": null
-      },
-      "patch_path": null,
-      "compiled_path": "target/compiled/trial/models/example/schema.yml/not_null_my_first_dbt_model_id.sql",
-      "build_path": null,
-      "deferred": false,
-      "unrendered_config": {},
-      "created_at": 1668176358.277741,
-      "compiled_code": "\n    \n    \n\n\n\nselect id\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
-      "extra_ctes_injected": true,
-      "extra_ctes": [],
-      "relation_name": null,
-      "column_name": "id",
-      "file_key_name": "models.my_first_dbt_model"
     },
     "test.trial.unique_my_second_dbt_model_id.57a0f8c493": {
       "test_metadata": {
@@ -3951,6 +3682,277 @@
       "relation_name": null,
       "column_name": "DESCRIPTION",
       "file_key_name": "sources.DBT_DEV"
+    },
+    "model.trial.my_first_dbt_model": {
+      "compiled": true,
+      "resource_type": "model",
+      "depends_on": {
+        "macros": [],
+        "nodes": []
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": null,
+        "database": null,
+        "tags": [],
+        "meta": {
+          "owner": "yi@metaphor.io",
+          "pii": true
+        },
+        "materialized": "view",
+        "incremental_strategy": null,
+        "persist_docs": {
+          "relation": true,
+          "columns": true
+        },
+        "quoting": {},
+        "column_types": {},
+        "full_refresh": null,
+        "unique_key": null,
+        "on_schema_change": "ignore",
+        "grants": {},
+        "packages": [],
+        "docs": {
+          "show": true,
+          "node_color": null
+        },
+        "post-hook": [],
+        "pre-hook": []
+      },
+      "database": "DEV_DB",
+      "schema": "DBT_DEV",
+      "fqn": [
+        "trial",
+        "example",
+        "my_first_dbt_model"
+      ],
+      "unique_id": "model.trial.my_first_dbt_model",
+      "raw_code": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
+      "language": "sql",
+      "package_name": "trial",
+      "root_path": "/Users/marslan/Metaphor/dbt/trial",
+      "path": "example/my_first_dbt_model.sql",
+      "original_file_path": "models/example/my_first_dbt_model.sql",
+      "name": "my_first_dbt_model",
+      "alias": "my_first_dbt_model",
+      "checksum": {
+        "name": "sha256",
+        "checksum": "19723996b16262b4d4a31d9c821866f16a0cc1e2bea514d8c221d6aae2e1cc76"
+      },
+      "tags": [],
+      "refs": [],
+      "sources": [],
+      "metrics": [],
+      "description": "A starter dbt model, my_first_dbt_model",
+      "columns": {
+        "id": {
+          "name": "id",
+          "description": "The primary key for this table, auto generated id",
+          "meta": {
+            "pii": true
+          },
+          "data_type": null,
+          "quote": null,
+          "tags": []
+        }
+      },
+      "meta": {
+        "owner": "yi@metaphor.io",
+        "pii": true
+      },
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": "trial://models/example/schema.yml",
+      "compiled_path": "target/compiled/trial/models/example/my_first_dbt_model.sql",
+      "build_path": null,
+      "deferred": false,
+      "unrendered_config": {
+        "persist_docs": {
+          "relation": true,
+          "columns": true
+        },
+        "materialized": "view",
+        "meta": {
+          "owner": "yi@metaphor.io",
+          "pii": true
+        }
+      },
+      "created_at": 1669064562.035851,
+      "compiled_code": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
+      "relation_name": "DEV_DB.DBT_DEV.my_first_dbt_model"
+    },
+    "test.trial.unique_my_first_dbt_model_id.16e066b321": {
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "id",
+          "model": "{{ get_where_subquery(ref('my_first_dbt_model')) }}"
+        },
+        "namespace": null
+      },
+      "compiled": true,
+      "resource_type": "test",
+      "depends_on": {
+        "macros": [
+          "macro.dbt.test_unique",
+          "macro.dbt.get_where_subquery"
+        ],
+        "nodes": [
+          "model.trial.my_first_dbt_model"
+        ]
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": "dbt_test__audit",
+        "database": null,
+        "tags": [],
+        "meta": {},
+        "materialized": "test",
+        "severity": "ERROR",
+        "store_failures": null,
+        "where": null,
+        "limit": null,
+        "fail_calc": "count(*)",
+        "warn_if": "!= 0",
+        "error_if": "!= 0"
+      },
+      "database": "DEV_DB",
+      "schema": "DBT_DEV_dbt_test__audit",
+      "fqn": [
+        "trial",
+        "example",
+        "unique_my_first_dbt_model_id"
+      ],
+      "unique_id": "test.trial.unique_my_first_dbt_model_id.16e066b321",
+      "raw_code": "{{ test_unique(**_dbt_generic_test_kwargs) }}",
+      "language": "sql",
+      "package_name": "trial",
+      "root_path": "/Users/marslan/Metaphor/dbt/trial",
+      "path": "unique_my_first_dbt_model_id.sql",
+      "original_file_path": "models/example/schema.yml",
+      "name": "unique_my_first_dbt_model_id",
+      "alias": "unique_my_first_dbt_model_id",
+      "checksum": {
+        "name": "none",
+        "checksum": ""
+      },
+      "tags": [],
+      "refs": [
+        [
+          "my_first_dbt_model"
+        ]
+      ],
+      "sources": [],
+      "metrics": [],
+      "description": "",
+      "columns": {},
+      "meta": {},
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": null,
+      "compiled_path": "target/compiled/trial/models/example/schema.yml/unique_my_first_dbt_model_id.sql",
+      "build_path": null,
+      "deferred": false,
+      "unrendered_config": {},
+      "created_at": 1669064562.040004,
+      "compiled_code": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
+      "relation_name": null,
+      "column_name": "id",
+      "file_key_name": "models.my_first_dbt_model"
+    },
+    "test.trial.not_null_my_first_dbt_model_id.5fb22c2710": {
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "id",
+          "model": "{{ get_where_subquery(ref('my_first_dbt_model')) }}"
+        },
+        "namespace": null
+      },
+      "compiled": true,
+      "resource_type": "test",
+      "depends_on": {
+        "macros": [
+          "macro.dbt.test_not_null",
+          "macro.dbt.get_where_subquery"
+        ],
+        "nodes": [
+          "model.trial.my_first_dbt_model"
+        ]
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": "dbt_test__audit",
+        "database": null,
+        "tags": [],
+        "meta": {},
+        "materialized": "test",
+        "severity": "ERROR",
+        "store_failures": null,
+        "where": null,
+        "limit": null,
+        "fail_calc": "count(*)",
+        "warn_if": "!= 0",
+        "error_if": "!= 0"
+      },
+      "database": "DEV_DB",
+      "schema": "DBT_DEV_dbt_test__audit",
+      "fqn": [
+        "trial",
+        "example",
+        "not_null_my_first_dbt_model_id"
+      ],
+      "unique_id": "test.trial.not_null_my_first_dbt_model_id.5fb22c2710",
+      "raw_code": "{{ test_not_null(**_dbt_generic_test_kwargs) }}",
+      "language": "sql",
+      "package_name": "trial",
+      "root_path": "/Users/marslan/Metaphor/dbt/trial",
+      "path": "not_null_my_first_dbt_model_id.sql",
+      "original_file_path": "models/example/schema.yml",
+      "name": "not_null_my_first_dbt_model_id",
+      "alias": "not_null_my_first_dbt_model_id",
+      "checksum": {
+        "name": "none",
+        "checksum": ""
+      },
+      "tags": [],
+      "refs": [
+        [
+          "my_first_dbt_model"
+        ]
+      ],
+      "sources": [],
+      "metrics": [],
+      "description": "",
+      "columns": {},
+      "meta": {},
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": null,
+      "compiled_path": "target/compiled/trial/models/example/schema.yml/not_null_my_first_dbt_model_id.sql",
+      "build_path": null,
+      "deferred": false,
+      "unrendered_config": {},
+      "created_at": 1669064562.0410812,
+      "compiled_code": "\n    \n    \n\n\n\nselect id\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
+      "relation_name": null,
+      "column_name": "id",
+      "file_key_name": "models.my_first_dbt_model"
     }
   },
   "sources": {
@@ -12172,7 +12174,6 @@
   "selectors": {},
   "disabled": {},
   "parent_map": {
-    "model.trial.my_first_dbt_model": [],
     "model.trial.trial_model_1": [
       "source.trial.DBT_DEV.NETFLIX"
     ],
@@ -12180,12 +12181,6 @@
       "source.trial.DBT_DEV.SALES_RECORDS"
     ],
     "model.trial.my_second_dbt_model": [
-      "model.trial.my_first_dbt_model"
-    ],
-    "test.trial.unique_my_first_dbt_model_id.16e066b321": [
-      "model.trial.my_first_dbt_model"
-    ],
-    "test.trial.not_null_my_first_dbt_model_id.5fb22c2710": [
       "model.trial.my_first_dbt_model"
     ],
     "test.trial.unique_my_second_dbt_model_id.57a0f8c493": [
@@ -12305,6 +12300,13 @@
     "test.trial.source_not_null_DBT_DEV_NETFLIX_DESCRIPTION.05a82efe6f": [
       "source.trial.DBT_DEV.NETFLIX"
     ],
+    "model.trial.my_first_dbt_model": [],
+    "test.trial.unique_my_first_dbt_model_id.16e066b321": [
+      "model.trial.my_first_dbt_model"
+    ],
+    "test.trial.not_null_my_first_dbt_model_id.5fb22c2710": [
+      "model.trial.my_first_dbt_model"
+    ],
     "source.trial.DBT_DEV.SALES_RECORDS": [],
     "source.trial.DBT_DEV.NETFLIX": [],
     "metric.trial.trial_metric_1": [
@@ -12312,11 +12314,6 @@
     ]
   },
   "child_map": {
-    "model.trial.my_first_dbt_model": [
-      "model.trial.my_second_dbt_model",
-      "test.trial.not_null_my_first_dbt_model_id.5fb22c2710",
-      "test.trial.unique_my_first_dbt_model_id.16e066b321"
-    ],
     "model.trial.trial_model_1": [
       "metric.trial.trial_metric_1",
       "test.trial.not_null_trial_model_1_show_id.210878cb19",
@@ -12335,8 +12332,6 @@
       "test.trial.not_null_my_second_dbt_model_id.151b76d778",
       "test.trial.unique_my_second_dbt_model_id.57a0f8c493"
     ],
-    "test.trial.unique_my_first_dbt_model_id.16e066b321": [],
-    "test.trial.not_null_my_first_dbt_model_id.5fb22c2710": [],
     "test.trial.unique_my_second_dbt_model_id.57a0f8c493": [],
     "test.trial.not_null_my_second_dbt_model_id.151b76d778": [],
     "test.trial.unique_trial_model_1_show_id.6e142709e3": [],
@@ -12376,6 +12371,13 @@
     "test.trial.source_not_null_DBT_DEV_NETFLIX_DURATION.6083a101be": [],
     "test.trial.source_not_null_DBT_DEV_NETFLIX_LISTED_IN.6ba1de80d3": [],
     "test.trial.source_not_null_DBT_DEV_NETFLIX_DESCRIPTION.05a82efe6f": [],
+    "model.trial.my_first_dbt_model": [
+      "model.trial.my_second_dbt_model",
+      "test.trial.not_null_my_first_dbt_model_id.5fb22c2710",
+      "test.trial.unique_my_first_dbt_model_id.16e066b321"
+    ],
+    "test.trial.unique_my_first_dbt_model_id.16e066b321": [],
+    "test.trial.not_null_my_first_dbt_model_id.5fb22c2710": [],
     "source.trial.DBT_DEV.SALES_RECORDS": [
       "model.trial.trial_model_2",
       "test.trial.source_not_null_DBT_DEV_SALES_RECORDS_COUNTRY.17f064dcca",
