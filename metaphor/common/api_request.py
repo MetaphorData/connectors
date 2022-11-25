@@ -31,9 +31,10 @@ def get_request(
     if result.status_code == 200:
         # Add JSON response to log.zip
         file_name = f"{urlparse(url).path[1:].replace('/', u'__')}"
-        file_name = (
-            file_name + ".json" if len(file_name) <= 150 else file_name[50:] + ".json"
-        )
+        # Avoid file name too long error: https://github.com/s3tools/s3cmd/issues/202#issuecomment-137657896
+        # Truncate perfix to avoid duplicate file name
+        file_name = file_name if len(file_name) <= 150 else file_name[50:]
+        file_name += ".json"
         out_file = f"{tempfile.mkdtemp()}/{file_name}"
         with open(out_file, "w") as fp:
             json.dump(result.json(), fp, indent=2)
