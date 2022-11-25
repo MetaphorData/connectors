@@ -72,13 +72,11 @@ When all the entities are finally published, they are converted to a JSON array 
 ```json
 [
   {
-    "eventHeader": {...},
     "dataset": {...},
     "dashboard": {...},
     "virtualView": {...}
   },
   {
-    "eventHeader": {...},
     "dataset": {...},
     "dashboard": {...},
     "virtualView": {...}
@@ -86,7 +84,7 @@ When all the entities are finally published, they are converted to a JSON array 
 ]
 ```
 
-Other than `eventHeader`, all entity-specific fields (e.g. `dataset`, `dashboard`, etc) are optional. In fact, it is common for each `MetadataChangeEvent` to contain metadata only for a single type of entity.
+All entity-specific fields (e.g. `dataset`, `dashboard`, etc) are optional. In fact, it is common for each `MetadataChangeEvent` to contain metadata only for a single type of entity.
 
 ## Outputting Events
 

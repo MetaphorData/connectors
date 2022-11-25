@@ -81,11 +81,6 @@ def test_metaphor_lineage_backend(mock_from_config: MagicMock):
                         "sourceDatasets": ["DATASET~A100403449D6C7F9B07F93D13D7CE873"],
                         "transformation": "select * from table",
                     },
-                },
-                "eventHeader": {
-                    "appName": "",
-                    "server": "",
-                    "time": "2000-01-01T00:00:00+00:00",
-                },
+                }
             },
         ] == load_json(f"{temp_directory}/{lineage_name}/1-of-1.json")
