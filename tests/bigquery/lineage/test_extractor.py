@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 import pytest
-from freezegun import freeze_time
 
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
 from metaphor.bigquery.lineage.extractor import BigQueryLineageExtractor
@@ -27,7 +26,6 @@ def mock_list_entries(mock_build_log_client, entries):
 
 
 @pytest.mark.asyncio
-@freeze_time("2022-01-27")
 async def test_log_extractor(test_root_dir):
     config = BigQueryLineageRunConfig(
         output=OutputConfig(),
@@ -53,7 +51,6 @@ async def test_log_extractor(test_root_dir):
 
 
 @pytest.mark.asyncio
-@freeze_time("2000-01-01")
 async def test_view_extractor(test_root_dir):
     config = BigQueryLineageRunConfig(
         output=OutputConfig(),
