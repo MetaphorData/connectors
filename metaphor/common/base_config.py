@@ -5,8 +5,9 @@ from pydantic import parse_obj_as
 from pydantic.dataclasses import dataclass
 from smart_open import open
 
-from .api_sink import ApiSinkConfig
-from .file_sink import FileSinkConfig
+from metaphor.common.api_sink import ApiSinkConfig
+from metaphor.common.file_sink import FileSinkConfig
+from metaphor.common.variable import variable_substitution
 
 
 @dataclass
@@ -30,4 +31,4 @@ class BaseConfig:
     def from_yaml_file(cls, path: str) -> "BaseConfig":
         with open(path, encoding="utf8") as fin:
             obj = yaml.safe_load(fin.read())
-            return parse_obj_as(cls, obj)
+            return parse_obj_as(cls, variable_substitution(obj))
