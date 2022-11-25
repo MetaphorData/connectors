@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
-from freezegun import freeze_time
 from google.cloud.bigquery.schema import SchemaField
 
 from metaphor.bigquery.config import BigQueryQueryLogConfig
@@ -87,7 +86,6 @@ def mock_list_entries(mock_build_log_client, entries):
 
 
 @pytest.mark.asyncio
-@freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     config = BigQueryRunConfig(
         output=OutputConfig(),

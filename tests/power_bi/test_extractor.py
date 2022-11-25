@@ -2,7 +2,6 @@ from typing import List
 from unittest.mock import MagicMock, patch
 
 import pytest
-from freezegun import freeze_time
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
@@ -29,7 +28,6 @@ from tests.test_utils import load_json
 
 
 @pytest.mark.asyncio
-@freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     mock_instance = MagicMock()
 
