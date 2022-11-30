@@ -36,7 +36,7 @@ class SynapseTable(SynapseDataModel):
     properties: Any
 
 
-class QueryLogTable(BaseModel):
+class SynapseQueryLog(BaseModel):
     # transaction_id for serverless sql pool
     request_id: str
     session_id: Optional[str]

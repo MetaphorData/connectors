@@ -32,8 +32,11 @@ def get_request(
         # Add JSON response to log.zip
         file_name = f"{urlparse(url).path[1:].replace('/', u'__')}"
         # Avoid file name too long error and truncate prefix to avoid duplicate file name
-        file_name = file_name if len(file_name) <= 150 else file_name[50:]
-        file_name += ".json"
+        # 250 is the lowest default maximum charactors file name length limit acrocess major file systems
+        file_name = (
+            file_name[len(file_name) - 245 :] if len(file_name) > 245 else file_name
+        )
+        file_name = f"{file_name}.json"
         out_file = f"{tempfile.mkdtemp()}/{file_name}"
         with open(out_file, "w") as fp:
             json.dump(result.json(), fp, indent=2)

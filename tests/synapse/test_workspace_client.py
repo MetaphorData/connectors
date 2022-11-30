@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 from metaphor.synapse.model import (
     DedicatedSqlPoolSchema,
     DedicatedSqlPoolTable,
-    QueryLogTable,
+    SynapseQueryLog,
     SynapseTable,
     SynapseWorkspace,
     WorkspaceDatabase,
@@ -109,24 +109,24 @@ def test_get_dedicated_sql_pool_tables():
 
 
 def test_get_sql_pool_query_log():
-    querylog1 = QueryLogTable(
+    querylog1 = SynapseQueryLog(
         request_id="test_request_id1",
         sql_query="SELECT TOP 10(*) FROM mock_table",
         login_name="mock_user1",
-        start_time=QueryLogTable.to_utc_time((datetime.now() - timedelta(seconds=1))),
-        end_time=QueryLogTable.to_utc_time(datetime.now()),
+        start_time=SynapseQueryLog.to_utc_time((datetime.now() - timedelta(seconds=1))),
+        end_time=SynapseQueryLog.to_utc_time(datetime.now()),
         duration=1000,
         query_size=10,
         error=None,
         query_operation="SELECT",
     )
 
-    querylog2 = QueryLogTable(
+    querylog2 = SynapseQueryLog(
         request_id="test_request_id2",
         sql_query="SELECT TOP 10(*) FROM mock_table",
         login_name="mock_user2",
-        start_time=QueryLogTable.to_utc_time((datetime.now() - timedelta(seconds=2))),
-        end_time=QueryLogTable.to_utc_time(datetime.now()),
+        start_time=SynapseQueryLog.to_utc_time((datetime.now() - timedelta(seconds=2))),
+        end_time=SynapseQueryLog.to_utc_time(datetime.now()),
         duration=2000,
         query_size=5,
         error=None,
@@ -166,12 +166,12 @@ def test_get_sql_pool_query_log():
 
 
 def test_get_dedicated_sql_pool_query_logs():
-    querylog1 = QueryLogTable(
+    querylog1 = SynapseQueryLog(
         request_id="test_request_id1",
         session_id="test_session_id1",
         sql_query="SELECT TOP 10(*) FROM mock_table",
-        start_time=QueryLogTable.to_utc_time((datetime.now() - timedelta(seconds=1))),
-        end_time=QueryLogTable.to_utc_time(datetime.now()),
+        start_time=SynapseQueryLog.to_utc_time((datetime.now() - timedelta(seconds=1))),
+        end_time=SynapseQueryLog.to_utc_time(datetime.now()),
         duration=1000,
         row_count=10,
         login_name="mock_user1",
@@ -179,12 +179,12 @@ def test_get_dedicated_sql_pool_query_logs():
         query_operation="SELECT",
     )
 
-    querylog2 = QueryLogTable(
+    querylog2 = SynapseQueryLog(
         request_id="test_request_id2",
         session_id="test_session_id2",
         sql_query="SELECT TOP 10(*) FROM mock_table",
-        start_time=QueryLogTable.to_utc_time((datetime.now() - timedelta(seconds=3))),
-        end_time=QueryLogTable.to_utc_time(datetime.now()),
+        start_time=SynapseQueryLog.to_utc_time((datetime.now() - timedelta(seconds=3))),
+        end_time=SynapseQueryLog.to_utc_time(datetime.now()),
         duration=3000,
         row_count=10,
         login_name="mock_user2",

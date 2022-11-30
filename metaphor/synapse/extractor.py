@@ -6,7 +6,7 @@ from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.utils import md5_digest, start_of_day
+from metaphor.common.utils import generate_querylog_id, md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     CustomMetadata,
@@ -28,7 +28,7 @@ from metaphor.synapse.auth_client import AuthClient
 from metaphor.synapse.config import SynapseConfig
 from metaphor.synapse.model import (
     DedicatedSqlPoolTable,
-    QueryLogTable,
+    SynapseQueryLog,
     SynapseTable,
     SynapseWorkspace,
     WorkspaceDatabase,
@@ -82,7 +82,7 @@ class SynapseExtractor(BaseExtractor):
                     )
                 )
         except Exception as error:
-            logger.exception(error)
+            logger.exception(f"serverless sqlpool error: {error}")
 
         # Dedicated sqlpool
         try:
@@ -102,7 +102,7 @@ class SynapseExtractor(BaseExtractor):
                         )
                     )
         except Exception as error:
-            logger.exception(error)
+            logger.exception(f"dedicated sqlpool error: {error}")
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._dataset_map.values())
@@ -203,6 +203,7 @@ class SynapseExtractor(BaseExtractor):
         for table in tables:
             dataset = Dataset()
             dataset.logical_id = DatasetLogicalID(
+                # Use synapse workspace name as dataset account becasue it is global unique in Azure.
                 account=workspace.name,
                 name=dataset_normalized_name(
                     db=database.name,
@@ -241,7 +242,7 @@ class SynapseExtractor(BaseExtractor):
 
             self._dataset_map[table.id] = dataset
 
-    def _map_query_log(self, rows: Iterable[QueryLogTable]):
+    def _map_query_log(self, rows: Iterable[SynapseQueryLog]):
         for row in rows:
             query_id = (
                 f"{row.request_id}:{row.session_id}"
@@ -253,8 +254,9 @@ class SynapseExtractor(BaseExtractor):
                 continue
 
             queryLog = QueryLog()
-            queryLog.id = f"{DataPlatform.SYNAPSE.name}:{row.request_id}"
-            queryLog.query_id = query_id
+            query_id = generate_querylog_id(DataPlatform.SYNAPSE.name, row.request_id)
+            queryLog.id = query_id
+            queryLog.query_id = row.request_id
             queryLog.type = self._map_query_type(row.query_operation)
             queryLog.platform = DataPlatform.SYNAPSE
             queryLog.start_time = row.start_time

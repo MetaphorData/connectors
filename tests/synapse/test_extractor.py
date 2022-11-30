@@ -10,7 +10,7 @@ from metaphor.synapse.extractor import SynapseExtractor
 from metaphor.synapse.model import (
     DedicatedSqlPoolSchema,
     DedicatedSqlPoolTable,
-    QueryLogTable,
+    SynapseQueryLog,
     SynapseTable,
     SynapseWorkspace,
     WorkspaceDatabase,
@@ -234,14 +234,16 @@ async def test_extractor_with_query_log(test_root_dir):
         type="WORKSPACE",
     )
 
-    qyeryLogTable = QueryLogTable(
+    qyeryLogTable = SynapseQueryLog(
         request_id="mock_request_id",
         sql_query="SELECT TOP 10(*) FROM mock_query_table",
         login_name="mock_user@gmail.com",
-        start_time=QueryLogTable.to_utc_time(
+        start_time=SynapseQueryLog.to_utc_time(
             datetime(2022, 11, 15, 13, 10, 10, 922321)
         ),
-        end_time=QueryLogTable.to_utc_time(datetime(2022, 11, 15, 13, 10, 11, 922321)),
+        end_time=SynapseQueryLog.to_utc_time(
+            datetime(2022, 11, 15, 13, 10, 11, 922321)
+        ),
         duration=1000,
         query_size=10,
         error=None,
@@ -323,13 +325,15 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
         type="WORKSPACE",
     )
 
-    qyeryLogTable = QueryLogTable(
+    qyeryLogTable = SynapseQueryLog(
         request_id="mock_request_id",
         session_id="mock_session_id",
         sql_query="INSERT INTO mock_query_table VALUE('test_id', 'test_name', 10)",
         login_name="mock_user@gmail.com",
-        start_time=QueryLogTable.to_utc_time(datetime(2022, 11, 11, 13, 9, 11, 822321)),
-        end_time=QueryLogTable.to_utc_time(datetime(2022, 11, 11, 13, 9, 11, 922321)),
+        start_time=SynapseQueryLog.to_utc_time(
+            datetime(2022, 11, 11, 13, 9, 11, 822321)
+        ),
+        end_time=SynapseQueryLog.to_utc_time(datetime(2022, 11, 11, 13, 9, 11, 922321)),
         duration=100,
         row_count=1,
         error=None,
