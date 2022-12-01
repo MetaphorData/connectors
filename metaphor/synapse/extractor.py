@@ -99,7 +99,8 @@ class SynapseExtractor(BaseExtractor):
                             self._config.query_log.password,
                             start_date,
                             end_date,
-                        )
+                        ),
+                        database.name,
                     )
         except Exception as error:
             logger.exception(f"dedicated sqlpool error: {error}")
@@ -178,20 +179,22 @@ class SynapseExtractor(BaseExtractor):
             CustomMetadataItem("tenant_id", json.dumps(self._client._tenant_id))
         )
 
-        if meta_data:
-            if "Format" in meta_data and "FormatType" in meta_data["Format"]:
-                items.append(
-                    CustomMetadataItem(
-                        "format", json.dumps(meta_data["Format"]["FormatType"])
-                    )
-                )
+        if not meta_data:
+            return items
 
-            if "Source" in meta_data and "Location" in meta_data["Source"]:
-                items.append(
-                    CustomMetadataItem(
-                        "source", json.dumps(meta_data["Source"]["Location"])
-                    )
+        if "Format" in meta_data and "FormatType" in meta_data["Format"]:
+            items.append(
+                CustomMetadataItem(
+                    "format", json.dumps(meta_data["Format"]["FormatType"])
                 )
+            )
+
+        if "Source" in meta_data and "Location" in meta_data["Source"]:
+            items.append(
+                CustomMetadataItem(
+                    "source", json.dumps(meta_data["Source"]["Location"])
+                )
+            )
         return items
 
     def _map_dedicated_sql_pool_tables_to_dataset(
@@ -242,7 +245,7 @@ class SynapseExtractor(BaseExtractor):
 
             self._dataset_map[table.id] = dataset
 
-    def _map_query_log(self, rows: Iterable[SynapseQueryLog]):
+    def _map_query_log(self, rows: Iterable[SynapseQueryLog], database: str = None):
         for row in rows:
             query_id = (
                 f"{row.request_id}:{row.session_id}"
@@ -270,6 +273,7 @@ class SynapseExtractor(BaseExtractor):
                 queryLog.bytes_read = float(row.query_size * 1024)
             if row.error:
                 queryLog.parsing = Parsing(error_message=row.error)
+            queryLog.default_database = database
             self._querylog_map[query_id] = queryLog
 
     def _map_query_type(self, operation: str) -> TypeEnum:
