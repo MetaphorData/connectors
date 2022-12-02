@@ -3,10 +3,12 @@ tenant_id: tenant_id
 client_id: client_id
 secret: client_secret
 subscription_id: client_subscription_id
-workspaces:
-  - workspace1
-  - workspace2
+workspace_name: workspace_name
 resource_group_name: resource_group_name
+query_log:
+  username: username
+  password: password
+  lookback_days: 15
 output:
   file:
     directory: ./synapse_result

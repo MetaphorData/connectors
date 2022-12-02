@@ -30,12 +30,17 @@ def get_request(
     result = requests.get(url, headers=headers)
     if result.status_code == 200:
         # Add JSON response to log.zip
-        file_name = f"{urlparse(url).path[1:].replace('/', u'__')}.json"
+        file_name = f"{urlparse(url).path[1:].replace('/', u'__')}"
+        # Avoid file name too long error and truncate prefix to avoid duplicate file name
+        # 250 is the lowest default maximum charactors file name length limit acrocess major file systems
+        file_name = (
+            file_name[len(file_name) - 245 :] if len(file_name) > 245 else file_name
+        )
+        file_name = f"{file_name}.json"
         out_file = f"{tempfile.mkdtemp()}/{file_name}"
         with open(out_file, "w") as fp:
             json.dump(result.json(), fp, indent=2)
         debug_files.append(out_file)
-
         return parse_obj_as(type_, transform_response(result))
     else:
         raise ApiError(url, result.status_code, result.content.decode())
