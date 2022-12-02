@@ -2877,7 +2877,7 @@ docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker
 testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [extras]
-all = ["asyncpg", "databricks-cli", "GitPython", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "metaphor-sqllineage", "msal", "snowflake-connector-python", "sql-metadata", "tableauserverclient", "thoughtspot-rest-api-sdk", "pymssql"]
+all = ["asyncpg", "databricks-cli", "GitPython", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "metaphor-sqllineage", "msal", "pymssql", "snowflake-connector-python", "sql-metadata", "tableauserverclient", "thoughtspot-rest-api-sdk"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 dbt = []
 looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
@@ -2894,7 +2894,7 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "dadd2a32441fd31446c512f52d784916133853b2946f2bdc17fc42c542cf554a"
+content-hash = "aad0a5d7c5231d50bcbaa4e48fd309e9509d41bd80f967d82cdf2479f303c003"
 
 [metadata.files]
 alembic = [
