@@ -1737,7 +1737,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "metaphor-models"
-version = "0.17.1"
+version = "0.17.2"
 description = ""
 category = "main"
 optional = false
@@ -3774,8 +3774,8 @@ mdurl = [
     {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
 ]
 metaphor-models = [
-    {file = "metaphor-models-0.17.1.tar.gz", hash = "sha256:d23cb93176d026e34875feb7c5074e67dfdfe31dedfa43890089a8d89b84b79e"},
-    {file = "metaphor_models-0.17.1-py3-none-any.whl", hash = "sha256:b8151efe2fbb1266016a16f368442c9701277619c75b389ab725c834eb2fc081"},
+    {file = "metaphor-models-0.17.2.tar.gz", hash = "sha256:d940ebe0885d80934c8a0966b87e5b033735ab1b58ad97586e8afb5dd4ed23d5"},
+    {file = "metaphor_models-0.17.2-py3-none-any.whl", hash = "sha256:ac682dea40982ddad007fe9e1a2f07a1e6d621c93dea54929097962f752abc76"},
 ]
 metaphor-sqllineage = [
     {file = "metaphor-sqllineage-1.3.6.tar.gz", hash = "sha256:0c96c67aa938211f984fbe9b06d801c14f4c25ffa65a448ecba83778d7ace8ee"},
