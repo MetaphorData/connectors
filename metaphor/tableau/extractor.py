@@ -24,7 +24,7 @@ from metaphor.common.entity_id import (
     to_virtual_view_entity_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
@@ -95,6 +95,7 @@ class TableauExtractor(BaseExtractor):
         with server.auth.sign_in(tableau_auth):
             # fetch all views, with preview image
             views: List[ViewItem] = list(Pager(server.views, usage=True))
+            json_dump_to_debug_file([v.__dict__ for v in views], "views.json")
             logger.info(
                 f"There are {len(views)} views on site: {[view.name for view in views]}\n"
             )
@@ -106,6 +107,7 @@ class TableauExtractor(BaseExtractor):
 
             # fetch all workbooks
             workbooks: List[WorkbookItem] = list(Pager(server.workbooks))
+            json_dump_to_debug_file([w.__dict__ for w in workbooks], "workbooks.json")
             logger.info(
                 f"\nThere are {len(workbooks)} work books on site: {[workbook.name for workbook in workbooks]}"
             )
@@ -122,6 +124,7 @@ class TableauExtractor(BaseExtractor):
             # fetch workbook related info from Metadata GraphQL API
             resp = server.metadata.query(workbooks_graphql_query)
             resp_data = resp["data"]
+            json_dump_to_debug_file(resp_data, "metadata_api.json")
             for item in resp_data["workbooks"]:
                 try:
                     workbook = WorkbookQueryResponse.parse_obj(item)
