@@ -75,10 +75,13 @@ class ColumnSource(BaseModel):
     columnId: str
 
 
+class ColumnMappingInfo(BaseModel):
+    columnName: str
+
+
 class ColumnMetadata(Metadata):
     type: str
-    physicalColumnGUID: Optional[str]
-    physicalColumnName: Optional[str]
+    columnMappingInfo: Optional[ColumnMappingInfo]
     sources: List[ColumnSource]
     dataType: Optional[str]
     optionalType: Optional[str]

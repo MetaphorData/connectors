@@ -2,8 +2,9 @@
   {
     "columns": [
       {
-        "physicalColumnGUID": "physical-table-col1",
-        "physicalColumnName": "col1",
+        "columnMappingInfo": {
+          "columnName": "col1"
+        },
         "header": {
           "id": "table1.col1",
           "name": "col1"

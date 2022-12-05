@@ -44,6 +44,7 @@ from metaphor.thought_spot.models import (
     Header,
     LiveBoardMetadata,
     SourceMetadata,
+    TableMappingInfo,
     Tag,
     TMLObject,
     Visualization,
@@ -91,8 +92,6 @@ class ThoughtSpotExtractor(BaseExtractor):
     def fetch_virtual_views(self):
         connections = from_list(ThoughtSpot.fetch_connections(self._client))
 
-        self.populate_physical_column_mapping(connections)
-
         tables = ThoughtSpot.fetch_objects(
             self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_TABLE
         )
@@ -116,37 +115,9 @@ class ThoughtSpotExtractor(BaseExtractor):
 
         self.populate_logical_column_mapping(tables)
 
-        self.populate_virtual_views(tables)
+        self.populate_virtual_views(connections, tables)
         self.populate_lineage(connections, tables)
         self.populate_formula()
-
-    def populate_physical_column_mapping(
-        self, connections: Dict[str, ConnectionMetadata]
-    ):
-        for connection in connections.values():
-            for logical_table in connection.logicalTableList:
-                mapping = logical_table.logicalTableContent.tableMappingInfo
-                source_entity_id = str(
-                    to_dataset_entity_id(
-                        dataset_normalized_name(
-                            db=mapping.databaseName,
-                            schema=mapping.schemaName,
-                            table=mapping.tableName,
-                        ),
-                        mapping_data_platform(connection.type),
-                        account=connection.dataSourceContent.configuration.accountName,
-                    )
-                )
-                for column in logical_table.columns:
-                    physical_column_id = column.physicalColumnGUID
-                    physical_column_name = column.physicalColumnName
-                    if not physical_column_id or not physical_column_name:
-                        logger.warning(f"Cannot map column: ${column.header.name}")
-                        continue
-                    self._column_references[physical_column_id] = ColumnReference(
-                        entity_id=source_entity_id,
-                        field=physical_column_name,
-                    )
 
     def populate_logical_column_mapping(self, tables: Dict[str, SourceMetadata]):
         for table in tables.values():
@@ -160,7 +131,11 @@ class ThoughtSpotExtractor(BaseExtractor):
                     field=column.header.name,
                 )
 
-    def populate_virtual_views(self, tables: Dict[str, SourceMetadata]):
+    def populate_virtual_views(
+        self,
+        connections: Dict[str, ConnectionMetadata],
+        tables: Dict[str, SourceMetadata],
+    ):
         for table in tables.values():
             logger.debug(f"table: {table}")
 
@@ -169,27 +144,25 @@ class ThoughtSpotExtractor(BaseExtractor):
             fieldMappings = []
             for column in table.columns:
                 fieldMapping = FieldMapping(destination=column.header.name, sources=[])
-                column_id = column.header.id
 
                 if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
                     # the table upstream is external source, i.e. BigQuery
-                    if column.physicalColumnGUID is None:
+                    table_mapping_info = table.logicalTableContent.tableMappingInfo
+                    if table_mapping_info is None:
                         logger.warning(
-                            f"Missing physical column GUID, column_id: {column_id}"
+                            f"tableMappingInfo is missing, skip for column: {column.header.name}"
                         )
                         continue
-                    column_reference = self._column_references.get(
-                        column.physicalColumnGUID
+
+                    source_entity_id = self.find_entity_id_from_connection(
+                        connections,
+                        table_mapping_info,
+                        table.dataSourceId,
                     )
-                    if column_reference is None:
-                        logger.warning(
-                            f"Missing physical column reference: physical column GUID: {column.physicalColumnGUID}"
-                        )
-                        continue
                     fieldMapping.sources.append(
                         SourceField(
-                            field=column_reference.field,
-                            source_entity_id=column_reference.entity_id,
+                            field=column.columnMappingInfo.columnName,
+                            source_entity_id=source_entity_id,
                         )
                     )
                 else:
@@ -287,20 +260,17 @@ class ThoughtSpotExtractor(BaseExtractor):
             table = tables[view.logical_id.name]
 
             if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
-                source_id = table.dataSourceId
-                mapping = table.logicalTableContent.tableMappingInfo
-                connection = connections[source_id]
+                if table.logicalTableContent.tableMappingInfo is None:
+                    logger.warning(
+                        f"Skip lineage for {view.logical_id.name} because the mapping info is missing"
+                    )
+                    continue
+
                 view.thought_spot.source_datasets = [
-                    str(
-                        to_dataset_entity_id(
-                            dataset_normalized_name(
-                                db=mapping.databaseName,
-                                schema=mapping.schemaName,
-                                table=mapping.tableName,
-                            ),
-                            mapping_data_platform(connection.type),
-                            account=connection.dataSourceContent.configuration.accountName,
-                        )
+                    self.find_entity_id_from_connection(
+                        connections,
+                        table.logicalTableContent.tableMappingInfo,
+                        table.dataSourceId,
                     )
                 ]
                 view.entity_upstream.source_entities = view.thought_spot.source_datasets
@@ -323,6 +293,28 @@ class ThoughtSpotExtractor(BaseExtractor):
                 view.entity_upstream.source_entities = (
                     view.thought_spot.source_virtual_views
                 )
+
+    @staticmethod
+    def find_entity_id_from_connection(
+        connections: Dict[str, ConnectionMetadata],
+        mapping: TableMappingInfo,
+        source_id: str,
+    ) -> str:
+        if mapping is None:
+            logger.warning("Table mapping info is missing")
+
+        connection = connections[source_id]
+        return str(
+            to_dataset_entity_id(
+                dataset_normalized_name(
+                    db=mapping.databaseName,
+                    schema=mapping.schemaName,
+                    table=mapping.tableName,
+                ),
+                mapping_data_platform(connection.type),
+                account=connection.dataSourceContent.configuration.accountName,
+            )
+        )
 
     def fetch_dashboards(self):
         answers = ThoughtSpot.fetch_objects(
