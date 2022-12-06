@@ -291,6 +291,11 @@ class PowerBIExtractor(BaseExtractor):
             original_dashboard_id = self._get_dashboard_id_from_url(
                 dashboard.source_info.main_url
             )
+
+            if original_dashboard_id == dashboard_id:
+                # Shouldn't remove itself
+                continue
+
             original_dashboard = self._dashboards.get(original_dashboard_id)
             if original_dashboard is None:
                 # Cannot not found corresponding non-app dashboard
