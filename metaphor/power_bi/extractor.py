@@ -89,9 +89,10 @@ class PowerBIExtractor(BaseExtractor):
                     self.map_wi_datasets_to_virtual_views(workspace)
                     self.map_wi_reports_to_dashboard(workspace, app_map)
                     self.map_wi_dashboards_to_dashboard(workspace, app_map)
-                    self.dedupe_app_version_dashboards()
                 except Exception as e:
                     logger.exception(e)
+
+        self.dedupe_app_version_dashboards()
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._virtual_views.values())
