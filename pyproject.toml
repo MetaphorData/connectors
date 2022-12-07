@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.11.94"
+version = "0.11.96"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -75,7 +75,7 @@ throughtspot = ["thoughtspot-rest-api-sdk"]
 unity_catalog = ["databricks-cli"]
 
 [tool.poetry.dev-dependencies]
-apache-airflow = "^2.4.1"
+apache-airflow = "^2.4.3"
 bandit = "^1.7.2"
 black = "^22.1"
 datamodel-code-generator = { extras = ["http"], version = "^0.11.14" }
