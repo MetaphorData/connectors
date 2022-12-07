@@ -1,0 +1,58 @@
+[
+  {
+    "logicalId": {
+      "dashboardId": "123",
+      "platform": "TABLEAU"
+    },
+    "dashboardInfo": {
+      "charts": [
+        {
+          "preview": "data:image/png;base64,AA==",
+          "title": "name",
+          "url": "https://10ax.online.tableau.com/#/site/abc/views/workbook/view"
+        }
+      ],
+      "description": "d",
+      "title": "project1.wb",
+      "viewCount": 100.0
+    },
+    "sourceInfo": {
+      "mainUrl": "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
+    },
+    "upstream": {
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~B5446C160574546FB913DB1D78989BAE",
+        "VIRTUAL_VIEW~3ADEC7EE47E751141F716D29158E63A3"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sourceId1",
+      "type": "TABLEAU_DATASOURCE"
+    },
+    "tableauDatasource": {
+      "embedded": false,
+      "fields": [],
+      "name": "default.source1",
+      "sourceDatasets": [
+        "DATASET~44EFB0A109CA87DB8792256D25D030C9"
+      ],
+      "url": "https://10ax.online.tableau.com/#/site/abc/datasources/777"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sourceId2",
+      "type": "TABLEAU_DATASOURCE"
+    },
+    "tableauDatasource": {
+      "embedded": true,
+      "fields": [],
+      "name": "default.source2",
+      "sourceDatasets": [
+        "DATASET~F9D8E5963019975462CB6CB2002D247B"
+      ]
+    }
+  }
+]
