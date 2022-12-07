@@ -1,8 +1,9 @@
-from tableauserverclient import WorkbookItem
+from tableauserverclient import ViewItem, WorkbookItem
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import to_dataset_entity_id, to_virtual_view_entity_id
 from metaphor.models.metadata_change_event import (
+    Chart,
     Dashboard,
     DashboardInfo,
     DashboardLogicalID,
@@ -14,7 +15,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 from metaphor.tableau.extractor import TableauExtractor
-from metaphor.tableau.query import WorkbookQueryResponse
+from metaphor.tableau.query import Database, DatabaseTable, WorkbookQueryResponse
 
 
 def dummy_config():
@@ -58,6 +59,13 @@ def test_parse_workbook_url():
 
 
 def test_parse_dashboard():
+    view = ViewItem()
+    view._id = "vid"
+    view._name = "name"
+    view._content_url = "workbook/sheets/view"
+    view._total_views = 100
+    view._preview_image = lambda: bytes(1)
+
     workbook = WorkbookItem("project1")
     workbook._set_values(
         id="abc",
@@ -76,9 +84,10 @@ def test_parse_dashboard():
         views=[],
         data_acceleration_config=None,
     )
-    workbook._set_views([])
+    workbook._set_views([view])
 
     extractor = TableauExtractor(dummy_config())
+    extractor._views = {"vid": view}
     extractor._parse_dashboard(workbook)
 
     assert len(extractor._dashboards) == 1
@@ -87,10 +96,16 @@ def test_parse_dashboard():
             dashboard_id="123", platform=DashboardPlatform.TABLEAU
         ),
         dashboard_info=DashboardInfo(
-            charts=[],
+            charts=[
+                Chart(
+                    title="name",
+                    url="https://10ax.online.tableau.com/#/site/abc/views/workbook/view",
+                    preview="data:image/png;base64,AA==",
+                )
+            ],
             description="d",
             title="project1.wb",
-            view_count=0.0,
+            view_count=100.0,
         ),
         source_info=SourceInfo(
             main_url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
@@ -169,3 +184,75 @@ def test_parse_dashboard():
     ] == str(
         to_dataset_entity_id("acme.berlin_bicycles.cycle_hire", DataPlatform.REDSHIFT)
     )
+
+
+def test_parse_dataset_id():
+    extractor = TableauExtractor(dummy_config())
+
+    assert (
+        extractor._parse_dataset_id(
+            DatabaseTable(
+                luid="uuid",
+                name="name",
+                fullName=None,
+                database=None,
+                schema_=None,
+            )
+        )
+        is None
+    )
+
+    assert (
+        extractor._parse_dataset_id(
+            DatabaseTable(
+                luid="uuid",
+                name="name",
+                fullName=None,
+                database=Database(name="db", connectionType="invalid_type"),
+                schema_=None,
+            )
+        )
+        is None
+    )
+
+    # Use three-segment "fullName"
+    assert extractor._parse_dataset_id(
+        DatabaseTable(
+            luid="uuid",
+            name="name",
+            fullName="db.schema.table",
+            database=Database(name="db", connectionType="redshift"),
+            schema_=None,
+        )
+    ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
+
+    # Full back to two-segment "name"
+    assert extractor._parse_dataset_id(
+        DatabaseTable(
+            luid="uuid",
+            name="schema.table",
+            fullName="random_name",
+            database=Database(name="db", connectionType="redshift"),
+            schema_=None,
+        )
+    ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
+
+    # Test BigQuery project name => ID mapping
+    extractor = TableauExtractor(
+        TableauRunConfig(
+            server_url="url",
+            site_name="name",
+            access_token=TableauTokenAuthConfig(token_name="name", token_value="value"),
+            bigquery_project_name_to_id_map={"bq_name": "bq_id"},
+            output=OutputConfig(),
+        )
+    )
+    assert extractor._parse_dataset_id(
+        DatabaseTable(
+            luid="uuid",
+            name="schema.table",
+            fullName="random_name",
+            database=Database(name="bq_name", connectionType="bigquery"),
+            schema_=None,
+        )
+    ) == to_dataset_entity_id("bq_id.schema.table", DataPlatform.BIGQUERY)
