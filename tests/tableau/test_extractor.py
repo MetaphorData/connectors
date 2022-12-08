@@ -1,20 +1,57 @@
-from tableauserverclient import WorkbookItem
+from typing import List
+from unittest.mock import MagicMock, patch
+
+import pytest
+from tableauserverclient import ViewItem, WorkbookItem
 
 from metaphor.common.base_config import OutputConfig
-from metaphor.common.entity_id import to_dataset_entity_id, to_virtual_view_entity_id
+from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import (
+    Chart,
     Dashboard,
     DashboardInfo,
     DashboardLogicalID,
     DashboardPlatform,
-    DashboardUpstream,
     DataPlatform,
     SourceInfo,
-    VirtualViewType,
 )
 from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 from metaphor.tableau.extractor import TableauExtractor
-from metaphor.tableau.query import WorkbookQueryResponse
+from metaphor.tableau.query import Database, DatabaseTable, WorkbookQueryResponse
+from tests.test_utils import load_json
+
+
+class ViewsWrapper:
+    def __init__(self, views: List[ViewItem]):
+        self._views = views
+
+    def populate_preview_image(self):
+        pass
+
+    def __iter__(self):
+        for v in self._views:
+            yield v
+
+
+class WorkbooksWrapper:
+    def __init__(self, workbooks: List[WorkbookItem]):
+        self._workbooks = workbooks
+
+    def populate_views(self):
+        pass
+
+    def __iter__(self):
+        for w in self._workbooks:
+            yield w
+
+
+class MockPager:
+    def __init__(self, input, **argv):
+        self._input = input
+
+    def __iter__(self):
+        return self._input.__iter__()
 
 
 def dummy_config():
@@ -57,7 +94,89 @@ def test_parse_workbook_url():
     assert workbook_id == "123"
 
 
-def test_parse_dashboard():
+def test_parse_dataset_id():
+    extractor = TableauExtractor(dummy_config())
+
+    assert (
+        extractor._parse_dataset_id(
+            DatabaseTable(
+                luid="uuid",
+                name="name",
+                fullName=None,
+                database=None,
+                schema_=None,
+            )
+        )
+        is None
+    )
+
+    assert (
+        extractor._parse_dataset_id(
+            DatabaseTable(
+                luid="uuid",
+                name="name",
+                fullName="fullname",
+                database=Database(name="db", connectionType="invalid_type"),
+                schema_="schema",
+            )
+        )
+        is None
+    )
+
+    # Use three-segment "fullName"
+    assert extractor._parse_dataset_id(
+        DatabaseTable(
+            luid="uuid",
+            name="name",
+            fullName="db.schema.table",
+            database=Database(name="db", connectionType="redshift"),
+            schema_=None,
+        )
+    ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
+
+    # Full back to two-segment "name"
+    assert extractor._parse_dataset_id(
+        DatabaseTable(
+            luid="uuid",
+            name="schema.table",
+            fullName="random_name",
+            database=Database(name="db", connectionType="redshift"),
+            schema_=None,
+        )
+    ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
+
+    # Test BigQuery project name => ID mapping
+    extractor = TableauExtractor(
+        TableauRunConfig(
+            server_url="url",
+            site_name="name",
+            access_token=TableauTokenAuthConfig(token_name="name", token_value="value"),
+            bigquery_project_name_to_id_map={"bq_name": "bq_id"},
+            output=OutputConfig(),
+        )
+    )
+    assert extractor._parse_dataset_id(
+        DatabaseTable(
+            luid="uuid",
+            name="schema.table",
+            fullName="random_name",
+            database=Database(name="bq_name", connectionType="bigquery"),
+            schema_=None,
+        )
+    ) == to_dataset_entity_id("bq_id.schema.table", DataPlatform.BIGQUERY)
+
+
+@pytest.mark.asyncio
+async def test_extractor(test_root_dir):
+    extractor = TableauExtractor(dummy_config())
+
+    view = ViewItem()
+    view._id = "vid"
+    view._name = "name"
+    view._content_url = "workbook/sheets/view"
+    view._total_views = 100
+    view._preview_image = lambda: bytes(1)
+
     workbook = WorkbookItem("project1")
     workbook._set_values(
         id="abc",
@@ -76,9 +195,9 @@ def test_parse_dashboard():
         views=[],
         data_acceleration_config=None,
     )
-    workbook._set_views([])
+    workbook._set_views([view])
 
-    extractor = TableauExtractor(dummy_config())
+    extractor._views = {"vid": view}
     extractor._parse_dashboard(workbook)
 
     assert len(extractor._dashboards) == 1
@@ -87,10 +206,16 @@ def test_parse_dashboard():
             dashboard_id="123", platform=DashboardPlatform.TABLEAU
         ),
         dashboard_info=DashboardInfo(
-            charts=[],
+            charts=[
+                Chart(
+                    title="name",
+                    url="https://10ax.online.tableau.com/#/site/abc/views/workbook/view",
+                    preview="data:image/png;base64,AA==",
+                )
+            ],
             description="d",
             title="project1.wb",
-            view_count=0.0,
+            view_count=100.0,
         ),
         source_info=SourceInfo(
             main_url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
@@ -147,25 +272,25 @@ def test_parse_dashboard():
         WorkbookQueryResponse.parse_obj(workbook_graphql_response)
     )
 
-    assert extractor._dashboards["123"].upstream == DashboardUpstream(
-        source_virtual_views=[
-            "VIRTUAL_VIEW~B5446C160574546FB913DB1D78989BAE",
-            "VIRTUAL_VIEW~3ADEC7EE47E751141F716D29158E63A3",
-        ],
-    )
-    assert extractor._dashboards["123"].upstream.source_virtual_views[0] == str(
-        to_virtual_view_entity_id("sourceId1", VirtualViewType.TABLEAU_DATASOURCE)
-    )
-    assert extractor._dashboards["123"].upstream.source_virtual_views[1] == str(
-        to_virtual_view_entity_id("sourceId2", VirtualViewType.TABLEAU_DATASOURCE)
-    )
-    assert extractor._virtual_views["sourceId1"].tableau_datasource.source_datasets[
-        0
-    ] == str(
-        to_dataset_entity_id("dev_db.london.cycle", DataPlatform.SNOWFLAKE, "snow")
-    )
-    assert extractor._virtual_views["sourceId2"].tableau_datasource.source_datasets[
-        0
-    ] == str(
-        to_dataset_entity_id("acme.berlin_bicycles.cycle_hire", DataPlatform.REDSHIFT)
-    )
+    mock_auth = MagicMock()
+    mock_auth.sign_in = MagicMock()
+
+    mock_metadata = MagicMock()
+    mock_metadata.query.return_value = workbook_graphql_response
+
+    mock_server = MagicMock()
+    mock_server.auth = mock_auth
+    mock_server.views = ViewsWrapper([view])
+    mock_server.workbooks = WorkbooksWrapper([workbook])
+    mock_server.metadata = mock_metadata
+
+    with patch("tableauserverclient.Server") as mock_server_cls, patch(
+        "tableauserverclient.Pager"
+    ) as mock_pager_cls:
+
+        mock_server_cls.side_effect = mock_server
+        mock_pager_cls.side_effect = MockPager
+
+        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+
+    assert events == load_json(f"{test_root_dir}/tableau/expected.json")

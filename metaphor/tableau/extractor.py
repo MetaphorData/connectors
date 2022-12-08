@@ -5,14 +5,7 @@ import traceback
 from typing import Collection, Dict, List, Optional, Tuple
 
 try:
-    from tableauserverclient import (
-        Pager,
-        PersonalAccessTokenAuth,
-        Server,
-        TableauAuth,
-        ViewItem,
-        WorkbookItem,
-    )
+    import tableauserverclient as tableau
 except ImportError:
     print("Please install metaphor[tableau] extra\n")
     raise
@@ -24,7 +17,7 @@ from metaphor.common.entity_id import (
     to_virtual_view_entity_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Chart,
@@ -70,7 +63,7 @@ class TableauExtractor(BaseExtractor):
         self._disable_preview_image = config.disable_preview_image
 
         self._base_url: Optional[str] = None
-        self._views: Dict[str, ViewItem] = {}
+        self._views: Dict[str, tableau.ViewItem] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
 
@@ -78,23 +71,26 @@ class TableauExtractor(BaseExtractor):
         logger.info("Fetching metadata from Tableau")
 
         if self._access_token is not None:
-            tableau_auth = PersonalAccessTokenAuth(
+            tableau_auth = tableau.PersonalAccessTokenAuth(
                 self._access_token.token_name,
                 self._access_token.token_value,
                 self._site_name,
             )
         elif self._user_password is not None:
-            tableau_auth = TableauAuth(
+            tableau_auth = tableau.TableauAuth(
                 self._user_password.username,
                 self._user_password.password,
                 self._site_name,
             )
 
-        server = Server(self._server_url, use_server_version=True)
+        server = tableau.Server(self._server_url, use_server_version=True)
 
         with server.auth.sign_in(tableau_auth):
             # fetch all views, with preview image
-            views: List[ViewItem] = list(Pager(server.views, usage=True))
+            views: List[tableau.ViewItem] = list(
+                tableau.Pager(server.views, usage=True)
+            )
+            json_dump_to_debug_file([v.__dict__ for v in views], "views.json")
             logger.info(
                 f"There are {len(views)} views on site: {[view.name for view in views]}\n"
             )
@@ -105,7 +101,10 @@ class TableauExtractor(BaseExtractor):
                 self._views[item.id] = item
 
             # fetch all workbooks
-            workbooks: List[WorkbookItem] = list(Pager(server.workbooks))
+            workbooks: List[tableau.WorkbookItem] = list(
+                tableau.Pager(server.workbooks)
+            )
+            json_dump_to_debug_file([w.__dict__ for w in workbooks], "workbooks.json")
             logger.info(
                 f"\nThere are {len(workbooks)} work books on site: {[workbook.name for workbook in workbooks]}"
             )
@@ -122,6 +121,7 @@ class TableauExtractor(BaseExtractor):
             # fetch workbook related info from Metadata GraphQL API
             resp = server.metadata.query(workbooks_graphql_query)
             resp_data = resp["data"]
+            json_dump_to_debug_file(resp_data, "metadata_api.json")
             for item in resp_data["workbooks"]:
                 try:
                     workbook = WorkbookQueryResponse.parse_obj(item)
@@ -133,14 +133,14 @@ class TableauExtractor(BaseExtractor):
 
         return [*self._dashboards.values(), *self._virtual_views.values()]
 
-    def _parse_dashboard(self, workbook: WorkbookItem) -> None:
+    def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
         base_url, workbook_id = TableauExtractor._parse_workbook_url(
             workbook.webpage_url
         )
         if not self._base_url:
             self._base_url = base_url
 
-        views: List[ViewItem] = workbook.views
+        views: List[tableau.ViewItem] = workbook.views
         charts = [self._parse_chart(self._views[view.id]) for view in views]
         total_views = sum([view.total_views for view in views])
 
@@ -298,7 +298,7 @@ class TableauExtractor(BaseExtractor):
         logger.debug(f"dataset id: {fullname} {connection_type} {account}")
         return to_dataset_entity_id(fullname, platform, account)
 
-    def _parse_chart(self, view: ViewItem) -> Chart:
+    def _parse_chart(self, view: tableau.ViewItem) -> Chart:
         # encode preview image raw bytes into data URL
         preview_data_url = None
         try:
