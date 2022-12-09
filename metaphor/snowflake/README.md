@@ -31,6 +31,7 @@ create user identifier($user)
     default_role = $role
     comment = 'User for Metaphor connector';
 grant role identifier($role) to user identifier($user);
+alter user identifier($user) set DEFAULT_ROLE = $role;
 ```
 
 ### Key Pair Authentication (Optional)
