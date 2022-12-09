@@ -44,7 +44,7 @@ alter user identifier($user) set rsa_public_key='<public_key_content>';
 
 ### Fetching extra info (Optional)
 
-If you intend to fetch extra table information such as LAST_CHANGE_COMMIT_TIME or DDL (enabled by default), following additional grant needs to be given to the newly created role.
+To fetch extra table information such as the last modified time or DDL, please grant the following additional privileges to the newly created role.
 
 ```sql
 grant usage on all schemas in database identifier($db) to role identifier($role);
@@ -101,7 +101,7 @@ See [Filter Configurations](../common/docs/filter.md) for more information on th
 
 #### Fetch Extra Table Information
 
-By default, the crawler fetches extra table information such as LAST_CHANGE_COMMIT_TIME or DDL. This requires extra grant to all the tables. To disable this, add the following:
+By default, the connector fetches extra table information such as LAST_CHANGE_COMMIT_TIME or DDL. This requires additional grants to all the tables. The connector will print warning messages if it has insufficient permissions. To disable this feature altogether, add the following to your config:
 
 ```yaml
 fetch_extra_table_info: false
