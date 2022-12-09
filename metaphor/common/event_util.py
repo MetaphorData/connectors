@@ -1,6 +1,5 @@
 import json
 import logging
-from datetime import datetime, timezone
 from importlib import resources
 from typing import Union
 
@@ -10,7 +9,6 @@ from metaphor import models
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
-    EventHeader,
     KnowledgeCard,
     MetadataChangeEvent,
     Metric,
@@ -39,14 +37,7 @@ class EventUtil:
 
     def _build_event(self, **kwargs) -> MetadataChangeEvent:
         """Create an MCE"""
-        return MetadataChangeEvent(
-            event_header=EventHeader(
-                time=datetime.now(timezone.utc),
-                app_name=self._extractor_class,
-                server=self._server,
-            ),
-            **kwargs,
-        )
+        return MetadataChangeEvent(**kwargs)
 
     def build_event(self, entity: ENTITY_TYPES):
         """Build MCE given an entity"""

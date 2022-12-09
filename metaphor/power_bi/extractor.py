@@ -1,5 +1,7 @@
+import re
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Optional
+from urllib import parse
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import EntityId
@@ -89,6 +91,8 @@ class PowerBIExtractor(BaseExtractor):
                     self.map_wi_dashboards_to_dashboard(workspace, app_map)
                 except Exception as e:
                     logger.exception(e)
+
+        self.dedupe_app_version_dashboards()
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._virtual_views.values())
@@ -276,6 +280,42 @@ class PowerBIExtractor(BaseExtractor):
             )
             self._dashboards[wi_dashboard.id] = dashboard
 
+    def dedupe_app_version_dashboards(self):
+        for dashboard_id in list(self._dashboards.keys()):
+            dashboard = self._dashboards.get(dashboard_id)
+            if dashboard.dashboard_info.power_bi.app is None:
+                # Non-app dashboard
+                continue
+
+            app_url = dashboard.source_info.main_url
+            original_dashboard_id = self._get_dashboard_id_from_url(
+                dashboard.source_info.main_url
+            )
+
+            if original_dashboard_id == dashboard_id:
+                # Shouldn't remove itself
+                continue
+
+            original_dashboard = self._dashboards.get(original_dashboard_id)
+            if original_dashboard is None:
+                # Cannot not found corresponding non-app dashboard
+                logger.warning(
+                    f"Non-app version dashboard not found, id: {original_dashboard_id}"
+                )
+                continue
+
+            original_dashboard.dashboard_info.power_bi.app = (
+                dashboard.dashboard_info.power_bi.app
+            )
+
+            # replace source url with app_url if possible
+            original_dashboard.source_info.main_url = (
+                app_url
+                if app_url is not None
+                else original_dashboard.source_info.main_url
+            )
+            del self._dashboards[dashboard_id]
+
     def _make_power_bi_info(
         self,
         type: PowerBIDashboardType,
@@ -312,6 +352,14 @@ class PowerBIExtractor(BaseExtractor):
         # Make time ISO-compliant by stripping off non-zero padded ms and "Z"
         iso_time = ".".join(refresh.endTime.split(".")[0:-1])
         return datetime.fromisoformat(iso_time).replace(tzinfo=timezone.utc)
+
+    def _get_dashboard_id_from_url(self, url: str) -> Optional[str]:
+        path = parse.urlparse(url).path
+        pattern = re.compile(r"apps/([^/]+)/(reports|dashboards)/([^/]+)")
+        match = pattern.search(path)
+        if match and len(match.groups()) == 3:
+            return match.group(3)
+        return None
 
     @staticmethod
     def transform_tiles_to_charts(tiles: List[PowerBITile]) -> List[Chart]:

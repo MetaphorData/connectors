@@ -3,7 +3,7 @@ name: CI
 
 env:
   PYTHON_VERSION: 3.7
-  POETRY_VERSION: 1.1.12
+  POETRY_VERSION: 1.2.2
 
 # Run this build workflow for every new PR
 on:
@@ -41,13 +41,25 @@ jobs:
           poetry run mypy .
           poetry run bandit -r . -c pyproject.toml
 
+      # TODO(SC-14236): Include __init__.py back to coverage after fixing async testing issues
       - name: Test
         run: |
-          poetry run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=metaphor tests/ | tee pytest-coverage.txt
+          poetry run coverage run --source=metaphor --omit='**/__init__.py' -m pytest
+          poetry run coverage lcov
+          poetry run coverage xml
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage.lcov
 
       - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@main
+        uses: orgoro/coverage@v3
         with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest.xml
+          coverageFile: ./coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          thresholdAll: 0.8
+          thresholdNew: 0.8
+          thresholdModified: 0.8
 

@@ -18,7 +18,6 @@ from metaphor.models.metadata_change_event import (
     CustomMetadata,
     DataPlatform,
     Dataset,
-    DatasetField,
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
@@ -28,6 +27,7 @@ from metaphor.models.metadata_change_event import (
     MaterializationType,
     SchemaField,
     SchemaType,
+    SourceField,
     SQLSchema,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
@@ -185,11 +185,16 @@ class UnityCatalogExtractor(BaseExtractor):
                 source_logical_id = DatasetLogicalID(
                     name=normalized_name.lower(), platform=DataPlatform.UNITY_CATALOG
                 )
-                source_datasets.append(
-                    str(to_dataset_entity_id_from_logical_id(source_logical_id))
+                source_entity_id = str(
+                    to_dataset_entity_id_from_logical_id(source_logical_id)
                 )
+                source_datasets.append(source_entity_id)
                 field_mapping.sources.append(
-                    DatasetField(dataset=source_logical_id, field=upstream_col.name)
+                    SourceField(
+                        dataset=source_logical_id,
+                        source_entity_id=source_entity_id,
+                        field=upstream_col.name,
+                    )
                 )
             field_mappings.append(field_mapping)
 

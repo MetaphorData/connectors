@@ -1,5 +1,7 @@
 import json
+import shutil
 import tempfile
+from os import path
 from typing import Collection, Dict, Optional, Tuple
 
 import requests
@@ -15,7 +17,7 @@ from metaphor.models.crawler_run_metadata import Platform
 logger = get_logger()
 
 ADMIN_API_BASE_URL = "https://cloud.getdbt.com/api/v2"
-DBT_DOC_BASE_URL = "https://cloud.getdbt.com/accounts/%d/runs/%s/docs"
+DBT_DOC_BASE_URL = "https://cloud.getdbt.com/accounts/%d/jobs/%s/docs"
 
 
 class DbtAdminAPIClient:
@@ -92,10 +94,13 @@ class DbtAdminAPIClient:
         # https://docs.getdbt.com/dbt-cloud/api-v2#operation/getArtifactsByRunId
         artifact_json = self._get(f"runs/{run_id}/artifacts/{artifact}")
 
-        fd, name = tempfile.mkstemp()
+        fd, temp_name = tempfile.mkstemp()
         with open(fd, "w") as fp:
             json.dump(artifact_json, fp)
-            return name
+
+        pretty_name = f"{path.dirname(temp_name)}/{artifact}"
+        shutil.copyfile(temp_name, pretty_name)
+        return pretty_name
 
 
 class DbtCloudExtractor(BaseExtractor):
@@ -136,7 +141,7 @@ class DbtCloudExtractor(BaseExtractor):
             DbtRunConfig(
                 manifest=manifest_json,
                 account=account,
-                docs_base_url=DBT_DOC_BASE_URL % (self._account_id, run_id),
+                docs_base_url=DBT_DOC_BASE_URL % (self._account_id, self._job_id),
                 output=self._output,
                 meta_ownerships=self._meta_ownerships,
                 meta_tags=self._meta_tags,

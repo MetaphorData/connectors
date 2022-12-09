@@ -1,10 +1,12 @@
 import json
+import tempfile
 from typing import Any, Callable, Dict, Type, TypeVar
+from urllib.parse import urlparse
 
 import requests
 from pydantic import parse_obj_as
 
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import debug_files, get_logger
 
 logger = get_logger()
 T = TypeVar("T")
@@ -27,7 +29,18 @@ def get_request(
 
     result = requests.get(url, headers=headers)
     if result.status_code == 200:
-        logger.debug(json.dumps(result.json(), indent=2))
+        # Add JSON response to log.zip
+        file_name = f"{urlparse(url).path[1:].replace('/', u'__')}"
+        # Avoid file name too long error and truncate prefix to avoid duplicate file name
+        # 250 is the lowest default maximum charactors file name length limit acrocess major file systems
+        file_name = (
+            file_name[len(file_name) - 245 :] if len(file_name) > 245 else file_name
+        )
+        file_name = f"{file_name}.json"
+        out_file = f"{tempfile.mkdtemp()}/{file_name}"
+        with open(out_file, "w") as fp:
+            json.dump(result.json(), fp, indent=2)
+        debug_files.append(out_file)
         return parse_obj_as(type_, transform_response(result))
     else:
         raise ApiError(url, result.status_code, result.content.decode())

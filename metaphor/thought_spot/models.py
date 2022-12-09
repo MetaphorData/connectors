@@ -75,8 +75,13 @@ class ColumnSource(BaseModel):
     columnId: str
 
 
+class ColumnMappingInfo(BaseModel):
+    columnName: str
+
+
 class ColumnMetadata(Metadata):
     type: str
+    columnMappingInfo: Optional[ColumnMappingInfo]
     sources: List[ColumnSource]
     dataType: Optional[str]
     optionalType: Optional[str]
@@ -90,6 +95,7 @@ class SourceType(Enum):
 
 class VizColumn(BaseModel):
     referencedTableHeaders: Optional[List[Reference]]
+    referencedColumnHeaders: Optional[List[Reference]]
 
 
 class RefAnswerBook(BaseModel):
@@ -139,10 +145,16 @@ class ConnectionHeader(Header):
     authorName: str = ""
 
 
+class LogicalTable(Metadata):
+    columns: List[ColumnMetadata]
+    logicalTableContent: LogicalTableContent
+
+
 class ConnectionMetadata(Metadata):
     header: Header
     type: ConnectionType
     dataSourceContent: DataSourceContent
+    logicalTableList: List[LogicalTable]
 
 
 class SourceMetadata(Metadata):
@@ -158,7 +170,7 @@ class AnswerMetadata(Metadata):
     reportContent: ReportContent
 
 
-class LiveBoardMetadate(Metadata):
+class LiveBoardMetadata(Metadata):
     header: LiveBoardHeader
     type: str
     reportContent: ReportContent

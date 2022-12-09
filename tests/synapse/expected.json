@@ -3,6 +3,10 @@
     "customMetadata": {
       "metadata": [
         {
+          "key": "tenant_id",
+          "value": "\"mock_tenant_id\""
+        },
+        {
           "key": "format",
           "value": "\"CSV\""
         },
@@ -14,7 +18,8 @@
     },
     "entityType": "DATASET",
     "logicalId": {
-      "name": "mock_synapse_table_id",
+      "account": "mock_synapse_workspace_name",
+      "name": "mock_database_name.mock_synapse_table_name",
       "platform": "SYNAPSE"
     },
     "schema": {
@@ -49,7 +54,6 @@
     },
     "structure": {
       "database": "mock_database_name",
-      "schema": "mock_database_type",
       "table": "mock_synapse_table_name"
     }
   }

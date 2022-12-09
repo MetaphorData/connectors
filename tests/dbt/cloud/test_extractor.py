@@ -45,7 +45,7 @@ async def test_extractor(test_root_dir):
             DbtRunConfig(
                 manifest="tempfile",
                 account="snowflake_account",
-                docs_base_url="https://cloud.getdbt.com/accounts/1111/runs/4444/docs",
+                docs_base_url="https://cloud.getdbt.com/accounts/1111/jobs/2222/docs",
                 output=OutputConfig(),
             )
         )

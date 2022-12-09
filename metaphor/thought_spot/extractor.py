@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from itertools import chain
 from typing import Collection, Dict, List, Tuple
 
@@ -6,6 +7,7 @@ from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderT
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
+    EntityId,
     dataset_normalized_name,
     to_dataset_entity_id,
     to_virtual_view_entity_id,
@@ -21,6 +23,10 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
+    EntityType,
+    EntityUpstream,
+    FieldMapping,
+    SourceField,
     SourceInfo,
     ThoughtSpotColumn,
     ThoughtSpotDashboardType,
@@ -36,8 +42,9 @@ from metaphor.thought_spot.models import (
     ConnectionMetadata,
     DataSourceTypeEnum,
     Header,
-    LiveBoardMetadate,
+    LiveBoardMetadata,
     SourceMetadata,
+    TableMappingInfo,
     Tag,
     TMLObject,
     Visualization,
@@ -51,6 +58,12 @@ from metaphor.thought_spot.utils import (
 )
 
 logger = get_logger()
+
+
+@dataclass
+class ColumnReference:
+    entity_id: str
+    field: str
 
 
 class ThoughtSpotExtractor(BaseExtractor):
@@ -67,6 +80,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         self._client = ThoughtSpot.create_client(config)
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
+        self._column_references: Dict[str, ColumnReference] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
 
@@ -99,15 +113,71 @@ class ThoughtSpotExtractor(BaseExtractor):
         # In ThoughtSpot, Tables, Worksheets, and Views can be treated as a kind of Table.
         tables = from_list(chain(valid_tables, sheets, views))
 
-        self.populate_virtual_views(tables)
+        self.populate_logical_column_mapping(tables)
+
+        self.populate_virtual_views(connections, tables)
         self.populate_lineage(connections, tables)
         self.populate_formula()
 
-    def populate_virtual_views(self, tables: Dict[str, SourceMetadata]):
+    def populate_logical_column_mapping(self, tables: Dict[str, SourceMetadata]):
+        for table in tables.values():
+            table_id = table.header.id
+            view_id = VirtualViewLogicalID(
+                name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
+            )
+            for column in table.columns:
+                self._column_references[column.header.id] = ColumnReference(
+                    entity_id=str(EntityId(EntityType.VIRTUAL_VIEW, view_id)),
+                    field=column.header.name,
+                )
+
+    def populate_virtual_views(
+        self,
+        connections: Dict[str, ConnectionMetadata],
+        tables: Dict[str, SourceMetadata],
+    ):
         for table in tables.values():
             logger.debug(f"table: {table}")
 
             table_id = table.header.id
+
+            fieldMappings = []
+            for column in table.columns:
+                fieldMapping = FieldMapping(destination=column.header.name, sources=[])
+
+                if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
+                    # the table upstream is external source, i.e. BigQuery
+                    table_mapping_info = table.logicalTableContent.tableMappingInfo
+                    if table_mapping_info is None:
+                        logger.warning(
+                            f"tableMappingInfo is missing, skip for column: {column.header.name}"
+                        )
+                        continue
+
+                    source_entity_id = self.find_entity_id_from_connection(
+                        connections,
+                        table_mapping_info,
+                        table.dataSourceId,
+                    )
+                    fieldMapping.sources.append(
+                        SourceField(
+                            field=column.columnMappingInfo.columnName,
+                            source_entity_id=source_entity_id,
+                        )
+                    )
+                else:
+                    fieldMapping.sources += [
+                        SourceField(
+                            source_entity_id=self._column_references[
+                                source.columnId
+                            ].entity_id,
+                            field=self._column_references[source.columnId].field,
+                        )
+                        for source in column.sources
+                        if source.columnId in self._column_references
+                    ]
+                fieldMappings.append(fieldMapping)
+
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
@@ -127,6 +197,9 @@ class ThoughtSpotExtractor(BaseExtractor):
                     type=mapping_data_object_type(table.type),
                     url=f"{self._base_url}/#/data/tables/{table_id}",
                     tags=self._tag_names(table.header.tags),
+                ),
+                entity_upstream=EntityUpstream(
+                    field_mappings=fieldMappings if fieldMappings else None
                 ),
             )
             self._virtual_views[table_id] = view
@@ -180,26 +253,27 @@ class ThoughtSpotExtractor(BaseExtractor):
         connections: Dict[str, ConnectionMetadata],
         tables: Dict[str, SourceMetadata],
     ):
+        """
+        Populate lineage between tables/worksheets/views
+        """
         for view in self._virtual_views.values():
             table = tables[view.logical_id.name]
 
             if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
-                source_id = table.dataSourceId
-                mapping = table.logicalTableContent.tableMappingInfo
-                connection = connections[source_id]
+                if table.logicalTableContent.tableMappingInfo is None:
+                    logger.warning(
+                        f"Skip lineage for {view.logical_id.name} because the mapping info is missing"
+                    )
+                    continue
+
                 view.thought_spot.source_datasets = [
-                    str(
-                        to_dataset_entity_id(
-                            dataset_normalized_name(
-                                db=mapping.databaseName,
-                                schema=mapping.schemaName,
-                                table=mapping.tableName,
-                            ),
-                            mapping_data_platform(connection.type),
-                            account=connection.dataSourceContent.configuration.accountName,
-                        )
+                    self.find_entity_id_from_connection(
+                        connections,
+                        table.logicalTableContent.tableMappingInfo,
+                        table.dataSourceId,
                     )
                 ]
+                view.entity_upstream.source_entities = view.thought_spot.source_datasets
             else:
                 # use unique_list later to make order of sources stable
                 source_virtual_views = [
@@ -216,6 +290,31 @@ class ThoughtSpotExtractor(BaseExtractor):
                 view.thought_spot.source_virtual_views = unique_list(
                     source_virtual_views
                 )
+                view.entity_upstream.source_entities = (
+                    view.thought_spot.source_virtual_views
+                )
+
+    @staticmethod
+    def find_entity_id_from_connection(
+        connections: Dict[str, ConnectionMetadata],
+        mapping: TableMappingInfo,
+        source_id: str,
+    ) -> str:
+        if mapping is None:
+            logger.warning("Table mapping info is missing")
+
+        connection = connections[source_id]
+        return str(
+            to_dataset_entity_id(
+                dataset_normalized_name(
+                    db=mapping.databaseName,
+                    schema=mapping.schemaName,
+                    table=mapping.tableName,
+                ),
+                mapping_data_platform(connection.type),
+                account=connection.dataSourceContent.configuration.accountName,
+            )
+        )
 
     def fetch_dashboards(self):
         answers = ThoughtSpot.fetch_objects(
@@ -241,6 +340,8 @@ class ThoughtSpotExtractor(BaseExtractor):
                 if viz.vizContent.vizType == "CHART"
             ]
 
+            source_entities = self._populate_source_virtual_views(visualizations)
+
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
                     dashboard_id=answer_id,
@@ -260,16 +361,18 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
-                upstream=DashboardUpstream(
-                    source_virtual_views=self._populate_source_virtual_views(
+                upstream=DashboardUpstream(source_virtual_views=source_entities),
+                entity_upstream=EntityUpstream(
+                    source_entities=source_entities,
+                    field_mappings=self._get_field_mapping_from_visualizations(
                         visualizations
-                    )
+                    ),
                 ),
             )
 
             self._dashboards[answer_id] = dashboard
 
-    def populate_liveboards(self, liveboards: List[LiveBoardMetadate]):
+    def populate_liveboards(self, liveboards: List[LiveBoardMetadata]):
         for board in liveboards:
             logger.debug(f"board: {board}")
             board_id = board.header.id
@@ -288,6 +391,8 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for viz in sheet.sheetContent.visualizations
                 if viz.vizContent.vizType == "CHART"
             ]
+
+            source_entities = self._populate_source_virtual_views(visualizations)
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -309,10 +414,12 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/pinboard/{board_id}",
                 ),
-                upstream=DashboardUpstream(
-                    source_virtual_views=self._populate_source_virtual_views(
+                upstream=DashboardUpstream(source_virtual_views=source_entities),
+                entity_upstream=EntityUpstream(
+                    source_entities=source_entities,
+                    field_mappings=self._get_field_mapping_from_visualizations(
                         visualizations
-                    )
+                    ),
                 ),
             )
 
@@ -351,6 +458,28 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for reference in column.referencedTableHeaders
             ]
         )
+
+    def _get_field_mapping_from_visualizations(
+        self,
+        charts: List[Tuple[Visualization, Header, str]],
+    ) -> List[FieldMapping]:
+        return [
+            FieldMapping(
+                destination=header.name,
+                sources=[
+                    SourceField(
+                        source_entity_id=self._column_references[
+                            reference.id
+                        ].entity_id,
+                        field=self._column_references[reference.id].field,
+                    )
+                    for column in viz.vizContent.columns
+                    for reference in column.referencedColumnHeaders
+                    if reference is not None and reference.id in self._column_references
+                ],
+            )
+            for viz, header, *_ in charts
+        ]
 
     @staticmethod
     def _tag_names(tags: List[Tag]) -> List[str]:

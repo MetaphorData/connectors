@@ -30,3 +30,8 @@ def must_set_exactly_one(values: Dict, keys: List[str]):
 def md5_digest(value: bytes) -> str:
     """For computing non-crypto use of MD5 digest"""
     return md5(value).hexdigest()  # nosec B303, B324
+
+
+def generate_querylog_id(platform: str, id: str) -> str:
+    """Generate queryLog id"""
+    return f"{platform}:{id}"

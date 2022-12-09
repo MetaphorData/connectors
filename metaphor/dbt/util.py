@@ -1,5 +1,5 @@
 import re
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from metaphor.common.entity_id import (
     EntityId,
@@ -10,14 +10,6 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.logger import get_logger
 from metaphor.dbt.config import MetaOwnership, MetaTag
-from metaphor.dbt.generated.dbt_manifest_v3 import (
-    CompiledModelNode as CompiledModelNode_v3,
-)
-from metaphor.dbt.generated.dbt_manifest_v3 import ParsedModelNode as ParsedModelNode_v3
-from metaphor.dbt.generated.dbt_manifest_v4 import (
-    CompiledModelNode as CompiledModelNode_v4,
-)
-from metaphor.dbt.generated.dbt_manifest_v4 import ParsedModelNode as ParsedModelNode_v4
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -38,11 +30,6 @@ from metaphor.models.metadata_change_event import (
 )
 
 logger = get_logger()
-
-
-MODEL_NODE_TYPE = Union[
-    CompiledModelNode_v3, ParsedModelNode_v3, CompiledModelNode_v4, ParsedModelNode_v4
-]
 
 # Source: https://emailregex.com/
 EMAIL_REGEX = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
@@ -216,8 +203,14 @@ def init_field_doc(dataset: Dataset, column: str) -> FieldDocumentation:
     return doc
 
 
-def build_docs_url(docs_base_url: Optional[str], unique_id: str) -> Optional[str]:
+def build_model_docs_url(docs_base_url: Optional[str], unique_id: str) -> Optional[str]:
     return f"{docs_base_url}/#!/model/{unique_id}" if docs_base_url else None
+
+
+def build_metric_docs_url(
+    docs_base_url: Optional[str], unique_id: str
+) -> Optional[str]:
+    return f"{docs_base_url}/#!/metric/{unique_id}" if docs_base_url else None
 
 
 def build_source_code_url(

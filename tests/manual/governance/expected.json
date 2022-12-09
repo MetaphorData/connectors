@@ -20,6 +20,29 @@
       "tagNames": [
         "pii",
         "golden"
+      ],
+      "columnTagAssignments": [
+        {
+          "columnName": "col1",
+          "tagNames": [
+            "phi"
+          ]
+        },
+        {
+          "columnName": "col2",
+          "tagNames": [
+            "deprecated",
+            "do_not_use"
+          ]
+        }
+      ]
+    },
+    "descriptionAssignment": {
+      "assetDescriptions": [
+        {
+          "author": "PERSON~415B746E7471B6C410D0A6580A390DC6",
+          "description": "Quick brown fox"
+        }
       ]
     }
   }

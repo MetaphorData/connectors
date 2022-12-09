@@ -1,5 +1,4 @@
 import pytest
-from freezegun import freeze_time
 
 from metaphor.common.event_util import EventUtil
 from metaphor.manual.metadata.config import CustomMetadataConfig
@@ -8,7 +7,6 @@ from tests.test_utils import load_json
 
 
 @pytest.mark.asyncio
-@freeze_time("2000-01-01")
 async def test_extractor(test_root_dir):
     config = CustomMetadataConfig.from_yaml_file(
         f"{test_root_dir}/manual/metadata/config.yml"

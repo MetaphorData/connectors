@@ -1,5 +1,8 @@
 [
   {
+    "entityUpstream": {
+      "sourceEntities": []
+    },
     "logicalId": {
       "name": "worksheet1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
@@ -38,9 +41,50 @@
       ],
       "type": "TABLE",
       "url": "http://base.url/#/data/tables/table1"
+    },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "sources": [
+            {
+              "field": "col1",
+              "sourceEntityId": "DATASET~29779E6A8F6548832D2305896A583002"
+            }
+          ],
+          "destination": "col1"
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~29779E6A8F6548832D2305896A583002"
+      ]
     }
   },
   {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "sources": [
+            {
+              "field": "col1",
+              "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+            }
+          ],
+          "destination": "col1"
+        },
+        {
+          "sources": [
+            {
+              "field": "col1",
+              "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+            }
+          ],
+          "destination": "col2"
+        }
+      ],
+      "sourceEntities": [
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+      ]
+    },
     "logicalId": {
       "name": "view1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
@@ -97,6 +141,22 @@
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
       ]
+    },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "Answer 1",
+          "sources": [
+            {
+              "field": "col1",
+              "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
+      ]
     }
   },
   {
@@ -128,6 +188,22 @@
     },
     "upstream": {
       "sourceVirtualViews": [
+        "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
+      ]
+    },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "Answer 1",
+          "sources": [
+            {
+              "field": "col1",
+              "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
         "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
       ]
     }

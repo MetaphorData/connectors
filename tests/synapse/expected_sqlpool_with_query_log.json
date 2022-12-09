@@ -1,0 +1,56 @@
+[
+  {
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "tenant_id",
+          "value": "\"mock_tenant_id\""
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "mock_synapse_workspace_name",
+      "name": "mock_sql_pool_database_name.dbo.mock_sql_pool_name",
+      "platform": "SYNAPSE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "mock_sql_pool_schema_column_name_1",
+          "fieldPath": "mock_sql_pool_schema_column_name_1",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "mock_sql_pool_schema_column_name_2",
+          "fieldPath": "mock_sql_pool_schema_column_name_2",
+          "nativeType": "nvarchar"
+        }
+      ],
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "dbo"
+      }
+    },
+    "structure": {
+      "database": "mock_sql_pool_database_name",
+      "schema": "dbo",
+      "table": "mock_sql_pool_name"
+    }
+  },
+  {
+    "logs": [
+      {
+        "_id": "SYNAPSE:mock_request_id",
+        "duration": 0.1,
+        "platform": "SYNAPSE",
+        "queryId": "mock_request_id",
+        "rowsRead": 1.0,
+        "sql": "INSERT INTO mock_query_table VALUE('test_id', 'test_name', 10)",
+        "sqlHash": "9201928291a43ac33e20d0e88490a7a0",
+        "startTime": "2022-11-11T13:09:11.822321+00:00",
+        "type": "DML",
+        "userId": "mock_user@gmail.com"
+      }
+    ]
+  }
+]

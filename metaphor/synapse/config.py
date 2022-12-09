@@ -1,9 +1,20 @@
-from dataclasses import field
-from typing import List, Optional
+from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+
+
+@dataclass
+class SynapseQueryLogConfig:
+    # The  username for query logs
+    username: str = ""
+
+    # The password for query logs
+    password: str = ""
+
+    # Number of days back of query logs to fetch, if 0, don't fetch query logs
+    lookback_days: int = 0
 
 
 @dataclass
@@ -20,8 +31,10 @@ class SynapseConfig(BaseConfig):
     # The Azure Subscription ID
     subscription_id: str
 
-    # (Optinal) The Rescource Group Name
-    resource_group_name: Optional[str] = None
+    # Synapse Workspace name
+    workspace_name: str
 
-    # (Optional) The workspace names, need to set resource_group_name
-    workspaces: List[str] = field(default_factory=lambda: list())
+    # The Rescource Group Name
+    resource_group_name: str
+
+    query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()
