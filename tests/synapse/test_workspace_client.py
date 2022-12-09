@@ -2,9 +2,12 @@ import copy
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
+from metaphor.common.utils import to_utc_time
 from metaphor.synapse.model import (
     DedicatedSqlPoolSchema,
     DedicatedSqlPoolTable,
+    SynapseColumn,
+    SynapseDatabase,
     SynapseQueryLog,
     SynapseTable,
     SynapseWorkspace,
@@ -37,17 +40,52 @@ workspaceDatabase = WorkspaceDatabase(
     properties={},
 )
 
-workspaceClient = WorkspaceClient(synapseWorkspace, "mock_subscription_id", {}, {})
+synapseDatabase = SynapseDatabase(
+    id=1,
+    name="mock_database_name",
+    create_time=to_utc_time(datetime.now()),
+    collation_name="Latin1_General_100_CI_AS_SC_UTF8",
+)
+
+synapseColumn1 = SynapseColumn(
+    name="mock_column1",
+    type="bigint",
+    max_length=8.0,
+    precision=19.0,
+    is_nullable=False,
+    is_unique=True,
+    is_primary_key=True,
+)
+
+synapseColumn2 = SynapseColumn(
+    name="mock_column2",
+    type="varchar",
+    max_length=256.0,
+    precision=0.0,
+    is_nullable=True,
+    is_primary_key=False,
+)
+
+workspaceClient = WorkspaceClient(
+    synapseWorkspace, "mock_subscription_id", "username", "password", {}
+)
 
 
 def test_get_database():
+    rows = [
+        [
+            synapseDatabase.id,
+            synapseDatabase.name,
+            synapseDatabase.create_time,
+            synapseDatabase.collation_name,
+        ]
+    ]
     with patch(
-        "metaphor.synapse.workspace_client.get_request",
-        return_value=[workspaceDatabase],
+        "metaphor.synapse.workspace_client.WorkspaceClient._sql_query_fetch_all",
+        return_value=rows,
     ):
         dbs = workspaceClient.get_databases()
-        assert len(dbs) == 1
-        assert dbs[0] == workspaceDatabase
+        assert next(dbs) == synapseDatabase
 
 
 def test_get_dedicated_sql_pool_databases():
@@ -62,9 +100,40 @@ def test_get_dedicated_sql_pool_databases():
 
 def test_get_tables():
     table = SynapseTable(
-        id="/tables/mock_table", name="mock_table", type="tables", properties={}
+        id="mock_table_id",
+        name="mock_table",
+        schema_name="dbo",
+        type="U",
+        create_time=to_utc_time(datetime.now()),
+        columns=[synapseColumn1, synapseColumn2],
+        is_external=True,
+        external_source="http://mock_data_source",
+        external_file_format="PARQUET",
     )
-    with patch("metaphor.synapse.workspace_client.get_request", return_value=[table]):
+    rows = []
+    for i in range(len(table.columns)):
+        row = []
+        row.append(table.id)
+        row.append(table.name)
+        row.append(table.schema_name)
+        row.append(table.type)
+        row.append(table.create_time)
+        row.append(table.columns[i].name)
+        row.append(table.columns[i].max_length)
+        row.append(table.columns[i].precision)
+        row.append(table.columns[i].is_nullable)
+        row.append(table.columns[i].type)
+        row.append(table.columns[i].is_unique)
+        row.append(table.columns[i].is_primary_key)
+        row.append(table.is_external)
+        rows.append(row)
+
+    external_data = [table.external_source, table.external_file_format]
+
+    with patch(
+        "metaphor.synapse.workspace_client.WorkspaceClient._sql_query_fetch_all",
+        side_effect=[rows, [external_data]],
+    ):
         tables = workspaceClient.get_tables("mock_database")
         assert len(tables) == 1
         assert tables[0] == table
@@ -113,8 +182,8 @@ def test_get_sql_pool_query_log():
         request_id="test_request_id1",
         sql_query="SELECT TOP 10(*) FROM mock_table",
         login_name="mock_user1",
-        start_time=SynapseQueryLog.to_utc_time((datetime.now() - timedelta(seconds=1))),
-        end_time=SynapseQueryLog.to_utc_time(datetime.now()),
+        start_time=to_utc_time((datetime.now() - timedelta(seconds=1))),
+        end_time=to_utc_time(datetime.now()),
         duration=1000,
         query_size=10,
         error=None,
@@ -125,8 +194,8 @@ def test_get_sql_pool_query_log():
         request_id="test_request_id2",
         sql_query="SELECT TOP 10(*) FROM mock_table",
         login_name="mock_user2",
-        start_time=SynapseQueryLog.to_utc_time((datetime.now() - timedelta(seconds=2))),
-        end_time=SynapseQueryLog.to_utc_time(datetime.now()),
+        start_time=to_utc_time((datetime.now() - timedelta(seconds=2))),
+        end_time=to_utc_time(datetime.now()),
         duration=2000,
         query_size=5,
         error=None,
@@ -158,9 +227,7 @@ def test_get_sql_pool_query_log():
     with patch.object(pymssql, "connect", return_value=conn_instance):
         start_date = datetime.now() - timedelta(days=2)
         end_date = datetime.now()
-        querylogs = workspaceClient.get_sql_pool_query_logs(
-            "username", "password", start_date, end_date
-        )
+        querylogs = workspaceClient.get_sql_pool_query_logs(start_date, end_date)
         assert next(querylogs) == querylog1
         assert next(querylogs) == querylog2
 
@@ -170,8 +237,8 @@ def test_get_dedicated_sql_pool_query_logs():
         request_id="test_request_id1",
         session_id="test_session_id1",
         sql_query="SELECT TOP 10(*) FROM mock_table",
-        start_time=SynapseQueryLog.to_utc_time((datetime.now() - timedelta(seconds=1))),
-        end_time=SynapseQueryLog.to_utc_time(datetime.now()),
+        start_time=to_utc_time((datetime.now() - timedelta(seconds=1))),
+        end_time=to_utc_time(datetime.now()),
         duration=1000,
         row_count=10,
         login_name="mock_user1",
@@ -183,8 +250,8 @@ def test_get_dedicated_sql_pool_query_logs():
         request_id="test_request_id2",
         session_id="test_session_id2",
         sql_query="SELECT TOP 10(*) FROM mock_table",
-        start_time=SynapseQueryLog.to_utc_time((datetime.now() - timedelta(seconds=3))),
-        end_time=SynapseQueryLog.to_utc_time(datetime.now()),
+        start_time=to_utc_time((datetime.now() - timedelta(seconds=3))),
+        end_time=to_utc_time(datetime.now()),
         duration=3000,
         row_count=10,
         login_name="mock_user2",
@@ -219,7 +286,7 @@ def test_get_dedicated_sql_pool_query_logs():
         start_date = datetime.now() - timedelta(days=2)
         end_date = datetime.now()
         querylogs = workspaceClient.get_dedicated_sql_pool_query_logs(
-            "database", "username", "password", start_date, end_date
+            "database", start_date, end_date
         )
         assert next(querylogs) == querylog1
         assert next(querylogs) == querylog2

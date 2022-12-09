@@ -77,6 +77,10 @@ workspace_name: <workspace_name> # The Microsoft Synapse workspace name
 
 resource_group_name: <resource_group_name>  # Rescource group name
 
+username: <username> # The synapse workspace SQL admin username
+
+password: <password> # The Synapse workspace SQL admin password
+
 output:
   file:
     directory: <output_directory>  # the output result directory
@@ -89,8 +93,6 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 To query the query log need to have SQL admin username and SQL admin password setup.
 ```yaml
 query_log:
-  username: <username>
-  password: <password>
   lookback_days: <days>
 ```
 

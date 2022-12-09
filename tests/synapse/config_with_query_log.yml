@@ -5,9 +5,9 @@ secret: client_secret
 subscription_id: client_subscription_id
 workspace_name: workspace_name
 resource_group_name: resource_group_name
+username: username
+password: password
 query_log:
-  username: username
-  password: password
   lookback_days: 15
 output:
   file:

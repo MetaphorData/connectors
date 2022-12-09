@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
@@ -12,6 +12,13 @@ class SynapseDataModel(BaseModel):
 
 class SynapseWorkspace(SynapseDataModel):
     properties: Any
+
+
+class SynapseDatabase(BaseModel):
+    id: int
+    name: str
+    create_time: datetime
+    collation_name: str
 
 
 class WorkspaceDatabase(SynapseDataModel):
@@ -32,8 +39,26 @@ class DedicatedSqlPoolTable(SynapseDataModel):
     columns: Optional[List]
 
 
-class SynapseTable(SynapseDataModel):
-    properties: Any
+class SynapseColumn(BaseModel):
+    name: str
+    type: str
+    max_length: float
+    precision: float
+    is_nullable: bool
+    is_unique: Optional[bool]
+    is_primary_key: Optional[bool]
+
+
+class SynapseTable(BaseModel):
+    id: str
+    name: str
+    schema_name: str
+    type: str  # https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver16
+    columns: List[SynapseColumn]
+    create_time: datetime
+    is_external: bool
+    external_source: Optional[str]
+    external_file_format: Optional[str]
 
 
 class SynapseQueryLog(BaseModel):
@@ -51,7 +76,3 @@ class SynapseQueryLog(BaseModel):
     error: Optional[str]
     row_count: Optional[int]
     query_operation: Optional[str]
-
-    @staticmethod
-    def to_utc_time(time: datetime) -> "datetime":
-        return time.replace(tzinfo=timezone.utc)

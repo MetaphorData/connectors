@@ -48,7 +48,6 @@ class SynapseExtractor(BaseExtractor):
         super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
         self._client = AuthClient(config)
         self._config = config
-        self._databases: List[WorkspaceDatabase] = []
         self._dataset_map: Dict[str, Dataset] = {}
         self._querylog_map: Dict[str, QueryLog] = {}
 
@@ -75,8 +74,6 @@ class SynapseExtractor(BaseExtractor):
             if self._config.query_log and self._config.query_log.lookback_days > 0:
                 self._map_query_log(
                     workspaceClient.get_sql_pool_query_logs(
-                        self._config.query_log.username,
-                        self._config.query_log.password,
                         start_date,
                         end_date,
                     )
@@ -95,8 +92,6 @@ class SynapseExtractor(BaseExtractor):
                     self._map_query_log(
                         workspaceClient.get_dedicated_sql_pool_query_logs(
                             database.name,
-                            self._config.query_log.username,
-                            self._config.query_log.password,
                             start_date,
                             end_date,
                         ),
@@ -118,82 +113,69 @@ class SynapseExtractor(BaseExtractor):
     ):
         for table in tables:
             dataset = Dataset()
+            dataset.created_at = table.create_time
             dataset.entity_type = EntityType.DATASET
             dataset.logical_id = DatasetLogicalID(
                 account=workspace.name,
-                name=dataset_normalized_name(db=database.name, table=table.name),
+                name=dataset_normalized_name(
+                    db=database.name, schema=table.schema_name, table=table.name
+                ),
                 platform=DataPlatform.SYNAPSE,
             )
             dataset.structure = DatasetStructure(
                 database=database.name,
+                schema=table.schema_name,
                 table=table.name,
             )
             fields = []
-            for column in table.properties["StorageDescriptor"]["Columns"]:
+            primary_keys = []
+            for column in table.columns:
                 fields.append(
                     SchemaField(
                         subfields=None,
-                        field_name=column["Name"],
-                        field_path=column["Name"],
-                        description=column["Description"],
-                        max_length=float(column["OriginDataTypeName"]["Length"]),
-                        nullable=column["OriginDataTypeName"]["IsNullable"],
-                        precision=float(column["OriginDataTypeName"]["Precision"]),
-                        native_type=column["OriginDataTypeName"]["TypeName"],
+                        field_name=column.name,
+                        max_length=column.max_length,
+                        nullable=column.is_nullable,
+                        precision=column.precision,
+                        native_type=column.type,
                     )
                 )
+                if column.is_primary_key:
+                    primary_keys.append(column.name)
 
-            dataset.custom_metadata = CustomMetadata(
-                metadata=self._get_metadata(table.properties["StorageDescriptor"])
-            )
+            dataset.custom_metadata = CustomMetadata(metadata=self._get_metadata(table))
 
             dataset.schema = DatasetSchema(
                 sql_schema=SQLSchema(
-                    table_schema=table.properties["TableType"],
-                    primary_key=self._get_primary_keys(table.properties["Properties"]),
+                    table_schema=table.schema_name, primary_key=primary_keys
                 ),
                 fields=fields,
             )
 
-            if table.properties["TableType"] == "EXTERNAL":
+            if table.is_external:
                 dataset.schema.sql_schema.materialization = MaterializationType.EXTERNAL
-            elif table.properties["TableType"] == "VIEW":
+            elif table.type == "V":
                 dataset.schema.sql_schema.materialization = MaterializationType.VIEW
             else:
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
             self._dataset_map[table.id] = dataset
 
-    def _get_primary_keys(self, properties: Dict[str, str]) -> List[str]:
-        primary_keys = []
-        if "PrimaryKeys" in properties:
-            primary_keys = properties["PrimaryKeys"].split(",")
-        return primary_keys
-
-    def _get_metadata(
-        self, meta_data: Dict[str, Dict] = None
-    ) -> List[CustomMetadataItem]:
+    def _get_metadata(self, table: SynapseTable) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
 
         items.append(
             CustomMetadataItem("tenant_id", json.dumps(self._client._tenant_id))
         )
 
-        if not meta_data:
-            return items
-
-        if "Format" in meta_data and "FormatType" in meta_data["Format"]:
+        if table.external_file_format:
             items.append(
-                CustomMetadataItem(
-                    "format", json.dumps(meta_data["Format"]["FormatType"])
-                )
+                CustomMetadataItem("format", json.dumps(table.external_file_format))
             )
 
-        if "Source" in meta_data and "Location" in meta_data["Source"]:
+        if table.external_source:
             items.append(
-                CustomMetadataItem(
-                    "source", json.dumps(meta_data["Source"]["Location"])
-                )
+                CustomMetadataItem("source", json.dumps(table.external_source))
             )
         return items
 
@@ -231,7 +213,11 @@ class SynapseExtractor(BaseExtractor):
                     )
                 )
 
-            dataset.custom_metadata = CustomMetadata(metadata=self._get_metadata())
+            dataset.custom_metadata = CustomMetadata(
+                metadata=[
+                    CustomMetadataItem("tenant_id", json.dumps(self._client._tenant_id))
+                ]
+            )
 
             dataset.schema = DatasetSchema(
                 sql_schema=SQLSchema(table_schema=table.sqlSchema.name),
