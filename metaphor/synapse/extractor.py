@@ -48,8 +48,6 @@ class SynapseExtractor(BaseExtractor):
         super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
         self._client = AuthClient(config)
         self._config = config
-        # self._dataset_map: Dict[str, Dataset] = {}
-        # self._querylog_map: Dict[str, QueryLog] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         workspaceClient = self._client.get_workspace_client()

@@ -54,7 +54,8 @@ class SynapseTable(BaseModel):
     id: str
     name: str
     schema_name: str
-    type: str  # https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver16
+    # detailed type decription: https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver16
+    type: str
     column_dict: Dict[str, SynapseColumn]
     create_time: datetime
     is_external: bool
