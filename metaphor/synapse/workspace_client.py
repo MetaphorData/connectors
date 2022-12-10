@@ -87,23 +87,28 @@ class WorkspaceClient:
             ,c.name AS column_name, c.max_length, c.precision
             ,c.is_nullable, typ.name as column_type
             ,idx.is_unique, idx.is_primary_key
-            ,t.is_external
+            ,t.is_external, fky.foreign_key_name
         FROM sys.tables AS t
         INNER JOIN sys.schemas AS s ON t.schema_id = s.schema_id
         INNER JOIN sys.columns AS c ON t.object_id = c.object_id
-        INNER JOIN sys.indexes AS i ON t.object_id = i.object_id
         INNER JOIN sys.types As typ ON c.user_type_id = typ.user_type_id
         LEFT JOIN (
             SELECT ic.object_id, ic.column_id, i.is_unique, i.is_primary_key
             FROM sys.indexes AS i
             INNER JOIN sys.index_columns AS ic
                 ON i.object_id = ic.object_id AND i.index_id = ic.index_id
-        ) idx
-        ON t.object_id = idx.object_id AND c.column_id = idx.column_id
+        ) AS idx ON t.object_id = idx.object_id AND c.column_id = idx.column_id
+        LEFT JOIN(
+            SELECT fk.name AS foreign_key_name
+                , fk.referenced_object_id as object_id
+                , fkc.parent_column_id as column_id
+            FROM sys.foreign_keys fk
+            INNER JOIN sys.foreign_key_columns fkc
+                ON fkc.constraint_object_id = fk.object_id
+        ) AS fky ON t.object_id = fky.object_id and c.column_id = fky.column_id
         """
-        rows = self._sql_query_fetch_all(
-            self._sql_on_demand_query_endpoint, query_str, database_name
-        )
+        end_point = self._sql_query_endpoint
+        rows = self._sql_query_fetch_all(end_point, query_str, database_name)
 
         table_dict: Dict[str, SynapseTable] = {}
 
@@ -115,7 +120,7 @@ class WorkspaceClient:
                     schema_name=row[2],
                     type=row[3],
                     create_time=to_utc_time(row[4]),
-                    columns=[],
+                    column_dict=[],
                     is_external=row[12],
                 )
                 if table.is_external:
@@ -136,9 +141,13 @@ class WorkspaceClient:
                         table.external_file_format = rows[0][1]
 
                 table_dict[row[0]] = table
-
-            table_dict[row[0]].columns.append(
-                SynapseColumn(
+            if row[5] in table_dict[row[0]].column_dict:
+                if row[10]:
+                    table_dict[row[0]].column_dict[row[5]].is_unique = True
+                if row[11]:
+                    table_dict[row[0]].column_dict[row[5]].is_primary_key = True
+            else:
+                table_dict[row[0]].column_dict[row[5]] = SynapseColumn(
                     name=row[5],
                     max_length=float(row[6]),
                     precision=float(row[7]),
@@ -146,8 +155,8 @@ class WorkspaceClient:
                     type=row[9],
                     is_unique=row[10],
                     is_primary_key=row[11],
+                    is_foreign_key=row[13],
                 )
-            )
 
         return list(table_dict.values())
 

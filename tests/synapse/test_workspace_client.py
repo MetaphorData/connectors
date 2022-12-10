@@ -99,33 +99,37 @@ def test_get_dedicated_sql_pool_databases():
 
 
 def test_get_tables():
+    col_dict = {}
+    col_dict[synapseColumn1.name] = synapseColumn1
+    col_dict[synapseColumn2.name] = synapseColumn2
     table = SynapseTable(
         id="mock_table_id",
         name="mock_table",
         schema_name="dbo",
         type="U",
         create_time=to_utc_time(datetime.now()),
-        columns=[synapseColumn1, synapseColumn2],
+        column_dict=col_dict,
         is_external=True,
         external_source="http://mock_data_source",
         external_file_format="PARQUET",
     )
     rows = []
-    for i in range(len(table.columns)):
+    for column in table.column_dict.values():
         row = []
         row.append(table.id)
         row.append(table.name)
         row.append(table.schema_name)
         row.append(table.type)
         row.append(table.create_time)
-        row.append(table.columns[i].name)
-        row.append(table.columns[i].max_length)
-        row.append(table.columns[i].precision)
-        row.append(table.columns[i].is_nullable)
-        row.append(table.columns[i].type)
-        row.append(table.columns[i].is_unique)
-        row.append(table.columns[i].is_primary_key)
+        row.append(column.name)
+        row.append(column.max_length)
+        row.append(column.precision)
+        row.append(column.is_nullable)
+        row.append(column.type)
+        row.append(column.is_unique)
+        row.append(column.is_primary_key)
         row.append(table.is_external)
+        row.append(None)
         rows.append(row)
 
     external_data = [table.external_source, table.external_file_format]

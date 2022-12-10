@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -47,6 +47,7 @@ class SynapseColumn(BaseModel):
     is_nullable: bool
     is_unique: Optional[bool]
     is_primary_key: Optional[bool]
+    is_foreign_key: Optional[bool]
 
 
 class SynapseTable(BaseModel):
@@ -54,7 +55,7 @@ class SynapseTable(BaseModel):
     name: str
     schema_name: str
     type: str  # https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver16
-    columns: List[SynapseColumn]
+    column_dict: Dict[str, SynapseColumn]
     create_time: datetime
     is_external: bool
     external_source: Optional[str]

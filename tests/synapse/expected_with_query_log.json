@@ -27,20 +27,23 @@
       "fields": [
         {
           "fieldName": "mock_column_name_1",
-          "maxLength": 0.0,
+          "fieldPath": "mock_column_name_1",
+          "isUnique": true,
           "nativeType": "mock_column_type_1",
           "nullable": false,
           "precision": 0.0
         },
         {
           "fieldName": "mock_column_name_2",
-          "maxLength": 0.0,
+          "fieldPath": "mock_column_name_2",
+          "isUnique": false,
           "nativeType": "mock_column_type_2",
           "nullable": true,
           "precision": 0.0
         }
       ],
       "sqlSchema": {
+        "foreignKey": [],
         "materialization": "EXTERNAL",
         "primaryKey": [
           "mock_column_name_1"

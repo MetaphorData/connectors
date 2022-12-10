@@ -48,8 +48,8 @@ class SynapseExtractor(BaseExtractor):
         super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
         self._client = AuthClient(config)
         self._config = config
-        self._dataset_map: Dict[str, Dataset] = {}
-        self._querylog_map: Dict[str, QueryLog] = {}
+        # self._dataset_map: Dict[str, Dataset] = {}
+        # self._querylog_map: Dict[str, QueryLog] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         workspaceClient = self._client.get_workspace_client()
@@ -64,20 +64,24 @@ class SynapseExtractor(BaseExtractor):
         )
         end_date = start_of_day()
 
+        entities: List[ENTITY_TYPES] = []
+        querylog_list: List[QueryLog] = []
         # Serverless sqlpool
         try:
             for database in workspaceClient.get_databases():
                 tables = workspaceClient.get_tables(database.name)
-                self._map_tables_to_dataset(
+                datasets = self._map_tables_to_dataset(
                     workspaceClient._workspace, database, tables
                 )
+                entities.extend(datasets)
             if self._config.query_log and self._config.query_log.lookback_days > 0:
-                self._map_query_log(
+                querlogs = self._map_query_log(
                     workspaceClient.get_sql_pool_query_logs(
                         start_date,
                         end_date,
                     )
                 )
+                querylog_list.extend(querlogs)
         except Exception as error:
             logger.exception(f"serverless sqlpool error: {error}")
 
@@ -85,11 +89,12 @@ class SynapseExtractor(BaseExtractor):
         try:
             for database in workspaceClient.get_dedicated_sql_pool_databases():
                 tables = workspaceClient.get_dedicated_sql_pool_tables(database.name)
-                self._map_dedicated_sql_pool_tables_to_dataset(
+                datasets = self._map_dedicated_sql_pool_tables_to_dataset(
                     workspaceClient._workspace, database, tables
                 )
+                entities.extend(datasets)
                 if self._config.query_log and self._config.query_log.lookback_days > 0:
-                    self._map_query_log(
+                    querlogs = self._map_query_log(
                         workspaceClient.get_dedicated_sql_pool_query_logs(
                             database.name,
                             start_date,
@@ -97,12 +102,11 @@ class SynapseExtractor(BaseExtractor):
                         ),
                         database.name,
                     )
+                    querylog_list.extend(querlogs)
         except Exception as error:
             logger.exception(f"dedicated sqlpool error: {error}")
 
-        entities: List[ENTITY_TYPES] = []
-        entities.extend(self._dataset_map.values())
-        entities.extend(chunk_query_logs(list(self._querylog_map.values())))
+        entities.extend(chunk_query_logs(querylog_list))
         return entities
 
     def _map_tables_to_dataset(
@@ -111,6 +115,7 @@ class SynapseExtractor(BaseExtractor):
         database: WorkspaceDatabase,
         tables: List[SynapseTable],
     ):
+        dataset_map: Dict[str, Dataset] = {}
         for table in tables:
             dataset = Dataset()
             dataset.created_at = table.create_time
@@ -129,25 +134,32 @@ class SynapseExtractor(BaseExtractor):
             )
             fields = []
             primary_keys = []
-            for column in table.columns:
+            foreign_keys = []
+            for column in table.column_dict.values():
                 fields.append(
                     SchemaField(
                         subfields=None,
                         field_name=column.name,
-                        max_length=column.max_length,
+                        field_path=column.name,
+                        max_length=column.max_length if column.max_length > 0 else None,
                         nullable=column.is_nullable,
                         precision=column.precision,
                         native_type=column.type,
+                        is_unique=column.is_unique,
                     )
                 )
                 if column.is_primary_key:
                     primary_keys.append(column.name)
+                if column.is_foreign_key:
+                    foreign_keys.append(column.name)
 
             dataset.custom_metadata = CustomMetadata(metadata=self._get_metadata(table))
 
             dataset.schema = DatasetSchema(
                 sql_schema=SQLSchema(
-                    table_schema=table.schema_name, primary_key=primary_keys
+                    table_schema=table.schema_name,
+                    primary_key=primary_keys,
+                    foreign_key=foreign_keys,
                 ),
                 fields=fields,
             )
@@ -159,7 +171,9 @@ class SynapseExtractor(BaseExtractor):
             else:
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
-            self._dataset_map[table.id] = dataset
+            dataset_map[table.id] = dataset
+
+        return dataset_map.values()
 
     def _get_metadata(self, table: SynapseTable) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
@@ -185,6 +199,7 @@ class SynapseExtractor(BaseExtractor):
         database: WorkspaceDatabase,
         tables: List[DedicatedSqlPoolTable],
     ):
+        dataset_map: Dict[str, Dataset] = {}
         for table in tables:
             dataset = Dataset()
             dataset.logical_id = DatasetLogicalID(
@@ -229,9 +244,11 @@ class SynapseExtractor(BaseExtractor):
             else:
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
-            self._dataset_map[table.id] = dataset
+            dataset_map[table.id] = dataset
+        return dataset_map.values()
 
     def _map_query_log(self, rows: Iterable[SynapseQueryLog], database: str = None):
+        querylog_map: Dict[str, QueryLog] = {}
         for row in rows:
             query_id = (
                 f"{row.request_id}:{row.session_id}"
@@ -239,7 +256,7 @@ class SynapseExtractor(BaseExtractor):
                 else row.request_id
             )
 
-            if query_id in self._querylog_map:
+            if query_id in querylog_map:
                 continue
 
             queryLog = QueryLog()
@@ -260,7 +277,8 @@ class SynapseExtractor(BaseExtractor):
             if row.error:
                 queryLog.parsing = Parsing(error_message=row.error)
             queryLog.default_database = database
-            self._querylog_map[query_id] = queryLog
+            querylog_map[query_id] = queryLog
+        return querylog_map.values()
 
     def _map_query_type(self, operation: str) -> TypeEnum:
         operation = operation.upper()

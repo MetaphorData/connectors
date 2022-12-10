@@ -36,31 +36,32 @@ async def test_extractor(test_root_dir):
         collation_name="Latin1_General_100_CI_AS_SC_UTF8",
     )
 
+    column_map = {}
+    column_map["mock_column_name_1"] = SynapseColumn(
+        name="mock_column_name_1",
+        type="mock_column_type_1",
+        max_length=0,
+        precision=0,
+        is_nullable=False,
+        is_unique=True,
+        is_primary_key=True,
+    )
+    column_map["mock_column_name_2"] = SynapseColumn(
+        name="mock_column_name_2",
+        type="mock_column_type_2",
+        max_length=0,
+        precision=0,
+        is_nullable=True,
+        is_unique=False,
+        is_primary_key=False,
+    )
+
     synapseTable = SynapseTable(
         id="mock_synapse_table_id",
         name="mock_synapse_table_name",
         schema_name="mock_synapse_table_schema",
         type="TABLE",
-        columns=[
-            SynapseColumn(
-                name="mock_column_name_1",
-                type="mock_column_type_1",
-                max_length=0,
-                precision=0,
-                is_nullable=False,
-                is_unique=True,
-                is_primary_key=True,
-            ),
-            SynapseColumn(
-                name="mock_column_name_2",
-                type="mock_column_type_2",
-                max_length=0,
-                precision=0,
-                is_nullable=True,
-                is_unique=False,
-                is_primary_key=False,
-            ),
-        ],
+        column_dict=column_map,
         create_time=to_utc_time(datetime(2022, 12, 9, 18, 30, 15, 822321)),
         is_external=True,
         external_file_format="CSV",
@@ -195,31 +196,32 @@ async def test_extractor_with_query_log(test_root_dir):
         collation_name="Latin1_General_100_CI_AS_SC_UTF8",
     )
 
+    column_map = {}
+    column_map["mock_column_name_1"] = SynapseColumn(
+        name="mock_column_name_1",
+        type="mock_column_type_1",
+        max_length=0,
+        precision=0,
+        is_nullable=False,
+        is_unique=True,
+        is_primary_key=True,
+    )
+    column_map["mock_column_name_2"] = SynapseColumn(
+        name="mock_column_name_2",
+        type="mock_column_type_2",
+        max_length=0,
+        precision=0,
+        is_nullable=True,
+        is_unique=False,
+        is_primary_key=False,
+    )
+
     synapseTable = SynapseTable(
         id="mock_synapse_table_id",
         name="mock_synapse_table_name",
         schema_name="mock_synapse_table_schema",
         type="TABLE",
-        columns=[
-            SynapseColumn(
-                name="mock_column_name_1",
-                type="mock_column_type_1",
-                max_length=0,
-                precision=0,
-                is_nullable=False,
-                is_unique=True,
-                is_primary_key=True,
-            ),
-            SynapseColumn(
-                name="mock_column_name_2",
-                type="mock_column_type_2",
-                max_length=0,
-                precision=0,
-                is_nullable=True,
-                is_unique=False,
-                is_primary_key=False,
-            ),
-        ],
+        column_dict=column_map,
         create_time=to_utc_time(datetime(2022, 12, 9, 18, 30, 15, 822321)),
         is_external=True,
         external_file_format="CSV",
