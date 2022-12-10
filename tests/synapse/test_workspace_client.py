@@ -55,6 +55,7 @@ synapseColumn1 = SynapseColumn(
     is_nullable=False,
     is_unique=True,
     is_primary_key=True,
+    is_foreign_key=False,
 )
 
 synapseColumn2 = SynapseColumn(
@@ -129,7 +130,7 @@ def test_get_tables():
         row.append(column.is_unique)
         row.append(column.is_primary_key)
         row.append(table.is_external)
-        row.append(None)
+        row.append(column.is_foreign_key)
         rows.append(row)
 
     external_data = [table.external_source, table.external_file_format]

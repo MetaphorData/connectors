@@ -100,9 +100,6 @@ async def test_extractor(test_root_dir):
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    import json
-
-    print(json.dumps(events, indent=2))
     assert events == load_json(f"{test_root_dir}/synapse/expected.json")
 
 
@@ -276,9 +273,6 @@ async def test_extractor_with_query_log(test_root_dir):
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    import json
-
-    print(json.dumps(events, indent=2))
     assert events == load_json(f"{test_root_dir}/synapse/expected_with_query_log.json")
 
 
