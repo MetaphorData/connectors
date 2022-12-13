@@ -99,14 +99,16 @@ class SnowflakeExtractor(BaseExtractor):
             self._fetch_columns(cursor, databases)
             self._fetch_primary_keys(cursor)
             self._fetch_unique_keys(cursor)
+            self._fetch_tags(cursor)
 
             if self._fetch_extra_info:
-                shared_databases = self._fetch_shared_databases(cursor)
-                logger.info(f"Shared inbound databases: {shared_databases}")
+                try:
+                    shared_databases = self._fetch_shared_databases(cursor)
+                    logger.info(f"Shared inbound databases: {shared_databases}")
 
-                self._fetch_table_info(tables, shared_databases)
-
-            self._fetch_tags(cursor)
+                    self._fetch_table_info(tables, shared_databases)
+                except Exception as e:
+                    logger.exception(f"Failed to fetch table extra info\n{e}")
 
             if self._query_log_lookback_days > 0:
                 self._fetch_query_logs()
@@ -216,11 +218,17 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_table_info(
         self, tables: Dict[str, DatasetInfo], shared_databases: List[str]
     ) -> None:
+        dict_cursor = self._conn.cursor(DictCursor)
         for chunk in chunks([item for item in tables.items()], TABLE_INFO_FETCH_SIZE):
-            self._fetch_table_info_internal(chunk, shared_databases)
+            self._fetch_table_info_internal(dict_cursor, chunk, shared_databases)
+
+        dict_cursor.close()
 
     def _fetch_table_info_internal(
-        self, tables: List[Tuple[str, DatasetInfo]], shared_databases: List[str]
+        self,
+        dict_cursor: DictCursor,
+        tables: List[Tuple[str, DatasetInfo]],
+        shared_databases: List[str],
     ) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
@@ -242,18 +250,11 @@ class SnowflakeExtractor(BaseExtractor):
         if not queries:
             return
         query = f"SELECT {','.join(queries)}"
+        logger.debug(query)
 
-        cursor = self._conn.cursor(DictCursor)
-
-        try:
-            cursor.execute(query, tuple(params))
-        except Exception as e:
-            logger.exception(f"Failed to execute query:\n{query}\n{e}")
-            return
-
-        results = cursor.fetchone()
+        dict_cursor.execute(query, tuple(params))
+        results = dict_cursor.fetchone()
         assert isinstance(results, Mapping)
-        cursor.close()
 
         for fullname in ddl_tables:
             dataset = self._datasets[fullname]
