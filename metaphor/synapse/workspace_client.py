@@ -43,7 +43,6 @@ class WorkspaceClient:
         self._sql_on_demand_query_endpoint = workspace.properties[
             "connectivityEndpoints"
         ]["sqlOnDemand"]
-
         self._account_endpoint = workspace.properties["defaultDataLakeStorage"][
             "accountUrl"
         ]
@@ -107,7 +106,7 @@ class WorkspaceClient:
                 ON fkc.constraint_object_id = fk.object_id
         ) AS fky ON t.object_id = fky.object_id and c.column_id = fky.column_id
         """
-        end_point = self._sql_query_endpoint
+        end_point = self._sql_on_demand_query_endpoint
         rows = self._sql_query_fetch_all(end_point, query_str, database_name)
 
         table_dict: Dict[str, SynapseTable] = {}

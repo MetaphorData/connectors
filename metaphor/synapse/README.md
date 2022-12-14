@@ -47,22 +47,20 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
     5. Role select `Synapse Monitoring Operator`.
     6. Wait for a few minutes for permission apply and then could start to use Synapse connector.
 
-#### (Optional) Quey log setup
-we use the Microsoft pymssql library to get query logs and follow steps to set up the environment.
-1. Set up sql admin username and admin password for Synapse workspace in [Azure protal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
+4. Setup Microsoft pymssql library
+    1. Set up SQL admin username and admin password for Synapse workspace in [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
+    2. Follow the tutorial to install [pymssql](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16)
+    3. (Optional) may need to install [FreeTDS](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16) if running into errors.
+    4. (Optional) if want to set up different username and password for Synapse connector follow this [tutorial](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/sql-authentication?tabs=serverless)
+    5. (Optional) Apple Silicon users may encounter build error when installing `pymssql` follow [apple_silicon](https://github.com/MetaphorData/connectors/blob/main/docs/apple_silicon.md)
 
-2. Follow tutorial to install [pymssql](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16)
-
-3. (Optional) may need to install [FreeTDS](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16) if running query log into errors.
-
+5. (Optional) Enable the query log by setting `lookback_days` in the config file
 
 ## Config File
 
 Create a YAML config file based on the following template.
 
 ### Required Configurations
-
-Create a YAML config file based on the following template.
 
 ```yaml
 tenant_id: <tenant_id>  # The azure directory (tenant) id
@@ -77,9 +75,9 @@ workspace_name: <workspace_name> # The Microsoft Synapse workspace name
 
 resource_group_name: <resource_group_name>  # Rescource group name
 
-username: <username> # The synapse workspace SQL admin username
+username: <username> # The synapse workspace SQL username
 
-password: <password> # The Synapse workspace SQL admin password
+password: <password> # The Synapse workspace SQL password
 
 output:
   file:
@@ -90,7 +88,6 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 #### Query Log
-To query the query log need to have SQL admin username and SQL admin password setup.
 ```yaml
 query_log:
   lookback_days: <days>
