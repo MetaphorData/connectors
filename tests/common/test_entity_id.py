@@ -39,3 +39,6 @@ def test_dataset_normalized_name():
 
     # should strip backquote
     assert "a.b.c" == dataset_normalized_name("`A`", "b", "C")
+
+    # should strip double quotes
+    assert "a.b.c" == dataset_normalized_name('"A"', "b", "C")

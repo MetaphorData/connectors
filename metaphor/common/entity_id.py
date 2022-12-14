@@ -81,7 +81,7 @@ def normalize_full_dataset_name(name: str) -> str:
     """
     Normalizes a fully qualified dataset name
     """
-    return name.lower().replace("`", "")
+    return name.lower().replace("`", "").replace('"', "")
 
 
 def dataset_normalized_name(

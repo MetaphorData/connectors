@@ -48,6 +48,7 @@ from metaphor.snowflake.utils import (
     exclude_username_clause,
     fetch_query_history_count,
     term_in_clause,
+    to_quoted_identifier,
 )
 
 logger = get_logger()
@@ -154,7 +155,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             # TODO: Support dots in database/schema/table name
             if "." in database or "." in schema or "." in name:
-                logger.info(
+                logger.warning(
                     f"Ignore {normalized_name} due to dot in database, schema, or table name"
                 )
                 continue
@@ -219,7 +220,7 @@ class SnowflakeExtractor(BaseExtractor):
         self, tables: Dict[str, DatasetInfo], shared_databases: List[str]
     ) -> None:
         dict_cursor = self._conn.cursor(DictCursor)
-        for chunk in chunks([item for item in tables.items()], TABLE_INFO_FETCH_SIZE):
+        for chunk in chunks(list(tables.items()), TABLE_INFO_FETCH_SIZE):
             self._fetch_table_info_internal(dict_cursor, chunk, shared_databases)
 
         dict_cursor.close()
@@ -232,20 +233,21 @@ class SnowflakeExtractor(BaseExtractor):
     ) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
-        for fullname, table in tables:
+        for normalized_name, table in tables:
+            fullname = to_quoted_identifier([table.database, table.schema, table.name])
             # fetch last_update_time and DDL for tables, and fetch only DDL for views
             if table.type == SnowflakeTableType.BASE_TABLE.value:
                 queries.append(
-                    f'SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as "UPDATED_{fullname}"'
+                    f'SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as "UPDATED_{normalized_name}"'
                 )
                 params.append(fullname)
-                updated_time_tables.append(fullname)
+                updated_time_tables.append(normalized_name)
 
             # shared database doesn't support getting DDL
             if table.database not in shared_databases:
-                queries.append(f"get_ddl('table', %s) as \"DDL_{fullname}\"")
+                queries.append(f"get_ddl('table', %s) as \"DDL_{normalized_name}\"")
                 params.append(fullname)
-                ddl_tables.append(fullname)
+                ddl_tables.append(normalized_name)
 
         if not queries:
             return
@@ -256,19 +258,19 @@ class SnowflakeExtractor(BaseExtractor):
         results = dict_cursor.fetchone()
         assert isinstance(results, Mapping)
 
-        for fullname in ddl_tables:
-            dataset = self._datasets[fullname]
+        for normalized_name in ddl_tables:
+            dataset = self._datasets[normalized_name]
             assert dataset.schema is not None and dataset.schema.sql_schema is not None
 
-            dataset.schema.sql_schema.table_schema = results[f"DDL_{fullname}"]
+            dataset.schema.sql_schema.table_schema = results[f"DDL_{normalized_name}"]
 
-        for fullname in updated_time_tables:
-            dataset = self._datasets[fullname]
+        for normalized_name in updated_time_tables:
+            dataset = self._datasets[normalized_name]
             assert dataset.schema.sql_schema is not None
 
             # Timestamp is in nanosecond.
             # See https://docs.snowflake.com/en/sql-reference/functions/system_last_change_commit_time.html
-            timestamp = results[f"UPDATED_{fullname}"]
+            timestamp = results[f"UPDATED_{normalized_name}"]
             if timestamp > 0:
                 dataset.statistics.last_updated = datetime.utcfromtimestamp(
                     timestamp / 1000000000

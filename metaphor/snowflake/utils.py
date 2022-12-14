@@ -37,6 +37,11 @@ class QueryWithParam:
     params: Optional[Tuple] = None
 
 
+def to_quoted_identifier(parts: List[Optional[str]]) -> str:
+    """Converts the parts into a dot joined and quoted snowflake identifier"""
+    return ".".join([f"""\"{part.replace('"', '""')}\"""" for part in parts if part])
+
+
 def async_query(conn: SnowflakeConnection, query: QueryWithParam) -> SnowflakeCursor:
     """Executing a snowflake query asynchronously"""
     cursor = conn.cursor()
