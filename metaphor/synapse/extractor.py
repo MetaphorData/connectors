@@ -48,9 +48,6 @@ class SynapseExtractor(BaseExtractor):
         super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
         self._client = AuthClient(config)
         self._config = config
-        self._databases: List[WorkspaceDatabase] = []
-        self._dataset_map: Dict[str, Dataset] = {}
-        self._querylog_map: Dict[str, QueryLog] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         workspaceClient = self._client.get_workspace_client()
@@ -65,22 +62,24 @@ class SynapseExtractor(BaseExtractor):
         )
         end_date = start_of_day()
 
+        entities: List[ENTITY_TYPES] = []
+        querylog_list: List[QueryLog] = []
         # Serverless sqlpool
         try:
             for database in workspaceClient.get_databases():
                 tables = workspaceClient.get_tables(database.name)
-                self._map_tables_to_dataset(
+                datasets = self._map_tables_to_dataset(
                     workspaceClient._workspace, database, tables
                 )
+                entities.extend(datasets)
             if self._config.query_log and self._config.query_log.lookback_days > 0:
-                self._map_query_log(
+                querlogs = self._map_query_log(
                     workspaceClient.get_sql_pool_query_logs(
-                        self._config.query_log.username,
-                        self._config.query_log.password,
                         start_date,
                         end_date,
                     )
                 )
+                querylog_list.extend(querlogs)
         except Exception as error:
             logger.exception(f"serverless sqlpool error: {error}")
 
@@ -88,26 +87,24 @@ class SynapseExtractor(BaseExtractor):
         try:
             for database in workspaceClient.get_dedicated_sql_pool_databases():
                 tables = workspaceClient.get_dedicated_sql_pool_tables(database.name)
-                self._map_dedicated_sql_pool_tables_to_dataset(
+                datasets = self._map_dedicated_sql_pool_tables_to_dataset(
                     workspaceClient._workspace, database, tables
                 )
+                entities.extend(datasets)
                 if self._config.query_log and self._config.query_log.lookback_days > 0:
-                    self._map_query_log(
+                    querlogs = self._map_query_log(
                         workspaceClient.get_dedicated_sql_pool_query_logs(
                             database.name,
-                            self._config.query_log.username,
-                            self._config.query_log.password,
                             start_date,
                             end_date,
                         ),
                         database.name,
                     )
+                    querylog_list.extend(querlogs)
         except Exception as error:
             logger.exception(f"dedicated sqlpool error: {error}")
 
-        entities: List[ENTITY_TYPES] = []
-        entities.extend(self._dataset_map.values())
-        entities.extend(chunk_query_logs(list(self._querylog_map.values())))
+        entities.extend(chunk_query_logs(querylog_list))
         return entities
 
     def _map_tables_to_dataset(
@@ -116,84 +113,81 @@ class SynapseExtractor(BaseExtractor):
         database: WorkspaceDatabase,
         tables: List[SynapseTable],
     ):
+        dataset_map: Dict[str, Dataset] = {}
         for table in tables:
             dataset = Dataset()
+            dataset.created_at = table.create_time
             dataset.entity_type = EntityType.DATASET
             dataset.logical_id = DatasetLogicalID(
                 account=workspace.name,
-                name=dataset_normalized_name(db=database.name, table=table.name),
+                name=dataset_normalized_name(
+                    db=database.name, schema=table.schema_name, table=table.name
+                ),
                 platform=DataPlatform.SYNAPSE,
             )
             dataset.structure = DatasetStructure(
                 database=database.name,
+                schema=table.schema_name,
                 table=table.name,
             )
             fields = []
-            for column in table.properties["StorageDescriptor"]["Columns"]:
+            primary_keys = []
+            foreign_keys = []
+            for column in table.column_dict.values():
                 fields.append(
                     SchemaField(
                         subfields=None,
-                        field_name=column["Name"],
-                        field_path=column["Name"],
-                        description=column["Description"],
-                        max_length=float(column["OriginDataTypeName"]["Length"]),
-                        nullable=column["OriginDataTypeName"]["IsNullable"],
-                        precision=float(column["OriginDataTypeName"]["Precision"]),
-                        native_type=column["OriginDataTypeName"]["TypeName"],
+                        field_name=column.name,
+                        field_path=column.name,
+                        max_length=column.max_length if column.max_length > 0 else None,
+                        nullable=column.is_nullable,
+                        precision=column.precision,
+                        native_type=column.type,
+                        is_unique=column.is_unique,
                     )
                 )
+                if column.is_primary_key:
+                    primary_keys.append(column.name)
+                if column.is_foreign_key:
+                    foreign_keys.append(column.name)
 
-            dataset.custom_metadata = CustomMetadata(
-                metadata=self._get_metadata(table.properties["StorageDescriptor"])
-            )
+            dataset.custom_metadata = CustomMetadata(metadata=self._get_metadata(table))
 
             dataset.schema = DatasetSchema(
                 sql_schema=SQLSchema(
-                    table_schema=table.properties["TableType"],
-                    primary_key=self._get_primary_keys(table.properties["Properties"]),
+                    table_schema=table.schema_name,
+                    primary_key=primary_keys,
+                    foreign_key=foreign_keys,
                 ),
                 fields=fields,
             )
 
-            if table.properties["TableType"] == "EXTERNAL":
+            if table.is_external:
                 dataset.schema.sql_schema.materialization = MaterializationType.EXTERNAL
-            elif table.properties["TableType"] == "VIEW":
+            elif table.type == "V":
                 dataset.schema.sql_schema.materialization = MaterializationType.VIEW
             else:
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
-            self._dataset_map[table.id] = dataset
+            dataset_map[table.id] = dataset
 
-    def _get_primary_keys(self, properties: Dict[str, str]) -> List[str]:
-        primary_keys = []
-        if "PrimaryKeys" in properties:
-            primary_keys = properties["PrimaryKeys"].split(",")
-        return primary_keys
+        return dataset_map.values()
 
-    def _get_metadata(
-        self, meta_data: Dict[str, Dict] = None
-    ) -> List[CustomMetadataItem]:
+    def _get_metadata(self, table: SynapseTable) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
 
         items.append(
             CustomMetadataItem("tenant_id", json.dumps(self._client._tenant_id))
         )
 
-        if not meta_data:
-            return items
-
-        if "Format" in meta_data and "FormatType" in meta_data["Format"]:
+        if table.external_file_format:
             items.append(
-                CustomMetadataItem(
-                    "format", json.dumps(meta_data["Format"]["FormatType"])
-                )
+                CustomMetadataItem("format", json.dumps(table.external_file_format))
             )
 
-        if "Source" in meta_data and "Location" in meta_data["Source"]:
+        if table.external_source:
             items.append(
-                CustomMetadataItem(
-                    "source", json.dumps(meta_data["Source"]["Location"])
-                )
+                CustomMetadataItem("source", json.dumps(table.external_source))
             )
         return items
 
@@ -203,6 +197,7 @@ class SynapseExtractor(BaseExtractor):
         database: WorkspaceDatabase,
         tables: List[DedicatedSqlPoolTable],
     ):
+        dataset_map: Dict[str, Dataset] = {}
         for table in tables:
             dataset = Dataset()
             dataset.logical_id = DatasetLogicalID(
@@ -231,7 +226,11 @@ class SynapseExtractor(BaseExtractor):
                     )
                 )
 
-            dataset.custom_metadata = CustomMetadata(metadata=self._get_metadata())
+            dataset.custom_metadata = CustomMetadata(
+                metadata=[
+                    CustomMetadataItem("tenant_id", json.dumps(self._client._tenant_id))
+                ]
+            )
 
             dataset.schema = DatasetSchema(
                 sql_schema=SQLSchema(table_schema=table.sqlSchema.name),
@@ -243,9 +242,11 @@ class SynapseExtractor(BaseExtractor):
             else:
                 dataset.schema.sql_schema.materialization = MaterializationType.TABLE
 
-            self._dataset_map[table.id] = dataset
+            dataset_map[table.id] = dataset
+        return dataset_map.values()
 
     def _map_query_log(self, rows: Iterable[SynapseQueryLog], database: str = None):
+        querylog_map: Dict[str, QueryLog] = {}
         for row in rows:
             query_id = (
                 f"{row.request_id}:{row.session_id}"
@@ -253,7 +254,7 @@ class SynapseExtractor(BaseExtractor):
                 else row.request_id
             )
 
-            if query_id in self._querylog_map:
+            if query_id in querylog_map:
                 continue
 
             queryLog = QueryLog()
@@ -274,7 +275,8 @@ class SynapseExtractor(BaseExtractor):
             if row.error:
                 queryLog.parsing = Parsing(error_message=row.error)
             queryLog.default_database = database
-            self._querylog_map[query_id] = queryLog
+            querylog_map[query_id] = queryLog
+        return querylog_map.values()
 
     def _map_query_type(self, operation: str) -> TypeEnum:
         operation = operation.upper()

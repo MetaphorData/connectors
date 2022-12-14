@@ -35,3 +35,8 @@ def md5_digest(value: bytes) -> str:
 def generate_querylog_id(platform: str, id: str) -> str:
     """Generate queryLog id"""
     return f"{platform}:{id}"
+
+
+def to_utc_time(time: datetime) -> datetime:
+    """convert local datatime to utc timezone"""
+    return time.replace(tzinfo=timezone.utc)

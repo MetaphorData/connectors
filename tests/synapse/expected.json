@@ -1,5 +1,6 @@
 [
   {
+    "_createdAt": "2022-12-09T18:30:15.822321+00:00",
     "customMetadata": {
       "metadata": [
         {
@@ -19,41 +20,40 @@
     "entityType": "DATASET",
     "logicalId": {
       "account": "mock_synapse_workspace_name",
-      "name": "mock_database_name.mock_synapse_table_name",
+      "name": "mock_database_name.mock_synapse_table_schema.mock_synapse_table_name",
       "platform": "SYNAPSE"
     },
     "schema": {
       "fields": [
         {
-          "description": "mock_column_description_1",
           "fieldName": "mock_column_name_1",
           "fieldPath": "mock_column_name_1",
-          "maxLength": 0.0,
+          "isUnique": true,
           "nativeType": "mock_column_type_1",
           "nullable": false,
           "precision": 0.0
         },
         {
-          "description": "mock_column_description_2",
           "fieldName": "mock_column_name_2",
           "fieldPath": "mock_column_name_2",
-          "maxLength": 0.0,
+          "isUnique": false,
           "nativeType": "mock_column_type_2",
           "nullable": true,
           "precision": 0.0
         }
       ],
       "sqlSchema": {
-        "materialization": "TABLE",
+        "foreignKey": [],
+        "materialization": "EXTERNAL",
         "primaryKey": [
-          "primarykey1",
-          "primarykey2"
+          "mock_column_name_1"
         ],
-        "tableSchema": "mock_table_type"
+        "tableSchema": "mock_synapse_table_schema"
       }
     },
     "structure": {
       "database": "mock_database_name",
+      "schema": "mock_synapse_table_schema",
       "table": "mock_synapse_table_name"
     }
   }

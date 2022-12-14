@@ -15,6 +15,8 @@ def test_yaml_config(test_root_dir):
         subscription_id="client_subscription_id",
         workspace_name="workspace_name",
         resource_group_name="resource_group_name",
+        username="username",
+        password="password",
         output=OutputConfig(file={"directory": "./synapse_result"}),
     )
 
@@ -38,6 +40,8 @@ def test_yaml_config_with_query_log(test_root_dir):
         subscription_id="client_subscription_id",
         workspace_name="workspace_name",
         resource_group_name="resource_group_name",
-        query_log=SynapseQueryLogConfig("username", "password", 15),
+        username="username",
+        password="password",
+        query_log=SynapseQueryLogConfig(15),
         output=OutputConfig(file={"directory": "./synapse_result"}),
     )

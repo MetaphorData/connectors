@@ -5,6 +5,8 @@ secret: client_secret
 subscription_id: client_subscription_id
 workspace_name: workspace_name
 resource_group_name: resource_group_name
+username: username
+password: password
 output:
   file:
     directory: ./synapse_result

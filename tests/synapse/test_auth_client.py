@@ -40,6 +40,8 @@ def test_get_workspace_client():
                 subscription_id="client_subscription_id",
                 workspace_name="mock_workspace",
                 resource_group_name="resource_group_name",
+                username="username",
+                password="password",
                 output=OutputConfig(file={"directory": "./synapse_result"}),
             )
         )
