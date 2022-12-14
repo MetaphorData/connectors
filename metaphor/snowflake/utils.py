@@ -4,7 +4,7 @@ from concurrent import futures
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Callable, Dict, List, Optional, Set, Tuple
+from typing import Callable, Collection, Dict, List, Optional, Set, Tuple
 
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
@@ -92,6 +92,11 @@ def async_execute(
         return results_map
 
 
+def term_in_clause(term: str, values: Collection[str]) -> str:
+    """Builds a multi-value IN clause for term matching"""
+    return f"and {term} IN (%s)" if len(values) > 0 else ""
+
+
 def exclude_username_clause(excluded_usernames: Set[str]) -> str:
     return (
         f"and USER_NAME NOT IN ({','.join(['%s'] * len(excluded_usernames))})"
@@ -152,12 +157,12 @@ def fetch_query_history_count(
     else:
         cursor.execute(
             f"""
-                    SELECT COUNT(1)
-                    FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
-                    WHERE EXECUTION_STATUS = 'SUCCESS'
-                      and START_TIME > %s and START_TIME <= %s
-                      {exclude_username_clause(excluded_usernames)}
-                    """,
+            SELECT COUNT(1)
+            FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
+            WHERE EXECUTION_STATUS = 'SUCCESS'
+              and START_TIME > %s and START_TIME <= %s
+              {exclude_username_clause(excluded_usernames)}
+            """,
             (
                 start_date,
                 end_date,
