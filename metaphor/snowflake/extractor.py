@@ -11,7 +11,6 @@ from metaphor.snowflake.accessed_object import AccessedObject
 
 try:
     from snowflake.connector.cursor import DictCursor, SnowflakeCursor
-    from snowflake.connector.errors import ProgrammingError
 except ImportError:
     print("Please install metaphor[snowflake] extra\n")
     raise
@@ -48,6 +47,7 @@ from metaphor.snowflake.utils import (
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
+    term_in_clause,
 )
 
 logger = get_logger()
@@ -75,6 +75,7 @@ class SnowflakeExtractor(BaseExtractor):
         super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
         self._account = config.account
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
+        self._fetch_extra_info = config.fetch_extra_table_info
         self._query_log_excluded_usernames = config.query_log.excluded_usernames
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_fetch_size = config.query_log.fetch_size
@@ -91,30 +92,23 @@ class SnowflakeExtractor(BaseExtractor):
         with self._conn:
             cursor = self._conn.cursor()
 
-            databases = (
-                self.fetch_databases(cursor)
-                if self._filter.includes is None
-                else list(self._filter.includes.keys())
-            )
+            databases = [db.upper() for db in self._filter.includes.keys()]
             logger.info(f"Databases to include: {databases}")
 
-            shared_databases = self._fetch_shared_databases(cursor)
-            logger.info(f"Shared inbound databases: {shared_databases}")
-
-            for database in databases:
-                tables = self._fetch_tables(cursor, database)
-                if len(tables) == 0:
-                    logger.info(f"Skip empty database {database}")
-                    continue
-
-                logger.info(f"Include {len(tables)} tables from {database}")
-
-                self._fetch_columns(cursor, database)
-                self._fetch_primary_keys(cursor, database)
-                self._fetch_unique_keys(cursor, database)
-                self._fetch_table_info(tables, database in shared_databases)
-
+            tables = self._fetch_tables(cursor, databases)
+            self._fetch_columns(cursor, databases)
+            self._fetch_primary_keys(cursor)
+            self._fetch_unique_keys(cursor)
             self._fetch_tags(cursor)
+
+            if self._fetch_extra_info:
+                try:
+                    shared_databases = self._fetch_shared_databases(cursor)
+                    logger.info(f"Shared inbound databases: {shared_databases}")
+
+                    self._fetch_table_info(tables, shared_databases)
+                except Exception as e:
+                    logger.exception(f"Failed to fetch table extra info\n{e}")
 
             if self._query_log_lookback_days > 0:
                 self._fetch_query_logs()
@@ -125,37 +119,34 @@ class SnowflakeExtractor(BaseExtractor):
         return entities
 
     @staticmethod
-    def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
-        cursor.execute(
-            "SELECT database_name FROM information_schema.databases ORDER BY database_name"
-        )
-        return [db[0].lower() for db in cursor]
-
-    @staticmethod
     def _fetch_shared_databases(cursor: SnowflakeCursor) -> List[str]:
         cursor.execute("SHOW SHARES")
-        cursor.execute("SELECT * FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))")
         return [db[3].lower() for db in cursor if db[1] == "INBOUND"]
 
-    FETCH_TABLE_QUERY = """
-    SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes
-    FROM information_schema.tables
-    WHERE table_schema != 'INFORMATION_SCHEMA'
-    ORDER BY table_schema, table_name
-    """
-
     def _fetch_tables(
-        self, cursor: SnowflakeCursor, database: str
+        self, cursor: SnowflakeCursor, databases: List[str]
     ) -> Dict[str, DatasetInfo]:
-        try:
-            cursor.execute("USE " + database)
-        except ProgrammingError:
-            raise ValueError(f"Invalid or inaccessible database {database}")
-
-        cursor.execute(self.FETCH_TABLE_QUERY)
+        cursor.execute(
+            f"""
+            SELECT table_catalog, table_schema, table_name, table_type, COMMENT, row_count, bytes
+            FROM SNOWFLAKE.ACCOUNT_USAGE.TABLES
+            WHERE table_schema != 'INFORMATION_SCHEMA' and deleted is null
+              {term_in_clause('table_catalog', databases)}
+            ORDER BY table_catalog, table_schema, table_name
+            """,
+            (databases,),
+        )
 
         tables: Dict[str, DatasetInfo] = {}
-        for schema, name, table_type, comment, row_count, table_bytes in cursor:
+        for (
+            database,
+            schema,
+            name,
+            table_type,
+            comment,
+            row_count,
+            table_bytes,
+        ) in cursor:
             normalized_name = dataset_normalized_name(database, schema, name)
             if not self._filter.include_table(database, schema, name):
                 logger.info(f"Ignore {normalized_name} due to filter config")
@@ -173,20 +164,24 @@ class SnowflakeExtractor(BaseExtractor):
             )
             tables[normalized_name] = DatasetInfo(database, schema, name, table_type)
 
+        logger.info(f"fetched {len(tables)} tables")
         return tables
 
-    def _fetch_columns(self, cursor: SnowflakeCursor, database: str) -> None:
+    def _fetch_columns(self, cursor: SnowflakeCursor, databases: List[str]) -> None:
         cursor.execute(
-            """
-            SELECT table_schema, table_name, column_name, data_type, character_maximum_length,
+            f"""
+            SELECT table_catalog, table_schema, table_name, column_name, data_type, character_maximum_length,
               numeric_precision, is_nullable, column_default, comment
-            FROM information_schema.columns
-            WHERE table_schema != 'INFORMATION_SCHEMA'
+            FROM SNOWFLAKE.ACCOUNT_USAGE.COLUMNS
+            WHERE table_schema != 'INFORMATION_SCHEMA' and deleted is null
+              {term_in_clause('table_catalog', databases)}
             ORDER BY table_schema, table_name, ordinal_position
-            """
+            """,
+            (databases,),
         )
 
         for (
+            database,
             table_schema,
             table_name,
             column,
@@ -220,12 +215,20 @@ class SnowflakeExtractor(BaseExtractor):
                 )
             )
 
-    def _fetch_table_info(self, tables: Dict[str, DatasetInfo], shared: bool) -> None:
+    def _fetch_table_info(
+        self, tables: Dict[str, DatasetInfo], shared_databases: List[str]
+    ) -> None:
+        dict_cursor = self._conn.cursor(DictCursor)
         for chunk in chunks([item for item in tables.items()], TABLE_INFO_FETCH_SIZE):
-            self._fetch_table_info_internal(chunk, shared)
+            self._fetch_table_info_internal(dict_cursor, chunk, shared_databases)
+
+        dict_cursor.close()
 
     def _fetch_table_info_internal(
-        self, tables: List[Tuple[str, DatasetInfo]], shared: bool
+        self,
+        dict_cursor: DictCursor,
+        tables: List[Tuple[str, DatasetInfo]],
+        shared_databases: List[str],
     ) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
@@ -238,7 +241,8 @@ class SnowflakeExtractor(BaseExtractor):
                 params.append(fullname)
                 updated_time_tables.append(fullname)
 
-            if not shared:
+            # shared database doesn't support getting DDL
+            if table.database not in shared_databases:
                 queries.append(f"get_ddl('table', %s) as \"DDL_{fullname}\"")
                 params.append(fullname)
                 ddl_tables.append(fullname)
@@ -246,18 +250,11 @@ class SnowflakeExtractor(BaseExtractor):
         if not queries:
             return
         query = f"SELECT {','.join(queries)}"
+        logger.debug(query)
 
-        cursor = self._conn.cursor(DictCursor)
-
-        try:
-            cursor.execute(query, tuple(params))
-        except Exception as e:
-            logger.exception(f"Failed to execute query:\n{query}\n{e}")
-            return
-
-        results = cursor.fetchone()
+        dict_cursor.execute(query, tuple(params))
+        results = dict_cursor.fetchone()
         assert isinstance(results, Mapping)
-        cursor.close()
 
         for fullname in ddl_tables:
             dataset = self._datasets[fullname]
@@ -277,11 +274,12 @@ class SnowflakeExtractor(BaseExtractor):
                     timestamp / 1000000000
                 ).replace(tzinfo=timezone.utc)
 
-    def _fetch_unique_keys(self, cursor: SnowflakeCursor, database: str) -> None:
-        cursor.execute(f"SHOW UNIQUE KEYS IN DATABASE {database}")
+    def _fetch_unique_keys(self, cursor: SnowflakeCursor) -> None:
+        cursor.execute("SHOW UNIQUE KEYS")
 
         for entry in cursor:
-            schema, table_name, column, constraint_name = (
+            database, schema, table_name, column, constraint_name = (
+                entry[1],
                 entry[2],
                 entry[3],
                 entry[4],
@@ -308,11 +306,12 @@ class SnowflakeExtractor(BaseExtractor):
 
             field.is_unique = True
 
-    def _fetch_primary_keys(self, cursor: SnowflakeCursor, database: str) -> None:
-        cursor.execute(f"SHOW PRIMARY KEYS IN DATABASE {database}")
+    def _fetch_primary_keys(self, cursor: SnowflakeCursor) -> None:
+        cursor.execute("SHOW PRIMARY KEYS")
 
         for entry in cursor:
-            schema, table_name, column, constraint_name = (
+            database, schema, table_name, column, constraint_name = (
+                entry[1],
                 entry[2],
                 entry[3],
                 entry[4],
@@ -322,7 +321,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             dataset = self._datasets.get(normalized_name)
             if dataset is None or dataset.schema is None:
-                logger.error(
+                logger.warning(
                     f"Table {normalized_name} schema not found for primary key {constraint_name}"
                 )
                 continue
@@ -349,7 +348,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             dataset = self._datasets.get(normalized_name)
             if dataset is None or dataset.schema is None:
-                logger.error(
+                logger.warning(
                     f"Table {normalized_name} not found for tag {self._build_tag_string(key, value)}"
                 )
                 continue
@@ -539,11 +538,12 @@ class SnowflakeExtractor(BaseExtractor):
             ),
         )
 
-        dataset.statistics = DatasetStatistics()
-        if row_count:
-            dataset.statistics.record_count = float(row_count)
-        if table_bytes:
-            dataset.statistics.data_size = table_bytes / (1000 * 1000)  # in MB
+        dataset.statistics = DatasetStatistics(
+            record_count=float(row_count) if row_count is not None else None,
+            data_size=table_bytes / (1000 * 1000)  # in MB
+            if table_bytes is not None
+            else None,
+        )
 
         dataset.structure = DatasetStructure(
             database=database, schema=schema, table=table

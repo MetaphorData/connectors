@@ -1,6 +1,7 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.sampling import SamplingConfig
 from metaphor.models.metadata_change_event import (
@@ -16,6 +17,7 @@ from metaphor.snowflake.profile.config import (
     SnowflakeProfileRunConfig,
 )
 from metaphor.snowflake.profile.extractor import SnowflakeProfileExtractor
+from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
 
 
 def column_statistics_config():
@@ -51,6 +53,84 @@ def test_default_excludes():
             "SNOWFLAKE": None,
             "*": {"INFORMATION_SCHEMA": None},
         }
+
+
+database = "db"
+schema = "schema"
+table_name = "table1"
+column = "col1"
+table_type = SnowflakeTableType.BASE_TABLE.value
+normalized_name = dataset_normalized_name(database, schema, table_name)
+table_info = DatasetInfo(
+    database=database, schema=schema, name=table_name, type=table_type
+)
+
+
+def test_fetch_tables():
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            (schema, table_name, table_type, "comment1", 10, 20000),
+            (schema, table_name, SnowflakeTableType.VIEW.value, "", 0, 0),
+        ]
+    )
+
+    with patch("metaphor.snowflake.auth.connect"):
+        extractor = SnowflakeProfileExtractor(
+            SnowflakeProfileRunConfig(
+                account="snowflake_account",
+                user="user",
+                password="password",
+                filter=DatasetFilter(
+                    includes={database: None},
+                ),
+                output=OutputConfig(),
+            )
+        )
+
+        extractor._fetch_tables(mock_cursor, database)
+
+        assert len(extractor._datasets) == 1
+        dataset = extractor._datasets[normalized_name]
+        assert dataset.logical_id == DatasetLogicalID(
+            name=normalized_name,
+            platform=DataPlatform.SNOWFLAKE,
+            account="snowflake_account",
+        )
+
+        # test excluded DB
+        mock_cursor.__iter__.return_value = iter(
+            [
+                (schema, table_name, table_type, "comment1", 10, 20000),
+            ]
+        )
+        extractor._fetch_tables(mock_cursor, "db2")
+
+        # no new dataset added
+        assert len(extractor._datasets) == 1
+
+
+def test_fetch_columns():
+
+    with patch("metaphor.snowflake.auth.connect"), patch(
+        "metaphor.snowflake.utils.async_execute"
+    ) as async_execute:
+
+        async_execute.return_value = {}
+
+        extractor = SnowflakeProfileExtractor(
+            SnowflakeProfileRunConfig(
+                account="snowflake_account",
+                user="user",
+                password="password",
+                output=OutputConfig(),
+            )
+        )
+
+        extractor._fetch_columns_async({normalized_name: table_info})
+
+        assert len(extractor._datasets) == 0
 
 
 def test_build_profiling_query():
