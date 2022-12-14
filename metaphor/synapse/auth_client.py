@@ -22,15 +22,12 @@ class AuthClient:
         self._tenant_id = config.tenant_id
         self._subscription_id = config.subscription_id
         self._workspace_name = config.workspace_name
+        self._db_username = config.username
+        self._db_password = config.password
         self._resource_group_name = config.resource_group_name
         self._azure_management_headers = {
             "Authorization": self.retrieve_access_token(
                 config, self.AZURE_MANGEMENT_SCOPES
-            )
-        }
-        self._azure_synapse_headers = {
-            "Authorization": self.retrieve_access_token(
-                config, self.AZURE_SYNAPSE_SCOPES
             )
         }
 
@@ -65,6 +62,7 @@ class AuthClient:
         return WorkspaceClient(
             workspace,
             self._subscription_id,
-            self._azure_synapse_headers,
+            self._db_username,
+            self._db_password,
             self._azure_management_headers,
         )

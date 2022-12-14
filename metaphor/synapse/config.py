@@ -7,12 +7,6 @@ from metaphor.common.base_config import BaseConfig
 
 @dataclass
 class SynapseQueryLogConfig:
-    # The  username for query logs
-    username: str = ""
-
-    # The password for query logs
-    password: str = ""
-
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 0
 
@@ -36,5 +30,11 @@ class SynapseConfig(BaseConfig):
 
     # The Rescource Group Name
     resource_group_name: str
+
+    # The database username
+    username: str
+
+    # The database password
+    password: str
 
     query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()
