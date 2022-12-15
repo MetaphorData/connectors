@@ -1,16 +1,13 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
 
-class SynapseDataModel(BaseModel):
+class SynapseWorkspace(BaseModel):
     id: str
     name: str
     type: str
-
-
-class SynapseWorkspace(SynapseDataModel):
     properties: Any
 
 
@@ -19,24 +16,6 @@ class SynapseDatabase(BaseModel):
     name: str
     create_time: datetime
     collation_name: str
-
-
-class WorkspaceDatabase(SynapseDataModel):
-    properties: Any
-
-
-class DedicatedSqlPoolSchema(SynapseDataModel):
-    pass
-
-
-class DedicatedSqlPoolColumn(SynapseDataModel):
-    properties: Any
-
-
-class DedicatedSqlPoolTable(SynapseDataModel):
-    properties: Any
-    sqlSchema: Optional[DedicatedSqlPoolSchema]
-    columns: Optional[List]
 
 
 class SynapseColumn(BaseModel):

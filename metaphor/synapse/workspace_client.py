@@ -1,18 +1,13 @@
 from datetime import datetime
 from typing import Any, Dict, Iterable, List
 
-from metaphor.common.api_request import get_request
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import to_utc_time
 from metaphor.synapse.model import (
-    DedicatedSqlPoolSchema,
-    DedicatedSqlPoolTable,
     SynapseColumn,
     SynapseDatabase,
     SynapseQueryLog,
     SynapseTable,
-    SynapseWorkspace,
-    WorkspaceDatabase,
 )
 
 try:
@@ -25,39 +20,19 @@ logger = get_logger()
 
 
 class WorkspaceClient:
-    AZURE_MANGEMENT_ENDPOINT = "https://management.azure.com"
-
     def __init__(
         self,
-        workspace: SynapseWorkspace,
-        subscription_id: str,
+        workspace_name: str,
         username: str,
         password: str,
-        management_headers: Dict[str, str],
     ):
-        self._workspace = workspace
-        self._subscription_id = subscription_id
-        self._azure_management_headers = management_headers
-        self._dev_endpoint = workspace.properties["connectivityEndpoints"]["dev"]
-        # meteaphor-workspace-ondemand.sql.azuresynapse.net
-        # meteaphor-workspace.sql.azuresynapse.net
-        # self._sql_query_endpoint = workspace.properties["connectivityEndpoints"]["sql"]
-        # self._sql_on_demand_query_endpoint = workspace.properties[
-        #     "connectivityEndpoints"
-        # ]["sqlOnDemand"]
-        self._sql_query_endpoint = f"{self._workspace.name}.sql.azuresynapse.net"
+        self.workspace_name = workspace_name
+        self._sql_query_endpoint = f"{workspace_name}.sql.azuresynapse.net"
         self._sql_on_demand_query_endpoint = (
-            f"{self._workspace.name}-ondemand.sql.azuresynapse.net"
+            f"{workspace_name}-ondemand.sql.azuresynapse.net"
         )
-        self._default_file_system = workspace.properties["defaultDataLakeStorage"][
-            "filesystem"
-        ]
-        index1 = workspace.id.index("/resourceGroups/")
-        index2 = workspace.id.index("/providers/")
-        self._resource_group_name = workspace.id[index1 + 16 : index2]
-
-        self.username = username
-        self.password = password
+        self._username = username
+        self._password = password
 
     def get_databases(self, is_dedicated: bool = False) -> Iterable[SynapseDatabase]:
         query_str = """
@@ -68,7 +43,6 @@ class WorkspaceClient:
             if is_dedicated
             else self._sql_on_demand_query_endpoint
         )
-        print(end_point)
         rows = self._sql_query_fetch_all(end_point, query_str)
         for row in rows:
             yield SynapseDatabase(
@@ -77,16 +51,6 @@ class WorkspaceClient:
                 create_time=to_utc_time(row[2]),
                 collation_name=row[3],
             )
-
-    def get_dedicated_sql_pool_databases(self) -> List[WorkspaceDatabase]:
-        # https://learn.microsoft.com/en-us/rest/api/synapse/sql-pools/list-by-workspace?tabs=HTTP
-        url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/resourceGroups/{self._resource_group_name}/providers/Microsoft.Synapse/workspaces/{self._workspace.name}/sqlPools?api-version=2021-06-01"
-        return get_request(
-            url,
-            self._azure_management_headers,
-            List[WorkspaceDatabase],
-            transform_response=lambda r: r.json()["value"],
-        )
 
     def get_tables(
         self, database_name: str, is_dedicated: bool = False
@@ -174,41 +138,6 @@ class WorkspaceClient:
 
         return list(table_dict.values())
 
-    def get_dedicated_sql_pool_tables(
-        self, database_name: str
-    ) -> List[DedicatedSqlPoolTable]:
-        api_version = "api-version=2021-06-01"
-        # https://learn.microsoft.com/en-us/rest/api/synapse/sql-pool-schemas/list?tabs=HTTP
-        url = f"{self.AZURE_MANGEMENT_ENDPOINT}/subscriptions/{self._subscription_id}/resourceGroups/{self._resource_group_name}/providers/Microsoft.Synapse/workspaces/{self._workspace.name}/sqlPools/{database_name}"
-        sql_pool_tables = []
-        schemas = get_request(
-            f"{url}/schemas?{api_version}",
-            self._azure_management_headers,
-            List[DedicatedSqlPoolSchema],
-            transform_response=lambda r: r.json()["value"],
-        )
-
-        for schema in schemas:
-            tables = get_request(
-                # https://learn.microsoft.com/en-us/rest/api/synapse/sql-pool-tables/list-by-schema?tabs=HTTP
-                f"{url}/schemas/{schema.name}/tables?{api_version}",
-                self._azure_management_headers,
-                List[DedicatedSqlPoolTable],
-                transform_response=lambda r: r.json()["value"],
-            )
-
-            for table in tables:
-                table.sqlSchema = schema
-                table.columns = get_request(
-                    # https://learn.microsoft.com/en-us/rest/api/synapse/sql-pool-table-columns/list-by-table-name?tabs=HTTP
-                    f"{url}/schemas/{schema.name}/tables/{table.name}/columns?{api_version}",
-                    self._azure_management_headers,
-                    List[Any],
-                    transform_response=lambda r: r.json()["value"],
-                )
-                sql_pool_tables.append(table)
-        return sql_pool_tables
-
     def get_sql_pool_query_logs(
         self, start_date: datetime, end_date: datetime
     ) -> Iterable[SynapseQueryLog]:
@@ -288,8 +217,8 @@ class WorkspaceClient:
         database_str = f"{database}" if len(database) > 0 else ""
         conn = pymssql.connect(
             server=server,
-            user=f'{self.username}@{endpoint.split(".")[0]}',
-            password=self.password,
+            user=f'{self._username}@{endpoint.split(".")[0]}',
+            password=self._password,
             database=database_str,
             conn_properties="",
         )

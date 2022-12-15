@@ -13,16 +13,26 @@ from metaphor.synapse.model import (
     SynapseDatabase,
     SynapseQueryLog,
     SynapseTable,
-    SynapseWorkspace,
 )
 from tests.test_utils import load_json
 
 mock_tenant_id = "mock_tenant_id"
 
+synapse_config = SynapseConfig(
+    output=OutputConfig(),
+    tenant_id=mock_tenant_id,
+    client_id="mock_client_id",
+    secret="mock_secret",
+    subscription_id="mock_subscription_id",
+    workspace_name="mock_synapse_workspace_name",
+    username="username",
+    password="password",
+    resource_group_name="mock_resource_group_name",
+)
+
 
 @pytest.mark.asyncio
 async def test_extractor(test_root_dir):
-    mock_auth_instance = MagicMock()
     mock_workspace_instance = MagicMock()
 
     synapseDatabase = SynapseDatabase(
@@ -64,37 +74,16 @@ async def test_extractor(test_root_dir):
         external_source="mock_storage_location",
     )
 
-    synapseWorkspace = SynapseWorkspace(
-        id="mock_synapse_workspace_id",
-        name="mock_synapse_workspace_name",
-        type="WORKSPACE",
-    )
-
-    mock_auth_instance._tenant_id = mock_tenant_id
-
-    mock_auth_instance.get_workspace_client = MagicMock(
-        return_value=mock_workspace_instance
-    )
-    mock_workspace_instance._workspace = synapseWorkspace
+    mock_workspace_instance.workspace_name = synapse_config.workspace_name
     mock_workspace_instance.get_databases = MagicMock(
         side_effect=[[synapseDatabase], []]
     )
     mock_workspace_instance.get_tables = MagicMock(return_value=[synapseTable])
 
-    with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
-        mock_client.return_value = mock_auth_instance
+    with patch("metaphor.synapse.extractor.WorkspaceClient") as mock_client:
+        mock_client.return_value = mock_workspace_instance
 
-        config = SynapseConfig(
-            output=OutputConfig(),
-            tenant_id=mock_tenant_id,
-            client_id="mock_client_id",
-            secret="mock_secret",
-            subscription_id="mock_subscription_id",
-            workspace_name="mock_workspace_name",
-            username="username",
-            password="password",
-            resource_group_name="mock_resource_group_name",
-        )
+        config = synapse_config
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -103,7 +92,6 @@ async def test_extractor(test_root_dir):
 
 @pytest.mark.asyncio
 async def test_dedicated_sql_pool_extractor(test_root_dir):
-    mock_auth_instance = MagicMock()
     mock_workspace_instance = MagicMock()
 
     synapseDatabase = SynapseDatabase(
@@ -143,39 +131,17 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
         is_external=False,
     )
 
-    synapseWorkspace = SynapseWorkspace(
-        id="mock_synapse_workspace_id",
-        name="mock_synapse_workspace_name",
-        type="WORKSPACE",
-    )
-
-    mock_auth_instance._tenant_id = mock_tenant_id
-
-    mock_auth_instance.get_workspace_client = MagicMock(
-        return_value=mock_workspace_instance
-    )
-
-    mock_workspace_instance._workspace = synapseWorkspace
+    mock_workspace_instance.workspace_name = synapse_config.workspace_name
 
     mock_workspace_instance.get_databases = MagicMock(
         side_effect=[[], [synapseDatabase]]
     )
     mock_workspace_instance.get_tables = MagicMock(return_value=[synapseTable])
 
-    with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
-        mock_client.return_value = mock_auth_instance
+    with patch("metaphor.synapse.extractor.WorkspaceClient") as mock_client:
+        mock_client.return_value = mock_workspace_instance
 
-        config = SynapseConfig(
-            output=OutputConfig(),
-            tenant_id=mock_tenant_id,
-            client_id="mock_client_id",
-            secret="mock_secret",
-            subscription_id="mock_subscription_id",
-            workspace_name="mock_workspace_name",
-            username="username",
-            password="password",
-            resource_group_name="mock_resource_group_name",
-        )
+        config = synapse_config
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -184,7 +150,6 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
 
 @pytest.mark.asyncio
 async def test_extractor_with_query_log(test_root_dir):
-    mock_auth_instance = MagicMock()
     mock_workspace_instance = MagicMock()
 
     synapseDatabase = SynapseDatabase(
@@ -227,12 +192,6 @@ async def test_extractor_with_query_log(test_root_dir):
         external_source="mock_storage_location",
     )
 
-    synapseWorkspace = SynapseWorkspace(
-        id="mock_synapse_workspace_id",
-        name="mock_synapse_workspace_name",
-        type="WORKSPACE",
-    )
-
     qyeryLogTable = SynapseQueryLog(
         request_id="mock_request_id",
         sql_query="SELECT TOP 10(*) FROM mock_query_table",
@@ -245,12 +204,7 @@ async def test_extractor_with_query_log(test_root_dir):
         query_operation="SELECT",
     )
 
-    mock_auth_instance._tenant_id = mock_tenant_id
-
-    mock_auth_instance.get_workspace_client = MagicMock(
-        return_value=mock_workspace_instance
-    )
-    mock_workspace_instance._workspace = synapseWorkspace
+    mock_workspace_instance.workspace_name = synapse_config.workspace_name
     mock_workspace_instance.get_databases = MagicMock(
         side_effect=[[synapseDatabase], []]
     )
@@ -259,21 +213,11 @@ async def test_extractor_with_query_log(test_root_dir):
         return_value=[qyeryLogTable]
     )
 
-    with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
-        mock_client.return_value = mock_auth_instance
+    with patch("metaphor.synapse.extractor.WorkspaceClient") as mock_client:
+        mock_client.return_value = mock_workspace_instance
 
-        config = SynapseConfig(
-            output=OutputConfig(),
-            tenant_id=mock_tenant_id,
-            client_id="mock_client_id",
-            secret="mock_secret",
-            subscription_id="mock_subscription_id",
-            workspace_name="mock_workspace_name",
-            resource_group_name="mock_resource_group_name",
-            username="username",
-            password="password",
-            query_log=SynapseQueryLogConfig(lookback_days=1),
-        )
+        config = synapse_config
+        config.query_log = SynapseQueryLogConfig(lookback_days=1)
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -282,7 +226,6 @@ async def test_extractor_with_query_log(test_root_dir):
 
 @pytest.mark.asyncio
 async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
-    mock_auth_instance = MagicMock()
     mock_workspace_instance = MagicMock()
 
     synapseDatabase = SynapseDatabase(
@@ -322,12 +265,6 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
         is_external=False,
     )
 
-    synapseWorkspace = SynapseWorkspace(
-        id="mock_synapse_workspace_id",
-        name="mock_synapse_workspace_name",
-        type="WORKSPACE",
-    )
-
     qyeryLogTable = SynapseQueryLog(
         request_id="mock_request_id",
         session_id="mock_session_id",
@@ -341,13 +278,7 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
         query_operation="INSERT",
     )
 
-    mock_auth_instance._tenant_id = mock_tenant_id
-
-    mock_auth_instance.get_workspace_client = MagicMock(
-        return_value=mock_workspace_instance
-    )
-
-    mock_workspace_instance._workspace = synapseWorkspace
+    mock_workspace_instance.workspace_name = synapse_config.workspace_name
 
     mock_workspace_instance.get_databases = MagicMock(
         side_effect=[[], [synapseDatabase]]
@@ -358,21 +289,11 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
         return_value=[qyeryLogTable]
     )
 
-    with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
-        mock_client.return_value = mock_auth_instance
+    with patch("metaphor.synapse.extractor.WorkspaceClient") as mock_client:
+        mock_client.return_value = mock_workspace_instance
 
-        config = SynapseConfig(
-            output=OutputConfig(),
-            tenant_id=mock_tenant_id,
-            client_id="mock_client_id",
-            secret="mock_secret",
-            subscription_id="mock_subscription_id",
-            workspace_name="mock_workspace_name",
-            resource_group_name="mock_resource_group_name",
-            username="username",
-            password="password",
-            query_log=SynapseQueryLogConfig(lookback_days=10),
-        )
+        config = synapse_config
+        config.query_log = SynapseQueryLogConfig(lookback_days=1)
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
