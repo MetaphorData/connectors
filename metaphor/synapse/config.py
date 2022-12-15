@@ -16,20 +16,8 @@ class SynapseConfig(BaseConfig):
     # Azure Directory (tenant) ID
     tenant_id: str
 
-    # Azure AD application client ID
-    client_id: str
-
-    # Azure AD Application client secret
-    secret: str
-
-    # The Azure Subscription ID
-    subscription_id: str
-
     # Synapse Workspace name
     workspace_name: str
-
-    # The Rescource Group Name
-    resource_group_name: str
 
     # The database username
     username: str

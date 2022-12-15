@@ -21,13 +21,9 @@ mock_tenant_id = "mock_tenant_id"
 synapse_config = SynapseConfig(
     output=OutputConfig(),
     tenant_id=mock_tenant_id,
-    client_id="mock_client_id",
-    secret="mock_secret",
-    subscription_id="mock_subscription_id",
     workspace_name="mock_synapse_workspace_name",
     username="username",
     password="password",
-    resource_group_name="mock_resource_group_name",
 )
 
 
