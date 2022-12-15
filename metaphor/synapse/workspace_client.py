@@ -39,13 +39,16 @@ class WorkspaceClient:
         self._subscription_id = subscription_id
         self._azure_management_headers = management_headers
         self._dev_endpoint = workspace.properties["connectivityEndpoints"]["dev"]
-        self._sql_query_endpoint = workspace.properties["connectivityEndpoints"]["sql"]
-        self._sql_on_demand_query_endpoint = workspace.properties[
-            "connectivityEndpoints"
-        ]["sqlOnDemand"]
-        self._account_endpoint = workspace.properties["defaultDataLakeStorage"][
-            "accountUrl"
-        ]
+        # meteaphor-workspace-ondemand.sql.azuresynapse.net
+        # meteaphor-workspace.sql.azuresynapse.net
+        # self._sql_query_endpoint = workspace.properties["connectivityEndpoints"]["sql"]
+        # self._sql_on_demand_query_endpoint = workspace.properties[
+        #     "connectivityEndpoints"
+        # ]["sqlOnDemand"]
+        self._sql_query_endpoint = f"{self._workspace.name}.sql.azuresynapse.net"
+        self._sql_on_demand_query_endpoint = (
+            f"{self._workspace.name}-ondemand.sql.azuresynapse.net"
+        )
         self._default_file_system = workspace.properties["defaultDataLakeStorage"][
             "filesystem"
         ]
@@ -56,11 +59,17 @@ class WorkspaceClient:
         self.username = username
         self.password = password
 
-    def get_databases(self) -> Iterable[SynapseDatabase]:
+    def get_databases(self, is_dedicated: bool = False) -> Iterable[SynapseDatabase]:
         query_str = """
             SELECT database_id, name, create_date, collation_name from sys.databases where name != 'master';
         """
-        rows = self._sql_query_fetch_all(self._sql_on_demand_query_endpoint, query_str)
+        end_point = (
+            self._sql_query_endpoint
+            if is_dedicated
+            else self._sql_on_demand_query_endpoint
+        )
+        print(end_point)
+        rows = self._sql_query_fetch_all(end_point, query_str)
         for row in rows:
             yield SynapseDatabase(
                 id=row[0],
@@ -79,7 +88,9 @@ class WorkspaceClient:
             transform_response=lambda r: r.json()["value"],
         )
 
-    def get_tables(self, database_name: str) -> List[SynapseTable]:
+    def get_tables(
+        self, database_name: str, is_dedicated: bool = False
+    ) -> List[SynapseTable]:
         query_str = """
         SELECT t.object_id, t.name AS table_name, s.name AS schema_name
             ,t.type, t.create_date
@@ -106,7 +117,11 @@ class WorkspaceClient:
                 ON fkc.constraint_object_id = fk.object_id
         ) AS fky ON t.object_id = fky.object_id and c.column_id = fky.column_id
         """
-        end_point = self._sql_on_demand_query_endpoint
+        end_point = (
+            self._sql_query_endpoint
+            if is_dedicated
+            else self._sql_on_demand_query_endpoint
+        )
         rows = self._sql_query_fetch_all(end_point, query_str, database_name)
 
         table_dict: Dict[str, SynapseTable] = {}
@@ -133,7 +148,7 @@ class WorkspaceClient:
                         WHERE ext.object_id = '{row[0]}';
                     """
                     rows = self._sql_query_fetch_all(
-                        self._sql_on_demand_query_endpoint, query_str, database_name
+                        end_point, query_str, database_name
                     )
                     if len(rows) == 1:
                         table.external_source = rows[0][0]

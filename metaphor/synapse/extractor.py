@@ -85,9 +85,9 @@ class SynapseExtractor(BaseExtractor):
 
         # Dedicated sqlpool
         try:
-            for database in workspaceClient.get_dedicated_sql_pool_databases():
-                tables = workspaceClient.get_dedicated_sql_pool_tables(database.name)
-                datasets = self._map_dedicated_sql_pool_tables_to_dataset(
+            for database in workspaceClient.get_databases(True):
+                tables = workspaceClient.get_tables(database.name, True)
+                datasets = self._map_tables_to_dataset(
                     workspaceClient._workspace, database, tables
                 )
                 entities.extend(datasets)

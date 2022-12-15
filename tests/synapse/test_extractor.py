@@ -9,14 +9,11 @@ from metaphor.common.utils import to_utc_time
 from metaphor.synapse.config import SynapseConfig, SynapseQueryLogConfig
 from metaphor.synapse.extractor import SynapseExtractor
 from metaphor.synapse.model import (
-    DedicatedSqlPoolSchema,
-    DedicatedSqlPoolTable,
     SynapseColumn,
     SynapseDatabase,
     SynapseQueryLog,
     SynapseTable,
     SynapseWorkspace,
-    WorkspaceDatabase,
 )
 from tests.test_utils import load_json
 
@@ -31,7 +28,6 @@ async def test_extractor(test_root_dir):
     synapseDatabase = SynapseDatabase(
         id=1,
         name="mock_database_name",
-        type="DATABASE",
         create_time=to_utc_time(datetime(2022, 12, 9, 18, 30, 15, 822321)),
         collation_name="Latin1_General_100_CI_AS_SC_UTF8",
     )
@@ -80,7 +76,9 @@ async def test_extractor(test_root_dir):
         return_value=mock_workspace_instance
     )
     mock_workspace_instance._workspace = synapseWorkspace
-    mock_workspace_instance.get_databases = MagicMock(return_value=[synapseDatabase])
+    mock_workspace_instance.get_databases = MagicMock(
+        side_effect=[[synapseDatabase], []]
+    )
     mock_workspace_instance.get_tables = MagicMock(return_value=[synapseTable])
 
     with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
@@ -108,35 +106,41 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
     mock_auth_instance = MagicMock()
     mock_workspace_instance = MagicMock()
 
-    workspaceSqlPoolDatabase = WorkspaceDatabase(
-        id="mock_sql_pool_database_id",
-        name="mock_sql_pool_database_name",
-        type="Microsoft.Synapse/workspaces/sqlPools",
+    synapseDatabase = SynapseDatabase(
+        id=1,
+        name="mock_dedicated_database_name",
+        create_time=to_utc_time(datetime(2022, 12, 14, 12, 30, 15, 622321)),
+        collation_name="Latin1_General_100_CI_AS_SC_UTF8",
     )
 
-    sqlpool_table = DedicatedSqlPoolTable(
-        id="mock_sql_pool_table_id",
-        name="mock_sql_pool_name",
-        type="Microsoft.Synapse/workspaces/sqlPools/schemas/tables",
-        sqlSchema=DedicatedSqlPoolSchema(
-            id="mock_sql_pool_schema_id",
-            name="dbo",
-            type="Microsoft.Synapse/workspaces/sqlPools/schemas",
-        ),
-        columns=[
-            {
-                "id": "mock_sql_pool_schema_column_id_1",
-                "name": "mock_sql_pool_schema_column_name_1",
-                "type": "Microsoft.Synapse/workspaces/sqlPools/schemas/tables/columns",
-                "properties": {"columnType": "int"},
-            },
-            {
-                "id": "mock_sql_pool_schema_column_id_2",
-                "name": "mock_sql_pool_schema_column_name_2",
-                "type": "Microsoft.Synapse/workspaces/sqlPools/schemas/tables/columns",
-                "properties": {"columnType": "nvarchar"},
-            },
-        ],
+    column_map = {}
+    column_map["mock_dedicated_column_name_1"] = SynapseColumn(
+        name="mock_dedicated_column_name_1",
+        type="mock_dedicated_column_type_1",
+        max_length=0,
+        precision=0,
+        is_nullable=False,
+        is_unique=True,
+        is_primary_key=True,
+    )
+    column_map["mock_dedicated_column_name_2"] = SynapseColumn(
+        name="mock_dedicated_column_name_2",
+        type="mock_dedicated_column_type_2",
+        max_length=0,
+        precision=0,
+        is_nullable=True,
+        is_unique=False,
+        is_primary_key=False,
+    )
+
+    synapseTable = SynapseTable(
+        id="mock_dedicated_table_id",
+        name="mock_dedicated_table_name",
+        schema_name="mock_dedicated_table_schema",
+        type="TABLE",
+        column_dict=column_map,
+        create_time=to_utc_time(datetime(2022, 12, 14, 12, 30, 15, 622321)),
+        is_external=False,
     )
 
     synapseWorkspace = SynapseWorkspace(
@@ -153,12 +157,10 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
 
     mock_workspace_instance._workspace = synapseWorkspace
 
-    mock_workspace_instance.get_dedicated_sql_pool_databases = MagicMock(
-        return_value=[workspaceSqlPoolDatabase]
+    mock_workspace_instance.get_databases = MagicMock(
+        side_effect=[[], [synapseDatabase]]
     )
-    mock_workspace_instance.get_dedicated_sql_pool_tables = MagicMock(
-        return_value=[sqlpool_table]
-    )
+    mock_workspace_instance.get_tables = MagicMock(return_value=[synapseTable])
 
     with patch("metaphor.synapse.extractor.AuthClient") as mock_client:
         mock_client.return_value = mock_auth_instance
@@ -249,7 +251,9 @@ async def test_extractor_with_query_log(test_root_dir):
         return_value=mock_workspace_instance
     )
     mock_workspace_instance._workspace = synapseWorkspace
-    mock_workspace_instance.get_databases = MagicMock(return_value=[synapseDatabase])
+    mock_workspace_instance.get_databases = MagicMock(
+        side_effect=[[synapseDatabase], []]
+    )
     mock_workspace_instance.get_tables = MagicMock(return_value=[synapseTable])
     mock_workspace_instance.get_sql_pool_query_logs = MagicMock(
         return_value=[qyeryLogTable]
@@ -281,35 +285,41 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
     mock_auth_instance = MagicMock()
     mock_workspace_instance = MagicMock()
 
-    workspaceSqlPoolDatabase = WorkspaceDatabase(
-        id="mock_sql_pool_database_id",
-        name="mock_sql_pool_database_name",
-        type="Microsoft.Synapse/workspaces/sqlPools",
+    synapseDatabase = SynapseDatabase(
+        id=1,
+        name="mock_dedicated_database_name",
+        create_time=to_utc_time(datetime(2022, 12, 14, 12, 30, 15, 622321)),
+        collation_name="Latin1_General_100_CI_AS_SC_UTF8",
     )
 
-    sqlpool_table = DedicatedSqlPoolTable(
-        id="mock_sql_pool_table_id",
-        name="mock_sql_pool_name",
-        type="Microsoft.Synapse/workspaces/sqlPools/schemas/tables",
-        sqlSchema=DedicatedSqlPoolSchema(
-            id="mock_sql_pool_schema_id",
-            name="dbo",
-            type="Microsoft.Synapse/workspaces/sqlPools/schemas",
-        ),
-        columns=[
-            {
-                "id": "mock_sql_pool_schema_column_id_1",
-                "name": "mock_sql_pool_schema_column_name_1",
-                "type": "Microsoft.Synapse/workspaces/sqlPools/schemas/tables/columns",
-                "properties": {"columnType": "int"},
-            },
-            {
-                "id": "mock_sql_pool_schema_column_id_2",
-                "name": "mock_sql_pool_schema_column_name_2",
-                "type": "Microsoft.Synapse/workspaces/sqlPools/schemas/tables/columns",
-                "properties": {"columnType": "nvarchar"},
-            },
-        ],
+    column_map = {}
+    column_map["mock_dedicated_column_name_1"] = SynapseColumn(
+        name="mock_dedicated_column_name_1",
+        type="mock_dedicated_column_type_1",
+        max_length=0,
+        precision=0,
+        is_nullable=False,
+        is_unique=True,
+        is_primary_key=True,
+    )
+    column_map["mock_dedicated_column_name_2"] = SynapseColumn(
+        name="mock_dedicated_column_name_2",
+        type="mock_dedicated_column_type_2",
+        max_length=0,
+        precision=0,
+        is_nullable=True,
+        is_unique=False,
+        is_primary_key=False,
+    )
+
+    synapseTable = SynapseTable(
+        id="mock_dedicated_table_id",
+        name="mock_dedicated_table_name",
+        schema_name="mock_dedicated_table_schema",
+        type="TABLE",
+        column_dict=column_map,
+        create_time=to_utc_time(datetime(2022, 12, 14, 12, 30, 15, 622321)),
+        is_external=False,
     )
 
     synapseWorkspace = SynapseWorkspace(
@@ -323,8 +333,8 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
         session_id="mock_session_id",
         sql_query="INSERT INTO mock_query_table VALUE('test_id', 'test_name', 10)",
         login_name="mock_user@gmail.com",
-        start_time=to_utc_time(datetime(2022, 11, 11, 13, 9, 11, 822321)),
-        end_time=to_utc_time(datetime(2022, 11, 11, 13, 9, 11, 922321)),
+        start_time=to_utc_time(datetime(2022, 12, 14, 12, 30, 11, 822321)),
+        end_time=to_utc_time(datetime(2022, 12, 20, 12, 30, 11, 922321)),
         duration=100,
         row_count=1,
         error=None,
@@ -339,12 +349,10 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
 
     mock_workspace_instance._workspace = synapseWorkspace
 
-    mock_workspace_instance.get_dedicated_sql_pool_databases = MagicMock(
-        return_value=[workspaceSqlPoolDatabase]
+    mock_workspace_instance.get_databases = MagicMock(
+        side_effect=[[], [synapseDatabase]]
     )
-    mock_workspace_instance.get_dedicated_sql_pool_tables = MagicMock(
-        return_value=[sqlpool_table]
-    )
+    mock_workspace_instance.get_tables = MagicMock(return_value=[synapseTable])
 
     mock_workspace_instance.get_sql_pool_query_logs = MagicMock(
         return_value=[qyeryLogTable]

@@ -1,5 +1,6 @@
 [
   {
+    "_createdAt": "2022-12-14T12:30:15.622321+00:00",
     "customMetadata": {
       "metadata": [
         {
@@ -8,33 +9,44 @@
         }
       ]
     },
+    "entityType": "DATASET",
     "logicalId": {
       "account": "mock_synapse_workspace_name",
-      "name": "mock_sql_pool_database_name.dbo.mock_sql_pool_name",
+      "name": "mock_dedicated_database_name.mock_dedicated_table_schema.mock_dedicated_table_name",
       "platform": "SYNAPSE"
     },
     "schema": {
       "fields": [
         {
-          "fieldName": "mock_sql_pool_schema_column_name_1",
-          "fieldPath": "mock_sql_pool_schema_column_name_1",
-          "nativeType": "int"
+          "fieldName": "mock_dedicated_column_name_1",
+          "fieldPath": "mock_dedicated_column_name_1",
+          "isUnique": true,
+          "nativeType": "mock_dedicated_column_type_1",
+          "nullable": false,
+          "precision": 0.0
         },
         {
-          "fieldName": "mock_sql_pool_schema_column_name_2",
-          "fieldPath": "mock_sql_pool_schema_column_name_2",
-          "nativeType": "nvarchar"
+          "fieldName": "mock_dedicated_column_name_2",
+          "fieldPath": "mock_dedicated_column_name_2",
+          "isUnique": false,
+          "nativeType": "mock_dedicated_column_type_2",
+          "nullable": true,
+          "precision": 0.0
         }
       ],
       "sqlSchema": {
+        "foreignKey": [],
         "materialization": "TABLE",
-        "tableSchema": "dbo"
+        "primaryKey": [
+          "mock_dedicated_column_name_1"
+        ],
+        "tableSchema": "mock_dedicated_table_schema"
       }
     },
     "structure": {
-      "database": "mock_sql_pool_database_name",
-      "schema": "dbo",
-      "table": "mock_sql_pool_name"
+      "database": "mock_dedicated_database_name",
+      "schema": "mock_dedicated_table_schema",
+      "table": "mock_dedicated_table_name"
     }
   },
   {
@@ -47,7 +59,7 @@
         "rowsRead": 1.0,
         "sql": "INSERT INTO mock_query_table VALUE('test_id', 'test_name', 10)",
         "sqlHash": "9201928291a43ac33e20d0e88490a7a0",
-        "startTime": "2022-11-11T13:09:11.822321+00:00",
+        "startTime": "2022-12-14T12:30:11.822321+00:00",
         "type": "DML",
         "userId": "mock_user@gmail.com"
       }
