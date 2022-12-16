@@ -1,14 +1,7 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel
-
-
-class SynapseWorkspace(BaseModel):
-    id: str
-    name: str
-    type: str
-    properties: Any
 
 
 class SynapseDatabase(BaseModel):
