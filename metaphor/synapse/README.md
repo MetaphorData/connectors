@@ -4,12 +4,9 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
 
 ## Setup
 
-1. Setup Synapse SQL login and Microsoft `pymssql` library
-    1. Set up SQL admin username and admin password for Synapse workspace in [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
-    2. Follow the tutorial to install [pymssql](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16)
-    3. (Optional) may need to install [FreeTDS](https://learn.microsoft.com/en-us/sql/connect/python/pymssql/step-1-configure-development-environment-for-pymssql-python-development?view=sql-server-ver16) if installing `pymssql` into errors.
-    4. (Optional) if want to set up different username and password for Synapse connector follow this [tutorial](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/sql-authentication?tabs=serverless)
-    5. (Optional) Apple Silicon users may encounter build the error when installing `pymssql` follow [apple_silicon](https://github.com/MetaphorData/connectors/blob/main/docs/apple_silicon.md)
+1. Setup Synapse SQL login and choose either of the way to setup SQL username and password:
+    - Set up SQL admin username and admin password from Synapse workspace in [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
+    - set up non-admin username and password for Synapse connector following this [tutorial](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/sql-authentication?tabs=serverless)
 
 2. (Optional) Enable the query log by setting `lookback_days` in the config file
 
