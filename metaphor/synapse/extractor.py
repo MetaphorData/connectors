@@ -24,15 +24,9 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
     TypeEnum,
 )
-from metaphor.synapse.auth_client import AuthClient
 from metaphor.synapse.config import SynapseConfig
-from metaphor.synapse.model import (
-    DedicatedSqlPoolTable,
-    SynapseQueryLog,
-    SynapseTable,
-    SynapseWorkspace,
-    WorkspaceDatabase,
-)
+from metaphor.synapse.model import SynapseDatabase, SynapseQueryLog, SynapseTable
+from metaphor.synapse.workspace_client import WorkspaceClient
 
 logger = get_logger()
 
@@ -46,35 +40,33 @@ class SynapseExtractor(BaseExtractor):
 
     def __init__(self, config: SynapseConfig):
         super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
-        self._client = AuthClient(config)
-        self._config = config
+        self._client = WorkspaceClient(
+            config.workspace_name, config.username, config.password
+        )
+        self._tenant_id = config.tenant_id
+        self._lookback_days = config.query_log.lookback_days if config.query_log else 0
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        workspaceClient = self._client.get_workspace_client()
         logger.info(
-            f"Fetching metadata from Synapse workspace ID: {workspaceClient._workspace.id}"
+            f"Fetching metadata from Synapse workspace: {self._client.workspace_name}"
         )
 
-        start_date = (
-            start_of_day(self._config.query_log.lookback_days)
-            if self._config.query_log and self._config.query_log.lookback_days > 0
-            else start_of_day()
-        )
+        start_date = start_of_day(self._lookback_days)
         end_date = start_of_day()
-
         entities: List[ENTITY_TYPES] = []
         querylog_list: List[QueryLog] = []
+
         # Serverless sqlpool
         try:
-            for database in workspaceClient.get_databases():
-                tables = workspaceClient.get_tables(database.name)
+            for database in self._client.get_databases():
+                tables = self._client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(
-                    workspaceClient._workspace, database, tables
+                    self._client.workspace_name, database, tables
                 )
                 entities.extend(datasets)
-            if self._config.query_log and self._config.query_log.lookback_days > 0:
+            if self._lookback_days > 0:
                 querlogs = self._map_query_log(
-                    workspaceClient.get_sql_pool_query_logs(
+                    self._client.get_sql_pool_query_logs(
                         start_date,
                         end_date,
                     )
@@ -85,15 +77,15 @@ class SynapseExtractor(BaseExtractor):
 
         # Dedicated sqlpool
         try:
-            for database in workspaceClient.get_dedicated_sql_pool_databases():
-                tables = workspaceClient.get_dedicated_sql_pool_tables(database.name)
-                datasets = self._map_dedicated_sql_pool_tables_to_dataset(
-                    workspaceClient._workspace, database, tables
+            for database in self._client.get_databases(is_dedicated=True):
+                tables = self._client.get_tables(database.name, is_dedicated=True)
+                datasets = self._map_tables_to_dataset(
+                    self._client.workspace_name, database, tables
                 )
                 entities.extend(datasets)
-                if self._config.query_log and self._config.query_log.lookback_days > 0:
+                if self._lookback_days > 0:
                     querlogs = self._map_query_log(
-                        workspaceClient.get_dedicated_sql_pool_query_logs(
+                        self._client.get_dedicated_sql_pool_query_logs(
                             database.name,
                             start_date,
                             end_date,
@@ -109,8 +101,8 @@ class SynapseExtractor(BaseExtractor):
 
     def _map_tables_to_dataset(
         self,
-        workspace: SynapseWorkspace,
-        database: WorkspaceDatabase,
+        workspace_name: str,
+        database: SynapseDatabase,
         tables: List[SynapseTable],
     ):
         dataset_map: Dict[str, Dataset] = {}
@@ -119,7 +111,7 @@ class SynapseExtractor(BaseExtractor):
             dataset.created_at = table.create_time
             dataset.entity_type = EntityType.DATASET
             dataset.logical_id = DatasetLogicalID(
-                account=workspace.name,
+                account=workspace_name,
                 name=dataset_normalized_name(
                     db=database.name, schema=table.schema_name, table=table.name
                 ),
@@ -176,9 +168,7 @@ class SynapseExtractor(BaseExtractor):
     def _get_metadata(self, table: SynapseTable) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
 
-        items.append(
-            CustomMetadataItem("tenant_id", json.dumps(self._client._tenant_id))
-        )
+        items.append(CustomMetadataItem("tenant_id", json.dumps(self._tenant_id)))
 
         if table.external_file_format:
             items.append(
@@ -190,60 +180,6 @@ class SynapseExtractor(BaseExtractor):
                 CustomMetadataItem("source", json.dumps(table.external_source))
             )
         return items
-
-    def _map_dedicated_sql_pool_tables_to_dataset(
-        self,
-        workspace: SynapseWorkspace,
-        database: WorkspaceDatabase,
-        tables: List[DedicatedSqlPoolTable],
-    ):
-        dataset_map: Dict[str, Dataset] = {}
-        for table in tables:
-            dataset = Dataset()
-            dataset.logical_id = DatasetLogicalID(
-                # Use synapse workspace name as dataset account becasue it is global unique in Azure.
-                account=workspace.name,
-                name=dataset_normalized_name(
-                    db=database.name,
-                    schema=table.sqlSchema.name,
-                    table=table.name,
-                ),
-                platform=DataPlatform.SYNAPSE,
-            )
-            dataset.structure = DatasetStructure(
-                database=database.name,
-                schema=table.sqlSchema.name,
-                table=table.name,
-            )
-            fields = []
-            for column in table.columns:
-                fields.append(
-                    SchemaField(
-                        subfields=None,
-                        field_name=column["name"],
-                        field_path=column["name"],
-                        native_type=column["properties"]["columnType"],
-                    )
-                )
-
-            dataset.custom_metadata = CustomMetadata(
-                metadata=[
-                    CustomMetadataItem("tenant_id", json.dumps(self._client._tenant_id))
-                ]
-            )
-
-            dataset.schema = DatasetSchema(
-                sql_schema=SQLSchema(table_schema=table.sqlSchema.name),
-                fields=fields,
-            )
-
-            if table.sqlSchema.name == "view":
-                dataset.schema.sql_schema.materialization = MaterializationType.VIEW
-            else:
-                dataset.schema.sql_schema.materialization = MaterializationType.TABLE
-
-            dataset_map[table.id] = dataset
-        return dataset_map.values()
 
     def _map_query_log(self, rows: Iterable[SynapseQueryLog], database: str = None):
         querylog_map: Dict[str, QueryLog] = {}

@@ -1,44 +1,14 @@
-import copy
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 from metaphor.common.utils import to_utc_time
 from metaphor.synapse.model import (
-    DedicatedSqlPoolSchema,
-    DedicatedSqlPoolTable,
     SynapseColumn,
     SynapseDatabase,
     SynapseQueryLog,
     SynapseTable,
-    SynapseWorkspace,
-    WorkspaceDatabase,
 )
 from metaphor.synapse.workspace_client import WorkspaceClient, pymssql
-
-synapseWorkspace = SynapseWorkspace(
-    id="mock_workspace_id/resourceGroups/mock_resource_group/providers/",
-    name="mock_workspace_name",
-    type="WORKSPACE",
-    properties={
-        "Origin": {"Type": "mock_database_type"},
-        "connectivityEndpoints": {
-            "dev": "mock_workspace_name-dev.synapse.net",
-            "sql": "mock_workspace_name-dev.sql.synapse.net",
-            "sqlOnDemand": "mock_workspace_name-dev-on-demand.sql.synapse.net",
-        },
-        "defaultDataLakeStorage": {
-            "accountUrl": "mock_accunt_url.synapse.net",
-            "filesystem": "mock_data_lake_storage",
-        },
-    },
-)
-
-workspaceDatabase = WorkspaceDatabase(
-    id="mock_workspace_id/database/mock_database",
-    name="mock_database",
-    type="DATABASE",
-    properties={},
-)
 
 synapseDatabase = SynapseDatabase(
     id=1,
@@ -67,9 +37,7 @@ synapseColumn2 = SynapseColumn(
     is_primary_key=False,
 )
 
-workspaceClient = WorkspaceClient(
-    synapseWorkspace, "mock_subscription_id", "username", "password", {}
-)
+workspaceClient = WorkspaceClient("mock_workspace_name", "username", "password")
 
 
 def test_get_database():
@@ -90,13 +58,20 @@ def test_get_database():
 
 
 def test_get_dedicated_sql_pool_databases():
+    rows = [
+        [
+            synapseDatabase.id,
+            synapseDatabase.name,
+            synapseDatabase.create_time,
+            synapseDatabase.collation_name,
+        ]
+    ]
     with patch(
-        "metaphor.synapse.workspace_client.get_request",
-        return_value=[workspaceDatabase],
+        "metaphor.synapse.workspace_client.WorkspaceClient._sql_query_fetch_all",
+        return_value=rows,
     ):
-        dbs = workspaceClient.get_dedicated_sql_pool_databases()
-        assert len(dbs) == 1
-        assert dbs[0] == workspaceDatabase
+        dbs = workspaceClient.get_databases(True)
+        assert next(dbs) == synapseDatabase
 
 
 def test_get_tables():
@@ -145,41 +120,44 @@ def test_get_tables():
 
 
 def test_get_dedicated_sql_pool_tables():
-    schema = DedicatedSqlPoolSchema(
-        id="/schemas/mock_schema", name="mock_shcema", type="schemas"
+    col_dict = {}
+    col_dict[synapseColumn1.name] = synapseColumn1
+    col_dict[synapseColumn2.name] = synapseColumn2
+    table = SynapseTable(
+        id="mock_table_id",
+        name="mock_table",
+        schema_name="dbo",
+        type="U",
+        create_time=to_utc_time(datetime.now()),
+        column_dict=col_dict,
+        is_external=False,
     )
-
-    table = DedicatedSqlPoolTable(
-        id="/schemas/mock_schema/tables/mock_table", name="mock_table", type="tables"
-    )
-
-    columns = [
-        {
-            "id": "/schemas/mock_schema/tables/mock_table/columns/mock_col1",
-            "name": "mock_col1",
-            "type": "columns",
-            "properties": {"columnType": "nvarchar"},
-        },
-        {
-            "id": "/schemas/mock_schema/tables/mock_table/columns/mock_col2",
-            "name": "mock_col2",
-            "type": "columns",
-            "properties": {"columnType": "bit"},
-        },
-    ]
+    rows = []
+    for column in table.column_dict.values():
+        row = []
+        row.append(table.id)
+        row.append(table.name)
+        row.append(table.schema_name)
+        row.append(table.type)
+        row.append(table.create_time)
+        row.append(column.name)
+        row.append(column.max_length)
+        row.append(column.precision)
+        row.append(column.is_nullable)
+        row.append(column.type)
+        row.append(column.is_unique)
+        row.append(column.is_primary_key)
+        row.append(table.is_external)
+        row.append(column.is_foreign_key)
+        rows.append(row)
 
     with patch(
-        "metaphor.synapse.workspace_client.get_request",
-        side_effect=[[schema], [table], columns],
+        "metaphor.synapse.workspace_client.WorkspaceClient._sql_query_fetch_all",
+        return_value=rows,
     ):
-        tables = workspaceClient.get_dedicated_sql_pool_tables("mock_database")
-
-        verify_table = copy.deepcopy(table)
-        verify_table.sqlSchema = schema
-        verify_table.columns = columns
-
+        tables = workspaceClient.get_tables("mock_database", True)
         assert len(tables) == 1
-        assert tables[0] == verify_table
+        assert tables[0] == table
 
 
 def test_get_sql_pool_query_log():

@@ -10,11 +10,7 @@ def test_yaml_config(test_root_dir):
 
     assert config == SynapseConfig(
         tenant_id="tenant_id",
-        client_id="client_id",
-        secret="client_secret",
-        subscription_id="client_subscription_id",
         workspace_name="workspace_name",
-        resource_group_name="resource_group_name",
         username="username",
         password="password",
         output=OutputConfig(file={"directory": "./synapse_result"}),
@@ -35,11 +31,7 @@ def test_yaml_config_with_query_log(test_root_dir):
 
     assert config == SynapseConfig(
         tenant_id="tenant_id",
-        client_id="client_id",
-        secret="client_secret",
-        subscription_id="client_subscription_id",
         workspace_name="workspace_name",
-        resource_group_name="resource_group_name",
         username="username",
         password="password",
         query_log=SynapseQueryLogConfig(15),
