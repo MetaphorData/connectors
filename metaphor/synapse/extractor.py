@@ -77,8 +77,8 @@ class SynapseExtractor(BaseExtractor):
 
         # Dedicated sqlpool
         try:
-            for database in self._client.get_databases(True):
-                tables = self._client.get_tables(database.name, True)
+            for database in self._client.get_databases(is_dedicated=True):
+                tables = self._client.get_tables(database.name, is_dedicated=True)
                 datasets = self._map_tables_to_dataset(
                     self._client.workspace_name, database, tables
                 )
