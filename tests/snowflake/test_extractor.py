@@ -74,7 +74,6 @@ def test_fetch_tables():
         [
             (database, schema, table_name, table_type, "comment1", 10, 20000),
             (database, schema, "foo.bar", table_type, "", 0, 0),
-            ("excluded_db", schema, table_name, table_type, "", 0, 0),
         ]
     )
 
@@ -87,7 +86,7 @@ def test_fetch_tables():
             )
         )
 
-        extractor._fetch_tables(mock_cursor, [])
+        extractor._fetch_tables(mock_cursor, database)
 
         assert len(extractor._datasets) == 1
         dataset = extractor._datasets[normalized_name]
@@ -105,8 +104,8 @@ def test_fetch_columns():
 
     mock_cursor.__iter__.return_value = iter(
         [
-            (database, schema, table_name, column, "int", 10, 1, "YES", 0, "comment1"),
-            (database, schema, "foo.bar", column, "str", 0, 0, "NO", 0, ""),
+            (schema, table_name, column, "int", 10, 1, "YES", 0, "comment1"),
+            (schema, "foo.bar", column, "str", 0, 0, "NO", 0, ""),
         ]
     )
 
@@ -118,7 +117,7 @@ def test_fetch_columns():
         )
         extractor._datasets[normalized_name] = dataset
 
-        extractor._fetch_columns(mock_cursor, [])
+        extractor._fetch_columns(mock_cursor, database)
 
         assert len(dataset.schema.fields) == 1
         assert dataset.schema.fields[0].field_path == column
@@ -151,7 +150,7 @@ def test_fetch_table_info():
         )
         extractor._datasets[normalized_name] = dataset
 
-        extractor._fetch_table_info({normalized_name: table_info}, [])
+        extractor._fetch_table_info({normalized_name: table_info}, False)
 
         assert dataset.schema.sql_schema.table_schema == "ddl"
         assert dataset.statistics.last_updated == datetime.utcfromtimestamp(0).replace(

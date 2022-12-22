@@ -4,7 +4,7 @@ from concurrent import futures
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Callable, Collection, Dict, List, Optional, Set, Tuple
+from typing import Callable, Dict, List, Optional, Set, Tuple
 
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
@@ -95,11 +95,6 @@ def async_execute(
                 results_processor(key, results)
 
         return results_map
-
-
-def term_in_clause(term: str, values: Collection[str]) -> str:
-    """Builds a multi-value IN clause for term matching"""
-    return f"and {term} IN (%s)" if len(values) > 0 else ""
 
 
 def exclude_username_clause(excluded_usernames: Set[str]) -> str:

@@ -71,8 +71,8 @@ def test_fetch_tables():
 
     mock_cursor.__iter__.return_value = iter(
         [
-            (schema, table_name, table_type, "comment1", 10, 20000),
-            (schema, table_name, SnowflakeTableType.VIEW.value, "", 0, 0),
+            (database, schema, table_name, table_type, "comment1", 10, 20000),
+            (database, schema, table_name, SnowflakeTableType.VIEW.value, "", 0, 0),
         ]
     )
 
