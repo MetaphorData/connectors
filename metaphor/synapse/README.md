@@ -7,7 +7,7 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
 1. Setup Synapse SQL login and SQL user:
     - Set up the SQL admin username and password from Synapse workspace in [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
     - You could directly use the above admin user to process the Synapse connector.
-      For security and privacy reasons, we recommend creating a read-only user to process the Synapse connector.
+      We recommend creating a dedicated [non-adminitrator user](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/sql-authentication?tabs=provisioned#non-administrator-users) for the connector.
       There are many ways to create read-only users. You could refer [tutorial](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/sql-authentication?tabs=provisioned#non-administrator-users)
       or follow steps:
       1. Open [Synapse studio](https://learn.microsoft.com/en-us/azure/synapse-analytics/get-started-create-workspace#open-synapse-studio):
