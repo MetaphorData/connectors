@@ -213,18 +213,25 @@ class WorkspaceClient:
     def _sql_query_fetch_all(
         self, endpoint: str, query_str: str, database: str = ""
     ) -> List[Any]:
-        server = endpoint
-        database_str = f"{database}" if len(database) > 0 else ""
-        conn = pymssql.connect(
-            server=server,
-            user=f'{self._username}@{endpoint.split(".")[0]}',
-            password=self._password,
-            database=database_str,
-            conn_properties="",
-        )
-        cursor = conn.cursor()
-        cursor.execute(query_str)
-        rows = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return rows
+        rows = []
+        try:
+            server = endpoint
+            database_str = f"{database}" if len(database) > 0 else ""
+            conn = pymssql.connect(
+                server=server,
+                user=f'{self._username}@{endpoint.split(".")[0]}',
+                password=self._password,
+                database=database_str,
+                conn_properties="",
+            )
+            cursor = conn.cursor()
+            cursor.execute(query_str)
+            rows = cursor.fetchall()
+            cursor.close()
+            conn.close()
+        except Exception as ex:
+            logger.exception(
+                f"endpoint[{endpoint}] \n database:[{database}] \n sql query error: {ex}"
+            )
+        finally:
+            return rows
