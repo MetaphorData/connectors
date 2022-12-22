@@ -5,7 +5,7 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
 ## Setup
 
 1. Setup Synapse SQL login and SQL user:
-    - Set up SQL admin username and admin password from Synapse workspace in [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
+    - Set up the SQL admin username and password from Synapse workspace in [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
     - You could directly use the above admin user to process the Synapse connector.
       For security and privacy reasons, we recommend creating a read-only user to process the Synapse connector.
       There are many ways to create read-only users. You could refer [tutorial](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/sql-authentication?tabs=provisioned#non-administrator-users)
@@ -14,7 +14,7 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
       2. Select `Develop` on the left panel and create one SQL script
 
       3. If you have both serverless SQL databases and dedicated SQL databases, need to set them up respectively
-          - Serverless: <br>
+          ### Serverless
             Create the read-only user for all databases
             ```bash
             # nagivate to master database
@@ -23,8 +23,8 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
             GRANT CONNECT ANY DATABASE TO <username>;
             GRANT SELECT ALL USER SECURABLES TO <username>;
             ```
-          - Dedicated SQL: <br>
-            Create the read-only user and add the permssion for every dedicated SQL database
+          ### Dedicated SQL
+            Create the read-only user and add permission for every dedicated SQL database
             ```bash
             # nagivate to master database
             CREATE LOGIN <username> WITH PASSWORD = '<password>'
