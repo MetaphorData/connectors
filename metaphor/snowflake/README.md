@@ -19,6 +19,14 @@ set password = '<password>';
 create role identifier($role) comment = 'Limited access role for Metaphor connector';
 grant usage on warehouse identifier($warehouse) to role identifier($role);
 grant usage on database identifier($db) to role identifier($role);
+grant usage on all schemas in database identifier($db) to role identifier($role);
+grant usage on future schemas in database identifier($db) to role identifier($role);
+grant references on all tables in database identifier($db) to role identifier($role);
+grant references on future tables in database identifier($db) to role identifier($role);
+grant references on all views in database identifier($db) to role identifier($role);
+grant references on future views in database identifier($db) to role identifier($role);
+grant references on all materialized views in database identifier($db) to role identifier($role);
+grant references on future materialized views in database identifier($db) to role identifier($role);
 -- Grant permissions to access the snowflake "Account Usage" views:
 grant imported privileges on database snowflake to role identifier($role);
 -- If there are inbound shared databases, grant permissions to "show shares"
@@ -31,7 +39,6 @@ create user identifier($user)
     default_role = $role
     comment = 'User for Metaphor connector';
 grant role identifier($role) to user identifier($user);
-alter user identifier($user) set DEFAULT_ROLE = $role;
 ```
 
 ### Key Pair Authentication (Optional)
@@ -40,21 +47,6 @@ If you intend to use key pair authentication instead of password, follow the [Sn
 
 ```sql
 alter user identifier($user) set rsa_public_key='<public_key_content>';
-```
-
-### Fetching extra info (Optional)
-
-To fetch extra table information such as the last modified time or DDL, please grant the following additional privileges to the newly created role.
-
-```sql
-grant usage on all schemas in database identifier($db) to role identifier($role);
-grant usage on future schemas in database identifier($db) to role identifier($role);
-grant references on all tables in database identifier($db) to role identifier($role);
-grant references on future tables in database identifier($db) to role identifier($role);
-grant references on all views in database identifier($db) to role identifier($role);
-grant references on future views in database identifier($db) to role identifier($role);
-grant references on all materialized views in database identifier($db) to role identifier($role);
-grant references on future materialized views in database identifier($db) to role identifier($role);
 ```
 
 ## Config File
@@ -98,14 +90,6 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 ### Optional Configurations
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
-
-#### Fetch Extra Table Information
-
-By default, the connector fetches extra table information such as LAST_CHANGE_COMMIT_TIME or DDL. This requires additional grants to all the tables. The connector will print warning messages if it has insufficient permissions. To disable this feature altogether, add the following to your config:
-
-```yaml
-fetch_extra_table_info: false
-```
 
 #### Query Logs
 

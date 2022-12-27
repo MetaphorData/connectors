@@ -84,24 +84,17 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         return self._datasets.values()
 
-    FETCH_TABLE_QUERY = """
-    SELECT table_schema, table_name, table_type, COMMENT, row_count, bytes
-    FROM information_schema.tables
-    WHERE table_schema != 'INFORMATION_SCHEMA'
-    ORDER BY table_schema, table_name
-    """
-
     def _fetch_tables(self, cursor, database: str) -> Dict[str, DatasetInfo]:
         try:
             cursor.execute("USE " + database)
         except ProgrammingError:
             raise ValueError(f"Invalid or inaccessible database {database}")
 
-        cursor.execute(self.FETCH_TABLE_QUERY)
+        cursor.execute(SnowflakeExtractor.FETCH_TABLE_QUERY)
 
         tables: Dict[str, DatasetInfo] = {}
         for row in cursor:
-            schema, name, table_type, row_count = row[0], row[1], row[2], row[4]
+            schema, name, table_type, row_count = row[1], row[2], row[3], row[5]
             if (
                 not self._include_views
                 and table_type != SnowflakeTableType.BASE_TABLE.value
