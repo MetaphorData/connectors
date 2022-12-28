@@ -4,9 +4,28 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
 
 ## Setup
 
-1. Setup Synapse SQL login and choose either of the way to setup SQL username and password:
-    - Set up SQL admin username and admin password from Synapse workspace in [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
-    - set up non-admin username and password for Synapse connector following this [tutorial](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/sql-authentication?tabs=serverless)
+1. We recommend creating a dedicated Synapse user with limited permissions for the connector to use
+    - Set up the SQL admin username and password from Synapse workspace in [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
+    - You could directly use the above admin user to process the Synapse connector.
+      For security and privacy reasons, we recommend creating a read-only user to process the Synapse connector.
+      1. Set up the read-only user for serverless SQL databases
+          ```sql
+          -- nagivate to master database
+          CREATE LOGIN <username> WITH PASSWORD = '<password>'
+          GRANT CONNECT ANY DATABASE TO <username>;
+          GRANT VIEW ANY DEFINITION TO  <username>;
+          ```
+      2. Set up the read-only user for dedicated SQL databases
+          ```sql
+          -- nagivate to master database
+          CREATE LOGIN <username> WITH PASSWORD = '<password>'
+          CREATE USER <username> FROM LOGIN <username>
+          -- switch to user dedicated SQL database
+          CREATE USER <username> FROM LOGIN <username>
+          GRANT VIEW DEFINITION TO <username>
+          GRANT VIEW DATABASE STATE TO <username>
+          ```
+          > Note: You'll need to run the above command for each database you'd like to connect to.
 
 2. (Optional) Enable the query log by setting `lookback_days` in the config file
 

@@ -60,6 +60,8 @@ class SynapseExtractor(BaseExtractor):
         try:
             for database in self._client.get_databases():
                 tables = self._client.get_tables(database.name)
+                if len(tables) == 0:
+                    continue
                 datasets = self._map_tables_to_dataset(
                     self._client.workspace_name, database, tables
                 )
@@ -79,6 +81,8 @@ class SynapseExtractor(BaseExtractor):
         try:
             for database in self._client.get_databases(is_dedicated=True):
                 tables = self._client.get_tables(database.name, is_dedicated=True)
+                if len(tables) == 0:
+                    continue
                 datasets = self._map_tables_to_dataset(
                     self._client.workspace_name, database, tables
                 )
