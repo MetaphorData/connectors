@@ -56,10 +56,24 @@ class MockPager:
 
 def dummy_config():
     return TableauRunConfig(
-        server_url="url",
-        site_name="name",
+        server_url="https://10ax.online.tableau.com",
+        site_name="abc",
         access_token=TableauTokenAuthConfig(token_name="name", token_value="value"),
         output=OutputConfig(),
+    )
+
+
+def test_build_base_url():
+    # Tableau Online
+    assert (
+        TableauExtractor._build_base_url("https://10ax.online.tableau.com", "abc")
+        == "https://10ax.online.tableau.com/#/site/abc"
+    )
+
+    # Tableau Server with Default Site
+    assert (
+        TableauExtractor._build_base_url("https://tableau01", "")
+        == "https://tableau01/#"
     )
 
 
@@ -67,7 +81,6 @@ def test_view_url():
     view_name = "Regional/sheets/Obesity"
 
     extractor = TableauExtractor(dummy_config())
-    extractor._base_url = "https://10ax.online.tableau.com/#/site/abc"
 
     view_url = extractor._build_view_url(view_name)
 
@@ -76,22 +89,20 @@ def test_view_url():
     )
 
 
-def test_parse_workbook_url():
-    extractor = TableauExtractor(dummy_config())
-
+def test_extract_workbook_id():
     # Tableau Online
-    base_url, workbook_id = extractor._parse_workbook_url(
-        "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
+    assert (
+        TableauExtractor._extract_workbook_id(
+            "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
+        )
+        == "123"
     )
-    assert base_url == "https://10ax.online.tableau.com/#/site/abc"
-    assert workbook_id == "123"
 
     # Tableau Server with Default Site
-    base_url, workbook_id = extractor._parse_workbook_url(
-        "https://tableau01/#/workbooks/123"
+    assert (
+        TableauExtractor._extract_workbook_id("https://tableau01/#/workbooks/123")
+        == "123"
     )
-    assert base_url == "https://tableau01/#"
-    assert workbook_id == "123"
 
 
 def test_parse_dataset_id():
