@@ -3,6 +3,8 @@ from typing import Any, Dict, Iterable, List
 
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import to_utc_time
+
+# from metaphor.mssql.mssql_client import MssqlClient
 from metaphor.synapse.model import (
     SynapseColumn,
     SynapseDatabase,
