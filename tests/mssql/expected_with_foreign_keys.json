@@ -13,7 +13,7 @@
     "logicalId": {
       "account": "mock_server_name",
       "name": "mock_database_name.mock_mssql_table_schema.mock_mssql_table_name",
-      "platform": "SYNAPSE"
+      "platform": "MSSQL"
     },
     "schema": {
       "fields": [
@@ -63,7 +63,7 @@
     "logicalId": {
       "account": "mock_server_name",
       "name": "mock_database_name.mock_mssql_table_schema_2.mock_mssql_table_name_2",
-      "platform": "SYNAPSE"
+      "platform": "MSSQL"
     },
     "schema": {
       "fields": [
@@ -91,7 +91,7 @@
             "parent": {
               "account": "mock_server_name",
               "name": "mock_database_name.mock_mssql_table_schema.mock_mssql_table_name",
-              "platform": "SYNAPSE"
+              "platform": "MSSQL"
             },
             "parentField": "mock_column_name_2"
           }

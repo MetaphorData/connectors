@@ -21,7 +21,7 @@
     "logicalId": {
       "account": "mock_server_name",
       "name": "mock_database_name.mock_mssql_table_schema.mock_mssql_table_name",
-      "platform": "SYNAPSE"
+      "platform": "MSSQL"
     },
     "schema": {
       "fields": [

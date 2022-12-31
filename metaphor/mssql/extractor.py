@@ -38,10 +38,9 @@ class MssqlExtractor(BaseExtractor):
         self,
         config: MssqlConfig,
         description="Mssql metadata crawler",
-        platform=Platform.SYNAPSE,
-        dataset_platform=DataPlatform.SYNAPSE,
+        platform=Platform.MSSQL,
+        dataset_platform=DataPlatform.MSSQL,
     ):
-        # TODO: add to app Platform.Mssql
         super().__init__(config, description, platform)
         self.config = config
         self._platform = platform
@@ -50,7 +49,6 @@ class MssqlExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Mssql server: {self.config.server_name}")
 
-        # TODO: test create new one to verify
         endpoint = f"{self.config.server_name}.database.windows.net"
         client = MssqlClient(endpoint, self.config.username, self.config.password)
 
