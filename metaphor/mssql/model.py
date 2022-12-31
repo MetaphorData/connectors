@@ -4,6 +4,12 @@ from typing import Dict, Optional
 from pydantic import BaseModel
 
 
+class MssqlConnectConfig(BaseModel):
+    endpoint: str
+    username: str
+    password: str
+
+
 class MssqlDatabase(BaseModel):
     id: int
     name: str

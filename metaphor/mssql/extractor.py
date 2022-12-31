@@ -34,27 +34,34 @@ class MssqlExtractor(BaseExtractor):
     def from_config_file(config_file: str) -> "MssqlExtractor":
         return MssqlExtractor(MssqlConfig.from_yaml_file(config_file))
 
-    def __init__(self, config: MssqlConfig):
+    def __init__(
+        self,
+        config: MssqlConfig,
+        description="Mssql metadata crawler",
+        platform=Platform.SYNAPSE,
+        dataset_platform=DataPlatform.SYNAPSE,
+    ):
         # TODO: add to app Platform.Mssql
-        super().__init__(
-            config, "Mssql metadata crawler", Platform.SYNAPSE
-        )  # TODO: change in app
-        self._server_name = config.server_name
-        endpoint = f"{config.server_name}.database.windows.net"
-        self._client = MssqlClient(endpoint, config.username, config.password)
-        # self._tenant_id = config.tenant_id
+        super().__init__(config, description, platform)
+        self.config = config
+        self._platform = platform
+        self._dataset_platform = dataset_platform
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info(f"Fetching metadata from Mssql server: ${self._server_name}")
+        logger.info(f"Fetching metadata from Mssql server: {self.config.server_name}")
+
+        # TODO: test create new one to verify
+        endpoint = f"{self.config.server_name}.database.windows.net"
+        client = MssqlClient(endpoint, self.config.username, self.config.password)
 
         entities: List[ENTITY_TYPES] = []
         try:
-            for database in self._client.get_databases():
-                tables = self._client.get_tables(database.name)
+            for database in client.get_databases():
+                tables = client.get_tables(database.name)
                 if len(tables) == 0:
                     continue
                 datasets = self._map_tables_to_dataset(
-                    self._server_name, database, tables
+                    self.config.server_name, database, tables, client
                 )
                 entities.extend(datasets)
         except Exception as error:
@@ -66,6 +73,7 @@ class MssqlExtractor(BaseExtractor):
         sql_server_name: str,
         database: MssqlDatabase,
         tables: List[MssqlTable],
+        client: MssqlClient,
     ):
         dataset_map: Dict[str, Dataset] = {}
         for table in tables:
@@ -77,7 +85,7 @@ class MssqlExtractor(BaseExtractor):
                 name=dataset_normalized_name(
                     db=database.name, schema=table.schema_name, table=table.name
                 ),
-                platform=DataPlatform.SYNAPSE,  # TODO: change in app
+                platform=self._dataset_platform,
             )
             dataset.structure = DatasetStructure(
                 database=database.name,
@@ -123,7 +131,7 @@ class MssqlExtractor(BaseExtractor):
             dataset_map[table.id] = dataset
 
         # get foreign keys
-        for fk in self._client.get_foreign_keys(database.name):
+        for fk in client.get_foreign_keys(database.name):
             if fk.table_id in dataset_map:
                 foreign_key = ForeignKey(
                     field_path=fk.column_name,
@@ -139,8 +147,7 @@ class MssqlExtractor(BaseExtractor):
     def _get_metadata(self, table: MssqlTable) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
 
-        # TODO: maybe no need
-        # items.append(CustomMetadataItem("tenant_id", json.dumps(self._tenant_id)))
+        items.append(CustomMetadataItem("tenant_id", json.dumps(self.config.tenant_id)))
 
         if table.external_file_format:
             items.append(

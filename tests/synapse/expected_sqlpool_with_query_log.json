@@ -53,6 +53,7 @@
     "logs": [
       {
         "_id": "SYNAPSE:mock_request_id",
+        "defaultDatabase": "mock_dedicated_database_name",
         "duration": 0.1,
         "platform": "SYNAPSE",
         "queryId": "mock_request_id",

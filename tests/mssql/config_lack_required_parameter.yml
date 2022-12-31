@@ -1,0 +1,5 @@
+---
+tenant_id: tenant_id
+output:
+  file:
+    directory: ./mssql_result

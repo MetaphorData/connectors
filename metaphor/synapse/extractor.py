@@ -1,37 +1,26 @@
-import json
 from typing import Collection, Dict, Iterable, List
 
-from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.utils import generate_querylog_id, md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
-    CustomMetadata,
-    CustomMetadataItem,
     DataPlatform,
-    Dataset,
-    DatasetLogicalID,
-    DatasetSchema,
-    DatasetStructure,
-    EntityType,
-    MaterializationType,
     Parsing,
     QueryLog,
-    SchemaField,
-    SQLSchema,
     TypeEnum,
 )
+from metaphor.mssql.extractor import MssqlExtractor
+from metaphor.mssql.mssql_client import MssqlClient
 from metaphor.synapse.config import SynapseConfig
-from metaphor.synapse.model import SynapseDatabase, SynapseQueryLog, SynapseTable
-from metaphor.synapse.workspace_client import WorkspaceClient
+from metaphor.synapse.model import SynapseQueryLog
+from metaphor.synapse.workspace_query import WorkspaceQuery
 
 logger = get_logger()
 
 
-class SynapseExtractor(BaseExtractor):
+class SynapseExtractor(MssqlExtractor):
     """Synapse metadata extractor"""
 
     @staticmethod
@@ -39,18 +28,27 @@ class SynapseExtractor(BaseExtractor):
         return SynapseExtractor(SynapseConfig.from_yaml_file(config_file))
 
     def __init__(self, config: SynapseConfig):
-        super().__init__(config, "Synapse metadata crawler", Platform.SYNAPSE)
-        self._client = WorkspaceClient(
-            config.workspace_name, config.username, config.password
+        super().__init__(
+            config, "Synapse metadata crawler", Platform.SYNAPSE, DataPlatform.SYNAPSE
         )
-        self._tenant_id = config.tenant_id
+        self.config = config
         self._lookback_days = config.query_log.lookback_days if config.query_log else 0
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(
-            f"Fetching metadata from Synapse workspace: {self._client.workspace_name}"
+            f"Fetching metadata from Synapse workspace: {self.config.server_name}"
         )
 
+        sql_query_endpoint = f"{self.config.server_name}.sql.azuresynapse.net"
+        sql_on_demand_query_endpoint = (
+            f"{self.config.server_name}-ondemand.sql.azuresynapse.net"
+        )
+        serverless_client = MssqlClient(
+            sql_on_demand_query_endpoint, self.config.username, self.config.password
+        )
+        dedicated_client = MssqlClient(
+            sql_query_endpoint, self.config.username, self.config.password
+        )
         start_date = start_of_day(self._lookback_days)
         end_date = start_of_day()
         entities: List[ENTITY_TYPES] = []
@@ -58,17 +56,18 @@ class SynapseExtractor(BaseExtractor):
 
         # Serverless sqlpool
         try:
-            for database in self._client.get_databases():
-                tables = self._client.get_tables(database.name)
+            for database in serverless_client.get_databases():
+                tables = serverless_client.get_tables(database.name)
                 if len(tables) == 0:
                     continue
                 datasets = self._map_tables_to_dataset(
-                    self._client.workspace_name, database, tables
+                    self.config.server_name, database, tables, serverless_client
                 )
                 entities.extend(datasets)
             if self._lookback_days > 0:
                 querlogs = self._map_query_log(
-                    self._client.get_sql_pool_query_logs(
+                    WorkspaceQuery.get_sql_pool_query_logs(
+                        serverless_client.config,
                         start_date,
                         end_date,
                     )
@@ -79,17 +78,18 @@ class SynapseExtractor(BaseExtractor):
 
         # Dedicated sqlpool
         try:
-            for database in self._client.get_databases(is_dedicated=True):
-                tables = self._client.get_tables(database.name, is_dedicated=True)
+            for database in dedicated_client.get_databases():
+                tables = dedicated_client.get_tables(database.name)
                 if len(tables) == 0:
                     continue
                 datasets = self._map_tables_to_dataset(
-                    self._client.workspace_name, database, tables
+                    self.config.server_name, database, tables, dedicated_client
                 )
                 entities.extend(datasets)
                 if self._lookback_days > 0:
                     querlogs = self._map_query_log(
-                        self._client.get_dedicated_sql_pool_query_logs(
+                        WorkspaceQuery.get_dedicated_sql_pool_query_logs(
+                            dedicated_client.config,
                             database.name,
                             start_date,
                             end_date,
@@ -102,88 +102,6 @@ class SynapseExtractor(BaseExtractor):
 
         entities.extend(chunk_query_logs(querylog_list))
         return entities
-
-    def _map_tables_to_dataset(
-        self,
-        workspace_name: str,
-        database: SynapseDatabase,
-        tables: List[SynapseTable],
-    ):
-        dataset_map: Dict[str, Dataset] = {}
-        for table in tables:
-            dataset = Dataset()
-            dataset.created_at = table.create_time
-            dataset.entity_type = EntityType.DATASET
-            dataset.logical_id = DatasetLogicalID(
-                account=workspace_name,
-                name=dataset_normalized_name(
-                    db=database.name, schema=table.schema_name, table=table.name
-                ),
-                platform=DataPlatform.SYNAPSE,
-            )
-            dataset.structure = DatasetStructure(
-                database=database.name,
-                schema=table.schema_name,
-                table=table.name,
-            )
-            fields = []
-            primary_keys = []
-            foreign_keys = []
-            for column in table.column_dict.values():
-                fields.append(
-                    SchemaField(
-                        subfields=None,
-                        field_name=column.name,
-                        field_path=column.name,
-                        max_length=column.max_length if column.max_length > 0 else None,
-                        nullable=column.is_nullable,
-                        precision=column.precision,
-                        native_type=column.type,
-                        is_unique=column.is_unique,
-                    )
-                )
-                if column.is_primary_key:
-                    primary_keys.append(column.name)
-                if column.is_foreign_key:
-                    foreign_keys.append(column.name)
-
-            dataset.custom_metadata = CustomMetadata(metadata=self._get_metadata(table))
-
-            dataset.schema = DatasetSchema(
-                sql_schema=SQLSchema(
-                    table_schema=table.schema_name,
-                    primary_key=primary_keys,
-                    foreign_key=foreign_keys,
-                ),
-                fields=fields,
-            )
-
-            if table.is_external:
-                dataset.schema.sql_schema.materialization = MaterializationType.EXTERNAL
-            elif table.type == "V":
-                dataset.schema.sql_schema.materialization = MaterializationType.VIEW
-            else:
-                dataset.schema.sql_schema.materialization = MaterializationType.TABLE
-
-            dataset_map[table.id] = dataset
-
-        return dataset_map.values()
-
-    def _get_metadata(self, table: SynapseTable) -> List[CustomMetadataItem]:
-        items: List[CustomMetadataItem] = []
-
-        items.append(CustomMetadataItem("tenant_id", json.dumps(self._tenant_id)))
-
-        if table.external_file_format:
-            items.append(
-                CustomMetadataItem("format", json.dumps(table.external_file_format))
-            )
-
-        if table.external_source:
-            items.append(
-                CustomMetadataItem("source", json.dumps(table.external_source))
-            )
-        return items
 
     def _map_query_log(self, rows: Iterable[SynapseQueryLog], database: str = None):
         querylog_map: Dict[str, QueryLog] = {}

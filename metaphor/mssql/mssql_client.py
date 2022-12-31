@@ -2,15 +2,50 @@ from typing import Any, Dict, Iterable, List
 
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import to_utc_time
-from metaphor.mssql.model import MssqlColumn, MssqlDatabase, MssqlForeignKey, MssqlTable
+from metaphor.mssql.model import (
+    MssqlColumn,
+    MssqlConnectConfig,
+    MssqlDatabase,
+    MssqlForeignKey,
+    MssqlTable,
+)
 
 try:
     import pymssql
 except ImportError:
-    print("Please install metaphor[mmsql] extra\n")
+    print("Please install metaphor[mssql] extra\n")
     raise
 
 logger = get_logger()
+
+
+def mssql_fetch_all(
+    config: MssqlConnectConfig,
+    query_str: str,
+    database: str = "",
+) -> List[Any]:
+    rows = []
+    try:
+        server = config.endpoint
+        database_str = f"{database}" if len(database) > 0 else ""
+        conn = pymssql.connect(
+            server=server,
+            user=f'{config.username}@{config.endpoint.split(".")[0]}',
+            password=config.password,
+            database=database_str,
+            conn_properties="",
+        )
+        cursor = conn.cursor()
+        cursor.execute(query_str)
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except Exception as ex:
+        logger.exception(
+            f"endpoint[{config.endpoint}] \n database:[{database}] \n sql query error: {ex}"
+        )
+    finally:
+        return rows
 
 
 class MssqlClient:
@@ -20,15 +55,15 @@ class MssqlClient:
         username: str,
         password: str,
     ):
-        self._endpoint = endpoint
-        self._username = username
-        self._password = password
+        self.config = MssqlConnectConfig(
+            endpoint=endpoint, username=username, password=password
+        )
 
     def get_databases(self) -> Iterable[MssqlDatabase]:
         query_str = """
             SELECT database_id, name, create_date, collation_name from sys.databases where name != 'master';
         """
-        rows = self._sql_query_fetch_all(self._endpoint, query_str)
+        rows = mssql_fetch_all(self.config, query_str)
         for row in rows:
             yield MssqlDatabase(
                 id=row[0],
@@ -56,7 +91,7 @@ class MssqlClient:
                 ON i.object_id = ic.object_id AND i.index_id = ic.index_id
         ) AS idx ON t.object_id = idx.object_id AND c.column_id = idx.column_id
         """
-        rows = self._sql_query_fetch_all(self._endpoint, query_str, database_name)
+        rows = mssql_fetch_all(self.config, query_str, database_name)
 
         table_dict: Dict[str, MssqlTable] = {}
 
@@ -81,9 +116,7 @@ class MssqlClient:
                         ON ext.file_format_id = exf.file_format_id
                         WHERE ext.object_id = '{row[0]}';
                     """
-                    rows = self._sql_query_fetch_all(
-                        self._endpoint, query_str, database_name
-                    )
+                    rows = mssql_fetch_all(self.config, query_str, database_name)
                     if len(rows) == 1:
                         table.external_source = rows[0][0]
                         table.external_file_format = rows[0][1]
@@ -130,7 +163,7 @@ class MssqlClient:
         ORDER BY t_parent.name, c_parent.name;
         """
 
-        rows = self._sql_query_fetch_all(self._endpoint, query_str, database_name)
+        rows = mssql_fetch_all(self.config, query_str, database_name)
 
         for row in rows:
             yield MssqlForeignKey(
@@ -140,29 +173,3 @@ class MssqlClient:
                 referenced_table_id=row[3],
                 referenced_column=row[4],
             )
-
-    def _sql_query_fetch_all(
-        self, endpoint: str, query_str: str, database: str = ""
-    ) -> List[Any]:
-        rows = []
-        try:
-            server = endpoint
-            database_str = f"{database}" if len(database) > 0 else ""
-            conn = pymssql.connect(
-                server=server,
-                user=f'{self._username}@{endpoint.split(".")[0]}',
-                password=self._password,
-                database=database_str,
-                conn_properties="",
-            )
-            cursor = conn.cursor()
-            cursor.execute(query_str)
-            rows = cursor.fetchall()
-            cursor.close()
-            conn.close()
-        except Exception as ex:
-            logger.exception(
-                f"endpoint[{endpoint}] \n database:[{database}] \n sql query error: {ex}"
-            )
-        finally:
-            return rows
