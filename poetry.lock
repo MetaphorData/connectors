@@ -534,7 +534,7 @@ typing_extensions = {version = "*", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "certifi"
-version = "2022.9.24"
+version = "2022.12.7"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
@@ -2893,7 +2893,7 @@ unity-catalog = ["databricks-cli"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
+python-versions = ">=3.7,<3.11"
 content-hash = "b48a66dcc819fa6f107f62b844cfa64da7f34946c4682124402c80f9b6fb9c2f"
 
 [metadata.files]
@@ -3048,8 +3048,8 @@ cattrs = [
     {file = "cattrs-22.2.0.tar.gz", hash = "sha256:f0eed5642399423cf656e7b66ce92cdc5b963ecafd041d1b24d136fdde7acf6d"},
 ]
 certifi = [
-    {file = "certifi-2022.9.24-py3-none-any.whl", hash = "sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382"},
-    {file = "certifi-2022.9.24.tar.gz", hash = "sha256:0d9c601124e5a6ba9712dbc60d9c53c21e34f5f641fe83002317394311bdce14"},
+    {file = "certifi-2022.12.7-py3-none-any.whl", hash = "sha256:4ad3232f5e926d6718ec31cfc1fcadfde020920e278684144551c91769c7bc18"},
+    {file = "certifi-2022.12.7.tar.gz", hash = "sha256:35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"},
 ]
 cffi = [
     {file = "cffi-1.15.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:a66d3508133af6e8548451b25058d5812812ec3798c886bf38ed24a98216fab2"},
@@ -4033,6 +4033,7 @@ pycryptodomex = [
     {file = "pycryptodomex-3.15.0-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:fc9bc7a9b79fe5c750fc81a307052f8daabb709bdaabb0fb18fb136b66b653b5"},
     {file = "pycryptodomex-3.15.0-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:f8be976cec59b11f011f790b88aca67b4ea2bd286578d0bd3e31bcd19afcd3e4"},
     {file = "pycryptodomex-3.15.0-cp27-cp27m-manylinux2014_aarch64.whl", hash = "sha256:78d9621cf0ea35abf2d38fa2ca6d0634eab6c991a78373498ab149953787e5e5"},
+    {file = "pycryptodomex-3.15.0-cp27-cp27m-musllinux_1_1_aarch64.whl", hash = "sha256:7db44039cc8b449bd08ab338a074e87093bd170f1a1b76d2fcef8a3e2ee11199"},
     {file = "pycryptodomex-3.15.0-cp27-cp27m-win32.whl", hash = "sha256:b6306403228edde6e289f626a3908a2f7f67c344e712cf7c0a508bab3ad9e381"},
     {file = "pycryptodomex-3.15.0-cp27-cp27m-win_amd64.whl", hash = "sha256:48697790203909fab02a33226fda546604f4e2653f9d47bc5d3eb40879fa7c64"},
     {file = "pycryptodomex-3.15.0-cp27-cp27mu-manylinux1_i686.whl", hash = "sha256:18e2ab4813883ae63396c0ffe50b13554b32bb69ec56f0afaf052e7a7ae0d55b"},
@@ -4040,12 +4041,14 @@ pycryptodomex = [
     {file = "pycryptodomex-3.15.0-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:191e73bc84a8064ad1874dba0ebadedd7cce4dedee998549518f2c74a003b2e1"},
     {file = "pycryptodomex-3.15.0-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:e3164a18348bd53c69b4435ebfb4ac8a4076291ffa2a70b54f0c4b80c7834b1d"},
     {file = "pycryptodomex-3.15.0-cp27-cp27mu-manylinux2014_aarch64.whl", hash = "sha256:5676a132169a1c1a3712edf25250722ebc8c9102aa9abd814df063ca8362454f"},
+    {file = "pycryptodomex-3.15.0-cp27-cp27mu-musllinux_1_1_aarch64.whl", hash = "sha256:781efd04ea6762bb2ef7d4fa632c9c89895433744b6c345bd0c239d5ab058dfc"},
     {file = "pycryptodomex-3.15.0-cp35-abi3-macosx_10_9_x86_64.whl", hash = "sha256:e2b12968522a0358b8917fc7b28865acac002f02f4c4c6020fcb264d76bfd06d"},
     {file = "pycryptodomex-3.15.0-cp35-abi3-manylinux1_i686.whl", hash = "sha256:e47bf8776a7e15576887f04314f5228c6527b99946e6638cf2f16da56d260cab"},
     {file = "pycryptodomex-3.15.0-cp35-abi3-manylinux1_x86_64.whl", hash = "sha256:996e1ba717077ce1e6d4849af7a1426f38b07b3d173b879e27d5e26d2e958beb"},
     {file = "pycryptodomex-3.15.0-cp35-abi3-manylinux2010_i686.whl", hash = "sha256:65204412d0c6a8e3c41e21e93a5e6054a74fea501afa03046a388cf042e3377a"},
     {file = "pycryptodomex-3.15.0-cp35-abi3-manylinux2010_x86_64.whl", hash = "sha256:dd452a5af7014e866206d41751886c9b4bf379a339fdf2dbfc7dd16c0fb4f8e0"},
     {file = "pycryptodomex-3.15.0-cp35-abi3-manylinux2014_aarch64.whl", hash = "sha256:b9279adc16e4b0f590ceff581f53a80179b02cba9056010d733eb4196134a870"},
+    {file = "pycryptodomex-3.15.0-cp35-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:04a5d6a17560e987272fc1763e9772a87689a08427b8cbdebe3ca7cba95d6156"},
     {file = "pycryptodomex-3.15.0-cp35-abi3-win32.whl", hash = "sha256:46b3f05f2f7ac7841053da4e0f69616929ca3c42f238c405f6c3df7759ad2780"},
     {file = "pycryptodomex-3.15.0-cp35-abi3-win_amd64.whl", hash = "sha256:8eecdf9cdc7343001d047f951b9cc805cd68cb6cd77b20ea46af5bffc5bd3dfb"},
     {file = "pycryptodomex-3.15.0-pp27-pypy_73-macosx_10_9_x86_64.whl", hash = "sha256:67e1e6a92151023ccdfcfbc0afb3314ad30080793b4c27956ea06ab1fb9bcd8a"},
@@ -4296,6 +4299,7 @@ rsa = [
     {file = "ruamel.yaml.clib-0.2.7-cp310-cp310-win_amd64.whl", hash = "sha256:d000f258cf42fec2b1bbf2863c61d7b8918d31ffee905da62dede869254d3b8a"},
     {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:045e0626baf1c52e5527bd5db361bc83180faaba2ff586e763d3d5982a876a9e"},
     {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-macosx_12_6_arm64.whl", hash = "sha256:721bc4ba4525f53f6a611ec0967bdcee61b31df5a56801281027a3a6d1c2daf5"},
+    {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:41d0f1fa4c6830176eef5b276af04c89320ea616655d01327d5ce65e50575c94"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:4b3a93bb9bc662fc1f99c5c3ea8e623d8b23ad22f861eb6fce9377ac07ad6072"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-macosx_12_0_arm64.whl", hash = "sha256:a234a20ae07e8469da311e182e70ef6b199d0fbeb6c6cc2901204dd87fb867e8"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-manylinux2014_aarch64.whl", hash = "sha256:15910ef4f3e537eea7fe45f8a5d19997479940d9196f357152a09031c5be59f3"},
@@ -4343,6 +4347,18 @@ setproctitle = [
     {file = "setproctitle-1.3.2-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:7f2719a398e1a2c01c2a63bf30377a34d0b6ef61946ab9cf4d550733af8f1ef1"},
     {file = "setproctitle-1.3.2-cp310-cp310-win32.whl", hash = "sha256:e425be62524dc0c593985da794ee73eb8a17abb10fe692ee43bb39e201d7a099"},
     {file = "setproctitle-1.3.2-cp310-cp310-win_amd64.whl", hash = "sha256:e85e50b9c67854f89635a86247412f3ad66b132a4d8534ac017547197c88f27d"},
+    {file = "setproctitle-1.3.2-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:2a97d51c17d438cf5be284775a322d57b7ca9505bb7e118c28b1824ecaf8aeaa"},
+    {file = "setproctitle-1.3.2-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:587c7d6780109fbd8a627758063d08ab0421377c0853780e5c356873cdf0f077"},
+    {file = "setproctitle-1.3.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d7d17c8bd073cbf8d141993db45145a70b307385b69171d6b54bcf23e5d644de"},
+    {file = "setproctitle-1.3.2-cp311-cp311-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:e932089c35a396dc31a5a1fc49889dd559548d14cb2237adae260382a090382e"},
+    {file = "setproctitle-1.3.2-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:8e4f8f12258a8739c565292a551c3db62cca4ed4f6b6126664e2381acb4931bf"},
+    {file = "setproctitle-1.3.2-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:570d255fd99c7f14d8f91363c3ea96bd54f8742275796bca67e1414aeca7d8c3"},
+    {file = "setproctitle-1.3.2-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:a8e0881568c5e6beff91ef73c0ec8ac2a9d3ecc9edd6bd83c31ca34f770910c4"},
+    {file = "setproctitle-1.3.2-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:4bba3be4c1fabf170595b71f3af46c6d482fbe7d9e0563999b49999a31876f77"},
+    {file = "setproctitle-1.3.2-cp311-cp311-musllinux_1_1_ppc64le.whl", hash = "sha256:37ece938110cab2bb3957e3910af8152ca15f2b6efdf4f2612e3f6b7e5459b80"},
+    {file = "setproctitle-1.3.2-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:db684d6bbb735a80bcbc3737856385b55d53f8a44ce9b46e9a5682c5133a9bf7"},
+    {file = "setproctitle-1.3.2-cp311-cp311-win32.whl", hash = "sha256:ca58cd260ea02759238d994cfae844fc8b1e206c684beb8f38877dcab8451dfc"},
+    {file = "setproctitle-1.3.2-cp311-cp311-win_amd64.whl", hash = "sha256:88486e6cce2a18a033013d17b30a594f1c5cb42520c49c19e6ade40b864bb7ff"},
     {file = "setproctitle-1.3.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:92c626edc66169a1b09e9541b9c0c9f10488447d8a2b1d87c8f0672e771bc927"},
     {file = "setproctitle-1.3.2-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:710e16fa3bade3b026907e4a5e841124983620046166f355bbb84be364bf2a02"},
     {file = "setproctitle-1.3.2-cp37-cp37m-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:1f29b75e86260b0ab59adb12661ef9f113d2f93a59951373eb6d68a852b13e83"},
