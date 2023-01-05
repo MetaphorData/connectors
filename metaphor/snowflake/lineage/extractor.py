@@ -192,7 +192,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
             database, schema, name = parts
             normalized_name = dataset_normalized_name(database, schema, name)
             if not self._filter.include_table(database, schema, name):
-                logger.info(f"Excluding table {normalized_name}")
+                logger.debug(f"Excluding table {normalized_name}")
                 continue
 
             logical_id = DatasetLogicalID(

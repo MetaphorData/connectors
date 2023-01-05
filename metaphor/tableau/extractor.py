@@ -2,7 +2,7 @@ import base64
 import json
 import re
 import traceback
-from typing import Collection, Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional
 
 try:
     import tableauserverclient as tableau
@@ -52,6 +52,10 @@ class TableauExtractor(BaseExtractor):
     def from_config_file(config_file: str) -> "TableauExtractor":
         return TableauExtractor(TableauRunConfig.from_yaml_file(config_file))
 
+    @staticmethod
+    def _build_base_url(server_url: str, site_name: str) -> str:
+        return f"{server_url}/#/site/{site_name}" if site_name else f"{server_url}/#"
+
     def __init__(self, config: TableauRunConfig):
         super().__init__(config, "Tableau metadata crawler", Platform.TABLEAU)
         self._server_url = config.server_url
@@ -62,10 +66,14 @@ class TableauExtractor(BaseExtractor):
         self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
         self._disable_preview_image = config.disable_preview_image
 
-        self._base_url: Optional[str] = None
         self._views: Dict[str, tableau.ViewItem] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
+
+        # The base URL for dashboards, data sources, etc.
+        self._base_url = TableauExtractor._build_base_url(
+            self._server_url, self._site_name
+        )
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Tableau")
@@ -134,11 +142,7 @@ class TableauExtractor(BaseExtractor):
         return [*self._dashboards.values(), *self._virtual_views.values()]
 
     def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
-        base_url, workbook_id = TableauExtractor._parse_workbook_url(
-            workbook.webpage_url
-        )
-        if not self._base_url:
-            self._base_url = base_url
+        workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)
 
         views: List[tableau.ViewItem] = workbook.views
         charts = [self._parse_chart(self._views[view.id]) for view in views]
@@ -316,15 +320,15 @@ class TableauExtractor(BaseExtractor):
 
         return Chart(title=view.name, url=view_url, preview=preview_data_url)
 
-    _workbook_url_regex = r"(.+)\/workbooks\/(\d+)(\/.*)?"
+    _workbook_url_regex = r".+\/workbooks\/(\d+)(\/.*)?"
 
     @staticmethod
-    def _parse_workbook_url(workbook_url: str) -> Tuple[str, str]:
-        """return base URL containing site ID and the workbook vizportalUrlId"""
+    def _extract_workbook_id(workbook_url: str) -> str:
+        """Extracts the workbook ID from a workbook URL"""
         match = re.search(TableauExtractor._workbook_url_regex, workbook_url)
         assert match, f"invalid workbook URL {workbook_url}"
 
-        return match.group(1), match.group(2)
+        return match.group(1)
 
     def _build_view_url(self, content_url: str) -> Optional[str]:
         """
@@ -333,7 +337,7 @@ class TableauExtractor(BaseExtractor):
         """
         workbook, _, view = content_url.split("/")
 
-        return f"{self._base_url}/views/{workbook}/{view}" if self._base_url else None
+        return f"{self._base_url}/views/{workbook}/{view}"
 
     @staticmethod
     def _build_preview_data_url(preview: bytes) -> str:
