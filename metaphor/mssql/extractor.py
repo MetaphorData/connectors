@@ -63,7 +63,7 @@ class MssqlExtractor(BaseExtractor):
                 )
                 entities.extend(datasets)
         except Exception as error:
-            logger.exception(f"serverless sqlpool error: {error}")
+            logger.exception(f"mssql extract error: {error}")
         return entities
 
     def _map_tables_to_dataset(

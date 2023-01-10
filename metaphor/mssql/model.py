@@ -54,10 +54,8 @@ class MssqlQueryLog(BaseModel):
     login_name: str
     start_time: datetime
     end_time: datetime
-    # in milliseconds
-    duration: int
-    # in MB
-    query_size: Optional[int]
+    duration_in_ms: int
+    query_size_in_mb: Optional[int]
     error: Optional[str]
     row_count: Optional[int]
     query_operation: Optional[str]

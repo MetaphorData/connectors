@@ -11,7 +11,7 @@ Use the following command to set up the read-only user for MsSQL database
 -- nagivate to master database
 CREATE LOGIN <username> WITH PASSWORD = '<password>'
 CREATE USER <username> FROM LOGIN <username>
--- switch to user  MsSQL database
+-- switch to user MsSQL database
 CREATE USER <username> FROM LOGIN <username>
 GRANT VIEW DEFINITION TO <username>
 GRANT VIEW DATABASE STATE TO <username>
@@ -24,11 +24,11 @@ GRANT VIEW DATABASE STATE TO <username>
 ```yaml
 tenant_id: <tenant_id>  # The azure directory (tenant) id
 
-server_name: <workspace_name> # The MsSQL server name
+server_name: <workspace_name>  # The MsSQL server name
 
-username: <username> # The MsSQL server login username
+username: <username>  # The MsSQL server login username
 
-password: <password> # The MsSQL server login password
+password: <password>  # The MsSQL server login password
 
 output:
   file:

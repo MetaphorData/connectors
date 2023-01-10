@@ -278,8 +278,6 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
         extractor = SynapseExtractor(config)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    # import json
-    # print(json.dumps(events, indent=2))
     assert events == load_json(
         f"{test_root_dir}/synapse/expected_sqlpool_with_query_log.json"
     )

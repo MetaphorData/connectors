@@ -67,20 +67,21 @@ def test_get_tables():
     )
     rows = []
     for column in table.column_dict.values():
-        row = []
-        row.append(table.id)
-        row.append(table.name)
-        row.append(table.schema_name)
-        row.append(table.type)
-        row.append(table.create_time)
-        row.append(column.name)
-        row.append(column.max_length)
-        row.append(column.precision)
-        row.append(column.is_nullable)
-        row.append(column.type)
-        row.append(column.is_unique)
-        row.append(column.is_primary_key)
-        row.append(table.is_external)
+        row = [
+            table.id,
+            table.name,
+            table.schema_name,
+            table.type,
+            table.create_time,
+            column.name,
+            column.max_length,
+            column.precision,
+            column.is_nullable,
+            column.type,
+            column.is_unique,
+            column.is_primary_key,
+            table.is_external,
+        ]
         rows.append(row)
 
     with patch(
@@ -109,20 +110,21 @@ def test_get_tables_with_external_resource():
     )
     rows = []
     for column in table.column_dict.values():
-        row = []
-        row.append(table.id)
-        row.append(table.name)
-        row.append(table.schema_name)
-        row.append(table.type)
-        row.append(table.create_time)
-        row.append(column.name)
-        row.append(column.max_length)
-        row.append(column.precision)
-        row.append(column.is_nullable)
-        row.append(column.type)
-        row.append(column.is_unique)
-        row.append(column.is_primary_key)
-        row.append(table.is_external)
+        row = [
+            table.id,
+            table.name,
+            table.schema_name,
+            table.type,
+            table.create_time,
+            column.name,
+            column.max_length,
+            column.precision,
+            column.is_nullable,
+            column.type,
+            column.is_unique,
+            column.is_primary_key,
+            table.is_external,
+        ]
         rows.append(row)
 
     external_data = [table.external_source, table.external_file_format]
