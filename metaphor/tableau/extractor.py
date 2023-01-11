@@ -2,13 +2,14 @@ import base64
 import json
 import re
 import traceback
-from typing import Collection, Dict, List, Optional
+from typing import Collection, Dict, List, Optional, Set
 
 try:
     import tableauserverclient as tableau
 except ImportError:
     print("Please install metaphor[tableau] extra\n")
     raise
+from sqllineage.runner import LineageRunner
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -36,9 +37,11 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.tableau.config import TableauRunConfig
 from metaphor.tableau.query import (
+    CustomSqlTable,
     DatabaseTable,
     WorkbookQueryResponse,
     connection_type_map,
+    custom_sql_graphql_query,
     workbooks_graphql_query,
 )
 
@@ -92,54 +95,72 @@ class TableauExtractor(BaseExtractor):
             )
 
         server = tableau.Server(self._server_url, use_server_version=True)
-
         with server.auth.sign_in(tableau_auth):
-            # fetch all views, with preview image
-            views: List[tableau.ViewItem] = list(
-                tableau.Pager(server.views, usage=True)
-            )
-            json_dump_to_debug_file([v.__dict__ for v in views], "views.json")
-            logger.info(
-                f"There are {len(views)} views on site: {[view.name for view in views]}\n"
-            )
-            for item in views:
-                logger.debug(json.dumps(item.__dict__, default=str))
-                if not self._disable_preview_image:
-                    server.views.populate_preview_image(item)
-                self._views[item.id] = item
-
-            # fetch all workbooks
-            workbooks: List[tableau.WorkbookItem] = list(
-                tableau.Pager(server.workbooks)
-            )
-            json_dump_to_debug_file([w.__dict__ for w in workbooks], "workbooks.json")
-            logger.info(
-                f"\nThere are {len(workbooks)} work books on site: {[workbook.name for workbook in workbooks]}"
-            )
-            for item in workbooks:
-                server.workbooks.populate_views(item, usage=True)
-                logger.debug(json.dumps(item.__dict__, default=str))
-
-                try:
-                    self._parse_dashboard(item)
-                except Exception as error:
-                    traceback.print_exc()
-                    logger.error(f"failed to parse workbook {item.name}, error {error}")
-
-            # fetch workbook related info from Metadata GraphQL API
-            resp = server.metadata.query(workbooks_graphql_query)
-            resp_data = resp["data"]
-            json_dump_to_debug_file(resp_data, "metadata_api.json")
-            for item in resp_data["workbooks"]:
-                try:
-                    workbook = WorkbookQueryResponse.parse_obj(item)
-                    self._parse_workbook_query_response(workbook)
-                except Exception as error:
-                    logger.exception(
-                        f"failed to parse workbook {item['vizportalUrlId']}, error {error}"
-                    )
+            self._extract_dashboards(server)
+            self._extract_datasources(server)
 
         return [*self._dashboards.values(), *self._virtual_views.values()]
+
+    def _extract_dashboards(self, server: tableau.Server) -> None:
+        # fetch all views, with preview image
+        views: List[tableau.ViewItem] = list(tableau.Pager(server.views, usage=True))
+        json_dump_to_debug_file([v.__dict__ for v in views], "views.json")
+        logger.info(
+            f"There are {len(views)} views on site: {[view.name for view in views]}\n"
+        )
+        for item in views:
+            logger.debug(json.dumps(item.__dict__, default=str))
+            if not self._disable_preview_image:
+                server.views.populate_preview_image(item)
+            self._views[item.id] = item
+
+        # fetch all workbooks
+        workbooks: List[tableau.WorkbookItem] = list(tableau.Pager(server.workbooks))
+        json_dump_to_debug_file([w.__dict__ for w in workbooks], "workbooks.json")
+        logger.info(
+            f"\nThere are {len(workbooks)} workbooks on site: {[workbook.name for workbook in workbooks]}"
+        )
+        for item in workbooks:
+            server.workbooks.populate_views(item, usage=True)
+            logger.debug(json.dumps(item.__dict__, default=str))
+
+            try:
+                self._parse_dashboard(item)
+            except Exception as error:
+                traceback.print_exc()
+                logger.error(f"failed to parse workbook {item.name}, error {error}")
+
+    def _extract_datasources(self, server: tableau.Server) -> None:
+        # fetch custom SQL tablesfrom Metadata GraphQL API
+        resp = server.metadata.query(custom_sql_graphql_query)
+        resp_data = resp["data"]
+        json_dump_to_debug_file(resp_data, "graphql_custom_sql_tables.json")
+
+        custom_sql_tables = resp_data["customSQLTables"]
+        logger.info(f"Found {len(custom_sql_tables)} custom SQL tables.")
+
+        datasource_upstream_datasets = {}
+        for item in custom_sql_tables:
+            custom_sql_table = CustomSqlTable.parse_obj(item)
+            datasource_upstream_datasets.update(
+                self._parse_custom_sql_table(custom_sql_table)
+            )
+
+        # fetch workbook related info from Metadata GraphQL API
+        resp = server.metadata.query(workbooks_graphql_query)
+        resp_data = resp["data"]
+        json_dump_to_debug_file(resp_data, "graphql_workbooks.json")
+
+        for item in resp_data["workbooks"]:
+            try:
+                workbook = WorkbookQueryResponse.parse_obj(item)
+                self._parse_workbook_query_response(
+                    workbook, datasource_upstream_datasets
+                )
+            except Exception as error:
+                logger.exception(
+                    f"failed to parse workbook {item['vizportalUrlId']}, error {error}"
+                )
 
     def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
         workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)
@@ -169,7 +190,70 @@ class TableauExtractor(BaseExtractor):
 
         self._dashboards[workbook_id] = dashboard
 
-    def _parse_workbook_query_response(self, workbook: WorkbookQueryResponse) -> None:
+    def _parse_custom_sql_table(
+        self, custom_sql_table: CustomSqlTable
+    ) -> Dict[str, List[str]]:
+        platform = connection_type_map.get(custom_sql_table.connectionType)
+        if platform is None:
+            logger.warn(
+                f"Unsupported connection type {custom_sql_table.connectionType} for custom sql table: {custom_sql_table.id}"
+            )
+            return {}
+
+        account = (
+            self._snowflake_account if platform == DataPlatform.SNOWFLAKE else None
+        )
+
+        datasource_ids = self._custom_sql_datasource_ids(custom_sql_table)
+        if len(datasource_ids) == 0:
+            logger.warn(
+                f"Missing datasource IDs for custom sql table: {custom_sql_table.id}"
+            )
+            return {}
+
+        try:
+            parser = LineageRunner(custom_sql_table.query)
+            source_tables = parser.source_tables
+        except Exception as e:
+            logger.error(f"Unable to parse custom query for {custom_sql_table.id}: {e}")
+            return {}
+
+        if len(source_tables) < 1:
+            logger.error(
+                f"Unable to extract source tables from custom query for {custom_sql_table.id}"
+            )
+            return {}
+
+        upstream_datasets = []
+        for source_table in source_tables:
+            fullname = str(source_table).lower()
+            if fullname.count(".") != 2:
+                logger.warn(f"Ignore non-fully qualified source table {fullname}")
+                continue
+
+            upstream_datasets.append(
+                str(to_dataset_entity_id(fullname, platform, account))
+            )
+
+        datasource_upstream_datasets = {}
+        for datasource_id in datasource_ids:
+            datasource_upstream_datasets[datasource_id] = upstream_datasets
+
+        return datasource_upstream_datasets
+
+    def _custom_sql_datasource_ids(self, custom_sql_table: CustomSqlTable) -> Set[str]:
+        datasource_ids = set()
+        for column in custom_sql_table.columnsConnection.nodes:
+            for field in column.referencedByFields:
+                datasource_ids.add(field.datasource.id)
+
+        return datasource_ids
+
+    def _parse_workbook_query_response(
+        self,
+        workbook: WorkbookQueryResponse,
+        datasource_upstream_datasets: Dict[str, List[str]],
+    ) -> None:
         dashboard = self._dashboards[workbook.vizportalUrlId]
         source_virtual_views: List[str] = []
         published_datasources: List[str] = []
@@ -186,7 +270,10 @@ class TableauExtractor(BaseExtractor):
                 published_datasources.append(source.name)
                 continue
 
-            source_datasets = self._parse_upstream_datasets(source.upstreamTables)
+            # Use the upstream datasets parsed from custom SQL if available
+            source_datasets = datasource_upstream_datasets.get(
+                source.id, self._parse_upstream_datasets(source.upstreamTables)
+            )
 
             self._virtual_views[source.luid] = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -218,7 +305,10 @@ class TableauExtractor(BaseExtractor):
                 to_virtual_view_entity_id(source.id, VirtualViewType.TABLEAU_DATASOURCE)
             )
 
-            source_datasets = self._parse_upstream_datasets(source.upstreamTables)
+            # Use the upstream datasets parsed from custom SQL if available
+            source_datasets = datasource_upstream_datasets.get(
+                source.id, self._parse_upstream_datasets(source.upstreamTables)
+            )
 
             self._virtual_views[source.id] = VirtualView(
                 logical_id=VirtualViewLogicalID(
