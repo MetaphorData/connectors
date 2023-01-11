@@ -31,23 +31,23 @@ class SynapseExtractor(MssqlExtractor):
         super().__init__(
             config, "Synapse metadata crawler", Platform.SYNAPSE, DataPlatform.SYNAPSE
         )
-        self.config = config
+        self._config = config
         self._lookback_days = config.query_log.lookback_days if config.query_log else 0
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(
-            f"Fetching metadata from Synapse workspace: {self.config.server_name}"
+            f"Fetching metadata from Synapse workspace: {self._config.server_name}"
         )
 
-        sql_query_endpoint = f"{self.config.server_name}.sql.azuresynapse.net"
+        sql_query_endpoint = f"{self._config.server_name}.sql.azuresynapse.net"
         sql_on_demand_query_endpoint = (
-            f"{self.config.server_name}-ondemand.sql.azuresynapse.net"
+            f"{self._config.server_name}-ondemand.sql.azuresynapse.net"
         )
         serverless_client = MssqlClient(
-            sql_on_demand_query_endpoint, self.config.username, self.config.password
+            sql_on_demand_query_endpoint, self._config.username, self._config.password
         )
         dedicated_client = MssqlClient(
-            sql_query_endpoint, self.config.username, self.config.password
+            sql_query_endpoint, self._config.username, self._config.password
         )
         start_date = start_of_day(self._lookback_days)
         end_date = start_of_day()
@@ -61,9 +61,12 @@ class SynapseExtractor(MssqlExtractor):
                 if len(tables) == 0:
                     continue
                 datasets = self._map_tables_to_dataset(
-                    self.config.server_name, database, tables, serverless_client
+                    self._config.server_name, database, tables
                 )
-                entities.extend(datasets)
+                self._set_foreign_keys_to_dataset(
+                    datasets, database.name, serverless_client
+                )
+                entities.extend(datasets.values())
             if self._lookback_days > 0:
                 querlogs = self._map_query_log(
                     WorkspaceQuery.get_sql_pool_query_logs(
@@ -83,9 +86,12 @@ class SynapseExtractor(MssqlExtractor):
                 if len(tables) == 0:
                     continue
                 datasets = self._map_tables_to_dataset(
-                    self.config.server_name, database, tables, dedicated_client
+                    self._config.server_name, database, tables
                 )
-                entities.extend(datasets)
+                self._set_foreign_keys_to_dataset(
+                    datasets, database.name, dedicated_client
+                )
+                entities.extend(datasets.values())
                 if self._lookback_days > 0:
                     querlogs = self._map_query_log(
                         WorkspaceQuery.get_dedicated_sql_pool_query_logs(

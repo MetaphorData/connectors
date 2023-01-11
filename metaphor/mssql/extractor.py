@@ -42,15 +42,15 @@ class MssqlExtractor(BaseExtractor):
         dataset_platform=DataPlatform.MSSQL,
     ):
         super().__init__(config, description, platform)
-        self.config = config
+        self._config = config
         self._platform = platform
         self._dataset_platform = dataset_platform
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info(f"Fetching metadata from Mssql server: {self.config.server_name}")
+        logger.info(f"Fetching metadata from Mssql server: {self._config.server_name}")
 
-        endpoint = f"{self.config.server_name}.database.windows.net"
-        client = MssqlClient(endpoint, self.config.username, self.config.password)
+        endpoint = f"{self._config.server_name}.database.windows.net"
+        client = MssqlClient(endpoint, self._config.username, self._config.password)
 
         entities: List[ENTITY_TYPES] = []
         try:
@@ -59,9 +59,10 @@ class MssqlExtractor(BaseExtractor):
                 if len(tables) == 0:
                     continue
                 datasets = self._map_tables_to_dataset(
-                    self.config.server_name, database, tables, client
+                    self._config.server_name, database, tables
                 )
-                entities.extend(datasets)
+                self._set_foreign_keys_to_dataset(datasets, database.name, client)
+                entities.extend(datasets.values())
         except Exception as error:
             logger.exception(f"mssql extract error: {error}")
         return entities
@@ -71,7 +72,6 @@ class MssqlExtractor(BaseExtractor):
         sql_server_name: str,
         database: MssqlDatabase,
         tables: List[MssqlTable],
-        client: MssqlClient,
     ):
         dataset_map: Dict[str, Dataset] = {}
         for table in tables:
@@ -128,8 +128,12 @@ class MssqlExtractor(BaseExtractor):
 
             dataset_map[table.id] = dataset
 
-        # get foreign keys
-        for fk in client.get_foreign_keys(database.name):
+        return dataset_map
+
+    def _set_foreign_keys_to_dataset(
+        self, dataset_map: Dict[str, Dataset], database_name: str, client: MssqlClient
+    ):
+        for fk in client.get_foreign_keys(database_name):
             if fk.table_id in dataset_map:
                 foreign_key = ForeignKey(
                     field_path=fk.column_name,
@@ -140,12 +144,12 @@ class MssqlExtractor(BaseExtractor):
                     foreign_key
                 )
 
-        return dataset_map.values()
-
     def _get_metadata(self, table: MssqlTable) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
 
-        items.append(CustomMetadataItem("tenant_id", json.dumps(self.config.tenant_id)))
+        items.append(
+            CustomMetadataItem("tenant_id", json.dumps(self._config.tenant_id))
+        )
 
         if table.external_file_format:
             items.append(
