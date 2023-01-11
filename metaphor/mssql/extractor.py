@@ -56,8 +56,6 @@ class MssqlExtractor(BaseExtractor):
         try:
             for database in client.get_databases():
                 tables = client.get_tables(database.name)
-                if len(tables) == 0:
-                    continue
                 datasets = self._map_tables_to_dataset(
                     self._config.server_name, database, tables
                 )
@@ -74,6 +72,9 @@ class MssqlExtractor(BaseExtractor):
         tables: List[MssqlTable],
     ):
         dataset_map: Dict[str, Dataset] = {}
+        if len(tables) == 0:
+            return dataset_map
+
         for table in tables:
             dataset = Dataset()
             dataset.created_at = table.create_time
@@ -133,6 +134,9 @@ class MssqlExtractor(BaseExtractor):
     def _set_foreign_keys_to_dataset(
         self, dataset_map: Dict[str, Dataset], database_name: str, client: MssqlClient
     ):
+        if len(dataset_map) == 0:
+            return
+
         for fk in client.get_foreign_keys(database_name):
             if fk.table_id in dataset_map:
                 foreign_key = ForeignKey(

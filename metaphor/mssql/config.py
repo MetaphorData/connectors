@@ -5,7 +5,7 @@ from metaphor.common.base_config import BaseConfig
 
 @dataclass
 class MssqlConfig(BaseConfig):
-    # # Azure Directory (tenant) ID
+    # Azure Directory (tenant) ID
     tenant_id: str
 
     # SQL Server name

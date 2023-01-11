@@ -58,8 +58,6 @@ class SynapseExtractor(MssqlExtractor):
         try:
             for database in serverless_client.get_databases():
                 tables = serverless_client.get_tables(database.name)
-                if len(tables) == 0:
-                    continue
                 datasets = self._map_tables_to_dataset(
                     self._config.server_name, database, tables
                 )
@@ -83,8 +81,6 @@ class SynapseExtractor(MssqlExtractor):
         try:
             for database in dedicated_client.get_databases():
                 tables = dedicated_client.get_tables(database.name)
-                if len(tables) == 0:
-                    continue
                 datasets = self._map_tables_to_dataset(
                     self._config.server_name, database, tables
                 )
