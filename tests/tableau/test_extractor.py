@@ -193,7 +193,7 @@ async def test_extractor(test_root_dir):
         id="abc",
         name="wb",
         content_url="wb",
-        webpage_url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
+        webpage_url="https://hostname/#/site/abc/workbooks/123",
         created_at=None,
         description="d",
         updated_at=None,

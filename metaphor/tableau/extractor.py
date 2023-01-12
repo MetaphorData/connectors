@@ -156,7 +156,7 @@ class TableauExtractor(BaseExtractor):
         )
 
         source_info = SourceInfo(
-            main_url=workbook.webpage_url,
+            main_url=f"{self._base_url}/workbooks/{workbook_id}",
         )
 
         dashboard = Dashboard(
