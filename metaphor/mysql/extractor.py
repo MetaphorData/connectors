@@ -44,20 +44,24 @@ class MySQLExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from MySQL host {self._config.host}")
 
-        inspector = self.get_inspector()
+        inspector = MySQLExtractor.get_inspector(self.get_sqlalchemy_url())
         for schema in self.get_schemas(inspector):
             self.extract_schema(inspector, schema)
+        self.extract_foreign_key(inspector)
 
         return self._datasets.values()
 
-    def get_inspector(self) -> Inspector:
-        url = URL.create(
+    def get_sqlalchemy_url(self) -> str:
+        return URL.create(
             "mysql",
             username=self._config.user,
             password=self._config.password,
             host=self._config.host,
             database=self._config.database,
         )
+
+    @staticmethod
+    def get_inspector(url: str) -> Inspector:
         engine = create_engine(url)
         return inspect(engine)
 
@@ -71,7 +75,6 @@ class MySQLExtractor(BaseExtractor):
 
         for table in inspector.get_table_names(schema):
             self.extract_table(inspector, schema, table)
-            self.extract_foreign_key(inspector)
 
     def extract_table(self, inspector: Inspector, schema: str, table: str):
         if not self._filter.include_table_two_level(schema, table):

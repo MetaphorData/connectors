@@ -1,0 +1,15 @@
+---
+host: host
+database: database
+user: user
+password: password
+filter:
+  includes:
+    schema1:
+    schema2:
+      - table1
+      - table2
+  excludes:
+    schema3:
+port: 1234
+output: {}
