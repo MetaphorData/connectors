@@ -50,7 +50,7 @@ class FileSink(Sink):
         self.path = config.directory.rstrip("/")
         self.batch_size = config.batch_size
         self.write_logs = config.write_logs
-        self.run_dir = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H%M%S")
+        self.run_dir = str(int(datetime.now().timestamp()))
 
         if config.directory.startswith("s3://"):
             self._storage: BaseStorage = S3Storage(

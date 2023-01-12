@@ -69,7 +69,7 @@ def test_sink_metadata(test_root_dir):
     sink.sink_metadata(metadata)
 
     assert EventUtil.clean_nones(metadata.to_dict()) == load_json(
-        f"{directory}/2000-01-01-000000/run.metadata"
+        f"{directory}/946684800/run.metadata"
     )
 
 
@@ -83,7 +83,7 @@ def test_sink_logs(test_root_dir):
     sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
     sink.sink_logs()
 
-    zip_file = f"{directory}/2000-01-01-000000/log.zip"
+    zip_file = f"{directory}/946684800/log.zip"
 
     assert path.exists(zip_file)
     with ZipFile(zip_file) as file:
