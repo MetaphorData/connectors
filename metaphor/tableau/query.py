@@ -15,19 +15,6 @@ connection_type_map: Dict[str, DataPlatform] = {
 # the id of the same entity from the REST api, use luid instead
 workbooks_graphql_query = """
 query {
-  customSQLTables(filter:{id:"00b04ee0-1967-e302-563b-213e048429df"}) {
-        id
-        query
-        connectionType
-        columns {
-            referencedByFields {
-                datasource {
-                    id
-                }
-            }
-        }
-  }
-
   workbooks {
     luid
     name
