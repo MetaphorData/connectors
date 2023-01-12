@@ -50,6 +50,7 @@ class FileSink(Sink):
         self.path = config.directory.rstrip("/")
         self.batch_size = config.batch_size
         self.write_logs = config.write_logs
+        self.run_dir = datetime.now(timezone.utc).strftime("%Y-%m-%d %H-%M-%S")
 
         if config.directory.startswith("s3://"):
             self._storage: BaseStorage = S3Storage(
@@ -98,7 +99,9 @@ class FileSink(Sink):
                 file.write(debug_file, arcname=arcname)
 
         with open(zip_file, "rb") as file:
-            self._storage.write_file(f"{self.path}/log.zip", file.read(), True)
+            self._storage.write_file(
+                f"{self.path}/{self.run_dir}/log.zip", file.read(), True
+            )
 
     def sink_metadata(self, metadata: CrawlerRunMetadata):
         if not self.write_logs:
@@ -107,7 +110,9 @@ class FileSink(Sink):
 
         content = json.dumps(EventUtil.clean_nones(metadata.to_dict())).encode()
 
-        self._storage.write_file(f"{self.path}/run.metadata", content, True)
+        self._storage.write_file(
+            f"{self.path}/{self.run_dir}/run.metadata", content, True
+        )
 
     def write_file(self, filename: str, content: str):
         """Write content into a file in the output sink

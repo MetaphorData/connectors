@@ -3,6 +3,8 @@ from datetime import datetime
 from os import path
 from zipfile import ZipFile
 
+from freezegun import freeze_time
+
 from metaphor.common.event_util import EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig
 from metaphor.common.logger import add_debug_file
@@ -50,6 +52,7 @@ def test_file_sink_split(test_root_dir):
     assert messages[4:] == events_from_json(f"{directory}/3-of-3.json")
 
 
+@freeze_time("2000-01-01")
 def test_sink_metadata(test_root_dir):
     directory = tempfile.mkdtemp()
 
@@ -66,10 +69,11 @@ def test_sink_metadata(test_root_dir):
     sink.sink_metadata(metadata)
 
     assert EventUtil.clean_nones(metadata.to_dict()) == load_json(
-        f"{directory}/run.metadata"
+        f"{directory}/2000-01-01 00-00-00/run.metadata"
     )
 
 
+@freeze_time("2000-01-01")
 def test_sink_logs(test_root_dir):
     _, debug_file = tempfile.mkstemp()
     add_debug_file(debug_file)
@@ -79,7 +83,7 @@ def test_sink_logs(test_root_dir):
     sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
     sink.sink_logs()
 
-    zip_file = f"{directory}/log.zip"
+    zip_file = f"{directory}/2000-01-01 00-00-00/log.zip"
 
     assert path.exists(zip_file)
     with ZipFile(zip_file) as file:
