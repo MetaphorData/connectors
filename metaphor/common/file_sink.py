@@ -47,7 +47,7 @@ class FileSink(Sink):
     """File sink functions"""
 
     def __init__(self, config: FileSinkConfig):
-        self.path = config.directory.rstrip("/")
+        self.path = f'{config.directory.rstrip("/")}/{int(datetime.now().timestamp())}'
         self.batch_size = config.batch_size
         self.write_logs = config.write_logs
 
@@ -60,12 +60,6 @@ class FileSink(Sink):
 
     def _sink(self, messages: List[dict]) -> bool:
         """Write records to file with auto-splitting"""
-
-        # purge existing MCE json files
-        existing = self._storage.list_files(self.path, ".json")
-        self._storage.delete_files(existing)
-        logger.info(f"deleted {len(existing)} MCE files")
-
         # split MCE into batches and write to files
         batch_size = self.batch_size
         parts = math.ceil(len(messages) / batch_size)
@@ -90,7 +84,7 @@ class FileSink(Sink):
         dir_name = datetime.now(timezone.utc).strftime("%Y-%m-%d %H-%M-%S")
 
         with ZipFile(zip_file, "w", ZIP_DEFLATED) as file:
-            arcname = f"{dir_name}/{path.basename(self.path)}.log"
+            arcname = f"{dir_name}/run.log"
             file.write(LOG_FILE, arcname=arcname)
 
             for debug_file in debug_files:
