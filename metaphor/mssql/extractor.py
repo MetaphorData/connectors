@@ -43,14 +43,20 @@ class MssqlExtractor(BaseExtractor):
     ):
         super().__init__(config, description, platform)
         self._config = config
+        self._config.server_name = (
+            self._config.server_name
+            if self._config.server_name
+            else self._config.endpoint
+        )
         self._platform = platform
         self._dataset_platform = dataset_platform
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Mssql server: {self._config.server_name}")
 
-        endpoint = f"{self._config.server_name}.database.windows.net"
-        client = MssqlClient(endpoint, self._config.username, self._config.password)
+        client = MssqlClient(
+            self._config.endpoint, self._config.username, self._config.password
+        )
 
         entities: List[ENTITY_TYPES] = []
         try:
@@ -151,9 +157,10 @@ class MssqlExtractor(BaseExtractor):
     def _get_metadata(self, table: MssqlTable) -> List[CustomMetadataItem]:
         items: List[CustomMetadataItem] = []
 
-        items.append(
-            CustomMetadataItem("tenant_id", json.dumps(self._config.tenant_id))
-        )
+        if self._config.tenant_id:
+            items.append(
+                CustomMetadataItem("tenant_id", json.dumps(self._config.tenant_id))
+            )
 
         if table.external_file_format:
             items.append(

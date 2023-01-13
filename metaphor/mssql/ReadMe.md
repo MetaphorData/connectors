@@ -1,17 +1,17 @@
-# MsSQL Connector
+# MSSQL Connector
 
 This connector extracts technical metadata from a Microsoft SQL Server using [System catalog views](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/catalog-views-transact-sql?view=sql-server-ver16).
 
 ## Setup
-We recommend creating a dedicated MsSQL user with limited permissions for the connector to use
+We recommend creating a dedicated MSSQL user with limited permissions for the connector to use
 
-Use the following command to set up the read-only user for MsSQL database
+Use the following command to set up the read-only user for MSSQL database
 
 ```sql
 -- nagivate to master database
 CREATE LOGIN <username> WITH PASSWORD = '<password>'
 CREATE USER <username> FROM LOGIN <username>
--- switch to user MsSQL database
+-- switch to user MSSQL database
 CREATE USER <username> FROM LOGIN <username>
 GRANT VIEW DEFINITION TO <username>
 GRANT VIEW DATABASE STATE TO <username>
@@ -22,13 +22,18 @@ GRANT VIEW DATABASE STATE TO <username>
 ### Required Configurations
 
 ```yaml
-tenant_id: <tenant_id>  # The azure directory (tenant) id
+server_name: <workspace_name>  # The MSSQL server name
 
-server_name: <workspace_name>  # The MsSQL server name
+username: <username>  # The MSSQL server login username
 
-username: <username>  # The MsSQL server login username
+password: <password>  # The MSSQL server login password
 
-password: <password>  # The MsSQL server login password
+endpoint: <endpoint>  # The MSSQL server endpoint
+
+server_name: <sever_name> # (optional) specify server name for MSSQL server
+
+tenant_id: <tenant_id>  # (optional) The azure directory (tenant) id
+
 
 output:
   file:

@@ -23,6 +23,7 @@ mssql_config = MssqlConfig(
     output=OutputConfig(),
     tenant_id=mock_tenant_id,
     server_name="mock_server_name",
+    endpoint="mock_server_name.database.windoes.net",
     username="username",
     password="password",
 )
