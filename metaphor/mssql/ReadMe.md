@@ -22,15 +22,13 @@ GRANT VIEW DATABASE STATE TO <username>
 ### Required Configurations
 
 ```yaml
-server_name: <workspace_name>  # The MSSQL server name
-
 username: <username>  # The MSSQL server login username
 
 password: <password>  # The MSSQL server login password
 
 endpoint: <endpoint>  # The MSSQL server endpoint
 
-server_name: <sever_name> # (optional) specify server name for MSSQL server
+server_name: <sever_name>  # (optional) specify server name for MSSQL server
 
 tenant_id: <tenant_id>  # (optional) The azure directory (tenant) id
 
