@@ -218,7 +218,7 @@ class TableauExtractor(BaseExtractor):
             logger.error(f"Unable to parse custom query for {custom_sql_table.id}: {e}")
             return {}
 
-        if len(source_tables) < 1:
+        if len(source_tables) == 0:
             logger.error(
                 f"Unable to extract source tables from custom query for {custom_sql_table.id}"
             )
