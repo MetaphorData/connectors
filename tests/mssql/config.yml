@@ -5,4 +5,4 @@ username: username
 password: password
 output:
   file:
-    directory: ./synapse_result
+    directory: ./mssql_result

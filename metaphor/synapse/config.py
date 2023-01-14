@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
-from metaphor.common.base_config import BaseConfig
+from metaphor.mssql.config import MssqlConfig
 
 
 @dataclass
@@ -12,17 +12,5 @@ class SynapseQueryLogConfig:
 
 
 @dataclass
-class SynapseConfig(BaseConfig):
-    # Azure Directory (tenant) ID
-    tenant_id: str
-
-    # Synapse Workspace name
-    workspace_name: str
-
-    # The database username
-    username: str
-
-    # The database password
-    password: str
-
+class SynapseConfig(MssqlConfig):
     query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()
