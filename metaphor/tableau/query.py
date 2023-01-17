@@ -110,3 +110,54 @@ class WorkbookQueryResponse(BaseModel):
     vizportalUrlId: str
     upstreamDatasources: List[PublishedDatasource]
     embeddedDatasources: List[EmbeddedDatasource]
+
+
+# GraphQL that lists all custom SQL queries used in datasources.
+# To prevent the server from returning partial results when the query takes too long to run, we
+# 1. Run this as a separate query from the workbooks GraphQL
+# 2. Only return the first column as the datasource ID is the same for every column
+custom_sql_graphql_query = """
+query {
+  customSQLTables {
+    id
+    query
+    connectionType
+    columnsConnection(first: 1, offset: 0) {
+      nodes {
+        ...on Column {
+          referencedByFields {
+            datasource {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+
+class DataSource(BaseModel):
+    id: str
+
+
+class ReferencedByField(BaseModel):
+    datasource: DataSource
+
+
+class TableColumn(BaseModel):
+    referencedByFields: List[ReferencedByField]
+
+
+class ColumnConnection(BaseModel):
+    nodes: List[TableColumn]
+
+
+class CustomSqlTable(BaseModel):
+    """Modeling Metadata Graphql API response for a custom SQL table"""
+
+    id: str
+    query: str
+    connectionType: str
+    columnsConnection: ColumnConnection

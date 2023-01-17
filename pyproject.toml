@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.11.107"
+version = "0.11.109"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -71,7 +71,7 @@ power_bi = ["msal", "sql-metadata"]
 redshift = ["asyncpg", "metaphor-sqllineage"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 synapse = ["pymssql"]
-tableau = ["tableauserverclient"]
+tableau = ["tableauserverclient", "metaphor-sqllineage"]
 throughtspot = ["thoughtspot-rest-api-sdk"]
 unity_catalog = ["databricks-cli"]
 
