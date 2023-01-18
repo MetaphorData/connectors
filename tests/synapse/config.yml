@@ -1,6 +1,6 @@
 ---
 tenant_id: tenant_id
-workspace_name: workspace_name
+server_name: workspace_name
 username: username
 password: password
 output:

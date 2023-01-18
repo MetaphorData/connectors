@@ -52,6 +52,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [manual.lineage](metaphor/manual/lineage/README.md)           | Lineage                                  |
 | [manual.metadata](metaphor/manual/metadata/README.md)         | Custom metadata                          |
 | [metabase](metaphor/metabase/README.md)                       | Dashboard, lineage                       |
+| [mssql](metaphor/mssql/README.md)                             | Schema                                   |
 | [postgresql](metaphor/postgresql/README.md)                   | Schema, description, statistics          |
 | [postgresql.profile](metaphor/postgresql/profile/README.md)   | Data profile                             |
 | [postgresql.usage](metaphor/postgresql/usage/README.md)       | Usage                                    |

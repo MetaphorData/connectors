@@ -1,0 +1,7 @@
+---
+endpoint: sql_server_name.sql.database.net
+username: username
+password: password
+output:
+  file:
+    directory: ./mssql_result

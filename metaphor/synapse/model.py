@@ -1,38 +1,7 @@
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Optional
 
 from pydantic import BaseModel
-
-
-class SynapseDatabase(BaseModel):
-    id: int
-    name: str
-    create_time: datetime
-    collation_name: str
-
-
-class SynapseColumn(BaseModel):
-    name: str
-    type: str
-    max_length: float
-    precision: float
-    is_nullable: bool
-    is_unique: Optional[bool]
-    is_primary_key: Optional[bool]
-    is_foreign_key: Optional[bool]
-
-
-class SynapseTable(BaseModel):
-    id: str
-    name: str
-    schema_name: str
-    # detailed type description: https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver16
-    type: str
-    column_dict: Dict[str, SynapseColumn]
-    create_time: datetime
-    is_external: bool
-    external_source: Optional[str]
-    external_file_format: Optional[str]
 
 
 class SynapseQueryLog(BaseModel):

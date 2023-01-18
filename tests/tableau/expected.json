@@ -22,7 +22,8 @@
     "upstream": {
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~B5446C160574546FB913DB1D78989BAE",
-        "VIRTUAL_VIEW~3ADEC7EE47E751141F716D29158E63A3"
+        "VIRTUAL_VIEW~3ADEC7EE47E751141F716D29158E63A3",
+        "VIRTUAL_VIEW~0EA6A23C11D3E0F478F760380DDABAE8"
       ]
     }
   },
@@ -52,6 +53,20 @@
       "name": "default.source2",
       "sourceDatasets": [
         "DATASET~F9D8E5963019975462CB6CB2002D247B"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sourceId3",
+      "type": "TABLEAU_DATASOURCE"
+    },
+    "tableauDatasource": {
+      "embedded": true,
+      "fields": [],
+      "name": "default.source3",
+      "sourceDatasets": [
+        "DATASET~5375BC53A82C65FD48653B9418094BB0"
       ]
     }
   }

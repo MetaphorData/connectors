@@ -38,11 +38,11 @@ Create a YAML config file based on the following template.
 ```yaml
 tenant_id: <tenant_id>  # The azure directory (tenant) id
 
-workspace_name: <workspace_name> # The Microsoft Synapse workspace name
+server_name: <workspace_name>  # The Microsoft Synapse workspace name
 
-username: <username> # The synapse workspace SQL username
+username: <username>  # The synapse workspace SQL username
 
-password: <password> # The Synapse workspace SQL password
+password: <password>  # The Synapse workspace SQL password
 
 output:
   file:

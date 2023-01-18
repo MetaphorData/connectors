@@ -1,0 +1,112 @@
+[
+  {
+    "_createdAt": "2022-12-30T11:30:15.822321+00:00",
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "tenant_id",
+          "value": "\"mock_tenant_id\""
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "account": "mock_server_name",
+      "name": "mock_database_name.mock_mssql_table_schema.mock_mssql_table_name",
+      "platform": "MSSQL"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "mock_column_name_1",
+          "fieldPath": "mock_column_name_1",
+          "isUnique": false,
+          "nativeType": "mock_column_type_1",
+          "nullable": false,
+          "precision": 0.0
+        },
+        {
+          "fieldName": "mock_column_name_2",
+          "fieldPath": "mock_column_name_2",
+          "isUnique": true,
+          "nativeType": "mock_column_type_2",
+          "nullable": false,
+          "precision": 0.0
+        }
+      ],
+      "sqlSchema": {
+        "foreignKey": [],
+        "materialization": "TABLE",
+        "primaryKey": [
+          "mock_column_name_1"
+        ],
+        "tableSchema": "mock_mssql_table_schema"
+      }
+    },
+    "structure": {
+      "database": "mock_database_name",
+      "schema": "mock_mssql_table_schema",
+      "table": "mock_mssql_table_name"
+    }
+  },
+  {
+    "_createdAt": "2022-12-30T12:30:15.822321+00:00",
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "tenant_id",
+          "value": "\"mock_tenant_id\""
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "account": "mock_server_name",
+      "name": "mock_database_name.mock_mssql_table_schema_2.mock_mssql_table_name_2",
+      "platform": "MSSQL"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "mock_column2_name_1",
+          "fieldPath": "mock_column2_name_1",
+          "isUnique": false,
+          "nativeType": "mock_column2_type_1",
+          "nullable": false,
+          "precision": 0.0
+        },
+        {
+          "fieldName": "mock_column2_name_2",
+          "fieldPath": "mock_column2_name_2",
+          "isUnique": false,
+          "nativeType": "mock_column2_type_2",
+          "nullable": false,
+          "precision": 0.0
+        }
+      ],
+      "sqlSchema": {
+        "foreignKey": [
+          {
+            "fieldPath": "mock_column2_name_2",
+            "parent": {
+              "account": "mock_server_name",
+              "name": "mock_database_name.mock_mssql_table_schema.mock_mssql_table_name",
+              "platform": "MSSQL"
+            },
+            "parentField": "mock_column_name_2"
+          }
+        ],
+        "materialization": "TABLE",
+        "primaryKey": [
+          "mock_column2_name_1"
+        ],
+        "tableSchema": "mock_mssql_table_schema_2"
+      }
+    },
+    "structure": {
+      "database": "mock_database_name",
+      "schema": "mock_mssql_table_schema_2",
+      "table": "mock_mssql_table_name_2"
+    }
+  }
+]

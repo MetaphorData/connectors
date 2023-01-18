@@ -18,7 +18,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 from metaphor.tableau.extractor import TableauExtractor
-from metaphor.tableau.query import Database, DatabaseTable, WorkbookQueryResponse
+from metaphor.tableau.query import Database, DatabaseTable
 from tests.test_utils import load_json
 
 
@@ -26,7 +26,7 @@ class ViewsWrapper:
     def __init__(self, views: List[ViewItem]):
         self._views = views
 
-    def populate_preview_image(self):
+    def populate_preview_image(self, *args, **kwargs):
         pass
 
     def __iter__(self):
@@ -38,7 +38,7 @@ class WorkbooksWrapper:
     def __init__(self, workbooks: List[WorkbookItem]):
         self._workbooks = workbooks
 
-    def populate_views(self):
+    def populate_views(self, *args, **kwargs):
         pass
 
     def __iter__(self):
@@ -193,7 +193,7 @@ async def test_extractor(test_root_dir):
         id="abc",
         name="wb",
         content_url="wb",
-        webpage_url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
+        webpage_url="https://hostname/#/site/abc/workbooks/123",
         created_at=None,
         description="d",
         updated_at=None,
@@ -233,61 +233,97 @@ async def test_extractor(test_root_dir):
         ),
     )
 
-    workbook_graphql_response = {
-        "luid": "abc",
-        "name": "Snowflake test1",
-        "projectName": "default",
-        "vizportalUrlId": "123",
-        "upstreamDatasources": [
-            {
-                "id": "sourceId1",
-                "luid": "sourceId1",
-                "name": "source1",
-                "vizportalUrlId": "777",
-                "fields": [],
-                "upstreamTables": [
-                    {
-                        "luid": "4ba4462e",
-                        "name": "CYCLE",
-                        "fullName": "[LONDON].[CYCLE]",
-                        "schema": "LONDON",
-                        "database": {
-                            "name": "DEV_DB",
-                            "connectionType": "snowflake",
+    graphql_custom_sql_tables_response = {
+        "data": {
+            "customSQLTables": [
+                {
+                    "id": "custom_sql_1",
+                    "connectionType": "bigquery",
+                    "query": "select * from db.schema.table",
+                    "columnsConnection": {
+                        "nodes": [
+                            {
+                                "referencedByFields": [
+                                    {"datasource": {"id": "sourceId3"}}
+                                ]
+                            }
+                        ]
+                    },
+                }
+            ],
+        }
+    }
+
+    graphql_workbooks_response = {
+        "data": {
+            "workbooks": [
+                {
+                    "luid": "abc",
+                    "name": "Snowflake test1",
+                    "projectName": "default",
+                    "vizportalUrlId": "123",
+                    "upstreamDatasources": [
+                        {
+                            "id": "sourceId1",
+                            "luid": "sourceId1",
+                            "name": "source1",
+                            "vizportalUrlId": "777",
+                            "fields": [],
+                            "upstreamTables": [
+                                {
+                                    "luid": "4ba4462e",
+                                    "name": "CYCLE",
+                                    "fullName": "[LONDON].[CYCLE]",
+                                    "schema": "LONDON",
+                                    "database": {
+                                        "name": "DEV_DB",
+                                        "connectionType": "snowflake",
+                                    },
+                                }
+                            ],
+                        }
+                    ],
+                    "embeddedDatasources": [
+                        {
+                            "id": "sourceId2",
+                            "name": "source2",
+                            "fields": [],
+                            "upstreamTables": [
+                                {
+                                    "luid": "5dca51d8",
+                                    "name": "CYCLE_HIRE",
+                                    "fullName": "[BERLIN_BICYCLES].[CYCLE_HIRE]",
+                                    "schema": "BERLIN_BICYCLES",
+                                    "description": "",
+                                    "database": {
+                                        "name": "ACME",
+                                        "connectionType": "redshift",
+                                    },
+                                }
+                            ],
                         },
-                    }
-                ],
-            }
-        ],
-        "embeddedDatasources": [
-            {
-                "id": "sourceId2",
-                "name": "source2",
-                "fields": [],
-                "upstreamTables": [
-                    {
-                        "luid": "5dca51d8",
-                        "name": "CYCLE_HIRE",
-                        "fullName": "[BERLIN_BICYCLES].[CYCLE_HIRE]",
-                        "schema": "BERLIN_BICYCLES",
-                        "description": "",
-                        "database": {"name": "ACME", "connectionType": "redshift"},
-                    }
-                ],
-            }
-        ],
+                        {
+                            "id": "sourceId3",
+                            "name": "source3",
+                            "fields": [],
+                            "upstreamTables": [],
+                        },
+                    ],
+                }
+            ],
+        }
     }
 
     extractor._snowflake_account = "snow"
-    extractor._parse_workbook_query_response(
-        WorkbookQueryResponse.parse_obj(workbook_graphql_response)
-    )
 
     mock_auth = MagicMock()
     mock_auth.sign_in = MagicMock()
 
     mock_metadata = MagicMock()
-    mock_metadata.query.return_value = workbook_graphql_response
+    mock_metadata.query.side_effect = [
+        graphql_custom_sql_tables_response,
+        graphql_workbooks_response,
+    ]
 
     mock_server = MagicMock()
     mock_server.auth = mock_auth
@@ -295,11 +331,10 @@ async def test_extractor(test_root_dir):
     mock_server.workbooks = WorkbooksWrapper([workbook])
     mock_server.metadata = mock_metadata
 
-    with patch("tableauserverclient.Server") as mock_server_cls, patch(
+    with patch("tableauserverclient.Server", return_value=mock_server), patch(
         "tableauserverclient.Pager"
     ) as mock_pager_cls:
 
-        mock_server_cls.side_effect = mock_server
         mock_pager_cls.side_effect = MockPager
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]

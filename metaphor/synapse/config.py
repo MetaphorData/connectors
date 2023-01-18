@@ -16,8 +16,8 @@ class SynapseConfig(BaseConfig):
     # Azure Directory (tenant) ID
     tenant_id: str
 
-    # Synapse Workspace name
-    workspace_name: str
+    # SQL Server name
+    server_name: str
 
     # The database username
     username: str
