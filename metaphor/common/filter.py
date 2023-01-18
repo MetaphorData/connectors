@@ -7,6 +7,17 @@ TableFilter = Set[str]
 SchemaFilter = Dict[str, Optional[TableFilter]]
 DatabaseFilter = Dict[str, Optional[SchemaFilter]]
 
+DUMMY_DATABASE_NAME = "dummy"
+
+
+@dataclass
+class TwoLevelDatasetFilter:
+    # A list of schemas/tables to include
+    includes: Optional[SchemaFilter] = None
+
+    # A list of schemas/tables to exclude
+    excludes: Optional[SchemaFilter] = None
+
 
 @dataclass
 class DatasetFilter:
@@ -60,6 +71,15 @@ class DatasetFilter:
         )
 
         return DatasetFilter(includes=includes, excludes=excludes)
+
+    @staticmethod
+    def from_two_level_dataset_filter(filter: TwoLevelDatasetFilter) -> "DatasetFilter":
+        return DatasetFilter(
+            includes={DUMMY_DATABASE_NAME: filter.includes},
+            excludes={DUMMY_DATABASE_NAME: filter.excludes}
+            if filter.excludes
+            else None,
+        )
 
     def _accepted_by_schema_pattern(
         self,
@@ -115,6 +135,9 @@ class DatasetFilter:
 
         return False
 
+    def include_table_two_level(self, schema: str, table: str) -> bool:
+        return self.include_table(DUMMY_DATABASE_NAME, schema, table)
+
     def include_table(self, database: str, schema: str, table: str) -> bool:
         database_lower = database.lower()
         schema_lower = schema.lower()
@@ -133,6 +156,9 @@ class DatasetFilter:
             return False
 
         return True
+
+    def include_schema_two_level(self, schema: str) -> bool:
+        return self.include_schema(DUMMY_DATABASE_NAME, schema)
 
     def include_schema(self, database: str, schema: str) -> bool:
         database_lower = database.lower()
