@@ -1,6 +1,7 @@
 # MSSQL Connector
 
 This connector extracts technical metadata from a Microsoft SQL Server using [System catalog views](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/catalog-views-transact-sql?view=sql-server-ver16).
+> Note: For on-permise MSSQL server, we support SQL Server 2016 (13.x) and later
 
 ## Setup
 We recommend creating a dedicated MSSQL user with limited permissions for the connector to use
