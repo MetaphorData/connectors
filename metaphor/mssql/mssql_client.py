@@ -30,7 +30,7 @@ def mssql_fetch_all(
         database_str = f"{database}" if len(database) > 0 else ""
         conn = pymssql.connect(
             server=server,
-            user=f'{config.username}@{config.endpoint.split(".")[0]}',
+            user=config.username,
             password=config.password,
             database=database_str,
             conn_properties="",
@@ -61,7 +61,7 @@ class MssqlClient:
 
     def get_databases(self) -> Iterable[MssqlDatabase]:
         query_str = """
-            SELECT database_id, name, create_date, collation_name from sys.databases where name != 'master';
+            SELECT database_id, name, create_date, collation_name from sys.databases where name not in ('master', 'tempdb', 'model', 'msdb');
         """
         rows = mssql_fetch_all(self.config, query_str)
         for row in rows:

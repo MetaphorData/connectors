@@ -10,7 +10,20 @@ def test_yaml_config(test_root_dir):
 
     assert config == MssqlConfig(
         tenant_id="tenant_id",
-        server_name="workspace_name",
+        server_name="sql_server_name",
+        endpoint="sql_server_name.sql.database.net",
+        username="username",
+        password="password",
+        output=OutputConfig(file={"directory": "./mssql_result"}),
+    )
+
+
+def test_yaml_config_with_minimal_requirements(test_root_dir):
+    config = MssqlConfig.from_yaml_file(
+        f"{test_root_dir}/mssql/config_with_minimal_requirements.yml"
+    )
+    assert config == MssqlConfig(
+        endpoint="sql_server_name.sql.database.net",
         username="username",
         password="password",
         output=OutputConfig(file={"directory": "./mssql_result"}),
