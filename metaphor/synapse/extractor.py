@@ -58,7 +58,6 @@ class SynapseExtractor(MssqlExtractor):
         # Serverless sqlpool
         try:
             for database in serverless_client.get_databases():
-
                 if not self._is_database_including(database):
                     continue
                 tables = serverless_client.get_tables(database.name)

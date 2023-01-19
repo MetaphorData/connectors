@@ -181,9 +181,9 @@ class MssqlExtractor(BaseExtractor):
         return items
 
     def _is_database_including(self, database: MssqlDatabase) -> bool:
-        if self._filter.includes and database.name.lower() not in self._filter.includes:
-            return False
-        return True
+        return not (
+            self._filter.includes and database.name.lower() not in self._filter.includes
+        )
 
     def _is_table_including(self, database_name: str, table: MssqlTable) -> bool:
         return self._filter.include_schema(
