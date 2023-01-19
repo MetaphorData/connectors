@@ -39,7 +39,6 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 ### Optional Configurations
 
 You could specfic `server_name` or `tenant_id` to connector.
-By default, the connector will crawl all databases and tables from the MSSQL server. You could specifc databases and tables with `filter` config.
 
 ```yaml
 server_name: <sever_name>  # specify server name for MSSQL server
