@@ -1,8 +1,10 @@
+from dataclasses import field
 from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.filter import DatasetFilter
 
 
 @dataclass
@@ -24,5 +26,8 @@ class SynapseConfig(BaseConfig):
 
     # The database password
     password: str
+
+    # Include or exclude specific databases/schemas/tables
+    filter: Optional[DatasetFilter] = field(default_factory=lambda: DatasetFilter())
 
     query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()

@@ -32,6 +32,7 @@ class SynapseExtractor(MssqlExtractor):
             config, "Synapse metadata crawler", Platform.SYNAPSE, DataPlatform.SYNAPSE
         )
         self._config = config
+        self._filter = config.filter.normalize()
         self._lookback_days = config.query_log.lookback_days if config.query_log else 0
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -57,6 +58,9 @@ class SynapseExtractor(MssqlExtractor):
         # Serverless sqlpool
         try:
             for database in serverless_client.get_databases():
+
+                if not self._is_database_including(database):
+                    continue
                 tables = serverless_client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(
                     self._config.server_name, database, tables
@@ -80,6 +84,8 @@ class SynapseExtractor(MssqlExtractor):
         # Dedicated sqlpool
         try:
             for database in dedicated_client.get_databases():
+                if not self._is_database_including(database):
+                    continue
                 tables = dedicated_client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(
                     self._config.server_name, database, tables

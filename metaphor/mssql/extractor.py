@@ -48,6 +48,7 @@ class MssqlExtractor(BaseExtractor):
             if self._config.server_name
             else self._config.endpoint
         )
+        self._filter = config.filter.normalize()
         self._platform = platform
         self._dataset_platform = dataset_platform
 
@@ -61,6 +62,8 @@ class MssqlExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         try:
             for database in client.get_databases():
+                if not self._is_database_including(database):
+                    continue
                 tables = client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(
                     self._config.server_name, database, tables
@@ -82,6 +85,8 @@ class MssqlExtractor(BaseExtractor):
             return dataset_map
 
         for table in tables:
+            if not self._is_table_including(database.name, table):
+                continue
             dataset = Dataset()
             dataset.created_at = table.create_time
             dataset.entity_type = EntityType.DATASET
@@ -147,7 +152,9 @@ class MssqlExtractor(BaseExtractor):
             if fk.table_id in dataset_map:
                 foreign_key = ForeignKey(
                     field_path=fk.column_name,
-                    parent=dataset_map[fk.referenced_table_id].logical_id,
+                    parent=dataset_map[fk.referenced_table_id].logical_id
+                    if fk.referenced_table_id in dataset_map
+                    else None,
                     parent_field=fk.referenced_column,
                 )
                 dataset_map[fk.table_id].schema.sql_schema.foreign_key.append(
@@ -172,3 +179,13 @@ class MssqlExtractor(BaseExtractor):
                 CustomMetadataItem("source", json.dumps(table.external_source))
             )
         return items
+
+    def _is_database_including(self, database: MssqlDatabase) -> bool:
+        if self._filter.includes and database.name.lower() not in self._filter.includes:
+            return False
+        return True
+
+    def _is_table_including(self, database_name: str, table: MssqlTable) -> bool:
+        return self._filter.include_schema(
+            database_name, table.schema_name
+        ) and self._filter.include_table(database_name, table.schema_name, table.name)

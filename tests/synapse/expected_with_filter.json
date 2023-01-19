@@ -1,0 +1,110 @@
+[
+  {
+    "_createdAt": "2022-12-09T18:30:15.822321+00:00",
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "tenant_id",
+          "value": "\"mock_tenant_id\""
+        },
+        {
+          "key": "format",
+          "value": "\"CSV\""
+        },
+        {
+          "key": "source",
+          "value": "\"mock_storage_location\""
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "account": "mock_synapse_workspace_name",
+      "name": "mock_database_name.mock_synapse_table_schema.mock_synapse_table_name",
+      "platform": "SYNAPSE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "mock_column_name_1",
+          "fieldPath": "mock_column_name_1",
+          "isUnique": true,
+          "nativeType": "mock_column_type_1",
+          "nullable": false,
+          "precision": 0.0
+        },
+        {
+          "fieldName": "mock_column_name_2",
+          "fieldPath": "mock_column_name_2",
+          "isUnique": false,
+          "nativeType": "mock_column_type_2",
+          "nullable": true,
+          "precision": 0.0
+        }
+      ],
+      "sqlSchema": {
+        "foreignKey": [],
+        "materialization": "EXTERNAL",
+        "primaryKey": [
+          "mock_column_name_1"
+        ],
+        "tableSchema": "mock_synapse_table_schema"
+      }
+    },
+    "structure": {
+      "database": "mock_database_name",
+      "schema": "mock_synapse_table_schema",
+      "table": "mock_synapse_table_name"
+    }
+  },
+  {
+    "_createdAt": "2022-12-14T12:30:15.622321+00:00",
+    "customMetadata": {
+      "metadata": [
+        {
+          "key": "tenant_id",
+          "value": "\"mock_tenant_id\""
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "account": "mock_synapse_workspace_name",
+      "name": "mock_dedicated_database_name.mock_dedicated_table_schema.mock_dedicated_table_name",
+      "platform": "SYNAPSE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "mock_column_name_1",
+          "fieldPath": "mock_column_name_1",
+          "isUnique": true,
+          "nativeType": "mock_column_type_1",
+          "nullable": false,
+          "precision": 0.0
+        },
+        {
+          "fieldName": "mock_column_name_2",
+          "fieldPath": "mock_column_name_2",
+          "isUnique": false,
+          "nativeType": "mock_column_type_2",
+          "nullable": true,
+          "precision": 0.0
+        }
+      ],
+      "sqlSchema": {
+        "foreignKey": [],
+        "materialization": "TABLE",
+        "primaryKey": [
+          "mock_column_name_1"
+        ],
+        "tableSchema": "mock_dedicated_table_schema"
+      }
+    },
+    "structure": {
+      "database": "mock_dedicated_database_name",
+      "schema": "mock_dedicated_table_schema",
+      "table": "mock_dedicated_table_name"
+    }
+  }
+]
