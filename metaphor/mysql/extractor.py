@@ -53,7 +53,7 @@ class MySQLExtractor(BaseExtractor):
 
     def get_sqlalchemy_url(self) -> str:
         return URL.create(
-            "mysql",
+            "mysql+pymysql",
             username=self._config.user,
             password=self._config.password,
             host=self._config.host,

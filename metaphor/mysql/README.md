@@ -1,6 +1,6 @@
 # MySQL Connector
 
-This connector extracts technical metadata from a MySQL database using [mysqlclient](https://github.com/PyMySQL/mysqlclient) library.
+This connector extracts technical metadata from a MySQL database using [PyMySQL](https://github.com/PyMySQL/PyMySQL) library.
 
 ## Setup
 
