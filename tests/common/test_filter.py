@@ -200,3 +200,12 @@ def test_merge():
     f1 = DatasetFilter(excludes={"foo": None})
     f2 = DatasetFilter(excludes={"foo": {"bar": None}})
     assert f1.merge(f2) == DatasetFilter(excludes={"foo": {"bar": None}})
+
+
+def test_include_database():
+    filter = DatasetFilter(includes={"*db": None, "test": None}, excludes={"foo": None})
+
+    assert filter.include_database("TestDb")
+    assert filter.include_database("TEST")
+    assert not filter.include_database("app")
+    assert not filter.include_database("foo")

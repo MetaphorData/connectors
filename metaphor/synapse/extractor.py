@@ -58,7 +58,7 @@ class SynapseExtractor(MssqlExtractor):
         # Serverless sqlpool
         try:
             for database in serverless_client.get_databases():
-                if not self._is_database_including(database):
+                if not self._filter.include_database(database.name):
                     continue
                 tables = serverless_client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(
@@ -83,7 +83,7 @@ class SynapseExtractor(MssqlExtractor):
         # Dedicated sqlpool
         try:
             for database in dedicated_client.get_databases():
-                if not self._is_database_including(database):
+                if not self._filter.include_database(database.name):
                     continue
                 tables = dedicated_client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(

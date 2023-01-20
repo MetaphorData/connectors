@@ -193,3 +193,16 @@ class DatasetFilter:
             return False
 
         return True
+
+    def include_database(
+        self,
+        database_name: str,
+    ) -> bool:
+        if not self.includes or len(self.includes) == 0:
+            return True
+
+        database_lower = database_name.lower()
+        for pattern in self.includes:
+            if fnmatch(database_lower, pattern):
+                return True
+        return False

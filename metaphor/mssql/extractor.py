@@ -62,7 +62,7 @@ class MssqlExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         try:
             for database in client.get_databases():
-                if not self._is_database_including(database):
+                if not self._filter.include_database(database.name):
                     continue
                 tables = client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(
@@ -85,7 +85,9 @@ class MssqlExtractor(BaseExtractor):
             return dataset_map
 
         for table in tables:
-            if not self._is_table_including(database.name, table):
+            if not self._filter.include_table(
+                database.name, table.schema_name, table.name
+            ):
                 continue
             dataset = Dataset()
             dataset.created_at = table.create_time
@@ -179,13 +181,3 @@ class MssqlExtractor(BaseExtractor):
                 CustomMetadataItem("source", json.dumps(table.external_source))
             )
         return items
-
-    def _is_database_including(self, database: MssqlDatabase) -> bool:
-        return not (
-            self._filter.includes and database.name.lower() not in self._filter.includes
-        )
-
-    def _is_table_including(self, database_name: str, table: MssqlTable) -> bool:
-        return self._filter.include_schema(
-            database_name, table.schema_name
-        ) and self._filter.include_table(database_name, table.schema_name, table.name)
