@@ -137,8 +137,6 @@ class ThoughtSpotExtractor(BaseExtractor):
         tables: Dict[str, SourceMetadata],
     ):
         for table in tables.values():
-            logger.debug(f"table: {table}")
-
             table_id = table.header.id
 
             fieldMappings = []
@@ -329,7 +327,6 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_answers(self, answers: List[AnswerMetadata]):
         for answer in answers:
-            logger.debug(f"answer: {answer}")
             answer_id = answer.header.id
 
             visualizations = [
@@ -374,7 +371,6 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_liveboards(self, liveboards: List[LiveBoardMetadata]):
         for board in liveboards:
-            logger.debug(f"board: {board}")
             board_id = board.header.id
 
             resolvedObjects = board.header.resolvedObjects
