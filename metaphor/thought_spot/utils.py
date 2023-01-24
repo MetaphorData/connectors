@@ -33,7 +33,7 @@ from restapisdk.models.tspublic_rest_v_2_session_gettoken_request import (
 )
 from restapisdk.restapisdk_client import RestapisdkClient
 
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.utils import chunks
 from metaphor.models.metadata_change_event import (
     ChartType,
@@ -242,6 +242,8 @@ class ThoughtSpot:
             response = json.loads(response_json)
             if "storables" in response:
                 res.extend(response["storables"])
+
+        json_dump_to_debug_file(res, f"{str(object_type).lower()}.json")
         return res
 
     @staticmethod
