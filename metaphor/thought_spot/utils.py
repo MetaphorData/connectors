@@ -184,7 +184,6 @@ class ThoughtSpot:
         obj = ThoughtSpot._fetch_object_detail(
             client.metadata, ids, GetObjectDetailTypeEnum.CONNECTION
         )
-        logger.debug(f"[connection] fetch_object_detail: {json.dumps(obj)}")
         return parse_obj_as(List[ConnectionMetadata], obj)
 
     @classmethod
@@ -199,7 +198,6 @@ class ThoughtSpot:
         logger.info(f"{mtype} ids: {ids}")
 
         obj = ThoughtSpot._fetch_object_detail(client.metadata, ids, detail_type)
-        logger.debug(f"[{mtype}] fetch_object_detail: {json.dumps(obj)}")
 
         # Because mypy can't handle dynamic type variables properly, we skip type-checking here.
         return parse_obj_as(List[target_type], obj)  # type: ignore
@@ -209,7 +207,6 @@ class ThoughtSpot:
         logger.info(f"Fetching tml for ids: {ids}")
 
         obj = ThoughtSpot._fetch_tml(client.metadata, ids)
-        logger.debug(f"[TML] fetch_object_detail: {json.dumps(obj)}")
 
         return parse_obj_as(List[TMLResult], obj)
 
@@ -260,4 +257,6 @@ class ThoughtSpot:
             response = json.loads(response_json)
             if "object" in response:
                 res.extend(response["object"])
+
+        json_dump_to_debug_file(res, "tml.json")
         return res
