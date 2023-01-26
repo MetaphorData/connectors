@@ -1,0 +1,21 @@
+---
+tenant_id: tenant_id
+server_name: workspace_name
+username: username
+password: password
+filter:
+  includes:
+    db1:
+      schemas1:
+        - table1
+        - table2
+    db2:
+  excludes:
+    db1:
+      schemas1:
+        - table3
+query_log:
+  lookback_days: 15
+output:
+  file:
+    directory: ./synapse_result

@@ -1,0 +1,20 @@
+---
+tenant_id: tenant_id
+server_name: sql_server_name
+endpoint: sql_server_name.sql.database.net
+username: username
+password: password
+filter:
+  includes:
+    db1:
+      schemas1:
+        - table1
+        - table2
+    db2:
+  excludes:
+    db1:
+      schemas1:
+        - table3
+output:
+  file:
+    directory: ./mssql_result

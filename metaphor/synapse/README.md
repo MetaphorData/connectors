@@ -9,13 +9,16 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
     - You could directly use the above admin user to process the Synapse connector.
       For security and privacy reasons, we recommend creating a read-only user to process the Synapse connector.
       1. Set up the read-only user for serverless SQL databases
+
           ```sql
           -- nagivate to master database
           CREATE LOGIN <username> WITH PASSWORD = '<password>'
           GRANT CONNECT ANY DATABASE TO <username>;
           GRANT VIEW ANY DEFINITION TO  <username>;
           ```
+
       2. Set up the read-only user for dedicated SQL databases
+
           ```sql
           -- nagivate to master database
           CREATE LOGIN <username> WITH PASSWORD = '<password>'
@@ -25,6 +28,7 @@ This connector extracts technical metadata from Azure Synapse workspaces using [
           GRANT VIEW DEFINITION TO <username>
           GRANT VIEW DATABASE STATE TO <username>
           ```
+
           > Note: You'll need to run the above command for each database you'd like to connect to.
 
 2. (Optional) Enable the query log by setting `lookback_days` in the config file
@@ -52,11 +56,15 @@ output:
 See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
-#### Query Log
+
+By default, the connector will not crawl the query log unless you specify `lookback_days`.
+
 ```yaml
 query_log:
   lookback_days: <days>
 ```
+
+See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
 ## Testing
 
