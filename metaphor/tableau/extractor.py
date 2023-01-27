@@ -36,6 +36,7 @@ from metaphor.models.metadata_change_event import (
     VirtualViewType,
 )
 from metaphor.tableau.config import TableauRunConfig
+from metaphor.tableau.graphql_utils import paginate_connection
 from metaphor.tableau.query import (
     CustomSqlTable,
     DatabaseTable,
@@ -131,12 +132,12 @@ class TableauExtractor(BaseExtractor):
                 logger.error(f"failed to parse workbook {item.name}, error {error}")
 
     def _extract_datasources(self, server: tableau.Server) -> None:
-        # fetch custom SQL tablesfrom Metadata GraphQL API
-        resp = server.metadata.query(custom_sql_graphql_query)
-        resp_data = resp["data"]
-        json_dump_to_debug_file(resp_data, "graphql_custom_sql_tables.json")
+        # fetch custom SQL tables from Metadata GraphQL API
+        custom_sql_tables = paginate_connection(
+            server, custom_sql_graphql_query, "customSQLTablesConnection"
+        )
 
-        custom_sql_tables = resp_data["customSQLTables"]
+        json_dump_to_debug_file(custom_sql_tables, "graphql_custom_sql_tables.json")
         logger.info(f"Found {len(custom_sql_tables)} custom SQL tables.")
 
         datasource_upstream_datasets = {}
@@ -147,11 +148,13 @@ class TableauExtractor(BaseExtractor):
             )
 
         # fetch workbook related info from Metadata GraphQL API
-        resp = server.metadata.query(workbooks_graphql_query)
-        resp_data = resp["data"]
-        json_dump_to_debug_file(resp_data, "graphql_workbooks.json")
+        workbooks = paginate_connection(
+            server, workbooks_graphql_query, "workbooksConnection"
+        )
+        json_dump_to_debug_file(workbooks, "graphql_workbooks.json")
+        logger.info(f"Found {len(workbooks)} workbooks.")
 
-        for item in resp_data["workbooks"]:
+        for item in workbooks:
             try:
                 workbook = WorkbookQueryResponse.parse_obj(item)
                 self._parse_workbook_query_response(

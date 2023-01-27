@@ -14,48 +14,50 @@ connection_type_map: Dict[str, DataPlatform] = {
 # NOTE!!! the id (uuid) of an entity from graphql api is different from
 # the id of the same entity from the REST api, use luid instead
 workbooks_graphql_query = """
-query {
-  workbooks {
-    luid
-    name
-    projectName
-    vizportalUrlId
-    upstreamDatasources {
-      id
+query($first: Int, $offset: Int) {
+  workbooksConnection(first: $first, offset: $offset) {
+    nodes {
       luid
-      vizportalUrlId
       name
-      description
-      fields {
+      projectName
+      vizportalUrlId
+      upstreamDatasources {
+        id
+        luid
+        vizportalUrlId
         name
         description
-      }
-      upstreamTables {
-        luid
-        name
-        fullName
-        schema
-        database {
+        fields {
           name
-          connectionType
+          description
+        }
+        upstreamTables {
+          luid
+          name
+          fullName
+          schema
+          database {
+            name
+            connectionType
+          }
         }
       }
-    }
-    embeddedDatasources {
-      id
-      name
-      fields {
+      embeddedDatasources {
+        id
         name
-        description
-      }
-      upstreamTables {
-        luid
-        name
-        fullName
-        schema
-        database {
+        fields {
           name
-          connectionType
+          description
+        }
+        upstreamTables {
+          luid
+          name
+          fullName
+          schema
+          database {
+            name
+            connectionType
+          }
         }
       }
     }
@@ -117,17 +119,19 @@ class WorkbookQueryResponse(BaseModel):
 # 1. Run this as a separate query from the workbooks GraphQL
 # 2. Only return the first column as the datasource ID is the same for every column
 custom_sql_graphql_query = """
-query {
-  customSQLTables {
-    id
-    query
-    connectionType
-    columnsConnection(first: 1, offset: 0) {
-      nodes {
-        ...on Column {
-          referencedByFields {
-            datasource {
-              id
+query($first: Int, $offset: Int) {
+  customSQLTablesConnection(first: $first, offset: $offset) {
+    nodes {
+      id
+      query
+      connectionType
+      columnsConnection(first: 1, offset: 0) {
+        nodes {
+          ...on Column {
+            referencedByFields {
+              datasource {
+                id
+              }
             }
           }
         }
