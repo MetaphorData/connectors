@@ -22,7 +22,7 @@ def paginate_connection(
             logger.error(f"Error when querying {connection_name}: {resp.get('errors')}")
 
         nodes = resp["data"][connection_name]["nodes"]
-        if len(nodes) == 0:
+        if len(nodes) < batch_size:
             return result
 
         result.extend(nodes)

@@ -15,7 +15,7 @@ def test_paginate_connection():
     server.metadata = MagicMock()
     server.metadata.query.side_effect = [batch1, batch2, batch3]
 
-    assert paginate_connection(server, "query", "someConnection") == [
+    assert paginate_connection(server, "query", "someConnection", batch_size=1) == [
         {"val": 1},
         {"val": 2},
     ]
