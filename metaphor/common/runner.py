@@ -86,7 +86,7 @@ def run_connector(
         file_sink.sink_logs()
 
     if api_sink_config is not None:
-        api_sink = ApiSink(file_sink_config)
+        api_sink = ApiSink(api_sink_config)
         api_sink.sink(events)
 
     return events
