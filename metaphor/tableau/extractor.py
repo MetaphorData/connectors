@@ -2,7 +2,7 @@ import base64
 import json
 import re
 import traceback
-from typing import Collection, Dict, List, Optional, Set
+from typing import Collection, Dict, List, Optional, Set, Union
 
 try:
     import tableauserverclient as tableau
@@ -82,6 +82,7 @@ class TableauExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Tableau")
 
+        tableau_auth: Union[tableau.PersonalAccessTokenAuth, tableau.TableauAuth]
         if self._access_token is not None:
             tableau_auth = tableau.PersonalAccessTokenAuth(
                 self._access_token.token_name,
@@ -93,6 +94,10 @@ class TableauExtractor(BaseExtractor):
                 self._user_password.username,
                 self._user_password.password,
                 self._site_name,
+            )
+        else:
+            raise Exception(
+                "Must provide either access token or user password in config"
             )
 
         server = tableau.Server(self._server_url, use_server_version=True)
@@ -109,11 +114,14 @@ class TableauExtractor(BaseExtractor):
         logger.info(
             f"There are {len(views)} views on site: {[view.name for view in views]}\n"
         )
-        for item in views:
-            logger.debug(json.dumps(item.__dict__, default=str))
+        for view in views:
+            logger.debug(json.dumps(view.__dict__, default=str))
             if not self._disable_preview_image:
-                server.views.populate_preview_image(item)
-            self._views[item.id] = item
+                server.views.populate_preview_image(view)
+            if not view.id:
+                logger.exception(f"view {view.name} missing id")
+                continue
+            self._views[view.id] = view
 
         # fetch all workbooks
         workbooks: List[tableau.WorkbookItem] = list(tableau.Pager(server.workbooks))
@@ -121,15 +129,15 @@ class TableauExtractor(BaseExtractor):
         logger.info(
             f"\nThere are {len(workbooks)} workbooks on site: {[workbook.name for workbook in workbooks]}"
         )
-        for item in workbooks:
-            server.workbooks.populate_views(item, usage=True)
-            logger.debug(json.dumps(item.__dict__, default=str))
+        for workbook in workbooks:
+            server.workbooks.populate_views(workbook, usage=True)
+            logger.debug(json.dumps(workbook.__dict__, default=str))
 
             try:
-                self._parse_dashboard(item)
+                self._parse_dashboard(workbook)
             except Exception as error:
                 traceback.print_exc()
-                logger.error(f"failed to parse workbook {item.name}, error {error}")
+                logger.error(f"failed to parse workbook {workbook.name}, error {error}")
 
     def _extract_datasources(self, server: tableau.Server) -> None:
         # fetch custom SQL tables from Metadata GraphQL API
@@ -166,10 +174,14 @@ class TableauExtractor(BaseExtractor):
                 )
 
     def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
+        if not workbook.webpage_url:
+            logger.exception(f"workbook {workbook.name} missing webpage_url")
+            return
+
         workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)
 
         views: List[tableau.ViewItem] = workbook.views
-        charts = [self._parse_chart(self._views[view.id]) for view in views]
+        charts = [self._parse_chart(self._views[view.id]) for view in views if view.id]
         total_views = sum([view.total_views for view in views])
 
         dashboard_info = DashboardInfo(
@@ -423,11 +435,14 @@ class TableauExtractor(BaseExtractor):
 
         return match.group(1)
 
-    def _build_view_url(self, content_url: str) -> Optional[str]:
+    def _build_view_url(self, content_url: Optional[str]) -> Optional[str]:
         """
         Builds view URL from the API content_url field.
         content_url is in the form of <workbook>/sheets/<view>, e.g. 'Superstore/sheets/WhatIfForecast'
         """
+        if not content_url:
+            return None
+
         workbook, _, view = content_url.split("/")
 
         return f"{self._base_url}/views/{workbook}/{view}"
