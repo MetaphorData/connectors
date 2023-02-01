@@ -83,6 +83,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         self._column_references: Dict[str, ColumnReference] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info("Fetching metadata from ThoughtSpot")
 
         self._client = ThoughtSpot.create_client(self._config)
         self.fetch_virtual_views()

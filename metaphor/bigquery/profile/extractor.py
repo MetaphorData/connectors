@@ -44,7 +44,7 @@ class BigQueryProfileExtractor(BaseExtractor):
 
     def __init__(self, config: BigQueryProfileRunConfig):
         super().__init__(config, "BigQuery data profile crawler", Platform.BIGQUERY)
-        self._client = build_client(config)
+        self._config = config
         self._job_project_id = config.job_project_id
         self._max_concurrency = config.max_concurrency
         self._filter = DatasetFilter.normalize(config.filter)
@@ -55,6 +55,7 @@ class BigQueryProfileExtractor(BaseExtractor):
 
         logger.info("Fetching usage info from BigQuery")
 
+        self._client = build_client(self._config)
         tables = self._fetch_tables()
         return self.profile(tables)
 

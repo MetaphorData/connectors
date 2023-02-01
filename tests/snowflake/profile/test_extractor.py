@@ -113,7 +113,7 @@ def test_fetch_tables():
 
 def test_fetch_columns():
 
-    with patch("metaphor.snowflake.auth.connect"), patch(
+    with patch("metaphor.snowflake.auth.connect") as auth_connect, patch(
         "metaphor.snowflake.utils.async_execute"
     ) as async_execute:
 
@@ -128,7 +128,8 @@ def test_fetch_columns():
             )
         )
 
-        extractor._fetch_columns_async({normalized_name: table_info})
+        connection = auth_connect()
+        extractor._fetch_columns_async(connection, {normalized_name: table_info})
 
         assert len(extractor._datasets) == 0
 

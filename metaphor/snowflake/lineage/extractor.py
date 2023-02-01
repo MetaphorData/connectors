@@ -58,14 +58,15 @@ class SnowflakeLineageExtractor(BaseExtractor):
         self._enable_view_lineage = config.enable_view_lineage
         self._enable_lineage_from_history = config.enable_lineage_from_history
         self._include_self_lineage = config.include_self_lineage
+        self._config = config
 
-        self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching lineage info from Snowflake")
 
+        self._conn = auth.connect(self._config)
         start_date = start_of_day(self._lookback_days)
 
         with self._conn:

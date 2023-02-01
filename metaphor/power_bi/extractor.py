@@ -58,16 +58,18 @@ class PowerBIExtractor(BaseExtractor):
 
     def __init__(self, config: PowerBIRunConfig):
         super().__init__(config, "Power BI metadata crawler", Platform.POWER_BI)
+        self._config = config
         self._tenant_id = config.tenant_id
         self._workspaces = config.workspaces
 
-        self._client = PowerBIClient(config)
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._snowflake_account = config.snowflake_account
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Power BI tenant ID: {self._tenant_id}")
+
+        self._client = PowerBIClient(self._config)
 
         if len(self._workspaces) == 0:
             self._workspaces = [w.id for w in self._client.get_groups()]

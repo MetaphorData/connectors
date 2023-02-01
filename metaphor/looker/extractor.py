@@ -73,10 +73,11 @@ class LookerExtractor(BaseExtractor):
         os.environ["LOOKERSDK_CLIENT_SECRET"] = config.client_secret
         os.environ["LOOKERSDK_VERIFY_SSL"] = str(config.verify_ssl)
         os.environ["LOOKERSDK_TIMEOUT"] = str(config.timeout)
-        self._sdk = looker_sdk.init40()
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Looker")
+
+        self._sdk = looker_sdk.init40()
 
         # Lower case all connection names for case-insensitive lookup
         connections: Dict[str, LookerConnectionConfig] = {
