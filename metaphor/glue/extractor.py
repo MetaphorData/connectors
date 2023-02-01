@@ -54,11 +54,12 @@ class GlueExtractor(BaseExtractor):
     def __init__(self, config: GlueRunConfig) -> None:
         super().__init__(config, "Glue metadata crawler", Platform.GLUE)
         self._datasets: Dict[str, Dataset] = {}
-        self._client = create_glue_client(config.aws)
+        self._aws_config = config.aws
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Glue")
 
+        self._client = create_glue_client(self._aws_config)
         databases = self._get_databases()
 
         for database in databases:

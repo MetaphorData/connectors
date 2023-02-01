@@ -80,14 +80,16 @@ class SnowflakeExtractor(BaseExtractor):
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_fetch_size = config.query_log.fetch_size
         self._max_concurrency = config.max_concurrency
+        self._config = config
 
-        self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
         self._logs: List[QueryLog] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching metadata from Snowflake")
+
+        self._conn = auth.connect(self._config)
 
         with self._conn:
             cursor = self._conn.cursor()

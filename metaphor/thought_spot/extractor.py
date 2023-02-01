@@ -76,14 +76,16 @@ class ThoughtSpotExtractor(BaseExtractor):
     def __init__(self, config: ThoughtSpotRunConfig):
         super().__init__(config, "ThoughtSpot metadata crawler", Platform.THOUGHT_SPOT)
         self._base_url = config.base_url
+        self._config = config
 
-        self._client = ThoughtSpot.create_client(config)
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._column_references: Dict[str, ColumnReference] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info("Fetching metadata from ThoughtSpot")
 
+        self._client = ThoughtSpot.create_client(self._config)
         self.fetch_virtual_views()
         self.fetch_dashboards()
 

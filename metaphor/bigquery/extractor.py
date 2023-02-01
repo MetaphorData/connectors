@@ -59,8 +59,7 @@ class BigQueryExtractor(BaseExtractor):
 
     def __init__(self, config: BigQueryRunConfig) -> None:
         super().__init__(config, "BigQuery metadata crawler", Platform.BIGQUERY)
-        self._client = build_client(config)
-        self._logging_client = build_logging_client(config)
+        self._config = config
         self._project_id = config.project_id
         self._job_project_id = config.job_project_id
         self._dataset_filter = config.filter.normalize()
@@ -74,6 +73,9 @@ class BigQueryExtractor(BaseExtractor):
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from BigQuery project {self._project_id}")
+
+        self._client = build_client(self._config)
+        self._logging_client = build_logging_client(self._config)
 
         fetched_tables: List[Dataset] = []
         for dataset_ref in BigQueryExtractor._list_datasets_with_filter(

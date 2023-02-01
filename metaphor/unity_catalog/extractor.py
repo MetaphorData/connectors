@@ -62,11 +62,17 @@ class UnityCatalogExtractor(BaseExtractor):
         super().__init__(
             config, "Unity Catalog metadata crawler", Platform.THOUGHT_SPOT
         )
-        self._api = UnityCatalogExtractor.create_api(config.host, config.token)
+        self._host = config.host
+        self._token = config.token
+
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info("Fetching metadata from Unity Catalog")
+
+        self._api = UnityCatalogExtractor.create_api(self._host, self._token)
+
         catalogs = (
             self._get_catalogs()
             if self._filter.includes is None

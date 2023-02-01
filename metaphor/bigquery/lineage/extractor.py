@@ -40,8 +40,7 @@ class BigQueryLineageExtractor(BaseExtractor):
 
     def __init__(self, config: BigQueryLineageRunConfig):
         super().__init__(config, "BigQuery data lineage crawler", Platform.BIGQUERY)
-        self._client = build_client(config)
-        self._logging_client = build_logging_client(config)
+        self._config = config
         self._project_id = config.project_id
         self._dataset_filter = config.filter.normalize()
         self._enable_view_lineage = config.enable_view_lineage
@@ -53,6 +52,9 @@ class BigQueryLineageExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
+
+        self._client = build_client(self._config)
+        self._logging_client = build_logging_client(self._config)
 
         if self._enable_view_lineage:
             self._fetch_view_upstream()

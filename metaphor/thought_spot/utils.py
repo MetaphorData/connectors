@@ -166,8 +166,11 @@ class ThoughtSpot:
             )
         )
 
-        logger.info("Login successfully")
+        if not hasattr(result, "token"):
+            logger.warn("Unable to obtain token")
+            raise ValueError("Unable to obtain token")
 
+        logger.info("Login successfully")
         return _client(result.token)
 
     @staticmethod

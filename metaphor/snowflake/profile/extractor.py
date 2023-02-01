@@ -4,7 +4,7 @@ from typing import Collection, Dict, List, Tuple
 from metaphor.models.crawler_run_metadata import Platform
 
 try:
-    from snowflake.connector import ProgrammingError
+    from snowflake.connector import ProgrammingError, SnowflakeConnection
 except ImportError:
     print("Please install metaphor[snowflake] extra\n")
     raise
@@ -57,13 +57,15 @@ class SnowflakeProfileExtractor(BaseExtractor):
         self._include_views = config.include_views
         self._column_statistics = config.column_statistics
         self._sampling = config.sampling
+        self._config = config
 
-        self._conn = auth.connect(config)
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
 
         logger.info("Fetching data profile from Snowflake")
+
+        self._conn = auth.connect(self._config)
 
         with self._conn:
             cursor = self._conn.cursor()
@@ -78,7 +80,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 tables = self._fetch_tables(cursor, database)
                 logger.info(f"Include {len(tables)} tables from {database}")
 
-                self._fetch_columns_async(tables)
+                self._fetch_columns_async(self._conn, tables)
 
         logger.debug(self._datasets)
 
@@ -124,11 +126,12 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     def _fetch_columns_async(
         self,
+        connection: SnowflakeConnection,
         tables: Dict[str, DatasetInfo],
     ) -> None:
 
         # Create a map of full_name => [column_info] from information_schema.columns
-        cursor = self._conn.cursor()
+        cursor = connection.cursor()
         cursor.execute(self.FETCH_COLUMNS_QUERY)
         column_info_map: Dict[str, List[Tuple[str, str]]] = {}
         for row in cursor:
@@ -167,7 +170,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
             )
 
         profiles = async_execute(
-            self._conn, profile_queries, "profile_columns", self._max_concurrency
+            connection, profile_queries, "profile_columns", self._max_concurrency
         )
 
         for normalized_name, profile in profiles.items():
