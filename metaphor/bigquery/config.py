@@ -1,12 +1,12 @@
 from dataclasses import field
-from dataclasses import field as dataclass_field
-from typing import Optional, Set
+from typing import List, Optional, Set
 
 from pydantic import root_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.tag_matcher import TagMatcher
 from metaphor.common.utils import must_set_exactly_one
 
 # logs "list_entries" page size, max 1000.
@@ -72,7 +72,10 @@ class BigQueryRunConfig(BaseConfig):
     max_concurrency: int = 5
 
     # Include or exclude specific databases/schemas/tables
-    filter: DatasetFilter = dataclass_field(default_factory=lambda: DatasetFilter())
+    filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
+
+    # How tags should be assigned to datasets
+    tag_matchers: List[TagMatcher] = field(default_factory=lambda: [])
 
     # configs for fetching query logs
     query_log: BigQueryQueryLogConfig = BigQueryQueryLogConfig()

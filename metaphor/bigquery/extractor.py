@@ -14,6 +14,7 @@ from typing import (
 from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import md5_digest, start_of_day
 
 try:
@@ -64,6 +65,7 @@ class BigQueryExtractor(BaseExtractor):
         self._job_project_id = config.job_project_id
         self._dataset_filter = config.filter.normalize()
         self._max_concurrency = config.max_concurrency
+        self._tag_matchers = config.tag_matchers
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_excluded_usernames = config.query_log.excluded_usernames
         self._query_log_exclude_service_accounts = (
@@ -118,6 +120,8 @@ class BigQueryExtractor(BaseExtractor):
 
         logger.info("Fetching BigQueryAuditMetadata")
         query_logs = self._fetch_query_logs()
+
+        tag_datasets(fetched_tables, self._tag_matchers)
 
         entities: List[ENTITY_TYPES] = fetched_tables
         entities.extend(chunk_query_logs(query_logs))

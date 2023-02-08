@@ -51,11 +51,21 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
+#### Port
+
 By default, the connector will connect using the default Redshift port 5439. You can change it using the following config:
 
 ```yaml
 port: <port_number>
 ```
+
+#### Filtering
+
+See [Filter Config](../common/docs/filter.md) for more information on the optional `filter` config.
+
+#### Tag Assignment
+
+See [Tag Matcher Config](../common/docs/tag_matcher.md) for more information on the optional `tag_matcher` config.
 
 #### Query Logs
 
@@ -72,8 +82,6 @@ query_log:
     - <user_name1>
     - <user_name2>
 ```
-
-See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
 ## Testing
 

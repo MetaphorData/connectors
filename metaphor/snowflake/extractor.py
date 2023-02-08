@@ -6,6 +6,7 @@ from pydantic import parse_raw_as
 
 from metaphor.common.filter import DatabaseFilter, DatasetFilter
 from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import chunks, md5_digest, start_of_day
 from metaphor.snowflake.accessed_object import AccessedObject
 
@@ -76,6 +77,7 @@ class SnowflakeExtractor(BaseExtractor):
         super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
         self._account = config.account
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
+        self._tag_matchers = config.tag_matchers
         self._query_log_excluded_usernames = config.query_log.excluded_usernames
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_fetch_size = config.query_log.fetch_size
@@ -128,8 +130,11 @@ class SnowflakeExtractor(BaseExtractor):
             if self._query_log_lookback_days > 0:
                 self._fetch_query_logs()
 
+        datasets = self._datasets.values()
+        tag_datasets(datasets, self._tag_matchers)
+
         entities: List[ENTITY_TYPES] = []
-        entities.extend(self._datasets.values())
+        entities.extend(datasets)
         entities.extend(chunk_query_logs(self._logs))
         return entities
 
