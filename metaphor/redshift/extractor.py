@@ -4,6 +4,7 @@ from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, QueryLog
@@ -28,6 +29,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
             Platform.REDSHIFT,
             DataPlatform.REDSHIFT,
         )
+        self._tag_matchers = config.tag_matchers
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_excluded_usernames = config.query_log.excluded_usernames
 
@@ -54,8 +56,11 @@ class RedshiftExtractor(PostgreSQLExtractor):
             finally:
                 await conn.close()
 
+        datasets = self._datasets.values()
+        tag_datasets(datasets, self._tag_matchers)
+
         entities: List[ENTITY_TYPES] = []
-        entities.extend(self._datasets.values())
+        entities.extend(datasets)
         entities.extend(chunk_query_logs(self._logs))
         return entities
 

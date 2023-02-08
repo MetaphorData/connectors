@@ -89,7 +89,13 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
-See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+#### Filtering
+
+See [Filter Config](../common/docs/filter.md) for more information on the optional `filter` config.
+
+#### Tag Assignment
+
+See [Tag Matcher Config](../common/docs/tag_matcher.md) for more information on the optional `tag_matcher` config.
 
 #### Query Logs
 

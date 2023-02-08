@@ -1,9 +1,10 @@
 from dataclasses import field
-from typing import Set
+from typing import List, Set
 
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.tag_matcher import TagMatcher
 from metaphor.snowflake.auth import SnowflakeAuthConfig
 from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE
 
@@ -32,6 +33,9 @@ class SnowflakeRunConfig(SnowflakeAuthConfig):
 
     # Max number of concurrent queries to database
     max_concurrency: int = DEFAULT_THREAD_POOL_SIZE
+
+    # How tags should be assigned to datasets
+    tag_matchers: List[TagMatcher] = field(default_factory=lambda: [])
 
     # configs for fetching query logs
     query_log: SnowflakeQueryLogConfig = SnowflakeQueryLogConfig()
