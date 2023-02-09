@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from pydantic.utils import unique_list
 
@@ -366,6 +366,10 @@ class ManifestParser:
         return macro_map
 
     def _parse_model_meta(self, model: MODEL_NODE_TYPE) -> None:
+        if model.config is None or model.database is None:
+            logger.warning("Skipping model without config or database")
+            return
+
         if (
             model.config is None
             or model.config.materialized is None
@@ -374,7 +378,9 @@ class ManifestParser:
             return
 
         # v3 use 'model.config.meta' while v1, v2 use 'model.meta'
-        meta = model.config.meta if model.config.meta else model.meta
+        meta: Dict[str, Any] = (
+            model.config.meta if model.config.meta else model.meta or {}
+        )
 
         def get_dataset():
             return init_dataset(
@@ -440,6 +446,10 @@ class ManifestParser:
     def _parse_column_meta(
         self, model: MODEL_NODE_TYPE, column_name: str, meta: Dict
     ) -> None:
+        if model.config is None or model.database is None:
+            logger.warning("Skipping model without config or database")
+            return
+
         tag_names = get_tags_from_meta(meta, self._meta_tags)
         if len(tag_names) == 0:
             return

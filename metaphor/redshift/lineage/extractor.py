@@ -107,7 +107,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         """
         await self._fetch_lineage(view_lineage_query, conn, db)
 
-    async def _fetch_lineage_from_stl_query(self, conn):
+    async def _fetch_lineage_from_stl_query(self, conn) -> None:
         sql = """
         WITH
         full_queries AS (
@@ -151,7 +151,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                 logger.warning(f"Cannot parse SQL. Query: {query}, Error: {e}")
                 return
 
-    def _populate_lineage_from_sql(self, query, database):
+    def _populate_lineage_from_sql(self, query, database) -> None:
         def format_table_name(table: Table, database: str) -> str:
             return f"{database}.{str(table)}"
 
@@ -185,12 +185,12 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
             for source in sources
         ]
 
-        self._init_dataset(
+        self._init_dataset_with_upstream(
             target,
             DatasetUpstream(source_datasets=source_ids, transformation=query),
         )
 
-    async def _fetch_lineage(self, sql, conn, db):
+    async def _fetch_lineage(self, sql, conn, db) -> None:
         results = await conn.fetch(sql)
 
         upstream_map: Dict[str, Tuple[List[str], Optional[str]]] = {}
@@ -217,14 +217,16 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
 
         for target_table_name in upstream_map.keys():
             sources, query = upstream_map[target_table_name]
-            self._init_dataset(
+            self._init_dataset_with_upstream(
                 target_table_name,
                 DatasetUpstream(
                     source_datasets=unique_list(sources), transformation=query
                 ),
             )
 
-    def _init_dataset(self, table_name: str, upstream: DatasetUpstream) -> Dataset:
+    def _init_dataset_with_upstream(
+        self, table_name: str, upstream: DatasetUpstream
+    ) -> Dataset:
         if table_name not in self._datasets:
             self._datasets[table_name] = Dataset(
                 entity_type=EntityType.DATASET,

@@ -28,6 +28,7 @@ def mock_list_entries(mock_build_log_client, entries):
 @pytest.mark.asyncio
 async def test_log_extractor(test_root_dir):
     config = BigQueryLineageRunConfig(
+        project_id="pid",
         output=OutputConfig(),
         key_path="fake_file",
         enable_view_lineage=False,
@@ -65,7 +66,6 @@ async def test_view_extractor(test_root_dir):
     ) as mock_build_client, patch(
         "metaphor.bigquery.lineage.extractor.build_logging_client"
     ):
-
         extractor = BigQueryLineageExtractor(config)
 
         mock_build_client.return_value.project = "project1"

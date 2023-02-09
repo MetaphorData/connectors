@@ -84,7 +84,10 @@ class LookerExtractor(BaseExtractor):
             k.lower(): v for (k, v) in self._connections.items()
         }
 
-        lookml_dir = self._lookml_dir or clone_repo(self._lookml_git_repo)
+        lookml_dir = self._lookml_dir
+        if not lookml_dir:
+            assert self._lookml_git_repo, "missing git repo config"
+            lookml_dir = clone_repo(self._lookml_git_repo)
         logger.info(f"Parsing LookML project at {lookml_dir}")
 
         model_map, virtual_views = parse_project(
@@ -105,7 +108,7 @@ class LookerExtractor(BaseExtractor):
 
             try:
                 dashboard = self._sdk.dashboard(dashboard_id=basic_dashboard.id)
-            except looker_sdk.error.SDKError as error:
+            except Exception as error:
                 logger.error(f"Failed to fetch dashboard {basic_dashboard.id}: {error}")
                 continue
 
@@ -153,7 +156,6 @@ class LookerExtractor(BaseExtractor):
         explore_ids: Set[str] = set()
 
         for e in filter(lambda e: e.type == "vis", dashboard_elements):
-
             if e.result_maker is None:
                 logger.warning(f"Unable to find result_maker in element {e.title}")
                 continue

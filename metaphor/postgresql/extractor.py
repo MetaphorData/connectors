@@ -409,7 +409,7 @@ class PostgreSQLExtractor(BaseExtractor):
         except IndexError:
             logger.warning(f"Failed to parse {name} from {type_str}.")
         except ValueError:
-            logger.warning(f"Failed to convert {field} to float, type_str: {type_str}")
+            logger.warning(f"Failed to convert '{type_str}' to float")
         return None
 
     @staticmethod

@@ -9,7 +9,6 @@ from metaphor.postgresql.config import PostgreSQLRunConfig
 
 @dataclass
 class RedshiftQueryLogConfig:
-
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 1
 

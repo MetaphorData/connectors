@@ -56,7 +56,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
             finally:
                 await conn.close()
 
-        datasets = self._datasets.values()
+        datasets = list(self._datasets.values())
         tag_datasets(datasets, self._tag_matchers)
 
         entities: List[ENTITY_TYPES] = []

@@ -19,6 +19,7 @@ from metaphor.common.utils import md5_digest, start_of_day
 
 try:
     import google.cloud.bigquery as bigquery
+    from google.cloud import logging_v2
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
@@ -76,12 +77,12 @@ class BigQueryExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from BigQuery project {self._project_id}")
 
-        self._client = build_client(self._config)
-        self._logging_client = build_logging_client(self._config)
+        client = build_client(self._config)
+        logging_client = build_logging_client(self._config)
 
         fetched_tables: List[Dataset] = []
         for dataset_ref in BigQueryExtractor._list_datasets_with_filter(
-            self._client, self._dataset_filter
+            client, self._dataset_filter
         ):
             logger.info(f"Fetching tables for {dataset_ref}")
 
@@ -89,8 +90,8 @@ class BigQueryExtractor(BaseExtractor):
 
                 def get_table(table: bigquery.TableReference) -> Dataset:
                     logger.info(f"Getting table {table.table_id}")
-                    bq_table = self._client.get_table(table)
-                    return self._parse_table(self._client.project, bq_table)
+                    bq_table = client.get_table(table)
+                    return self._parse_table(client.project, bq_table)
 
                 # map of table name to Dataset
                 tables: Dict[str, Dataset] = {
@@ -98,13 +99,13 @@ class BigQueryExtractor(BaseExtractor):
                     for d in executor.map(
                         get_table,
                         BigQueryExtractor._list_tables_with_filter(
-                            dataset_ref, self._client, self._dataset_filter
+                            dataset_ref, client, self._dataset_filter
                         ),
                     )
                 }
 
             logger.info(f"Getting table DDL for {dataset_ref}")
-            table_ddl = self._client.query(
+            table_ddl = client.query(
                 f"select table_name, ddl from `{dataset_ref.project}.{dataset_ref.dataset_id}.INFORMATION_SCHEMA.TABLES`",
                 project=self._job_project_id,
             ).result()
@@ -119,7 +120,7 @@ class BigQueryExtractor(BaseExtractor):
             fetched_tables.extend(tables.values())
 
         logger.info("Fetching BigQueryAuditMetadata")
-        query_logs = self._fetch_query_logs()
+        query_logs = self._fetch_query_logs(logging_client)
 
         tag_datasets(fetched_tables, self._tag_matchers)
 
@@ -212,10 +213,8 @@ class BigQueryExtractor(BaseExtractor):
         schema: Sequence[Union[bigquery.schema.SchemaField, Mapping[str, Any]]],
         parent_field_path: str,
     ) -> List[SchemaField]:
-
         fields: List[SchemaField] = []
         for field in schema:
-
             # There's no documentation on how to handle the Mapping[str, Any] type.
             # Actual API also doesn't seem to return this type: https://cloud.google.com/bigquery/docs/reference/rest/v2/tables
             if not isinstance(field, bigquery.schema.SchemaField):
@@ -265,11 +264,11 @@ class BigQueryExtractor(BaseExtractor):
             last_updated=bq_table.modified,
         )
 
-    def _fetch_query_logs(self) -> List[QueryLog]:
+    def _fetch_query_logs(self, logging_client: logging_v2.Client) -> List[QueryLog]:
         logs: List[Optional[QueryLog]] = []
         log_filter = self._build_job_change_filter()
 
-        for entry in self._logging_client.list_entries(
+        for entry in logging_client.list_entries(
             page_size=self._query_log_fetch_size, filter_=log_filter
         ):
             if JobChangeEvent.can_parse(entry):
@@ -319,7 +318,7 @@ class BigQueryExtractor(BaseExtractor):
             query_id=job_change.job_name,
             platform=DataPlatform.BIGQUERY,
             start_time=job_change.start_time,
-            duration=float(elapsed_time),
+            duration=float(elapsed_time) if elapsed_time else None,
             email=job_change.user_email,
             rows_written=float(job_change.output_rows)
             if job_change.output_rows

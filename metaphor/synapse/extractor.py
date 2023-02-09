@@ -1,4 +1,4 @@
-from typing import Collection, Dict, Iterable, List
+from typing import Collection, Dict, Iterable, List, Optional
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
@@ -110,7 +110,9 @@ class SynapseExtractor(MssqlExtractor):
         entities.extend(chunk_query_logs(querylog_list))
         return entities
 
-    def _map_query_log(self, rows: Iterable[SynapseQueryLog], database: str = None):
+    def _map_query_log(
+        self, rows: Iterable[SynapseQueryLog], database: Optional[str] = None
+    ):
         querylog_map: Dict[str, QueryLog] = {}
         for row in rows:
             query_id = (
@@ -126,7 +128,11 @@ class SynapseExtractor(MssqlExtractor):
             query_id = generate_querylog_id(DataPlatform.SYNAPSE.name, row.request_id)
             queryLog.id = query_id
             queryLog.query_id = row.request_id
-            queryLog.type = self._map_query_type(row.query_operation)
+            queryLog.type = (
+                self._map_query_type(row.query_operation)
+                if row.query_operation
+                else None
+            )
             queryLog.platform = DataPlatform.SYNAPSE
             queryLog.start_time = row.start_time
             queryLog.duration = row.duration / 1000.0
@@ -143,7 +149,7 @@ class SynapseExtractor(MssqlExtractor):
             querylog_map[query_id] = queryLog
         return querylog_map.values()
 
-    def _map_query_type(self, operation: str) -> TypeEnum:
+    def _map_query_type(self, operation: str) -> Optional[TypeEnum]:
         operation = operation.upper()
         if operation in ["CREATE", "DROP", "ALTER", "TRUNCATE"]:
             return TypeEnum.DDL

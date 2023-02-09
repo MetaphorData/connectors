@@ -5,7 +5,6 @@ from metaphor.models.metadata_change_event import Ownership
 
 
 def test_get_ownerships_from_meta(test_root_dir):
-
     meta = {
         "owners": ["foo", "bar"],
         "owner": "baz@metaphor.io",
@@ -51,7 +50,6 @@ def test_get_ownerships_from_meta(test_root_dir):
 
 
 def test_get_tags_from_meta(test_root_dir):
-
     meta = {
         "pii": True,
         "prod": False,

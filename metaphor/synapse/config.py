@@ -1,10 +1,8 @@
-from dataclasses import field
 from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
-from metaphor.common.base_config import BaseConfig
-from metaphor.common.filter import DatasetFilter
+from metaphor.mssql.config import MssqlConfig
 
 
 @dataclass
@@ -14,20 +12,6 @@ class SynapseQueryLogConfig:
 
 
 @dataclass
-class SynapseConfig(BaseConfig):
-    # Azure Directory (tenant) ID
-    tenant_id: str
-
-    # SQL Server name
-    server_name: str
-
-    # The database username
-    username: str
-
-    # The database password
-    password: str
-
-    # Include or exclude specific databases/schemas/tables
-    filter: Optional[DatasetFilter] = field(default_factory=lambda: DatasetFilter())
+class SynapseConfig(MssqlConfig):
 
     query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()

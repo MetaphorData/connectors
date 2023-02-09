@@ -9,7 +9,6 @@ from metaphor.common.sampling import SamplingConfig
 
 @dataclass
 class BigQueryProfileRunConfig(BigQueryRunConfig):
-
     # Compute specific types of statistics for each column
     column_statistics: ColumnStatistics = field(
         default_factory=lambda: ColumnStatistics()

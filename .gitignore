@@ -135,6 +135,4 @@ dmypy.json
 # local configs and data
 .config
 .data
-
-# pyenv
-.python_version
+.DS_Store

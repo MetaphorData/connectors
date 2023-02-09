@@ -26,6 +26,7 @@ synapse_config = SynapseConfig(
     server_name="mock_synapse_workspace_name",
     username="username",
     password="password",
+    endpoint="",
 )
 
 

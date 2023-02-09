@@ -10,7 +10,6 @@ from metaphor.dbt.config import DbtRunConfig
 
 @pytest.mark.asyncio
 async def test_extractor(test_root_dir):
-
     mock_client = MagicMock()
     mock_client.get_last_successful_run = MagicMock(return_value=(3333, 4444))
     mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
@@ -28,7 +27,6 @@ async def test_extractor(test_root_dir):
     ) as mock_client_class, patch(
         "metaphor.dbt.cloud.extractor.DbtExtractor"
     ) as mock_dbt_extractor_class:
-
         mock_client_class.return_value = mock_client
         mock_dbt_extractor_class.return_value = mock_dbt_extractor
 

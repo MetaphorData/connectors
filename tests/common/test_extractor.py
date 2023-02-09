@@ -1,4 +1,4 @@
-from typing import Collection, Optional, Type
+from typing import Collection, Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -27,8 +27,8 @@ class DummyExtractor(BaseExtractor):
         return "dummy crawler"
 
     @staticmethod
-    def from_config_file(config_file: str) -> Type[BaseConfig]:
-        return DummyRunConfig.from_config_file(config_file)
+    def from_config_file(config_file: str) -> "DummyExtractor":
+        return DummyExtractor(DummyRunConfig(dummy_attr=1, output=OutputConfig()), [])
 
     def __init__(self, config: DummyRunConfig, dummy_entities):
         super().__init__(config, "description", None)

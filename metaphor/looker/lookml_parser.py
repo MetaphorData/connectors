@@ -84,7 +84,7 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
         # table
         if connection.default_schema is None:
             raise ValueError(
-                f"Default schema is required for the connection {connection.name}"
+                f"Default schema is required for the connection {connection.database}"
             )
         full_name = f"{connection.database}.{connection.default_schema}.{source_name}"
     elif len(parts) == 2:
@@ -105,7 +105,6 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
 def _get_upstream_datasets(
     view_name, raw_model: RawModel, connection: LookerConnectionConfig
 ) -> Set[EntityId]:
-
     raw_views = raw_model.raw_views
     raw_view = raw_views.get(view_name)
     if raw_view is None:
@@ -234,7 +233,6 @@ def _build_looker_view(
 
 
 def _get_base_view_name(raw_explore: Dict, raw_model: RawModel) -> str:
-
     # https://docs.looker.com/reference/explore-params/from-for-explore
     if "from" in raw_explore:
         return raw_explore["from"]
@@ -250,7 +248,6 @@ def _get_base_view_name(raw_explore: Dict, raw_model: RawModel) -> str:
 def _build_looker_explore(
     model: str, raw_explore: Dict, raw_model: RawModel, url: Optional[str]
 ) -> VirtualView:
-
     name = raw_explore["name"]
     base_view_name = _get_base_view_name(raw_explore, raw_model)
 
@@ -491,7 +488,6 @@ def _load_included_file(
             # A file can further include other files
             # https://docs.looker.com/reference/model-params/include#using_include_in_a_view_file
             for include_path in root.get("includes", []):
-
                 # Convert to absolute include
                 include_path = _to_absolute_include(include_path, file_path, base_dir)
 

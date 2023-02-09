@@ -11,7 +11,6 @@ from metaphor.models.metadata_change_event import DataPlatform
 
 @dataclass
 class LookerConnectionConfig:
-
     # Database for the connection
     database: str
 

@@ -108,6 +108,7 @@ def mapping_data_platform(type_: ConnectionType) -> DataPlatform:
 
 
 T = TypeVar("T")
+H = TypeVar("H", bound=Header)
 
 
 def from_list(list_: Iterable[T], key: Callable[[T], str] = repr) -> Dict[str, T]:
@@ -197,7 +198,7 @@ class ThoughtSpot:
             return []
         detail_type, target_type = cls.mapping[mtype]
 
-        ids = [h.id for h in ThoughtSpot._fetch_headers(client.metadata, mtype)]
+        ids = [h.id for h in ThoughtSpot._fetch_headers(client.metadata, mtype, Header)]
         logger.info(f"{mtype} ids: {ids}")
 
         obj = ThoughtSpot._fetch_object_detail(client.metadata, ids, detail_type)
@@ -217,8 +218,8 @@ class ThoughtSpot:
     def _fetch_headers(
         metadata_controller: MetadataController,
         mtype: SearchObjectHeaderTypeEnum,
-        header_type: Type[Header] = Header,
-    ) -> List[Header]:
+        header_type: Type[H],
+    ) -> List[H]:
         body = TspublicRestV2MetadataHeaderSearchRequest(mtype=mtype)
         response_json = metadata_controller.search_object_header(body)
         response = json.loads(response_json)

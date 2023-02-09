@@ -273,67 +273,71 @@ class TableauExtractor(BaseExtractor):
         source_virtual_views: List[str] = []
         published_datasources: List[str] = []
 
-        for source in workbook.upstreamDatasources:
+        for published_source in workbook.upstreamDatasources:
             virtual_view_id = str(
                 to_virtual_view_entity_id(
-                    source.luid, VirtualViewType.TABLEAU_DATASOURCE
+                    published_source.luid, VirtualViewType.TABLEAU_DATASOURCE
                 )
             )
-            if source.luid in self._virtual_views:
+            if published_source.luid in self._virtual_views:
                 # data source already parsed
                 source_virtual_views.append(virtual_view_id)
-                published_datasources.append(source.name)
+                published_datasources.append(published_source.name)
                 continue
 
             # Use the upstream datasets parsed from custom SQL if available
             source_datasets = datasource_upstream_datasets.get(
-                source.id, self._parse_upstream_datasets(source.upstreamTables)
+                published_source.id,
+                self._parse_upstream_datasets(published_source.upstreamTables),
             )
 
-            self._virtual_views[source.luid] = VirtualView(
+            self._virtual_views[published_source.luid] = VirtualView(
                 logical_id=VirtualViewLogicalID(
-                    type=VirtualViewType.TABLEAU_DATASOURCE, name=source.luid
+                    type=VirtualViewType.TABLEAU_DATASOURCE, name=published_source.luid
                 ),
                 tableau_datasource=TableauDatasource(
-                    name=f"{workbook.projectName}.{source.name}",
-                    description=source.description or None,
+                    name=f"{workbook.projectName}.{published_source.name}",
+                    description=published_source.description or None,
                     fields=[
                         TableauField(field=f.name, description=f.description or None)
-                        for f in source.fields
+                        for f in published_source.fields
                     ],
                     embedded=False,
-                    url=f"{self._base_url}/datasources/{source.vizportalUrlId}",
+                    url=f"{self._base_url}/datasources/{published_source.vizportalUrlId}",
                     source_datasets=source_datasets or None,
                 ),
             )
             source_virtual_views.append(virtual_view_id)
-            published_datasources.append(source.name)
+            published_datasources.append(published_source.name)
 
-        for source in workbook.embeddedDatasources:
-            if source.name in published_datasources:
+        for embedded_source in workbook.embeddedDatasources:
+            if embedded_source.name in published_datasources:
                 logger.debug(
-                    f"Skip embedded datasource {source.name} since it's published"
+                    f"Skip embedded datasource {embedded_source.name} since it's published"
                 )
                 continue
 
             virtual_view_id = str(
-                to_virtual_view_entity_id(source.id, VirtualViewType.TABLEAU_DATASOURCE)
+                to_virtual_view_entity_id(
+                    embedded_source.id, VirtualViewType.TABLEAU_DATASOURCE
+                )
             )
 
             # Use the upstream datasets parsed from custom SQL if available
             source_datasets = datasource_upstream_datasets.get(
-                source.id, self._parse_upstream_datasets(source.upstreamTables)
+                embedded_source.id,
+                self._parse_upstream_datasets(embedded_source.upstreamTables),
             )
 
-            self._virtual_views[source.id] = VirtualView(
+            self._virtual_views[embedded_source.id] = VirtualView(
                 logical_id=VirtualViewLogicalID(
-                    type=VirtualViewType.TABLEAU_DATASOURCE, name=source.id
+                    type=VirtualViewType.TABLEAU_DATASOURCE, name=embedded_source.id
                 ),
                 tableau_datasource=TableauDatasource(
-                    name=f"{workbook.projectName}.{source.name}",
+                    name=f"{workbook.projectName}.{embedded_source.name}",
                     fields=[
                         TableauField(field=f.name, description=f.description or None)
-                        for f in source.fields
+                        for f in embedded_source.fields
                     ],
                     embedded=True,
                     source_datasets=source_datasets or None,
@@ -360,7 +364,12 @@ class TableauExtractor(BaseExtractor):
         )
 
     def _parse_dataset_id(self, table: DatabaseTable) -> Optional[EntityId]:
-        if None in (table.name, table.schema, table.fullName, table.database):
+        if (
+            not table.name
+            or not table.schema_
+            or not table.fullName
+            or not table.database
+        ):
             return None
 
         database_name = table.database.name

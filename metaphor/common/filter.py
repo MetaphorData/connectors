@@ -112,7 +112,7 @@ class DatasetFilter:
             if schema_filter is None:
                 return True
 
-            for (pattern, table_filter) in schema_filter.items():
+            for pattern, table_filter in schema_filter.items():
                 if self._accepted_by_schema_pattern(
                     schema_name, table_name, pattern, table_filter
                 ):

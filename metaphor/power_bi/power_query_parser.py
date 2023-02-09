@@ -97,7 +97,6 @@ class PowerQueryParser:
             return text[start:end]
 
         while True:
-
             ch = text[index]
 
             if ch == '"':
@@ -123,7 +122,7 @@ class PowerQueryParser:
 
     @staticmethod
     def parse_platform(
-        exp: str, snowflake_account: str
+        exp: str, snowflake_account: Optional[str]
     ) -> Tuple[Optional[DataPlatform], Optional[str], Optional[str]]:
         """
         Parse platform information from native query expression.
@@ -182,7 +181,9 @@ class PowerQueryParser:
         return tables
 
     @staticmethod
-    def parse_native_query(power_query: str, snowflake_account: str) -> List[EntityId]:
+    def parse_native_query(
+        power_query: str, snowflake_account: Optional[str]
+    ) -> List[EntityId]:
         parameters = PowerQueryParser.extract_function_parameter(
             power_query, "NativeQuery"
         )
@@ -202,7 +203,7 @@ class PowerQueryParser:
 
     @staticmethod
     def parse_source_datasets(
-        power_query: str, snowflake_account: str = ""
+        power_query: str, snowflake_account: Optional[str]
     ) -> List[EntityId]:
         def replacer(match: re.Match) -> str:
             controls = {

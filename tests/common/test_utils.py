@@ -17,7 +17,6 @@ def test_start_of_day():
 
 
 def test_must_set_exactly_one():
-
     must_set_exactly_one({"foo": 1}, ["foo"])
     must_set_exactly_one({"foo": 1, "bar": None}, ["foo", "bar"])
     must_set_exactly_one({"bar": 1, "baz": None}, ["foo", "bar", "baz"])

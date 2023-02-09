@@ -4,7 +4,6 @@ from metaphor.tableau.graphql_utils import paginate_connection
 
 
 def test_paginate_connection():
-
     batch1 = {"data": {"someConnection": {"nodes": [{"val": 1}, {"val": 2}]}}}
 
     batch2 = {"data": {"someConnection": {"nodes": [{"val": 3}]}}}

@@ -12,7 +12,6 @@ from metaphor.common.utils import must_set_exactly_one
 
 @dataclass
 class GitRepoConfig:
-
     # Git repository URL, ending with ".git"
     git_url: str
 

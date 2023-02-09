@@ -71,7 +71,6 @@ class AccessEvent:
         start_date: datetime,
         end_date: datetime,
     ) -> AsyncIterator["AccessEvent"]:
-
         results = await conn.fetch(
             REDSHIFT_USAGE_SQL_TEMPLATE.format(
                 start_time=start_date.isoformat(), end_time=end_date.isoformat()

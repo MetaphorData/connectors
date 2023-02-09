@@ -115,7 +115,7 @@ def test_parse_dataset_id():
                 name="name",
                 fullName=None,
                 database=None,
-                schema_=None,
+                schema=None,
             )
         )
         is None
@@ -128,7 +128,7 @@ def test_parse_dataset_id():
                 name="name",
                 fullName="fullname",
                 database=Database(name="db", connectionType="invalid_type"),
-                schema_="schema",
+                schema=None,
             )
         )
         is None
@@ -141,7 +141,7 @@ def test_parse_dataset_id():
             name="name",
             fullName="db.schema.table",
             database=Database(name="db", connectionType="redshift"),
-            schema_=None,
+            schema="foo",
         )
     ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
 
@@ -152,7 +152,7 @@ def test_parse_dataset_id():
             name="schema.table",
             fullName="random_name",
             database=Database(name="db", connectionType="redshift"),
-            schema_=None,
+            schema="foo",
         )
     ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
 
@@ -172,7 +172,7 @@ def test_parse_dataset_id():
             name="schema.table",
             fullName="random_name",
             database=Database(name="bq_name", connectionType="bigquery"),
-            schema_=None,
+            schema="foo",
         )
     ) == to_dataset_entity_id("bq_id.schema.table", DataPlatform.BIGQUERY)
 
@@ -313,7 +313,6 @@ async def test_extractor(test_root_dir):
     with patch("tableauserverclient.Server", return_value=mock_server), patch(
         "metaphor.tableau.extractor.paginate_connection"
     ) as mock_paginate_connection, patch("tableauserverclient.Pager") as mock_pager_cls:
-
         mock_pager_cls.side_effect = MockPager
 
         mock_paginate_connection.side_effect = [

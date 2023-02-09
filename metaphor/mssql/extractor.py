@@ -43,11 +43,7 @@ class MssqlExtractor(BaseExtractor):
     ):
         super().__init__(config, description, platform)
         self._config = config
-        self._config.server_name = (
-            self._config.server_name
-            if self._config.server_name
-            else self._config.endpoint
-        )
+        self._config.server_name = self._config.server_name or self._config.endpoint
         self._filter = config.filter.normalize()
         self._platform = platform
         self._dataset_platform = dataset_platform

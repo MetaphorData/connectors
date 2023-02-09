@@ -7,7 +7,6 @@ from metaphor.models.metadata_change_event import (
 
 
 def test_match_tags():
-
     matchers = [
         TagMatcher(pattern="*", tags=["tag1"]),
         TagMatcher(pattern="A.*", tags=["tag1", "tag2"]),
@@ -22,7 +21,6 @@ def test_match_tags():
 
 
 def test_tag_datasets():
-
     matchers = [
         TagMatcher(pattern="a.*", tags=["tag1", "tag2"]),
     ]

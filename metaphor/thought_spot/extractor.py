@@ -141,9 +141,9 @@ class ThoughtSpotExtractor(BaseExtractor):
         for table in tables.values():
             table_id = table.header.id
 
-            fieldMappings = []
+            field_mappings = []
             for column in table.columns:
-                fieldMapping = FieldMapping(destination=column.header.name, sources=[])
+                field_mapping = FieldMapping(destination=column.header.name, sources=[])
 
                 if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
                     # the table upstream is external source, i.e. BigQuery
@@ -159,14 +159,16 @@ class ThoughtSpotExtractor(BaseExtractor):
                         table_mapping_info,
                         table.dataSourceId,
                     )
-                    fieldMapping.sources.append(
+                    field_mapping.sources.append(
                         SourceField(
-                            field=column.columnMappingInfo.columnName,
+                            field=column.columnMappingInfo.columnName
+                            if column.columnMappingInfo
+                            else None,
                             source_entity_id=source_entity_id,
                         )
                     )
                 else:
-                    fieldMapping.sources += [
+                    field_mapping.sources += [
                         SourceField(
                             source_entity_id=self._column_references[
                                 source.columnId
@@ -176,7 +178,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         for source in column.sources
                         if source.columnId in self._column_references
                     ]
-                fieldMappings.append(fieldMapping)
+                field_mappings.append(field_mapping)
 
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -199,7 +201,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                     tags=self._tag_names(table.header.tags),
                 ),
                 entity_upstream=EntityUpstream(
-                    field_mappings=fieldMappings if fieldMappings else None
+                    field_mappings=field_mappings if field_mappings else None
                 ),
             )
             self._virtual_views[table_id] = view
@@ -380,6 +382,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 viz.header.id: resolvedObjects[viz.vizContent.refVizId]
                 for sheet in board.reportContent.sheets
                 for viz in sheet.sheetContent.visualizations
+                if viz.vizContent.refVizId
             }
             visualizations = [
                 # Use answer.header instead as viz.header contain only dummy values
@@ -431,7 +434,9 @@ class ThoughtSpotExtractor(BaseExtractor):
             Chart(
                 description=header.description,
                 title=header.name,
-                chart_type=mapping_chart_type(viz.vizContent.chartType),
+                chart_type=mapping_chart_type(viz.vizContent.chartType)
+                if viz.vizContent.chartType
+                else None,
                 url=f"{base_url}#/embed/viz/{board_id}/{chart_id}"
                 if chart_id
                 else None,
@@ -453,6 +458,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 )
                 for viz, *_ in charts
                 for column in viz.vizContent.columns
+                if column.referencedTableHeaders
                 for reference in column.referencedTableHeaders
             ]
         )
@@ -472,8 +478,9 @@ class ThoughtSpotExtractor(BaseExtractor):
                         field=self._column_references[reference.id].field,
                     )
                     for column in viz.vizContent.columns
+                    if column.referencedColumnHeaders
                     for reference in column.referencedColumnHeaders
-                    if reference is not None and reference.id in self._column_references
+                    if reference.id in self._column_references
                 ],
             )
             for viz, header, *_ in charts

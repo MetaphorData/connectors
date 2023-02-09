@@ -40,7 +40,6 @@ class BigQueryCredentials:
 
 @dataclass
 class BigQueryQueryLogConfig:
-
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 1
 
@@ -56,14 +55,14 @@ class BigQueryQueryLogConfig:
 
 @dataclass
 class BigQueryRunConfig(BaseConfig):
+    # Project ID to use
+    project_id: str
+
     # Path to service account's JSON key file
     key_path: Optional[str] = None
 
     # The credentials from the BigQuery JSON key file
     credentials: Optional[BigQueryCredentials] = None
-
-    # Project ID to use. Use the service account's default project if not set
-    project_id: Optional[str] = None
 
     # Use a different project ID to run BigQuery jobs if set
     job_project_id: Optional[str] = None

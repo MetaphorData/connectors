@@ -63,7 +63,6 @@ class SnowflakeLineageExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-
         logger.info("Fetching lineage info from Snowflake")
 
         self._conn = auth.connect(self._config)
@@ -97,7 +96,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 logger.info(f"Total {count} queries, dividing into {batches} batches")
 
                 queries = {
-                    x: QueryWithParam(
+                    str(x): QueryWithParam(
                         f"""
                         SELECT a.BASE_OBJECTS_ACCESSED, a.OBJECTS_MODIFIED, q.QUERY_TEXT
                         FROM
