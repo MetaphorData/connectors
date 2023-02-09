@@ -181,7 +181,7 @@ class PowerQueryParser:
         return tables
 
     @staticmethod
-    def parse_native_query(
+    def _parse_native_query(
         power_query: str, snowflake_account: Optional[str]
     ) -> List[EntityId]:
         parameters = PowerQueryParser.extract_function_parameter(
@@ -203,7 +203,7 @@ class PowerQueryParser:
 
     @staticmethod
     def parse_source_datasets(
-        power_query: str, snowflake_account: Optional[str]
+        power_query: str, snowflake_account: Optional[str] = None
     ) -> List[EntityId]:
         def replacer(match: re.Match) -> str:
             controls = {
@@ -218,7 +218,7 @@ class PowerQueryParser:
         power_query = re.sub(r"#\((cr|lf|tab)(,(cr|lf|tab))*\)", replacer, power_query)
 
         if "Value.NativeQuery(" in power_query:
-            return PowerQueryParser.parse_native_query(power_query, snowflake_account)
+            return PowerQueryParser._parse_native_query(power_query, snowflake_account)
 
         try:
             return [PowerQueryParser.parse_power_query(power_query)]
