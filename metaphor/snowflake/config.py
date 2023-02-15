@@ -14,7 +14,6 @@ DEFAULT_QUERY_LOG_FETCH_SIZE = 100000
 
 @dataclass
 class SnowflakeQueryLogConfig:
-
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 1
 
@@ -27,7 +26,6 @@ class SnowflakeQueryLogConfig:
 
 @dataclass
 class SnowflakeRunConfig(SnowflakeAuthConfig):
-
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
 

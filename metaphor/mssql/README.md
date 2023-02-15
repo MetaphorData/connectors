@@ -10,7 +10,7 @@ We recommend creating a dedicated MSSQL user with limited permissions for the co
 Use the following command to set up the read-only user for MSSQL database
 
 ```sql
--- nagivate to master database
+-- navigate to master database
 CREATE LOGIN <username> WITH PASSWORD = '<password>'
 CREATE USER <username> FROM LOGIN <username>
 -- switch to user MSSQL database

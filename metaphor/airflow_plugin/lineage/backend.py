@@ -6,6 +6,7 @@ from airflow.configuration import conf
 from metaphor.common.api_sink import ApiSink, ApiSinkConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig
+from metaphor.common.sink import Sink
 from metaphor.common.storage import S3StorageConfig
 
 if TYPE_CHECKING:
@@ -122,7 +123,7 @@ class MetaphorBackend(LineageBackend):
         outlets: List[MetaphorDataset],
     ) -> Collection[Dataset]:
         if hasattr(operator, "sql"):
-            transformation = operator.sql  # type: ignore
+            transformation = operator.sql
         else:
             transformation = None
 
@@ -165,7 +166,11 @@ class MetaphorBackend(LineageBackend):
         event_util = EventUtil()
         entities = [event_util.build_event(entity) for entity in entities]
 
+        sink: Sink
         if config.mode == INGESTION_API_MODE:
+            assert (
+                config.ingestion_url and config.ingestion_key
+            ), "missing API ingestion URL and key"
             sink = ApiSink(
                 ApiSinkConfig(url=config.ingestion_url, api_key=config.ingestion_key)
             )

@@ -62,7 +62,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-
         logger.info("Fetching data profile from Snowflake")
 
         self._conn = auth.connect(self._config)
@@ -129,7 +128,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
         connection: SnowflakeConnection,
         tables: Dict[str, DatasetInfo],
     ) -> None:
-
         # Create a map of full_name => [column_info] from information_schema.columns
         cursor = connection.cursor()
         cursor.execute(self.FETCH_COLUMNS_QUERY)
@@ -163,7 +161,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                     column_info,
                     dataset_info.schema,
                     dataset_info.name,
-                    dataset_info.row_count,
+                    dataset_info.row_count or 0,
                     self._column_statistics,
                     self._sampling,
                 )
@@ -239,7 +237,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         index = 1
         for column, data_type in columns:
-
             unique_count = None
             if (
                 column_statistics.unique_count

@@ -1,6 +1,6 @@
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Collection, List, Optional, Type
+from typing import Collection, List, Optional
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.event_util import ENTITY_TYPES, EventUtil
@@ -14,8 +14,8 @@ class BaseExtractor(ABC):
 
     @staticmethod
     @abstractmethod
-    def from_config_file(config_file: str) -> Type[BaseConfig]:
-        """Returns the corresponding config class"""
+    def from_config_file(config_file: str) -> "BaseExtractor":
+        """Returns the corresponding extractor class"""
 
     @abstractmethod
     async def extract(self) -> Collection[ENTITY_TYPES]:

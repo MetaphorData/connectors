@@ -22,7 +22,7 @@ class TableQueryHistoryHeap:
     A container class to store the N most recent unique queries for each table.
     """
 
-    def __init__(self, max_queries_per_table):
+    def __init__(self, max_queries_per_table: int):
         self._table_query_set: Dict[str, Set[str]] = {}
         self._table_queries: Dict[str, List[PrioritizedQueryInfo]] = {}
         self._max_queries_per_table = max_queries_per_table

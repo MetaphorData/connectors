@@ -115,7 +115,7 @@ class Visualization(Metadata):
 
 
 class SheetContent(BaseModel):
-    visualizations: Optional[List[Visualization]] = []
+    visualizations: List[Visualization] = []
 
 
 class Question(BaseModel):

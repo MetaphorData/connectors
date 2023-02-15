@@ -20,7 +20,7 @@ class PowerQueryParser:
     """
 
     @staticmethod
-    def parse_power_query(power_query: str) -> EntityId:
+    def _parse_power_query(power_query: str) -> EntityId:
         lines = power_query.split("\n")
         platform_pattern = re.compile(r"Source = (\w+).")
         match = platform_pattern.search(lines[1])
@@ -97,7 +97,6 @@ class PowerQueryParser:
             return text[start:end]
 
         while True:
-
             ch = text[index]
 
             if ch == '"':
@@ -122,8 +121,8 @@ class PowerQueryParser:
         return parameters
 
     @staticmethod
-    def parse_platform(
-        exp: str, snowflake_account: str
+    def _parse_platform(
+        exp: str, snowflake_account: Optional[str]
     ) -> Tuple[Optional[DataPlatform], Optional[str], Optional[str]]:
         """
         Parse platform information from native query expression.
@@ -157,7 +156,9 @@ class PowerQueryParser:
         return platform, account, default_db
 
     @staticmethod
-    def parse_tables(sql: str, default_db: Optional[str]) -> List[Tuple[str, str, str]]:
+    def _parse_tables(
+        sql: str, default_db: Optional[str]
+    ) -> List[Tuple[str, str, str]]:
         """
         Parse source tables from a SQL statement.
 
@@ -182,16 +183,18 @@ class PowerQueryParser:
         return tables
 
     @staticmethod
-    def parse_native_query(power_query: str, snowflake_account: str) -> List[EntityId]:
+    def _parse_native_query(
+        power_query: str, snowflake_account: Optional[str]
+    ) -> List[EntityId]:
         parameters = PowerQueryParser.extract_function_parameter(
             power_query, "NativeQuery"
         )
         assert len(parameters) >= 2, "expecting at least two parameter for NativeQuery"
 
-        platform, account, default_db = PowerQueryParser.parse_platform(
+        platform, account, default_db = PowerQueryParser._parse_platform(
             parameters[0], snowflake_account
         )
-        tables = PowerQueryParser.parse_tables(parameters[1], default_db)
+        tables = PowerQueryParser._parse_tables(parameters[1], default_db)
 
         return [
             to_dataset_entity_id(
@@ -202,7 +205,7 @@ class PowerQueryParser:
 
     @staticmethod
     def parse_source_datasets(
-        power_query: str, snowflake_account: str = ""
+        power_query: str, snowflake_account: Optional[str] = None
     ) -> List[EntityId]:
         def replacer(match: re.Match) -> str:
             controls = {
@@ -217,10 +220,10 @@ class PowerQueryParser:
         power_query = re.sub(r"#\((cr|lf|tab)(,(cr|lf|tab))*\)", replacer, power_query)
 
         if "Value.NativeQuery(" in power_query:
-            return PowerQueryParser.parse_native_query(power_query, snowflake_account)
+            return PowerQueryParser._parse_native_query(power_query, snowflake_account)
 
         try:
-            return [PowerQueryParser.parse_power_query(power_query)]
+            return [PowerQueryParser._parse_power_query(power_query)]
         except (AssertionError, IndexError) as error:
             logger.warning(f"Parsing upstream fail, exp: {power_query}, error: {error}")
 

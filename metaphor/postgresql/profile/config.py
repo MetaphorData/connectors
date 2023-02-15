@@ -8,7 +8,6 @@ from metaphor.redshift.config import PostgreSQLRunConfig
 
 @dataclass
 class PostgreSQLProfileRunConfig(PostgreSQLRunConfig):
-
     max_concurrency = 10
 
     include_views: bool = False

@@ -110,7 +110,6 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
         sampling: SamplingConfig,
         max_entities_per_query: int = 100,  # more than 400 will get sql compile error
     ) -> List[str]:
-
         table_name = dataset.logical_id.name
 
         entities = ["COUNT(1)"]

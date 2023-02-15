@@ -35,7 +35,6 @@ def add_debug_file(file: str) -> None:
 
 
 def json_dump_to_debug_file(value: Any, file_name: str) -> str:
-
     out_file = f"{tempfile.mkdtemp()}/{file_name}"
     with open(out_file, "w") as fp:
         fp.write(json.dumps(value, default=str))

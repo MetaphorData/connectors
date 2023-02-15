@@ -32,7 +32,6 @@ def column_statistics_config():
 
 
 def test_default_excludes():
-
     with patch("metaphor.snowflake.auth.connect"):
         extractor = SnowflakeProfileExtractor(
             SnowflakeProfileRunConfig(
@@ -112,11 +111,9 @@ def test_fetch_tables():
 
 
 def test_fetch_columns():
-
     with patch("metaphor.snowflake.auth.connect") as auth_connect, patch(
         "metaphor.snowflake.utils.async_execute"
     ) as async_execute:
-
         async_execute.return_value = {}
 
         extractor = SnowflakeProfileExtractor(

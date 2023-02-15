@@ -4,7 +4,7 @@ from typing import Collection, Dict, List, Mapping, Optional, Tuple
 
 from pydantic import parse_raw_as
 
-from metaphor.common.filter import DatabaseFilter, DatasetFilter
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import chunks, md5_digest, start_of_day
@@ -55,7 +55,7 @@ from metaphor.snowflake.utils import (
 logger = get_logger()
 
 # Filter out "Snowflake" database & all "information_schema" schemas
-DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
+DEFAULT_FILTER: DatasetFilter = DatasetFilter(
     excludes={
         "SNOWFLAKE": None,
         "*": {"INFORMATION_SCHEMA": None},
@@ -88,7 +88,6 @@ class SnowflakeExtractor(BaseExtractor):
         self._logs: List[QueryLog] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-
         logger.info("Fetching metadata from Snowflake")
 
         self._conn = auth.connect(self._config)
@@ -130,7 +129,7 @@ class SnowflakeExtractor(BaseExtractor):
             if self._query_log_lookback_days > 0:
                 self._fetch_query_logs()
 
-        datasets = self._datasets.values()
+        datasets = list(self._datasets.values())
         tag_datasets(datasets, self._tag_matchers)
 
         entities: List[ENTITY_TYPES] = []
@@ -244,7 +243,7 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_table_info(
         self, tables: Dict[str, DatasetInfo], is_shared_database: bool
     ) -> None:
-        dict_cursor = self._conn.cursor(DictCursor)
+        dict_cursor: DictCursor = self._conn.cursor(DictCursor)  # type: ignore
         for chunk in chunks(list(tables.items()), TABLE_INFO_FETCH_SIZE):
             self._fetch_table_info_internal(dict_cursor, chunk, is_shared_database)
 

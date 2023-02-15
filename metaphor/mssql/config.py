@@ -1,5 +1,4 @@
 from dataclasses import field
-from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -16,13 +15,13 @@ class MssqlConfig(BaseConfig):
     password: str
 
     # SQL Server endpoint. Instead of Azure SQL endpoint if specified
-    endpoint: str
-
-    # Include or exclude specific databases/schemas/tables
-    filter: Optional[DatasetFilter] = field(default_factory=lambda: DatasetFilter())
+    endpoint: str = ""
 
     # Azure Directory (tenant) ID
-    tenant_id: Optional[str] = ""
+    tenant_id: str = ""
 
     # SQL Server name
-    server_name: Optional[str] = ""
+    server_name: str = ""
+
+    # Include or exclude specific databases/schemas/tables
+    filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())

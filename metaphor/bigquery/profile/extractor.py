@@ -52,7 +52,6 @@ class BigQueryProfileExtractor(BaseExtractor):
         self._sampling = config.sampling
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-
         logger.info("Fetching usage info from BigQuery")
 
         self._client = build_client(self._config)
@@ -60,7 +59,6 @@ class BigQueryProfileExtractor(BaseExtractor):
         return self.profile(tables)
 
     def _fetch_tables(self) -> List[TableReference]:
-
         tables = []
         for bq_dataset in self._client.list_datasets():
             dataset_ref = bigquery.DatasetReference(
@@ -70,7 +68,6 @@ class BigQueryProfileExtractor(BaseExtractor):
             logger.info(f"Found dataset {dataset_ref}")
 
             for bq_table in self._client.list_tables(bq_dataset.dataset_id):
-
                 table_ref = dataset_ref.table(bq_table.table_id)
                 if not self._filter.include_table(
                     database=table_ref.project,

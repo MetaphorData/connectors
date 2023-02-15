@@ -20,7 +20,6 @@ def dummy_config(**args):
 
 
 def test_default_excludes():
-
     with patch("metaphor.snowflake.auth.connect"):
         extractor = SnowflakeLineageExtractor(
             SnowflakeLineageRunConfig(

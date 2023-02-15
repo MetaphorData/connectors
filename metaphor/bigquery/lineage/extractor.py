@@ -3,6 +3,7 @@ from typing import Collection, Dict
 
 try:
     import google.cloud.bigquery as bigquery
+    from google.cloud import logging_v2
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
@@ -52,22 +53,21 @@ class BigQueryLineageExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-
-        self._client = build_client(self._config)
-        self._logging_client = build_logging_client(self._config)
+        client = build_client(self._config)
+        logging_client = build_logging_client(self._config)
 
         if self._enable_view_lineage:
-            self._fetch_view_upstream()
+            self._fetch_view_upstream(client)
 
         if self._enable_lineage_from_log:
-            self._fetch_audit_log()
+            self._fetch_audit_log(logging_client)
 
         return self._datasets.values()
 
-    def _fetch_view_upstream(self) -> None:
+    def _fetch_view_upstream(self, client: bigquery.Client) -> None:
         logger.info("Fetching lineage info from BigQuery API")
 
-        for bq_dataset in self._client.list_datasets():
+        for bq_dataset in client.list_datasets():
             if not self._dataset_filter.include_schema(
                 self._project_id, bq_dataset.dataset_id
             ):
@@ -75,12 +75,12 @@ class BigQueryLineageExtractor(BaseExtractor):
                 continue
 
             dataset_ref = bigquery.DatasetReference(
-                self._client.project, bq_dataset.dataset_id
+                client.project, bq_dataset.dataset_id
             )
 
             logger.info(f"Found dataset {dataset_ref}")
 
-            for bq_table in self._client.list_tables(bq_dataset.dataset_id):
+            for bq_table in client.list_tables(bq_dataset.dataset_id):
                 table_ref = dataset_ref.table(bq_table.table_id)
                 if not self._dataset_filter.include_table(
                     self._project_id, bq_dataset.dataset_id, bq_table.table_id
@@ -89,9 +89,9 @@ class BigQueryLineageExtractor(BaseExtractor):
                     continue
                 logger.debug(f"Found table {table_ref}")
 
-                bq_table = self._client.get_table(table_ref)
+                bq_table = client.get_table(table_ref)
                 try:
-                    self._parse_view_lineage(self._client.project, bq_table)
+                    self._parse_view_lineage(client.project, bq_table)
                 except Exception as ex:
                     logger.exception(ex)
 
@@ -135,12 +135,12 @@ class BigQueryLineageExtractor(BaseExtractor):
                 source_datasets=list(dataset_ids), transformation=view_query
             )
 
-    def _fetch_audit_log(self):
+    def _fetch_audit_log(self, logging_client: logging_v2.Client):
         logger.info("Fetching lineage info from BigQuery Audit log")
 
         log_filter = self._build_job_change_filter()
         fetched, parsed = 0, 0
-        for entry in self._logging_client.list_entries(
+        for entry in logging_client.list_entries(
             page_size=self._batch_size, filter_=log_filter
         ):
             fetched += 1
@@ -165,12 +165,9 @@ class BigQueryLineageExtractor(BaseExtractor):
 
         # Filter out self lineage
         if not self._include_self_lineage:
-            job_change.source_tables = list(
-                filter(
-                    lambda t: t != job_change.destination_table,
-                    job_change.source_tables,
-                )
-            )
+            job_change.source_tables = [
+                t for t in job_change.source_tables if t != job_change.destination_table
+            ]
 
         destination = job_change.destination_table
         if not self._dataset_filter.include_schema(

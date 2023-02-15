@@ -34,7 +34,7 @@ class DbtAdminAPIClient:
         self.account_id = account_id
         self.service_token = service_token
 
-    def _get(self, path: str, params: Dict = None):
+    def _get(self, path: str, params: Optional[Dict] = None):
         url = f"{ADMIN_API_BASE_URL}/accounts/{self.account_id}/{path}"
         req = requests.get(
             url,
@@ -121,7 +121,6 @@ class DbtCloudExtractor(BaseExtractor):
         self._meta_tags = config.meta_tags
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-
         logger.info("Fetching metadata from DBT cloud")
 
         client = DbtAdminAPIClient(self._account_id, self._service_token)

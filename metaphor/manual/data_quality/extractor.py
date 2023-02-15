@@ -42,9 +42,9 @@ class ManualDataQualityExtractor(BaseExtractor):
             data_quality = dataset_data_quality.data_quality
 
             dataset.data_quality = DatasetDataQuality(
-                provider=None
-                if data_quality.provider is None
-                else DataQualityProvider[data_quality.provider],
+                provider=DataQualityProvider[data_quality.provider]
+                if data_quality.provider
+                else None,
                 url=data_quality.url,
                 monitors=[],
             )
@@ -64,13 +64,15 @@ class ManualDataQualityExtractor(BaseExtractor):
                         url=monitor.url,
                         owner=monitor.owner,
                         status=DataMonitorStatus[monitor.status],
-                        severity=None
-                        if monitor.severity is None
-                        else DataMonitorSeverity[monitor.severity],
+                        severity=DataMonitorSeverity[monitor.severity]
+                        if monitor.severity
+                        else None,
                         last_run=datetime.fromtimestamp(
                             monitor.last_run.timestamp()
-                        ).replace(tzinfo=timezone.utc),
-                        value=None if monitor.value is None else float(monitor.value),
+                        ).replace(tzinfo=timezone.utc)
+                        if monitor.last_run
+                        else None,
+                        value=float(monitor.value) if monitor.value else None,
                         targets=targets,
                     )
                 )

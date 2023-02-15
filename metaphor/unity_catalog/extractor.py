@@ -10,7 +10,7 @@ from metaphor.common.entity_id import (
     to_dataset_entity_id_from_logical_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatabaseFilter, DatasetFilter
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
@@ -37,7 +37,7 @@ from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
 logger = get_logger()
 
 # Filter out "system" database & all "information_schema" schemas
-DEFAULT_FILTER: DatabaseFilter = DatasetFilter(
+DEFAULT_FILTER: DatasetFilter = DatasetFilter(
     excludes={
         "system": None,
         "*": {"information_schema": None},

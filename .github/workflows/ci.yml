@@ -38,7 +38,7 @@ jobs:
           poetry run flake8
           poetry run black --check .
           poetry run isort --check .
-          poetry run mypy .
+          poetry run mypy . --explicit-package-bases
           poetry run bandit -r . -c pyproject.toml
 
       # TODO(SC-14236): Include __init__.py back to coverage after fixing async testing issues

@@ -103,7 +103,6 @@ class PowerBIExtractor(BaseExtractor):
         return entities
 
     def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
-
         dataset_map = {d.id: d for d in self._client.get_datasets(workspace.id)}
 
         for wds in workspace.datasets:
@@ -179,7 +178,6 @@ class PowerBIExtractor(BaseExtractor):
     def map_wi_reports_to_dashboard(
         self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
     ) -> None:
-
         report_map = {r.id: r for r in self._client.get_reports(workspace.id)}
 
         for wi_report in workspace.reports:
@@ -234,7 +232,6 @@ class PowerBIExtractor(BaseExtractor):
     def map_wi_dashboards_to_dashboard(
         self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
     ) -> None:
-
         dashboard_map = {d.id: d for d in self._client.get_dashboards(workspace.id)}
 
         for wi_dashboard in workspace.dashboards:

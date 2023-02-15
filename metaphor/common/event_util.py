@@ -5,7 +5,7 @@ from typing import Union
 
 import fastjsonschema
 
-from metaphor import models
+from metaphor import models  # type: ignore
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,

@@ -30,7 +30,7 @@ class MySQLExtractor(BaseExtractor):
     """MySQL metadata extractor"""
 
     @staticmethod
-    def from_config_file(config_file: str) -> "MySQLRunConfig":
+    def from_config_file(config_file: str) -> "MySQLExtractor":
         return MySQLExtractor(MySQLRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: MySQLRunConfig):

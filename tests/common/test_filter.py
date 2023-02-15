@@ -14,7 +14,6 @@ def test_filter_normalization():
 
 
 def test_include_table_empty_filter():
-
     filter = DatasetFilter(
         includes=None,
         excludes=None,
@@ -25,7 +24,6 @@ def test_include_table_empty_filter():
 
 
 def test_include_table_glob_patterns():
-
     filter = DatasetFilter(
         includes={"db?": {"schema*": set(["*"])}},
         excludes=None,
@@ -38,7 +36,6 @@ def test_include_table_glob_patterns():
 
 
 def test_include_table_includes_only():
-
     filter = DatasetFilter(
         includes={
             "db1": None,
@@ -59,7 +56,6 @@ def test_include_table_includes_only():
 
 
 def test_include_table_excludes_only():
-
     filter = DatasetFilter(
         includes=None,
         excludes={
@@ -78,7 +74,6 @@ def test_include_table_excludes_only():
 
 
 def test_include_table_excludes_overrides_include():
-
     filter = DatasetFilter(
         includes={
             "db1": None,
@@ -94,7 +89,6 @@ def test_include_table_excludes_overrides_include():
 
 
 def test_include_schema_empty_filter():
-
     filter = DatasetFilter(
         includes=None,
         excludes=None,
@@ -105,7 +99,6 @@ def test_include_schema_empty_filter():
 
 
 def test_include_schema_includes_only():
-
     filter = DatasetFilter(
         includes={
             "db1": None,
@@ -125,7 +118,6 @@ def test_include_schema_includes_only():
 
 
 def test_include_schema_excludes_only():
-
     filter = DatasetFilter(
         includes=None,
         excludes={
@@ -145,7 +137,6 @@ def test_include_schema_excludes_only():
 
 
 def test_include_schema_excludes_overrides_includes():
-
     filter = DatasetFilter(
         includes={
             "db1": None,

@@ -9,7 +9,6 @@ from metaphor.snowflake.config import SnowflakeRunConfig
 
 @dataclass
 class SnowflakeProfileRunConfig(SnowflakeRunConfig):
-
     # Compute specific types of statistics for each column
     column_statistics: ColumnStatistics = field(
         default_factory=lambda: ColumnStatistics()

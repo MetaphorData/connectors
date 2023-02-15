@@ -4,7 +4,6 @@ from metaphor.common.variable import variable_substitution
 
 
 def test_variable_substitution():
-
     os.environ["FOO"] = "FOO"
     os.environ["BAR"] = "BAR"
     os.environ["BAZ"] = "BAZ"
