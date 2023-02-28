@@ -239,10 +239,10 @@ class PowerBIClient:
             )
         except EntityNotFoundError as e:
             logger.error(
-                f"Unable to find report {report_id} in workspace {group_id}\n"
+                f"Unable to find report {report_id} in workspace {group_id}. "
                 f"Please add the service principal as a viewer to the workspace"
             )
-            raise e
+            raise e from None
 
     def get_refreshes(self, group_id: str, dataset_id: str) -> List[PowerBIRefresh]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-history-in-group
@@ -256,10 +256,10 @@ class PowerBIClient:
             )
         except EntityNotFoundError as e:
             logger.error(
-                f"Unable to find dataset {dataset_id} in workspace {group_id}\n"
+                f"Unable to find dataset {dataset_id} in workspace {group_id}. "
                 f"Please add the service principal as a viewer to the workspace"
             )
-            raise e
+            raise e from None
 
     def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:
@@ -347,10 +347,10 @@ class PowerBIClient:
             )
         except ApiError as error:
             if error.status_code == 401:
-                raise AuthenticationError(error.error_msg)
+                raise AuthenticationError(error.error_msg) from None
             elif error.status_code == 404:
-                raise EntityNotFoundError(error.error_msg)
+                raise EntityNotFoundError(error.error_msg) from None
             else:
                 raise AssertionError(
                     f"GET {url} failed: {error.status_code}\n{error.error_msg}"
-                )
+                ) from None

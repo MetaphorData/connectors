@@ -79,20 +79,20 @@ class PowerBIExtractor(BaseExtractor):
         apps = self._client.get_apps()
         app_map = {app.id: app for app in apps}
 
+        workspaces = []
         for workspace_ids in chunks(
             self._workspaces, PowerBIClient.MAX_WORKSPACES_PER_SCAN
         ):
-            for workspace in self._client.get_workspace_info(workspace_ids):
-                logger.info(
-                    f"Fetching metadata from Power BI workspace ID: {workspace.id}"
-                )
+            workspaces.extend(self._client.get_workspace_info(workspace_ids))
 
-                try:
-                    self.map_wi_datasets_to_virtual_views(workspace)
-                    self.map_wi_reports_to_dashboard(workspace, app_map)
-                    self.map_wi_dashboards_to_dashboard(workspace, app_map)
-                except Exception as e:
-                    logger.exception(e)
+        # As there may be cross-workspace reference in dashboards & reports,
+        # we must process the datasets across all workspaces first
+        for workspace in workspaces:
+            self.map_wi_datasets_to_virtual_views(workspace)
+
+        for workspace in workspaces:
+            self.map_wi_reports_to_dashboard(workspace, app_map)
+            self.map_wi_dashboards_to_dashboard(workspace, app_map)
 
         self.dedupe_app_version_dashboards()
 
@@ -140,9 +140,8 @@ class PowerBIExtractor(BaseExtractor):
                     )
                 except Exception as e:
                     logger.error(
-                        f"Failed to parse expression: {expression} for dataset {wds.id}"
+                        f"Failed to parse expression for dataset {wds.id}: {e}"
                     )
-                    logger.exception(e)
 
             ds = dataset_map.get(wds.id, None)
             if ds is None:
@@ -185,11 +184,13 @@ class PowerBIExtractor(BaseExtractor):
                 logger.warn(f"Skipping report without datasetId: {wi_report.id}")
                 continue
 
+            virtual_view = self._virtual_views.get(wi_report.datasetId)
+            if virtual_view is None:
+                logger.error(f"Referenced non-existing dataset {wi_report.datasetId}")
+                continue
+
             upstream_id = str(
-                EntityId(
-                    EntityType.VIRTUAL_VIEW,
-                    self._virtual_views[wi_report.datasetId].logical_id,
-                )
+                EntityId(EntityType.VIRTUAL_VIEW, virtual_view.logical_id)
             )
 
             report = report_map.get(wi_report.id, None)
@@ -209,7 +210,7 @@ class PowerBIExtractor(BaseExtractor):
                     pages = self._client.get_pages(workspace.id, wi_report.id)
                     charts = self.transform_pages_to_charts(pages)
                 except Exception as e:
-                    logger.exception(e)
+                    logger.error(e)
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -244,13 +245,13 @@ class PowerBIExtractor(BaseExtractor):
                 if dataset_id == "":
                     continue
 
+                virtual_view = self._virtual_views.get(dataset_id)
+                if virtual_view is None:
+                    logger.error(f"Referenced non-existing dataset {dataset_id}")
+                    continue
+
                 upstream.append(
-                    str(
-                        EntityId(
-                            EntityType.VIRTUAL_VIEW,
-                            self._virtual_views[dataset_id].logical_id,
-                        )
-                    )
+                    str(EntityId(EntityType.VIRTUAL_VIEW, virtual_view.logical_id))
                 )
 
             pbi_dashboard = dashboard_map.get(wi_dashboard.id, None)
