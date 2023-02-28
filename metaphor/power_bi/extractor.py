@@ -150,12 +150,8 @@ class PowerBIExtractor(BaseExtractor):
 
             last_refreshed = None
             if ds.isRefreshable:
-                try:
-                    # Log errors instead of throwing exceptions as this API call requires extra permissions
-                    refreshes = self._client.get_refreshes(workspace.id, wds.id)
-                    last_refreshed = self._find_last_completed_refresh(refreshes)
-                except Exception as e:
-                    logger.exception(e)
+                refreshes = self._client.get_refreshes(workspace.id, wds.id)
+                last_refreshed = self._find_last_completed_refresh(refreshes)
 
             virtual_view = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -205,12 +201,8 @@ class PowerBIExtractor(BaseExtractor):
             # The "app" version of report doesn't have pages
             charts = None
             if wi_report.appId is None:
-                # Log errors instead of throwing exceptions as this API call requires extra permissions
-                try:
-                    pages = self._client.get_pages(workspace.id, wi_report.id)
-                    charts = self.transform_pages_to_charts(pages)
-                except Exception as e:
-                    logger.error(e)
+                pages = self._client.get_pages(workspace.id, wi_report.id)
+                charts = self.transform_pages_to_charts(pages)
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
