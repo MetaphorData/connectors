@@ -223,5 +223,3 @@ class PowerQueryParser:
             return PowerQueryParser._parse_native_query(power_query, snowflake_account)
         else:
             return [PowerQueryParser._parse_power_query(power_query)]
-
-        return []
