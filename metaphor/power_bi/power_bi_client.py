@@ -204,9 +204,17 @@ class PowerBIClient:
     def get_tiles(self, dashboard_id: str) -> List[PowerBITile]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-tiles-as-admin
         url = f"{self.API_ENDPOINT}/admin/dashboards/{dashboard_id}/tiles"
-        return self._call_get(
-            url, List[PowerBITile], transform_response=lambda r: r.json()["value"]
-        )
+
+        try:
+            return self._call_get(
+                url, List[PowerBITile], transform_response=lambda r: r.json()["value"]
+            )
+        except EntityNotFoundError:
+            logger.error(
+                f"Unable to find dashboard {dashboard_id}."
+                f"Please add the service principal as a viewer to the workspace"
+            )
+            return []
 
     def get_datasets(self, group_id: str) -> List[PowerBIDataset]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-in-group-as-admin
@@ -237,12 +245,12 @@ class PowerBIClient:
             return self._call_get(
                 url, List[PowerBIPage], transform_response=lambda r: r.json()["value"]
             )
-        except EntityNotFoundError as e:
+        except EntityNotFoundError:
             logger.error(
-                f"Unable to find report {report_id} in workspace {group_id}\n"
+                f"Unable to find report {report_id} in workspace {group_id}. "
                 f"Please add the service principal as a viewer to the workspace"
             )
-            raise e
+            return []
 
     def get_refreshes(self, group_id: str, dataset_id: str) -> List[PowerBIRefresh]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-history-in-group
@@ -254,12 +262,12 @@ class PowerBIClient:
                 List[PowerBIRefresh],
                 transform_response=lambda r: r.json()["value"],
             )
-        except EntityNotFoundError as e:
+        except EntityNotFoundError:
             logger.error(
-                f"Unable to find dataset {dataset_id} in workspace {group_id}\n"
+                f"Unable to find dataset {dataset_id} in workspace {group_id}. "
                 f"Please add the service principal as a viewer to the workspace"
             )
-            raise e
+            return []
 
     def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:
@@ -347,10 +355,10 @@ class PowerBIClient:
             )
         except ApiError as error:
             if error.status_code == 401:
-                raise AuthenticationError(error.error_msg)
+                raise AuthenticationError(error.error_msg) from None
             elif error.status_code == 404:
-                raise EntityNotFoundError(error.error_msg)
+                raise EntityNotFoundError(error.error_msg) from None
             else:
                 raise AssertionError(
                     f"GET {url} failed: {error.status_code}\n{error.error_msg}"
-                )
+                ) from None

@@ -221,10 +221,5 @@ class PowerQueryParser:
 
         if "Value.NativeQuery(" in power_query:
             return PowerQueryParser._parse_native_query(power_query, snowflake_account)
-
-        try:
+        else:
             return [PowerQueryParser._parse_power_query(power_query)]
-        except (AssertionError, IndexError) as error:
-            logger.warning(f"Parsing upstream fail, exp: {power_query}, error: {error}")
-
-        return []
