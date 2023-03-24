@@ -13,7 +13,6 @@ from metaphor.power_bi.power_bi_client import (
     PowerBIDataset,
     PowerBIPage,
     PowerBIRefresh,
-    PowerBIRefreshStatus,
     PowerBIReport,
     PowerBITable,
     PowerBITableColumn,
@@ -149,9 +148,9 @@ async def test_extractor(test_root_dir):
     refreshes = {
         workspace1_id: {
             dataset1_id: [
-                PowerBIRefresh(status=PowerBIRefreshStatus.FAILED, endTime=""),
+                PowerBIRefresh(status="Failed", endTime=""),
                 PowerBIRefresh(
-                    status=PowerBIRefreshStatus.COMPLETED,
+                    status="Completed",
                     endTime="2022-01-01T01:02:03.456Z",
                 ),
             ]
