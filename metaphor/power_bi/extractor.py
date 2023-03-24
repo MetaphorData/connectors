@@ -40,7 +40,6 @@ from metaphor.power_bi.power_bi_client import (
     PowerBIClient,
     PowerBIPage,
     PowerBIRefresh,
-    PowerBIRefreshStatus,
     PowerBITile,
     WorkspaceInfo,
 )
@@ -334,9 +333,7 @@ class PowerBIExtractor(BaseExtractor):
             # Assume refreshes are already sorted in reversed chronological order
             # Empty endTime means still in progress
             refresh = next(
-                r
-                for r in refreshes
-                if r.status == PowerBIRefreshStatus.COMPLETED and r.endTime != ""
+                r for r in refreshes if r.status == "Completed" and r.endTime != ""
             )
         except StopIteration:
             return None

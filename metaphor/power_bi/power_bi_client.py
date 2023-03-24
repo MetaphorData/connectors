@@ -1,5 +1,4 @@
 import tempfile
-from enum import Enum
 from time import sleep
 from typing import Any, Callable, List, Optional, Type, TypeVar
 
@@ -75,16 +74,9 @@ class PowerBITile(BaseModel):
     embedUrl: Optional[str]
 
 
-class PowerBIRefreshStatus(Enum):
-    UNKNOWN = "Unknown"
-    COMPLETED = "Completed"
-    FAILED = "Failed"
-    DISABLED = "Disabled"
-
-
 class PowerBIRefresh(BaseModel):
-    status: PowerBIRefreshStatus
-    endTime: str
+    status: str = ""
+    endTime: str = ""
 
 
 class PowerBITableColumn(BaseModel):
@@ -250,7 +242,13 @@ class PowerBIClient:
                 f"Unable to find report {report_id} in workspace {group_id}. "
                 f"Please add the service principal as a viewer to the workspace"
             )
-            return []
+        except Exception as e:
+            # Fail gracefully for any other errors
+            logger.error(
+                f"Failed to get pages from report {report_id} in workspace {group_id}: {e}"
+            )
+
+        return []
 
     def get_refreshes(self, group_id: str, dataset_id: str) -> List[PowerBIRefresh]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-history-in-group
@@ -267,7 +265,13 @@ class PowerBIClient:
                 f"Unable to find dataset {dataset_id} in workspace {group_id}. "
                 f"Please add the service principal as a viewer to the workspace"
             )
-            return []
+        except Exception as e:
+            # Fail gracefully for any other errors
+            logger.error(
+                f"Failed to get pages from dataset {dataset_id} in workspace {group_id}: {e}"
+            )
+
+        return []
 
     def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:
