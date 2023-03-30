@@ -30,6 +30,7 @@ class JobChangeEvent:
     statementType: Optional[str]
     source_tables: List[BigQueryResource]
     destination_table: Optional[BigQueryResource]
+    default_dataset: Optional[str]
 
     input_bytes: Optional[int]
     output_bytes: Optional[int]
@@ -61,6 +62,7 @@ class JobChangeEvent:
 
         query, query_statement_type = None, None
         destination_table = None
+        default_dataset = None
 
         input_bytes, output_bytes, output_rows = None, None, None
 
@@ -92,6 +94,7 @@ class JobChangeEvent:
                 BigQueryResource.from_str(source).remove_extras()
                 for source in referenced_tables + referenced_views
             ]
+            default_dataset = query_job.get("defaultDataset", None)
 
             processed_bytes = query_stats.get("totalProcessedBytes", None)
             input_bytes = int(processed_bytes) if processed_bytes else None
@@ -132,6 +135,7 @@ class JobChangeEvent:
             statementType=query_statement_type,
             source_tables=source_tables,
             destination_table=destination_table,
+            default_dataset=default_dataset,
             start_time=start_time,
             end_time=end_time,
             input_bytes=input_bytes,

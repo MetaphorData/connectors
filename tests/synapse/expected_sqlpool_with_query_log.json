@@ -61,7 +61,7 @@
         "sql": "INSERT INTO mock_query_table VALUE('test_id', 'test_name', 10)",
         "sqlHash": "9201928291a43ac33e20d0e88490a7a0",
         "startTime": "2022-12-14T12:30:11.822321+00:00",
-        "type": "DML",
+        "type": "INSERT",
         "userId": "mock_user@gmail.com"
       }
     ]

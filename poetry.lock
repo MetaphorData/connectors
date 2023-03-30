@@ -2627,26 +2627,26 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.17.3"
+version = "0.17.4"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "metaphor-models-0.17.3.tar.gz", hash = "sha256:dd93249e9a187e2c66a429971a7accd242fcd383fa92beed949035e4aedf7e6d"},
-    {file = "metaphor_models-0.17.3-py3-none-any.whl", hash = "sha256:201de665127c1df2bc6b112ac61d7a8299d2d11fdca63bdd07f6677065e95365"},
+    {file = "metaphor_models-0.17.4-py3-none-any.whl", hash = "sha256:cd9b92cd9a6e67cc33e6366575d6142c879088b35f2d2d44daa40923d78921e4"},
+    {file = "metaphor_models-0.17.4.tar.gz", hash = "sha256:8c9d0882ff78464a3518dcc4efc5037b0bcbbc84f64056324730b151c0b6fe51"},
 ]
 
 [[package]]
 name = "metaphor-sqllineage"
-version = "2.0.0"
+version = "2.0.10"
 description = "SQL Lineage Analysis Tool powered by Python"
 category = "main"
 optional = true
 python-versions = ">=3.6"
 files = [
-    {file = "metaphor-sqllineage-2.0.0.tar.gz", hash = "sha256:867df4d557a0e50e75b2ee362db6e5662bbf15cd9eb099b9dc1e96d3a1600023"},
-    {file = "metaphor_sqllineage-2.0.0-py3-none-any.whl", hash = "sha256:2ac19e241af38fcc8049f27c6ac257b5a49d152ae2b779d65c05ae5b890d1e18"},
+    {file = "metaphor-sqllineage-2.0.10.tar.gz", hash = "sha256:7d80a1c964cb965ed2096aaf99c17fa78cc39129efe700670a2aafdf33d7bdc6"},
+    {file = "metaphor_sqllineage-2.0.10-py3-none-any.whl", hash = "sha256:89d0ba5233526343519420833109f8e24636d921a4a3345977fb526ceba016d7"},
 ]
 
 [package.dependencies]
@@ -4813,5 +4813,5 @@ unity-catalog = ["databricks-cli"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.7,<3.11"
-content-hash = "4913876348c3b6ef4f2002134523d5963cec5bc4c7a3d1cb6093bade2327aa99"
+python-versions = ">=3.7,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
+content-hash = "71e6c85007ee0e3ecc316839174de8de195d3ec51904702156c1bb2391d73019"

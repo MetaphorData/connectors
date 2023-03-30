@@ -11,12 +11,6 @@ from typing import (
     Union,
 )
 
-from metaphor.bigquery.logEvent import JobChangeEvent
-from metaphor.common.entity_id import dataset_normalized_name
-from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import md5_digest, start_of_day
-
 try:
     import google.cloud.bigquery as bigquery
     from google.cloud import logging_v2
@@ -25,12 +19,17 @@ except ImportError:
     raise
 
 from metaphor.bigquery.config import BigQueryRunConfig
+from metaphor.bigquery.logEvent import JobChangeEvent
 from metaphor.bigquery.utils import LogEntry, build_client, build_logging_client
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import FieldDataType, build_field_path
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.tag_matcher import tag_datasets
+from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -45,6 +44,7 @@ from metaphor.models.metadata_change_event import (
     SchemaField,
     SchemaType,
     SQLSchema,
+    TypeEnum,
 )
 
 logger = get_logger()
@@ -307,6 +307,10 @@ class BigQueryExtractor(BaseExtractor):
             else None
         )
 
+        default_database, default_schema = None, None
+        if job_change.default_dataset and job_change.default_dataset.count(".") == 1:
+            default_database, default_schema = job_change.default_dataset.split(".")
+
         elapsed_time = (
             (job_change.end_time - job_change.start_time).total_seconds()
             if job_change.start_time and job_change.end_time
@@ -331,9 +335,42 @@ class BigQueryExtractor(BaseExtractor):
             else None,
             sources=sources,
             targets=target_datasets,
+            default_database=default_database,
+            default_schema=default_schema,
+            type=self._map_query_type(job_change.statementType)
+            if job_change.statementType
+            else None,
             sql=job_change.query,
             sql_hash=md5_digest(job_change.query.encode("utf-8")),
         )
+
+    # https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata.QueryStatementType
+    _query_type_map = {
+        "SELECT": TypeEnum.SELECT,
+        "INSERT": TypeEnum.INSERT,
+        "UPDATE": TypeEnum.UPDATE,
+        "DELETE": TypeEnum.DELETE,
+        "MERGE": TypeEnum.MERGE,
+        "CREATE_TABLE": TypeEnum.CREATE_TABLE,
+        "CREATE_TABLE_AS_SELECT": TypeEnum.CREATE_TABLE,
+        "CREATE_SNAPSHOT_TABLE": TypeEnum.CREATE_TABLE,
+        "CREATE_VIEW": TypeEnum.CREATE_VIEW,
+        "CREATE_MATERIALIZED_VIEW": TypeEnum.CREATE_VIEW,
+        "DROP_TABLE": TypeEnum.DROP_TABLE,
+        "DROP_EXTERNAL_TABLE": TypeEnum.DROP_TABLE,
+        "DROP_SNAPSHOT_TABLE": TypeEnum.DROP_TABLE,
+        "DROP_VIEW": TypeEnum.DROP_VIEW,
+        "DROP_MATERIALIZED_VIEW": TypeEnum.DROP_VIEW,
+        "ALTER_TABLE": TypeEnum.ALTER_TABLE,
+        "ALTER_VIEW": TypeEnum.ALTER_VIEW,
+        "ALTER_MATERIALIZED_VIEW": TypeEnum.ALTER_VIEW,
+        "TRUNCATE_TABLE": TypeEnum.TRUNCATE,
+        "EXPORT_DATA": TypeEnum.EXPORT,
+    }
+
+    @staticmethod
+    def _map_query_type(query_type: str) -> TypeEnum:
+        return BigQueryExtractor._query_type_map.get(query_type.upper(), TypeEnum.OTHER)
 
     def _build_job_change_filter(self) -> str:
         start_time = start_of_day(self._query_log_lookback_days).isoformat()

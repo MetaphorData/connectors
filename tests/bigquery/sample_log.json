@@ -49,7 +49,8 @@
                 "createDisposition": "CREATE_IF_NEEDED",
                 "writeDisposition": "WRITE_TRUNCATE",
                 "priority": "QUERY_INTERACTIVE",
-                "statementType": "SELECT"
+                "statementType": "SELECT",
+                "defaultDataset": "metaphor-data.test"
               }
             },
             "jobStatus": {
