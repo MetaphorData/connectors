@@ -15,6 +15,7 @@ def test_parse_log(test_root_dir):
     assert results == [
         JobChangeEvent(
             job_name="projects/metaphor-data/jobs/bquxjob_616d0f38_17e9c8d8782",
+            job_type="COPY",
             timestamp=datetime(2022, 1, 27, 17, 20, 29, 105490, pytz.UTC),
             start_time=datetime(2022, 1, 27, 17, 20, 28, 366000, pytz.UTC),
             end_time=datetime(2022, 1, 27, 17, 20, 29, 93000, pytz.UTC),
@@ -36,6 +37,7 @@ def test_parse_log(test_root_dir):
         ),
         JobChangeEvent(
             job_name="projects/metaphor-data/jobs/7526798f-8072-446d-bdf1-ac1acb4d8591",
+            job_type="QUERY",
             timestamp=datetime(2022, 1, 27, 17, 17, 12, 636773, pytz.UTC),
             start_time=datetime(2022, 1, 27, 17, 17, 11, 823000, pytz.UTC),
             end_time=datetime(2022, 1, 27, 17, 17, 12, 630000, pytz.UTC),

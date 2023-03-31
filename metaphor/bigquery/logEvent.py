@@ -21,6 +21,7 @@ class JobChangeEvent:
     """
 
     job_name: str
+    job_type: str
     timestamp: datetime
     start_time: Optional[datetime]  # Job execution start time.
     end_time: Optional[datetime]  # Job completion time.
@@ -80,11 +81,16 @@ class JobChangeEvent:
 
             query = query_job["query"]
 
+            # if query is truncated, reset query and will call job API separately
+            if query_job.get("queryTruncated", False):
+                query = None
+
             # Not all query jobs will have a destination table, e.g. calling a stored procedure
             if "destinationTable" in query_job:
                 destination_table = BigQueryResource.from_str(
                     query_job["destinationTable"]
                 ).remove_extras()
+
             query_statement_type = query_job.get("statementType")
 
             query_stats = job["jobStats"].get("queryStats", {})
@@ -129,6 +135,7 @@ class JobChangeEvent:
 
         return cls(
             job_name=job_name,
+            job_type=job_type,
             timestamp=timestamp,
             user_email=user_email,
             query=query,

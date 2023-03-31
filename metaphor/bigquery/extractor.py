@@ -1,3 +1,4 @@
+import re
 from concurrent.futures import ThreadPoolExecutor
 from typing import (
     Any,
@@ -120,7 +121,7 @@ class BigQueryExtractor(BaseExtractor):
             fetched_tables.extend(tables.values())
 
         logger.info("Fetching BigQueryAuditMetadata")
-        query_logs = self._fetch_query_logs(logging_client)
+        query_logs = self._fetch_query_logs(logging_client, client)
 
         tag_datasets(fetched_tables, self._tag_matchers)
 
@@ -264,7 +265,9 @@ class BigQueryExtractor(BaseExtractor):
             last_updated=bq_table.modified,
         )
 
-    def _fetch_query_logs(self, logging_client: logging_v2.Client) -> List[QueryLog]:
+    def _fetch_query_logs(
+        self, logging_client: logging_v2.Client, client: bigquery.Client
+    ) -> List[QueryLog]:
         logs: List[Optional[QueryLog]] = []
         log_filter = self._build_job_change_filter()
 
@@ -272,7 +275,7 @@ class BigQueryExtractor(BaseExtractor):
             page_size=self._query_log_fetch_size, filter_=log_filter
         ):
             if JobChangeEvent.can_parse(entry):
-                logs.append(self._parse_job_change_entry(entry))
+                logs.append(self._parse_job_change_entry(entry, client))
 
             if len(logs) % 1000 == 0:
                 logger.info(f"Fetched {len(logs)} audit logs")
@@ -281,7 +284,23 @@ class BigQueryExtractor(BaseExtractor):
 
         return [log for log in logs if log is not None]
 
-    def _parse_job_change_entry(self, entry: LogEntry) -> Optional[QueryLog]:
+    @staticmethod
+    def _fetch_job_query(client: bigquery.Client, job_name: str) -> Optional[str]:
+        logger.info(f"Query {job_name}")
+        match = re.match(r"^projects/([^/]+)/jobs/([^/]+)$", job_name)
+        if match:
+            project = match.group(1)
+            job_id = match.group(2)
+            job = client.get_job(job_id, project)
+
+            if isinstance(job, bigquery.QueryJob):
+                return job.query
+
+        return None
+
+    def _parse_job_change_entry(
+        self, entry: LogEntry, client: bigquery.Client
+    ) -> Optional[QueryLog]:
         job_change = JobChangeEvent.from_entry(entry)
         if job_change is None or job_change.query is None:
             return None
@@ -310,6 +329,11 @@ class BigQueryExtractor(BaseExtractor):
         default_database, default_schema = None, None
         if job_change.default_dataset and job_change.default_dataset.count(".") == 1:
             default_database, default_schema = job_change.default_dataset.split(".")
+
+        query: Optional[str] = job_change.query
+        # if query SQL is truncated, fetch full SQL from job API
+        if job_change.job_type == "QUERY" and not job_change.query:
+            query = self._fetch_job_query(client, job_change.job_name)
 
         elapsed_time = (
             (job_change.end_time - job_change.start_time).total_seconds()
@@ -340,7 +364,7 @@ class BigQueryExtractor(BaseExtractor):
             type=self._map_query_type(job_change.statementType)
             if job_change.statementType
             else None,
-            sql=job_change.query,
+            sql=query,
             sql_hash=md5_digest(job_change.query.encode("utf-8")),
         )
 
