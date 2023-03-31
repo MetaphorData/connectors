@@ -29,6 +29,7 @@ def test_parse_log(test_root_dir):
             destination_table=BigQueryResource(
                 project_id="metaphor-data", dataset_id="test", table_id="yi_tests2"
             ),
+            default_dataset=None,
             input_bytes=None,
             output_bytes=None,
             output_rows=None,
@@ -58,6 +59,7 @@ def test_parse_log(test_root_dir):
             destination_table=BigQueryResource(
                 project_id="metaphor-data", dataset_id="test", table_id="yi_tests"
             ),
+            default_dataset=None,
             input_bytes=52781,
             output_bytes=None,
             output_rows=1,

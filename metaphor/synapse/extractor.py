@@ -149,11 +149,17 @@ class SynapseExtractor(MssqlExtractor):
             querylog_map[query_id] = queryLog
         return querylog_map.values()
 
-    def _map_query_type(self, operation: str) -> Optional[TypeEnum]:
-        operation = operation.upper()
-        if operation in ["CREATE", "DROP", "ALTER", "TRUNCATE"]:
-            return TypeEnum.DDL
-        if operation in ["INSERT", "UPATE", "DELETE", "CALL", "EXPALIN CALL", "LOCK"]:
-            return TypeEnum.DML
-        else:
-            return None
+    _query_type_map = {
+        "CREATE": TypeEnum.CREATE_TABLE,
+        "SELECT": TypeEnum.SELECT,
+        "UPDATE": TypeEnum.UPDATE,
+        "DROP": TypeEnum.DROP_TABLE,
+        "ALTER": TypeEnum.ALTER_TABLE,
+        "TRUNCATE": TypeEnum.TRUNCATE,
+        "INSERT": TypeEnum.INSERT,
+        "DELETE": TypeEnum.DELETE,
+    }
+
+    @staticmethod
+    def _map_query_type(operation: str) -> TypeEnum:
+        return SynapseExtractor._query_type_map.get(operation.upper(), TypeEnum.OTHER)
