@@ -74,6 +74,9 @@ class BigQueryExtractor(BaseExtractor):
             config.query_log.exclude_service_accounts
         )
         self._query_log_fetch_size = config.query_log.fetch_size
+        self._fetch_job_query_if_truncated = (
+            config.query_log.fetch_job_query_if_truncated
+        )
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from BigQuery project {self._project_id}")
@@ -332,7 +335,11 @@ class BigQueryExtractor(BaseExtractor):
 
         query: Optional[str] = job_change.query
         # if query SQL is truncated, fetch full SQL from job API
-        if job_change.job_type == "QUERY" and job_change.query_truncated:
+        if (
+            job_change.job_type == "QUERY"
+            and job_change.query_truncated
+            and self._fetch_job_query_if_truncated
+        ):
             query = self._fetch_job_query(client, job_change.job_name)
 
         elapsed_time = (
