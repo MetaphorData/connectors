@@ -126,6 +126,9 @@ query_log:
 
   # (Optional) The number of query logs to fetch from BigQuery in one batch. Max 1000, default to 1000.
   fetch_size: <number_of_logs>
+
+  # (Optional) Fetch the full query SQL from job API if it's truncated in the audit metadata log, default True.
+  fetch_job_query_if_truncated: <boolean>
 ```
 
 ### Notes

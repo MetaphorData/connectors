@@ -332,7 +332,7 @@ class BigQueryExtractor(BaseExtractor):
 
         query: Optional[str] = job_change.query
         # if query SQL is truncated, fetch full SQL from job API
-        if job_change.job_type == "QUERY" and not job_change.query:
+        if job_change.job_type == "QUERY" and job_change.query_truncated:
             query = self._fetch_job_query(client, job_change.job_name)
 
         elapsed_time = (

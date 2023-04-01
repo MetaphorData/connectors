@@ -21,6 +21,7 @@ def test_parse_log(test_root_dir):
             end_time=datetime(2022, 1, 27, 17, 20, 29, 93000, pytz.UTC),
             user_email="yi@metaphor.io",
             query=None,
+            query_truncated=None,
             statementType=None,
             source_tables=[
                 BigQueryResource(
@@ -43,6 +44,7 @@ def test_parse_log(test_root_dir):
             end_time=datetime(2022, 1, 27, 17, 17, 12, 630000, pytz.UTC),
             user_email="bigquery-crawler@metaphor-data.iam.gserviceaccount.com",
             query="INSERT INTO `metaphor-data.test.yi_test3` \nSELECT * from `metaphor-data.test.yi_tests1` \nUNION ALL \nSELECT * from `metaphor-data.test.yi_tests2`",
+            query_truncated=True,
             statementType="SELECT",
             source_tables=[
                 BigQueryResource(

@@ -52,6 +52,9 @@ class BigQueryQueryLogConfig:
     # The number of query logs to fetch from BigQuery in one batch
     fetch_size: int = DEFAULT_QUERY_LOG_FETCH_SIZE
 
+    # Fetch the full query SQL from job API if it's truncated in the audit metadata log
+    fetch_job_query_if_truncated: bool = True
+
 
 @dataclass
 class BigQueryRunConfig(BaseConfig):

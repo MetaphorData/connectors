@@ -28,6 +28,7 @@ class JobChangeEvent:
     user_email: str
 
     query: Optional[str]
+    query_truncated: Optional[bool]
     statementType: Optional[str]
     source_tables: List[BigQueryResource]
     destination_table: Optional[BigQueryResource]
@@ -62,6 +63,7 @@ class JobChangeEvent:
         job_type = job["jobConfig"]["type"]
 
         query, query_statement_type = None, None
+        query_truncated = None
         destination_table = None
         default_dataset = None
 
@@ -80,10 +82,7 @@ class JobChangeEvent:
             query_job = job["jobConfig"]["queryConfig"]
 
             query = query_job["query"]
-
-            # if query is truncated, reset query and will call job API separately
-            if query_job.get("queryTruncated", False):
-                query = None
+            query_truncated = query_job.get("queryTruncated", None)
 
             # Not all query jobs will have a destination table, e.g. calling a stored procedure
             if "destinationTable" in query_job:
@@ -139,6 +138,7 @@ class JobChangeEvent:
             timestamp=timestamp,
             user_email=user_email,
             query=query,
+            query_truncated=query_truncated,
             statementType=query_statement_type,
             source_tables=source_tables,
             destination_table=destination_table,
