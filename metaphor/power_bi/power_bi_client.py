@@ -289,6 +289,7 @@ class PowerBIClient:
                     "lineage": True,
                 },
                 data=request_body,
+                timeout=600,  # request timeout 600s
             )
 
             assert result.status_code == 202, (
@@ -309,7 +310,7 @@ class PowerBIClient:
             waiting_time = 0
             sleep_time = 1
             while True:
-                result = requests.get(url, headers=self._headers)
+                result = requests.get(url, headers=self._headers, timeout=600)
                 if result.status_code != 200:
                     return False
                 if result.json()["status"] == "Succeeded":

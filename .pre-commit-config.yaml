@@ -40,7 +40,7 @@ repos:
         args: [--explicit-package-bases]
 
   - repo: https://github.com/pycqa/bandit
-    rev: 1.7.2
+    rev: 1.7.5
     hooks:
       - id: bandit
         args: ['--skip=B101,B106,B608']
