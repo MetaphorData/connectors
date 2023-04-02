@@ -43,6 +43,7 @@ class DbtAdminAPIClient:
                 "Content-Type": "application/json",
                 "Authorization": f"Token {self.service_token}",
             },
+            timeout=600,  # request timeout 600s
         )
 
         assert req.status_code == 200, f"{url} returned {req.status_code}"

@@ -24,10 +24,11 @@ def get_request(
     headers: Dict[str, str],
     type_: Type[T],
     transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
+    timeout: int = 600,  # default request timeout 600s
 ) -> T:
     """Generic get api request to make third part api call and return with customized data class"""
 
-    result = requests.get(url, headers=headers)
+    result = requests.get(url, headers=headers, timeout=timeout)
     if result.status_code == 200:
         # Add JSON response to log.zip
         file_name = f"{urlparse(url).path[1:].replace('/', u'__')}"

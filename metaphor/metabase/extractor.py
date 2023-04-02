@@ -96,6 +96,7 @@ class MetabaseExtractor(BaseExtractor):
                 "username": self._username,
                 "password": self._password,
             },
+            timeout=600,  # request timeout 600s
         )
         session_token_resp.raise_for_status()
         session_token = session_token_resp.json()["id"]
