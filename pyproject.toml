@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.11.125"
+version = "0.11.126"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -19,7 +19,7 @@ asyncpg = { version = "^0.27.0", optional = true }
 aws-assume-role-lib = "^2.10.0"
 boto3 = "^1.26.58"
 botocore = "^1.29.58"
-canonicaljson = "^1.6.4"
+canonicaljson = "^2.0.0"
 databricks-cli = { version = "^0.17.3", optional = true }
 fastjsonschema = "^2.16.2"
 GitPython = "^3.1.0"
@@ -27,8 +27,8 @@ google-cloud-bigquery = { version = "^2.34.4", optional = true }
 google-cloud-logging = { version = "^3.5.0", optional = true }
 lkml = { version = "^1.3.1", optional = true }
 looker-sdk = { version = "^22.20.0", optional = true }
-metaphor-models = "^0.17.4"
-metaphor-sqllineage = { version = "^2.0.0", optional = true }
+metaphor-models = "^0.17.5"
+metaphor-sqllineage = { version = "^2.0.10", optional = true }
 msal = { version = "^1.20.0", optional = true }
 pydantic = "~=1.9.0"
 pymssql = { version = "^2.2.7", optional = true }
@@ -93,7 +93,7 @@ pytest-asyncio = "^0.20.3"
 pytest-cov = "^4.0.0"
 types-attrs = "^19.1.0"
 types-freezegun = "^1.1.10"
-types-pytz = "^2022.7.1"
+types-pytz = "^2023.3.0.0"
 types-PyYAML = "^6.0.4"
 types-requests = "^2.28.11"
 
