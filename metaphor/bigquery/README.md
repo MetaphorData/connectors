@@ -6,12 +6,19 @@ This connector extracts technical metadata from a BigQuery project using [Python
 
 We recommend creating a dedicated GCP service account with limited permissions for the connector:
 
-1. Go to [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) in Google Cloud Console. Make sure the appropriate project is selected from the project dropdown.
-2. Click `Create Service Account` and use the following settings to create a new account:
+1. Go to [Roles](https://console.cloud.google.com/iam-admin/roles) in Google Cloud Console. Make sure the appropriate project is selected from the project dropdown.
+2. Click `Create Role` and use the following settings to create a new custom role for running metadata-fetching jobs and getting job information:
+    - Enter a role title, e.g. `Metaphor Job`.
+    - Enter a description, e.g. `Metadata collection job role for metaphor app`.
+    - Choose role stage `General Availability`.
+    - Click `ADD PERMISSIONS` and add `bigquery.config.get`, `bigquery.jobs.create`, `bigquery.jobs.get`.
+    - Click `CREATE` to create the custom role.
+3. Go to [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) in Google Cloud Console. Make sure the appropriate project is selected from the project dropdown.
+4. Click `Create Service Account` and use the following settings to create a new account:
     - Enter a service account name, e.g., `metaphor-bigquery`.
     - Enter a description, e.g. `Metadata collection for Metaphor app`
     - Click `CREATE AND CONTINUE`.
-    - Select `BigQuery Metadata Viewer` and `BigQuery Job User` as the roles and click `CONTINUE`.
+    - Select `BigQuery Metadata Viewer`, `Log Viewer` and `Metaphor Job` as the roles and click `CONTINUE`.
     - Click `DONE` to complete the process as there's no need to grant user access to the service account.
 
 Once the service account is created, you need to create a service account key for authentication:
