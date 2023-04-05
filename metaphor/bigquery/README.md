@@ -11,15 +11,36 @@ We recommend creating a dedicated GCP service account with limited permissions f
     - Enter a role title, e.g. `Metaphor Job`.
     - Enter a description, e.g. `Metadata collection job role for metaphor app`.
     - Choose role stage `General Availability`.
-    - Click `ADD PERMISSIONS` and add: `bigquery.config.get`, `bigquery.jobs.create`, `bigquery.jobs.get`, `logging.logEntries.download`, `logging.logEntries.list`, `logging.views.access`, `logging.views.listLogs`.
+    - Click `ADD PERMISSIONS` and add: `bigquery.config.get`, `bigquery.jobs.create`, `bigquery.jobs.get`.
     - Click `CREATE` to create the custom role.
 3. Go to [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) in Google Cloud Console. Make sure the appropriate project is selected from the project dropdown.
 4. Click `Create Service Account` and use the following settings to create a new account:
     - Enter a service account name, e.g., `metaphor-bigquery`.
     - Enter a description, e.g. `Metadata collection for Metaphor app`
     - Click `CREATE AND CONTINUE`.
-    - Select `BigQuery Metadata Viewer` and `Metaphor Job` as the roles and click `CONTINUE`.
+    - Select `BigQuery Metadata Viewer`, `Private Logs Viewer` and `Metaphor Job` as the roles and click `CONTINUE`.
     - Click `DONE` to complete the process as there's no need to grant user access to the service account.
+
+> Alternatively, if one prefer to avoid predefined roles and use custom role only, here is the complete list of permissions needed:
+> - bigquery.config.get
+> - bigquery.datasets.get
+> - bigquery.datasets.getIamPolicy
+> - bigquery.jobs.create
+> - bigquery.jobs.get
+> - bigquery.datasets.get
+> - bigquery.datasets.getIamPolicy
+> - bigquery.models.getMetadata
+> - bigquery.models.list
+> - bigquery.routines.get
+> - bigquery.routines.list
+> - bigquery.tables.get
+> - bigquery.tables.getIamPolicy
+> - bigquery.tables.list
+> - logging.logEntries.list
+> - logging.logs.list
+> - logging.privateLogEntries.list
+> - resourcemanager.projects.get
+
 
 Once the service account is created, you need to create a service account key for authentication:
 
