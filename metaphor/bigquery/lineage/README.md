@@ -4,16 +4,7 @@ This connector extracts BigQuery lineage information from a Google cloud project
 
 ## Setup
 
-Create a [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) based on the [Setup](../README.md#Setup) guide for the general BigQuery connector. You'll need to grant additional permissions to the account to view the [audit log](https://cloud.google.com/logging/docs/audit/services). You can add the `Private Logs Viewers` role to your service account or add the following permissions to the custom IAM role your service account bind with:
-
-```text
-logging.logEntries.list
-logging.logs.list
-logging.logServiceIndexes.list
-logging.logServices.list
-logging.privateLogEntries.list
-resourcemanager.projects.get
-```
+Create a [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) based on the [Setup](../README.md#Setup) guide for the general BigQuery connector.
 
 See [Access Control](https://cloud.google.com/logging/docs/access-control#console_permissions) for more information.
 
