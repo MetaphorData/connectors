@@ -294,7 +294,12 @@ class BigQueryExtractor(BaseExtractor):
         if match:
             project = match.group(1)
             job_id = match.group(2)
-            job = client.get_job(job_id, project)
+
+            try:
+                job = client.get_job(job_id, project)
+            except Exception as e:
+                logger.warning(f"Failed to get job information: {e}")
+                return None
 
             if isinstance(job, bigquery.QueryJob):
                 return job.query
@@ -340,7 +345,7 @@ class BigQueryExtractor(BaseExtractor):
             and job_change.query_truncated
             and self._fetch_job_query_if_truncated
         ):
-            query = self._fetch_job_query(client, job_change.job_name)
+            query = self._fetch_job_query(client, job_change.job_name) or query
 
         elapsed_time = (
             (job_change.end_time - job_change.start_time).total_seconds()
