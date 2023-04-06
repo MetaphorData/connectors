@@ -35,7 +35,7 @@ tenant_id: <tenant_id>  # The Power BI tenant ID
 
 client_id: <client_id>  # The Azure Application client id
 
-secret: <secret>  # The client secret
+secret: <secret>  # The client secret value (not secret ID)
 
 output:
   file:
