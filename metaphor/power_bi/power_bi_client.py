@@ -134,6 +134,11 @@ class WorkspaceInfo(BaseModel):
     dashboards: List[WorkspaceInfoDashboard] = []
 
 
+class AccessTokenError(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(f"Failed to acquire access token: {message}")
+
+
 class AuthenticationError(Exception):
     def __init__(self, body) -> None:
         super().__init__(
@@ -177,7 +182,11 @@ class PowerBIClient:
             )
             token = app.acquire_token_for_client(scopes=self.SCOPES)
 
-        return f"Bearer {token['access_token']}"
+        access_token = token.get("access_token")
+        if access_token is None:
+            raise AccessTokenError(token.get("error_description", "unknown error"))
+
+        return f"Bearer {access_token}"
 
     def get_groups(self) -> List[PowerBIWorkspace]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/groups-get-groups-as-admin
