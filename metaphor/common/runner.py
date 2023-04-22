@@ -6,7 +6,7 @@ from metaphor.common.api_sink import ApiSink, ApiSinkConfig
 from metaphor.common.event_util import ENTITY_TYPES, EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig
 from metaphor.common.logger import get_logger
-from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Platform, Status
+from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Platform, RunStatus
 from metaphor.models.metadata_change_event import MetadataChangeEvent
 
 logger = get_logger()
@@ -45,7 +45,7 @@ def run_connector(
     start_time = datetime.now()
     logger.info(f"Starting running {name} at {start_time}")
 
-    run_status = Status.SUCCESS
+    run_status = RunStatus.SUCCESS
     error_message = None
     stacktrace = None
 
@@ -53,7 +53,7 @@ def run_connector(
     try:
         entities = connector_func()
     except Exception as ex:
-        run_status = Status.FAILURE
+        run_status = RunStatus.FAILURE
         error_message = str(ex)
         stacktrace = traceback.format_exc()
         logger.exception(ex)

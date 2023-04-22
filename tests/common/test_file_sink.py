@@ -8,7 +8,7 @@ from freezegun import freeze_time
 from metaphor.common.event_util import EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig
 from metaphor.common.logger import add_debug_file
-from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Status
+from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, RunStatus
 from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Person,
@@ -63,7 +63,7 @@ def test_sink_metadata(test_root_dir):
         description="bar",
         start_time=datetime.now(),
         end_time=datetime.now(),
-        status=Status.SUCCESS,
+        status=RunStatus.SUCCESS,
         entity_count=1.0,
     )
 
