@@ -188,6 +188,7 @@ class ThoughtSpot:
         obj = ThoughtSpot._fetch_object_detail(
             client.metadata, ids, GetObjectDetailTypeEnum.CONNECTION
         )
+        json_dump_to_debug_file(obj, "connection.json")
         return parse_obj_as(List[ConnectionMetadata], obj)
 
     @classmethod
@@ -202,6 +203,7 @@ class ThoughtSpot:
         logger.info(f"{mtype} ids: {ids}")
 
         obj = ThoughtSpot._fetch_object_detail(client.metadata, ids, detail_type)
+        json_dump_to_debug_file(obj, f"{str(mtype).lower()}.json")
 
         # Because mypy can't handle dynamic type variables properly, we skip type-checking here.
         return parse_obj_as(List[target_type], obj)  # type: ignore
@@ -244,7 +246,6 @@ class ThoughtSpot:
             if "storables" in response:
                 res.extend(response["storables"])
 
-        json_dump_to_debug_file(res, f"{str(object_type).lower()}.json")
         return res
 
     @staticmethod
