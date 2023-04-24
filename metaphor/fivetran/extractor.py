@@ -1,3 +1,4 @@
+import json
 from typing import Collection, Dict, List, Optional, Tuple, Type
 
 from requests.auth import HTTPBasicAuth
@@ -30,6 +31,8 @@ from metaphor.models.metadata_change_event import (
     DatasetUpstream,
     EntityType,
     FieldMapping,
+    FiveTranConnector,
+    FiveTranConnectorStatus,
     SourceField,
 )
 
@@ -185,6 +188,18 @@ class FivetranExtractor(BaseExtractor):
                     )
                 )
                 dataset.upstream.field_mappings.append(field_mapping)
+
+            dataset.upstream.five_tran_connector = FiveTranConnector(
+                status=FiveTranConnectorStatus(
+                    setup_state=connector.status.setup_state,
+                    update_state=connector.status.update_state,
+                    sync_state=connector.status.sync_state,
+                ),
+                config=json.dumps(connector.config),
+                created_at=connector.created_at,
+                paused=connector.paused,
+                succeeded_at=connector.succeeded_at,
+            )
 
             self._datasets[destination_dataset_name] = dataset
 
