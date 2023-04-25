@@ -31,7 +31,7 @@
     "entityType": "DATASET",
     "logicalId": {
       "account": "dest_account",
-      "name": "fivetran.schema.table",
+      "name": "fivetran.snowflake_db_schema.table",
       "platform": "SNOWFLAKE"
     },
     "upstream": {
@@ -42,11 +42,11 @@
             {
               "dataset": {
                 "account": "source_account",
-                "name": "source_db.snowflake_db_schema.table",
+                "name": "source_db.schema.table",
                 "platform": "SNOWFLAKE"
               },
               "field": "col1",
-              "sourceEntityId": "DATASET~3051E80B543AB59410F255A7A2121D12"
+              "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
             }
           ]
         },
@@ -56,11 +56,11 @@
             {
               "dataset": {
                 "account": "source_account",
-                "name": "source_db.snowflake_db_schema.table",
+                "name": "source_db.schema.table",
                 "platform": "SNOWFLAKE"
               },
               "field": "col2",
-              "sourceEntityId": "DATASET~3051E80B543AB59410F255A7A2121D12"
+              "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
             }
           ]
         }
@@ -83,7 +83,7 @@
         "succeededAt": "2023-04-19T08:56:03.467000+00:00"
       },
       "sourceDatasets": [
-        "DATASET~3051E80B543AB59410F255A7A2121D12"
+        "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
       ]
     }
   }

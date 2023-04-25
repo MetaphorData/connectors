@@ -218,7 +218,7 @@ class FivetranExtractor(BaseExtractor):
         connector: ConnectorPayload,
     ) -> DatasetLogicalID:
         source_dataset_name = dataset_normalized_name(
-            source_db, schema.name_in_destination, table.name_in_destination
+            source_db, schema.name_in_source, table.name_in_source
         )
         source_platform = (
             SOURCE_PLATFORM_MAPPING.get(connector.service) or DataPlatform.EXTERNAL
@@ -247,7 +247,7 @@ class FivetranExtractor(BaseExtractor):
     ):
         db = self.get_database_name_from_destination(destination)
         destination_dataset_name = dataset_normalized_name(
-            db, schema.name_in_source, table.name_in_source
+            db, schema.name_in_destination, table.name_in_destination
         )
         destination_platform = PLATFORM_MAPPING.get(destination.service)
 
