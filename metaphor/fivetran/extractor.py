@@ -1,5 +1,7 @@
 import json
-from typing import Collection, Dict, List, Optional, Tuple, Type
+from dataclasses import asdict, dataclass
+from functools import lru_cache
+from typing import Collection, Dict, List, Optional, Type
 
 from requests.auth import HTTPBasicAuth
 
@@ -22,6 +24,7 @@ from metaphor.fivetran.models import (
     MetadataColumnPayload,
     MetadataSchemaPayload,
     MetadataTablePayload,
+    SourceMetadataPayload,
 )
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -79,6 +82,30 @@ SOURCE_PLATFORM_MAPPING = {
 }
 
 
+@dataclass
+class ColumnMetadata:
+    name_in_source: str
+    name_in_destination: str
+    type_in_source: str
+    type_in_destination: str
+    is_primary_key: bool
+    is_foreign_key: bool
+
+
+@dataclass
+class TableMetadata:
+    name_in_source: str
+    name_in_destination: str
+    columns: List[ColumnMetadata]
+
+
+@dataclass
+class SchemaMetadata:
+    name_in_source: str
+    name_in_destination: str
+    tables: List[TableMetadata]
+
+
 class FivetranExtractor(BaseExtractor):
     """Fivetran metadata extractor"""
 
@@ -92,6 +119,7 @@ class FivetranExtractor(BaseExtractor):
         self._auth = HTTPBasicAuth(username=config.api_key, password=config.api_secret)
         self._destinations: Dict[str, DestinationPayload] = {}
         self._datasets: Dict[str, Dataset] = {}
+        self._source_metadata: Dict[str, SourceMetadataPayload] = {}
         self._base_url = "https://api.fivetran.com/v1"
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -99,84 +127,151 @@ class FivetranExtractor(BaseExtractor):
 
         self.get_destinations()
         connectors = self.get_connectors()
+        for source_metadata in self.get_all_source_metadata():
+            self._source_metadata[source_metadata.id] = source_metadata
 
         for connector in connectors:
             schemas = self.get_metadata_schemas(connector.id)
             tables = self.get_metadata_tables(connector.id)
             columns = self.get_metadata_columns(connector.id)
 
-            self.map_to_datasets(connector, schemas, tables, columns)
+            connector_schema_metadata = self.process_metadata(schemas, tables, columns)
+
+            self.map_to_datasets(connector, connector_schema_metadata)
 
         return self._datasets.values()
 
-    def map_to_datasets(
+    def process_metadata(
         self,
-        connector: ConnectorPayload,
         schemas: List[MetadataSchemaPayload],
         tables: List[MetadataTablePayload],
         columns: List[MetadataColumnPayload],
+    ) -> List[SchemaMetadata]:
+        metadata = []
+
+        schema_map = {}
+        for schema in schemas:
+            schema_data = SchemaMetadata(
+                name_in_source=schema.name_in_source,
+                name_in_destination=schema.name_in_destination,
+                tables=[],
+            )
+            schema_map[schema.id] = schema_data
+            metadata.append(schema_data)
+
+        table_map = {}
+        for table in tables:
+            parent_schema: Optional[SchemaMetadata] = schema_map.get(table.parent_id)
+            if parent_schema is None:
+                continue
+
+            table_data = TableMetadata(
+                name_in_source=table.name_in_source,
+                name_in_destination=table.name_in_destination,
+                columns=[],
+            )
+
+            parent_schema.tables.append(table_data)
+            table_map[table.id] = table_data
+
+        for column in columns:
+            parent_table: Optional[TableMetadata] = table_map.get(column.parent_id)
+            if parent_table is None:
+                continue
+
+            column_data = ColumnMetadata(
+                name_in_source=column.name_in_source,
+                name_in_destination=column.name_in_destination,
+                type_in_source=column.type_in_source,
+                type_in_destination=column.type_in_destination,
+                is_primary_key=column.is_primary_key,
+                is_foreign_key=column.is_foreign_key,
+            )
+            parent_table.columns.append(column_data)
+
+        return metadata
+
+    def map_to_datasets(
+        self, connector: ConnectorPayload, schemas: List[SchemaMetadata]
     ):
         destination = self._destinations.get(connector.group_id)
         assert destination, "destination for connector should exist"
 
-        source_db, destination_db = self.get_database_name_from_connector(connector)
-        schema_dict: Dict[str, MetadataSchemaPayload] = {}
-        for item in schemas:
-            schema_dict[item.id] = item
+        serialized_schema_metadata = json.dumps([asdict(s) for s in schemas])
 
-        column_dict: Dict[str, List[MetadataColumnPayload]] = {}
-        for column in columns:
-            column_dict.setdefault(column.parent_id, []).append(column)
+        for schema in schemas:
+            for table in schema.tables:
+                self._init_dataset(
+                    destination=destination,
+                    schema=schema,
+                    table=table,
+                    connector=connector,
+                    serialized_schema_metadata=serialized_schema_metadata,
+                )
 
-        for table in tables:
-            schema: Optional[MetadataSchemaPayload] = schema_dict.get(table.parent_id)
-            if schema is None:
-                continue
+    def _get_source_logical_id(
+        self,
+        source_db,
+        schema: SchemaMetadata,
+        table: TableMetadata,
+        connector: ConnectorPayload,
+    ) -> DatasetLogicalID:
+        source_dataset_name = dataset_normalized_name(
+            source_db, schema.name_in_destination, table.name_in_destination
+        )
+        source_platform = (
+            SOURCE_PLATFORM_MAPPING.get(connector.service) or DataPlatform.EXTERNAL
+        )
+        source_account = (
+            self.get_snowflake_account_from_config(connector.config)
+            if source_platform == DataPlatform.SNOWFLAKE
+            else None
+        )
 
-            source_dataset_name = dataset_normalized_name(
-                source_db, schema.name_in_destination, table.name_in_destination
-            )
-            source_platform = (
-                SOURCE_PLATFORM_MAPPING.get(connector.service) or DataPlatform.EXTERNAL
-            )
-            source_account = (
-                self.get_snowflake_account_from_config(connector.config)
-                if source_platform == DataPlatform.SNOWFLAKE
-                else connector.id
-                if source_platform == DataPlatform.EXTERNAL
-                else None
-            )
+        source_logical_id = DatasetLogicalID(
+            name=dataset_normalized_name(table=source_dataset_name),
+            platform=source_platform,
+            account=source_account,
+        )
 
-            source_logical_id = DatasetLogicalID(
-                name=dataset_normalized_name(table=source_dataset_name),
-                platform=source_platform,
-                account=source_account,
+        return source_logical_id
+
+    def _init_dataset(
+        self,
+        schema: SchemaMetadata,
+        table: TableMetadata,
+        destination: DestinationPayload,
+        connector: ConnectorPayload,
+        serialized_schema_metadata: str,
+    ):
+        db = self.get_database_name_from_destination(destination)
+        destination_dataset_name = dataset_normalized_name(
+            db, schema.name_in_source, table.name_in_source
+        )
+        destination_platform = PLATFORM_MAPPING.get(destination.service)
+
+        dataset = Dataset(
+            entity_type=EntityType.DATASET,
+            logical_id=DatasetLogicalID(
+                name=destination_dataset_name,
+                platform=destination_platform,
+                account=self.get_snowflake_account_from_config(destination.config),
+            ),
+            upstream=DatasetUpstream(source_datasets=[], field_mappings=[]),
+        )
+
+        source_db = self.get_database_name_from_connector(connector)
+        if connector.service in SOURCE_PLATFORM_MAPPING:
+            source_logical_id = self._get_source_logical_id(
+                source_db, schema, table, connector
             )
             source_entity_id = str(
                 to_dataset_entity_id_from_logical_id(source_logical_id)
             )
 
-            destination_dataset_name = dataset_normalized_name(
-                destination_db, schema.name_in_source, table.name_in_source
-            )
-            destination_platform = PLATFORM_MAPPING.get(destination.service)
-            destination_account = self.get_snowflake_account_from_config(
-                destination.config
-            )
+            dataset.upstream.source_datasets = [source_entity_id]
 
-            dataset = Dataset(
-                entity_type=EntityType.DATASET,
-                logical_id=DatasetLogicalID(
-                    name=destination_dataset_name,
-                    platform=destination_platform,
-                    account=destination_account,
-                ),
-            )
-
-            dataset.upstream = DatasetUpstream(
-                source_datasets=[source_entity_id], field_mappings=[]
-            )
-            for column in column_dict.get(table.id, []):
+            for column in table.columns:
                 field_mapping = FieldMapping(
                     destination=column.name_in_destination, sources=[]
                 )
@@ -189,19 +284,15 @@ class FivetranExtractor(BaseExtractor):
                 )
                 dataset.upstream.field_mappings.append(field_mapping)
 
-            dataset.upstream.five_tran_connector = FiveTranConnector(
-                status=FiveTranConnectorStatus(
-                    setup_state=connector.status.setup_state,
-                    update_state=connector.status.update_state,
-                    sync_state=connector.status.sync_state,
-                ),
-                config=json.dumps(connector.config),
-                created_at=connector.created_at,
-                paused=connector.paused,
-                succeeded_at=connector.succeeded_at,
-            )
+        source_metadata = self._source_metadata.get(connector.service)
+        connector_type_name = source_metadata.name if source_metadata else None
+        dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
+            connector, connector_type_name, serialized_schema_metadata
+        )
 
-            self._datasets[destination_dataset_name] = dataset
+        self._datasets[destination_dataset_name] = dataset
+
+        return dataset
 
     def get_snowflake_account_from_config(self, config: dict) -> Optional[str]:
         host = config.get("host")
@@ -212,22 +303,18 @@ class FivetranExtractor(BaseExtractor):
         # remove snowflakecomputing.com parts
         return ".".join(host.split(".")[:-2])
 
+    def get_database_name_from_destination(
+        self, destination: DestinationPayload
+    ) -> Optional[str]:
+        if destination.service == "big_query":
+            return destination.config.get("project_id")
+        return destination.config.get("database")
+
     def get_database_name_from_connector(
         self, connector: ConnectorPayload
-    ) -> Tuple[Optional[str], Optional[str]]:
-        def get_database_name_from_destination():
-            destination = self._destinations.get(connector.group_id)
-            if destination is None or not isinstance(destination.config, dict):
-                return None
-
-            if destination.service == "big_query":
-                return destination.config.get("project_id")
-            return destination.config.get("database")
-
+    ) -> Optional[str]:
         config = connector.config
-        source_db = config.get("database") if isinstance(config, dict) else None
-
-        return source_db, get_database_name_from_destination()
+        return config.get("database") if isinstance(config, dict) else None
 
     def get_group_ids(self) -> List[str]:
         groups: List[GroupPayload] = self._get_all(
@@ -297,6 +384,12 @@ class FivetranExtractor(BaseExtractor):
             type_=MetadataColumnPayload,
         )
 
+    def get_all_source_metadata(self):
+        return self._get_all(
+            url=f"{self._base_url}/metadata/connectors",
+            type_=SourceMetadataPayload,
+        )
+
     def _get_all(self, url: str, type_: Type[DataT]) -> List[DataT]:
         result = []
         next_cursor = None
@@ -318,3 +411,30 @@ class FivetranExtractor(BaseExtractor):
     def _call_get(self, url: str, **kwargs):
         headers = {"Accept": "application/json;version=2"}
         return get_request(url=url, headers=headers, auth=self._auth, **kwargs)
+
+
+@lru_cache()
+def populate_fivetran_connector_detail(
+    connector: ConnectorPayload,
+    connector_type_name: str,
+    serialized_schema_metadata: str,
+) -> FiveTranConnector:
+    url = f"https://fivetran.com/dashboard/connectors/{connector.id}"
+
+    return FiveTranConnector(
+        status=FiveTranConnectorStatus(
+            setup_state=connector.status.setup_state,
+            update_state=connector.status.update_state,
+            sync_state=connector.status.sync_state,
+        ),
+        config=json.dumps(connector.config),
+        created_at=connector.created_at,
+        paused=connector.paused,
+        succeeded_at=connector.succeeded_at,
+        connector_url=url,
+        connector_name=connector.schema_,
+        connector_type_name=connector_type_name,
+        connector_type_id=connector.service,
+        connector_logs_url=f"{url}/logs",
+        schema_metadata=serialized_schema_metadata,
+    )

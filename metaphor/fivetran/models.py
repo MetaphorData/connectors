@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, Generic, List, Optional, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic.generics import GenericModel
 
 DataT = TypeVar("DataT")
@@ -74,6 +74,7 @@ class ConnectorPayload(BaseModel):
     group_id: str
     service: str
     paused: bool
+    schema_: str = Field(alias="schema")
     succeeded_at: Optional[datetime.datetime]
     sync_frequency: int
     connected_by: str
@@ -82,3 +83,14 @@ class ConnectorPayload(BaseModel):
     failed_at: Optional[datetime.datetime]
     status: ConnectorStatus
     config: Any
+
+    def __hash__(self):
+        return hash(self.id)
+
+
+class SourceMetadataPayload(BaseModel):
+    id: str
+    name: str
+    type: str
+    description: Optional[str]
+    icons: Optional[List[str]]
