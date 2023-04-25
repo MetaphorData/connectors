@@ -96,4 +96,8 @@ async def test_extractor(test_root_dir):
         extractor = FivetranExtractor(dummy_config())
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
+        import json
+
+        print(json.dumps(events))
+
     assert events == load_json(f"{test_root_dir}/fivetran/expected.json")

@@ -33,6 +33,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetUpstream,
     EntityType,
+    EntityUpstream,
     FieldMapping,
     FiveTranConnector,
     FiveTranConnectorStatus,
@@ -289,6 +290,11 @@ class FivetranExtractor(BaseExtractor):
         connector_type_name = source_metadata.name if source_metadata else None
         dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
             connector, connector_type_name, serialized_schema_metadata
+        )
+        dataset.entity_upstream = EntityUpstream(
+            field_mappings=dataset.upstream.field_mappings,
+            five_tran_connector=dataset.upstream.five_tran_connector,
+            source_entities=dataset.upstream.source_datasets,
         )
 
         self._datasets[destination_dataset_name] = dataset
