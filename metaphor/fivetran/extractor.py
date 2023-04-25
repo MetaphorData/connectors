@@ -125,10 +125,11 @@ class FivetranExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Fivetran")
 
-        self.get_destinations()
-        connectors = self.get_connectors()
         for source_metadata in self.get_all_source_metadata():
             self._source_metadata[source_metadata.id] = source_metadata
+
+        self.get_destinations()
+        connectors = self.get_connectors()
 
         for connector in connectors:
             schemas = self.get_metadata_schemas(connector.id)

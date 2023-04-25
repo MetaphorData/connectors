@@ -1,0 +1,13 @@
+{
+  "code": "Success",
+  "data": {
+    "items": [
+      {
+        "id": "OTI2OTU2OQ",
+        "parent_id": "c25vd2ZsYWtlX2RiX3JpZGVfc2hhcmU",
+        "name_in_source": "table",
+        "name_in_destination": "table"
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "code": "Success",
+  "data": {
+    "items": [
+      {
+        "id": "Z29vZ2xlX2RyaXZl",
+        "name_in_source": "google_drive",
+        "name_in_destination": "google_drive"
+      }
+    ]
+  }
+}

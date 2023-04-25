@@ -1,0 +1,37 @@
+{
+  "code": "Success",
+  "data": {
+    "items": [
+      {
+        "id": "MzM3NDY3ODA4",
+        "parent_id": "OTQyMTc3NQ",
+        "name_in_source": "_line",
+        "name_in_destination": "_line",
+        "type_in_source": "Long",
+        "type_in_destination": "INTEGER",
+        "is_primary_key": true,
+        "is_foreign_key": false
+      },
+      {
+        "id": "MzM3NDY3ODA5",
+        "parent_id": "OTQyMTc3NQ",
+        "name_in_source": "name",
+        "name_in_destination": "name",
+        "type_in_source": "Unknown",
+        "type_in_destination": "STRING",
+        "is_primary_key": false,
+        "is_foreign_key": false
+      },
+      {
+        "id": "MzM3NDY3ODEw",
+        "parent_id": "OTQyMTc3NQ",
+        "name_in_source": "user",
+        "name_in_destination": "user",
+        "type_in_source": "Unknown",
+        "type_in_destination": "STRING",
+        "is_primary_key": false,
+        "is_foreign_key": false
+      }
+    ]
+  }
+}

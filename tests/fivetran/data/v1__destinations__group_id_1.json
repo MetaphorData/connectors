@@ -1,0 +1,23 @@
+{
+  "code": "Success",
+  "data": {
+    "id": "group_id_1",
+    "group_id": "group_id_1",
+    "service": "snowflake",
+    "region": "AWS_US_EAST_1",
+    "time_zone_offset": "-8",
+    "setup_status": "connected",
+    "config": {
+      "snowflake_region": "us_west_2",
+      "database": "fivetran",
+      "password": "******",
+      "role": "SYSADMIN",
+      "connection_type": "Directly",
+      "port": "443",
+      "auth": "PASSWORD",
+      "snowflake_cloud": "AWS",
+      "host": "dest_account.snowflakecomputing.com",
+      "user": "user"
+    }
+  }
+}

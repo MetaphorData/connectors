@@ -1,0 +1,90 @@
+[
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "account": "dest_account",
+      "name": "fivetran.google_drive.dataset_foo_sheet_1",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
+      "fieldMappings": [],
+      "fiveTranConnector": {
+        "config": "{\"service_account\": \"service_account\", \"is_single_table_mode\": false, \"folder_id\": \"folder_url\"}",
+        "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_1/logs",
+        "connectorName": "google_drive",
+        "connectorTypeId": "google_drive",
+        "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_1",
+        "createdAt": "2023-04-18T06:28:41.339405+00:00",
+        "paused": false,
+        "schemaMetadata": "[{\"name_in_source\": \"google_drive\", \"name_in_destination\": \"google_drive\", \"tables\": [{\"name_in_source\": \"dataset_foo_sheet_1\", \"name_in_destination\": \"dataset_foo_sheet_1\", \"columns\": [{\"name_in_source\": \"_line\", \"name_in_destination\": \"_line\", \"type_in_source\": \"Long\", \"type_in_destination\": \"INTEGER\", \"is_primary_key\": true, \"is_foreign_key\": false}, {\"name_in_source\": \"name\", \"name_in_destination\": \"name\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"user\", \"name_in_destination\": \"user\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+        "status": {
+          "setupState": "connected",
+          "syncState": "scheduled",
+          "updateState": "on_schedule"
+        },
+        "succeededAt": "2023-04-25T08:29:28.373000+00:00"
+      },
+      "sourceDatasets": []
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "account": "dest_account",
+      "name": "fivetran.schema.table",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "source_account",
+                "name": "source_db.snowflake_db_schema.table",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~3051E80B543AB59410F255A7A2121D12"
+            }
+          ]
+        },
+        {
+          "destination": "col2",
+          "sources": [
+            {
+              "dataset": {
+                "account": "source_account",
+                "name": "source_db.snowflake_db_schema.table",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~3051E80B543AB59410F255A7A2121D12"
+            }
+          ]
+        }
+      ],
+      "fiveTranConnector": {
+        "config": "{\"database\": \"source_db\", \"password\": \"******\", \"is_private_key_encrypted\": false, \"port\": 443, \"auth\": \"PASSWORD\", \"update_method\": \"TELEPORT\", \"host\": \"source_account.snowflakecomputing.com\", \"user\": \"user\"}",
+        "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_2/logs",
+        "connectorName": "snowflake_db",
+        "connectorTypeId": "snowflake_db",
+        "connectorTypeName": "Snowflake",
+        "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
+        "createdAt": "2023-04-10T18:02:35.655597+00:00",
+        "paused": true,
+        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+        "status": {
+          "setupState": "connected",
+          "syncState": "paused",
+          "updateState": "on_schedule"
+        },
+        "succeededAt": "2023-04-19T08:56:03.467000+00:00"
+      },
+      "sourceDatasets": [
+        "DATASET~3051E80B543AB59410F255A7A2121D12"
+      ]
+    }
+  }
+]

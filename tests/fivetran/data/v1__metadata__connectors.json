@@ -1,0 +1,13 @@
+{
+  "code": "Success",
+  "data": {
+    "items": [
+      {
+        "id": "snowflake_db",
+        "name": "Snowflake",
+        "type": "Database",
+        "description": "desc"
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "code": "Success",
+  "data": {
+    "id": "connector_1",
+    "group_id": "group_id_1",
+    "service": "google_drive",
+    "service_version": 0,
+    "schema": "google_drive",
+    "connected_by": "user",
+    "created_at": "2023-04-18T06:28:41.339405Z",
+    "succeeded_at": "2023-04-25T08:29:28.373Z",
+    "failed_at": null,
+    "paused": false,
+    "pause_after_trial": false,
+    "sync_frequency": 1440,
+    "schedule_type": "auto",
+    "status": {
+      "setup_state": "connected",
+      "sync_state": "scheduled",
+      "update_state": "on_schedule",
+      "is_historical_sync": false,
+      "tasks": [],
+      "warnings": []
+    },
+    "config": {
+      "service_account": "service_account",
+      "is_single_table_mode": false,
+      "folder_id": "folder_url"
+    }
+  }
+}

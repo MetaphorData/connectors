@@ -1,0 +1,12 @@
+{
+  "code": "Success",
+  "data": {
+    "items": [
+      {
+        "id": "c25vd2ZsYWtlX2RiX3JpZGVfc2hhcmU",
+        "name_in_source": "schema",
+        "name_in_destination": "snowflake_db_schema"
+      }
+    ]
+  }
+}
