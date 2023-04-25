@@ -44,5 +44,4 @@ def get_request(
         debug_files.append(out_file)
         return parse_obj_as(type_, transform_response(result))
     else:
-        print(result.request.headers)
         raise ApiError(url, result.status_code, result.content.decode())
