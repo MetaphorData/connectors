@@ -207,6 +207,12 @@ class ManifestParser:
         )
         logger.info(f"parsing manifest.json {schema_version} ...")
 
+        # It's possible for dbt to generate "docs block" in the manifest that doesn't
+        # conform to the JSON schema. Specifically, the "name" field can be None in
+        # some cases. Since the field is not actually used, it's safe to clear it out to
+        # avoid hitting any validation issues.
+        manifest_json["docs"] = {}
+
         dbt_manifest_class = dbt_version_manifest_class_map.get(schema_version)
         if dbt_manifest_class is None:
             raise ValueError(f"unsupported manifest schema '{schema_version}'")
