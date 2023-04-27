@@ -1,0 +1,27 @@
+{
+  "code": "Success",
+  "data": {
+    "items": [
+      {
+        "id": "MzI4NDE5MTg0",
+        "parent_id": "OTI2OTU2OQ",
+        "name_in_source": "col1",
+        "name_in_destination": "col1",
+        "type_in_source": "BigDecimal",
+        "type_in_destination": "DECIMAL(38, 6)",
+        "is_primary_key": false,
+        "is_foreign_key": false
+      },
+      {
+        "id": "MzI4NDE5MTg0",
+        "parent_id": "OTI2OTU2OQ",
+        "name_in_source": "col2",
+        "name_in_destination": "col2",
+        "type_in_source": "BigDecimal",
+        "type_in_destination": "DECIMAL(38, 6)",
+        "is_primary_key": false,
+        "is_foreign_key": false
+      }
+    ]
+  }
+}

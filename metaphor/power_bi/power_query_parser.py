@@ -54,11 +54,12 @@ class PowerQueryParser:
             platform = DataPlatform.SNOWFLAKE
             account_pattern = re.compile(r'Snowflake.Databases\("([\w\-\.]+)"')
 
-            # remove trailing snowflakecomputing.com
             match = account_pattern.search(lines[1])
             assert match, "Can't parse Snowflake account from power query expression"
 
+            # remove trailing snowflakecomputing.com
             account = ".".join(match.group(1).split(".")[:-2])
+
             db = get_field(lines[2])
             schema = get_field(lines[3])
             table = get_field(lines[4])

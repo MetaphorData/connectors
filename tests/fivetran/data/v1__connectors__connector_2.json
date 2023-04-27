@@ -1,0 +1,36 @@
+{
+  "code": "Success",
+  "data": {
+    "id": "connector_2",
+    "group_id": "group_id_1",
+    "service": "snowflake_db",
+    "service_version": 0,
+    "schema": "snowflake_db",
+    "connected_by": "user",
+    "created_at": "2023-04-10T18:02:35.655597Z",
+    "succeeded_at": "2023-04-19T08:56:03.467Z",
+    "failed_at": null,
+    "paused": true,
+    "pause_after_trial": false,
+    "sync_frequency": 1440,
+    "schedule_type": "auto",
+    "status": {
+      "setup_state": "connected",
+      "sync_state": "paused",
+      "update_state": "on_schedule",
+      "is_historical_sync": false,
+      "tasks": [],
+      "warnings": []
+    },
+    "config": {
+      "database": "source_db",
+      "password": "******",
+      "is_private_key_encrypted": false,
+      "port": 443,
+      "auth": "PASSWORD",
+      "update_method": "TELEPORT",
+      "host": "source_account.snowflakecomputing.com",
+      "user": "user"
+    }
+  }
+}
