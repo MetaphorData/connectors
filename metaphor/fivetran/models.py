@@ -94,3 +94,8 @@ class SourceMetadataPayload(BaseModel):
     type: str
     description: Optional[str]
     icons: Optional[List[str]]
+
+
+class UserPayload(BaseModel):
+    id: str
+    email: str

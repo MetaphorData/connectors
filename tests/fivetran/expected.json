@@ -10,6 +10,7 @@
         "connectorTypeId": "google_drive",
         "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_1",
         "createdAt": "2023-04-18T06:28:41.339405+00:00",
+        "creatorEmail": "user@foo.com",
         "paused": false,
         "schemaMetadata": "[{\"name_in_source\": \"google_drive\", \"name_in_destination\": \"google_drive\", \"tables\": [{\"name_in_source\": \"dataset_foo_sheet_1\", \"name_in_destination\": \"dataset_foo_sheet_1\", \"columns\": [{\"name_in_source\": \"_line\", \"name_in_destination\": \"_line\", \"type_in_source\": \"Long\", \"type_in_destination\": \"INTEGER\", \"is_primary_key\": true, \"is_foreign_key\": false}, {\"name_in_source\": \"name\", \"name_in_destination\": \"name\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"user\", \"name_in_destination\": \"user\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
         "status": {
@@ -17,7 +18,8 @@
           "syncState": "scheduled",
           "updateState": "on_schedule"
         },
-        "succeededAt": "2023-04-25T08:29:28.373000+00:00"
+        "succeededAt": "2023-04-25T08:29:28.373000+00:00",
+        "syncIntervalInMinute": 1440.0
       },
       "sourceEntities": []
     },
@@ -35,6 +37,7 @@
         "connectorTypeId": "google_drive",
         "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_1",
         "createdAt": "2023-04-18T06:28:41.339405+00:00",
+        "creatorEmail": "user@foo.com",
         "paused": false,
         "schemaMetadata": "[{\"name_in_source\": \"google_drive\", \"name_in_destination\": \"google_drive\", \"tables\": [{\"name_in_source\": \"dataset_foo_sheet_1\", \"name_in_destination\": \"dataset_foo_sheet_1\", \"columns\": [{\"name_in_source\": \"_line\", \"name_in_destination\": \"_line\", \"type_in_source\": \"Long\", \"type_in_destination\": \"INTEGER\", \"is_primary_key\": true, \"is_foreign_key\": false}, {\"name_in_source\": \"name\", \"name_in_destination\": \"name\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"user\", \"name_in_destination\": \"user\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
         "status": {
@@ -42,7 +45,8 @@
           "syncState": "scheduled",
           "updateState": "on_schedule"
         },
-        "succeededAt": "2023-04-25T08:29:28.373000+00:00"
+        "succeededAt": "2023-04-25T08:29:28.373000+00:00",
+        "syncIntervalInMinute": 1440.0
       },
       "sourceDatasets": []
     }
@@ -88,6 +92,7 @@
         "connectorTypeName": "Snowflake",
         "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
         "createdAt": "2023-04-10T18:02:35.655597+00:00",
+        "creatorEmail": "user@foo.com",
         "paused": true,
         "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
         "status": {
@@ -95,7 +100,8 @@
           "syncState": "paused",
           "updateState": "on_schedule"
         },
-        "succeededAt": "2023-04-19T08:56:03.467000+00:00"
+        "succeededAt": "2023-04-19T08:56:03.467000+00:00",
+        "syncIntervalInMinute": 1440.0
       },
       "sourceEntities": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
@@ -145,6 +151,7 @@
         "connectorTypeName": "Snowflake",
         "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
         "createdAt": "2023-04-10T18:02:35.655597+00:00",
+        "creatorEmail": "user@foo.com",
         "paused": true,
         "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
         "status": {
@@ -152,7 +159,8 @@
           "syncState": "paused",
           "updateState": "on_schedule"
         },
-        "succeededAt": "2023-04-19T08:56:03.467000+00:00"
+        "succeededAt": "2023-04-19T08:56:03.467000+00:00",
+        "syncIntervalInMinute": 1440.0
       },
       "sourceDatasets": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"

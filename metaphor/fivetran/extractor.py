@@ -25,6 +25,7 @@ from metaphor.fivetran.models import (
     MetadataSchemaPayload,
     MetadataTablePayload,
     SourceMetadataPayload,
+    UserPayload,
 )
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -121,6 +122,7 @@ class FivetranExtractor(BaseExtractor):
         self._destinations: Dict[str, DestinationPayload] = {}
         self._datasets: Dict[str, Dataset] = {}
         self._source_metadata: Dict[str, SourceMetadataPayload] = {}
+        self._users: Dict[str, str] = {}
         self._base_url = "https://api.fivetran.com/v1"
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -131,6 +133,7 @@ class FivetranExtractor(BaseExtractor):
 
         self.get_destinations()
         connectors = self.get_connectors()
+        self.get_users()
 
         for connector in connectors:
             schemas = self.get_metadata_schemas(connector.id)
@@ -288,8 +291,9 @@ class FivetranExtractor(BaseExtractor):
 
         source_metadata = self._source_metadata.get(connector.service)
         connector_type_name = source_metadata.name if source_metadata else None
+        creator_email = self._users.get(connector.connected_by)
         dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
-            connector, connector_type_name, serialized_schema_metadata
+            connector, connector_type_name, serialized_schema_metadata, creator_email
         )
         dataset.entity_upstream = EntityUpstream(
             field_mappings=dataset.upstream.field_mappings,
@@ -346,13 +350,18 @@ class FivetranExtractor(BaseExtractor):
         connectors = []
 
         for destination in self._destinations.values():
-            for connector in self.get_connector_in_group(destination.group_id):
+            for connector in self.get_connectors_in_group(destination.group_id):
                 connector_detail = self.get_connector_detail(connector.id)
                 if connector_detail is None:
                     continue
                 connectors.append(connector_detail)
 
         return connectors
+
+    def get_users(self):
+        for destination in self._destinations.values():
+            for user in self.get_users_in_group(destination.group_id):
+                self._users[user.id] = user.email
 
     def get_destination_info(self, group_id: str) -> Optional[DestinationPayload]:
         response: GenericResponse[DestinationPayload] = self._call_get(
@@ -368,9 +377,14 @@ class FivetranExtractor(BaseExtractor):
         )
         return response.data
 
-    def get_connector_in_group(self, group_id: str) -> List[ConnectorPayload]:
+    def get_connectors_in_group(self, group_id: str) -> List[ConnectorPayload]:
         return self._get_all(
             url=f"{self._base_url}/groups/{group_id}/connectors", type_=ConnectorPayload
+        )
+
+    def get_users_in_group(self, group_id: str) -> List[UserPayload]:
+        return self._get_all(
+            url=f"{self._base_url}/groups/{group_id}/users", type_=UserPayload
         )
 
     def get_metadata_schemas(self, connector_id: str):
@@ -425,6 +439,7 @@ def populate_fivetran_connector_detail(
     connector: ConnectorPayload,
     connector_type_name: str,
     serialized_schema_metadata: str,
+    creator_email: Optional[str],
 ) -> FiveTranConnector:
     url = f"https://fivetran.com/dashboard/connectors/{connector.id}"
 
@@ -444,4 +459,8 @@ def populate_fivetran_connector_detail(
         connector_type_id=connector.service,
         connector_logs_url=f"{url}/logs",
         schema_metadata=serialized_schema_metadata,
+        sync_interval_in_minute=float(connector.sync_frequency)
+        if connector.sync_frequency
+        else None,
+        creator_email=creator_email,
     )

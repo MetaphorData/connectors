@@ -63,6 +63,11 @@ async def test_extractor(test_root_dir):
             ),
             MockResponse(
                 load_json(
+                    f"{test_root_dir}/fivetran/data/v1__groups__group_id_1__users.json"
+                )
+            ),
+            MockResponse(
+                load_json(
                     f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_1__schemas.json"
                 )
             ),
@@ -95,9 +100,5 @@ async def test_extractor(test_root_dir):
 
         extractor = FivetranExtractor(dummy_config())
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-
-        import json
-
-        print(json.dumps(events))
 
     assert events == load_json(f"{test_root_dir}/fivetran/expected.json")
