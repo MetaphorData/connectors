@@ -6,7 +6,7 @@
     },
     "powerBIDataset": {
       "description": "This is a dataset",
-      "lastRefreshed": "2022-01-01T01:02:03+00:00",
+      "lastRefreshed": "2022-01-01T01:02:03.456000+00:00",
       "name": "Foo Dataset",
       "sourceDatasets": [
         "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"

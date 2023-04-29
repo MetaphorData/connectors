@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from typing import Collection, Dict, List, Optional
 from urllib import parse
 
+from dateutil.parser import isoparse
+
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import ENTITY_TYPES
@@ -338,9 +340,11 @@ class PowerBIExtractor(BaseExtractor):
         except StopIteration:
             return None
 
-        # Make time ISO-compliant by stripping off non-zero padded ms and "Z"
-        iso_time = ".".join(refresh.endTime.split(".")[0:-1])
-        return datetime.fromisoformat(iso_time).replace(tzinfo=timezone.utc)
+        try:
+            return isoparse(refresh.endTime).replace(tzinfo=timezone.utc)
+        except Exception:
+            logger.error(f"Failed to parse refresh time: {refresh.endTime}")
+            return None
 
     def _get_dashboard_id_from_url(self, url: str) -> Optional[str]:
         path = parse.urlparse(url).path
