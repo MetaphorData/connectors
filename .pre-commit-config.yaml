@@ -35,6 +35,7 @@ repos:
           - types-attrs
           - types-freezegun
           - types-requests
+          - types-python-dateutil
           - types-pytz
           - types-PyYAML
         args: [--explicit-package-bases]
