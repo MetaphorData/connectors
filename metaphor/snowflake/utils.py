@@ -98,8 +98,12 @@ def async_execute(
 
 
 def exclude_username_clause(excluded_usernames: Set[str]) -> str:
+    """
+    Excludes usernames from query history output
+    use "q" as "SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY" table alias
+    """
     return (
-        f"and USER_NAME NOT IN ({','.join(['%s'] * len(excluded_usernames))})"
+        f"and q.USER_NAME NOT IN ({','.join(['%s'] * len(excluded_usernames))})"
         if len(excluded_usernames) > 0
         else ""
     )

@@ -457,7 +457,7 @@ class SnowflakeExtractor(BaseExtractor):
                 f"""
                 SELECT QUERY_ID, USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED
-                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 WHERE EXECUTION_STATUS = 'SUCCESS'
                   AND START_TIME > %s AND START_TIME <= %s
                   {exclude_username_clause(self._query_log_excluded_usernames)}
