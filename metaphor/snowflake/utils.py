@@ -52,6 +52,7 @@ def async_query(conn: SnowflakeConnection, query: QueryWithParam) -> SnowflakeCu
         cursor.execute_async(query.query)
 
     query_id = cursor.sfqid
+    assert query_id, "Invalid query id None"
 
     # Wait for the query to finish running.
     while conn.is_still_running(conn.get_query_status(query_id)):
