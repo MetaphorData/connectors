@@ -1,8 +1,10 @@
 from typing import Collection, List
 
+from metaphor.common.constants import BYTES_PER_MEGABYTES
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import md5_digest, start_of_day
@@ -83,12 +85,12 @@ class RedshiftExtractor(PostgreSQLExtractor):
             dataset = self._datasets[normalized_name]
             assert dataset.statistics is not None
 
-            dataset.statistics.record_count = (
-                float(result["tbl_rows"]) if result["tbl_rows"] is not None else None
+            statistics = to_dataset_statistics(
+                result["tbl_rows"], result["size"] * BYTES_PER_MEGABYTES
             )
-            dataset.statistics.data_size = (
-                float(result["size"]) if result["size"] is not None else None
-            )
+            dataset.statistics.record_count = statistics.record_count
+            dataset.statistics.data_size = statistics.data_size
+            dataset.statistics.data_size_bytes = statistics.data_size_bytes
 
     async def _fetch_query_logs(self, conn) -> None:
         logger.info("Fetching query logs")

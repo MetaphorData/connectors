@@ -10,13 +10,13 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.models import to_dataset_statistics
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
-    DatasetStatistics,
     DatasetStructure,
     ForeignKey,
     MaterializationType,
@@ -345,11 +345,7 @@ class PostgreSQLExtractor(BaseExtractor):
             else MaterializationType.TABLE
         )
 
-        dataset.statistics = DatasetStatistics()
-        dataset.statistics.record_count = float(row_count) if row_count else None
-        dataset.statistics.data_size = (
-            table_size / (1000 * 1000) if table_size else None
-        )  # in MB
+        dataset.statistics = to_dataset_statistics(row_count, table_size)
         # There is no reliable way to directly get data last modified time, can explore alternatives in future
         # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 

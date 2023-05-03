@@ -4,12 +4,6 @@ from typing import Collection, Dict, List, Mapping, Optional, Tuple
 
 from pydantic import parse_raw_as
 
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.query_history import chunk_query_logs
-from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import chunks, md5_digest, start_of_day
-from metaphor.snowflake.accessed_object import AccessedObject
-
 try:
     from snowflake.connector.cursor import DictCursor, SnowflakeCursor
     from snowflake.connector.errors import ProgrammingError
@@ -17,18 +11,21 @@ except ImportError:
     print("Please install metaphor[snowflake] extra\n")
     raise
 
-
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.common.models import to_dataset_statistics
+from metaphor.common.query_history import chunk_query_logs
+from metaphor.common.tag_matcher import tag_datasets
+from metaphor.common.utils import chunks, md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
-    DatasetStatistics,
     DatasetStructure,
     EntityType,
     MaterializationType,
@@ -40,6 +37,7 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
 )
 from metaphor.snowflake import auth
+from metaphor.snowflake.accessed_object import AccessedObject
 from metaphor.snowflake.config import SnowflakeRunConfig
 from metaphor.snowflake.utils import (
     DatasetInfo,
@@ -564,12 +562,7 @@ class SnowflakeExtractor(BaseExtractor):
             ),
         )
 
-        dataset.statistics = DatasetStatistics(
-            record_count=float(row_count) if row_count is not None else None,
-            data_size=table_bytes / (1000 * 1000)  # in MB
-            if table_bytes is not None
-            else None,
-        )
+        dataset.statistics = to_dataset_statistics(row_count, table_bytes)
 
         dataset.structure = DatasetStructure(
             database=database, schema=schema, table=table
