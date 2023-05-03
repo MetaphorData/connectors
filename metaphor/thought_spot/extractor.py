@@ -4,6 +4,8 @@ from typing import Collection, Dict, List, Tuple
 
 from pydantic import parse_raw_as
 from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
+from sqllineage.exceptions import SQLLineageException
+from sqllineage.runner import LineageRunner
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -262,6 +264,13 @@ class ThoughtSpotExtractor(BaseExtractor):
                     view.entity_upstream.transformation = (
                         table.logicalTableContent.sqlQuery
                     )
+                    source_entities = ThoughtSpotExtractor.get_source_entities_from_sql(
+                        connections,
+                        table.logicalTableContent.sqlQuery,
+                        table.dataSourceId,
+                    )
+                    view.entity_upstream.source_entities = source_entities
+                    view.thought_spot.source_datasets = source_entities
 
                 if table.logicalTableContent.tableMappingInfo is None:
                     logger.warning(
@@ -298,6 +307,21 @@ class ThoughtSpotExtractor(BaseExtractor):
                 )
 
     @staticmethod
+    def get_source_entity_id_from_connection(
+        connections: Dict[str, ConnectionMetadata],
+        normalized_name: str,
+        source_id: str,
+    ) -> str:
+        connection = connections[source_id]
+        return str(
+            to_dataset_entity_id(
+                normalized_name,
+                mapping_data_platform(connection.type),
+                account=connection.dataSourceContent.configuration.accountName,
+            )
+        )
+
+    @staticmethod
     def find_entity_id_from_connection(
         connections: Dict[str, ConnectionMetadata],
         mapping: TableMappingInfo,
@@ -306,18 +330,44 @@ class ThoughtSpotExtractor(BaseExtractor):
         if mapping is None:
             logger.warning("Table mapping info is missing")
 
-        connection = connections[source_id]
-        return str(
-            to_dataset_entity_id(
-                dataset_normalized_name(
-                    db=mapping.databaseName,
-                    schema=mapping.schemaName,
-                    table=mapping.tableName,
-                ),
-                mapping_data_platform(connection.type),
-                account=connection.dataSourceContent.configuration.accountName,
-            )
+        return ThoughtSpotExtractor.get_source_entity_id_from_connection(
+            connections,
+            dataset_normalized_name(
+                db=mapping.databaseName,
+                schema=mapping.schemaName,
+                table=mapping.tableName,
+            ),
+            source_id,
         )
+
+    @staticmethod
+    def get_source_entities_from_sql(
+        connections, sql: str, source_id: str
+    ) -> List[str]:
+
+        try:
+            parser = LineageRunner(sql)
+        except SQLLineageException as e:
+            logger.warning(f"Cannot parse SQL. Query: {sql}, Error: {e}")
+            return []
+
+        if len(parser.source_tables) < 1:
+            return []
+
+        sources = parser.source_tables
+
+        source_ids = [
+            str(
+                ThoughtSpotExtractor.get_source_entity_id_from_connection(
+                    connections,
+                    str(source).lower(),
+                    source_id,
+                )
+            )
+            for source in sources
+        ]
+
+        return source_ids
 
     def fetch_dashboards(self):
         answers = ThoughtSpot.fetch_objects(

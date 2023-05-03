@@ -127,7 +127,7 @@
       }
     ],
     "logicalTableContent": {
-      "sqlQuery": "view sql query",
+      "sqlQuery": "select c as sql_col1 from project.schema.table",
       "joinType": "INNER",
       "worksheetType": "VIEW"
     },
