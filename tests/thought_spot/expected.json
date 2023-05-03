@@ -113,6 +113,27 @@
     }
   },
   {
+    "entityUpstream": {
+      "transformation": "view sql query"
+    },
+    "logicalId": {
+      "name": "sql_view_1",
+      "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "thoughtSpot": {
+      "columns": [
+        {
+          "name": "sql_col1",
+          "type": "VARCHAR"
+        }
+      ],
+      "name": "JOIN SQL view",
+      "tags": [],
+      "type": "VIEW",
+      "url": "http://base.url/#/data/tables/sql_view_1"
+    }
+  },
+  {
     "dashboardInfo": {
       "charts": [
         {

@@ -38,9 +38,7 @@ async def test_extractor(test_root_dir):
         mock_fetch_headers.return_value = []
         mock_fetch_object_detail.side_effect = [
             load_json(f"{test_root_dir}/thought_spot/data/connections.json"),
-            load_json(f"{test_root_dir}/thought_spot/data/worksheets.json"),
-            load_json(f"{test_root_dir}/thought_spot/data/tables.json"),
-            load_json(f"{test_root_dir}/thought_spot/data/views.json"),
+            load_json(f"{test_root_dir}/thought_spot/data/data_objects.json"),
             load_json(f"{test_root_dir}/thought_spot/data/answers.json"),
             load_json(f"{test_root_dir}/thought_spot/data/liveboards.json"),
         ]

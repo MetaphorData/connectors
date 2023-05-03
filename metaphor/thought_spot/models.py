@@ -55,6 +55,7 @@ class LogicalTableContent(BaseModel):
     worksheetType: str
     joinType: str
     tableMappingInfo: Optional[TableMappingInfo]
+    sqlQuery: Optional[str]
 
 
 class ConnectionType(Enum):
@@ -91,6 +92,7 @@ class SourceType(Enum):
     WORKSHEET = "WORKSHEET"
     ONE_TO_ONE_LOGICAL = "ONE_TO_ONE_LOGICAL"
     AGGR_WORKSHEET = "AGGR_WORKSHEET"
+    SQL_VIEW = "SQL_VIEW"
 
 
 class VizColumn(BaseModel):
@@ -158,7 +160,7 @@ class ConnectionMetadata(Metadata):
 
 
 class SourceMetadata(Metadata):
-    type: SourceType
+    type: str
     columns: List[ColumnMetadata]
     dataSourceId: str
     dataSourceTypeEnum: DataSourceTypeEnum
@@ -189,7 +191,7 @@ class TMLFormula(BaseModel):
 
 class TMLBase(BaseModel):
     name: str
-    formulas: List[TMLFormula]
+    formulas: Optional[List[TMLFormula]]
 
 
 class TMLColumn(BaseModel):
