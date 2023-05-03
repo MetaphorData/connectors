@@ -114,7 +114,10 @@
   },
   {
     "entityUpstream": {
-      "transformation": "view sql query"
+      "transformation": "select c as sql_col1 from project.schema.table",
+      "sourceEntities": [
+        "DATASET~29779E6A8F6548832D2305896A583002"
+      ]
     },
     "logicalId": {
       "name": "sql_view_1",
@@ -128,6 +131,9 @@
         }
       ],
       "name": "JOIN SQL view",
+      "sourceDatasets": [
+        "DATASET~29779E6A8F6548832D2305896A583002"
+      ],
       "tags": [],
       "type": "VIEW",
       "url": "http://base.url/#/data/tables/sql_view_1"
