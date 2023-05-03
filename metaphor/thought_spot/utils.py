@@ -57,11 +57,12 @@ from metaphor.thought_spot.models import (
 logger = get_logger()
 
 
-def mapping_data_object_type(type_: SourceType) -> ThoughtSpotDataObjectType:
+def mapping_data_object_type(type_: str) -> ThoughtSpotDataObjectType:
     mapping = {
-        SourceType.WORKSHEET: ThoughtSpotDataObjectType.WORKSHEET,
-        SourceType.ONE_TO_ONE_LOGICAL: ThoughtSpotDataObjectType.TABLE,
-        SourceType.AGGR_WORKSHEET: ThoughtSpotDataObjectType.VIEW,
+        SourceType.WORKSHEET.value: ThoughtSpotDataObjectType.WORKSHEET,
+        SourceType.ONE_TO_ONE_LOGICAL.value: ThoughtSpotDataObjectType.TABLE,
+        SourceType.AGGR_WORKSHEET.value: ThoughtSpotDataObjectType.VIEW,
+        SourceType.SQL_VIEW.value: ThoughtSpotDataObjectType.VIEW,
     }
     return mapping.get(type_)
 
@@ -122,15 +123,7 @@ class ThoughtSpot:
     mapping: ClassVar[
         Dict[SearchObjectHeaderTypeEnum, Tuple[GetObjectDetailTypeEnum, Type[Metadata]]]
     ] = {
-        SearchObjectHeaderTypeEnum.DATAOBJECT_TABLE: (
-            GetObjectDetailTypeEnum.DATAOBJECT,
-            SourceMetadata,
-        ),
-        SearchObjectHeaderTypeEnum.DATAOBJECT_WORKSHEET: (
-            GetObjectDetailTypeEnum.DATAOBJECT,
-            SourceMetadata,
-        ),
-        SearchObjectHeaderTypeEnum.DATAOBJECT_VIEW: (
+        SearchObjectHeaderTypeEnum.DATAOBJECT_ALL: (
             GetObjectDetailTypeEnum.DATAOBJECT,
             SourceMetadata,
         ),

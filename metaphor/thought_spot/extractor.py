@@ -94,14 +94,8 @@ class ThoughtSpotExtractor(BaseExtractor):
     def fetch_virtual_views(self):
         connections = from_list(ThoughtSpot.fetch_connections(self._client))
 
-        tables = ThoughtSpot.fetch_objects(
-            self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_TABLE
-        )
-        sheets = ThoughtSpot.fetch_objects(
-            self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_WORKSHEET
-        )
-        views = ThoughtSpot.fetch_objects(
-            self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_VIEW
+        data_objects = ThoughtSpot.fetch_objects(
+            self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_ALL
         )
 
         def is_source_valid(table: SourceMetadata):
@@ -110,10 +104,10 @@ class ThoughtSpotExtractor(BaseExtractor):
             """
             return table.dataSourceId in connections
 
-        valid_tables = filter(is_source_valid, tables)
+        tables = filter(is_source_valid, data_objects)
 
         # In ThoughtSpot, Tables, Worksheets, and Views can be treated as a kind of Table.
-        tables = from_list(chain(valid_tables, sheets, views))
+        tables = from_list(chain(tables))
 
         self.populate_logical_column_mapping(tables)
 
@@ -262,6 +256,13 @@ class ThoughtSpotExtractor(BaseExtractor):
             table = tables[view.logical_id.name]
 
             if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
+
+                # SQL_VIEW case
+                if table.logicalTableContent.sqlQuery:
+                    view.entity_upstream.transformation = (
+                        table.logicalTableContent.sqlQuery
+                    )
+
                 if table.logicalTableContent.tableMappingInfo is None:
                     logger.warning(
                         f"Skip lineage for {view.logical_id.name} because the mapping info is missing"
