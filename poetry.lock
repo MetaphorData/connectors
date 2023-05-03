@@ -1231,14 +1231,14 @@ tabulate = ">=0.7.7"
 
 [[package]]
 name = "datamodel-code-generator"
-version = "0.17.2"
+version = "0.18.1"
 description = "Datamodel Code Generator"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "datamodel_code_generator-0.17.2-py3-none-any.whl", hash = "sha256:b42b8b4da4055ea96ddf303efecfa37316bb025e88513fffc4dad960cb56b43c"},
-    {file = "datamodel_code_generator-0.17.2.tar.gz", hash = "sha256:e88e000b254b07937a45902e95c08c9edec21eee3492c3a3ad4b6a4115345924"},
+    {file = "datamodel_code_generator-0.18.1-py3-none-any.whl", hash = "sha256:1555d0a01a3af1d0fe9c6af15d39af86cef45fd1915587c2fd5bb4117b0720b1"},
+    {file = "datamodel_code_generator-0.18.1.tar.gz", hash = "sha256:3b360d7902d682ea011d5711b1037ba4dcf1b3b6b5f56bc39ed7f5aed51facb6"},
 ]
 
 [package.dependencies]
@@ -1253,15 +1253,11 @@ openapi-spec-validator = ">=0.2.8,<=0.5.1"
 packaging = "*"
 prance = ">=0.18.2,<1.0"
 pydantic = [
-    {version = ">=1.5.1,<2.0", extras = ["email"], markers = "python_version < \"3.10\""},
-    {version = ">=1.9.0,<2.0", extras = ["email"], markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
+    {version = ">=1.5.1,<2.0.0", extras = ["email"], markers = "python_version < \"3.10\""},
+    {version = ">=1.9.0,<2.0.0", extras = ["email"], markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
 ]
 PySnooper = ">=0.4.1,<2.0.0"
 toml = ">=0.10.0,<1.0.0"
-typed-ast = [
-    {version = ">=1.4.2", markers = "python_full_version < \"3.9.8\""},
-    {version = ">=1.5.0", markers = "python_full_version >= \"3.9.8\""},
-]
 
 [package.extras]
 http = ["httpx"]
@@ -2877,14 +2873,14 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.17.8"
+version = "0.17.9"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "metaphor_models-0.17.8-py3-none-any.whl", hash = "sha256:1815d171ceefdb6772adb625d0b6858ea920b06c796f199f75e5c5f15b90c06d"},
-    {file = "metaphor_models-0.17.8.tar.gz", hash = "sha256:e49897b9c3527eb116ad9e291edcdb0db6f4e8a0779fd5954c63d2d302ddd673"},
+    {file = "metaphor_models-0.17.9-py3-none-any.whl", hash = "sha256:98cdbfc2478455a3ddce7b8df0f73b710e30428d545c3fb2e4721591222cddf4"},
+    {file = "metaphor_models-0.17.9.tar.gz", hash = "sha256:8932d47fe7ce261e8f1a1d34a56bec4636be46b25b42c27f840f0aee89126c33"},
 ]
 
 [[package]]
@@ -3876,18 +3872,18 @@ testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "no
 
 [[package]]
 name = "pytest-asyncio"
-version = "0.20.3"
+version = "0.21.0"
 description = "Pytest support for asyncio"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-asyncio-0.20.3.tar.gz", hash = "sha256:83cbf01169ce3e8eb71c6c278ccb0574d1a7a3bb8eaaf5e50e0ad342afb33b36"},
-    {file = "pytest_asyncio-0.20.3-py3-none-any.whl", hash = "sha256:f129998b209d04fcc65c96fc85c11e5316738358909a8399e93be553d7656442"},
+    {file = "pytest-asyncio-0.21.0.tar.gz", hash = "sha256:2b38a496aef56f56b0e87557ec313e11e1ab9276fc3863f6a7be0f1d0e415e1b"},
+    {file = "pytest_asyncio-0.21.0-py3-none-any.whl", hash = "sha256:f2b3366b7cd501a4056858bd39349d5af19742aed2d81660b7998b6341c7eb9c"},
 ]
 
 [package.dependencies]
-pytest = ">=6.1.0"
+pytest = ">=7.0.0"
 typing-extensions = {version = ">=3.7.2", markers = "python_version < \"3.8\""}
 
 [package.extras]
@@ -5186,4 +5182,4 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.2,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "a0eca257ffe1a0df5dc03dbff1fa1906ed5fbafe787566dc2a28a67d757e16a2"
+content-hash = "763bb7826ed02a7abeea7cbff9c003c919942bb2b555180e7c267d1a9f29e181"

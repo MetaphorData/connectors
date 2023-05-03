@@ -28,6 +28,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import FieldDataType, build_field_path
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import md5_digest, start_of_day
@@ -37,7 +38,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
-    DatasetStatistics,
     DatasetStructure,
     MaterializationType,
     QueriedDataset,
@@ -53,8 +53,6 @@ logger = get_logger()
 
 class BigQueryExtractor(BaseExtractor):
     """BigQuery metadata extractor"""
-
-    BYTES_PER_MEGABYTES = 1024 * 1024
 
     @staticmethod
     def from_config_file(config_file: str) -> "BigQueryExtractor":
@@ -172,7 +170,9 @@ class BigQueryExtractor(BaseExtractor):
         )
 
         schema = BigQueryExtractor.parse_schema(bq_table)
-        statistics = BigQueryExtractor._parse_statistics(bq_table)
+        statistics = to_dataset_statistics(
+            bq_table.num_rows, bq_table.num_bytes, bq_table.modified
+        )
 
         return Dataset(
             logical_id=dataset_id,
@@ -258,15 +258,6 @@ class BigQueryExtractor(BaseExtractor):
             )
 
         return fields
-
-    # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.table.Table.html#google.cloud.bigquery.table.Table
-    @staticmethod
-    def _parse_statistics(bq_table: bigquery.table.Table) -> DatasetStatistics:
-        return DatasetStatistics(
-            data_size=float(bq_table.num_bytes / BigQueryExtractor.BYTES_PER_MEGABYTES),
-            record_count=float(bq_table.num_rows),
-            last_updated=bq_table.modified,
-        )
 
     def _fetch_query_logs(
         self, logging_client: logging_v2.Client, client: bigquery.Client
