@@ -107,7 +107,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         tables = filter(is_source_valid, data_objects)
 
         # In ThoughtSpot, Tables, Worksheets, and Views can be treated as a kind of Table.
-        tables = from_list(chain(tables))
+        tables = from_list(tables)
 
         self.populate_logical_column_mapping(tables)
 
