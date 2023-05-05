@@ -101,7 +101,8 @@
           "updateState": "on_schedule"
         },
         "succeededAt": "2023-04-19T08:56:03.467000+00:00",
-        "syncIntervalInMinute": 1440.0
+        "syncIntervalInMinute": 1440.0,
+        "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
       },
       "sourceEntities": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
@@ -160,7 +161,8 @@
           "updateState": "on_schedule"
         },
         "succeededAt": "2023-04-19T08:56:03.467000+00:00",
-        "syncIntervalInMinute": 1440.0
+        "syncIntervalInMinute": 1440.0,
+        "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
       },
       "sourceDatasets": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
