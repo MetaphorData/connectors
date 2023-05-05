@@ -293,7 +293,11 @@ class FivetranExtractor(BaseExtractor):
         connector_type_name = source_metadata.name if source_metadata else None
         creator_email = self._users.get(connector.connected_by)
         dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
-            connector, connector_type_name, serialized_schema_metadata, creator_email
+            connector,
+            connector_type_name,
+            serialized_schema_metadata,
+            creator_email,
+            next(iter(dataset.upstream.source_datasets), None),
         )
         dataset.entity_upstream = EntityUpstream(
             field_mappings=dataset.upstream.field_mappings,
@@ -440,6 +444,7 @@ def populate_fivetran_connector_detail(
     connector_type_name: str,
     serialized_schema_metadata: str,
     creator_email: Optional[str],
+    source_entity_id: Optional[str],
 ) -> FiveTranConnector:
     url = f"https://fivetran.com/dashboard/connectors/{connector.id}"
 
@@ -463,4 +468,5 @@ def populate_fivetran_connector_detail(
         if connector.sync_frequency
         else None,
         creator_email=creator_email,
+        source_entity_id=source_entity_id,
     )
