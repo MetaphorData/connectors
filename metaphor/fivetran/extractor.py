@@ -265,6 +265,16 @@ class FivetranExtractor(BaseExtractor):
             upstream=DatasetUpstream(source_datasets=[], field_mappings=[]),
         )
 
+        source_metadata = self._source_metadata.get(connector.service)
+        connector_type_name = source_metadata.name if source_metadata else None
+        creator_email = self._users.get(connector.connected_by)
+        dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
+            connector,
+            connector_type_name,
+            serialized_schema_metadata,
+            creator_email,
+        )
+
         source_db = self.get_database_name_from_connector(connector)
         if connector.service in SOURCE_PLATFORM_MAPPING:
             source_logical_id = self._get_source_logical_id(
@@ -275,6 +285,7 @@ class FivetranExtractor(BaseExtractor):
             )
 
             dataset.upstream.source_datasets = [source_entity_id]
+            dataset.upstream.five_tran_connector.source_entity_id = source_entity_id
 
             for column in table.columns:
                 field_mapping = FieldMapping(
@@ -289,16 +300,6 @@ class FivetranExtractor(BaseExtractor):
                 )
                 dataset.upstream.field_mappings.append(field_mapping)
 
-        source_metadata = self._source_metadata.get(connector.service)
-        connector_type_name = source_metadata.name if source_metadata else None
-        creator_email = self._users.get(connector.connected_by)
-        dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
-            connector,
-            connector_type_name,
-            serialized_schema_metadata,
-            creator_email,
-            next(iter(dataset.upstream.source_datasets), None),
-        )
         dataset.entity_upstream = EntityUpstream(
             field_mappings=dataset.upstream.field_mappings,
             five_tran_connector=dataset.upstream.five_tran_connector,
@@ -444,7 +445,6 @@ def populate_fivetran_connector_detail(
     connector_type_name: str,
     serialized_schema_metadata: str,
     creator_email: Optional[str],
-    source_entity_id: Optional[str],
 ) -> FiveTranConnector:
     url = f"https://fivetran.com/dashboard/connectors/{connector.id}"
 
@@ -468,5 +468,4 @@ def populate_fivetran_connector_detail(
         if connector.sync_frequency
         else None,
         creator_email=creator_email,
-        source_entity_id=source_entity_id,
     )
