@@ -94,15 +94,15 @@
         "createdAt": "2023-04-10T18:02:35.655597+00:00",
         "creatorEmail": "user@foo.com",
         "paused": true,
-        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+        "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E",
         "status": {
           "setupState": "connected",
           "syncState": "paused",
           "updateState": "on_schedule"
         },
         "succeededAt": "2023-04-19T08:56:03.467000+00:00",
-        "syncIntervalInMinute": 1440.0,
-        "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
+        "syncIntervalInMinute": 1440.0
       },
       "sourceEntities": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
@@ -154,18 +154,108 @@
         "createdAt": "2023-04-10T18:02:35.655597+00:00",
         "creatorEmail": "user@foo.com",
         "paused": true,
-        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+        "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E",
         "status": {
           "setupState": "connected",
           "syncState": "paused",
           "updateState": "on_schedule"
         },
         "succeededAt": "2023-04-19T08:56:03.467000+00:00",
-        "syncIntervalInMinute": 1440.0,
-        "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
+        "syncIntervalInMinute": 1440.0
       },
       "sourceDatasets": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "source_account",
+                "name": "source_db.schema.table2",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
+            }
+          ]
+        }
+      ],
+      "fiveTranConnector": {
+        "config": "{\"database\": \"source_db\", \"password\": \"******\", \"is_private_key_encrypted\": false, \"port\": 443, \"auth\": \"PASSWORD\", \"update_method\": \"TELEPORT\", \"host\": \"source_account.snowflakecomputing.com\", \"user\": \"user\"}",
+        "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_2/logs",
+        "connectorName": "snowflake_db",
+        "connectorTypeId": "snowflake_db",
+        "connectorTypeName": "Snowflake",
+        "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
+        "createdAt": "2023-04-10T18:02:35.655597+00:00",
+        "creatorEmail": "user@foo.com",
+        "paused": true,
+        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+        "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7",
+        "status": {
+          "setupState": "connected",
+          "syncState": "paused",
+          "updateState": "on_schedule"
+        },
+        "succeededAt": "2023-04-19T08:56:03.467000+00:00",
+        "syncIntervalInMinute": 1440.0
+      },
+      "sourceEntities": [
+        "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
+      ]
+    },
+    "logicalId": {
+      "account": "dest_account",
+      "name": "fivetran.snowflake_db_schema.table2",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "source_account",
+                "name": "source_db.schema.table2",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
+            }
+          ]
+        }
+      ],
+      "fiveTranConnector": {
+        "config": "{\"database\": \"source_db\", \"password\": \"******\", \"is_private_key_encrypted\": false, \"port\": 443, \"auth\": \"PASSWORD\", \"update_method\": \"TELEPORT\", \"host\": \"source_account.snowflakecomputing.com\", \"user\": \"user\"}",
+        "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_2/logs",
+        "connectorName": "snowflake_db",
+        "connectorTypeId": "snowflake_db",
+        "connectorTypeName": "Snowflake",
+        "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
+        "createdAt": "2023-04-10T18:02:35.655597+00:00",
+        "creatorEmail": "user@foo.com",
+        "paused": true,
+        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+        "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7",
+        "status": {
+          "setupState": "connected",
+          "syncState": "paused",
+          "updateState": "on_schedule"
+        },
+        "succeededAt": "2023-04-19T08:56:03.467000+00:00",
+        "syncIntervalInMinute": 1440.0
+      },
+      "sourceDatasets": [
+        "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
       ]
     }
   }

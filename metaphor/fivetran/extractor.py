@@ -1,6 +1,5 @@
 import json
 from dataclasses import asdict, dataclass
-from functools import lru_cache
 from typing import Collection, Dict, List, Optional, Type
 
 from requests.auth import HTTPBasicAuth
@@ -234,7 +233,7 @@ class FivetranExtractor(BaseExtractor):
         )
 
         source_logical_id = DatasetLogicalID(
-            name=dataset_normalized_name(table=source_dataset_name),
+            name=source_dataset_name,
             platform=source_platform,
             account=source_account,
         )
@@ -275,8 +274,8 @@ class FivetranExtractor(BaseExtractor):
             creator_email,
         )
 
-        source_db = self.get_database_name_from_connector(connector)
         if connector.service in SOURCE_PLATFORM_MAPPING:
+            source_db = self.get_database_name_from_connector(connector)
             source_logical_id = self._get_source_logical_id(
                 source_db, schema, table, connector
             )
@@ -307,8 +306,6 @@ class FivetranExtractor(BaseExtractor):
         )
 
         self._datasets[destination_dataset_name] = dataset
-
-        return dataset
 
     def get_snowflake_account_from_config(self, config: dict) -> Optional[str]:
         host = config.get("host")
@@ -439,10 +436,9 @@ class FivetranExtractor(BaseExtractor):
         return get_request(url=url, headers=headers, auth=self._auth, **kwargs)
 
 
-@lru_cache()
 def populate_fivetran_connector_detail(
     connector: ConnectorPayload,
-    connector_type_name: str,
+    connector_type_name: Optional[str],
     serialized_schema_metadata: str,
     creator_email: Optional[str],
 ) -> FiveTranConnector:
