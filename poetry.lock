@@ -2873,14 +2873,14 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.17.10"
+version = "0.17.11"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "metaphor_models-0.17.10-py3-none-any.whl", hash = "sha256:794d74eaf1478d775f4bf260e11084b2cd42e77db07fe522f30ee8ea5a752f58"},
-    {file = "metaphor_models-0.17.10.tar.gz", hash = "sha256:484c3e19d01dfe25c30acfd95ba40b9b2758b73f2b5b85628eb3c9534ffa0704"},
+    {file = "metaphor_models-0.17.11-py3-none-any.whl", hash = "sha256:e55178b876720dd4eae32ba0452a2860ba70d4fbbf4ffd6591a32140254161f2"},
+    {file = "metaphor_models-0.17.11.tar.gz", hash = "sha256:cc9ce0fb2da375c70f8d9972c1e4272816f9d17f2e22c931d06d3fccc10725a7"},
 ]
 
 [[package]]
@@ -5182,4 +5182,4 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.2,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
-content-hash = "c0f5cc78b4170dace596880978ee0dc9951cabd45a6800b83a8eefa3e4aadd78"
+content-hash = "8ec70c697df2159246b26fd628d03fe9529e833abf6b7d68c8b092477ed727a2"

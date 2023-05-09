@@ -264,14 +264,11 @@ class FivetranExtractor(BaseExtractor):
             upstream=DatasetUpstream(source_datasets=[], field_mappings=[]),
         )
 
-        source_metadata = self._source_metadata.get(connector.service)
-        connector_type_name = source_metadata.name if source_metadata else None
-        creator_email = self._users.get(connector.connected_by)
         dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
             connector,
-            connector_type_name,
+            self._source_metadata.get(connector.service),
             serialized_schema_metadata,
-            creator_email,
+            self._users.get(connector.connected_by),
         )
 
         if connector.service in SOURCE_PLATFORM_MAPPING:
@@ -438,11 +435,17 @@ class FivetranExtractor(BaseExtractor):
 
 def populate_fivetran_connector_detail(
     connector: ConnectorPayload,
-    connector_type_name: Optional[str],
+    source_metadata: Optional[SourceMetadataPayload],
     serialized_schema_metadata: str,
     creator_email: Optional[str],
 ) -> FiveTranConnector:
     url = f"https://fivetran.com/dashboard/connectors/{connector.id}"
+
+    connector_type_name = source_metadata.name if source_metadata else None
+    icon_url = source_metadata.icon_url if source_metadata else None
+    sync_interval = (
+        float(connector.sync_frequency) if connector.sync_frequency else None
+    )
 
     return FiveTranConnector(
         status=FiveTranConnectorStatus(
@@ -460,8 +463,7 @@ def populate_fivetran_connector_detail(
         connector_type_id=connector.service,
         connector_logs_url=f"{url}/logs",
         schema_metadata=serialized_schema_metadata,
-        sync_interval_in_minute=float(connector.sync_frequency)
-        if connector.sync_frequency
-        else None,
+        sync_interval_in_minute=sync_interval,
         creator_email=creator_email,
+        icon_url=icon_url,
     )

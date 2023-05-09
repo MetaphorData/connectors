@@ -93,7 +93,7 @@ class SourceMetadataPayload(BaseModel):
     name: str
     type: str
     description: Optional[str]
-    icons: Optional[List[str]]
+    icon_url: Optional[str]
 
 
 class UserPayload(BaseModel):
