@@ -6,7 +6,8 @@
         "id": "snowflake_db",
         "name": "Snowflake",
         "type": "Database",
-        "description": "desc"
+        "description": "desc",
+        "icon_url": "http://icon-url"
       }
     ]
   }
