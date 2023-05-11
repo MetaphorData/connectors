@@ -1,110 +1,112 @@
 [
   {
-    "reportContent": {
-      "sheets": [
-        {
-          "sheetType": "LIVEBOARD",
-          "sheetContent": {
-            "visualizations": [
-              {
-                "vizContent": {
-                  "refAnswerSheetIndex": 0,
-                  "refVizId": "answer1",
-                  "vizType": "LIVEBOARD_VIZ"
-                },
-                "relatedLinks": [],
-                "header": {
-                  "id": "viz2",
-                  "name": "Viz 2",
-                  "description": "This is viz2"
+    "metadata_detail": {
+      "reportContent": {
+        "sheets": [
+          {
+            "sheetType": "LIVEBOARD",
+            "sheetContent": {
+              "visualizations": [
+                {
+                  "vizContent": {
+                    "refAnswerSheetIndex": 0,
+                    "refVizId": "answer1",
+                    "vizType": "LIVEBOARD_VIZ"
+                  },
+                  "relatedLinks": [],
+                  "header": {
+                    "id": "viz2",
+                    "name": "Viz 2",
+                    "description": "This is viz2"
+                  }
                 }
-              }
-            ]
-          },
-          "header": {
-            "id": "sheet1",
-            "name": "Sheet 2",
-            "description": "This is sheet2"
+              ]
+            },
+            "header": {
+              "id": "sheet1",
+              "name": "Sheet 2",
+              "description": "This is sheet2"
+            }
           }
-        }
-      ]
-    },
-    "type": "LIVEBOARD",
-    "header": {
-      "id": "board1",
-      "name": "Board 1",
-      "description": "This is board1",
-      "resolvedObjects": {
-        "answer1": {
-          "reportContent": {
-            "sheets": [
-              {
-                "sheetType": "QUESTION",
-                "sheetContent": {
-                  "visualizations": [
-                    {
-                      "vizContent": {
-                        "chartType": "LINE",
-                        "columns": [
-                          {
-                            "referencedTableHeaders": [
-                              {
-                                "id": "data1",
-                                "name": "__unused__"
-                              }
-                            ],
-                            "referencedColumnHeaders": [
-                              {
-                                "id": "table1.col1",
-                                "name": "__unused__"
-                              }
-                            ]
-                          }
-                        ],
-                        "vizType": "CHART"
-                      },
-                      "relatedLinks": [],
-                      "header": {
-                        "id": "viz1",
-                        "name": "__unused__"
-                      }
-                    }
-                  ]
-                },
-                "header": {
-                  "id": "answer1",
-                  "name": "Answer 1",
-                  "description": "This is answer1"
-                }
-              }
-            ]
-          },
-          "type": "QUESTION",
-          "header": {
-            "id": "answer1",
-            "name": "Answer 1",
-            "description": "This is answer1",
-            "tags": [
-              {
-                "name": "tag2",
-                "isDeleted": false,
-                "isHidden": false,
-                "isDeprecated": false
-              }
-            ]
-          },
-          "complete": true,
-          "incompleteDetail": []
-        }
+        ]
       },
-      "tags": [
-        {
-          "name": "tag3",
-          "isDeleted": false,
-          "isHidden": false,
-          "isDeprecated": false
-        }
-      ]
+      "type": "LIVEBOARD",
+      "header": {
+        "id": "board1",
+        "name": "Board 1",
+        "description": "This is board1",
+        "resolvedObjects": {
+          "answer1": {
+            "reportContent": {
+              "sheets": [
+                {
+                  "sheetType": "QUESTION",
+                  "sheetContent": {
+                    "visualizations": [
+                      {
+                        "vizContent": {
+                          "chartType": "LINE",
+                          "columns": [
+                            {
+                              "referencedTableHeaders": [
+                                {
+                                  "id": "data1",
+                                  "name": "__unused__"
+                                }
+                              ],
+                              "referencedColumnHeaders": [
+                                {
+                                  "id": "table1.col1",
+                                  "name": "__unused__"
+                                }
+                              ]
+                            }
+                          ],
+                          "vizType": "CHART"
+                        },
+                        "relatedLinks": [],
+                        "header": {
+                          "id": "viz1",
+                          "name": "__unused__"
+                        }
+                      }
+                    ]
+                  },
+                  "header": {
+                    "id": "answer1",
+                    "name": "Answer 1",
+                    "description": "This is answer1"
+                  }
+                }
+              ]
+            },
+            "type": "QUESTION",
+            "header": {
+              "id": "answer1",
+              "name": "Answer 1",
+              "description": "This is answer1",
+              "tags": [
+                {
+                  "name": "tag2",
+                  "isDeleted": false,
+                  "isHidden": false,
+                  "isDeprecated": false
+                }
+              ]
+            },
+            "complete": true,
+            "incompleteDetail": []
+          }
+        },
+        "tags": [
+          {
+            "name": "tag3",
+            "isDeleted": false,
+            "isHidden": false,
+            "isDeprecated": false
+          }
+        ]
+      }
     }
   }
 ]

@@ -1,144 +1,152 @@
 [
   {
-    "columns": [],
-    "logicalTableContent": {
-      "joinType": "INNER",
-      "worksheetType": "CONTAINER"
-    },
-    "type": "WORKSHEET",
-    "dataSourceId": "conn1",
-    "dataSourceTypeEnum": "DEFAULT",
-    "header": {
-      "id": "worksheet1",
-      "name": "Worksheet 1",
-      "description": "This is worksheet1",
-      "tags": [
-        {
-          "name": "tag1",
-          "isDeleted": false,
-          "isHidden": false,
-          "isDeprecated": false
-        }
-      ]
-    }
-  },
-  {
-    "columns": [
-      {
-        "columnMappingInfo": {
-          "columnName": "col1"
-        },
-        "header": {
-          "id": "table1.col1",
-          "name": "col1"
-        },
-        "dataType": "VARCHAR",
-        "type": "ATTRIBUTE",
-        "sources": []
-      }
-    ],
-    "logicalTableContent": {
-      "joinType": "INNER",
-      "physicalTableName": "table1",
-      "worksheetType": "VIEW",
-      "tableMappingInfo": {
-        "databaseName": "project",
-        "schemaName": "schema",
-        "tableName": "table",
-        "tableType": "TABLE"
-      }
-    },
-    "type": "ONE_TO_ONE_LOGICAL",
-    "dataSourceId": "conn1",
-    "dataSourceTypeEnum": "RDBMS_GCP_BIGQUERY",
-    "header": {
-      "id": "table1",
-      "name": "Table 1",
-      "description": "This is table1",
-      "tags": [
-        {
-          "name": "table",
-          "isDeleted": false,
-          "isHidden": false,
-          "isDeprecated": false
-        }
-      ]
-    }
-  },
-  {
-    "columns": [
-      {
-        "header": {
-          "id": "view.col1",
-          "name": "col1"
-        },
-        "dataType": "VARCHAR",
-        "type": "ATTRIBUTE",
-        "sources": [
-          {
-            "tableId": "table1",
-            "columnId": "table1.col1"
-          }
-        ]
+    "metadata_detail": {
+      "columns": [],
+      "logicalTableContent": {
+        "joinType": "INNER",
+        "worksheetType": "CONTAINER"
       },
-      {
-        "optionalType": "FORMULA",
-        "header": {
-          "id": "view.col2",
-          "name": "col2"
-        },
-        "dataType": "VARCHAR",
-        "type": "MEASURE",
-        "sources": [
+      "type": "WORKSHEET",
+      "dataSourceId": "conn1",
+      "dataSourceTypeEnum": "DEFAULT",
+      "header": {
+        "id": "worksheet1",
+        "name": "Worksheet 1",
+        "description": "This is worksheet1",
+        "tags": [
           {
-            "tableId": "table1",
-            "columnId": "table1.col1"
+            "name": "tag1",
+            "isDeleted": false,
+            "isHidden": false,
+            "isDeprecated": false
           }
         ]
       }
-    ],
-    "logicalTableContent": {
-      "joinType": "INNER",
-      "worksheetType": "VIEW"
-    },
-    "type": "AGGR_WORKSHEET",
-    "dataSourceId": "conn1",
-    "dataSourceTypeEnum": "DEFAULT",
-    "header": {
-      "id": "view1",
-      "name": "View 1",
-      "description": "This is view1",
-      "tags": []
     }
   },
   {
-    "columns": [
-      {
-        "header": {
-          "id": "sql_col1_id",
-          "name": "sql_col1"
-        },
-        "dataType": "VARCHAR",
-        "type": "ATTRIBUTE",
-        "columnMappingInfo": {
-          "columnName": "sql_col1"
-        },
-        "sources": []
+    "metadata_detail": {
+      "columns": [
+        {
+          "columnMappingInfo": {
+            "columnName": "col1"
+          },
+          "header": {
+            "id": "table1.col1",
+            "name": "col1"
+          },
+          "dataType": "VARCHAR",
+          "type": "ATTRIBUTE",
+          "sources": []
+        }
+      ],
+      "logicalTableContent": {
+        "joinType": "INNER",
+        "physicalTableName": "table1",
+        "worksheetType": "VIEW",
+        "tableMappingInfo": {
+          "databaseName": "project",
+          "schemaName": "schema",
+          "tableName": "table",
+          "tableType": "TABLE"
+        }
+      },
+      "type": "ONE_TO_ONE_LOGICAL",
+      "dataSourceId": "conn1",
+      "dataSourceTypeEnum": "RDBMS_GCP_BIGQUERY",
+      "header": {
+        "id": "table1",
+        "name": "Table 1",
+        "description": "This is table1",
+        "tags": [
+          {
+            "name": "table",
+            "isDeleted": false,
+            "isHidden": false,
+            "isDeprecated": false
+          }
+        ]
       }
-    ],
-    "logicalTableContent": {
-      "sqlQuery": "select c as sql_col1 from project.schema.table",
-      "joinType": "INNER",
-      "worksheetType": "VIEW"
-    },
-    "type": "SQL_VIEW",
-    "dataSourceId": "conn1",
-    "dataSourceTypeEnum": "RDBMS_SNOWFLAKE",
-    "header": {
-      "id": "sql_view_1",
-      "name": "JOIN SQL view",
-      "tags": [],
-      "type": "SQL_VIEW"
+    }
+  },
+  {
+    "metadata_detail": {
+      "columns": [
+        {
+          "header": {
+            "id": "view.col1",
+            "name": "col1"
+          },
+          "dataType": "VARCHAR",
+          "type": "ATTRIBUTE",
+          "sources": [
+            {
+              "tableId": "table1",
+              "columnId": "table1.col1"
+            }
+          ]
+        },
+        {
+          "optionalType": "FORMULA",
+          "header": {
+            "id": "view.col2",
+            "name": "col2"
+          },
+          "dataType": "VARCHAR",
+          "type": "MEASURE",
+          "sources": [
+            {
+              "tableId": "table1",
+              "columnId": "table1.col1"
+            }
+          ]
+        }
+      ],
+      "logicalTableContent": {
+        "joinType": "INNER",
+        "worksheetType": "VIEW"
+      },
+      "type": "AGGR_WORKSHEET",
+      "dataSourceId": "conn1",
+      "dataSourceTypeEnum": "DEFAULT",
+      "header": {
+        "id": "view1",
+        "name": "View 1",
+        "description": "This is view1",
+        "tags": []
+      }
+    }
+  },
+  {
+    "metadata_detail": {
+      "columns": [
+        {
+          "header": {
+            "id": "sql_col1_id",
+            "name": "sql_col1"
+          },
+          "dataType": "VARCHAR",
+          "type": "ATTRIBUTE",
+          "columnMappingInfo": {
+            "columnName": "sql_col1"
+          },
+          "sources": []
+        }
+      ],
+      "logicalTableContent": {
+        "sqlQuery": "select c as sql_col1 from project.schema.table",
+        "joinType": "INNER",
+        "worksheetType": "VIEW"
+      },
+      "type": "SQL_VIEW",
+      "dataSourceId": "conn1",
+      "dataSourceTypeEnum": "RDBMS_SNOWFLAKE",
+      "header": {
+        "id": "sql_view_1",
+        "name": "JOIN SQL view",
+        "tags": [],
+        "type": "SQL_VIEW"
+      }
     }
   }
 ]

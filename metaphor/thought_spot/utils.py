@@ -1,40 +1,9 @@
-import json
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-)
+from typing import Callable, Dict, Iterable, List, Optional, TypeVar
 
 from pydantic import parse_obj_as
-from restapisdk.configuration import Environment
-from restapisdk.controllers.metadata_controller import MetadataController
-from restapisdk.controllers.session_controller import SessionController
-from restapisdk.models.export_object_tml_format_type_enum import (
-    ExportObjectTMLFormatTypeEnum,
-)
-from restapisdk.models.get_object_detail_type_enum import GetObjectDetailTypeEnum
-from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
-from restapisdk.models.session_login_response import SessionLoginResponse
-from restapisdk.models.tspublic_rest_v_2_metadata_header_search_request import (
-    TspublicRestV2MetadataHeaderSearchRequest,
-)
-from restapisdk.models.tspublic_rest_v_2_metadata_tml_export_request import (
-    TspublicRestV2MetadataTmlExportRequest,
-)
-from restapisdk.models.tspublic_rest_v_2_session_gettoken_request import (
-    TspublicRestV2SessionGettokenRequest,
-)
-from restapisdk.restapisdk_client import RestapisdkClient
+from thoughtspot_rest_api_v1 import TSRestApiV2
 
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.common.utils import chunks
 from metaphor.models.metadata_change_event import (
     ChartType,
     DataPlatform,
@@ -43,13 +12,14 @@ from metaphor.models.metadata_change_event import (
 from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadata,
-    ConnectionHeader,
+    AnswerMetadataDetail,
     ConnectionMetadata,
+    ConnectionMetadataDetail,
     ConnectionType,
-    Header,
     LiveBoardMetadata,
-    Metadata,
-    SourceMetadata,
+    LiveBoardMetadataDetail,
+    LogicalTableMetadata,
+    LogicalTableMetadataDetail,
     SourceType,
     TMLResult,
 )
@@ -109,7 +79,6 @@ def mapping_data_platform(type_: ConnectionType) -> DataPlatform:
 
 
 T = TypeVar("T")
-H = TypeVar("H", bound=Header)
 
 
 def from_list(list_: Iterable[T], key: Callable[[T], str] = repr) -> Dict[str, T]:
@@ -120,141 +89,110 @@ def from_list(list_: Iterable[T], key: Callable[[T], str] = repr) -> Dict[str, T
 
 
 class ThoughtSpot:
-    mapping: ClassVar[
-        Dict[SearchObjectHeaderTypeEnum, Tuple[GetObjectDetailTypeEnum, Type[Metadata]]]
-    ] = {
-        SearchObjectHeaderTypeEnum.DATAOBJECT_ALL: (
-            GetObjectDetailTypeEnum.DATAOBJECT,
-            SourceMetadata,
-        ),
-        SearchObjectHeaderTypeEnum.ANSWER: (
-            GetObjectDetailTypeEnum.ANSWER,
-            AnswerMetadata,
-        ),
-        SearchObjectHeaderTypeEnum.LIVEBOARD: (
-            GetObjectDetailTypeEnum.LIVEBOARD,
-            LiveBoardMetadata,
-        ),
-    }
+    @staticmethod
+    def create_client(config: ThoughtSpotRunConfig) -> TSRestApiV2:
+        client: TSRestApiV2 = TSRestApiV2(server_url=config.base_url)
+
+        auth_token_response = client.auth_token_full(
+            username=config.user,
+            password=config.password,
+            secret_key=config.secret_key,
+            validity_time_in_sec=3600,
+        )
+
+        client.bearer_token = auth_token_response["token"]
+
+        return client
 
     @staticmethod
-    def create_client(config: ThoughtSpotRunConfig) -> RestapisdkClient:
-        def _client(token: str):
-            return RestapisdkClient(
-                content_type="application/json",
-                accept_language="application/json",
-                environment=Environment.PRODUCTION,
-                access_token=token,
-                base_url=config.base_url,
-            )
+    def fetch_connections(client: TSRestApiV2) -> List[ConnectionMetadataDetail]:
+        supported_platform = set(ConnectionType)
 
-        client = _client("")
-        session_controller: SessionController = client.session
-
-        result: SessionLoginResponse = session_controller.get_token(
-            TspublicRestV2SessionGettokenRequest(
-                user_name=config.user,
-                password=config.password,
-                secret_key=config.secret_key,
-                token_expiry_duration=900,
-            )
+        search_response = client.metadata_search(
+            {
+                "metadata": [{"type": "CONNECTION"}],
+                "include_details": True,
+                "record_size": 100,
+            }
         )
+        json_dump_to_debug_file(search_response, "metadata_search__connection.json")
 
-        if not hasattr(result, "token"):
-            logger.warn("Unable to obtain token")
-            raise ValueError("Unable to obtain token")
+        connections = parse_obj_as(List[ConnectionMetadata], search_response)
+        connection_details = [
+            connection.metadata_detail
+            for connection in connections
+            if connection.metadata_detail.type in supported_platform
+        ]
 
-        logger.info("Login successfully")
-        return _client(result.token)
+        logger.info(f"CONNECTION ids: {[c.header.id for c in connection_details]}")
 
-    @staticmethod
-    def fetch_connections(client: RestapisdkClient) -> List[ConnectionMetadata]:
-        supported_platform = set(c.value for c in ConnectionType)
-
-        headers: List[ConnectionHeader] = ThoughtSpot._fetch_headers(
-            client.metadata, SearchObjectHeaderTypeEnum.CONNECTION, ConnectionHeader
-        )
-        ids = [h.id for h in headers if h.type in supported_platform]
-
-        logger.info(f"CONNECTION ids: {ids}")
-
-        obj = ThoughtSpot._fetch_object_detail(
-            client.metadata, ids, GetObjectDetailTypeEnum.CONNECTION
-        )
-        json_dump_to_debug_file(obj, "connection.json")
-        return parse_obj_as(List[ConnectionMetadata], obj)
+        return connection_details
 
     @classmethod
-    def fetch_objects(
-        cls, client: RestapisdkClient, mtype: SearchObjectHeaderTypeEnum
-    ) -> List[Metadata]:
-        if mtype not in cls.mapping:
-            return []
-        detail_type, target_type = cls.mapping[mtype]
+    def fetch_tables(cls, client: TSRestApiV2) -> List[LogicalTableMetadataDetail]:
+        response = client.metadata_search(
+            {
+                "metadata": [{"type": "LOGICAL_TABLE"}],
+                "include_details": True,
+                "record_size": 100,
+            }
+        )
+        json_dump_to_debug_file(response, "metadata_search__logical_table.json")
 
-        ids = [h.id for h in ThoughtSpot._fetch_headers(client.metadata, mtype, Header)]
-        logger.info(f"{mtype} ids: {ids}")
+        table_details = [
+            table.metadata_detail
+            for table in parse_obj_as(List[LogicalTableMetadata], response)
+        ]
 
-        obj = ThoughtSpot._fetch_object_detail(client.metadata, ids, detail_type)
-        json_dump_to_debug_file(obj, f"{str(mtype).lower()}.json")
+        logger.info(f"TABLE ids: {[c.header.id for c in table_details]}")
 
-        # Because mypy can't handle dynamic type variables properly, we skip type-checking here.
-        return parse_obj_as(List[target_type], obj)  # type: ignore
+        return table_details
 
     @classmethod
-    def fetch_tml(cls, client: RestapisdkClient, ids: List[str]) -> List[TMLResult]:
+    def fetch_answers(cls, client: TSRestApiV2) -> List[AnswerMetadataDetail]:
+        response = client.metadata_search(
+            {
+                "metadata": [{"type": "ANSWER"}],
+                "include_details": True,
+                "record_size": 100,
+            }
+        )
+        json_dump_to_debug_file(response, "metadata_search__answer.json")
+
+        answer_details = [
+            answer.metadata_detail
+            for answer in parse_obj_as(List[AnswerMetadata], response)
+        ]
+
+        logger.info(f"ANSWER ids: {[c.header.id for c in answer_details]}")
+
+        return answer_details
+
+    @classmethod
+    def fetch_liveboards(cls, client: TSRestApiV2) -> List[LiveBoardMetadataDetail]:
+        response = client.metadata_search(
+            {
+                "metadata": [{"type": "LIVEBOARD"}],
+                "include_details": True,
+                "record_size": 100,
+            }
+        )
+        json_dump_to_debug_file(response, "metadata_search__liveboard.json")
+
+        liveboard_details = [
+            liveboard.metadata_detail
+            for liveboard in parse_obj_as(List[LiveBoardMetadata], response)
+        ]
+
+        logger.info(f"LIVEBOARD Ids: {[c.header.id for c in liveboard_details]}")
+
+        return liveboard_details
+
+    @classmethod
+    def fetch_tml(cls, client: TSRestApiV2, ids: List[str]) -> List[TMLResult]:
         logger.info(f"Fetching tml for ids: {ids}")
 
-        obj = ThoughtSpot._fetch_tml(client.metadata, ids)
+        response = client.metadata_tml_export(ids)
+        json_dump_to_debug_file(response, "tml.json")
 
-        return parse_obj_as(List[TMLResult], obj)
-
-    @staticmethod
-    def _fetch_headers(
-        metadata_controller: MetadataController,
-        mtype: SearchObjectHeaderTypeEnum,
-        header_type: Type[H],
-    ) -> List[H]:
-        body = TspublicRestV2MetadataHeaderSearchRequest(mtype=mtype)
-        response_json = metadata_controller.search_object_header(body)
-        response = json.loads(response_json)
-        if "headers" not in response:
-            return []
-
-        # Because mypy can't handle dynamic type variables properly, we skip type-checking here.
-        return parse_obj_as(List[header_type], response["headers"])  # type: ignore
-
-    @staticmethod
-    def _fetch_object_detail(
-        metadata_controller: MetadataController,
-        ids: List[str],
-        object_type: GetObjectDetailTypeEnum,
-    ) -> List[Any]:
-        res: List[Any] = []
-        for chunk_ids in chunks(ids, 10):
-            response_json = metadata_controller.get_object_detail(
-                object_type, chunk_ids
-            )
-            response = json.loads(response_json)
-            if "storables" in response:
-                res.extend(response["storables"])
-
-        return res
-
-    @staticmethod
-    def _fetch_tml(
-        metadata_controller: MetadataController,
-        ids: List[str],
-    ) -> List[Any]:
-        res: List[Any] = []
-        for chunk_ids in chunks(ids, 10):
-            body = TspublicRestV2MetadataTmlExportRequest(
-                id=chunk_ids, format_type=ExportObjectTMLFormatTypeEnum.JSON
-            )
-            response_json = metadata_controller.export_object_tml(body)
-            response = json.loads(response_json)
-            if "object" in response:
-                res.extend(response["object"])
-
-        json_dump_to_debug_file(res, "tml.json")
-        return res
+        return parse_obj_as(List[TMLResult], response)
