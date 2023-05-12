@@ -50,7 +50,7 @@
                             {
                               "referencedTableHeaders": [
                                 {
-                                  "id": "data1",
+                                  "id": "table1",
                                   "name": "__unused__"
                                 }
                               ],

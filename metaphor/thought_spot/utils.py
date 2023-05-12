@@ -19,7 +19,6 @@ from metaphor.thought_spot.models import (
     LiveBoardMetadata,
     LiveBoardMetadataDetail,
     LogicalTableMetadata,
-    LogicalTableMetadataDetail,
     SourceType,
     TMLResult,
 )
@@ -129,24 +128,20 @@ class ThoughtSpot:
         return connection_details
 
     @classmethod
-    def fetch_tables(cls, client: TSRestApiV2) -> List[LogicalTableMetadataDetail]:
+    def fetch_tables(cls, client: TSRestApiV2) -> List[LogicalTableMetadata]:
         response = client.metadata_search(
             {
                 "metadata": [{"type": "LOGICAL_TABLE"}],
                 "include_details": True,
+                "include_dependent_objects": True,
                 "record_size": 100,
             }
         )
         json_dump_to_debug_file(response, "metadata_search__logical_table.json")
 
-        table_details = [
-            table.metadata_detail
-            for table in parse_obj_as(List[LogicalTableMetadata], response)
-        ]
+        tables = parse_obj_as(List[LogicalTableMetadata], response)
 
-        logger.info(f"TABLE ids: {[c.header.id for c in table_details]}")
-
-        return table_details
+        return tables
 
     @classmethod
     def fetch_answers(cls, client: TSRestApiV2) -> List[AnswerMetadataDetail]:

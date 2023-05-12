@@ -25,6 +25,25 @@
     }
   },
   {
+    "dependent_objects": {
+      "table1": {
+        "QUESTION_ANSWER_BOOK": [
+          {
+            "id": "answer1"
+          }
+        ],
+        "PINBOARD_ANSWER_BOOK": [
+          {
+            "id": "board1"
+          }
+        ],
+        "LOGICAL_TABLE": [
+          {
+            "id": "view1"
+          }
+        ]
+      }
+    },
     "metadata_detail": {
       "columns": [
         {

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from itertools import chain
-from typing import Collection, Dict, List, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 from pydantic import parse_raw_as
 from sqllineage.exceptions import SQLLineageException
@@ -96,7 +96,19 @@ class ThoughtSpotExtractor(BaseExtractor):
     def fetch_virtual_views(self):
         connections = from_list(ThoughtSpot.fetch_connections(self._client))
 
-        data_objects = ThoughtSpot.fetch_tables(self._client)
+        tables = ThoughtSpot.fetch_tables(self._client)
+        data_objects = [table.metadata_detail for table in tables]
+
+        self.ref_map = {}
+        for table in tables:
+            dependent_objects: Optional[dict] = table.dependent_objects
+            if not dependent_objects:
+                continue
+
+            for source_id, ref in dependent_objects.items():
+                for _, lst in ref.items():
+                    for dependent in lst:
+                        self.ref_map.setdefault(dependent["id"], []).append(source_id)
 
         def is_source_valid(table: LogicalTableMetadataDetail):
             """
@@ -388,7 +400,17 @@ class ThoughtSpotExtractor(BaseExtractor):
                 if viz.vizContent.vizType == "CHART"
             ]
 
-            source_entities = self._populate_source_virtual_views(visualizations)
+            source_entities = unique_list(
+                [
+                    str(
+                        to_virtual_view_entity_id(
+                            name=source_id,
+                            virtualViewType=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT,
+                        )
+                    )
+                    for source_id in self.ref_map.get(answer_id, [])
+                ]
+            )
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -494,27 +516,30 @@ class ThoughtSpotExtractor(BaseExtractor):
     @staticmethod
     def _populate_source_virtual_views(
         charts: List[Tuple[Visualization, Header, str]],
-    ) -> List[str]:
-        return unique_list(
-            [
-                str(
-                    to_virtual_view_entity_id(
-                        name=reference.id,
-                        virtualViewType=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT,
+    ) -> Optional[List[str]]:
+        return (
+            unique_list(
+                [
+                    str(
+                        to_virtual_view_entity_id(
+                            name=reference.id,
+                            virtualViewType=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT,
+                        )
                     )
-                )
-                for viz, *_ in charts
-                for column in viz.vizContent.columns
-                if column.referencedTableHeaders
-                for reference in column.referencedTableHeaders
-            ]
+                    for viz, *_ in charts
+                    for column in viz.vizContent.columns
+                    if column.referencedTableHeaders
+                    for reference in column.referencedTableHeaders
+                ]
+            )
+            or None
         )
 
     def _get_field_mapping_from_visualizations(
         self,
         charts: List[Tuple[Visualization, Header, str]],
-    ) -> List[FieldMapping]:
-        return [
+    ) -> Optional[List[FieldMapping]]:
+        field_mappings = [
             FieldMapping(
                 destination=header.name,
                 sources=[
@@ -532,6 +557,8 @@ class ThoughtSpotExtractor(BaseExtractor):
             )
             for viz, header, *_ in charts
         ]
+
+        return [f for f in field_mappings if f.sources] or None
 
     @staticmethod
     def _tag_names(tags: List[Tag]) -> List[str]:

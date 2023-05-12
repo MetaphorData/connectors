@@ -10,22 +10,7 @@
                 {
                   "vizContent": {
                     "chartType": "LINE",
-                    "columns": [
-                      {
-                        "referencedTableHeaders": [
-                          {
-                            "id": "data1",
-                            "name": "__unused__"
-                          }
-                        ],
-                        "referencedColumnHeaders": [
-                          {
-                            "id": "table1.col1",
-                            "name": "__unused__"
-                          }
-                        ]
-                      }
-                    ],
+                    "columns": [],
                     "vizType": "CHART"
                   },
                   "relatedLinks": [],
