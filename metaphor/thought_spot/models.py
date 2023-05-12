@@ -2,7 +2,7 @@
 This module models the ThoughtSpot SDK complex return objects.
 """
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -173,7 +173,6 @@ class LogicalTableMetadataDetail(Metadata):
 
 class LogicalTableMetadata(BaseModel):
     metadata_detail: LogicalTableMetadataDetail
-    dependent_objects: Any
 
 
 class AnswerMetadataDetail(Metadata):
@@ -225,7 +224,18 @@ class TMLView(TMLBase):
     view_columns: List[TMLColumn]
 
 
+class TMLTable(BaseModel):
+    name: str
+    id: Optional[str]
+    fqn: Optional[str]
+
+
+class TMLAnswer(TMLBase):
+    tables: List[TMLTable]
+
+
 class TMLObject(BaseModel):
     guid: str
     worksheet: Optional[TMLWorksheet]
     view: Optional[TMLView]
+    answer: Optional[TMLAnswer]

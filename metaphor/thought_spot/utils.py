@@ -19,6 +19,7 @@ from metaphor.thought_spot.models import (
     LiveBoardMetadata,
     LiveBoardMetadataDetail,
     LogicalTableMetadata,
+    LogicalTableMetadataDetail,
     SourceType,
     TMLResult,
 )
@@ -128,20 +129,24 @@ class ThoughtSpot:
         return connection_details
 
     @classmethod
-    def fetch_tables(cls, client: TSRestApiV2) -> List[LogicalTableMetadata]:
+    def fetch_tables(cls, client: TSRestApiV2) -> List[LogicalTableMetadataDetail]:
         response = client.metadata_search(
             {
                 "metadata": [{"type": "LOGICAL_TABLE"}],
                 "include_details": True,
-                "include_dependent_objects": True,
                 "record_size": 100,
             }
         )
         json_dump_to_debug_file(response, "metadata_search__logical_table.json")
 
-        tables = parse_obj_as(List[LogicalTableMetadata], response)
+        table_details = [
+            table.metadata_detail
+            for table in parse_obj_as(List[LogicalTableMetadata], response)
+        ]
 
-        return tables
+        logger.info(f"TABLE ids: {[c.header.id for c in table_details]}")
+
+        return table_details
 
     @classmethod
     def fetch_answers(cls, client: TSRestApiV2) -> List[AnswerMetadataDetail]:
@@ -187,7 +192,11 @@ class ThoughtSpot:
     def fetch_tml(cls, client: TSRestApiV2, ids: List[str]) -> List[TMLResult]:
         logger.info(f"Fetching tml for ids: {ids}")
 
-        response = client.metadata_tml_export(ids)
-        json_dump_to_debug_file(response, "tml.json")
+        if not ids:
+            return []
+
+        response = client.metadata_tml_export(ids, export_fqn=True)
+        log_uid = hash((len(ids), ids[-1]))
+        json_dump_to_debug_file(response, f"tml_{log_uid}.json")
 
         return parse_obj_as(List[TMLResult], response)

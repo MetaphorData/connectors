@@ -96,19 +96,7 @@ class ThoughtSpotExtractor(BaseExtractor):
     def fetch_virtual_views(self):
         connections = from_list(ThoughtSpot.fetch_connections(self._client))
 
-        tables = ThoughtSpot.fetch_tables(self._client)
-        data_objects = [table.metadata_detail for table in tables]
-
-        self.ref_map = {}
-        for table in tables:
-            dependent_objects: Optional[dict] = table.dependent_objects
-            if not dependent_objects:
-                continue
-
-            for source_id, ref in dependent_objects.items():
-                for _, lst in ref.items():
-                    for dependent in lst:
-                        self.ref_map.setdefault(dependent["id"], []).append(source_id)
+        data_objects = ThoughtSpot.fetch_tables(self._client)
 
         def is_source_valid(table: LogicalTableMetadataDetail):
             """
@@ -384,6 +372,7 @@ class ThoughtSpotExtractor(BaseExtractor):
     def fetch_dashboards(self):
         answers = ThoughtSpot.fetch_answers(self._client)
         self.populate_answers(answers)
+        self.populate_answers_lineage(answers)
 
         liveboards = ThoughtSpot.fetch_liveboards(self._client)
         self.populate_liveboards(liveboards)
@@ -399,18 +388,6 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for viz in sheet.sheetContent.visualizations
                 if viz.vizContent.vizType == "CHART"
             ]
-
-            source_entities = unique_list(
-                [
-                    str(
-                        to_virtual_view_entity_id(
-                            name=source_id,
-                            virtualViewType=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT,
-                        )
-                    )
-                    for source_id in self.ref_map.get(answer_id, [])
-                ]
-            )
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -431,16 +408,40 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
-                upstream=DashboardUpstream(source_virtual_views=source_entities),
-                entity_upstream=EntityUpstream(
-                    source_entities=source_entities,
-                    field_mappings=self._get_field_mapping_from_visualizations(
-                        visualizations
-                    ),
-                ),
             )
 
             self._dashboards[answer_id] = dashboard
+
+    def populate_answers_lineage(self, answers: List[AnswerMetadataDetail]):
+        ids = [answer.header.id for answer in answers]
+        for tml_result in ThoughtSpot.fetch_tml(self._client, ids):
+            if not tml_result.edoc:
+                continue
+            tml = parse_raw_as(TMLObject, tml_result.edoc)
+
+            answer_id = tml.guid
+            dashboard = self._dashboards.get(answer_id)
+
+            if not dashboard:
+                continue
+
+            source_ids = (
+                [tml_table.fqn for tml_table in tml.answer.tables if tml_table.fqn]
+                if tml.answer and tml.answer.tables
+                else []
+            )
+
+            source_entities = [
+                str(
+                    to_virtual_view_entity_id(
+                        source_id, VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
+                    )
+                )
+                for source_id in source_ids
+            ]
+
+            dashboard.entity_upstream = EntityUpstream(source_entities=source_entities)
+            dashboard.upstream = DashboardUpstream(source_virtual_views=source_entities)
 
     def populate_liveboards(self, liveboards: List[LiveBoardMetadataDetail]):
         for board in liveboards:

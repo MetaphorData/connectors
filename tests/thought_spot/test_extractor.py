@@ -47,6 +47,9 @@ async def test_extractor(test_root_dir):
                 load_json(f"{test_root_dir}/thought_spot/data/answers.json"),
             ),
             MockResponse(
+                load_json(f"{test_root_dir}/thought_spot/data/tml_answer.json")
+            ),
+            MockResponse(
                 load_json(f"{test_root_dir}/thought_spot/data/liveboards.json"),
             ),
         ]
