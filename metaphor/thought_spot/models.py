@@ -152,14 +152,18 @@ class LogicalTable(Metadata):
     logicalTableContent: LogicalTableContent
 
 
-class ConnectionMetadata(Metadata):
+class ConnectionMetadataDetail(Metadata):
     header: Header
     type: ConnectionType
     dataSourceContent: DataSourceContent
     logicalTableList: List[LogicalTable]
 
 
-class SourceMetadata(Metadata):
+class ConnectionMetadata(BaseModel):
+    metadata_detail: ConnectionMetadataDetail
+
+
+class LogicalTableMetadataDetail(Metadata):
     type: str
     columns: List[ColumnMetadata]
     dataSourceId: str
@@ -167,15 +171,27 @@ class SourceMetadata(Metadata):
     logicalTableContent: LogicalTableContent
 
 
-class AnswerMetadata(Metadata):
+class LogicalTableMetadata(BaseModel):
+    metadata_detail: LogicalTableMetadataDetail
+
+
+class AnswerMetadataDetail(Metadata):
     type: str
     reportContent: ReportContent
 
 
-class LiveBoardMetadata(Metadata):
+class AnswerMetadata(BaseModel):
+    metadata_detail: AnswerMetadataDetail
+
+
+class LiveBoardMetadataDetail(Metadata):
     header: LiveBoardHeader
     type: str
     reportContent: ReportContent
+
+
+class LiveBoardMetadata(BaseModel):
+    metadata_detail: LiveBoardMetadataDetail
 
 
 class TMLResult(BaseModel):
@@ -208,7 +224,18 @@ class TMLView(TMLBase):
     view_columns: List[TMLColumn]
 
 
+class TMLTable(BaseModel):
+    name: str
+    id: Optional[str]
+    fqn: Optional[str]
+
+
+class TMLAnswer(TMLBase):
+    tables: List[TMLTable]
+
+
 class TMLObject(BaseModel):
     guid: str
     worksheet: Optional[TMLWorksheet]
     view: Optional[TMLView]
+    answer: Optional[TMLAnswer]

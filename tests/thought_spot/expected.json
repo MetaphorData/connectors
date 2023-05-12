@@ -166,23 +166,12 @@
     },
     "upstream": {
       "sourceVirtualViews": [
-        "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ]
     },
     "entityUpstream": {
-      "fieldMappings": [
-        {
-          "destination": "Answer 1",
-          "sources": [
-            {
-              "field": "col1",
-              "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
-            }
-          ]
-        }
-      ],
       "sourceEntities": [
-        "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ]
     }
   },
@@ -215,7 +204,7 @@
     },
     "upstream": {
       "sourceVirtualViews": [
-        "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ]
     },
     "entityUpstream": {
@@ -231,7 +220,7 @@
         }
       ],
       "sourceEntities": [
-        "VIRTUAL_VIEW~AAF339C7F485C19EF29EF177B3C7B65A"
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ]
     }
   }

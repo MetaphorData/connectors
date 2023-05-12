@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from itertools import chain
-from typing import Collection, Dict, List, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 from pydantic import parse_raw_as
-from restapisdk.models.search_object_header_type_enum import SearchObjectHeaderTypeEnum
 from sqllineage.exceptions import SQLLineageException
 from sqllineage.runner import LineageRunner
 
@@ -40,12 +39,12 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
-    AnswerMetadata,
-    ConnectionMetadata,
+    AnswerMetadataDetail,
+    ConnectionMetadataDetail,
     DataSourceTypeEnum,
     Header,
-    LiveBoardMetadata,
-    SourceMetadata,
+    LiveBoardMetadataDetail,
+    LogicalTableMetadataDetail,
     TableMappingInfo,
     Tag,
     TMLObject,
@@ -88,6 +87,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         logger.info("Fetching metadata from ThoughtSpot")
 
         self._client = ThoughtSpot.create_client(self._config)
+
         self.fetch_virtual_views()
         self.fetch_dashboards()
 
@@ -96,11 +96,9 @@ class ThoughtSpotExtractor(BaseExtractor):
     def fetch_virtual_views(self):
         connections = from_list(ThoughtSpot.fetch_connections(self._client))
 
-        data_objects = ThoughtSpot.fetch_objects(
-            self._client, SearchObjectHeaderTypeEnum.DATAOBJECT_ALL
-        )
+        data_objects = ThoughtSpot.fetch_tables(self._client)
 
-        def is_source_valid(table: SourceMetadata):
+        def is_source_valid(table: LogicalTableMetadataDetail):
             """
             Table should source from a connection
             """
@@ -117,7 +115,9 @@ class ThoughtSpotExtractor(BaseExtractor):
         self.populate_lineage(connections, tables)
         self.populate_formula()
 
-    def populate_logical_column_mapping(self, tables: Dict[str, SourceMetadata]):
+    def populate_logical_column_mapping(
+        self, tables: Dict[str, LogicalTableMetadataDetail]
+    ):
         for table in tables.values():
             table_id = table.header.id
             view_id = VirtualViewLogicalID(
@@ -131,8 +131,8 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_virtual_views(
         self,
-        connections: Dict[str, ConnectionMetadata],
-        tables: Dict[str, SourceMetadata],
+        connections: Dict[str, ConnectionMetadataDetail],
+        tables: Dict[str, LogicalTableMetadataDetail],
     ):
         for table in tables.values():
             table_id = table.header.id
@@ -248,8 +248,8 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_lineage(
         self,
-        connections: Dict[str, ConnectionMetadata],
-        tables: Dict[str, SourceMetadata],
+        connections: Dict[str, ConnectionMetadataDetail],
+        tables: Dict[str, LogicalTableMetadataDetail],
     ):
         """
         Populate lineage between tables/worksheets/views
@@ -308,7 +308,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     @staticmethod
     def get_source_entity_id_from_connection(
-        connections: Dict[str, ConnectionMetadata],
+        connections: Dict[str, ConnectionMetadataDetail],
         normalized_name: str,
         source_id: str,
     ) -> str:
@@ -323,7 +323,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     @staticmethod
     def find_entity_id_from_connection(
-        connections: Dict[str, ConnectionMetadata],
+        connections: Dict[str, ConnectionMetadataDetail],
         mapping: TableMappingInfo,
         source_id: str,
     ) -> str:
@@ -370,17 +370,14 @@ class ThoughtSpotExtractor(BaseExtractor):
         return source_ids
 
     def fetch_dashboards(self):
-        answers = ThoughtSpot.fetch_objects(
-            self._client, SearchObjectHeaderTypeEnum.ANSWER
-        )
+        answers = ThoughtSpot.fetch_answers(self._client)
         self.populate_answers(answers)
+        self.populate_answers_lineage(answers)
 
-        boards = ThoughtSpot.fetch_objects(
-            self._client, SearchObjectHeaderTypeEnum.LIVEBOARD
-        )
-        self.populate_liveboards(boards)
+        liveboards = ThoughtSpot.fetch_liveboards(self._client)
+        self.populate_liveboards(liveboards)
 
-    def populate_answers(self, answers: List[AnswerMetadata]):
+    def populate_answers(self, answers: List[AnswerMetadataDetail]):
         for answer in answers:
             answer_id = answer.header.id
 
@@ -391,8 +388,6 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for viz in sheet.sheetContent.visualizations
                 if viz.vizContent.vizType == "CHART"
             ]
-
-            source_entities = self._populate_source_virtual_views(visualizations)
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -413,18 +408,42 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
-                upstream=DashboardUpstream(source_virtual_views=source_entities),
-                entity_upstream=EntityUpstream(
-                    source_entities=source_entities,
-                    field_mappings=self._get_field_mapping_from_visualizations(
-                        visualizations
-                    ),
-                ),
             )
 
             self._dashboards[answer_id] = dashboard
 
-    def populate_liveboards(self, liveboards: List[LiveBoardMetadata]):
+    def populate_answers_lineage(self, answers: List[AnswerMetadataDetail]):
+        ids = [answer.header.id for answer in answers]
+        for tml_result in ThoughtSpot.fetch_tml(self._client, ids):
+            if not tml_result.edoc:
+                continue
+            tml = parse_raw_as(TMLObject, tml_result.edoc)
+
+            answer_id = tml.guid
+            dashboard = self._dashboards.get(answer_id)
+
+            if not dashboard:
+                continue
+
+            source_ids = (
+                [tml_table.fqn for tml_table in tml.answer.tables if tml_table.fqn]
+                if tml.answer and tml.answer.tables
+                else []
+            )
+
+            source_entities = [
+                str(
+                    to_virtual_view_entity_id(
+                        source_id, VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
+                    )
+                )
+                for source_id in source_ids
+            ]
+
+            dashboard.entity_upstream = EntityUpstream(source_entities=source_entities)
+            dashboard.upstream = DashboardUpstream(source_virtual_views=source_entities)
+
+    def populate_liveboards(self, liveboards: List[LiveBoardMetadataDetail]):
         for board in liveboards:
             board_id = board.header.id
 
@@ -498,27 +517,30 @@ class ThoughtSpotExtractor(BaseExtractor):
     @staticmethod
     def _populate_source_virtual_views(
         charts: List[Tuple[Visualization, Header, str]],
-    ) -> List[str]:
-        return unique_list(
-            [
-                str(
-                    to_virtual_view_entity_id(
-                        name=reference.id,
-                        virtualViewType=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT,
+    ) -> Optional[List[str]]:
+        return (
+            unique_list(
+                [
+                    str(
+                        to_virtual_view_entity_id(
+                            name=reference.id,
+                            virtualViewType=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT,
+                        )
                     )
-                )
-                for viz, *_ in charts
-                for column in viz.vizContent.columns
-                if column.referencedTableHeaders
-                for reference in column.referencedTableHeaders
-            ]
+                    for viz, *_ in charts
+                    for column in viz.vizContent.columns
+                    if column.referencedTableHeaders
+                    for reference in column.referencedTableHeaders
+                ]
+            )
+            or None
         )
 
     def _get_field_mapping_from_visualizations(
         self,
         charts: List[Tuple[Visualization, Header, str]],
-    ) -> List[FieldMapping]:
-        return [
+    ) -> Optional[List[FieldMapping]]:
+        field_mappings = [
             FieldMapping(
                 destination=header.name,
                 sources=[
@@ -536,6 +558,8 @@ class ThoughtSpotExtractor(BaseExtractor):
             )
             for viz, header, *_ in charts
         ]
+
+        return [f for f in field_mappings if f.sources] or None
 
     @staticmethod
     def _tag_names(tags: List[Tag]) -> List[str]:
