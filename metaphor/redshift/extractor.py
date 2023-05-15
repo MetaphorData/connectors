@@ -89,7 +89,6 @@ class RedshiftExtractor(PostgreSQLExtractor):
                 result["tbl_rows"], result["size"] * BYTES_PER_MEGABYTES
             )
             dataset.statistics.record_count = statistics.record_count
-            dataset.statistics.data_size = statistics.data_size
             dataset.statistics.data_size_bytes = statistics.data_size_bytes
 
     async def _fetch_query_logs(self, conn) -> None:
