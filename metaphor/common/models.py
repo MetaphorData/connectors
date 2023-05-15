@@ -3,7 +3,6 @@ from typing import Optional, Union
 
 from pydantic.dataclasses import dataclass
 
-from metaphor.common.constants import BYTES_PER_MEGABYTES
 from metaphor.common.entity_id import normalize_full_dataset_name, to_dataset_entity_id
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -39,9 +38,6 @@ def to_dataset_statistics(
     last_updated: Optional[datetime] = None,
 ) -> DatasetStatistics:
     return DatasetStatistics(
-        data_size=float(size_bytes / BYTES_PER_MEGABYTES)
-        if size_bytes is not None
-        else None,
         data_size_bytes=float(size_bytes) if size_bytes is not None else None,
         record_count=float(rows) if rows is not None else None,
         last_updated=last_updated,
