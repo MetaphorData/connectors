@@ -31,6 +31,8 @@ class TableauRunConfig(BaseConfig):
     access_token: Optional[TableauTokenAuthConfig] = None
     user_password: Optional[TableauPasswordAuthConfig] = None
 
+    alternative_base_url: Optional[str] = None
+
     # Snowflake data source account
     snowflake_account: Optional[str] = None
 

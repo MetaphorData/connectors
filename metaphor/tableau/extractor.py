@@ -75,8 +75,9 @@ class TableauExtractor(BaseExtractor):
         self._dashboards: Dict[str, Dashboard] = {}
 
         # The base URL for dashboards, data sources, etc.
+        # Use alternative_base_url if provided, otherwise, use server_url as the base
         self._base_url = TableauExtractor._build_base_url(
-            self._server_url, self._site_name
+            config.alternative_base_url or self._server_url, self._site_name
         )
 
     async def extract(self) -> Collection[ENTITY_TYPES]:

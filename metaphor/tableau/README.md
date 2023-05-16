@@ -59,6 +59,14 @@ output:
 
 ### Optional Configurations
 
+#### Alternative Server URL
+
+If the tableau users use a different URL to view content on Tableau than the server URL for fetching metadata, please provide the alternative base URL so the crawler can generate direct links to the assets: 
+
+```yaml
+alternative_base_url: <tableau_base_url> // e.g. https://tableau.my_company.com
+```
+
 #### Snowflake Account
 
 If one of the data sources is using Snowflake dataset, please provide the Snowflake account as follows,
