@@ -8,6 +8,7 @@ def test_yaml_config(test_root_dir):
     assert config == TableauRunConfig(
         server_url="https://10ay.online.tableau.com",
         site_name="abc",
+        alternative_base_url="https://tableau.my_company.com",
         access_token=TableauTokenAuthConfig(
             token_name="foo",
             token_value="bar",

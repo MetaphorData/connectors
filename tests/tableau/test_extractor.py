@@ -63,6 +63,16 @@ def dummy_config():
     )
 
 
+def dummy_config_with_alternative_url():
+    return TableauRunConfig(
+        server_url="https://10ax.online.tableau.com",
+        site_name="",
+        alternative_base_url="https://tableau.my_company.com",
+        access_token=TableauTokenAuthConfig(token_name="name", token_value="value"),
+        output=OutputConfig(),
+    )
+
+
 def test_build_base_url():
     # Tableau Online
     assert (
@@ -82,11 +92,17 @@ def test_view_url():
 
     extractor = TableauExtractor(dummy_config())
 
-    view_url = extractor._build_view_url(view_name)
+    view_url2 = extractor._build_view_url(view_name)
 
     assert (
-        view_url == "https://10ax.online.tableau.com/#/site/abc/views/Regional/Obesity"
+        view_url2 == "https://10ax.online.tableau.com/#/site/abc/views/Regional/Obesity"
     )
+
+    extractor2 = TableauExtractor(dummy_config_with_alternative_url())
+
+    view_url2 = extractor2._build_view_url(view_name)
+
+    assert view_url2 == "https://tableau.my_company.com/#/views/Regional/Obesity"
 
 
 def test_extract_workbook_id():
