@@ -90,6 +90,13 @@ from .generated.dbt_manifest_v8 import Macro as MacroV8
 from .generated.dbt_manifest_v8 import Metric as MetricV8
 from .generated.dbt_manifest_v8 import ModelNode as ModelNodeV8
 from .generated.dbt_manifest_v8 import SourceDefinition as SourceDefinitionV8
+from .generated.dbt_manifest_v9 import DbtManifest as DbtManifestV9
+from .generated.dbt_manifest_v9 import DependsOn as DependsOnV9
+from .generated.dbt_manifest_v9 import GenericTestNode as GenericTestNodeV9
+from .generated.dbt_manifest_v9 import Macro as MacroV9
+from .generated.dbt_manifest_v9 import Metric as MetricV9
+from .generated.dbt_manifest_v9 import ModelNode as ModelNodeV9
+from .generated.dbt_manifest_v9 import SourceDefinition as SourceDefinitionV9
 
 logger = get_logger()
 
@@ -104,6 +111,7 @@ MODEL_NODE_TYPE = Union[
     ParsedModelNodeV6,
     ParsedModelNodeV7,
     ModelNodeV8,
+    ModelNodeV9,
 ]
 
 TEST_NODE_TYPE = Union[
@@ -112,6 +120,7 @@ TEST_NODE_TYPE = Union[
     CompiledTestNodeV6,
     CompiledTestNodeV7,
     GenericTestNodeV8,
+    GenericTestNodeV9,
     ParsedTestNodeV3,
     ParsedTestNodeV5,
     ParsedTestNodeV6,
@@ -124,6 +133,7 @@ SOURCE_DEFINITION_TYPE = Union[
     ParsedSourceDefinitionV6,
     ParsedSourceDefinitionV7,
     SourceDefinitionV8,
+    SourceDefinitionV9,
 ]
 
 SOURCE_DEFINITION_MAP = Union[
@@ -132,6 +142,7 @@ SOURCE_DEFINITION_MAP = Union[
     Dict[str, ParsedSourceDefinitionV6],
     Dict[str, ParsedSourceDefinitionV7],
     Dict[str, SourceDefinitionV8],
+    Dict[str, SourceDefinitionV9],
 ]
 
 METRIC_TYPE = Union[
@@ -139,6 +150,7 @@ METRIC_TYPE = Union[
     ParsedMetricV6,
     ParsedMetricV7,
     MetricV8,
+    MetricV9,
 ]
 
 DEPENDS_ON_TYPE = Union[
@@ -147,6 +159,7 @@ DEPENDS_ON_TYPE = Union[
     DependsOnV6,
     DependsOnV7,
     DependsOnV8,
+    DependsOnV9,
 ]
 
 MACRO_MAP = Union[
@@ -155,6 +168,7 @@ MACRO_MAP = Union[
     Dict[str, ParsedMacroV6],
     Dict[str, ParsedMacroV7],
     Dict[str, MacroV8],
+    Dict[str, MacroV9],
 ]
 
 MANIFEST_CLASS_TYPE = Union[
@@ -163,6 +177,7 @@ MANIFEST_CLASS_TYPE = Union[
     Type[DbtManifestV6],
     Type[DbtManifestV7],
     Type[DbtManifestV8],
+    Type[DbtManifestV9],
 ]
 
 # Maps dbt schema version to manifest class
@@ -175,6 +190,7 @@ dbt_version_manifest_class_map: Dict[str, MANIFEST_CLASS_TYPE] = {
     "v6": DbtManifestV6,
     "v7": DbtManifestV7,
     "v8": DbtManifestV8,
+    "v9": DbtManifestV9,
 }
 
 
@@ -244,6 +260,7 @@ class ManifestParser:
                     ParsedModelNodeV6,
                     ParsedModelNodeV7,
                     ModelNodeV8,
+                    ModelNodeV9,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(MODEL_NODE_TYPE)
@@ -263,6 +280,7 @@ class ManifestParser:
                     ParsedTestNodeV6,
                     ParsedTestNodeV7,
                     GenericTestNodeV8,
+                    GenericTestNodeV9,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(TEST_NODE_TYPE)
@@ -312,7 +330,9 @@ class ManifestParser:
             test, (CompiledTestNodeV3, CompiledTestNodeV5, CompiledTestNodeV6)
         ):
             dbt_test.sql = test.compiled_sql
-        elif isinstance(test, (CompiledTestNodeV7, GenericTestNodeV8)):
+        elif isinstance(
+            test, (CompiledTestNodeV7, GenericTestNodeV8, GenericTestNodeV9)
+        ):
             dbt_test.sql = test.compiled_code
 
         init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
@@ -345,7 +365,7 @@ class ManifestParser:
         ):
             virtual_view.dbt_model.raw_sql = model.raw_sql
             dbt_model.compiled_sql = model.compiled_sql
-        elif isinstance(model, (CompiledModelNodeV7, ModelNodeV8)):
+        elif isinstance(model, (CompiledModelNodeV7, ModelNodeV8, ModelNodeV9)):
             virtual_view.dbt_model.raw_sql = model.raw_code
             dbt_model.compiled_sql = model.compiled_code
 
@@ -594,10 +614,11 @@ class ManifestParser:
             url=build_metric_docs_url(self._docs_base_url, metric.unique_id),
         )
 
+        # v7 changed from sql & type to expression & calculation_method
         if isinstance(metric, (ParsedMetricV5, ParsedMetricV6)):
             metric_entity.dbt_metric.sql = metric.sql
             metric_entity.dbt_metric.type = metric.type
-        elif isinstance(metric, (ParsedMetricV7, MetricV8)):
+        else:
             metric_entity.dbt_metric.sql = metric.expression
             metric_entity.dbt_metric.type = metric.calculation_method
 
