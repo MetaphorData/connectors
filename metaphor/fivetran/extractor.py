@@ -357,7 +357,12 @@ class FivetranExtractor(BaseExtractor):
 
         for destination in self._destinations.values():
             for connector in self.get_connectors_in_group(destination.group_id):
-                connector_detail = self.get_connector_detail(connector.id)
+                try:
+                    connector_detail = self.get_connector_detail(connector.id)
+                except ApiError as error:
+                    logger.error(error)
+                    continue
+
                 if connector_detail is None:
                     continue
                 connectors.append(connector_detail)
@@ -418,18 +423,23 @@ class FivetranExtractor(BaseExtractor):
         )
 
     def _get_all(self, url: str, type_: Type[DataT]) -> List[DataT]:
-        result = []
+        result: List[DataT] = []
         next_cursor = None
 
         while True:
             query = {"cursor": next_cursor, "limit": "1000"}
 
             target_type: Type = GenericListResponse[type_]  # type: ignore
-            response = self._call_get(
-                url=url,
-                type_=target_type,
-                params=query,
-            )
+            try:
+                response = self._call_get(
+                    url=url,
+                    type_=target_type,
+                    params=query,
+                )
+            except ApiError as error:
+                logger.error(error)
+                return result
+
             result.extend(response.data.items)
             next_cursor = response.data.next_cursor
             if next_cursor is None:
