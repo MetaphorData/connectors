@@ -465,9 +465,11 @@ class ThoughtSpotExtractor(BaseExtractor):
             return []
 
         try:
+            # Prepend an insert before answer_sql to get column level lineage
             parser = LineageRunner(f"insert into db.table {answer_sql}")
         except SQLLineageException as e:
             logger.warning(f"Cannot parse SQL. Query: {answer_sql}, Error: {e}")
+            return []
 
         column_lineages = parser.get_column_lineage()
 
@@ -484,21 +486,33 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_col
             )
 
-        for target_col, source_cols in mapping.values():
-            sources: List[SourceField] = []
-            index = int(target_col.raw_name.split("_")[1]) - 1
-            destination = target_columns[index]
-            for source_col in source_cols:
-                sources.append(
-                    SourceField(source_entity_id=source_id, field=source_col.raw_name)
+        try:
+            for target_col, source_cols in mapping.values():
+                sources: List[SourceField] = []
+
+                # Assume the target column name align the format ca_{index+1}
+                index = int(target_col.raw_name.split("_")[1]) - 1
+
+                destination = target_columns[index]
+                for source_col in source_cols:
+                    sources.append(
+                        SourceField(
+                            source_entity_id=source_id, field=source_col.raw_name
+                        )
+                    )
+                field_mappings.append(
+                    FieldMapping(
+                        destination=destination,
+                        sources=sources,
+                        transformation=str(target_col.expression.token),
+                    )
                 )
-            field_mappings.append(
-                FieldMapping(
-                    destination=destination,
-                    sources=sources,
-                    transformation=str(target_col.expression.token),
-                )
+        except (ValueError, IndexError):
+            # if the target name is not matched the assumption
+            logger.warn(
+                f"The target column name in answer sql didn't match the assumption, sql: {answer_sql}"
             )
+            return []
 
         return field_mappings
 
