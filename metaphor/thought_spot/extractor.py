@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from itertools import chain
 from typing import Collection, Dict, List, Optional, Tuple
 
+import sqllineage
 from pydantic import parse_raw_as
 from sqllineage.exceptions import SQLLineageException
 from sqllineage.runner import LineageRunner
@@ -440,8 +441,66 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for source_id in source_ids
             ]
 
-            dashboard.entity_upstream = EntityUpstream(source_entities=source_entities)
+            # assume answer only have one source table
+            if len(source_entities) == 1 and tml.answer:
+                field_mappings = self.get_field_mappings_from_answer_sql(
+                    tml.guid, source_entities[0], tml.answer.table.ordered_column_ids
+                )
+
+            dashboard.entity_upstream = EntityUpstream(
+                source_entities=source_entities, field_mappings=field_mappings
+            )
             dashboard.upstream = DashboardUpstream(source_virtual_views=source_entities)
+
+    def get_field_mappings_from_answer_sql(
+        self, answer_id, source_id, target_columns: Optional[List[str]]
+    ) -> List[FieldMapping]:
+
+        if not target_columns:
+            return []
+
+        answer_sql = ThoughtSpot.fetch_answer_sql(self._client, answer_id)
+
+        if not answer_sql:
+            return []
+
+        try:
+            parser = LineageRunner(f"insert into db.table {answer_sql}")
+        except SQLLineageException as e:
+            logger.warning(f"Cannot parse SQL. Query: {answer_sql}, Error: {e}")
+
+        column_lineages = parser.get_column_lineage()
+
+        field_mappings: List[FieldMapping] = []
+
+        mapping: Dict[str, Tuple[sqllineage.Column, List[sqllineage.Column]]] = {}
+        for cll_tuple in column_lineages:
+            if len(cll_tuple) < 2:
+                continue
+
+            target_col = cll_tuple[-1]
+            source_col = cll_tuple[0]
+            mapping.setdefault(target_col.raw_name, (target_col, []))[1].append(
+                source_col
+            )
+
+        for target_col, source_cols in mapping.values():
+            sources: List[SourceField] = []
+            index = int(target_col.raw_name.split("_")[1]) - 1
+            destination = target_columns[index]
+            for source_col in source_cols:
+                sources.append(
+                    SourceField(source_entity_id=source_id, field=source_col.raw_name)
+                )
+            field_mappings.append(
+                FieldMapping(
+                    destination=destination,
+                    sources=sources,
+                    transformation=str(target_col.expression.token),
+                )
+            )
+
+        return field_mappings
 
     def populate_liveboards(self, liveboards: List[LiveBoardMetadataDetail]):
         for board in liveboards:

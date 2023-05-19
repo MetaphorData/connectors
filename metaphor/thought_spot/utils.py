@@ -200,3 +200,19 @@ class ThoughtSpot:
         json_dump_to_debug_file(response, f"tml_{log_uid}.json")
 
         return parse_obj_as(List[TMLResult], response)
+
+    @classmethod
+    def fetch_answer_sql(cls, client: TSRestApiV2, answer_id: str) -> Optional[str]:
+        logger.info(f"Fetching answer sql for id: {answer_id}")
+
+        response = client.metadata_answer_sql(answer_id)
+        json_dump_to_debug_file(response, f"answer_sql__{answer_id}.json")
+
+        if "sql_queries" in response:
+            sql_queries = response["sql_queries"]
+            if isinstance(sql_queries, list) and len(sql_queries) == 1:
+                sql_query: Dict[str, str] = sql_queries[0]
+                if "sql_query" in sql_query:
+                    return sql_query.get("sql_query")
+
+        return None

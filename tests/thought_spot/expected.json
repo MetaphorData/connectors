@@ -172,6 +172,32 @@
     "entityUpstream": {
       "sourceEntities": [
         "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+      ],
+      "fieldMappings": [
+        {
+          "destination": "x",
+          "sources": [
+            {
+              "field": "col1",
+              "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+            },
+            {
+              "field": "col2",
+              "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+            }
+          ],
+          "transformation": "(\"ta_1\".\"col1\" - \"ta_1\".\"col2\")"
+        },
+        {
+          "destination": "y",
+          "sources": [
+            {
+              "field": "col3",
+              "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+            }
+          ],
+          "transformation": "CASE\n    WHEN sum(\"ta_1\".\"col3\") IS NOT NULL THEN sum(\"ta_1\".\"col3\")\n    ELSE 0\n  END"
+        }
       ]
     }
   },

@@ -1,0 +1,7 @@
+{
+  "sql_queries": [
+    {
+      "sql_query": "SELECT \n  (\"ta_1\".\"col1\" - \"ta_1\".\"col2\") \"ca_1\", \n  CASE\n    WHEN sum(\"ta_1\".\"col3\") IS NOT NULL THEN sum(\"ta_1\".\"col3\")\n    ELSE 0\n  END \"ca_2\"\nFROM (SELECT col1, col2, col3 FROM db.schema.table AS c ) \"ta_1\"\nGROUP BY \"ca_1\""
+    }
+  ]
+}
