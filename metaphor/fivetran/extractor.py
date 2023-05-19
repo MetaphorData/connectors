@@ -4,7 +4,7 @@ from typing import Collection, Dict, List, Optional, Type
 
 from requests.auth import HTTPBasicAuth
 
-from metaphor.common.api_request import get_request
+from metaphor.common.api_request import ApiError, get_request
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     dataset_normalized_name,
@@ -88,7 +88,7 @@ class ColumnMetadata:
     name_in_source: str
     name_in_destination: str
     type_in_source: str
-    type_in_destination: str
+    type_in_destination: Optional[str]
     is_primary_key: bool
     is_foreign_key: bool
 
@@ -268,7 +268,9 @@ class FivetranExtractor(BaseExtractor):
             connector,
             self._source_metadata.get(connector.service),
             serialized_schema_metadata,
-            self._users.get(connector.connected_by),
+            None
+            if connector.connected_by is None
+            else self._users.get(connector.connected_by),
         )
 
         if connector.service in SOURCE_PLATFORM_MAPPING:
@@ -335,7 +337,12 @@ class FivetranExtractor(BaseExtractor):
     def get_destinations(self):
         groups = self.get_group_ids()
         for group in groups:
-            destination = self.get_destination_info(group)
+            try:
+                destination = self.get_destination_info(group)
+            except ApiError as error:
+                logger.error(error)
+                continue
+
             if destination is None:
                 continue
 
@@ -350,7 +357,12 @@ class FivetranExtractor(BaseExtractor):
 
         for destination in self._destinations.values():
             for connector in self.get_connectors_in_group(destination.group_id):
-                connector_detail = self.get_connector_detail(connector.id)
+                try:
+                    connector_detail = self.get_connector_detail(connector.id)
+                except ApiError as error:
+                    logger.error(error)
+                    continue
+
                 if connector_detail is None:
                     continue
                 connectors.append(connector_detail)
@@ -411,18 +423,23 @@ class FivetranExtractor(BaseExtractor):
         )
 
     def _get_all(self, url: str, type_: Type[DataT]) -> List[DataT]:
-        result = []
+        result: List[DataT] = []
         next_cursor = None
 
         while True:
             query = {"cursor": next_cursor, "limit": "1000"}
 
             target_type: Type = GenericListResponse[type_]  # type: ignore
-            response = self._call_get(
-                url=url,
-                type_=target_type,
-                params=query,
-            )
+            try:
+                response = self._call_get(
+                    url=url,
+                    type_=target_type,
+                    params=query,
+                )
+            except ApiError as error:
+                logger.error(error)
+                return result
+
             result.extend(response.data.items)
             next_cursor = response.data.next_cursor
             if next_cursor is None:

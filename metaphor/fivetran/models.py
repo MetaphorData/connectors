@@ -41,7 +41,7 @@ class MetadataColumnPayload(BaseModel):
     name_in_source: str
     name_in_destination: str
     type_in_source: str
-    type_in_destination: str
+    type_in_destination: Optional[str]
     is_primary_key: bool
     is_foreign_key: bool
 
@@ -77,7 +77,7 @@ class ConnectorPayload(BaseModel):
     schema_: str = Field(alias="schema")
     succeeded_at: Optional[datetime.datetime]
     sync_frequency: int
-    connected_by: str
+    connected_by: Optional[str]
     service_version: int
     created_at: datetime.datetime
     failed_at: Optional[datetime.datetime]
