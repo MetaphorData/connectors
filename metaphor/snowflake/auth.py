@@ -85,6 +85,8 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
                 key_data = f.read()
         elif config.private_key.key_data:
             key_data = bytes(config.private_key.key_data, "utf-8")
+        else:
+            raise ValueError("No private key file or data specified")
 
         p_key = serialization.load_pem_private_key(
             key_data, password=passphrase, backend=default_backend()
