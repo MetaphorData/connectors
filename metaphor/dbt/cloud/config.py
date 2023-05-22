@@ -23,3 +23,6 @@ class DbtCloudConfig(BaseConfig):
 
     # map meta field to tags
     meta_tags: List[MetaTag] = dataclass_field(default_factory=lambda: [])
+
+    # Base URL for dbt instance
+    base_url: str = "https://cloud.getdbt.com"

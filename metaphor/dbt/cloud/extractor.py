@@ -16,9 +16,6 @@ from metaphor.models.crawler_run_metadata import Platform
 
 logger = get_logger()
 
-ADMIN_API_BASE_URL = "https://cloud.getdbt.com/api/v2"
-DBT_DOC_BASE_URL = "https://cloud.getdbt.com/accounts/%d/jobs/%s/docs"
-
 
 class DbtAdminAPIClient:
     """A client that wraps the dbt Cloud Administrative API
@@ -26,16 +23,14 @@ class DbtAdminAPIClient:
     See https://docs.getdbt.com/dbt-cloud/api-v2 for more details.
     """
 
-    @staticmethod
-    def from_config_file(config_file: str) -> "DbtExtractor":
-        return DbtExtractor(DbtRunConfig.from_yaml_file(config_file))
-
-    def __init__(self, account_id: int, service_token: str):
+    def __init__(self, base_url: str, account_id: int, service_token: str):
+        self.admin_api_base_url = f"{base_url}/api/v2"
         self.account_id = account_id
         self.service_token = service_token
 
     def _get(self, path: str, params: Optional[Dict] = None):
-        url = f"{ADMIN_API_BASE_URL}/accounts/{self.account_id}/{path}"
+        url = f"{self.admin_api_base_url}/accounts/{self.account_id}/{path}"
+        logger.info(f"Sending request to {url}")
         req = requests.get(
             url,
             params=params,
@@ -120,11 +115,16 @@ class DbtCloudExtractor(BaseExtractor):
         self._service_token = config.service_token
         self._meta_ownerships = config.meta_ownerships
         self._meta_tags = config.meta_tags
+        self._base_url = config.base_url
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from DBT cloud")
 
-        client = DbtAdminAPIClient(self._account_id, self._service_token)
+        client = DbtAdminAPIClient(
+            base_url=self._base_url,
+            account_id=self._account_id,
+            service_token=self._service_token,
+        )
 
         project_id, run_id = client.get_last_successful_run(self._job_id)
         logger.info(f"Last successful run ID: {run_id}, project ID: {project_id}")
@@ -136,12 +136,16 @@ class DbtCloudExtractor(BaseExtractor):
         manifest_json = client.get_run_artifact(run_id, "manifest.json")
         logger.info(f"manifest.json saved to {manifest_json}")
 
+        docs_base_url = (
+            f"{self._base_url}/accounts/{self._account_id}/jobs/{self._job_id}/docs"
+        )
+
         # Pass the path of the downloaded manifest file to the dbt Core extractor
         return await DbtExtractor(
             DbtRunConfig(
                 manifest=manifest_json,
                 account=account,
-                docs_base_url=DBT_DOC_BASE_URL % (self._account_id, self._job_id),
+                docs_base_url=docs_base_url,
                 output=self._output,
                 meta_ownerships=self._meta_ownerships,
                 meta_tags=self._meta_tags,

@@ -34,16 +34,23 @@ async def test_extractor(test_root_dir):
             output=OutputConfig(),
             account_id=1111,
             job_id=2222,
+            base_url="https://cloud.metaphor.getdbt.com",
             service_token="service_token",
         )
         extractor = DbtCloudExtractor(config)
         await extractor.extract()
 
+        mock_client_class.assert_called_once_with(
+            base_url="https://cloud.metaphor.getdbt.com",
+            account_id=1111,
+            service_token="service_token",
+        )
+
         mock_dbt_extractor_class.assert_called_once_with(
             DbtRunConfig(
                 manifest="tempfile",
                 account="snowflake_account",
-                docs_base_url="https://cloud.getdbt.com/accounts/1111/jobs/2222/docs",
+                docs_base_url="https://cloud.metaphor.getdbt.com/accounts/1111/jobs/2222/docs",
                 output=OutputConfig(),
             )
         )
