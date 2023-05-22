@@ -24,10 +24,19 @@ METAPHOR_DATA_SNOWFLAKE_CONNECTOR = "MetaphorData_SnowflakeConnector"
 class SnowflakeKeyPairAuthConfig:
     """Config for key pair authentication"""
 
-    key_file: str
+    # path to the PEM key file
+    key_file: Optional[str] = None
+
+    # raw content of the PEM key file
+    key_data: Optional[str] = None
 
     # provide decryption passphrase if private key is encrypted
     passphrase: Optional[str] = None
+
+    @root_validator
+    def have_key_file_or_key_content(cls, values):
+        must_set_exactly_one(values, ["key_file", "key_data"])
+        return values
 
 
 @dataclass
@@ -69,10 +78,19 @@ def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnect
             else None
         )
 
-        with open(config.private_key.key_file, "rb") as f:
-            p_key = serialization.load_pem_private_key(
-                f.read(), password=passphrase, backend=default_backend()
-            )
+        # Read the private key data from a key file or source directly from the config
+        key_data = None
+        if config.private_key.key_file:
+            with open(config.private_key.key_file, "rb") as f:
+                key_data = f.read()
+        elif config.private_key.key_data:
+            key_data = bytes(config.private_key.key_data, "utf-8")
+        else:
+            raise ValueError("No private key file or data specified")
+
+        p_key = serialization.load_pem_private_key(
+            key_data, password=passphrase, backend=default_backend()
+        )
 
         pkb = p_key.private_bytes(
             encoding=serialization.Encoding.DER,
