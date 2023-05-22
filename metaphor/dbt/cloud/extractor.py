@@ -30,7 +30,7 @@ class DbtAdminAPIClient:
 
     def _get(self, path: str, params: Optional[Dict] = None):
         url = f"{self.admin_api_base_url}/accounts/{self.account_id}/{path}"
-        logger.info(f"Sending request to {url}")
+        logger.debug(f"Sending request to {url}")
         req = requests.get(
             url,
             params=params,
