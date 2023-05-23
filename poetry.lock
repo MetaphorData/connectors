@@ -5071,5 +5071,5 @@ unity-catalog = ["databricks-cli"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.7.2,<3.11"  # See https://github.com/googleapis/python-bigquery/issues/856
+python-versions = ">=3.7.2,<3.11"
 content-hash = "69f4e0ebf28dd842c748df7379f41c1b7cb709c2093b8c391a25cf41941a281d"
