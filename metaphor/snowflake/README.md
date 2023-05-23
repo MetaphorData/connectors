@@ -85,6 +85,16 @@ output:
 
 The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.
 
+You can also specify the content of the private key file directly in the config like this:
+
+```yaml
+private_key:
+  key_data: |
+    -----BEGIN ENCRYPTED PRIVATE KEY-----
+    ...
+    -----END ENCRYPTED PRIVATE KEY-----
+```
+
 See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations

@@ -25,6 +25,16 @@ You can extract `account_id` & `job_id` from a particular dbt job's URL, which h
 
 See [Output Config](../common/docs/output.md) for more information on `output`.
 
+### Optional Configurations
+
+#### Base URL
+
+If you're using dbt [Single Tenancy](https://docs.getdbt.com/docs/cloud/about-cloud/tenancy#single-tenant), you'll also need to specify a different base URL:
+
+```yaml
+base_url: https://cloud.<tenant>.getdbt.com
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `dbt` extra.
