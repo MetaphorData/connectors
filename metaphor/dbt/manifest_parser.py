@@ -4,6 +4,7 @@ from pydantic.utils import unique_list
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
+from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import (
     build_metric_docs_url,
@@ -204,7 +205,6 @@ class ManifestParser:
         metrics: Dict[str, Metric],
     ):
         self._platform = platform
-        self._account = config.account
         self._docs_base_url = config.docs_base_url
         self._project_source_url = config.project_source_url
         self._meta_ownerships = config.meta_ownerships
@@ -212,6 +212,10 @@ class ManifestParser:
         self._datasets = datasets
         self._virtual_views = virtual_views
         self._metrics = metrics
+
+        self._account = config.account
+        if self._account and platform == DataPlatform.SNOWFLAKE:
+            self._account = normalize_snowflake_account(self._account)
 
     def parse(self, manifest_json: Dict) -> None:
         manifest_metadata = manifest_json.get("metadata", {})
