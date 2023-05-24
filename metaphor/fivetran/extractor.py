@@ -12,6 +12,7 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.fivetran.config import FivetranRunConfig
 from metaphor.fivetran.models import (
     ConnectorPayload,
@@ -313,7 +314,8 @@ class FivetranExtractor(BaseExtractor):
             return None
 
         # remove snowflakecomputing.com parts
-        return ".".join(host.split(".")[:-2])
+        account = ".".join(host.split(".")[:-2])
+        return normalize_snowflake_account(account)
 
     def get_database_name_from_destination(
         self, destination: DestinationPayload
