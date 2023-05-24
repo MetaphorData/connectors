@@ -12,6 +12,7 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.utils import start_of_day, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -50,7 +51,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
 
     def __init__(self, config: SnowflakeLineageRunConfig):
         super().__init__(config, "Snowflake data lineage crawler", Platform.SNOWFLAKE)
-        self._account = config.account
+        self._account = normalize_snowflake_account(config.account)
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._batch_size = config.batch_size
