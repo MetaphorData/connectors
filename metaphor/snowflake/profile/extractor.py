@@ -1,6 +1,7 @@
 import logging
 from typing import Collection, Dict, List, Tuple
 
+from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.models.crawler_run_metadata import Platform
 
 try:
@@ -51,7 +52,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
     def __init__(self, config: SnowflakeProfileRunConfig):
         super().__init__(config, "Snowflake data profile crawler", Platform.SNOWFLAKE)
-        self._account = config.account
+        self._account = normalize_snowflake_account(config.account)
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency
         self._include_views = config.include_views
