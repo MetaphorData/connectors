@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from itertools import chain
 from typing import Collection, Dict, List, Optional, Tuple
 
-import sqllineage
 from pydantic import parse_raw_as
+from sqllineage.core.models import Column
 from sqllineage.exceptions import SQLLineageException
 from sqllineage.runner import LineageRunner
 
@@ -272,6 +272,13 @@ class ThoughtSpotExtractor(BaseExtractor):
                     )
                     view.entity_upstream.source_entities = source_entities
                     view.thought_spot.source_datasets = source_entities
+                    view.entity_upstream.field_mappings = (
+                        ThoughtSpotExtractor.get_field_mappings_from_sql(
+                            connections,
+                            table.logicalTableContent.sqlQuery,
+                            table.dataSourceId,
+                        )
+                    )
 
                 if table.logicalTableContent.tableMappingInfo is None:
                     logger.warning(
@@ -370,6 +377,73 @@ class ThoughtSpotExtractor(BaseExtractor):
 
         return source_ids
 
+    @staticmethod
+    def get_mapping_from_sql(
+        sql: Optional[str],
+    ) -> Dict[str, Tuple[Column, List[Column]]]:
+        if not sql:
+            return {}
+
+        try:
+            # prepend insert before sql to get column level lineage
+            parser = LineageRunner(f"insert into db.table {sql}")
+        except SQLLineageException as e:
+            logger.warning(f"Cannot parse SQL. Query: {sql}, Error: {e}")
+            return {}
+
+        column_lineages = parser.get_column_lineage()
+
+        mapping: Dict[str, Tuple[Column, List[Column]]] = {}
+
+        for cll_tuple in column_lineages:
+            if len(cll_tuple) < 2:
+                continue
+
+            target_col = cll_tuple[-1]
+            source_col = cll_tuple[0]
+            mapping.setdefault(target_col.raw_name, (target_col, []))[1].append(
+                source_col
+            )
+
+        return mapping
+
+    @staticmethod
+    def get_field_mappings_from_sql(
+        connections, sql: str, source_id: str
+    ) -> List[FieldMapping]:
+
+        mapping = ThoughtSpotExtractor.get_mapping_from_sql(sql)
+
+        field_mappings: List[FieldMapping] = []
+
+        for target_col, source_cols in mapping.values():
+            sources: List[SourceField] = []
+            destination = target_col.raw_name
+
+            for source_col in source_cols:
+                sources.append(
+                    SourceField(
+                        source_entity_id=str(
+                            ThoughtSpotExtractor.get_source_entity_id_from_connection(
+                                connections,
+                                str(source_col.parent).lower(),
+                                source_id,
+                            )
+                        ),
+                        field=source_col.raw_name,
+                    )
+                )
+
+            field_mappings.append(
+                FieldMapping(
+                    destination=destination,
+                    sources=sources,
+                    transformation=str(target_col.expression.token),
+                )
+            )
+
+        return field_mappings
+
     def fetch_dashboards(self):
         answers = ThoughtSpot.fetch_answers(self._client)
         self.populate_answers(answers)
@@ -460,31 +534,9 @@ class ThoughtSpotExtractor(BaseExtractor):
             return []
 
         answer_sql = ThoughtSpot.fetch_answer_sql(self._client, answer_id)
-
-        if not answer_sql:
-            return []
-
-        try:
-            # Prepend an insert before answer_sql to get column level lineage
-            parser = LineageRunner(f"insert into db.table {answer_sql}")
-        except SQLLineageException as e:
-            logger.warning(f"Cannot parse SQL. Query: {answer_sql}, Error: {e}")
-            return []
-
-        column_lineages = parser.get_column_lineage()
+        mapping = ThoughtSpotExtractor.get_mapping_from_sql(answer_sql)
 
         field_mappings: List[FieldMapping] = []
-
-        mapping: Dict[str, Tuple[sqllineage.Column, List[sqllineage.Column]]] = {}
-        for cll_tuple in column_lineages:
-            if len(cll_tuple) < 2:
-                continue
-
-            target_col = cll_tuple[-1]
-            source_col = cll_tuple[0]
-            mapping.setdefault(target_col.raw_name, (target_col, []))[1].append(
-                source_col
-            )
 
         try:
             for target_col, source_cols in mapping.values():

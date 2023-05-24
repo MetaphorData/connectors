@@ -117,6 +117,18 @@
       "transformation": "select c as sql_col1 from project.schema.table",
       "sourceEntities": [
         "DATASET~29779E6A8F6548832D2305896A583002"
+      ],
+      "fieldMappings": [
+        {
+          "destination": "sql_col1",
+          "sources": [
+            {
+              "field": "c",
+              "sourceEntityId": "DATASET~29779E6A8F6548832D2305896A583002"
+            }
+          ],
+          "transformation": "c"
+        }
       ]
     },
     "logicalId": {
