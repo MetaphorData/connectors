@@ -15,6 +15,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     EntityId,
     to_dataset_entity_id,
+    to_dataset_entity_id_from_logical_id,
     to_virtual_view_entity_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
@@ -28,6 +29,8 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DashboardUpstream,
     DataPlatform,
+    Dataset,
+    DatasetLogicalID,
     SourceInfo,
     TableauDatasource,
     TableauField,
@@ -70,6 +73,7 @@ class TableauExtractor(BaseExtractor):
         self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
         self._disable_preview_image = config.disable_preview_image
 
+        self._datasets: Dict[EntityId, Dataset] = {}
         self._views: Dict[str, tableau.ViewItem] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
@@ -106,7 +110,11 @@ class TableauExtractor(BaseExtractor):
             self._extract_dashboards(server)
             self._extract_datasources(server)
 
-        return [*self._dashboards.values(), *self._virtual_views.values()]
+        return [
+            *self._dashboards.values(),
+            *self._virtual_views.values(),
+            *self._datasets.values(),
+        ]
 
     def _extract_dashboards(self, server: tableau.Server) -> None:
         # fetch all views, with preview image
@@ -247,6 +255,7 @@ class TableauExtractor(BaseExtractor):
                 logger.warn(f"Ignore non-fully qualified source table {fullname}")
                 continue
 
+            self._init_dataset(fullname, platform, account)
             upstream_datasets.append(
                 str(to_dataset_entity_id(fullname, platform, account))
             )
@@ -415,6 +424,7 @@ class TableauExtractor(BaseExtractor):
         )
 
         logger.debug(f"dataset id: {fullname} {connection_type} {account}")
+        self._init_dataset(fullname, platform, account)
         return to_dataset_entity_id(fullname, platform, account)
 
     def _parse_chart(self, view: tableau.ViewItem) -> Chart:
@@ -436,6 +446,19 @@ class TableauExtractor(BaseExtractor):
         return Chart(title=view.name, url=view_url, preview=preview_data_url)
 
     _workbook_url_regex = r".+\/workbooks\/(\d+)(\/.*)?"
+
+    def _init_dataset(
+        self,
+        normalized_name: str,
+        platform: DataPlatform,
+        account: Optional[str],
+    ) -> Dataset:
+        dataset = Dataset()
+        dataset.logical_id = DatasetLogicalID(
+            name=normalized_name, account=account, platform=platform
+        )
+        entity_id = to_dataset_entity_id_from_logical_id(dataset.logical_id)
+        return self._datasets.setdefault(entity_id, dataset)
 
     @staticmethod
     def _extract_workbook_id(workbook_url: str) -> str:
