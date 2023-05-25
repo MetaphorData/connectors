@@ -9,6 +9,7 @@ from metaphor.common.utils import (
     filter_empty_strings,
     must_set_exactly_one,
     start_of_day,
+    unique_list,
 )
 
 
@@ -86,3 +87,9 @@ def test_chunk_by_size():
         slice(4, 5),  # ['eee']
         slice(5, 6),  # ['ffff']
     ]
+
+
+def test_unique_list():
+    assert unique_list(["a", "b", "c"]) == ["a", "b", "c"]
+    assert unique_list(["a", "a", "c"]) == ["a", "c"]
+    assert unique_list(["c", "a", "c"]) == ["c", "a"]

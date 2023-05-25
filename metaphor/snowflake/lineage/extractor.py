@@ -264,9 +264,11 @@ class SnowflakeLineageExtractor(BaseExtractor):
             )
 
             if target_normalized_name in self._datasets:
-                self._datasets[target_normalized_name].upstream.source_datasets.append(
-                    source_entity_id_str
-                )
+                source_datasets = self._datasets[
+                    target_normalized_name
+                ].upstream.source_datasets
+                if source_entity_id_str not in source_datasets:
+                    source_datasets.append(source_entity_id_str)
             else:
                 self._datasets[target_normalized_name] = Dataset(
                     logical_id=target_logical_id,
