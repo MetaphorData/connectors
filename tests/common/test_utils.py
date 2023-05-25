@@ -4,7 +4,11 @@ import pytest
 import pytz
 from freezegun import freeze_time
 
-from metaphor.common.utils import must_set_exactly_one, start_of_day
+from metaphor.common.utils import (
+    filter_empty_strings,
+    must_set_exactly_one,
+    start_of_day,
+)
 
 
 @freeze_time("2020-01-10")
@@ -26,3 +30,9 @@ def test_must_set_exactly_one():
 
     with pytest.raises(ValueError):
         must_set_exactly_one({"foo": 1, "bar": 1}, ["foo", "bar"])
+
+
+def test_filter_empty_strings():
+    assert filter_empty_strings(["", "", ""]) == []
+    assert filter_empty_strings(["foo", "", "bar"]) == ["foo", "bar"]
+    assert filter_empty_strings(["foo", "bar", "baz"]) == ["foo", "bar", "baz"]
