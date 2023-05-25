@@ -15,6 +15,10 @@ def unique_list(non_unique_list: list) -> list:
     return list(dict.fromkeys(non_unique_list))
 
 
+def filter_empty_strings(original_list: list) -> list:
+    return list(filter(lambda e: len(e) > 0, original_list))
+
+
 def chunks(list, n):
     """Yield successive n-sized chunks from the list."""
     for i in range(0, len(list), n):

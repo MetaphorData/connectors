@@ -5,6 +5,7 @@ from pydantic.utils import unique_list
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
+from metaphor.common.utils import filter_empty_strings
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import (
     build_metric_docs_url,
@@ -359,7 +360,7 @@ class ManifestParser:
                 self._project_source_url, model.original_file_path
             ),
             docs_url=build_model_docs_url(self._docs_base_url, model.unique_id),
-            tags=model.tags,
+            tags=filter_empty_strings(model.tags) if model.tags is not None else None,
             fields=[],
         )
         dbt_model = virtual_view.dbt_model
@@ -607,7 +608,7 @@ class ManifestParser:
             package_name=metric.package_name,
             description=metric.description or None,
             label=metric.label,
-            tags=metric.tags,
+            tags=filter_empty_strings(metric.tags) if metric.tags is not None else None,
             timestamp=metric.timestamp,
             time_grains=metric.time_grains,
             dimensions=metric.dimensions,
