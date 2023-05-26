@@ -40,7 +40,7 @@ class MetadataColumnPayload(BaseModel):
     parent_id: str
     name_in_source: str
     name_in_destination: str
-    type_in_source: str
+    type_in_source: Optional[str]
     type_in_destination: Optional[str]
     is_primary_key: bool
     is_foreign_key: bool
