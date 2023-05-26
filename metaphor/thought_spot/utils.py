@@ -4,6 +4,7 @@ from pydantic import parse_obj_as
 from thoughtspot_rest_api_v1 import TSRestApiV2
 
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
+from metaphor.common.utils import chunks
 from metaphor.models.metadata_change_event import (
     ChartType,
     DataPlatform,
@@ -108,83 +109,122 @@ class ThoughtSpot:
     def fetch_connections(client: TSRestApiV2) -> List[ConnectionMetadataDetail]:
         supported_platform = set(ConnectionType)
 
-        search_response = client.metadata_search(
-            {
-                "metadata": [{"type": "CONNECTION"}],
-                "include_details": True,
-                "record_size": 100,
-            }
-        )
-        json_dump_to_debug_file(search_response, "metadata_search__connection.json")
+        connection_details: List[ConnectionMetadataDetail] = []
 
-        connections = parse_obj_as(List[ConnectionMetadata], search_response)
-        connection_details = [
-            connection.metadata_detail
-            for connection in connections
-            if connection.metadata_detail.type in supported_platform
-        ]
+        batch_count = 0
+        batch_size = 100
 
-        logger.info(f"CONNECTION ids: {[c.header.id for c in connection_details]}")
+        while True:
+            search_response = client.metadata_search(
+                {
+                    "metadata": [{"type": "CONNECTION"}],
+                    "include_details": True,
+                    "record_size": batch_size,
+                    "record_offset": batch_count * batch_size,
+                }
+            )
+            json_dump_to_debug_file(search_response, "metadata_search__connection.json")
+
+            batch_count += 1
+
+            connections = parse_obj_as(List[ConnectionMetadata], search_response)
+
+            for connection in connections:
+                if connection.metadata_detail.type in supported_platform:
+                    connection_details.append(connection.metadata_detail)
+
+            if len(connections) < batch_size:
+                break
+
+        logger.info(f"Extract #{len(connection_details)} connections")
 
         return connection_details
 
     @classmethod
     def fetch_tables(cls, client: TSRestApiV2) -> List[LogicalTableMetadataDetail]:
-        response = client.metadata_search(
-            {
-                "metadata": [{"type": "LOGICAL_TABLE"}],
-                "include_details": True,
-                "record_size": 100,
-            }
-        )
-        json_dump_to_debug_file(response, "metadata_search__logical_table.json")
+        table_details: List[LogicalTableMetadataDetail] = []
 
-        table_details = [
-            table.metadata_detail
-            for table in parse_obj_as(List[LogicalTableMetadata], response)
-        ]
+        batch_count = 0
+        batch_size = 100
 
-        logger.info(f"TABLE ids: {[c.header.id for c in table_details]}")
+        while len(table_details) == batch_count * batch_size:
+            response = client.metadata_search(
+                {
+                    "metadata": [{"type": "LOGICAL_TABLE"}],
+                    "include_details": True,
+                    "record_size": batch_size,
+                    "record_offset": batch_count * batch_size,
+                }
+            )
+            json_dump_to_debug_file(
+                response, f"metadata_search__logical_table_{batch_count}.json"
+            )
+
+            batch_count += 1
+
+            for table in parse_obj_as(List[LogicalTableMetadata], response):
+                table_details.append(table.metadata_detail)
+
+        logger.info(f"Extract #{len(table_details)} tables")
 
         return table_details
 
     @classmethod
     def fetch_answers(cls, client: TSRestApiV2) -> List[AnswerMetadataDetail]:
-        response = client.metadata_search(
-            {
-                "metadata": [{"type": "ANSWER"}],
-                "include_details": True,
-                "record_size": 100,
-            }
-        )
-        json_dump_to_debug_file(response, "metadata_search__answer.json")
+        answer_details: List[AnswerMetadataDetail] = []
 
-        answer_details = [
-            answer.metadata_detail
-            for answer in parse_obj_as(List[AnswerMetadata], response)
-        ]
+        batch_count = 0
+        batch_size = 100
 
-        logger.info(f"ANSWER ids: {[c.header.id for c in answer_details]}")
+        while len(answer_details) == batch_count * batch_size:
+            response = client.metadata_search(
+                {
+                    "metadata": [{"type": "ANSWER"}],
+                    "include_details": True,
+                    "record_size": batch_size,
+                    "record_offset": batch_count * batch_size,
+                }
+            )
+            json_dump_to_debug_file(
+                response, f"metadata_search__answer_{batch_count}.json"
+            )
+
+            batch_count += 1
+
+            for answer in parse_obj_as(List[AnswerMetadata], response):
+                answer_details.append(answer.metadata_detail)
+
+        logger.info(f"Extract #{len(answer_details)} liveboards")
 
         return answer_details
 
     @classmethod
     def fetch_liveboards(cls, client: TSRestApiV2) -> List[LiveBoardMetadataDetail]:
-        response = client.metadata_search(
-            {
-                "metadata": [{"type": "LIVEBOARD"}],
-                "include_details": True,
-                "record_size": 100,
-            }
-        )
-        json_dump_to_debug_file(response, "metadata_search__liveboard.json")
+        liveboard_details: List[LiveBoardMetadataDetail] = []
 
-        liveboard_details = [
-            liveboard.metadata_detail
-            for liveboard in parse_obj_as(List[LiveBoardMetadata], response)
-        ]
+        batch_count = 0
+        batch_size = 100
 
-        logger.info(f"LIVEBOARD Ids: {[c.header.id for c in liveboard_details]}")
+        while len(liveboard_details) == batch_count * batch_size:
+
+            response = client.metadata_search(
+                {
+                    "metadata": [{"type": "LIVEBOARD"}],
+                    "include_details": True,
+                    "record_size": batch_size,
+                    "record_offset": batch_count * batch_size,
+                }
+            )
+            json_dump_to_debug_file(
+                response, f"metadata_search__liveboard_{batch_count}.json"
+            )
+
+            batch_count += 1
+
+            for liveboard in parse_obj_as(List[LiveBoardMetadata], response):
+                liveboard_details.append(liveboard.metadata_detail)
+
+        logger.info(f"Extract #{len(liveboard_details)} liveboards")
 
         return liveboard_details
 
@@ -195,8 +235,28 @@ class ThoughtSpot:
         if not ids:
             return []
 
-        response = client.metadata_tml_export(ids, export_fqn=True)
-        log_uid = hash((len(ids), ids[-1]))
-        json_dump_to_debug_file(response, f"tml_{log_uid}.json")
+        result: List[TMLResult] = []
 
-        return parse_obj_as(List[TMLResult], response)
+        for chunk_ids in chunks(ids, 50):
+            response = client.metadata_tml_export(chunk_ids, export_fqn=True)
+            json_dump_to_debug_file(response, f"tml_{chunk_ids[0]}.json")
+
+            result.extend(parse_obj_as(List[TMLResult], response))
+
+        return result
+
+    @classmethod
+    def fetch_answer_sql(cls, client: TSRestApiV2, answer_id: str) -> Optional[str]:
+        logger.info(f"Fetching answer sql for id: {answer_id}")
+
+        response = client.metadata_answer_sql(answer_id)
+        json_dump_to_debug_file(response, f"answer_sql__{answer_id}.json")
+
+        if "sql_queries" in response:
+            sql_queries = response["sql_queries"]
+            if isinstance(sql_queries, list) and len(sql_queries) == 1:
+                sql_query: Dict[str, str] = sql_queries[0]
+                if "sql_query" in sql_query:
+                    return sql_query.get("sql_query")
+
+        return None
