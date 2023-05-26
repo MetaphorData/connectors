@@ -1,6 +1,6 @@
 from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
-from typing import Dict, List
+from typing import Any, Callable, Dict, List
 
 
 def start_of_day(daysAgo=0) -> datetime:
@@ -44,3 +44,51 @@ def generate_querylog_id(platform: str, id: str) -> str:
 def to_utc_time(time: datetime) -> datetime:
     """convert local datatime to utc timezone"""
     return time.replace(tzinfo=timezone.utc)
+
+
+def chunk_by_size(
+    list_to_chunk: list, chunk_size: int, size_func: Callable[[Any], int]
+) -> List[slice]:
+    """Chunk a list based on size
+
+    Normally each chunk should be smaller than the specific chunk_size,
+    but if a single item is larger than chunk_size, it'll be put into
+    its own chunk.
+
+    Parameters
+    ----------
+    list_to_chunk : list
+        The list to be chunked
+    chunk_size : int
+        The maximum size of a chunk
+    size_func : Callabale
+        A function that computes the size of each item
+
+    Returns
+    -------
+    list
+        a list of slices, each represent a chunk
+    """
+
+    start = 0
+    slices: List[slice] = []
+    slice_size = 0
+    for index, item in enumerate(list_to_chunk):
+        item_size = size_func(item)
+        slice_size += item_size
+        if slice_size > chunk_size:
+            if start == index:
+                # Put an item into its own chunk if it exceeds the chunk size
+                slices.append(slice(start, index + 1))
+                start = index + 1
+                slice_size = 0
+            else:
+                slices.append(slice(start, index))
+                start = index
+                slice_size = item_size
+
+    # last chunk
+    if slice_size > 0:
+        slices.append(slice(start, len(list_to_chunk)))
+
+    return slices

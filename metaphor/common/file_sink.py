@@ -1,6 +1,5 @@
 import json
 import logging
-import math
 import tempfile
 from dataclasses import field
 from datetime import datetime, timezone
@@ -19,6 +18,7 @@ from metaphor.common.storage import (
     S3Storage,
     S3StorageConfig,
 )
+from metaphor.common.utils import chunk_by_size
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
 
 logger = get_logger()
@@ -33,8 +33,11 @@ class FileSinkConfig:
     # Output logs
     write_logs: bool = True
 
-    # Maximum number of messages in each output file split
+    # Deprecated: Will be dropped in next minor version
     batch_size: int = 200
+
+    # Limit each batch to < 100 MB in size
+    batch_size_bytes: int = 100 * 1000 * 1000
 
     # IAM role to assume before writing to file
     assume_role_arn: Optional[str] = None
@@ -48,8 +51,8 @@ class FileSink(Sink):
 
     def __init__(self, config: FileSinkConfig):
         self.path = f'{config.directory.rstrip("/")}/{int(datetime.now().timestamp())}'
-        self.batch_size = config.batch_size
         self.write_logs = config.write_logs
+        self.batch_size_bytes = config.batch_size_bytes
 
         if config.directory.startswith("s3://"):
             self._storage: BaseStorage = S3Storage(
@@ -60,16 +63,19 @@ class FileSink(Sink):
 
     def _sink(self, messages: List[dict]) -> bool:
         """Write records to file with auto-splitting"""
-        # split MCE into batches and write to files
-        batch_size = self.batch_size
-        parts = math.ceil(len(messages) / batch_size)
+        # split MCE into parts and write to files
 
-        for i in range(0, parts):
+        slices = chunk_by_size(
+            messages, self.batch_size_bytes, lambda item: len(json.dumps(item))
+        )
+
+        for (part, slice) in enumerate(slices):
             self._storage.write_file(
-                f"{self.path}/{i + 1}-of-{parts}.json",
-                json.dumps(messages[i * batch_size : (i + 1) * batch_size]),
+                f"{self.path}/{part+1}-of-{len(slices)}.json",
+                json.dumps(messages[slice]),
             )
-        logger.info(f"written {parts} MCE files")
+
+        logger.info(f"written {len(slices)} MCE files")
 
         return True
 
