@@ -4,6 +4,6 @@
       "id": "answer1",
       "name": "Answer 1"
     },
-    "edoc": "{\"guid\":\"answer1\",\"answer\":{\"name\":\"Answer 1\",\"tables\":[{\"name\":\"table 1\",\"id\":\"table 1\", \"fqn\": \"table1\"}]}}"
+    "edoc": "{\"guid\":\"answer1\",\"answer\":{\"name\":\"Answer 1\",\"tables\":[{\"name\":\"table 1\",\"id\":\"table 1\", \"fqn\": \"table1\"}],\"table\":{\"ordered_column_ids\":[\"x\",\"y\"]}}}"
   }
 ]

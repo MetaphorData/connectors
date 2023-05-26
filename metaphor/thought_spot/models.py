@@ -230,8 +230,13 @@ class TMLTable(BaseModel):
     fqn: Optional[str]
 
 
+class TMLAnswerTableObject(BaseModel):
+    ordered_column_ids: List[str]
+
+
 class TMLAnswer(TMLBase):
     tables: List[TMLTable]
+    table: TMLAnswerTableObject
 
 
 class TMLObject(BaseModel):
