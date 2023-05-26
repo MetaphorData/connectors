@@ -121,7 +121,7 @@ def test_extract_workbook_id():
     )
 
 
-def test_parse_dataset_id():
+def test_parse_database_table():
     extractor = TableauExtractor(dummy_config())
 
     assert (

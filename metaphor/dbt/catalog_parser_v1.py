@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict
 
 from metaphor.common.logger import get_logger
+from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.generated.dbt_catalog_v1 import CatalogTable, DbtCatalog
 from metaphor.dbt.util import (
@@ -36,10 +37,13 @@ class CatalogParserV1:
         virtual_views: Dict[str, VirtualView],
     ):
         self._platform = platform
-        self._account = config.account
         self._docs_base_url = config.docs_base_url
         self._datasets = datasets
         self._virtual_views = virtual_views
+
+        self._account = config.account
+        if self._account and platform == DataPlatform.SNOWFLAKE:
+            self._account = normalize_snowflake_account(self._account)
 
     def parse(self, catalog_file: str) -> None:
         try:

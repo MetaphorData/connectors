@@ -69,5 +69,24 @@
         "DATASET~5375BC53A82C65FD48653B9418094BB0"
       ]
     }
+  },
+  {
+    "logicalId": {
+      "name": "db.schema.table",
+      "platform": "BIGQUERY"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "snow",
+      "name": "dev_db.london.cycle",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "acme.berlin_bicycles.cycle_hire",
+      "platform": "REDSHIFT"
+    }
   }
 ]
