@@ -49,18 +49,18 @@ def to_utc_time(time: datetime) -> datetime:
 def chunk_by_size(
     list_to_chunk: list, chunk_size: int, size_func: Callable[[Any], int]
 ) -> List[slice]:
-    """Chunk a list based on size
+    """Split a list into the minimum number of chunks smaller than chunk_size
 
-    Normally each chunk should be smaller than the specific chunk_size,
-    but if a single item is larger than chunk_size, it'll be put into
-    its own chunk.
+    Normally each chunk is packed with as many successive items as
+    possible without exceeding the chunk_size. However, if a single
+    item is larger than chunk_size, it'll be put into its own chunk.
 
     Parameters
     ----------
     list_to_chunk : list
         The list to be chunked
     chunk_size : int
-        The maximum size of a chunk
+        The ideal size of a chunk
     size_func : Callabale
         A function that computes the size of each item
 
