@@ -33,10 +33,13 @@ class FileSinkConfig:
     # Output logs
     write_logs: bool = True
 
-    # Deprecated: Will be dropped in next minor version
+    # Deprecated: Use batch_size_count & batch_size_bytes instead
     batch_size: int = 200
 
-    # Limit each batch to < 100 MB in size
+    # Limit each file to have at most 200 items
+    batch_size_count: int = 200
+
+    # Limit each file to < 100 MB in size
     batch_size_bytes: int = 100 * 1000 * 1000
 
     # IAM role to assume before writing to file
@@ -52,6 +55,7 @@ class FileSink(Sink):
     def __init__(self, config: FileSinkConfig):
         self.path = f'{config.directory.rstrip("/")}/{int(datetime.now().timestamp())}'
         self.write_logs = config.write_logs
+        self.batch_size_count = config.batch_size_count
         self.batch_size_bytes = config.batch_size_bytes
 
         if config.directory.startswith("s3://"):
@@ -66,16 +70,21 @@ class FileSink(Sink):
         # split MCE into parts and write to files
 
         slices = chunk_by_size(
-            messages, self.batch_size_bytes, lambda item: len(json.dumps(item))
+            messages,
+            self.batch_size_count,
+            self.batch_size_bytes,
+            lambda item: len(json.dumps(item)),
         )
 
         for (part, slice) in enumerate(slices):
+            file_name = f"{part+1}-of-{len(slices)}.json"
             self._storage.write_file(
-                f"{self.path}/{part+1}-of-{len(slices)}.json",
+                f"{self.path}/{file_name}",
                 json.dumps(messages[slice]),
             )
+            logger.info(f"Written {file_name} ({slice.stop - slice.start} records)")
 
-        logger.info(f"written {len(slices)} MCE files")
+        logger.info(f"Written {len(slices)} MCE files")
 
         return True
 
