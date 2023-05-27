@@ -47,16 +47,21 @@ def to_utc_time(time: datetime) -> datetime:
 
 
 def chunk_by_size(
-    list_to_chunk: list, chunk_size: int, size_func: Callable[[Any], int]
+    list_to_chunk: list,
+    items_per_chunk: int,
+    chunk_size: int,
+    size_func: Callable[[Any], int],
 ) -> List[slice]:
-    """Split a list into the minimum number of chunks smaller than chunk_size
+    """Split a list into chunks based on specified limits
 
-    Normally each chunk is packed with as many successive items as
-    possible without exceeding the chunk_size. However, if a single
-    item is larger than chunk_size, it'll be put into its own chunk.
+    Normally each chunk is packed with as many successive items as possible
+    without exceeding items_per_chunk & chunk_size. However, if a single item
+    is larger than chunk_size, it'll be put into its own chunk.
 
     Parameters
     ----------
+    items_per_chunk:
+        Maximum number of items in a chunk
     list_to_chunk : list
         The list to be chunked
     chunk_size : int
@@ -74,6 +79,12 @@ def chunk_by_size(
     slices: List[slice] = []
     slice_size = 0
     for index, item in enumerate(list_to_chunk):
+        # Create a chunk if there's enough items already
+        if index - start >= items_per_chunk:
+            slices.append(slice(start, index))
+            start = index
+            slice_size = 0
+
         item_size = size_func(item)
         slice_size += item_size
         if slice_size > chunk_size:
