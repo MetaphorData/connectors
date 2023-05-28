@@ -14,7 +14,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
-    EntityType,
     ForeignKey,
     MaterializationType,
     SchemaField,
@@ -87,7 +86,6 @@ class MssqlExtractor(BaseExtractor):
                 continue
             dataset = Dataset()
             dataset.created_at = table.create_time
-            dataset.entity_type = EntityType.DATASET
             dataset.logical_id = DatasetLogicalID(
                 account=sql_server_name,
                 name=dataset_normalized_name(

@@ -15,7 +15,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUpstream,
-    EntityType,
 )
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.lineage.config import RedshiftLineageRunConfig
@@ -229,7 +228,6 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
     ) -> Dataset:
         if table_name not in self._datasets:
             self._datasets[table_name] = Dataset(
-                entity_type=EntityType.DATASET,
                 logical_id=DatasetLogicalID(
                     name=table_name, platform=DataPlatform.REDSHIFT
                 ),

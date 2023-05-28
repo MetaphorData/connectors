@@ -1,6 +1,5 @@
 [
   {
-    "entityType": "DATASET",
     "logicalId": {
       "name": "metaphor-data.test.yi_tests2",
       "platform": "BIGQUERY"
@@ -12,7 +11,6 @@
     }
   },
   {
-    "entityType": "DATASET",
     "logicalId": {
       "name": "metaphor-data.test.yi_tests",
       "platform": "BIGQUERY"
