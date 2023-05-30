@@ -54,6 +54,7 @@ from metaphor.thought_spot.models import (
 from metaphor.thought_spot.utils import (
     ThoughtSpot,
     from_list,
+    getColumnTransformation,
     mapping_chart_type,
     mapping_data_object_type,
     mapping_data_platform,
@@ -387,11 +388,11 @@ class ThoughtSpotExtractor(BaseExtractor):
         try:
             # prepend insert before sql to get column level lineage
             parser = LineageRunner(f"insert into db.table {sql}")
+
+            column_lineages = parser.get_column_lineage()
         except SQLLineageException as e:
             logger.warning(f"Cannot parse SQL. Query: {sql}, Error: {e}")
             return {}
-
-        column_lineages = parser.get_column_lineage()
 
         mapping: Dict[str, Tuple[Column, List[Column]]] = {}
 
@@ -438,7 +439,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 FieldMapping(
                     destination=destination,
                     sources=sources,
-                    transformation=str(target_col.expression.token),
+                    transformation=getColumnTransformation(target_col),
                 )
             )
 
@@ -556,13 +557,13 @@ class ThoughtSpotExtractor(BaseExtractor):
                     FieldMapping(
                         destination=destination,
                         sources=sources,
-                        transformation=str(target_col.expression.token),
+                        transformation=getColumnTransformation(target_col),
                     )
                 )
-        except (ValueError, IndexError):
+        except (ValueError, IndexError) as error:
             # if the target name is not matched the assumption
             logger.warn(
-                f"The target column name in answer sql didn't match the assumption, sql: {answer_sql}"
+                f"{error} The target column name in answer sql didn't match the assumption, sql: {answer_sql}"
             )
             return []
 
