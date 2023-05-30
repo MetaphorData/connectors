@@ -1,6 +1,7 @@
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar
 
 from pydantic import parse_obj_as
+from sqllineage.core.models import Column
 from thoughtspot_rest_api_v1 import TSRestApiV2
 
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
@@ -260,3 +261,11 @@ class ThoughtSpot:
                     return sql_query.get("sql_query")
 
         return None
+
+
+def getColumnTransformation(target_column: Column) -> Optional[str]:
+    if not hasattr(target_column, "expression"):
+        return None
+    if target_column.expression is None or target_column.expression.token is None:
+        return None
+    return str(target_column.expression.token)
