@@ -126,6 +126,8 @@ def test_parse_object_dependencies(test_root_dir):
         ("ACME", "METAPHOR", "FOO", "TABLE", "ACME", "METAPHOR", "BAR", "VIEW"),
         ("ACME", "METAPHOR", "ABC", "TABLE", "ACME", "METAPHOR", "XYZ", "VIEW"),
         ("ACME", "METAPHOR", "F", "TABLE", "ACME", "METAPHOR", "B", "STAGE"),
+        # OBJECT_DEPENDENCIES can contain repeated rows
+        ("ACME", "METAPHOR", "FOO", "TABLE", "ACME", "METAPHOR", "BAR", "VIEW"),
     ]
 
     with patch("metaphor.snowflake.auth.connect"):
