@@ -6,7 +6,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
-    EntityType,
     FieldStatistics,
     SchemaField,
 )
@@ -15,7 +14,6 @@ from metaphor.postgresql.profile.extractor import PostgreSQLProfileExtractor
 
 def init_dataset(name: str, row_count) -> Dataset:
     dataset = Dataset()
-    dataset.entity_type = EntityType.DATASET
     dataset.logical_id = DatasetLogicalID()
     dataset.logical_id.platform = DataPlatform.POSTGRESQL
     dataset.logical_id.name = name
@@ -172,7 +170,6 @@ def test_parse_profiling_result():
     dataset.statistics = None
 
     assert dataset == Dataset(
-        entity_type=EntityType.DATASET,
         field_statistics=DatasetFieldStatistics(
             field_statistics=[
                 FieldStatistics(

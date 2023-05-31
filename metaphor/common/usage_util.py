@@ -6,7 +6,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUsage,
-    EntityType,
     FieldQueryCount,
     FieldQueryCounts,
     QueryCount,
@@ -24,7 +23,6 @@ class UsageUtil:
         account: Optional[str] = None,
     ) -> Dataset:
         dataset = Dataset(
-            entity_type=EntityType.DATASET,
             logical_id=DatasetLogicalID(
                 name=normalized_name, account=account, platform=platform
             ),

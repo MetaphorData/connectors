@@ -9,7 +9,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetFieldStatistics,
     DatasetLogicalID,
-    EntityType,
     FieldStatistics,
 )
 from metaphor.snowflake.profile.config import (
@@ -218,7 +217,6 @@ def test_parse_profiling_result():
     )
 
     assert dataset == Dataset(
-        entity_type=EntityType.DATASET,
         field_statistics=DatasetFieldStatistics(
             field_statistics=[
                 FieldStatistics(

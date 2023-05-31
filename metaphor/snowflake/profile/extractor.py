@@ -20,7 +20,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetFieldStatistics,
     DatasetLogicalID,
-    EntityType,
     FieldStatistics,
 )
 from metaphor.snowflake import auth
@@ -304,7 +303,6 @@ class SnowflakeProfileExtractor(BaseExtractor):
     @staticmethod
     def _init_dataset(account: str, normalized_name: str) -> Dataset:
         dataset = Dataset()
-        dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
             name=normalized_name, account=account, platform=DataPlatform.SNOWFLAKE
         )

@@ -71,7 +71,6 @@ def test_metaphor_lineage_backend(mock_from_config: MagicMock):
         assert [
             {
                 "dataset": {
-                    "entityType": "DATASET",
                     "logicalId": {
                         "name": "metaphor.public.out",
                         "platform": "REDSHIFT",

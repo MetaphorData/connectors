@@ -1,6 +1,5 @@
 [
   {
-    "entityType": "DATASET",
     "logicalId": {
       "name": "project1.dataset1.table1",
       "platform": "BIGQUERY"
@@ -13,7 +12,6 @@
     }
   },
   {
-    "entityType": "DATASET",
     "logicalId": {
       "name": "project1.dataset1.table2",
       "platform": "BIGQUERY"
@@ -26,7 +24,6 @@
     }
   },
   {
-    "entityType": "DATASET",
     "logicalId": {
       "name": "project1.dataset1.table3",
       "platform": "BIGQUERY"

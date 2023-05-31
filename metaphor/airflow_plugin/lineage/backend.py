@@ -141,7 +141,6 @@ class MetaphorBackend(LineageBackend):
 
         entities = [
             Dataset(
-                entity_type=EntityType.DATASET,
                 logical_id=MetaphorDataset.to_dataset_logical_id(outlet),
                 upstream=upstream,
             )
