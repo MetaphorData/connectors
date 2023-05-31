@@ -259,5 +259,19 @@
         "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
       ]
     }
+  },
+  {
+    "logicalId": {
+      "account": "source_account",
+      "name": "source_db.schema.table",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "source_account",
+      "name": "source_db.schema.table2",
+      "platform": "SNOWFLAKE"
+    }
   }
 ]

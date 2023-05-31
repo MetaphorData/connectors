@@ -120,6 +120,7 @@ class FivetranExtractor(BaseExtractor):
         self._auth = HTTPBasicAuth(username=config.api_key, password=config.api_secret)
         self._destinations: Dict[str, DestinationPayload] = {}
         self._datasets: Dict[str, Dataset] = {}
+        self._source_datasets: Dict[str, Dataset] = {}
         self._source_metadata: Dict[str, SourceMetadataPayload] = {}
         self._users: Dict[str, str] = {}
         self._base_url = "https://api.fivetran.com/v1"
@@ -143,7 +144,7 @@ class FivetranExtractor(BaseExtractor):
 
             self.map_to_datasets(connector, connector_schema_metadata)
 
-        return self._datasets.values()
+        return [*self._datasets.values(), *self._source_datasets.values()]
 
     def process_metadata(
         self,
@@ -277,8 +278,13 @@ class FivetranExtractor(BaseExtractor):
             source_logical_id = self._get_source_logical_id(
                 source_db, schema, table, connector
             )
+
             source_entity_id = str(
                 to_dataset_entity_id_from_logical_id(source_logical_id)
+            )
+
+            self._source_datasets[source_entity_id] = Dataset(
+                logical_id=source_logical_id
             )
 
             dataset.upstream.source_datasets = [source_entity_id]
