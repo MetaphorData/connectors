@@ -28,7 +28,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
-    EntityType,
     MaterializationType,
     QueriedDataset,
     QueryLog,
@@ -541,7 +540,6 @@ class SnowflakeExtractor(BaseExtractor):
     ) -> Dataset:
         normalized_name = dataset_normalized_name(database, schema, table)
         dataset = Dataset()
-        dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
             name=normalized_name, account=self._account, platform=DataPlatform.SNOWFLAKE
         )

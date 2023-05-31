@@ -17,7 +17,6 @@
         }
       ]
     },
-    "entityType": "DATASET",
     "logicalId": {
       "account": "mock_synapse_workspace_name",
       "name": "mock_database_name.mock_synapse_table_schema.mock_synapse_table_name",
@@ -67,7 +66,6 @@
         }
       ]
     },
-    "entityType": "DATASET",
     "logicalId": {
       "account": "mock_synapse_workspace_name",
       "name": "mock_dedicated_database_name.mock_dedicated_table_schema.mock_dedicated_table_name",

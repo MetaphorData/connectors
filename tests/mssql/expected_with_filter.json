@@ -17,7 +17,6 @@
         }
       ]
     },
-    "entityType": "DATASET",
     "logicalId": {
       "account": "mock_server_name",
       "name": "mock_database_name.mock_mssql_table_schema.mock_mssql_table_name",
@@ -67,7 +66,6 @@
         }
       ]
     },
-    "entityType": "DATASET",
     "logicalId": {
       "account": "mock_server_name",
       "name": "mock_database_name_2.mock_mssql_table_schema_3.mock_mssql_table_name_3",

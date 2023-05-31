@@ -6,7 +6,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUsage,
-    EntityType,
     FieldQueryCount,
     FieldQueryCounts,
     QueryCount,
@@ -31,7 +30,6 @@ def make_dataset_with_usage(counts: List[int]):
 def test_init_dataset():
     dataset1 = UsageUtil.init_dataset("foo", DataPlatform.S3)
     assert dataset1 == Dataset(
-        entity_type=EntityType.DATASET,
         logical_id=DatasetLogicalID(name="foo", platform=DataPlatform.S3),
         usage=DatasetUsage(
             field_query_counts=FieldQueryCounts(

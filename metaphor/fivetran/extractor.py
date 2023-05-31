@@ -33,7 +33,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUpstream,
-    EntityType,
     EntityUpstream,
     FieldMapping,
     FiveTranConnector,
@@ -257,7 +256,6 @@ class FivetranExtractor(BaseExtractor):
         destination_platform = PLATFORM_MAPPING.get(destination.service)
 
         dataset = Dataset(
-            entity_type=EntityType.DATASET,
             logical_id=DatasetLogicalID(
                 name=destination_dataset_name,
                 platform=destination_platform,

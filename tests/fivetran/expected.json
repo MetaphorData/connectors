@@ -1,6 +1,5 @@
 [
   {
-    "entityType": "DATASET",
     "entityUpstream": {
       "fieldMappings": [],
       "fiveTranConnector": {
@@ -52,7 +51,6 @@
     }
   },
   {
-    "entityType": "DATASET",
     "entityUpstream": {
       "fieldMappings": [
         {
@@ -172,7 +170,6 @@
     }
   },
   {
-    "entityType": "DATASET",
     "entityUpstream": {
       "fieldMappings": [
         {

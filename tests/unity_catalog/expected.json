@@ -24,7 +24,6 @@
         }
       ]
     },
-    "entityType": "DATASET",
     "logicalId": {
       "name": "catalog.schema.table",
       "platform": "UNITY_CATALOG"
@@ -91,7 +90,6 @@
         }
       ]
     },
-    "entityType": "DATASET",
     "logicalId": {
       "name": "catalog.schema.view",
       "platform": "UNITY_CATALOG"

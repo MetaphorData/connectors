@@ -9,7 +9,6 @@ from metaphor.models.metadata_change_event import (
     DatasetFieldStatistics,
     DatasetLogicalID,
     DatasetSchema,
-    EntityType,
     FieldStatistics,
     SchemaField,
 )
@@ -204,7 +203,6 @@ def test_parse_profiling_result_default():
     BigQueryProfileExtractor._parse_result(results, schema, dataset, column_statistics)
 
     assert dataset == Dataset(
-        entity_type=EntityType.DATASET,
         field_statistics=DatasetFieldStatistics(
             field_statistics=[
                 FieldStatistics(

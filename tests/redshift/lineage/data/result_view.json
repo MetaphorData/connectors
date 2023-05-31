@@ -1,6 +1,5 @@
 [
   {
-    "entityType": "DATASET",
     "logicalId": {
       "name": "test.private.t1",
       "platform": "REDSHIFT"
@@ -13,7 +12,6 @@
     }
   },
   {
-    "entityType": "DATASET",
     "logicalId": {
       "name": "test.foo.t2",
       "platform": "REDSHIFT"

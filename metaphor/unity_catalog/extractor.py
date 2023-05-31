@@ -22,7 +22,6 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     DatasetStructure,
     DatasetUpstream,
-    EntityType,
     FieldMapping,
     MaterializationType,
     SchemaField,
@@ -128,7 +127,6 @@ class UnityCatalogExtractor(BaseExtractor):
 
         dataset = Dataset()
         dataset.structure = DatasetStructure()
-        dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
             name=normalized_name, platform=DataPlatform.UNITY_CATALOG
         )
