@@ -102,7 +102,9 @@ class TableMetadata:
 
 @dataclass
 class SchemaMetadata:
-    name_in_source: str
+    # name_in_source could be null
+    name_in_source: Optional[str]
+
     name_in_destination: str
     tables: List[TableMetadata]
 
@@ -432,6 +434,8 @@ class FivetranExtractor(BaseExtractor):
         result: List[DataT] = []
         next_cursor = None
 
+        import pydantic
+
         while True:
             query = {"cursor": next_cursor, "limit": "1000"}
 
@@ -443,6 +447,9 @@ class FivetranExtractor(BaseExtractor):
                     params=query,
                 )
             except ApiError as error:
+                logger.error(error)
+                return result
+            except pydantic.ValidationError as error:
                 logger.error(error)
                 return result
 

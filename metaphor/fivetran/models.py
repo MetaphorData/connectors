@@ -24,7 +24,7 @@ class GenericResponse(GenericModel, Generic[DataT]):
 
 class MetadataSchemaPayload(BaseModel):
     id: str
-    name_in_source: str
+    name_in_source: Optional[str]
     name_in_destination: str
 
 
