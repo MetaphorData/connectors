@@ -1,10 +1,11 @@
 import json
+import secrets
 import tempfile
 from typing import Any, Callable, Dict, Type, TypeVar
 from urllib.parse import urlparse
 
 import requests
-from pydantic import parse_obj_as
+from pydantic import ValidationError, parse_obj_as
 
 from metaphor.common.logger import debug_files, get_logger
 
@@ -31,7 +32,9 @@ def get_request(
     result = requests.get(url, headers=headers, timeout=timeout, **kwargs)
     if result.status_code == 200:
         # Add JSON response to log.zip
-        file_name = f"{urlparse(url).path[1:].replace('/', u'__')}"
+        file_name = (
+            f"{urlparse(url).path[1:].replace('/', u'__')}_{secrets.token_hex(1)}"
+        )
         # Avoid file name too long error and truncate prefix to avoid duplicate file name
         # 250 is the lowest default maximum charactors file name length limit acrocess major file systems
         file_name = (
@@ -42,6 +45,12 @@ def get_request(
         with open(out_file, "w") as fp:
             json.dump(result.json(), fp, indent=2)
         debug_files.append(out_file)
-        return parse_obj_as(type_, transform_response(result))
+        try:
+            return parse_obj_as(type_, transform_response(result))
+        except ValidationError as error:
+            logger.error(
+                f"url: {url}, result: {json.dumps(result.json())}, error: {error}"
+            )
+            raise ApiError(url, result.status_code, "cannot parse result")
     else:
         raise ApiError(url, result.status_code, result.content.decode())

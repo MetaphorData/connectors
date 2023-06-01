@@ -102,7 +102,9 @@ class TableMetadata:
 
 @dataclass
 class SchemaMetadata:
-    name_in_source: str
+    # name_in_source could be null
+    name_in_source: Optional[str]
+
     name_in_destination: str
     tables: List[TableMetadata]
 
