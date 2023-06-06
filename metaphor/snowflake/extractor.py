@@ -361,26 +361,42 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
         cursor.execute(
             """
-            SELECT TAG_NAME, TAG_VALUE, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME
+            SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
             FROM snowflake.account_usage.tag_references
-            WHERE domain = 'TABLE'
+            WHERE DOMAIN in ('TABLE', 'COLUMN')
             ORDER BY OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME
             """
         )
 
-        for key, value, database, schema, table_name in cursor:
-            normalized_name = dataset_normalized_name(database, schema, table_name)
+        for key, value, object_type, database, schema, table_name, column in cursor:
+            normalized_dataset_name = dataset_normalized_name(
+                database, schema, table_name
+            )
+            tag = self._build_tag_string(key, value)
 
-            dataset = self._datasets.get(normalized_name)
+            dataset = self._datasets.get(normalized_dataset_name)
             if dataset is None or dataset.schema is None:
-                logger.error(
-                    f"Table {normalized_name} not found for tag {self._build_tag_string(key, value)}"
-                )
+                logger.error(f"Table {normalized_dataset_name} not found for tag {tag}")
                 continue
 
-            if not dataset.schema.tags:
-                dataset.schema.tags = []
-            dataset.schema.tags.append(self._build_tag_string(key, value))
+            if object_type == "TABLE":
+                if not dataset.schema.tags:
+                    dataset.schema.tags = []
+                dataset.schema.tags.append(tag)
+            elif object_type == "COLUMN" and column:
+                field = next(
+                    fd
+                    for fd in dataset.schema.fields
+                    if fd.field_path.upper() == column.upper()
+                )
+                if not field:
+                    logger.error(
+                        f"Field {column} not found in {normalized_dataset_name} for tag {tag}"
+                    )
+                    continue
+                if not field.tags:
+                    field.tags = []
+                field.tags.append(tag)
 
     def _fetch_query_logs(self) -> None:
         logger.info("Fetching Snowflake query logs")

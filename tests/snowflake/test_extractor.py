@@ -215,8 +215,9 @@ def test_fetch_tags():
 
     mock_cursor.__iter__.return_value = iter(
         [
-            ("key1", "value1", database, schema, table_name),
-            ("key1", "value1", database, schema, "foo"),
+            ("key1", "value1", "TABLE", database, schema, table_name, None),
+            ("key1", "value1", "TABLE", database, schema, "foo", None),
+            ("key1", "col_tag1", "COLUMN", database, schema, table_name, "col1"),
         ]
     )
 
@@ -226,11 +227,14 @@ def test_fetch_tags():
         dataset = extractor._init_dataset(
             database, schema, table_name, table_type, "", None, None
         )
+        dataset.schema.fields.append(SchemaField(field_path="col1", subfields=[]))
         extractor._datasets[normalized_name] = dataset
 
         extractor._fetch_tags(mock_cursor)
 
         assert dataset.schema.tags == ["key1=value1"]
+        assert dataset.schema.fields[0].field_path == "col1"
+        assert dataset.schema.fields[0].tags == ["key1=col_tag1"]
 
 
 def test_fetch_shared_databases():
