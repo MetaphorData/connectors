@@ -106,6 +106,7 @@
         "rowsWritten": 4.0,
         "sources": [
           {
+            "id": "DATASET~E16CCC1A55EE3E61C1CE8B0C47F67998",
             "database": "metaphor-data",
             "schema": "test",
             "table": "yi_tests2"
@@ -116,6 +117,7 @@
         "startTime": "2022-03-04T23:40:56.330000+00:00",
         "targets": [
           {
+            "id": "DATASET~1AD442855DE3835B661C40E0446A5AE2",
             "database": "metaphor-data",
             "schema": "3198487640cceeb8e7d28d7c0f23e9f51ed519b1",
             "table": "anon66e97db94a52893f2f3ee8e5c3d420963d37c90c"
@@ -135,11 +137,13 @@
         "rowsWritten": 10.0,
         "sources": [
           {
+            "id": "DATASET~7A5B4FDA18918AE8CABBA5313BD67401",
             "database": "metaphor-data",
             "schema": "test",
             "table": "yi_test3"
           },
           {
+            "id": "DATASET~F4B32B397DDF136A9578C62033BDDBDC",
             "database": "metaphor-data",
             "schema": "test",
             "table": "yi_test_view1"
@@ -150,6 +154,7 @@
         "startTime": "2022-03-07T10:29:01.241000+00:00",
         "targets": [
           {
+            "id": "DATASET~9ECCF48C782E2A6643B0F54D8F06178D",
             "database": "metaphor-data",
             "schema": "7920ed6988b5b158b0bcde435ea325d866993be9",
             "table": "anon8d8bdc7387b1ebe499e35632b1dd94a6232badf3"
