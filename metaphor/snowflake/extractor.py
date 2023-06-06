@@ -12,7 +12,7 @@ except ImportError:
     raise
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_normalized_name
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -28,6 +28,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
+    EntityType,
     MaterializationType,
     QueriedDataset,
     QueryLog,
@@ -540,6 +541,7 @@ class SnowflakeExtractor(BaseExtractor):
     ) -> Dataset:
         normalized_name = dataset_normalized_name(database, schema, table)
         dataset = Dataset()
+        dataset.entity_type = EntityType.DATASET
         dataset.logical_id = DatasetLogicalID(
             name=normalized_name, account=self._account, platform=DataPlatform.SNOWFLAKE
         )
@@ -577,8 +579,7 @@ class SnowflakeExtractor(BaseExtractor):
             f"databaseName={db}&schemaName={schema}&tableName={table}"
         )
 
-    @staticmethod
-    def _parse_accessed_objects(raw_objects: str) -> List[QueriedDataset]:
+    def _parse_accessed_objects(self, raw_objects: str) -> List[QueriedDataset]:
         objects = parse_raw_as(List[AccessedObject], raw_objects)
         queried_datasets: List[QueriedDataset] = []
         for obj in objects:
@@ -595,10 +596,14 @@ class SnowflakeExtractor(BaseExtractor):
                 logger.debug(f"Invalid table name {table_name}, skip")
                 continue
 
+            dataset_id = str(
+                to_dataset_entity_id(table_name, DataPlatform.SNOWFLAKE, self._account)
+            )
             db, schema, table = parts
 
             queried_datasets.append(
                 QueriedDataset(
+                    id=dataset_id,
                     database=db,
                     schema=schema,
                     table=table,

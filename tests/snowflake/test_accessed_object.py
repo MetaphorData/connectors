@@ -6,6 +6,7 @@ from pydantic import parse_raw_as
 from metaphor.models.metadata_change_event import QueriedDataset
 from metaphor.snowflake import SnowflakeExtractor
 from metaphor.snowflake.accessed_object import AccessedObject
+from metaphor.snowflake.config import SnowflakeRunConfig
 
 
 def test_pydantic_dataclass():
@@ -33,7 +34,7 @@ def test_pydantic_dataclass():
     assert len(result) == 3
 
 
-def test_parse_access_logs():
+def test_parse_access_logs(test_root_dir):
     data = [
         {
             "objectDomain": "Stage",
@@ -49,7 +50,15 @@ def test_parse_access_logs():
         },
     ]
 
-    result = SnowflakeExtractor._parse_accessed_objects(json.dumps(data))
+    config = SnowflakeRunConfig.from_yaml_file(f"{test_root_dir}/snowflake/config.yml")
+    extractor = SnowflakeExtractor(config)
+    result = extractor._parse_accessed_objects(json.dumps(data))
     assert result == [
-        QueriedDataset(database="dev", schema="go", table="gators", columns=["BAR"])
+        QueriedDataset(
+            id="DATASET~3825E6820162DA51607B2362F5C3A89F",
+            database="dev",
+            schema="go",
+            table="gators",
+            columns=["BAR"],
+        )
     ]

@@ -569,6 +569,7 @@ def test_parse_query_logs():
         assert log0.query_id == "id1"
         assert log0.sources == [
             QueriedDataset(
+                id="DATASET~965CB9D50FF7E59D766536D8ED07E862",
                 columns=[
                     "START_STATION_NAME",
                     "START_STATION_ID",
@@ -588,6 +589,7 @@ def test_parse_query_logs():
         ]
         assert log0.targets == [
             QueriedDataset(
+                id="DATASET~29B682EDD13A2758F47F073DD361FDBA",
                 columns=[
                     "MONTH",
                     "START_STATION_INSTALL_DATE",

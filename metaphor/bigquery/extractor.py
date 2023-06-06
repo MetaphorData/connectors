@@ -21,9 +21,14 @@ except ImportError:
 
 from metaphor.bigquery.config import BigQueryRunConfig
 from metaphor.bigquery.logEvent import JobChangeEvent
-from metaphor.bigquery.utils import LogEntry, build_client, build_logging_client
+from metaphor.bigquery.utils import (
+    BigQueryResource,
+    LogEntry,
+    build_client,
+    build_logging_client,
+)
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_normalized_name
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import FieldDataType, build_field_path
 from metaphor.common.filter import DatasetFilter
@@ -309,20 +314,12 @@ class BigQueryExtractor(BaseExtractor):
             return None
 
         sources: List[QueriedDataset] = [
-            QueriedDataset(database=d.project_id, schema=d.dataset_id, table=d.table_id)
+            self._convert_resource_to_queried_dataset(d)
             for d in job_change.source_tables
         ]
         target = job_change.destination_table
         target_datasets = (
-            [
-                QueriedDataset(
-                    database=target.project_id,
-                    schema=target.dataset_id,
-                    table=target.table_id,
-                )
-            ]
-            if target
-            else None
+            [self._convert_resource_to_queried_dataset(target)] if target else None
         )
 
         default_database, default_schema = None, None
@@ -394,6 +391,21 @@ class BigQueryExtractor(BaseExtractor):
         "TRUNCATE_TABLE": TypeEnum.TRUNCATE,
         "EXPORT_DATA": TypeEnum.EXPORT,
     }
+
+    @staticmethod
+    def _convert_resource_to_queried_dataset(
+        resource: BigQueryResource,
+    ) -> QueriedDataset:
+        dataset_name = dataset_normalized_name(
+            resource.project_id, resource.dataset_id, resource.table_id
+        )
+        dataset_id = str(to_dataset_entity_id(dataset_name, DataPlatform.BIGQUERY))
+        return QueriedDataset(
+            id=dataset_id,
+            database=resource.project_id,
+            schema=resource.dataset_id,
+            table=resource.table_id,
+        )
 
     @staticmethod
     def _map_query_type(query_type: str) -> TypeEnum:

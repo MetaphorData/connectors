@@ -1,7 +1,7 @@
 from typing import Collection, List
 
 from metaphor.common.constants import BYTES_PER_MEGABYTES
-from metaphor.common.entity_id import dataset_normalized_name
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
@@ -109,11 +109,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
         if access_event.usename in self._query_log_excluded_usernames:
             return
 
-        dataset = QueriedDataset(
-            database=access_event.database,
-            schema=access_event.schema,
-            table=access_event.table,
-        )
+        sources = [self._convert_resource_to_queried_dataset(access_event)]
 
         query_log = QueryLog(
             id=f"{DataPlatform.REDSHIFT.name}:{access_event.query}",
@@ -126,9 +122,22 @@ class RedshiftExtractor(PostgreSQLExtractor):
             user_id=access_event.usename,
             rows_read=float(access_event.rows),
             bytes_read=float(access_event.bytes),
-            sources=[dataset],
+            sources=sources,
             sql=access_event.querytxt,
             sql_hash=md5_digest(access_event.querytxt.encode("utf-8")),
         )
 
         self._logs.append(query_log)
+
+    @staticmethod
+    def _convert_resource_to_queried_dataset(event: AccessEvent) -> QueriedDataset:
+        dataset_name = dataset_normalized_name(
+            event.database, event.schema, event.table
+        )
+        dataset_id = str(to_dataset_entity_id(dataset_name, DataPlatform.REDSHIFT))
+        return QueriedDataset(
+            id=dataset_id,
+            database=event.database,
+            schema=event.schema,
+            table=event.table,
+        )
