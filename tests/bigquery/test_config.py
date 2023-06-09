@@ -36,7 +36,7 @@ def test_yaml_config_with_credentials(test_root_dir):
             auth_uri="https://accounts.google.com/o/oauth2/auth",
             token_uri="https://oauth2.googleapis.com/token",
         ),
-        project_id="project_id",
+        project_ids=["project1", "project2"],
     )
 
 

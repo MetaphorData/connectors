@@ -73,7 +73,8 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 ```yaml
-project_id: <bigquery_project_id>
+project_ids:
+  - <bigquery_project_id>
 output:
   file:
     directory: <output_directory>
@@ -121,7 +122,7 @@ See [Tag Matcher Config](../common/docs/tag_matcher.md) for more information on 
 
 #### BigQuery Job Project ID
 
-By default, all BigQuery API calls are made using the project ID specified in `project_id` config. However, sometimes you may wish to run BigQuery jobs using a different project ID, e.g. when querying the DDLs for tables & views. You can do so by specifying the `job_project_id` config as follows,
+By default, all BigQuery API calls are made using the project ID specified in the credentials. However, sometimes you may wish to run BigQuery jobs using a different project ID, e.g. when querying the DDLs for tables & views. You can do so by specifying the `job_project_id` config as follows,
 
 ```yaml
 job_project_id: <project_id>
@@ -164,7 +165,8 @@ query_log:
 Make sure to use BigQuery project ID when setting the `database` field in the filter configuration. For example:
 
 ```yaml
-project_id: <bigquery_project_id>
+project_id:
+  - <bigquery_project_id>
 filter:
   includes:
     <bigquery_project_id>:

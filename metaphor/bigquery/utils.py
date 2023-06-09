@@ -1,7 +1,7 @@
 import json
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 from smart_open import open
 
@@ -24,23 +24,28 @@ except ImportError:
 LogEntry = Any
 
 
-def build_client(config: BigQueryRunConfig) -> bigquery.Client:
-    credentials = _get_credentials(config)
-    return bigquery.Client(
-        credentials=credentials,
-        project=config.project_id if config.project_id else credentials.project_id,
-    )
+def build_client(
+    project_id: str, credentials: service_account.Credentials
+) -> bigquery.Client:
+    return bigquery.Client(credentials=credentials, project=project_id)
 
 
-def build_logging_client(config: BigQueryRunConfig) -> logging_v2.Client:
-    credentials = _get_credentials(config)
-    return logging_v2.Client(
-        credentials=credentials,
-        project=config.project_id if config.project_id else credentials.project_id,
-    )
+def build_logging_client(
+    project_id: str, credentials: service_account.Credentials
+) -> logging_v2.Client:
+    return logging_v2.Client(credentials=credentials, project=project_id)
 
 
-def _get_credentials(config: BigQueryRunConfig) -> service_account.Credentials:
+def get_project_ids(config: BigQueryRunConfig) -> List[str]:
+    if config.project_ids is not None:
+        return config.project_ids
+
+    # Config validation ensures that either project_ids or project_id is set
+    assert config.project_id is not None
+    return [config.project_id]
+
+
+def get_credentials(config: BigQueryRunConfig) -> service_account.Credentials:
     # either "key_path" or "credentials" should be set, otherwise pydantic validator will throw error
 
     if config.key_path is not None:

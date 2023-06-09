@@ -1,5 +1,7 @@
 ---
-project_id: project_id
+project_ids:
+  - project1
+  - project2
 credentials:
   project_id: metaphor
   private_key_id: '1234'

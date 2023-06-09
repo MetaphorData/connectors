@@ -58,8 +58,11 @@ class BigQueryQueryLogConfig:
 
 @dataclass
 class BigQueryRunConfig(BaseConfig):
-    # Project ID to use
-    project_id: str
+    # Deprecated: Use project_ids instead
+    project_id: Optional[str] = None
+
+    # List of project IDs to extract metadata from
+    project_ids: Optional[List[str]] = None
 
     # Path to service account's JSON key file
     key_path: Optional[str] = None
@@ -85,4 +88,9 @@ class BigQueryRunConfig(BaseConfig):
     @root_validator
     def have_key_path_or_credentials(cls, values):
         must_set_exactly_one(values, ["key_path", "credentials"])
+        return values
+
+    @root_validator
+    def have_project_id_or_project_ids(cls, values):
+        must_set_exactly_one(values, ["project_id", "project_ids"])
         return values
