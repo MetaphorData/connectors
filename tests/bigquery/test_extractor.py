@@ -99,8 +99,12 @@ async def test_extractor(test_root_dir):
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
     with patch("metaphor.bigquery.extractor.build_client") as mock_build_client, patch(
         "metaphor.bigquery.extractor.build_logging_client"
-    ) as mock_build_logging_client:
+    ) as mock_build_logging_client, patch(
+        "metaphor.bigquery.extractor.get_credentials"
+    ) as mock_get_credentials:
         extractor = BigQueryExtractor(config)
+
+        mock_get_credentials.return_value = "fake_credential"
 
         mock_build_client.return_value.project = "project1"
 

@@ -40,10 +40,15 @@ async def test_log_extractor(test_root_dir):
     # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
     with patch("metaphor.bigquery.lineage.extractor.build_client"), patch(
         "metaphor.bigquery.lineage.extractor.build_logging_client"
-    ) as mock_build_logging_client:
+    ) as mock_build_logging_client, patch(
+        "metaphor.bigquery.lineage.extractor.get_credentials"
+    ) as mock_get_credentials:
         extractor = BigQueryLineageExtractor(config)
 
+        mock_get_credentials.return_value = "fake_credentials"
+
         mock_build_logging_client.return_value.project = "project1"
+
         mock_list_entries(mock_build_logging_client, entries)
 
         events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -65,8 +70,12 @@ async def test_view_extractor(test_root_dir):
         "metaphor.bigquery.lineage.extractor.build_client"
     ) as mock_build_client, patch(
         "metaphor.bigquery.lineage.extractor.build_logging_client"
-    ):
+    ), patch(
+        "metaphor.bigquery.lineage.extractor.get_credentials"
+    ) as mock_get_credentials:
         extractor = BigQueryLineageExtractor(config)
+
+        mock_get_credentials.return_value = "fake_credentials"
 
         mock_build_client.return_value.project = "project1"
 

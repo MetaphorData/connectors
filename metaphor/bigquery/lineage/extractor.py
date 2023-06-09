@@ -12,7 +12,13 @@ from sql_metadata import Parser
 
 from metaphor.bigquery.lineage.config import BigQueryLineageRunConfig
 from metaphor.bigquery.logEvent import JobChangeEvent
-from metaphor.bigquery.utils import LogEntry, build_client, build_logging_client
+from metaphor.bigquery.utils import (
+    LogEntry,
+    build_client,
+    build_logging_client,
+    get_credentials,
+    get_project_ids,
+)
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
@@ -41,7 +47,8 @@ class BigQueryLineageExtractor(BaseExtractor):
     def __init__(self, config: BigQueryLineageRunConfig):
         super().__init__(config, "BigQuery data lineage crawler", Platform.BIGQUERY)
         self._config = config
-        self._project_id = config.project_id
+        self._credentials = get_credentials(config)
+        self._project_ids = get_project_ids(config)
         self._dataset_filter = config.filter.normalize()
         self._enable_view_lineage = config.enable_view_lineage
         self._enable_lineage_from_log = config.enable_lineage_from_log
@@ -52,23 +59,29 @@ class BigQueryLineageExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        client = build_client(self._config)
-        logging_client = build_logging_client(self._config)
+        for project_id in self._project_ids:
+            self._extract_project(project_id)
+
+        return self._datasets.values()
+
+    def _extract_project(self, project_id: str):
+        logger.info(f"Extracting lineage for project {project_id}")
+
+        client = build_client(project_id, self._credentials)
+        logging_client = build_logging_client(project_id, self._credentials)
 
         if self._enable_view_lineage:
-            self._fetch_view_upstream(client)
+            self._fetch_view_upstream(client, project_id)
 
         if self._enable_lineage_from_log:
             self._fetch_audit_log(logging_client)
 
-        return self._datasets.values()
-
-    def _fetch_view_upstream(self, client: bigquery.Client) -> None:
+    def _fetch_view_upstream(self, client: bigquery.Client, project_id: str) -> None:
         logger.info("Fetching lineage info from BigQuery API")
 
         for bq_dataset in client.list_datasets():
             if not self._dataset_filter.include_schema(
-                self._project_id, bq_dataset.dataset_id
+                project_id, bq_dataset.dataset_id
             ):
                 logger.info(f"Skipped dataset {bq_dataset.dataset_id}")
                 continue
@@ -82,7 +95,7 @@ class BigQueryLineageExtractor(BaseExtractor):
             for bq_table in client.list_tables(bq_dataset.dataset_id):
                 table_ref = dataset_ref.table(bq_table.table_id)
                 if not self._dataset_filter.include_table(
-                    self._project_id, bq_dataset.dataset_id, bq_table.table_id
+                    project_id, bq_dataset.dataset_id, bq_table.table_id
                 ):
                     logger.info(f"Skipped table: {table_ref}")
                     continue

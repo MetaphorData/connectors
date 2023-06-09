@@ -12,8 +12,9 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
-from metaphor.bigquery.extractor import BigQueryExtractor, build_client
+from metaphor.bigquery.extractor import BigQueryExtractor
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
+from metaphor.bigquery.utils import build_client, get_credentials, get_project_ids
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.event_util import ENTITY_TYPES
@@ -44,18 +45,27 @@ class BigQueryProfileExtractor(BaseExtractor):
     def __init__(self, config: BigQueryProfileRunConfig):
         super().__init__(config, "BigQuery data profile crawler", Platform.BIGQUERY)
         self._config = config
-        self._job_project_id = config.job_project_id
+        self._credentials = get_credentials(config)
+        self._project_ids = get_project_ids(config)
+        self._job_project_id = config.job_project_id or self._credentials.project_id
         self._max_concurrency = config.max_concurrency
         self._filter = DatasetFilter.normalize(config.filter)
         self._column_statistics = config.column_statistics
         self._sampling = config.sampling
+        self._datasets: List[Dataset] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info("Fetching usage info from BigQuery")
+        for project_id in self._project_ids:
+            self._extract_project(project_id)
 
-        self._client = build_client(self._config)
+        return self._datasets
+
+    def _extract_project(self, project_id: str):
+        logger.info(f"Fetching usage info from BigQuery for project {project_id}")
+
+        self._client = build_client(project_id, self._credentials)
         tables = self._fetch_tables()
-        return self.profile(tables)
+        self.profile(tables)
 
     def _fetch_tables(self) -> List[TableReference]:
         tables = []
@@ -78,12 +88,10 @@ class BigQueryProfileExtractor(BaseExtractor):
                 logger.info(f"Found table {table_ref}")
 
                 tables.append(table_ref)
+
         return tables
 
-    def profile(
-        self,
-        tables: List[TableReference],
-    ) -> List[Dataset]:
+    def profile(self, tables: List[TableReference]):
         jobs: Set[QueryJob] = set()
 
         def profile(table: TableReference):
@@ -102,7 +110,7 @@ class BigQueryProfileExtractor(BaseExtractor):
             counter += 1
             sleep(1)
 
-        return datasets
+        self._datasets.extend(datasets)
 
     def _profile_table(
         self,

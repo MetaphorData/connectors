@@ -26,6 +26,8 @@ from metaphor.bigquery.utils import (
     LogEntry,
     build_client,
     build_logging_client,
+    get_credentials,
+    get_project_ids,
 )
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
@@ -66,8 +68,9 @@ class BigQueryExtractor(BaseExtractor):
     def __init__(self, config: BigQueryRunConfig) -> None:
         super().__init__(config, "BigQuery metadata crawler", Platform.BIGQUERY)
         self._config = config
-        self._project_id = config.project_id
-        self._job_project_id = config.job_project_id
+        self._credentials = get_credentials(config)
+        self._project_ids = get_project_ids(config)
+        self._job_project_id = config.job_project_id or self._credentials.project_id
         self._dataset_filter = config.filter.normalize()
         self._max_concurrency = config.max_concurrency
         self._tag_matchers = config.tag_matchers
@@ -81,11 +84,20 @@ class BigQueryExtractor(BaseExtractor):
             config.query_log.fetch_job_query_if_truncated
         )
 
-    async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info(f"Fetching metadata from BigQuery project {self._project_id}")
+        self._datasets: List[Dataset] = []
+        self._query_logs: List[QueryLog] = []
 
-        client = build_client(self._config)
-        logging_client = build_logging_client(self._config)
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        for project_id in self._project_ids:
+            self._extract_project(project_id)
+
+        return [*self._datasets, *self._query_logs]
+
+    def _extract_project(self, project_id):
+        logger.info(f"Fetching metadata from BigQuery project {project_id}")
+
+        client = build_client(project_id, self._credentials)
+        logging_client = build_logging_client(project_id, self._credentials)
 
         fetched_tables: List[Dataset] = []
         for dataset_ref in BigQueryExtractor._list_datasets_with_filter(
@@ -131,9 +143,8 @@ class BigQueryExtractor(BaseExtractor):
 
         tag_datasets(fetched_tables, self._tag_matchers)
 
-        entities: List[ENTITY_TYPES] = fetched_tables
-        entities.extend(chunk_query_logs(query_logs))
-        return entities
+        self._datasets.extend(fetched_tables)
+        self._query_logs.extend(chunk_query_logs(query_logs))
 
     @staticmethod
     def _list_datasets_with_filter(
