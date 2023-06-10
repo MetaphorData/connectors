@@ -98,7 +98,7 @@ async def test_extractor(
     config = BigQueryRunConfig(
         output=OutputConfig(),
         key_path="fake_file",
-        project_id="fake_project",
+        project_ids=["fake_project"],
         query_log=BigQueryQueryLogConfig(),
     )
 

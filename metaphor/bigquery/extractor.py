@@ -27,7 +27,6 @@ from metaphor.bigquery.utils import (
     build_client,
     build_logging_client,
     get_credentials,
-    get_project_ids,
 )
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
@@ -69,7 +68,7 @@ class BigQueryExtractor(BaseExtractor):
         super().__init__(config, "BigQuery metadata crawler", Platform.BIGQUERY)
         self._config = config
         self._credentials = get_credentials(config)
-        self._project_ids = get_project_ids(config)
+        self._project_ids = config.project_ids
         self._job_project_id = config.job_project_id or self._credentials.project_id
         self._dataset_filter = config.filter.normalize()
         self._max_concurrency = config.max_concurrency

@@ -1,6 +1,7 @@
 ---
 key_path: key_path
-project_id: project_id
+project_ids:
+  - project_id
 job_project_id: job_project_id
 query_log:
   lookback_days: 7

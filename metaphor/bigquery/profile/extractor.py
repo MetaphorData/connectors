@@ -14,7 +14,7 @@ except ImportError:
 
 from metaphor.bigquery.extractor import BigQueryExtractor
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
-from metaphor.bigquery.utils import build_client, get_credentials, get_project_ids
+from metaphor.bigquery.utils import build_client, get_credentials
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.event_util import ENTITY_TYPES
@@ -46,7 +46,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         super().__init__(config, "BigQuery data profile crawler", Platform.BIGQUERY)
         self._config = config
         self._credentials = get_credentials(config)
-        self._project_ids = get_project_ids(config)
+        self._project_ids = config.project_ids
         self._job_project_id = config.job_project_id or self._credentials.project_id
         self._max_concurrency = config.max_concurrency
         self._filter = DatasetFilter.normalize(config.filter)

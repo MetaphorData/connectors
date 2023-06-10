@@ -11,7 +11,7 @@ def test_yaml_config(test_root_dir):
 
     assert config == BigQueryProfileRunConfig(
         key_path="key_path",
-        project_id="project_id",
+        project_ids=["project_id"],
         filter=DatasetFilter(
             excludes={
                 "project_id": {
