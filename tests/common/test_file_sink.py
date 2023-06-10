@@ -71,7 +71,7 @@ def test_sink_metadata(test_root_dir):
         entity_count=1.0,
     )
 
-    sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
+    sink = FileSink(FileSinkConfig(directory=directory))
     sink.sink_metadata(metadata)
 
     assert EventUtil.clean_nones(metadata.to_dict()) == load_json(
@@ -86,7 +86,7 @@ def test_sink_logs(test_root_dir):
 
     directory = tempfile.mkdtemp()
 
-    sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
+    sink = FileSink(FileSinkConfig(directory=directory))
     sink.sink_logs()
 
     zip_file = f"{directory}/946684800/log.zip"
@@ -103,7 +103,7 @@ def test_sink_logs(test_root_dir):
 def test_sink_file(test_root_dir):
     directory = tempfile.mkdtemp()
 
-    sink = FileSink(FileSinkConfig(directory=directory, batch_size=2))
+    sink = FileSink(FileSinkConfig(directory=directory))
     filename = "test.txt"
     sink.write_file(filename, "the content")
 
