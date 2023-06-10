@@ -36,8 +36,9 @@ mssql_connect_config = MssqlConnectConfig(
 )
 
 
+@patch("metaphor.mssql.extractor.MssqlClient")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     mssqlDatabase = MssqlDatabase(
         id=1,
         name="mock_database_name",
@@ -82,18 +83,18 @@ async def test_extractor(test_root_dir):
     mock_client_instance.get_databases = MagicMock(return_value=[mssqlDatabase])
     mock_client_instance.get_tables = MagicMock(return_value=[mssqlTable])
 
-    with patch("metaphor.mssql.extractor.MssqlClient") as mock_client:
-        mock_client.return_value = mock_client_instance
+    mock_client.return_value = mock_client_instance
 
-        config = mssql_config
-        extractor = MssqlExtractor(config)
+    config = mssql_config
+    extractor = MssqlExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/mssql/expected.json")
 
 
+@patch("metaphor.mssql.extractor.MssqlClient")
 @pytest.mark.asyncio
-async def test_extractor_with_foreign_keys(test_root_dir):
+async def test_extractor_with_foreign_keys(mock_client: MagicMock, test_root_dir: str):
     mssqlDatabase = MssqlDatabase(
         id=1,
         name="mock_database_name",
@@ -175,19 +176,19 @@ async def test_extractor_with_foreign_keys(test_root_dir):
     mock_client_instance.get_tables = MagicMock(return_value=[mssqlTable, mssqlTable2])
     mock_client_instance.get_foreign_keys = MagicMock(return_value=[foreign_key])
 
-    with patch("metaphor.mssql.extractor.MssqlClient") as mock_client:
-        mock_client.return_value = mock_client_instance
+    mock_client.return_value = mock_client_instance
 
-        config = mssql_config
-        extractor = MssqlExtractor(config)
+    config = mssql_config
+    extractor = MssqlExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert len(events) == 2
     assert events == load_json(f"{test_root_dir}/mssql/expected_with_foreign_keys.json")
 
 
+@patch("metaphor.mssql.extractor.MssqlClient")
 @pytest.mark.asyncio
-async def test_extractor_no_table():
+async def test_extractor_no_table(mock_client: MagicMock):
     mssqlDatabase = MssqlDatabase(
         id=1,
         name="mock_database_name",
@@ -200,18 +201,18 @@ async def test_extractor_no_table():
     mock_client_instance.get_databases = MagicMock(return_value=[mssqlDatabase])
     mock_client_instance.get_tables = MagicMock(return_value=[])
 
-    with patch("metaphor.mssql.extractor.MssqlClient") as mock_client:
-        mock_client.return_value = mock_client_instance
+    mock_client.return_value = mock_client_instance
 
-        config = mssql_config
-        extractor = MssqlExtractor(config)
+    config = mssql_config
+    extractor = MssqlExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert len(events) == 0
 
 
+@patch("metaphor.mssql.extractor.MssqlClient")
 @pytest.mark.asyncio
-async def test_extractor_with_filter(test_root_dir):
+async def test_extractor_with_filter(mock_client: MagicMock, test_root_dir: str):
     mssqlDatabase = MssqlDatabase(
         id=1,
         name="mock_database_name",
@@ -327,24 +328,23 @@ async def test_extractor_with_filter(test_root_dir):
         side_effect=[[mssqlTable, mssqlTable2], [mssqlTable3]]
     )
 
-    with patch("metaphor.mssql.extractor.MssqlClient") as mock_client:
-        mock_client.return_value = mock_client_instance
+    mock_client.return_value = mock_client_instance
 
-        config = mssql_config
-        datasetFilter = DatasetFilter()
-        datasetFilter.includes = {
-            "mock_database_name": {
-                "mock_mssql_table_schema": set(["mock_mssql_table_name"]),
-            },
-            "mock_database_name_2": None,
+    config = mssql_config
+    datasetFilter = DatasetFilter()
+    datasetFilter.includes = {
+        "mock_database_name": {
+            "mock_mssql_table_schema": set(["mock_mssql_table_name"]),
+        },
+        "mock_database_name_2": None,
+    }
+    datasetFilter.excludes = {
+        "mock_database_name": {
+            "mock_mssql_table_schema": set(["mock_mssql_table_name_2"])
         }
-        datasetFilter.excludes = {
-            "mock_database_name": {
-                "mock_mssql_table_schema": set(["mock_mssql_table_name_2"])
-            }
-        }
-        config.filter = datasetFilter
-        extractor = MssqlExtractor(config)
+    }
+    config.filter = datasetFilter
+    extractor = MssqlExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/mssql/expected_with_filter.json")

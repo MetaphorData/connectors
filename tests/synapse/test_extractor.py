@@ -30,8 +30,9 @@ synapse_config = SynapseConfig(
 )
 
 
+@patch("metaphor.synapse.extractor.MssqlClient")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     synapseDatabase = MssqlDatabase(
         id=1,
         name="mock_database_name",
@@ -75,18 +76,18 @@ async def test_extractor(test_root_dir):
     mock_client_instance.get_databases = MagicMock(side_effect=[[synapseDatabase], []])
     mock_client_instance.get_tables = MagicMock(return_value=[synapseTable])
 
-    with patch("metaphor.synapse.extractor.MssqlClient") as mock_client:
-        mock_client.return_value = mock_client_instance
+    mock_client.return_value = mock_client_instance
 
-        config = synapse_config
-        extractor = SynapseExtractor(config)
+    config = synapse_config
+    extractor = SynapseExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/synapse/expected.json")
 
 
+@patch("metaphor.synapse.extractor.MssqlClient")
 @pytest.mark.asyncio
-async def test_dedicated_sql_pool_extractor(test_root_dir):
+async def test_dedicated_sql_pool_extractor(mock_client: MagicMock, test_root_dir: str):
     synapseDatabase = MssqlDatabase(
         id=1,
         name="mock_dedicated_database_name",
@@ -128,18 +129,21 @@ async def test_dedicated_sql_pool_extractor(test_root_dir):
     mock_client_instance.get_databases = MagicMock(side_effect=[[], [synapseDatabase]])
     mock_client_instance.get_tables = MagicMock(return_value=[synapseTable])
 
-    with patch("metaphor.synapse.extractor.MssqlClient") as mock_client:
-        mock_client.return_value = mock_client_instance
+    mock_client.return_value = mock_client_instance
 
-        config = synapse_config
-        extractor = SynapseExtractor(config)
+    config = synapse_config
+    extractor = SynapseExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/synapse/expected_sqlpool.json")
 
 
+@patch("metaphor.synapse.extractor.MssqlClient")
+@patch("metaphor.synapse.extractor.WorkspaceQuery.get_sql_pool_query_logs")
 @pytest.mark.asyncio
-async def test_extractor_with_query_log(test_root_dir):
+async def test_extractor_with_query_log(
+    mock_query: MagicMock, mock_client: MagicMock, test_root_dir: str
+):
     synapseDatabase = MssqlDatabase(
         id=1,
         name="mock_database_name",
@@ -196,22 +200,27 @@ async def test_extractor_with_query_log(test_root_dir):
     mock_client_instance.get_databases = MagicMock(side_effect=[[synapseDatabase], []])
     mock_client_instance.get_tables = MagicMock(return_value=[synapseTable])
 
-    with patch("metaphor.synapse.extractor.MssqlClient") as mock_client, patch(
-        "metaphor.synapse.extractor.WorkspaceQuery.get_sql_pool_query_logs"
-    ) as mock_query:
-        mock_client.return_value = mock_client_instance
-        mock_query.return_value = [qyeryLogTable]
+    mock_client.return_value = mock_client_instance
+    mock_query.return_value = [qyeryLogTable]
 
-        config = synapse_config
-        config.query_log = SynapseQueryLogConfig(lookback_days=1)
-        extractor = SynapseExtractor(config)
+    config = synapse_config
+    config.query_log = SynapseQueryLogConfig(lookback_days=1)
+    extractor = SynapseExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/synapse/expected_with_query_log.json")
 
 
+@patch("metaphor.synapse.extractor.MssqlClient")
+@patch("metaphor.synapse.extractor.WorkspaceQuery.get_dedicated_sql_pool_query_logs")
+@patch("metaphor.synapse.extractor.WorkspaceQuery.get_sql_pool_query_logs")
 @pytest.mark.asyncio
-async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
+async def test_dedicated_sql_pool_extractor_with_query_log(
+    mock_serverless_query: MagicMock,
+    mock_query: MagicMock,
+    mock_client: MagicMock,
+    test_root_dir: str,
+):
     synapseDatabase = MssqlDatabase(
         id=1,
         name="mock_dedicated_database_name",
@@ -269,27 +278,23 @@ async def test_dedicated_sql_pool_extractor_with_query_log(test_root_dir):
     mock_client_instance.get_databases = MagicMock(side_effect=[[], [synapseDatabase]])
     mock_client_instance.get_tables = MagicMock(return_value=[synapseTable])
 
-    with patch("metaphor.synapse.extractor.MssqlClient") as mock_client, patch(
-        "metaphor.synapse.extractor.WorkspaceQuery.get_dedicated_sql_pool_query_logs"
-    ) as mock_query, patch(
-        "metaphor.synapse.extractor.WorkspaceQuery.get_sql_pool_query_logs"
-    ) as mock_serverless_query:
-        mock_client.return_value = mock_client_instance
-        mock_serverless_query.return_value = []
-        mock_query.return_value = [qyeryLogTable]
+    mock_client.return_value = mock_client_instance
+    mock_serverless_query.return_value = []
+    mock_query.return_value = [qyeryLogTable]
 
-        config = synapse_config
-        config.query_log = SynapseQueryLogConfig(lookback_days=1)
-        extractor = SynapseExtractor(config)
+    config = synapse_config
+    config.query_log = SynapseQueryLogConfig(lookback_days=1)
+    extractor = SynapseExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(
         f"{test_root_dir}/synapse/expected_sqlpool_with_query_log.json"
     )
 
 
+@patch("metaphor.synapse.extractor.MssqlClient")
 @pytest.mark.asyncio
-async def test_extractor_with_filter(test_root_dir):
+async def test_extractor_with_filter(mock_client: MagicMock, test_root_dir: str):
     synapseDatabase = MssqlDatabase(
         id=1,
         name="mock_database_name",
@@ -406,22 +411,21 @@ async def test_extractor_with_filter(test_root_dir):
         side_effect=[[synapseTable, synapseTable_2], [synapseDedicatedTable]]
     )
 
-    with patch("metaphor.synapse.extractor.MssqlClient") as mock_client:
-        mock_client.return_value = mock_client_instance
+    mock_client.return_value = mock_client_instance
 
-        config = synapse_config
-        datasetFilter = DatasetFilter()
-        datasetFilter.includes = {
-            "mock_database_name": {
-                "mock_synapse_table_schema": None,
-            },
-            "mock_dedicated_database_name": None,
-        }
-        datasetFilter.excludes = {
-            "mock_database_name": {"mock_synapse_table_2_schema": None}
-        }
-        config.filter = datasetFilter
-        extractor = SynapseExtractor(config)
+    config = synapse_config
+    datasetFilter = DatasetFilter()
+    datasetFilter.includes = {
+        "mock_database_name": {
+            "mock_synapse_table_schema": None,
+        },
+        "mock_dedicated_database_name": None,
+    }
+    datasetFilter.excludes = {
+        "mock_database_name": {"mock_synapse_table_2_schema": None}
+    }
+    config.filter = datasetFilter
+    extractor = SynapseExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/synapse/expected_with_filter.json")

@@ -1,5 +1,5 @@
 from typing import List
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -7,7 +7,7 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.redshift.lineage.config import RedshiftLineageRunConfig
 from metaphor.redshift.lineage.extractor import RedshiftLineageExtractor
-from tests.test_utils import AsyncMock, load_json
+from tests.test_utils import load_json
 
 
 def mock_databases(mock: MagicMock, databases: List[str]):
@@ -27,8 +27,20 @@ def dummy_config(**args):
     )
 
 
+@patch(
+    "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
+    new_callable=AsyncMock,
+)
+@patch(
+    "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
+    new_callable=AsyncMock,
+)
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(
+    mock_connect_database: MagicMock,
+    mock_fetch_databases: MagicMock,
+    test_root_dir: str,
+):
     records = [
         # default schema in source
         {
@@ -61,38 +73,43 @@ async def test_extractor(test_root_dir):
 
     test_data_dir = f"{test_root_dir}/redshift/lineage/data"
 
-    with patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
-        new_callable=AsyncMock,
-    ) as mock_fetch_databases, patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
-        new_callable=AsyncMock,
-    ) as mock_connect_database:
-        mock_databases(mock_fetch_databases, ["test"])
-        mock_records(mock_connect_database, records)
+    mock_databases(mock_fetch_databases, ["test"])
+    mock_records(mock_connect_database, records)
 
-        # Include self-lineage
-        extractor = RedshiftLineageExtractor(
-            dummy_config(
-                enable_view_lineage=False,
-            )
+    # Include self-lineage
+    extractor = RedshiftLineageExtractor(
+        dummy_config(
+            enable_view_lineage=False,
         )
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-        assert events == load_json(f"{test_data_dir}/result_include_self_lineage.json")
+    )
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    assert events == load_json(f"{test_data_dir}/result_include_self_lineage.json")
 
-        # Exclude self-lineage
-        extractor = RedshiftLineageExtractor(
-            dummy_config(
-                enable_view_lineage=False,
-                include_self_lineage=False,
-            )
+    # Exclude self-lineage
+    extractor = RedshiftLineageExtractor(
+        dummy_config(
+            enable_view_lineage=False,
+            include_self_lineage=False,
         )
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-        assert events == load_json(f"{test_data_dir}/result_exclude_self_lineage.json")
+    )
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    assert events == load_json(f"{test_data_dir}/result_exclude_self_lineage.json")
 
 
+@patch(
+    "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
+    new_callable=AsyncMock,
+)
+@patch(
+    "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
+    new_callable=AsyncMock,
+)
 @pytest.mark.asyncio
-async def test_extractor_view(test_root_dir):
+async def test_extractor_view(
+    mock_connect_database: MagicMock,
+    mock_fetch_databases: MagicMock,
+    test_root_dir: str,
+):
     records = [
         {
             "target_schema": "private",
@@ -114,21 +131,12 @@ async def test_extractor_view(test_root_dir):
         },
     ]
 
-    with patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
-        new_callable=AsyncMock,
-    ) as mock_fetch_databases, patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database",
-        new_callable=AsyncMock,
-    ) as mock_connect_database:
-        mock_databases(mock_fetch_databases, ["test"])
-        mock_records(mock_connect_database, records)
+    mock_databases(mock_fetch_databases, ["test"])
+    mock_records(mock_connect_database, records)
 
-        extractor = RedshiftLineageExtractor(
-            dummy_config(enable_lineage_from_sql=False)
-        )
+    extractor = RedshiftLineageExtractor(dummy_config(enable_lineage_from_sql=False))
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(
         test_root_dir + "/redshift/lineage/data/result_view.json"

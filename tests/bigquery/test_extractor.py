@@ -85,8 +85,16 @@ def mock_list_entries(mock_build_log_client, entries):
     mock_build_log_client.return_value.list_entries.side_effect = side_effect
 
 
+@patch("metaphor.bigquery.extractor.build_client")
+@patch("metaphor.bigquery.extractor.build_logging_client")
+@patch("metaphor.bigquery.extractor.get_credentials")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(
+    mock_get_credentials: MagicMock,
+    mock_build_logging_client: MagicMock,
+    mock_build_client: MagicMock,
+    test_root_dir,
+):
     config = BigQueryRunConfig(
         output=OutputConfig(),
         key_path="fake_file",
@@ -96,99 +104,93 @@ async def test_extractor(test_root_dir):
 
     entries = load_entries(test_root_dir + "/bigquery/sample_log.json")
 
-    # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch("metaphor.bigquery.extractor.build_client") as mock_build_client, patch(
-        "metaphor.bigquery.extractor.build_logging_client"
-    ) as mock_build_logging_client, patch(
-        "metaphor.bigquery.extractor.get_credentials"
-    ) as mock_get_credentials:
-        extractor = BigQueryExtractor(config)
+    extractor = BigQueryExtractor(config)
 
-        mock_get_credentials.return_value = "fake_credential"
+    mock_get_credentials.return_value = "fake_credential"
 
-        mock_build_client.return_value.project = "project1"
+    mock_build_client.return_value.project = "project1"
 
-        mock_list_datasets(mock_build_client, [mock_dataset("dataset1")])
+    mock_list_datasets(mock_build_client, [mock_dataset("dataset1")])
 
-        mock_list_tables(
-            mock_build_client,
-            {
-                "dataset1": [
-                    mock_table("dataset1", "table1"),
-                    mock_table("dataset1", "table2"),
+    mock_list_tables(
+        mock_build_client,
+        {
+            "dataset1": [
+                mock_table("dataset1", "table1"),
+                mock_table("dataset1", "table2"),
+            ],
+        },
+    )
+
+    mock_get_table(
+        mock_build_client,
+        {
+            ("dataset1", "table1"): mock_table_full(
+                dataset_id="dataset1",
+                table_id="table1",
+                table_type="TABLE",
+                description="description",
+                schema=[
+                    SchemaField(
+                        name="f1",
+                        field_type="STRING",
+                        description="d1",
+                        mode="NULLABLE",
+                    ),
+                    SchemaField(
+                        name="f2",
+                        field_type="INTEGER",
+                        description="d2",
+                        mode="REQUIRED",
+                    ),
                 ],
-            },
-        )
+                modified=datetime.fromisoformat("2000-01-02"),
+                num_bytes=5 * 1024 * 1024,
+                num_rows=100,
+            ),
+            ("dataset1", "table2"): mock_table_full(
+                dataset_id="dataset1",
+                table_id="table2",
+                table_type="VIEW",
+                description="description",
+                schema=[
+                    SchemaField(
+                        name="f1",
+                        field_type="FLOAT",
+                        description="d1",
+                        mode="REPEATED",
+                    ),
+                    SchemaField(
+                        name="f2",
+                        field_type="RECORD",
+                        description="d2",
+                        mode="REQUIRED",
+                        fields=[
+                            SchemaField(
+                                name="sf1",
+                                field_type="INT",
+                                description="d3",
+                                mode="NULLABLE",
+                            ),
+                            SchemaField(
+                                name="sf2",
+                                field_type="STRING",
+                                description="d4",
+                                mode="REQUIRED",
+                            ),
+                        ],
+                    ),
+                ],
+                view_query="select * from FOO",
+                modified=datetime.fromisoformat("2000-01-02"),
+                num_bytes=512 * 1024,
+                num_rows=1000,
+            ),
+        },
+    )
 
-        mock_get_table(
-            mock_build_client,
-            {
-                ("dataset1", "table1"): mock_table_full(
-                    dataset_id="dataset1",
-                    table_id="table1",
-                    table_type="TABLE",
-                    description="description",
-                    schema=[
-                        SchemaField(
-                            name="f1",
-                            field_type="STRING",
-                            description="d1",
-                            mode="NULLABLE",
-                        ),
-                        SchemaField(
-                            name="f2",
-                            field_type="INTEGER",
-                            description="d2",
-                            mode="REQUIRED",
-                        ),
-                    ],
-                    modified=datetime.fromisoformat("2000-01-02"),
-                    num_bytes=5 * 1024 * 1024,
-                    num_rows=100,
-                ),
-                ("dataset1", "table2"): mock_table_full(
-                    dataset_id="dataset1",
-                    table_id="table2",
-                    table_type="VIEW",
-                    description="description",
-                    schema=[
-                        SchemaField(
-                            name="f1",
-                            field_type="FLOAT",
-                            description="d1",
-                            mode="REPEATED",
-                        ),
-                        SchemaField(
-                            name="f2",
-                            field_type="RECORD",
-                            description="d2",
-                            mode="REQUIRED",
-                            fields=[
-                                SchemaField(
-                                    name="sf1",
-                                    field_type="INT",
-                                    description="d3",
-                                    mode="NULLABLE",
-                                ),
-                                SchemaField(
-                                    name="sf2",
-                                    field_type="STRING",
-                                    description="d4",
-                                    mode="REQUIRED",
-                                ),
-                            ],
-                        ),
-                    ],
-                    view_query="select * from FOO",
-                    modified=datetime.fromisoformat("2000-01-02"),
-                    num_bytes=512 * 1024,
-                    num_rows=1000,
-                ),
-            },
-        )
+    mock_list_entries(mock_build_logging_client, entries)
 
-        mock_list_entries(mock_build_logging_client, entries)
-
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/bigquery/expected.json")
