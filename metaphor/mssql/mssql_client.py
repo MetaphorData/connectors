@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterator, List
 
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import to_utc_time
@@ -59,7 +59,7 @@ class MssqlClient:
             endpoint=endpoint, username=username, password=password
         )
 
-    def get_databases(self) -> Iterable[MssqlDatabase]:
+    def get_databases(self) -> Iterator[MssqlDatabase]:
         query_str = """
             SELECT database_id, name, create_date, collation_name from sys.databases where name not in ('master', 'tempdb', 'model', 'msdb');
         """
@@ -140,7 +140,7 @@ class MssqlClient:
 
         return list(table_dict.values())
 
-    def get_foreign_keys(self, database_name: str) -> Iterable[MssqlForeignKey]:
+    def get_foreign_keys(self, database_name: str) -> Iterator[MssqlForeignKey]:
         query_str = """
         SELECT fk.name AS ForeignKeyName
             ,t_parent.object_id AS key_table_id

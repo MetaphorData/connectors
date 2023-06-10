@@ -30,27 +30,27 @@ def column_statistics_config():
     )
 
 
-def test_default_excludes():
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeProfileExtractor(
-            SnowflakeProfileRunConfig(
-                account="snowflake_account",
-                user="user",
-                password="password",
-                filter=DatasetFilter(
-                    includes={"foo": None},
-                    excludes={"bar": None},
-                ),
-                output=OutputConfig(),
-            )
+@patch("metaphor.snowflake.auth.connect")
+def test_default_excludes(mock_connect: MagicMock):
+    extractor = SnowflakeProfileExtractor(
+        SnowflakeProfileRunConfig(
+            account="snowflake_account",
+            user="user",
+            password="password",
+            filter=DatasetFilter(
+                includes={"foo": None},
+                excludes={"bar": None},
+            ),
+            output=OutputConfig(),
         )
+    )
 
-        assert extractor._filter.includes == {"foo": None}
-        assert extractor._filter.excludes == {
-            "bar": None,
-            "SNOWFLAKE": None,
-            "*": {"INFORMATION_SCHEMA": None},
-        }
+    assert extractor._filter.includes == {"foo": None}
+    assert extractor._filter.excludes == {
+        "bar": None,
+        "SNOWFLAKE": None,
+        "*": {"INFORMATION_SCHEMA": None},
+    }
 
 
 database = "db"
@@ -64,7 +64,8 @@ table_info = DatasetInfo(
 )
 
 
-def test_fetch_tables():
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_tables(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
     mock_cursor.__iter__.return_value = iter(
@@ -74,60 +75,58 @@ def test_fetch_tables():
         ]
     )
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeProfileExtractor(
-            SnowflakeProfileRunConfig(
-                account="snowflake_account",
-                user="user",
-                password="password",
-                filter=DatasetFilter(
-                    includes={database: None},
-                ),
-                output=OutputConfig(),
-            )
-        )
-
-        extractor._fetch_tables(mock_cursor, database)
-
-        assert len(extractor._datasets) == 1
-        dataset = extractor._datasets[normalized_name]
-        assert dataset.logical_id == DatasetLogicalID(
-            name=normalized_name,
-            platform=DataPlatform.SNOWFLAKE,
+    extractor = SnowflakeProfileExtractor(
+        SnowflakeProfileRunConfig(
             account="snowflake_account",
+            user="user",
+            password="password",
+            filter=DatasetFilter(
+                includes={database: None},
+            ),
+            output=OutputConfig(),
         )
+    )
 
-        # test excluded DB
-        mock_cursor.__iter__.return_value = iter(
-            [
-                (schema, table_name, table_type, "comment1", 10, 20000),
-            ]
+    extractor._fetch_tables(mock_cursor, database)
+
+    assert len(extractor._datasets) == 1
+    dataset = extractor._datasets[normalized_name]
+    assert dataset.logical_id == DatasetLogicalID(
+        name=normalized_name,
+        platform=DataPlatform.SNOWFLAKE,
+        account="snowflake_account",
+    )
+
+    # test excluded DB
+    mock_cursor.__iter__.return_value = iter(
+        [
+            (schema, table_name, table_type, "comment1", 10, 20000),
+        ]
+    )
+    extractor._fetch_tables(mock_cursor, "db2")
+
+    # no new dataset added
+    assert len(extractor._datasets) == 1
+
+
+@patch("metaphor.snowflake.auth.connect")
+@patch("metaphor.snowflake.utils.async_execute")
+def test_fetch_columns(mock_async_execute: MagicMock, mock_connect: MagicMock):
+    mock_async_execute.return_value = {}
+
+    extractor = SnowflakeProfileExtractor(
+        SnowflakeProfileRunConfig(
+            account="snowflake_account",
+            user="user",
+            password="password",
+            output=OutputConfig(),
         )
-        extractor._fetch_tables(mock_cursor, "db2")
+    )
 
-        # no new dataset added
-        assert len(extractor._datasets) == 1
+    connection = mock_connect()
+    extractor._fetch_columns_async(connection, {normalized_name: table_info})
 
-
-def test_fetch_columns():
-    with patch("metaphor.snowflake.auth.connect") as auth_connect, patch(
-        "metaphor.snowflake.utils.async_execute"
-    ) as async_execute:
-        async_execute.return_value = {}
-
-        extractor = SnowflakeProfileExtractor(
-            SnowflakeProfileRunConfig(
-                account="snowflake_account",
-                user="user",
-                password="password",
-                output=OutputConfig(),
-            )
-        )
-
-        connection = auth_connect()
-        extractor._fetch_columns_async(connection, {normalized_name: table_info})
-
-        assert len(extractor._datasets) == 0
+    assert len(extractor._datasets) == 0
 
 
 def test_build_profiling_query():

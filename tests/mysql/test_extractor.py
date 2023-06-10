@@ -96,8 +96,9 @@ def mock_inspector():
     return mock_instance
 
 
+@patch("metaphor.mysql.extractor.MySQLExtractor.get_inspector")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(mock_get_inspector: MagicMock, test_root_dir: str):
     config = MySQLRunConfig(
         output=OutputConfig(),
         user="user",
@@ -107,12 +108,9 @@ async def test_extractor(test_root_dir):
         port=1234,
     )
 
-    with patch(
-        "metaphor.mysql.extractor.MySQLExtractor.get_inspector"
-    ) as mock_get_inspector:
-        mock_get_inspector.return_value = mock_inspector()
+    mock_get_inspector.return_value = mock_inspector()
 
-        extractor = MySQLExtractor(config)
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    extractor = MySQLExtractor(config)
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/mysql/expected.json")

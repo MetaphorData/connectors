@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -26,8 +26,9 @@ from metaphor.power_bi.power_bi_client import (
 from tests.test_utils import load_json
 
 
+@patch("metaphor.power_bi.extractor.PowerBIClient")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     mock_instance = MagicMock()
 
     workspace1_id = "workspace-1"
@@ -131,7 +132,7 @@ async def test_extractor(test_root_dir):
         embedUrl="",
     )
 
-    tiles = {
+    tiles: Dict[str, List[PowerBITile]] = {
         dashboard1_id: [tile1, tile3],
         dashboard2_id: [tile2, tile3],
         dashboard1_app_id: [],
@@ -141,11 +142,11 @@ async def test_extractor(test_root_dir):
 
     page2 = PowerBIPage(name="name-2", displayName="Second Page", order=2)
 
-    pages = {
+    pages: Dict[str, Dict[str, List[PowerBIPage]]] = {
         workspace1_id: {report1_id: [], report2_id: [page1, page2], report1_app_id: []}
     }
 
-    refreshes = {
+    refreshes: Dict[str, Dict[str, List[PowerBIRefresh]]] = {
         workspace1_id: {
             dataset1_id: [
                 PowerBIRefresh(status="Failed", endTime=""),
@@ -267,23 +268,23 @@ async def test_extractor(test_root_dir):
         ]
     )
 
-    def fake_get_datasets(workspace_id) -> List[PowerBIDataset]:
+    def fake_get_datasets(workspace_id: str) -> List[PowerBIDataset]:
         return [dataset1, dataset2]
 
-    def fake_get_reports(workspace_id) -> List[PowerBIReport]:
+    def fake_get_reports(workspace_id: str) -> List[PowerBIReport]:
         return [report1, report2, report1_app]
 
-    def fake_get_dashboards(workspace_id) -> List[PowerBIReport]:
+    def fake_get_dashboards(workspace_id: str) -> List[PowerBIDashboard]:
         return [dashboard1, dashboard2, dashboard1_app]
 
-    def fake_get_tiles(dashboard_id) -> List[PowerBITile]:
-        return tiles.get(dashboard_id)
+    def fake_get_tiles(dashboard_id: str) -> List[PowerBITile]:
+        return tiles[dashboard_id]
 
-    def fake_get_pages(workspace_id, report_id) -> List[PowerBIPage]:
-        return pages.get(workspace_id).get(report_id)
+    def fake_get_pages(workspace_id: str, report_id: str) -> List[PowerBIPage]:
+        return pages[workspace_id][report_id]
 
-    def fake_get_refreshes(workspace_id, dataset_id) -> List[PowerBIRefresh]:
-        return refreshes.get(workspace_id).get(dataset_id)
+    def fake_get_refreshes(workspace_id: str, dataset_id: str) -> List[PowerBIRefresh]:
+        return refreshes[workspace_id][dataset_id]
 
     def fake_get_apps() -> List[PowerBIApp]:
         return [app1, app2]
@@ -296,18 +297,17 @@ async def test_extractor(test_root_dir):
     mock_instance.get_refreshes.side_effect = fake_get_refreshes
     mock_instance.get_apps.side_effect = fake_get_apps
 
-    with patch("metaphor.power_bi.extractor.PowerBIClient") as mock_client:
-        mock_client.return_value = mock_instance
+    mock_client.return_value = mock_instance
 
-        config = PowerBIRunConfig(
-            output=OutputConfig(),
-            tenant_id="fake",
-            client_id="fake_client_id",
-            secret="fake_secret",
-            workspaces=["bar"],
-        )
-        extractor = PowerBIExtractor(config)
+    config = PowerBIRunConfig(
+        output=OutputConfig(),
+        tenant_id="fake",
+        client_id="fake_client_id",
+        secret="fake_secret",
+        workspaces=["bar"],
+    )
+    extractor = PowerBIExtractor(config)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")

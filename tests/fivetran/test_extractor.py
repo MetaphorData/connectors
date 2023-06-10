@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -26,79 +26,73 @@ class MockResponse:
         return self.json_data
 
 
+@patch("requests.get")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
-    with patch("requests.get") as mock_get:
-        mock_get.side_effect = [
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__metadata__connectors.json"
-                )
-            ),
-            MockResponse(load_json(f"{test_root_dir}/fivetran/data/v1__groups.json")),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__destinations__group_id_1.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__groups__group_id_1__connectors.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__groups__group_id_1__connectors_2.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__connectors__connector_1.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__connectors__connector_2.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__groups__group_id_1__users.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_1__schemas.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_1__tables.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_1__columns.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_2__schemas.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_2__tables.json"
-                )
-            ),
-            MockResponse(
-                load_json(
-                    f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_2__columns.json"
-                )
-            ),
-        ]
+async def test_extractor(mock_get: MagicMock, test_root_dir: str):
+    mock_get.side_effect = [
+        MockResponse(
+            load_json(f"{test_root_dir}/fivetran/data/v1__metadata__connectors.json")
+        ),
+        MockResponse(load_json(f"{test_root_dir}/fivetran/data/v1__groups.json")),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__destinations__group_id_1.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__groups__group_id_1__connectors.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__groups__group_id_1__connectors_2.json"
+            )
+        ),
+        MockResponse(
+            load_json(f"{test_root_dir}/fivetran/data/v1__connectors__connector_1.json")
+        ),
+        MockResponse(
+            load_json(f"{test_root_dir}/fivetran/data/v1__connectors__connector_2.json")
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__groups__group_id_1__users.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_1__schemas.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_1__tables.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_1__columns.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_2__schemas.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_2__tables.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_2__columns.json"
+            )
+        ),
+    ]
 
-        extractor = FivetranExtractor(dummy_config())
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    extractor = FivetranExtractor(dummy_config())
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/fivetran/expected.json")
