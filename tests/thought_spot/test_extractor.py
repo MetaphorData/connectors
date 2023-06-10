@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
@@ -31,32 +31,28 @@ class MockResponse:
         return
 
 
+@patch.object(requests.Session, "post")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
-    with patch.object(requests.Session, "post") as mock_post_method:
-        mock_post_method.side_effect = [
-            MockResponse({"token": ""}),
-            MockResponse(
-                load_json(f"{test_root_dir}/thought_spot/data/connections.json"),
-            ),
-            MockResponse(
-                load_json(f"{test_root_dir}/thought_spot/data/data_objects.json"),
-            ),
-            MockResponse(load_json(f"{test_root_dir}/thought_spot/data/tml.json")),
-            MockResponse(
-                load_json(f"{test_root_dir}/thought_spot/data/answers.json"),
-            ),
-            MockResponse(
-                load_json(f"{test_root_dir}/thought_spot/data/tml_answer.json")
-            ),
-            MockResponse(
-                load_json(f"{test_root_dir}/thought_spot/data/answer_sql.json")
-            ),
-            MockResponse(
-                load_json(f"{test_root_dir}/thought_spot/data/liveboards.json"),
-            ),
-        ]
-        extractor = ThoughtSpotExtractor(dummy_config())
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+async def test_extractor(mock_post_method: MagicMock, test_root_dir: str):
+    mock_post_method.side_effect = [
+        MockResponse({"token": ""}),
+        MockResponse(
+            load_json(f"{test_root_dir}/thought_spot/data/connections.json"),
+        ),
+        MockResponse(
+            load_json(f"{test_root_dir}/thought_spot/data/data_objects.json"),
+        ),
+        MockResponse(load_json(f"{test_root_dir}/thought_spot/data/tml.json")),
+        MockResponse(
+            load_json(f"{test_root_dir}/thought_spot/data/answers.json"),
+        ),
+        MockResponse(load_json(f"{test_root_dir}/thought_spot/data/tml_answer.json")),
+        MockResponse(load_json(f"{test_root_dir}/thought_spot/data/answer_sql.json")),
+        MockResponse(
+            load_json(f"{test_root_dir}/thought_spot/data/liveboards.json"),
+        ),
+    ]
+    extractor = ThoughtSpotExtractor(dummy_config())
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/thought_spot/expected.json")

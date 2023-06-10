@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterable
+from typing import Iterator
 
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import to_utc_time
@@ -14,7 +14,7 @@ class WorkspaceQuery:
     @staticmethod
     def get_sql_pool_query_logs(
         config: MssqlConnectConfig, start_date: datetime, end_date: datetime
-    ) -> Iterable[SynapseQueryLog]:
+    ) -> Iterator[SynapseQueryLog]:
         query_str = """
         SELECT transaction_id, query_text as query_string, login_name, start_time, end_time,
             total_elapsed_time_ms as elapsed_time, data_processed_mb as data_size_mb,
@@ -47,7 +47,7 @@ class WorkspaceQuery:
         database: str,
         start_date: datetime,
         end_date: datetime,
-    ) -> Iterable[SynapseQueryLog]:
+    ) -> Iterator[SynapseQueryLog]:
         query_str = """
         SELECT r.request_id, r.session_id, r.command, r.start_time, r.end_time, r.total_elapsed_time,
             stps.row_count, s.login_name, e.error_id, e.details AS error

@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, List, Optional, Tuple
 from unittest.mock import MagicMock, patch
 
 from metaphor.common.base_config import OutputConfig
@@ -40,23 +40,23 @@ def test_table_url():
     )
 
 
-def test_default_excludes():
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(
-            make_snowflake_config(
-                DatasetFilter(
-                    includes={"foo": None},
-                    excludes={"bar": None},
-                )
+@patch("metaphor.snowflake.auth.connect")
+def test_default_excludes(mock_connect: MagicMock):
+    extractor = SnowflakeExtractor(
+        make_snowflake_config(
+            DatasetFilter(
+                includes={"foo": None},
+                excludes={"bar": None},
             )
         )
+    )
 
-        assert extractor._filter.includes == {"foo": None}
-        assert extractor._filter.excludes == {
-            "bar": None,
-            "SNOWFLAKE": None,
-            "*": {"INFORMATION_SCHEMA": None},
-        }
+    assert extractor._filter.includes == {"foo": None}
+    assert extractor._filter.excludes == {
+        "bar": None,
+        "SNOWFLAKE": None,
+        "*": {"INFORMATION_SCHEMA": None},
+    }
 
 
 database = "db"
@@ -67,7 +67,8 @@ table_type = SnowflakeTableType.BASE_TABLE.value
 normalized_name = dataset_normalized_name(database, schema, table_name)
 
 
-def test_fetch_tables():
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_tables(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
     mock_cursor.__iter__.return_value = iter(
@@ -77,29 +78,29 @@ def test_fetch_tables():
         ]
     )
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(
-            make_snowflake_config(
-                DatasetFilter(
-                    includes={"db": None},
-                )
+    extractor = SnowflakeExtractor(
+        make_snowflake_config(
+            DatasetFilter(
+                includes={"db": None},
             )
         )
+    )
 
-        extractor._fetch_tables(mock_cursor, database)
+    extractor._fetch_tables(mock_cursor, database)
 
-        assert len(extractor._datasets) == 1
-        dataset = extractor._datasets[normalized_name]
-        assert dataset.logical_id == DatasetLogicalID(
-            name=normalized_name,
-            platform=DataPlatform.SNOWFLAKE,
-            account="snowflake_account",
-        )
-        assert dataset.schema.sql_schema.materialization == MaterializationType.TABLE
-        assert dataset.schema.description == "comment1"
+    assert len(extractor._datasets) == 1
+    dataset = extractor._datasets[normalized_name]
+    assert dataset.logical_id == DatasetLogicalID(
+        name=normalized_name,
+        platform=DataPlatform.SNOWFLAKE,
+        account="snowflake_account",
+    )
+    assert dataset.schema.sql_schema.materialization == MaterializationType.TABLE
+    assert dataset.schema.description == "comment1"
 
 
-def test_fetch_columns():
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_columns(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
     mock_cursor.__iter__.return_value = iter(
@@ -109,23 +110,23 @@ def test_fetch_columns():
         ]
     )
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor = SnowflakeExtractor(make_snowflake_config())
 
-        dataset = extractor._init_dataset(
-            database, schema, table_name, table_type, "", None, None
-        )
-        extractor._datasets[normalized_name] = dataset
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    extractor._datasets[normalized_name] = dataset
 
-        extractor._fetch_columns(mock_cursor, database)
+    extractor._fetch_columns(mock_cursor, database)
 
-        assert len(dataset.schema.fields) == 1
-        assert dataset.schema.fields[0].field_path == column
-        assert dataset.schema.fields[0].nullable
-        assert dataset.schema.fields[0].description == "comment1"
+    assert len(dataset.schema.fields) == 1
+    assert dataset.schema.fields[0].field_path == column
+    assert dataset.schema.fields[0].nullable
+    assert dataset.schema.fields[0].description == "comment1"
 
 
-def test_fetch_table_info():
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_table_info(mock_connect: MagicMock):
     table_info = DatasetInfo(
         database=database, schema=schema, name=table_name, type=table_type
     )
@@ -140,25 +141,25 @@ def test_fetch_table_info():
         f"UPDATED_{normalized_name}": 1,
     }
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor = SnowflakeExtractor(make_snowflake_config())
 
-        extractor._conn = mock_conn
+    extractor._conn = mock_conn
 
-        dataset = extractor._init_dataset(
-            database, schema, table_name, table_type, "", None, None
-        )
-        extractor._datasets[normalized_name] = dataset
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    extractor._datasets[normalized_name] = dataset
 
-        extractor._fetch_table_info({normalized_name: table_info}, False)
+    extractor._fetch_table_info({normalized_name: table_info}, False)
 
-        assert dataset.schema.sql_schema.table_schema == "ddl"
-        assert dataset.statistics.last_updated == datetime.utcfromtimestamp(0).replace(
-            tzinfo=timezone.utc
-        )
+    assert dataset.schema.sql_schema.table_schema == "ddl"
+    assert dataset.statistics.last_updated == datetime.utcfromtimestamp(0).replace(
+        tzinfo=timezone.utc
+    )
 
 
-def test_fetch_unique_keys():
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_unique_keys(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
     mock_cursor.__iter__.return_value = iter(
@@ -169,25 +170,23 @@ def test_fetch_unique_keys():
         ]
     )
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor = SnowflakeExtractor(make_snowflake_config())
 
-        dataset = extractor._init_dataset(
-            database, schema, table_name, table_type, "", None, None
-        )
-        dataset.schema.fields = [
-            SchemaField(
-                field_path=column, native_type="str", nullable=True, subfields=None
-            )
-        ]
-        extractor._datasets[normalized_name] = dataset
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    dataset.schema.fields = [
+        SchemaField(field_path=column, native_type="str", nullable=True, subfields=None)
+    ]
+    extractor._datasets[normalized_name] = dataset
 
-        extractor._fetch_unique_keys(mock_cursor)
+    extractor._fetch_unique_keys(mock_cursor)
 
-        assert dataset.schema.fields[0].is_unique
+    assert dataset.schema.fields[0].is_unique
 
 
-def test_fetch_primary_keys():
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_primary_keys(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
     mock_cursor.__iter__.return_value = iter(
@@ -197,20 +196,20 @@ def test_fetch_primary_keys():
         ]
     )
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor = SnowflakeExtractor(make_snowflake_config())
 
-        dataset = extractor._init_dataset(
-            database, schema, table_name, table_type, "", None, None
-        )
-        extractor._datasets[normalized_name] = dataset
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    extractor._datasets[normalized_name] = dataset
 
-        extractor._fetch_primary_keys(mock_cursor)
+    extractor._fetch_primary_keys(mock_cursor)
 
-        assert dataset.schema.sql_schema.primary_key == [column]
+    assert dataset.schema.sql_schema.primary_key == [column]
 
 
-def test_fetch_tags():
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_tags(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
     mock_cursor.__iter__.return_value = iter(
@@ -221,36 +220,36 @@ def test_fetch_tags():
         ]
     )
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor = SnowflakeExtractor(make_snowflake_config())
 
-        dataset = extractor._init_dataset(
-            database, schema, table_name, table_type, "", None, None
-        )
-        dataset.schema.fields.append(SchemaField(field_path="col1", subfields=[]))
-        extractor._datasets[normalized_name] = dataset
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    dataset.schema.fields.append(SchemaField(field_path="col1", subfields=[]))
+    extractor._datasets[normalized_name] = dataset
 
-        extractor._fetch_tags(mock_cursor)
+    extractor._fetch_tags(mock_cursor)
 
-        assert dataset.schema.tags == ["key1=value1"]
-        assert dataset.schema.fields[0].field_path == "col1"
-        assert dataset.schema.fields[0].tags == ["key1=col_tag1"]
+    assert dataset.schema.tags == ["key1=value1"]
+    assert dataset.schema.fields[0].field_path == "col1"
+    assert dataset.schema.fields[0].tags == ["key1=col_tag1"]
 
 
-def test_fetch_shared_databases():
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_shared_databases(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
     mock_cursor.__iter__.return_value = iter([(None, "INBOUND", None, database)])
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(make_snowflake_config())
-        results = extractor._fetch_shared_databases(mock_cursor)
+    extractor = SnowflakeExtractor(make_snowflake_config())
+    results = extractor._fetch_shared_databases(mock_cursor)
 
-        assert results == [database]
+    assert results == [database]
 
 
-def test_parse_query_logs():
-    query_logs = [
+@patch("metaphor.snowflake.auth.connect")
+def test_parse_query_logs(mock_connect: MagicMock):
+    query_logs: List[Tuple[Any, ...]] = [
         (
             "id1",
             "METAPHOR",
@@ -564,52 +563,51 @@ def test_parse_query_logs():
         )
     ]
 
-    with patch("metaphor.snowflake.auth.connect"):
-        extractor = SnowflakeExtractor(make_snowflake_config())
-        extractor._parse_query_logs("1", query_logs)
+    extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor._parse_query_logs("1", query_logs)
 
-        assert len(extractor._logs) == 1
-        log0 = extractor._logs[0]
-        assert log0.query_id == "id1"
-        assert log0.sources == [
-            QueriedDataset(
-                id="DATASET~965CB9D50FF7E59D766536D8ED07E862",
-                columns=[
-                    "START_STATION_NAME",
-                    "START_STATION_ID",
-                    "TOTAL_MINUTES",
-                    "START_STATION_BIKES_COUNT",
-                    "MONTH",
-                    "START_STATION_INSTALL_DATE",
-                    "START_PEAK_TRAVEL",
-                    "SAME_STATION_FLAG",
-                    "START_STATION_DOCKS_COUNT",
-                    "TOTAL_BIKE_HIRES",
-                ],
-                database="acme",
-                schema="ride_share",
-                table="rides_by_month_2017",
-            )
-        ]
-        assert log0.targets == [
-            QueriedDataset(
-                id="DATASET~29B682EDD13A2758F47F073DD361FDBA",
-                columns=[
-                    "MONTH",
-                    "START_STATION_INSTALL_DATE",
-                    "TOTAL_BIKE_HIRES",
-                    "START_STATION_DOCKS_COUNT",
-                    "START_STATION_NAME",
-                    "START_STATION_ID",
-                    "AVERAGE_DURATION_IN_MINUTES",
-                    "START_STATION_BIKES_COUNT",
-                    "SAME_STATION_FLAG",
-                    "START_PEAK_TRAVEL",
-                    "TOTAL_HOURS",
-                    "TOTAL_MINUTES",
-                ],
-                database="acme",
-                schema="ride_share",
-                table="rides_by_month_start_station_2017",
-            )
-        ]
+    assert len(extractor._logs) == 1
+    log0 = extractor._logs[0]
+    assert log0.query_id == "id1"
+    assert log0.sources == [
+        QueriedDataset(
+            id="DATASET~965CB9D50FF7E59D766536D8ED07E862",
+            columns=[
+                "START_STATION_NAME",
+                "START_STATION_ID",
+                "TOTAL_MINUTES",
+                "START_STATION_BIKES_COUNT",
+                "MONTH",
+                "START_STATION_INSTALL_DATE",
+                "START_PEAK_TRAVEL",
+                "SAME_STATION_FLAG",
+                "START_STATION_DOCKS_COUNT",
+                "TOTAL_BIKE_HIRES",
+            ],
+            database="acme",
+            schema="ride_share",
+            table="rides_by_month_2017",
+        )
+    ]
+    assert log0.targets == [
+        QueriedDataset(
+            id="DATASET~29B682EDD13A2758F47F073DD361FDBA",
+            columns=[
+                "MONTH",
+                "START_STATION_INSTALL_DATE",
+                "TOTAL_BIKE_HIRES",
+                "START_STATION_DOCKS_COUNT",
+                "START_STATION_NAME",
+                "START_STATION_ID",
+                "AVERAGE_DURATION_IN_MINUTES",
+                "START_STATION_BIKES_COUNT",
+                "SAME_STATION_FLAG",
+                "START_PEAK_TRAVEL",
+                "TOTAL_HOURS",
+                "TOTAL_MINUTES",
+            ],
+            database="acme",
+            schema="ride_share",
+            table="rides_by_month_start_station_2017",
+        )
+    ]

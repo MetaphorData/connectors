@@ -19,8 +19,9 @@ def dummy_config():
     )
 
 
+@patch("metaphor.glue.extractor.create_glue_client")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
     databases = [
         {
             "DatabaseList": [
@@ -92,12 +93,11 @@ async def test_extractor(test_root_dir):
             mock_paginator.paginate = mock_tables
             return mock_paginator
 
-    with patch("metaphor.glue.extractor.create_glue_client") as mock_create_client:
-        mock_client = MagicMock()
-        mock_client.get_paginator = mock_get_paginator
-        mock_create_client.return_value = mock_client
+    mock_client = MagicMock()
+    mock_client.get_paginator = mock_get_paginator
+    mock_create_client.return_value = mock_client
 
-        extractor = GlueExtractor(dummy_config())
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    extractor = GlueExtractor(dummy_config())
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/glue/expected.json")
