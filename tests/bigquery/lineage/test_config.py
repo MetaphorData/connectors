@@ -9,7 +9,7 @@ def test_yaml_config(test_root_dir):
 
     assert config == BigQueryLineageRunConfig(
         key_path="key_path",
-        project_id="project_id",
+        project_ids=["project_id"],
         enable_view_lineage=True,
         enable_lineage_from_log=False,
         lookback_days=10,

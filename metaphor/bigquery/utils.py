@@ -1,7 +1,7 @@
 import json
 import re
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any
 
 from smart_open import open
 
@@ -34,15 +34,6 @@ def build_logging_client(
     project_id: str, credentials: service_account.Credentials
 ) -> logging_v2.Client:
     return logging_v2.Client(credentials=credentials, project=project_id)
-
-
-def get_project_ids(config: BigQueryRunConfig) -> List[str]:
-    if config.project_ids is not None:
-        return config.project_ids
-
-    # Config validation ensures that either project_ids or project_id is set
-    assert config.project_id is not None
-    return [config.project_id]
 
 
 def get_credentials(config: BigQueryRunConfig) -> service_account.Credentials:

@@ -36,7 +36,7 @@ async def test_log_extractor(
     test_root_dir: str,
 ):
     config = BigQueryLineageRunConfig(
-        project_id="pid",
+        project_ids=["pid"],
         output=OutputConfig(),
         key_path="fake_file",
         enable_view_lineage=False,
@@ -71,7 +71,7 @@ async def test_view_extractor(
     config = BigQueryLineageRunConfig(
         output=OutputConfig(),
         key_path="fake_file",
-        project_id="fake_project",
+        project_ids=["fake_project"],
         enable_lineage_from_log=False,
     )
 
