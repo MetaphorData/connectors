@@ -193,8 +193,16 @@ def test_parse_database_table():
     ) == to_dataset_entity_id("bq_id.schema.table", DataPlatform.BIGQUERY)
 
 
+@patch("tableauserverclient.Server")
+@patch("metaphor.tableau.extractor.paginate_connection")
+@patch("tableauserverclient.Pager")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(
+    mock_pager_cls: MagicMock,
+    mock_paginate_connection: MagicMock,
+    mock_server_cls: MagicMock,
+    test_root_dir: str,
+):
     extractor = TableauExtractor(dummy_config())
 
     view = ViewItem()
@@ -222,7 +230,7 @@ async def test_extractor(test_root_dir):
         views=[],
         data_acceleration_config=None,
     )
-    workbook._set_views([view])
+    workbook._set_views(lambda: [view])
 
     extractor._views = {"vid": view}
     extractor._parse_dashboard(workbook)
@@ -325,17 +333,15 @@ async def test_extractor(test_root_dir):
     mock_server.auth = mock_auth
     mock_server.views = ViewsWrapper([view])
     mock_server.workbooks = WorkbooksWrapper([workbook])
+    mock_server_cls.return_value = mock_server
 
-    with patch("tableauserverclient.Server", return_value=mock_server), patch(
-        "metaphor.tableau.extractor.paginate_connection"
-    ) as mock_paginate_connection, patch("tableauserverclient.Pager") as mock_pager_cls:
-        mock_pager_cls.side_effect = MockPager
+    mock_pager_cls.side_effect = MockPager
 
-        mock_paginate_connection.side_effect = [
-            graphql_custom_sql_tables_response,
-            graphql_workbooks_response,
-        ]
+    mock_paginate_connection.side_effect = [
+        graphql_custom_sql_tables_response,
+        graphql_workbooks_response,
+    ]
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/tableau/expected.json")

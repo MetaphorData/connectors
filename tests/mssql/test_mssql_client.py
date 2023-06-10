@@ -35,7 +35,8 @@ mssqlColumn2 = MssqlColumn(
 mssqlClient = MssqlClient("mock-server.database.windows.net", "username", "password")
 
 
-def test_get_database():
+@patch("metaphor.mssql.mssql_client.mssql_fetch_all")
+def test_get_database(mock_mssql_fetch_all: MagicMock):
     rows = [
         [
             mssqlDatabase.id,
@@ -44,15 +45,15 @@ def test_get_database():
             mssqlDatabase.collation_name,
         ]
     ]
-    with patch(
-        "metaphor.mssql.mssql_client.mssql_fetch_all",
-        return_value=rows,
-    ):
-        dbs = mssqlClient.get_databases()
-        assert next(dbs) == mssqlDatabase
+
+    mock_mssql_fetch_all.return_value = rows
+
+    dbs = mssqlClient.get_databases()
+    assert next(dbs) == mssqlDatabase
 
 
-def test_get_tables():
+@patch("metaphor.mssql.mssql_client.mssql_fetch_all")
+def test_get_tables(mock_mssql_fetch_all: MagicMock):
     col_dict = {}
     col_dict[mssqlColumn1.name] = mssqlColumn1
     col_dict[mssqlColumn2.name] = mssqlColumn2
@@ -84,16 +85,15 @@ def test_get_tables():
         ]
         rows.append(row)
 
-    with patch(
-        "metaphor.mssql.mssql_client.mssql_fetch_all",
-        return_value=rows,
-    ):
-        tables = mssqlClient.get_tables("mock_database")
-        assert len(tables) == 1
-        assert tables[0] == table
+    mock_mssql_fetch_all.return_value = rows
+
+    tables = mssqlClient.get_tables("mock_database")
+    assert len(tables) == 1
+    assert tables[0] == table
 
 
-def test_get_tables_with_external_resource():
+@patch("metaphor.mssql.mssql_client.mssql_fetch_all")
+def test_get_tables_with_external_resource(mock_mssql_fetch_all: MagicMock):
     col_dict = {}
     col_dict[mssqlColumn1.name] = mssqlColumn1
     col_dict[mssqlColumn2.name] = mssqlColumn2
@@ -129,16 +129,15 @@ def test_get_tables_with_external_resource():
 
     external_data = [table.external_source, table.external_file_format]
 
-    with patch(
-        "metaphor.mssql.mssql_client.mssql_fetch_all",
-        side_effect=[rows, [external_data]],
-    ):
-        tables = mssqlClient.get_tables("mock_database")
-        assert len(tables) == 1
-        assert tables[0] == table
+    mock_mssql_fetch_all.side_effect = [rows, [external_data]]
+
+    tables = mssqlClient.get_tables("mock_database")
+    assert len(tables) == 1
+    assert tables[0] == table
 
 
-def test_get_foreign_keys():
+@patch("metaphor.mssql.mssql_client.mssql_fetch_all")
+def test_get_foreign_keys(mock_mssql_fetch_all: MagicMock):
     foreign_key = MssqlForeignKey(
         name="mock_foreign_key_name",
         table_id="mock_table_id",
@@ -156,12 +155,14 @@ def test_get_foreign_keys():
         ]
     ]
 
-    with patch("metaphor.mssql.mssql_client.mssql_fetch_all", return_value=rows):
-        foreign_keys = mssqlClient.get_foreign_keys("mock_database")
-        assert next(foreign_keys) == foreign_key
+    mock_mssql_fetch_all.return_value = rows
+
+    foreign_keys = mssqlClient.get_foreign_keys("mock_database")
+    assert next(foreign_keys) == foreign_key
 
 
-def test_mssql_fetch_all():
+@patch.object(pymssql, "connect")
+def test_mssql_fetch_all(mock_connect: MagicMock):
     rows = [["mock_id_1", "mock_name_1"], ["mock_id_2", "mock_name_2"]]
     conn_instance = MagicMock()
     cursor_instance = MagicMock()
@@ -171,8 +172,8 @@ def test_mssql_fetch_all():
     cursor_instance.close = MagicMock()
     conn_instance.close = MagicMock()
 
-    with patch.object(pymssql, "connect", return_value=conn_instance):
-        res_rows = mssql_fetch_all(mssqlClient.config, "SELECT * FROM mock_table")
+    mock_connect.return_value = conn_instance
+    res_rows = mssql_fetch_all(mssqlClient.config, "SELECT * FROM mock_table")
 
-        assert len(res_rows) == len(rows)
-        assert res_rows == rows
+    assert len(res_rows) == len(rows)
+    assert res_rows == rows

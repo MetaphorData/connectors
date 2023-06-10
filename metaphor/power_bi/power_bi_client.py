@@ -106,8 +106,8 @@ class WorkspaceInfoDataset(BaseModel):
     ContentProviderType: str = ""
     CreatedDate: str = ""
 
-    upstreamDataflows: Any
-    upstreamDatasets: Any
+    upstreamDataflows: Optional[Any]
+    upstreamDatasets: Optional[Any]
 
 
 class WorkspaceInfoDashboard(BaseModel):

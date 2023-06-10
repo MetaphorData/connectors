@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from typing import Any, List
+from unittest.mock import MagicMock, patch
 
 from metaphor.common.utils import to_utc_time
 from metaphor.synapse.model import SynapseQueryLog
 from metaphor.synapse.workspace_query import MssqlConnectConfig, WorkspaceQuery
 
 
-def test_get_sql_pool_query_log():
+@patch("metaphor.synapse.workspace_query.mssql_fetch_all")
+def test_get_sql_pool_query_log(mock_mssql_fetch_all: MagicMock):
     querylog1 = SynapseQueryLog(
         request_id="test_request_id1",
         sql_query="SELECT TOP 10(*) FROM mock_table",
@@ -31,9 +33,9 @@ def test_get_sql_pool_query_log():
         query_operation="SELECT",
     )
 
-    rows = []
+    rows: List[List[Any]] = []
     for querylog in [querylog1, querylog2]:
-        row = []
+        row: List[Any] = []
         row.append(querylog.request_id)
         row.append(querylog.sql_query)
         row.append(querylog.login_name)
@@ -45,20 +47,22 @@ def test_get_sql_pool_query_log():
         row.append(querylog.query_operation)
         rows.append(row)
 
-    with patch("metaphor.synapse.workspace_query.mssql_fetch_all", return_value=rows):
-        config = MssqlConnectConfig(
-            endpoint="mock-server-ondemand.sql.azuresynapse.net",
-            username="mock_username",
-            password="mock_password",
-        )
-        start_date = datetime.now() - timedelta(days=2)
-        end_date = datetime.now()
-        querylogs = WorkspaceQuery.get_sql_pool_query_logs(config, start_date, end_date)
-        assert next(querylogs) == querylog1
-        assert next(querylogs) == querylog2
+    mock_mssql_fetch_all.return_value = rows
+
+    config = MssqlConnectConfig(
+        endpoint="mock-server-ondemand.sql.azuresynapse.net",
+        username="mock_username",
+        password="mock_password",
+    )
+    start_date = datetime.now() - timedelta(days=2)
+    end_date = datetime.now()
+    querylogs = WorkspaceQuery.get_sql_pool_query_logs(config, start_date, end_date)
+    assert next(querylogs) == querylog1
+    assert next(querylogs) == querylog2
 
 
-def test_get_dedicated_sql_pool_query_logs():
+@patch("metaphor.synapse.workspace_query.mssql_fetch_all")
+def test_get_dedicated_sql_pool_query_logs(mock_mssql_fetch_all: MagicMock):
     querylog1 = SynapseQueryLog(
         request_id="test_request_id1",
         session_id="test_session_id1",
@@ -85,9 +89,9 @@ def test_get_dedicated_sql_pool_query_logs():
         query_operation="SELECT",
     )
 
-    rows = []
+    rows: List[List[Any]] = []
     for querylog in [querylog1, querylog2]:
-        row = []
+        row: List[Any] = []
         row.append(querylog.request_id)
         row.append(querylog.session_id)
         row.append(querylog.sql_query)
@@ -100,16 +104,17 @@ def test_get_dedicated_sql_pool_query_logs():
         row.append(querylog.query_operation)
         rows.append(row)
 
-    with patch("metaphor.synapse.workspace_query.mssql_fetch_all", return_value=rows):
-        config = MssqlConnectConfig(
-            endpoint="mock-server.sql.azuresynapse.net",
-            username="mock_username",
-            password="mock_password",
-        )
-        start_date = datetime.now() - timedelta(days=2)
-        end_date = datetime.now()
-        querylogs = WorkspaceQuery.get_dedicated_sql_pool_query_logs(
-            config, "database", start_date, end_date
-        )
-        assert next(querylogs) == querylog1
-        assert next(querylogs) == querylog2
+    mock_mssql_fetch_all.return_value = rows
+
+    config = MssqlConnectConfig(
+        endpoint="mock-server.sql.azuresynapse.net",
+        username="mock_username",
+        password="mock_password",
+    )
+    start_date = datetime.now() - timedelta(days=2)
+    end_date = datetime.now()
+    querylogs = WorkspaceQuery.get_dedicated_sql_pool_query_logs(
+        config, "database", start_date, end_date
+    )
+    assert next(querylogs) == querylog1
+    assert next(querylogs) == querylog2

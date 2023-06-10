@@ -4,26 +4,26 @@
 
 We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage multiple versions of Python on your system. Refer to the [installation guide](https://github.com/pyenv/pyenv#installation) for your system.
 
-Install Python `3.7` if haven't done so already
+Install Python `3.8` if haven't done so already
 
 ```shell
-pyenv install 3.7.10
+pyenv install 3.8
 ```
 
 Verify that it's the version selected by `pyenv` for the project.
 
 ```shell
 python -V
-Python 3.7.10
+Python 3.8
 ```
 
-If you prefer to use Python 3.7 only for this project, you can run the following command to generate a `.python_version` file.
+If you prefer to use Python 3.8 only for this project, you can run the following command to generate a `.python_version` file.
 
 ```shell
-pyenv local 3.7.10
+pyenv local 3.8
 ```
 
-> Note: We recommend using the latest 3.7 release to ensure maximum compatibility. However, if you're developing on an Apple Silicon Mac, please either run in a [Rosetta Terminal](https://www.courier.com/blog/tips-and-tricks-to-setup-your-apple-m1-for-development) or use the closest version that natively supports Apple Silicon (3.8.10 as of now).
+> Note: We recommend using the latest 3.8 release to ensure maximum compatibility. However, if you're developing on an Apple Silicon Mac, please either run in a [Rosetta Terminal](https://www.courier.com/blog/tips-and-tricks-to-setup-your-apple-m1-for-development) or use the closest version that natively supports Apple Silicon (3.8.10 as of now).
 
 ## Install Poetry
 

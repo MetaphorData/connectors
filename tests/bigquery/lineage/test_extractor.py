@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -25,8 +25,16 @@ def mock_list_entries(mock_build_log_client, entries):
     mock_build_log_client.return_value.list_entries.side_effect = side_effect
 
 
+@patch("metaphor.bigquery.lineage.extractor.build_client")
+@patch("metaphor.bigquery.lineage.extractor.build_logging_client")
+@patch("metaphor.bigquery.lineage.extractor.get_credentials")
 @pytest.mark.asyncio
-async def test_log_extractor(test_root_dir):
+async def test_log_extractor(
+    mock_get_credentials: MagicMock,
+    mock_build_logging_client: MagicMock,
+    mock_build_client: MagicMock,
+    test_root_dir: str,
+):
     config = BigQueryLineageRunConfig(
         project_id="pid",
         output=OutputConfig(),
@@ -37,27 +45,29 @@ async def test_log_extractor(test_root_dir):
 
     entries = load_entries(test_root_dir + "/bigquery/lineage/data/sample_log.json")
 
-    # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch("metaphor.bigquery.lineage.extractor.build_client"), patch(
-        "metaphor.bigquery.lineage.extractor.build_logging_client"
-    ) as mock_build_logging_client, patch(
-        "metaphor.bigquery.lineage.extractor.get_credentials"
-    ) as mock_get_credentials:
-        extractor = BigQueryLineageExtractor(config)
+    extractor = BigQueryLineageExtractor(config)
 
-        mock_get_credentials.return_value = "fake_credentials"
+    mock_get_credentials.return_value = "fake_credentials"
 
-        mock_build_logging_client.return_value.project = "project1"
+    mock_build_logging_client.return_value.project = "project1"
 
-        mock_list_entries(mock_build_logging_client, entries)
+    mock_list_entries(mock_build_logging_client, entries)
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(test_root_dir + "/bigquery/lineage/data/result.json")
 
 
+@patch("metaphor.bigquery.lineage.extractor.build_client")
+@patch("metaphor.bigquery.lineage.extractor.build_logging_client")
+@patch("metaphor.bigquery.lineage.extractor.get_credentials")
 @pytest.mark.asyncio
-async def test_view_extractor(test_root_dir):
+async def test_view_extractor(
+    mock_get_credentials: MagicMock,
+    mock_build_logging_client: MagicMock,
+    mock_build_client: MagicMock,
+    test_root_dir: str,
+):
     config = BigQueryLineageRunConfig(
         output=OutputConfig(),
         key_path="fake_file",
@@ -65,61 +75,53 @@ async def test_view_extractor(test_root_dir):
         enable_lineage_from_log=False,
     )
 
-    # @patch doesn't work for async func in py3.7: https://bugs.python.org/issue36996
-    with patch(
-        "metaphor.bigquery.lineage.extractor.build_client"
-    ) as mock_build_client, patch(
-        "metaphor.bigquery.lineage.extractor.build_logging_client"
-    ), patch(
-        "metaphor.bigquery.lineage.extractor.get_credentials"
-    ) as mock_get_credentials:
-        extractor = BigQueryLineageExtractor(config)
+    extractor = BigQueryLineageExtractor(config)
 
-        mock_get_credentials.return_value = "fake_credentials"
+    mock_get_credentials.return_value = "fake_credentials"
 
-        mock_build_client.return_value.project = "project1"
+    mock_build_client.return_value.project = "project1"
 
-        mock_list_datasets(mock_build_client, [mock_dataset("dataset1")])
+    mock_list_datasets(mock_build_client, [mock_dataset("dataset1")])
 
-        mock_list_tables(
-            mock_build_client,
-            {
-                "dataset1": [
-                    mock_table("dataset1", "table1"),
-                    mock_table("dataset1", "table2"),
-                    mock_table("dataset1", "table3"),
-                ],
-            },
-        )
+    mock_list_tables(
+        mock_build_client,
+        {
+            "dataset1": [
+                mock_table("dataset1", "table1"),
+                mock_table("dataset1", "table2"),
+                mock_table("dataset1", "table3"),
+            ],
+        },
+    )
 
-        mock_get_table(
-            mock_build_client,
-            {
-                ("dataset1", "table1"): mock_table_full(
-                    dataset_id="dataset1",
-                    table_id="table1",
-                    table_type="VIEW",
-                    description="description",
-                    view_query="select * from `foo`",
-                ),
-                ("dataset1", "table2"): mock_table_full(
-                    dataset_id="dataset1",
-                    table_id="table2",
-                    table_type="VIEW",
-                    description="description",
-                    view_query="select * from `Foo`",
-                ),
-                ("dataset1", "table3"): mock_table_full(
-                    dataset_id="dataset1",
-                    table_id="table3",
-                    table_type="VIEW",
-                    description="description",
-                    view_query="select * from foo",
-                ),
-            },
-        )
+    mock_get_table(
+        mock_build_client,
+        {
+            ("dataset1", "table1"): mock_table_full(
+                dataset_id="dataset1",
+                table_id="table1",
+                table_type="VIEW",
+                description="description",
+                view_query="select * from `foo`",
+            ),
+            ("dataset1", "table2"): mock_table_full(
+                dataset_id="dataset1",
+                table_id="table2",
+                table_type="VIEW",
+                description="description",
+                view_query="select * from `Foo`",
+            ),
+            ("dataset1", "table3"): mock_table_full(
+                dataset_id="dataset1",
+                table_id="table3",
+                table_type="VIEW",
+                description="description",
+                view_query="select * from foo",
+            ),
+        },
+    )
 
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(
         f"{test_root_dir}/bigquery/lineage/data/view_result.json"

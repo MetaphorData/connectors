@@ -2,7 +2,7 @@
 name: CD
 
 env:
-  PYTHON_VERSION: 3.7
+  PYTHON_VERSION: 3.8
   POETRY_VERSION: 1.2.2
   NODE_VERSION: 16
   DOCKER_IMAGE: metaphordata/connectors

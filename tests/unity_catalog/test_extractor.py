@@ -24,8 +24,16 @@ def dummy_config():
     )
 
 
+@patch("metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api")
+@patch("metaphor.unity_catalog.extractor.list_table_lineage")
+@patch("metaphor.unity_catalog.extractor.list_column_lineage")
 @pytest.mark.asyncio
-async def test_extractor(test_root_dir):
+async def test_extractor(
+    mock_list_column_lineage: MagicMock,
+    mock_list_table_lineage: MagicMock,
+    mock_create_api: MagicMock,
+    test_root_dir: str,
+):
     def mock_list_catalogs():
         return {"catalogs": [{"name": "catalog"}]}
 
@@ -99,44 +107,37 @@ async def test_extractor(test_root_dir):
             ]
         }
 
-    with patch(
-        "metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api"
-    ) as mock_create_api, patch(
-        "metaphor.unity_catalog.extractor.list_table_lineage"
-    ) as mock_list_table_lineage, patch(
-        "metaphor.unity_catalog.extractor.list_column_lineage"
-    ) as mock_list_column_lineage:
-        mock_client = MagicMock()
-        mock_client.list_catalogs = mock_list_catalogs
-        mock_client.list_schemas = mock_list_schemas
-        mock_client.list_tables = mock_list_tables
-        mock_list_table_lineage.side_effect = [
-            TableLineage(
-                upstreams=[
-                    LineageInfo(
-                        tableInfo=TableInfo(
-                            name="upstream", catalog_name="db", schema_name="schema"
-                        )
+    mock_client = MagicMock()
+    mock_client.list_catalogs = mock_list_catalogs
+    mock_client.list_schemas = mock_list_schemas
+    mock_client.list_tables = mock_list_tables
+    mock_list_table_lineage.side_effect = [
+        TableLineage(
+            upstreams=[
+                LineageInfo(
+                    tableInfo=TableInfo(
+                        name="upstream", catalog_name="db", schema_name="schema"
                     )
-                ]
-            ),
-            TableLineage(),
-        ]
-        mock_list_column_lineage.side_effect = [
-            ColumnLineage(
-                upstream_cols=[
-                    LineageColumnInfo(
-                        name="col1",
-                        catalog_name="db",
-                        schema_name="schema",
-                        table_name="upstream",
-                    )
-                ]
-            )
-        ]
-        mock_create_api.return_value = mock_client
+                )
+            ]
+        ),
+        TableLineage(),
+    ]
+    mock_list_column_lineage.side_effect = [
+        ColumnLineage(
+            upstream_cols=[
+                LineageColumnInfo(
+                    name="col1",
+                    catalog_name="db",
+                    schema_name="schema",
+                    table_name="upstream",
+                )
+            ]
+        )
+    ]
+    mock_create_api.return_value = mock_client
 
-        extractor = UnityCatalogExtractor(dummy_config())
-        events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    extractor = UnityCatalogExtractor(dummy_config())
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/unity_catalog/expected.json")
