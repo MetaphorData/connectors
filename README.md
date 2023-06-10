@@ -48,10 +48,10 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [fivetran](metaphor/fivetran/README.md)                       | lineage                                  |
 | [glue](metaphor/glue/README.md)                               | Schema, description                      |
 | [looker](metaphor/looker/README.md)                           | Looker view, explore, dashboard, lineage |
-| [manual.data_quality](metaphor/manual/data_quality/README.md) | Data quality                             |
-| [manual.governance](metaphor/manual/governance/README.md)     | Ownership, tags, description             |
-| [manual.lineage](metaphor/manual/lineage/README.md)           | Lineage                                  |
-| [manual.metadata](metaphor/manual/metadata/README.md)         | Custom metadata                          |
+| [custom.data_quality](metaphor/custom/data_quality/README.md) | Data quality                             |
+| [custom.governance](metaphor/custom/governance/README.md)     | Ownership, tags, description             |
+| [custom.lineage](metaphor/custom/lineage/README.md)           | Lineage                                  |
+| [custom.metadata](metaphor/custom/metadata/README.md)         | Custom metadata                          |
 | [metabase](metaphor/metabase/README.md)                       | Dashboard, lineage                       |
 | [mssql](metaphor/mssql/README.md)                             | Schema                                   |
 | [mysql](metaphor/mysql/README.md)                             | Schema, description                      |
