@@ -9,4 +9,5 @@ output:
     assume_role_arn: arn
     directory: path
     write_logs: false
-    batch_size: 2
+    batch_size_count: 2
+    batch_size_bytes: 1000
