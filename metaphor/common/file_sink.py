@@ -33,9 +33,6 @@ class FileSinkConfig:
     # Output logs
     write_logs: bool = True
 
-    # Deprecated: Use batch_size_count & batch_size_bytes instead
-    batch_size: int = 200
-
     # Limit each file to have at most 200 items
     batch_size_count: int = 200
 
