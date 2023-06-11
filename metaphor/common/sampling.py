@@ -1,8 +1,10 @@
 from pydantic import validator
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.dataclass import DataclassConfig
 
-@dataclass
+
+@dataclass(config=DataclassConfig)
 class SamplingConfig:
     """Config for profile connector"""
 

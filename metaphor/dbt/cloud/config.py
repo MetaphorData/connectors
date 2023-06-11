@@ -4,10 +4,11 @@ from typing import List
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.dbt.config import MetaOwnership, MetaTag
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class DbtCloudConfig(BaseConfig):
     # dbt cloud account ID
     account_id: int

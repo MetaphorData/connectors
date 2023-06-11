@@ -3,6 +3,7 @@ from typing import Optional, Union
 from canonicaljson import encode_canonical_json
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.utils import md5_digest
 from metaphor.models.metadata_change_event import (
@@ -18,7 +19,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class EntityId:
     type: EntityType
     logicalId: Union[

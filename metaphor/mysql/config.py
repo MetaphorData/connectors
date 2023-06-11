@@ -3,10 +3,11 @@ from dataclasses import field
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.filter import TwoLevelDatasetFilter
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class MySQLRunConfig(BaseConfig):
     host: str
     database: str

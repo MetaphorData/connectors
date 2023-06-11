@@ -4,6 +4,7 @@ from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig, OutputConfig
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -14,7 +15,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class DummyRunConfig(BaseConfig):
     dummy_attr: int
 

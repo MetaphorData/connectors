@@ -7,10 +7,11 @@ from git import Repo
 from pydantic import root_validator
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.utils import must_set_exactly_one
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class GitRepoConfig:
     # Git repository URL, ending with ".git"
     git_url: str

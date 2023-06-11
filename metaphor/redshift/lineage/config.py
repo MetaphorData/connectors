@@ -1,9 +1,10 @@
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.redshift.config import RedshiftRunConfig
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class RedshiftLineageRunConfig(RedshiftRunConfig):
     # Whether to enable parsing view query to find upstream of the view, default True
     enable_view_lineage: bool = True

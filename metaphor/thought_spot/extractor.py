@@ -1,13 +1,14 @@
-from dataclasses import dataclass
 from itertools import chain
 from typing import Collection, Dict, List, Optional, Tuple
 
 from pydantic import parse_raw_as
+from pydantic.dataclasses import dataclass
 from sqllineage.core.models import Column
 from sqllineage.exceptions import SQLLineageException
 from sqllineage.runner import LineageRunner
 
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.entity_id import (
     EntityId,
     dataset_normalized_name,
@@ -63,7 +64,7 @@ from metaphor.thought_spot.utils import (
 logger = get_logger()
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class ColumnReference:
     entity_id: str
     field: str

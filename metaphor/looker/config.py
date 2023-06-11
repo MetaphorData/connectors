@@ -4,12 +4,13 @@ from pydantic import root_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.git import GitRepoConfig
 from metaphor.common.utils import must_set_exactly_one
 from metaphor.models.metadata_change_event import DataPlatform
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class LookerConnectionConfig:
     # Database for the connection
     database: str
@@ -25,7 +26,7 @@ class LookerConnectionConfig:
     platform: DataPlatform = DataPlatform.SNOWFLAKE
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class LookerRunConfig(BaseConfig):
     base_url: str
     client_id: str

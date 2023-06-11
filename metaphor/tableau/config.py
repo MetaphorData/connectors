@@ -5,10 +5,11 @@ from pydantic import root_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.utils import must_set_exactly_one
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class TableauTokenAuthConfig:
     """Config for Personal Access Token authentication"""
 
@@ -16,7 +17,7 @@ class TableauTokenAuthConfig:
     token_value: str
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class TableauPasswordAuthConfig:
     """Config for Username Password authentication"""
 
@@ -24,7 +25,7 @@ class TableauPasswordAuthConfig:
     password: str
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class TableauRunConfig(BaseConfig):
     server_url: str
     site_name: str

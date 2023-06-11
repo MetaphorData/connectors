@@ -1,11 +1,12 @@
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.snowflake.config import SnowflakeRunConfig
 
 DEFAULT_BATCH_SIZE = 100000
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class SnowflakeLineageRunConfig(SnowflakeRunConfig):
     # Whether to enable finding view lineage from object dependencies, default True
     enable_view_lineage: bool = True

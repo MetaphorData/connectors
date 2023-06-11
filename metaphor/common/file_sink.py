@@ -9,6 +9,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logger import LOG_FILE, debug_files, get_logger
 from metaphor.common.sink import Sink
@@ -24,7 +25,7 @@ from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
 logger = get_logger()
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class FileSinkConfig:
     # Location of the sink directory, where the MCE file and logs will be output to.
     # Can be local file directory, s3://bucket/ or s3://bucket/path/

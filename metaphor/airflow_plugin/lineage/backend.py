@@ -2,29 +2,28 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Collection, Dict, List, Optional
 
 from airflow.configuration import conf
-
-from metaphor.common.api_sink import ApiSink, ApiSinkConfig
-from metaphor.common.event_util import EventUtil
-from metaphor.common.file_sink import FileSink, FileSinkConfig
-from metaphor.common.sink import Sink
-from metaphor.common.storage import S3StorageConfig
+from airflow.lineage.backend import LineageBackend
+from pydantic.dataclasses import dataclass
 
 if TYPE_CHECKING:
     from airflow import DAG
     from airflow.models.baseoperator import BaseOperator
 
-from airflow.lineage.backend import LineageBackend
-from pydantic.dataclasses import dataclass
-
 from metaphor.airflow_plugin.lineage.entity import MetaphorDataset
+from metaphor.common.api_sink import ApiSink, ApiSinkConfig
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.entity_id import EntityId
+from metaphor.common.event_util import EventUtil
+from metaphor.common.file_sink import FileSink, FileSinkConfig
+from metaphor.common.sink import Sink
+from metaphor.common.storage import S3StorageConfig
 from metaphor.models.metadata_change_event import Dataset, DatasetUpstream, EntityType
 
 INGESTION_API_MODE = "ingestion-api"
 S3_MODE = "s3"
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class MetaphorBackendConfig:
     mode: str
     ingestion_url: Optional[str] = None

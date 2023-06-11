@@ -8,6 +8,7 @@ from aws_assume_role_lib import assume_role
 from pydantic.dataclasses import dataclass
 from smart_open import open
 
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.logger import get_logger
 
 logger = get_logger()
@@ -69,7 +70,7 @@ class LocalStorage(BaseStorage):
             os.remove(path)
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class S3StorageConfig:
     aws_access_key_id: Optional[str] = None
     aws_secret_access_key: Optional[str] = None

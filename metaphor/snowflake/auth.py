@@ -7,6 +7,7 @@ from pydantic.dataclasses import dataclass
 from smart_open import open
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.utils import must_set_exactly_one
 
 try:
@@ -20,7 +21,7 @@ METAPHOR_DATA = "MetaphorData"
 METAPHOR_DATA_SNOWFLAKE_CONNECTOR = "MetaphorData_SnowflakeConnector"
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class SnowflakeKeyPairAuthConfig:
     """Config for key pair authentication"""
 
@@ -39,7 +40,7 @@ class SnowflakeKeyPairAuthConfig:
         return values
 
 
-@dataclass
+@dataclass(config=DataclassConfig)
 class SnowflakeAuthConfig(BaseConfig):
     account: str
     user: str
