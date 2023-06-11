@@ -129,9 +129,7 @@ class CatalogParserV1:
             bytes = stats.get("bytes")
             if bytes is not None and bytes.value is not None:
                 found_statistics = True
-                statistics.data_size = (
-                    float(bytes.value) / 1048576  # convert bytes to MB
-                )
+                statistics.data_size_bytes = float(bytes.value)
 
             last_modified = stats.get("last_modified")
             if last_modified is not None and last_modified.value is not None:
