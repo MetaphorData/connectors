@@ -261,7 +261,6 @@ class ThoughtSpotExtractor(BaseExtractor):
             table = tables[view.logical_id.name]
 
             if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
-
                 # SQL_VIEW case
                 if table.logicalTableContent.sqlQuery:
                     view.entity_upstream.transformation = (
@@ -354,7 +353,6 @@ class ThoughtSpotExtractor(BaseExtractor):
     def get_source_entities_from_sql(
         connections, sql: str, source_id: str
     ) -> List[str]:
-
         try:
             parser = LineageRunner(sql)
         except SQLLineageException as e:
@@ -413,7 +411,6 @@ class ThoughtSpotExtractor(BaseExtractor):
     def get_field_mappings_from_sql(
         connections, sql: str, source_id: str
     ) -> List[FieldMapping]:
-
         mapping = ThoughtSpotExtractor.get_mapping_from_sql(sql)
 
         field_mappings: List[FieldMapping] = []
@@ -531,7 +528,6 @@ class ThoughtSpotExtractor(BaseExtractor):
     def get_field_mappings_from_answer_sql(
         self, answer_id, source_id, target_columns: Optional[List[str]]
     ) -> List[FieldMapping]:
-
         if not target_columns:
             return []
 

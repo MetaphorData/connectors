@@ -14,5 +14,4 @@ class SynapseQueryLogConfig:
 
 @dataclass(config=ConnectorConfig)
 class SynapseConfig(MssqlConfig):
-
     query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()

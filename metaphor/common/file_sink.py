@@ -74,7 +74,7 @@ class FileSink(Sink):
             lambda item: len(json.dumps(item)),
         )
 
-        for (part, slice) in enumerate(slices):
+        for part, slice in enumerate(slices):
             file_name = f"{part+1}-of-{len(slices)}.json"
             self._storage.write_file(
                 f"{self.path}/{file_name}",

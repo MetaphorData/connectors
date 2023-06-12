@@ -207,7 +207,6 @@ class ThoughtSpot:
         batch_size = 100
 
         while len(liveboard_details) == batch_count * batch_size:
-
             response = client.metadata_search(
                 {
                     "metadata": [{"type": "LIVEBOARD"}],
