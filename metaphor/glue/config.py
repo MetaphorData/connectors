@@ -4,10 +4,11 @@ from typing import Optional
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
 
 
-@dataclass
+@dataclass(config=ConnectorConfig)
 class AwsCredentials:
     """AWS Credentials"""
 
@@ -24,7 +25,7 @@ class AwsCredentials:
     assume_role_arn: Optional[str] = None
 
 
-@dataclass
+@dataclass(config=ConnectorConfig)
 class GlueRunConfig(BaseConfig):
     aws: AwsCredentials
 

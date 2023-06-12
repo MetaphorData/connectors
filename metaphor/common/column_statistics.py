@@ -1,7 +1,9 @@
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.dataclass import ConnectorConfig
 
-@dataclass
+
+@dataclass(config=ConnectorConfig)
 class ColumnStatistics:
     # Compute null and non-null counts
     null_count: bool = True

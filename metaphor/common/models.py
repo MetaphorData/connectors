@@ -3,6 +3,7 @@ from typing import Optional, Union
 
 from pydantic.dataclasses import dataclass
 
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.entity_id import normalize_full_dataset_name, to_dataset_entity_id
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -11,7 +12,7 @@ from metaphor.models.metadata_change_event import (
 )
 
 
-@dataclass
+@dataclass(config=ConnectorConfig)
 class DeserializableDatasetLogicalID:
     name: str
     platform: str

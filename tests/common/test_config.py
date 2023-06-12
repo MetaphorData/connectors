@@ -4,6 +4,7 @@ from pydantic.dataclasses import dataclass
 
 from metaphor.common.api_sink import ApiSinkConfig
 from metaphor.common.base_config import BaseConfig, OutputConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.file_sink import FileSinkConfig
 
 
@@ -34,7 +35,7 @@ def test_yaml_config_with_extra_config(test_root_dir):
         BaseConfig.from_yaml_file(f"{test_root_dir}/common/configs/extend.yml")
 
 
-@dataclass
+@dataclass(config=ConnectorConfig)
 class ExtendConfig(BaseConfig):
     foo: str
 

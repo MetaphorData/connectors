@@ -3,10 +3,11 @@ from dataclasses import field
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
 
 
-@dataclass
+@dataclass(config=ConnectorConfig)
 class MssqlConfig(BaseConfig):
     # The database username
     username: str

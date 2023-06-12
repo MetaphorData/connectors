@@ -3,10 +3,6 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from smart_open import open
-
-from metaphor.bigquery.config import BigQueryRunConfig
-
 try:
     import google.cloud.bigquery as bigquery
     from google.cloud import logging_v2
@@ -15,6 +11,9 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
+from smart_open import open
+
+from metaphor.bigquery.config import BigQueryRunConfig
 
 # ProtobufEntry is a namedtuple and attribute assigned dynamically with different type, mypy fail here
 # See: https://googleapis.dev/python/logging/latest/client.html#google.cloud.logging_v2.client.Client.list_entries

@@ -4,9 +4,10 @@ from typing import List, Optional
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.dataclass import ConnectorConfig
 
 
-@dataclass
+@dataclass(config=ConnectorConfig)
 class PowerBIRunConfig(BaseConfig):
     # Power BI Directory (tenant) ID
     tenant_id: str
