@@ -41,7 +41,6 @@ def test_filter_empty_strings():
 
 
 def test_chunk_by_size():
-
     # Return length of item as size
     def size_func(item):
         return len(item)
