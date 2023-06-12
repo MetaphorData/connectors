@@ -9,13 +9,13 @@ repos:
         args: [--autofix, --no-sort-keys]
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-    rev: 0.2.2
+    rev: 0.2.3
     hooks:
       - id: yamlfmt
         args: [--mapping, '2', --sequence, '4', --offset, '2']
 
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.3.0
     hooks:
       - id: black
         exclude: ^(metaphor/dbt/generated/.+)$
@@ -27,7 +27,7 @@ repos:
         exclude: ^(metaphor/dbt/generated/.+)$
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.991
+    rev: v1.3.0
     hooks:
       - id: mypy
         additional_dependencies:
@@ -47,7 +47,7 @@ repos:
         args: ['--skip=B101,B106,B608']
 
   - repo: https://github.com/pycqa/flake8
-    rev: 5.0.4
+    rev: 6.0.0
     hooks:
       - id: flake8
         args: ['--ignore=E203,E501,W503']
