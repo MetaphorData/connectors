@@ -5,7 +5,7 @@ from pydantic import root_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.tag_matcher import TagMatcher
 from metaphor.common.utils import must_set_exactly_one
@@ -15,7 +15,7 @@ from metaphor.common.utils import must_set_exactly_one
 DEFAULT_QUERY_LOG_FETCH_SIZE = 1000
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class BigQueryCredentials:
     """Credentials used to connect to BigQuery"""
 
@@ -39,7 +39,7 @@ class BigQueryCredentials:
     token_uri: str = "https://oauth2.googleapis.com/token"
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class BigQueryQueryLogConfig:
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 1
@@ -57,7 +57,7 @@ class BigQueryQueryLogConfig:
     fetch_job_query_if_truncated: bool = True
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class BigQueryRunConfig(BaseConfig):
     # List of project IDs to extract metadata from
     project_ids: List[str]

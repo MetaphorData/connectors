@@ -6,7 +6,7 @@ from pydantic.dataclasses import dataclass
 from smart_open import open
 
 from metaphor.common.api_sink import ApiSinkConfig
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.file_sink import FileSinkConfig
 from metaphor.common.variable import variable_substitution
 
@@ -14,7 +14,7 @@ from metaphor.common.variable import variable_substitution
 T = TypeVar("T", bound="BaseConfig")
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class OutputConfig:
     """Config for where to output the data"""
 
@@ -22,7 +22,7 @@ class OutputConfig:
     file: Optional[FileSinkConfig] = None
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class BaseConfig:
     """Base class for runtime parameters
 

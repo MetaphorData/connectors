@@ -4,10 +4,10 @@ from typing import List, Optional
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class MetaOwnership:
     # Key to match in the "meta" field
     meta_key: str
@@ -19,7 +19,7 @@ class MetaOwnership:
     email_domain: Optional[str] = None
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class MetaTag:
     # Key to match in the "meta" field
     meta_key: str
@@ -31,7 +31,7 @@ class MetaTag:
     meta_value_matcher: str = "True"
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class DbtRunConfig(BaseConfig):
     manifest: str
     catalog: Optional[str] = None

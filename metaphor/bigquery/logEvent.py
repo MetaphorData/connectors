@@ -1,12 +1,11 @@
 import logging
+from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
 
 from google.cloud._helpers import _rfc3339_nanos_to_datetime
-from pydantic.dataclasses import dataclass
 
 from metaphor.bigquery.utils import BigQueryResource, LogEntry
-from metaphor.common.dataclass import DataclassConfig
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 
@@ -14,7 +13,7 @@ logger = get_logger()
 logger.setLevel(logging.INFO)
 
 
-@dataclass(config=DataclassConfig)
+@dataclass
 class JobChangeEvent:
     """
     Container class for BigQueryAuditMetadata.JobChange, where the 'after' job status is 'DONE'

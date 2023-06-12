@@ -5,14 +5,14 @@ from typing import List
 from pydantic.dataclasses import dataclass
 from requests import HTTPError, post
 
-from .dataclass import DataclassConfig
+from .dataclass import ConnectorConfig
 from .sink import Sink
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class ApiSinkConfig:
     url: str
     api_key: str

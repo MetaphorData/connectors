@@ -3,12 +3,12 @@ from typing import List
 
 from pydantic.dataclasses import dataclass
 
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.utils import unique_list
 from metaphor.models.metadata_change_event import Dataset, TagAssignment
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class TagMatcher:
     # The glob pattern to use when matching against the asset name
     pattern: str

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 from metaphor.airflow_plugin.lineage.entity import MetaphorDataset
 from metaphor.common.api_sink import ApiSink, ApiSinkConfig
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig
@@ -23,7 +23,7 @@ INGESTION_API_MODE = "ingestion-api"
 S3_MODE = "s3"
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class MetaphorBackendConfig:
     mode: str
     ingestion_url: Optional[str] = None

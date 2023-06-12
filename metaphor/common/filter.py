@@ -3,7 +3,7 @@ from typing import Dict, Optional, Set
 
 from pydantic.dataclasses import dataclass
 
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 
 TableFilter = Set[str]
 SchemaFilter = Dict[str, Optional[TableFilter]]
@@ -12,7 +12,7 @@ DatabaseFilter = Dict[str, Optional[SchemaFilter]]
 DUMMY_DATABASE_NAME = "dummy"
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class TwoLevelDatasetFilter:
     # A list of schemas/tables to include
     includes: Optional[SchemaFilter] = None
@@ -21,7 +21,7 @@ class TwoLevelDatasetFilter:
     excludes: Optional[SchemaFilter] = None
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class DatasetFilter:
     # A list of databases/schemas/tables to include
     includes: Optional[DatabaseFilter] = None

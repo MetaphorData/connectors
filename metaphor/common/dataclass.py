@@ -1,9 +1,9 @@
 from pydantic import Extra
 
 
-class DataclassConfig:
+class ConnectorConfig:
     """
-    Config for pydantic dataclass and BaseModel
+    Pydantic dataclass Config for metaphor connector configurations
     """
 
     validate_all = True

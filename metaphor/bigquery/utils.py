@@ -1,5 +1,6 @@
 import json
 import re
+from dataclasses import dataclass
 from typing import Any
 
 try:
@@ -10,11 +11,9 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
-from pydantic.dataclasses import dataclass
 from smart_open import open
 
 from metaphor.bigquery.config import BigQueryRunConfig
-from metaphor.common.dataclass import DataclassConfig
 
 # ProtobufEntry is a namedtuple and attribute assigned dynamically with different type, mypy fail here
 # See: https://googleapis.dev/python/logging/latest/client.html#google.cloud.logging_v2.client.Client.list_entries
@@ -67,7 +66,7 @@ SNAPSHOT_TABLE_REGEX = re.compile(r"^(.+)@(\d{13})$")
 INVALID_TABLE_NAME_CHAR = ["$", "@"]
 
 
-@dataclass(config=DataclassConfig)
+@dataclass
 class BigQueryResource:
     project_id: str
     dataset_id: str

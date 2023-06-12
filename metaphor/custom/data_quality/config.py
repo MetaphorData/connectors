@@ -4,18 +4,18 @@ from typing import List, Optional
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_extractor import BaseConfig
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.models import DeserializableDatasetLogicalID
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class DataQualityMonitorTarget:
     dataset: Optional[str]
 
     column: Optional[str]
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class DataQualityMonitor:
     title: str
 
@@ -38,7 +38,7 @@ class DataQualityMonitor:
     value: Optional[float] = None
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class DataQuality:
     monitors: List[DataQualityMonitor]
 
@@ -48,13 +48,13 @@ class DataQuality:
     url: Optional[str] = None
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class DatasetDataQuality:
     id: DeserializableDatasetLogicalID
 
     data_quality: DataQuality
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class CustomDataQualityConfig(BaseConfig):
     datasets: List[DatasetDataQuality]

@@ -4,10 +4,10 @@ from pydantic import validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class ThoughtSpotRunConfig(BaseConfig):
     user: str
 

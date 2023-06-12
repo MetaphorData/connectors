@@ -4,11 +4,11 @@ from typing import List
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_extractor import BaseConfig
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.models import DeserializableDatasetLogicalID
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class Ownership:
     # Type of ownership to assign
     type: str
@@ -17,7 +17,7 @@ class Ownership:
     email: str
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class ColumnTags:
     # Name of the column
     column: str
@@ -26,7 +26,7 @@ class ColumnTags:
     tags: List[str]
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class Description:
     # The description to assign
     description: str
@@ -35,7 +35,7 @@ class Description:
     email: str
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class DatasetGovernance:
     id: DeserializableDatasetLogicalID
 
@@ -48,6 +48,6 @@ class DatasetGovernance:
     descriptions: List[Description] = dataclass_field(default_factory=lambda: [])
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class CustomGovernanceConfig(BaseConfig):
     datasets: List[DatasetGovernance]

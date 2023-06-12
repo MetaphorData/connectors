@@ -8,7 +8,7 @@ from sqllineage.exceptions import SQLLineageException
 from sqllineage.runner import LineageRunner
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.dataclass import DataclassConfig
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.entity_id import (
     EntityId,
     dataset_normalized_name,
@@ -64,7 +64,7 @@ from metaphor.thought_spot.utils import (
 logger = get_logger()
 
 
-@dataclass(config=DataclassConfig)
+@dataclass(config=ConnectorConfig)
 class ColumnReference:
     entity_id: str
     field: str
