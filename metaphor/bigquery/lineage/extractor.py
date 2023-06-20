@@ -100,8 +100,8 @@ class BigQueryLineageExtractor(BaseExtractor):
                     continue
                 logger.debug(f"Found table {table_ref}")
 
-                bq_table = client.get_table(table_ref)
                 try:
+                    bq_table = client.get_table(table_ref)
                     self._parse_view_lineage(client.project, bq_table)
                 except Exception as ex:
                     logger.exception(ex)
