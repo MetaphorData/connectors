@@ -14,7 +14,10 @@ output:
     directory: <output_directory>
 
     # (Optional) Maximum number of messages in each output file split. Default to 200.
-    batch_size: <messages_per_file>
+    batch_size_count: <messages_per_file>
+
+    # (Optional) Maximum size for each output file split. Default to 100 MB.
+    batch_size_size: <size_in_bytes>
 
     # (Optional) IAM role to assume. Default using the current AWS credential.
     assume_role_arn: <iam_role_arn>

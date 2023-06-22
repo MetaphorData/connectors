@@ -7,6 +7,7 @@
 [![PyPI Version](https://img.shields.io/pypi/v/metaphor-connectors)](https://pypi.org/project/metaphor-connectors/)
 ![Python version 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)
 ![PyPI Downloads](https://img.shields.io/pypi/dm/metaphor-connectors)
+[![Docker Pulls](https://img.shields.io/docker/pulls/metaphordata/connectors)](https://hub.docker.com/r/metaphordata/connectors)
 [![License](https://img.shields.io/github/license/MetaphorData/connectors)](https://github.com/MetaphorData/connectors/blob/master/LICENSE)
 
 This repository contains a collection of Python-based "connectors" that extract metadata from various sources to ingest into the [Metaphor](https://metaphor.io) platform.
@@ -32,6 +33,10 @@ pip install "metaphor-connectors[snowflake]"
 ```
 
 Similarly, you can also install the package using `requirements.txt` or `pyproject.toml`.
+
+## Docker
+
+We automatically push a [docker image](https://hub.docker.com/r/metaphordata/connectors) to Docker Hub as par of the CI/CD. See [this page](./docs/docker.md) for more details.
 
 ## Connectors
 
