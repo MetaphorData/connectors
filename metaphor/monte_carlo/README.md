@@ -4,7 +4,7 @@ This connector extracts technical metadata from a Monte Carlo site using [Monte 
 
 ## Setup
 
-We recommend creating a dedicated API Key for the connector to use. Follow the [instruction](https://docs.getmontecarlo.com/docs/creating-an-api-token#creating-an-api-key) to create a new API key and write down the API key id and token.
+We recommend creating a dedicated API Key for the connector to use. Follow the [instruction](https://docs.getmontecarlo.com/docs/creating-an-api-token#creating-an-api-key) to create a new API key and note down the API key ID and token.
 
 ## Config File
 

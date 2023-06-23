@@ -57,7 +57,7 @@ class MonteCarloExtractor(BaseExtractor):
     def __init__(self, config: MonteCarloRunConfig):
         super().__init__(config, "Monte Carlo metadata crawler", Platform.TABLEAU)
         self._data_platform = config.data_platform
-        self._snowflake_account = (
+        self._account = (
             normalize_snowflake_account(config.snowflake_account)
             if config.snowflake_account
             else None
@@ -145,7 +145,7 @@ class MonteCarloExtractor(BaseExtractor):
         logical_id = DatasetLogicalID(
             name=normalized_name,
             platform=self._data_platform,
-            account=self._snowflake_account,
+            account=self._account,
         )
         dataset_id = str(to_dataset_entity_id_from_logical_id(logical_id))
 
