@@ -15,8 +15,9 @@
       ],
       "provider": "MONTE_CARLO"
     },
-    "id": "DATASET~C7049C940D285091076C957891D54BC6",
+    "id": "DATASET~A2409EBE8D27134A0A453E315CF94DF8",
     "logicalId": {
+      "account": "snow",
       "name": "db.metaphor.test1",
       "platform": "SNOWFLAKE"
     }
@@ -44,8 +45,9 @@
       ],
       "provider": "MONTE_CARLO"
     },
-    "id": "DATASET~4CCEB16A5904DAA5CDC936B28CFFCD19",
+    "id": "DATASET~7C8302C79EF72479256B0B30E12AD2D7",
     "logicalId": {
+      "account": "snow",
       "name": "db.metaphor.test2",
       "platform": "SNOWFLAKE"
     }

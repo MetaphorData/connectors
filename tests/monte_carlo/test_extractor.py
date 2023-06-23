@@ -1,4 +1,3 @@
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -16,6 +15,7 @@ def dummy_config():
         api_key_id="key_id",
         api_key_secret="key_secret",
         data_platform=DataPlatform.SNOWFLAKE,
+        snowflake_account="snow",
         output=OutputConfig(),
     )
 
@@ -54,7 +54,5 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
     extractor._client = mock_pycarlo_client
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-
-    print(json.dumps(events))
 
     assert events == load_json(f"{test_root_dir}/monte_carlo/expected.json")
