@@ -1,0 +1,55 @@
+[
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "description": "Field Health for all fields in db:metaphor.test1",
+          "lastRun": "2023-06-23T03:54:35.817000+00:00",
+          "owner": "yi@metaphor.io",
+          "severity": "UNKNOWN",
+          "status": "ERROR",
+          "targets": [],
+          "title": "auto_monitor_name_cd5b69bd-e465-4545-b3f9-a5d507ea766c",
+          "url": "https://getmontecarlo.com/monitors/e0dc143e-dd8a-4cb9-b4cc-dedec715d955"
+        }
+      ],
+      "provider": "MONTE_CARLO"
+    },
+    "id": "DATASET~A2409EBE8D27134A0A453E315CF94DF8",
+    "logicalId": {
+      "account": "snow",
+      "name": "db.metaphor.test1",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "description": "Field Health for all fields in db:metaphor.test2",
+          "lastRun": "2023-06-23T03:54:35.817000+00:00",
+          "owner": "yi@metaphor.io",
+          "severity": "UNKNOWN",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "foo"
+            },
+            {
+              "column": "bar"
+            }
+          ],
+          "title": "auto_monitor_name_53c985e6-8f49-4af7-8ef1-7b402a27538b",
+          "url": "https://getmontecarlo.com/monitors/ce4c4568-35f4-4365-a6fe-95f233fcf6c3"
+        }
+      ],
+      "provider": "MONTE_CARLO"
+    },
+    "id": "DATASET~7C8302C79EF72479256B0B30E12AD2D7",
+    "logicalId": {
+      "account": "snow",
+      "name": "db.metaphor.test2",
+      "platform": "SNOWFLAKE"
+    }
+  }
+]
