@@ -25,7 +25,7 @@ output:
 
 #### Snowflake Account
 
-If one of the data sources is using Snowflake dataset, please provide the Snowflake account as follows,
+If some of the monitored data assets are Snowflake datasets, please provide the Snowflake account as follows,
 
 ```yaml
 snowflake_account: <account_name>
