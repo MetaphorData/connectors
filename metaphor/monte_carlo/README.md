@@ -1,4 +1,4 @@
-# Tableau Connector
+# Monte Carlo Connector
 
 This connector extracts technical metadata from a Monte Carlo site using [Monte Carlo API](https://docs.getmontecarlo.com/docs/using-the-api).
 
