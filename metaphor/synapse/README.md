@@ -8,23 +8,23 @@ We recommend creating a dedicated Synapse user with limited permissions for the 
 1. Create and grant read-only permissions to a user in [Synapse workspace](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Synapse%2Fworkspaces).
     - For [serverless pool](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/on-demand-workspace-overview):
         ```sql
-        USE master
-        CREATE LOGIN <username> WITH PASSWORD = <password>
+        USE master;
+        CREATE LOGIN <username> WITH PASSWORD = <password>;
         GRANT CONNECT ANY DATABASE TO <username>;
         GRANT VIEW ANY DEFINITION TO  <username>;
         ```
         
     - For [dedicated pool](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-what-is):
         ```sql
-        USE master
-        CREATE LOGIN <username> WITH PASSWORD = <password>
-        CREATE USER <username> FROM LOGIN <username>
+        USE master;
+        CREATE LOGIN <username> WITH PASSWORD = <password>;
+        CREATE USER <username> FROM LOGIN <username>;
         
         -- For each database of interest
-        USE <database>
-        CREATE USER <username> FROM LOGIN <username>
-        GRANT VIEW DEFINITION TO <username>
-        GRANT VIEW DATABASE STATE TO <username>
+        USE <database>;
+        CREATE USER <username> FROM LOGIN <username>;
+        GRANT VIEW DEFINITION TO <username>;
+        GRANT VIEW DATABASE STATE TO <username>;
         ```
         
 ## Config File
