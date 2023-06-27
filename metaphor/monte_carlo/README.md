@@ -4,7 +4,7 @@ This connector extracts technical metadata from a Monte Carlo site using [Monte 
 
 ## Setup
 
-We recommend creating a dedicated API Key for the connector to use. Follow the [instruction](https://docs.getmontecarlo.com/docs/creating-an-api-token#creating-an-api-key) to create a new API key and note down the API key ID and token.
+We recommend creating a dedicated API Key for the connector to use. Follow [these instructions](https://docs.getmontecarlo.com/docs/creating-an-api-token#creating-an-api-key) to create a new API key and secret.
 
 ## Config File
 
@@ -15,7 +15,7 @@ Create a YAML config file based on the following template.
 ```yaml
 api_key_id: <api_key_id>
 api_key_secret: <api_key_token>
-data_platform: <data_platform>  // SNOWFLAKE, BIG_QUERY, etc
+data_platform: <data_platform>  # SNOWFLAKE, BIGQUERY, REDSHIFT, etc.
 output:
   file:
     directory: <output_directory>
@@ -35,7 +35,7 @@ snowflake_account: <account_name>
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `monte_carlo` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+To test the connector locally, change the config file to output to a local path and run the following command.
 
 ```shell
 metaphor monte_carlo <config_file>
