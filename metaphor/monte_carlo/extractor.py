@@ -17,7 +17,7 @@ from metaphor.common.entity_id import (
     to_dataset_entity_id_from_logical_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataMonitor,
@@ -33,7 +33,8 @@ from metaphor.monte_carlo.config import MonteCarloRunConfig
 
 logger = get_logger()
 
-monitors_url_prefix = "https://getmontecarlo.com/monitors"
+assets_base_url = "https://getmontecarlo.com/assets"
+monitors_base_url = "https://getmontecarlo.com/monitors"
 
 monitor_status_map = {
     "SNOOZED": DataMonitorStatus.UNKNOWN,
@@ -69,7 +70,7 @@ class MonteCarloExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info("Fetching metadata from MonteCarlo")
+        logger.info("Fetching metadata from Monte Carlo")
 
         self._fetch_monitors()
 
@@ -86,6 +87,7 @@ class MonteCarloExtractor(BaseExtractor):
                     name
                     description
                     entities
+                    entityMcons
                     severity
                     monitorStatus
                     monitorFields
@@ -97,6 +99,8 @@ class MonteCarloExtractor(BaseExtractor):
             )
 
             logger.info(f"Fetched {len(monitors['get_monitors'])} monitors")
+            json_dump_to_debug_file(monitors, "getMonitors.json")
+
             self._parse_monitors(monitors)
         except Exception as error:
             traceback.print_exc()
@@ -121,7 +125,7 @@ class MonteCarloExtractor(BaseExtractor):
                     monitor["monitorStatus"], DataMonitorStatus.UNKNOWN
                 ),
                 severity=monitor_severity,
-                url=f"{monitors_url_prefix}/{monitor['uuid']}",
+                url=f"{monitors_base_url}/{monitor['uuid']}",
                 last_run=parser.parse(monitor["prevExecutionTime"]),
                 targets=[
                     DataMonitorTarget(column=field)
@@ -132,8 +136,11 @@ class MonteCarloExtractor(BaseExtractor):
             target_datasets = [
                 self._convert_dataset_name(entity) for entity in monitor["entities"]
             ]
-            for target in target_datasets:
+            for index, target in enumerate(target_datasets):
                 dataset = self._init_dataset(target)
+                dataset.data_quality.url = (
+                    f"{assets_base_url}/{monitor['entityMcons'][index]}/custom-monitors"
+                )
                 dataset.data_quality.monitors.append(data_monitor)
 
     @staticmethod

@@ -30,6 +30,9 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                 "name": "auto_monitor_name_cd5b69bd-e465-4545-b3f9-a5d507ea766c",
                 "description": "Field Health for all fields in db:metaphor.test1",
                 "entities": ["db:metaphor.test1"],
+                "entityMcons": [
+                    "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test1"
+                ],
                 "severity": None,
                 "monitorStatus": "MISCONFIGURED",
                 "monitorFields": None,
@@ -41,6 +44,9 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                 "name": "auto_monitor_name_53c985e6-8f49-4af7-8ef1-7b402a27538b",
                 "description": "Field Health for all fields in db:metaphor.test2",
                 "entities": ["db:metaphor.test2"],
+                "entityMcons": [
+                    "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test2"
+                ],
                 "severity": "LOW",
                 "monitorStatus": "SUCCESS",
                 "monitorFields": ["foo", "bar"],
