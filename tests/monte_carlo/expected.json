@@ -9,7 +9,7 @@
           "severity": "UNKNOWN",
           "status": "ERROR",
           "targets": [],
-          "title": "auto_monitor_name_cd5b69bd-e465-4545-b3f9-a5d507ea766c",
+          "title": "Field Health for all fields in db:metaphor.test1",
           "url": "https://getmontecarlo.com/monitors/e0dc143e-dd8a-4cb9-b4cc-dedec715d955"
         }
       ],
@@ -34,13 +34,13 @@
           "status": "PASSED",
           "targets": [
             {
-              "column": "foo"
+              "column": "FOO"
             },
             {
-              "column": "bar"
+              "column": "BAR"
             }
           ],
-          "title": "auto_monitor_name_53c985e6-8f49-4af7-8ef1-7b402a27538b",
+          "title": "Field Health for all fields in db:metaphor.test2",
           "url": "https://getmontecarlo.com/monitors/ce4c4568-35f4-4365-a6fe-95f233fcf6c3"
         }
       ],

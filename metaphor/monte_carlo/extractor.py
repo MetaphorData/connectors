@@ -118,7 +118,7 @@ class MonteCarloExtractor(BaseExtractor):
                     logger.warning(f"Unknown severity {monitor['severity']}")
 
             data_monitor = DataMonitor(
-                title=monitor["name"],
+                title=monitor["description"],
                 description=monitor["description"],
                 owner=monitor["creatorId"],
                 status=monitor_status_map.get(
@@ -128,7 +128,7 @@ class MonteCarloExtractor(BaseExtractor):
                 url=f"{monitors_base_url}/{monitor['uuid']}",
                 last_run=parser.parse(monitor["prevExecutionTime"]),
                 targets=[
-                    DataMonitorTarget(column=field)
+                    DataMonitorTarget(column=field.upper())
                     for field in monitor["monitorFields"] or []
                 ],
             )
