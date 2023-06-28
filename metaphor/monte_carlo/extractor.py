@@ -118,7 +118,7 @@ class MonteCarloExtractor(BaseExtractor):
                     logger.warning(f"Unknown severity {monitor['severity']}")
 
             data_monitor = DataMonitor(
-                title=monitor["description"],
+                title=monitor["name"],
                 description=monitor["description"],
                 owner=monitor["creatorId"],
                 status=monitor_status_map.get(
