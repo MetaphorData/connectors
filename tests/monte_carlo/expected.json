@@ -13,7 +13,8 @@
           "url": "https://getmontecarlo.com/monitors/e0dc143e-dd8a-4cb9-b4cc-dedec715d955"
         }
       ],
-      "provider": "MONTE_CARLO"
+      "provider": "MONTE_CARLO",
+      "url": "https://getmontecarlo.com/assets/MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test1/custom-monitors"
     },
     "id": "DATASET~A2409EBE8D27134A0A453E315CF94DF8",
     "logicalId": {
@@ -33,17 +34,18 @@
           "status": "PASSED",
           "targets": [
             {
-              "column": "foo"
+              "column": "FOO"
             },
             {
-              "column": "bar"
+              "column": "BAR"
             }
           ],
           "title": "auto_monitor_name_53c985e6-8f49-4af7-8ef1-7b402a27538b",
           "url": "https://getmontecarlo.com/monitors/ce4c4568-35f4-4365-a6fe-95f233fcf6c3"
         }
       ],
-      "provider": "MONTE_CARLO"
+      "provider": "MONTE_CARLO",
+      "url": "https://getmontecarlo.com/assets/MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test2/custom-monitors"
     },
     "id": "DATASET~7C8302C79EF72479256B0B30E12AD2D7",
     "logicalId": {
