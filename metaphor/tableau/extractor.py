@@ -1,5 +1,4 @@
 import base64
-import json
 import re
 import traceback
 from typing import Collection, Dict, List, Optional, Set, Union
@@ -133,7 +132,6 @@ class TableauExtractor(BaseExtractor):
             f"There are {len(views)} views on site: {[view.name for view in views]}\n"
         )
         for view in views:
-            logger.debug(json.dumps(view.__dict__, default=str))
             if not self._disable_preview_image:
                 server.views.populate_preview_image(view)
             if not view.id:
@@ -149,7 +147,6 @@ class TableauExtractor(BaseExtractor):
         )
         for workbook in workbooks:
             server.workbooks.populate_views(workbook, usage=True)
-            logger.debug(json.dumps(workbook.__dict__, default=str))
 
             try:
                 self._parse_dashboard(workbook)
@@ -193,7 +190,6 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_project_names(self, projects: List[tableau.ProjectItem]) -> None:
         for project in projects:
-            logger.debug(json.dumps(project.__dict__, default=str))
             if project.id:
                 self._projects[project.id] = project.name
 
