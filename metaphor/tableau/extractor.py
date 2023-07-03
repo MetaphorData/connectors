@@ -73,8 +73,9 @@ class TableauExtractor(BaseExtractor):
         self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
         self._disable_preview_image = config.disable_preview_image
 
-        self._datasets: Dict[EntityId, Dataset] = {}
         self._views: Dict[str, tableau.ViewItem] = {}
+        self._projects: Dict[str, str] = {}
+        self._datasets: Dict[EntityId, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
 
@@ -117,6 +118,14 @@ class TableauExtractor(BaseExtractor):
         ]
 
     def _extract_dashboards(self, server: tableau.Server) -> None:
+        # fetch all projects
+        projects: List[tableau.ProjectItem] = list(tableau.Pager(server.projects))
+        json_dump_to_debug_file([w.__dict__ for w in projects], "projects.json")
+        logger.info(
+            f"\nThere are {len(projects)} projects on site: {[project.name for project in projects]}"
+        )
+        self._parse_project_names(projects)
+
         # fetch all views, with preview image
         views: List[tableau.ViewItem] = list(tableau.Pager(server.views, usage=True))
         json_dump_to_debug_file([v.__dict__ for v in views], "views.json")
@@ -182,19 +191,33 @@ class TableauExtractor(BaseExtractor):
                     f"failed to parse workbook {item['vizportalUrlId']}, error {error}"
                 )
 
+    def _parse_project_names(self, projects: List[tableau.ProjectItem]) -> None:
+        for project in projects:
+            logger.debug(json.dumps(project.__dict__, default=str))
+            self._projects[project.id] = project.name
+
+        # second iteration to link child to parent project
+        for project in projects:
+            if project.parent_id in self._projects:
+                parent_name = self._projects[project.parent_id]
+                self._projects[project.id] = f"{parent_name}.{project.name}"
+
     def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
         if not workbook.webpage_url:
             logger.exception(f"workbook {workbook.name} missing webpage_url")
             return
 
         workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)
+        project_name = (
+            self._projects.get(workbook.project_id, None) or workbook.project_name
+        )
 
         views: List[tableau.ViewItem] = workbook.views
         charts = [self._parse_chart(self._views[view.id]) for view in views if view.id]
         total_views = sum([view.total_views for view in views])
 
         dashboard_info = DashboardInfo(
-            title=f"{workbook.project_name}.{workbook.name}",
+            title=f"{project_name}.{workbook.name}",
             description=workbook.description,
             charts=charts,
             view_count=float(total_views),

@@ -2,7 +2,7 @@ from typing import List
 from unittest.mock import MagicMock, patch
 
 import pytest
-from tableauserverclient import ViewItem, WorkbookItem
+from tableauserverclient import ProjectItem, ViewItem, WorkbookItem
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import to_dataset_entity_id
@@ -20,6 +20,15 @@ from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 from metaphor.tableau.extractor import TableauExtractor
 from metaphor.tableau.query import Database, DatabaseTable
 from tests.test_utils import load_json
+
+
+class ProjectsWrapper:
+    def __init__(self, projects: List[ProjectItem]):
+        self._projects = projects
+
+    def __iter__(self):
+        for w in self._projects:
+            yield w
 
 
 class ViewsWrapper:
@@ -205,6 +214,11 @@ async def test_extractor(
 ):
     extractor = TableauExtractor(dummy_config())
 
+    project1 = ProjectItem("parent")
+    project1._set_values("parent_id", "parent", "", None, None, None)
+    project2 = ProjectItem("child")
+    project2._set_values("child_project_id", "child", "", None, "parent_id", None)
+
     view = ViewItem()
     view._id = "vid"
     view._name = "name"
@@ -223,7 +237,7 @@ async def test_extractor(
         updated_at=None,
         size=1,
         show_tabs=True,
-        project_id=456,
+        project_id="child_project_id",
         project_name="project1",
         owner_id=None,
         tags=None,
@@ -331,6 +345,7 @@ async def test_extractor(
 
     mock_server = MagicMock()
     mock_server.auth = mock_auth
+    mock_server.projects = ProjectsWrapper([project1, project2])
     mock_server.views = ViewsWrapper([view])
     mock_server.workbooks = WorkbooksWrapper([workbook])
     mock_server_cls.return_value = mock_server
