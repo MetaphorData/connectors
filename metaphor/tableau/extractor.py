@@ -1,4 +1,5 @@
 import base64
+import json
 import re
 import traceback
 from typing import Collection, Dict, List, Optional, Set, Union
@@ -147,6 +148,7 @@ class TableauExtractor(BaseExtractor):
         )
         for workbook in workbooks:
             server.workbooks.populate_views(workbook, usage=True)
+            logger.info(json.dumps(workbook.__dict__, default=str))
 
             try:
                 self._parse_dashboard(workbook)
@@ -214,7 +216,7 @@ class TableauExtractor(BaseExtractor):
         total_views = sum([view.total_views for view in views])
 
         dashboard_info = DashboardInfo(
-            title=f"{project_name}.{workbook.name}",
+            title=f"{project_name}.{workbook.name}" if project_name else workbook.name,
             description=workbook.description,
             charts=charts,
             view_count=float(total_views),
@@ -330,7 +332,9 @@ class TableauExtractor(BaseExtractor):
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=published_source.luid
                 ),
                 tableau_datasource=TableauDatasource(
-                    name=f"{project_name}.{published_source.name}",
+                    name=f"{project_name}.{published_source.name}"
+                    if project_name
+                    else published_source.name,
                     description=published_source.description or None,
                     fields=[
                         TableauField(field=f.name, description=f.description or None)
