@@ -1,5 +1,4 @@
 import base64
-import json
 import re
 import traceback
 from typing import Collection, Dict, List, Optional, Set, Union
@@ -148,7 +147,6 @@ class TableauExtractor(BaseExtractor):
         )
         for workbook in workbooks:
             server.workbooks.populate_views(workbook, usage=True)
-            logger.info(json.dumps(workbook.__dict__, default=str))
 
             try:
                 self._parse_dashboard(workbook)
@@ -201,22 +199,32 @@ class TableauExtractor(BaseExtractor):
                 parent_name = self._projects[project.parent_id]
                 self._projects[project.id] = f"{parent_name}.{project.name}"
 
+    def _build_asset_name(
+        self, asset_name: str, project_id: Optional[str], project_name: Optional[str]
+    ) -> str:
+        """
+        Builds the dashboard or datasource full name <project>.<asset_name>
+        Use 'project_id' to find the project full name, if not found, use the given project_name.
+        If asset doesn't have project, use only the asset name
+        """
+        project = self._projects.get(project_id or "", None) or project_name
+        return f"{project}.{asset_name}" if project else asset_name
+
     def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
         if not workbook.webpage_url:
             logger.exception(f"workbook {workbook.name} missing webpage_url")
             return
 
         workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)
-        project_name = (
-            self._projects.get(workbook.project_id or "", None) or workbook.project_name
-        )
 
         views: List[tableau.ViewItem] = workbook.views
         charts = [self._parse_chart(self._views[view.id]) for view in views if view.id]
         total_views = sum([view.total_views for view in views])
 
         dashboard_info = DashboardInfo(
-            title=f"{project_name}.{workbook.name}" if project_name else workbook.name,
+            title=self._build_asset_name(
+                workbook.name, workbook.project_id, workbook.project_name
+            ),
             description=workbook.description,
             charts=charts,
             view_count=float(total_views),
@@ -305,10 +313,6 @@ class TableauExtractor(BaseExtractor):
         source_virtual_views: List[str] = []
         published_datasources: List[str] = []
 
-        project_name = (
-            self._projects.get(workbook.projectLuid or "", None) or workbook.projectName
-        )
-
         for published_source in workbook.upstreamDatasources:
             virtual_view_id = str(
                 to_virtual_view_entity_id(
@@ -332,9 +336,11 @@ class TableauExtractor(BaseExtractor):
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=published_source.luid
                 ),
                 tableau_datasource=TableauDatasource(
-                    name=f"{project_name}.{published_source.name}"
-                    if project_name
-                    else published_source.name,
+                    name=self._build_asset_name(
+                        published_source.name,
+                        workbook.projectLuid,
+                        workbook.projectName,
+                    ),
                     description=published_source.description or None,
                     fields=[
                         TableauField(field=f.name, description=f.description or None)
