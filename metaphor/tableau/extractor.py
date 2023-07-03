@@ -194,11 +194,12 @@ class TableauExtractor(BaseExtractor):
     def _parse_project_names(self, projects: List[tableau.ProjectItem]) -> None:
         for project in projects:
             logger.debug(json.dumps(project.__dict__, default=str))
-            self._projects[project.id] = project.name
+            if project.id:
+                self._projects[project.id] = project.name
 
         # second iteration to link child to parent project
         for project in projects:
-            if project.parent_id in self._projects:
+            if project.id and project.parent_id in self._projects:
                 parent_name = self._projects[project.parent_id]
                 self._projects[project.id] = f"{parent_name}.{project.name}"
 
@@ -209,7 +210,7 @@ class TableauExtractor(BaseExtractor):
 
         workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)
         project_name = (
-            self._projects.get(workbook.project_id, None) or workbook.project_name
+            self._projects.get(workbook.project_id or "", None) or workbook.project_name
         )
 
         views: List[tableau.ViewItem] = workbook.views
