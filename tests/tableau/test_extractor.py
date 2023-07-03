@@ -286,6 +286,7 @@ async def test_extractor(
         {
             "luid": "abc",
             "name": "Snowflake test1",
+            "projectLuid": "child_project_id",
             "projectName": "default",
             "vizportalUrlId": "123",
             "upstreamDatasources": [

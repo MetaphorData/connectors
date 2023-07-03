@@ -35,7 +35,7 @@
     "tableauDatasource": {
       "embedded": false,
       "fields": [],
-      "name": "default.source1",
+      "name": "parent.child.source1",
       "sourceDatasets": [
         "DATASET~44EFB0A109CA87DB8792256D25D030C9"
       ],

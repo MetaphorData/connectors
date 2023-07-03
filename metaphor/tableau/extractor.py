@@ -303,6 +303,10 @@ class TableauExtractor(BaseExtractor):
         source_virtual_views: List[str] = []
         published_datasources: List[str] = []
 
+        project_name = (
+            self._projects.get(workbook.projectLuid or "", None) or workbook.projectName
+        )
+
         for published_source in workbook.upstreamDatasources:
             virtual_view_id = str(
                 to_virtual_view_entity_id(
@@ -326,7 +330,7 @@ class TableauExtractor(BaseExtractor):
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=published_source.luid
                 ),
                 tableau_datasource=TableauDatasource(
-                    name=f"{workbook.projectName}.{published_source.name}",
+                    name=f"{project_name}.{published_source.name}",
                     description=published_source.description or None,
                     fields=[
                         TableauField(field=f.name, description=f.description or None)
