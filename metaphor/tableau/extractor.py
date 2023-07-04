@@ -199,14 +199,18 @@ class TableauExtractor(BaseExtractor):
                 parent_name = self._projects[project.parent_id]
                 self._projects[project.id] = f"{parent_name}.{project.name}"
 
-    def _build_asset_name(
-        self, asset_name: str, project_id: Optional[str], project_name: Optional[str]
+    def _build_asset_full_name(
+        self,
+        asset_name: Optional[str],
+        project_id: Optional[str],
+        project_name: Optional[str],
     ) -> str:
         """
         Builds the dashboard or datasource full name <project>.<asset_name>
         Use 'project_id' to find the project full name, if not found, use the given project_name.
         If asset doesn't have project, use only the asset name
         """
+        assert asset_name, "missing asset name"
         project = self._projects.get(project_id or "", None) or project_name
         return f"{project}.{asset_name}" if project else asset_name
 
@@ -222,7 +226,7 @@ class TableauExtractor(BaseExtractor):
         total_views = sum([view.total_views for view in views])
 
         dashboard_info = DashboardInfo(
-            title=self._build_asset_name(
+            title=self._build_asset_full_name(
                 workbook.name, workbook.project_id, workbook.project_name
             ),
             description=workbook.description,
@@ -336,7 +340,7 @@ class TableauExtractor(BaseExtractor):
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=published_source.luid
                 ),
                 tableau_datasource=TableauDatasource(
-                    name=self._build_asset_name(
+                    name=self._build_asset_full_name(
                         published_source.name,
                         workbook.projectLuid,
                         workbook.projectName,

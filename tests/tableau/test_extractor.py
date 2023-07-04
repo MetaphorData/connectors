@@ -114,6 +114,26 @@ def test_view_url():
     assert view_url2 == "https://tableau.my_company.com/#/views/Regional/Obesity"
 
 
+def test_asset_full_name():
+    extractor = TableauExtractor(dummy_config())
+
+    assert (
+        extractor._build_asset_full_name("asset_name", "project_id", "project_name")
+        == "project_name.asset_name"
+    )
+    assert (
+        extractor._build_asset_full_name("asset_name", "project_id", None)
+        == "asset_name"
+    )
+
+    extractor._projects = {"project_id": "project.full_name"}
+
+    assert (
+        extractor._build_asset_full_name("asset_name", "project_id", "project_name")
+        == "project.full_name.asset_name"
+    )
+
+
 def test_extract_workbook_id():
     # Tableau Online
     assert (
