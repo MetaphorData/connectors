@@ -13,6 +13,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Metric,
     Person,
+    Pipeline,
     QueryLogs,
     VirtualView,
 )
@@ -49,6 +50,8 @@ class EventUtil:
             return self._build_event(metric=entity)
         elif type(entity) is Person:
             return self._build_event(person=entity)
+        elif type(entity) is Pipeline:
+            return self._build_event(pipeline=entity)
         elif type(entity) is KnowledgeCard:
             return self._build_event(knowledge_card=entity)
         elif type(entity) is VirtualView:

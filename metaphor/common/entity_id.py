@@ -14,6 +14,8 @@ from metaphor.models.metadata_change_event import (
     GroupID,
     KnowledgeCardLogicalID,
     PersonLogicalID,
+    PipelineLogicalID,
+    PipelineType,
     VirtualViewLogicalID,
     VirtualViewType,
 )
@@ -28,6 +30,7 @@ class EntityId:
         GroupID,
         KnowledgeCardLogicalID,
         PersonLogicalID,
+        PipelineLogicalID,
         VirtualViewLogicalID,
     ]
 
@@ -75,6 +78,16 @@ def to_person_entity_id(email: str) -> EntityId:
     return EntityId(
         EntityType.PERSON,
         PersonLogicalID(email=email),
+    )
+
+
+def to_pipeline_entity_id(name: str, pipeline_type: PipelineType) -> EntityId:
+    """
+    converts a pipeline name and type into a Pipeline entity ID
+    """
+    return EntityId(
+        EntityType.PIPELINE,
+        PipelineLogicalID(name=name, type=pipeline_type),
     )
 
 

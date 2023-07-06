@@ -1,3 +1,4 @@
+import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -94,5 +95,7 @@ async def test_extractor(mock_get: MagicMock, test_root_dir: str):
 
     extractor = FivetranExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+
+    print(json.dumps(events))
 
     assert events == load_json(f"{test_root_dir}/fivetran/expected.json")

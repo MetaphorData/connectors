@@ -9,6 +9,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     dataset_normalized_name,
     to_dataset_entity_id_from_logical_id,
+    to_pipeline_entity_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
@@ -33,10 +34,13 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUpstream,
-    EntityUpstream,
     FieldMapping,
     FiveTranConnector,
     FiveTranConnectorStatus,
+    FivetranPipeline,
+    Pipeline,
+    PipelineLogicalID,
+    PipelineType,
     SourceField,
 )
 
@@ -120,9 +124,10 @@ class FivetranExtractor(BaseExtractor):
         super().__init__(config, "Fivetran metadata crawler", Platform.GLUE)
 
         self._auth = HTTPBasicAuth(username=config.api_key, password=config.api_secret)
-        self._destinations: Dict[str, DestinationPayload] = {}
         self._datasets: Dict[str, Dataset] = {}
         self._source_datasets: Dict[str, Dataset] = {}
+        self._pipelines: Dict[str, Pipeline] = {}
+        self._destinations: Dict[str, DestinationPayload] = {}
         self._source_metadata: Dict[str, SourceMetadataPayload] = {}
         self._users: Dict[str, str] = {}
         self._base_url = "https://api.fivetran.com/v1"
@@ -146,10 +151,14 @@ class FivetranExtractor(BaseExtractor):
 
             self.map_to_datasets(connector, connector_schema_metadata)
 
-        return [*self._datasets.values(), *self._source_datasets.values()]
+        return [
+            *self._datasets.values(),
+            *self._source_datasets.values(),
+            *self._pipelines.values(),
+        ]
 
+    @staticmethod
     def process_metadata(
-        self,
         schemas: List[MetadataSchemaPayload],
         tables: List[MetadataTablePayload],
         columns: List[MetadataColumnPayload],
@@ -200,11 +209,13 @@ class FivetranExtractor(BaseExtractor):
 
     def map_to_datasets(
         self, connector: ConnectorPayload, schemas: List[SchemaMetadata]
-    ):
+    ) -> None:
         destination = self._destinations.get(connector.group_id)
         assert destination, "destination for connector should exist"
 
         serialized_schema_metadata = json.dumps([asdict(s) for s in schemas])
+
+        self._init_pipeline(connector, serialized_schema_metadata)
 
         for schema in schemas:
             for table in schema.tables:
@@ -263,8 +274,18 @@ class FivetranExtractor(BaseExtractor):
                 platform=destination_platform,
                 account=self.get_snowflake_account_from_config(destination.config),
             ),
-            upstream=DatasetUpstream(source_datasets=[], field_mappings=[]),
+            upstream=DatasetUpstream(
+                source_datasets=[],
+                field_mappings=[],
+                pipeline_entity_id=str(
+                    to_pipeline_entity_id(connector.id, PipelineType.FIVETRAN)
+                ),
+            ),
         )
+        dataset_id = str(to_dataset_entity_id_from_logical_id(dataset.logical_id))
+
+        pipeline = self._pipelines[connector.id]
+        pipeline.fivetran.targets = list(set(pipeline.fivetran.targets + [dataset_id]))
 
         dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
             connector,
@@ -290,6 +311,10 @@ class FivetranExtractor(BaseExtractor):
             )
 
             dataset.upstream.source_datasets = [source_entity_id]
+            pipeline.fivetran.sources = list(
+                set(pipeline.fivetran.sources + [source_entity_id])
+            )
+
             dataset.upstream.five_tran_connector.source_entity_id = source_entity_id
 
             for column in table.columns:
@@ -305,15 +330,68 @@ class FivetranExtractor(BaseExtractor):
                 )
                 dataset.upstream.field_mappings.append(field_mapping)
 
-        dataset.entity_upstream = EntityUpstream(
-            field_mappings=dataset.upstream.field_mappings,
-            five_tran_connector=dataset.upstream.five_tran_connector,
-            source_entities=dataset.upstream.source_datasets,
-        )
-
         self._datasets[destination_dataset_name] = dataset
 
-    def get_snowflake_account_from_config(self, config: dict) -> Optional[str]:
+    def _init_pipeline(
+        self,
+        connector: ConnectorPayload,
+        serialized_schema_metadata: str,
+    ) -> Pipeline:
+        pipeline = self._create_fivetran_pipeline(
+            connector,
+            self._source_metadata.get(connector.service),
+            serialized_schema_metadata,
+            self._users.get(connector.connected_by) if connector.connected_by else None,
+        )
+
+        self._pipelines[connector.id] = pipeline
+        return pipeline
+
+    @staticmethod
+    def _create_fivetran_pipeline(
+        connector: ConnectorPayload,
+        source_metadata: Optional[SourceMetadataPayload],
+        serialized_schema_metadata: str,
+        creator_email: Optional[str],
+    ) -> Pipeline:
+        url = f"https://fivetran.com/dashboard/connectors/{connector.id}"
+
+        connector_type_name = source_metadata.name if source_metadata else None
+        icon_url = source_metadata.icon_url if source_metadata else None
+        sync_interval = (
+            float(connector.sync_frequency) if connector.sync_frequency else None
+        )
+
+        fivetran = FivetranPipeline(
+            status=FiveTranConnectorStatus(
+                setup_state=connector.status.setup_state,
+                update_state=connector.status.update_state,
+                sync_state=connector.status.sync_state,
+            ),
+            config=json.dumps(connector.config),
+            created=connector.created_at,
+            last_succeeded=connector.succeeded_at,
+            paused=connector.paused,
+            connector_url=url,
+            connector_name=connector.schema_,
+            connector_type_name=connector_type_name,
+            connector_type_id=connector.service,
+            connector_logs_url=f"{url}/logs",
+            schema_metadata=serialized_schema_metadata,
+            sync_interval_in_minute=sync_interval,
+            creator_email=creator_email,
+            icon_url=icon_url,
+            sources=[],
+            targets=[],
+        )
+
+        return Pipeline(
+            logical_id=PipelineLogicalID(name=connector.id, type=PipelineType.FIVETRAN),
+            fivetran=fivetran,
+        )
+
+    @staticmethod
+    def get_snowflake_account_from_config(config: dict) -> Optional[str]:
         host = config.get("host")
 
         if host is None:
@@ -323,16 +401,16 @@ class FivetranExtractor(BaseExtractor):
         account = ".".join(host.split(".")[:-2])
         return normalize_snowflake_account(account)
 
+    @staticmethod
     def get_database_name_from_destination(
-        self, destination: DestinationPayload
+        destination: DestinationPayload,
     ) -> Optional[str]:
         if destination.service == "big_query":
             return destination.config.get("project_id")
         return destination.config.get("database")
 
-    def get_database_name_from_connector(
-        self, connector: ConnectorPayload
-    ) -> Optional[str]:
+    @staticmethod
+    def get_database_name_from_connector(connector: ConnectorPayload) -> Optional[str]:
         config = connector.config
         return config.get("database") if isinstance(config, dict) else None
 
@@ -342,7 +420,7 @@ class FivetranExtractor(BaseExtractor):
         )
         return [group.id for group in groups]
 
-    def get_destinations(self):
+    def get_destinations(self) -> None:
         groups = self.get_group_ids()
         for group in groups:
             try:
@@ -377,7 +455,7 @@ class FivetranExtractor(BaseExtractor):
 
         return connectors
 
-    def get_users(self):
+    def get_users(self) -> None:
         for destination in self._destinations.values():
             for user in self.get_users_in_group(destination.group_id):
                 self._users[user.id] = user.email

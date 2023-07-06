@@ -1,27 +1,5 @@
 [
   {
-    "entityUpstream": {
-      "fieldMappings": [],
-      "fiveTranConnector": {
-        "config": "{\"service_account\": \"service_account\", \"is_single_table_mode\": false, \"folder_id\": \"folder_url\"}",
-        "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_1/logs",
-        "connectorName": "google_drive",
-        "connectorTypeId": "google_drive",
-        "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_1",
-        "createdAt": "2023-04-18T06:28:41.339405+00:00",
-        "creatorEmail": "user@foo.com",
-        "paused": false,
-        "schemaMetadata": "[{\"name_in_source\": \"google_drive\", \"name_in_destination\": \"google_drive\", \"tables\": [{\"name_in_source\": \"dataset_foo_sheet_1\", \"name_in_destination\": \"dataset_foo_sheet_1\", \"columns\": [{\"name_in_source\": \"_line\", \"name_in_destination\": \"_line\", \"type_in_source\": \"Long\", \"type_in_destination\": \"INTEGER\", \"is_primary_key\": true, \"is_foreign_key\": false}, {\"name_in_source\": \"name\", \"name_in_destination\": \"name\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"user\", \"name_in_destination\": \"user\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
-        "status": {
-          "setupState": "connected",
-          "syncState": "scheduled",
-          "updateState": "on_schedule"
-        },
-        "succeededAt": "2023-04-25T08:29:28.373000+00:00",
-        "syncIntervalInMinute": 1440.0
-      },
-      "sourceEntities": []
-    },
     "logicalId": {
       "account": "dest_account",
       "name": "fivetran.google_drive.dataset_foo_sheet_1",
@@ -47,66 +25,11 @@
         "succeededAt": "2023-04-25T08:29:28.373000+00:00",
         "syncIntervalInMinute": 1440.0
       },
+      "pipelineEntityId": "PIPELINE~1E2532BAB8D4B86B7FB893D1D1DD256D",
       "sourceDatasets": []
     }
   },
   {
-    "entityUpstream": {
-      "fieldMappings": [
-        {
-          "destination": "col1",
-          "sources": [
-            {
-              "dataset": {
-                "account": "source_account",
-                "name": "source_db.schema.table",
-                "platform": "SNOWFLAKE"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
-            }
-          ]
-        },
-        {
-          "destination": "col2",
-          "sources": [
-            {
-              "dataset": {
-                "account": "source_account",
-                "name": "source_db.schema.table",
-                "platform": "SNOWFLAKE"
-              },
-              "field": "col2",
-              "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
-            }
-          ]
-        }
-      ],
-      "fiveTranConnector": {
-        "config": "{\"database\": \"source_db\", \"password\": \"******\", \"is_private_key_encrypted\": false, \"port\": 443, \"auth\": \"PASSWORD\", \"update_method\": \"TELEPORT\", \"host\": \"source_account.snowflakecomputing.com\", \"user\": \"user\"}",
-        "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_2/logs",
-        "connectorName": "snowflake_db",
-        "connectorTypeId": "snowflake_db",
-        "connectorTypeName": "Snowflake",
-        "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
-        "createdAt": "2023-04-10T18:02:35.655597+00:00",
-        "creatorEmail": "user@foo.com",
-        "paused": true,
-        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
-        "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E",
-        "status": {
-          "setupState": "connected",
-          "syncState": "paused",
-          "updateState": "on_schedule"
-        },
-        "succeededAt": "2023-04-19T08:56:03.467000+00:00",
-        "syncIntervalInMinute": 1440.0,
-        "iconUrl": "http://icon-url"
-      },
-      "sourceEntities": [
-        "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
-      ]
-    },
     "logicalId": {
       "account": "dest_account",
       "name": "fivetran.snowflake_db_schema.table",
@@ -152,6 +75,7 @@
         "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
         "createdAt": "2023-04-10T18:02:35.655597+00:00",
         "creatorEmail": "user@foo.com",
+        "iconUrl": "http://icon-url",
         "paused": true,
         "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
         "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E",
@@ -161,57 +85,15 @@
           "updateState": "on_schedule"
         },
         "succeededAt": "2023-04-19T08:56:03.467000+00:00",
-        "syncIntervalInMinute": 1440.0,
-        "iconUrl": "http://icon-url"
+        "syncIntervalInMinute": 1440.0
       },
+      "pipelineEntityId": "PIPELINE~77C9E0FE312C3E93891D2D8C3869F283",
       "sourceDatasets": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
       ]
     }
   },
   {
-    "entityUpstream": {
-      "fieldMappings": [
-        {
-          "destination": "col1",
-          "sources": [
-            {
-              "dataset": {
-                "account": "source_account",
-                "name": "source_db.schema.table2",
-                "platform": "SNOWFLAKE"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
-            }
-          ]
-        }
-      ],
-      "fiveTranConnector": {
-        "config": "{\"database\": \"source_db\", \"password\": \"******\", \"is_private_key_encrypted\": false, \"port\": 443, \"auth\": \"PASSWORD\", \"update_method\": \"TELEPORT\", \"host\": \"source_account.snowflakecomputing.com\", \"user\": \"user\"}",
-        "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_2/logs",
-        "connectorName": "snowflake_db",
-        "connectorTypeId": "snowflake_db",
-        "connectorTypeName": "Snowflake",
-        "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
-        "createdAt": "2023-04-10T18:02:35.655597+00:00",
-        "creatorEmail": "user@foo.com",
-        "paused": true,
-        "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
-        "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7",
-        "status": {
-          "setupState": "connected",
-          "syncState": "paused",
-          "updateState": "on_schedule"
-        },
-        "succeededAt": "2023-04-19T08:56:03.467000+00:00",
-        "syncIntervalInMinute": 1440.0,
-        "iconUrl": "http://icon-url"
-      },
-      "sourceEntities": [
-        "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
-      ]
-    },
     "logicalId": {
       "account": "dest_account",
       "name": "fivetran.snowflake_db_schema.table2",
@@ -243,6 +125,7 @@
         "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
         "createdAt": "2023-04-10T18:02:35.655597+00:00",
         "creatorEmail": "user@foo.com",
+        "iconUrl": "http://icon-url",
         "paused": true,
         "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
         "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7",
@@ -252,9 +135,9 @@
           "updateState": "on_schedule"
         },
         "succeededAt": "2023-04-19T08:56:03.467000+00:00",
-        "syncIntervalInMinute": 1440.0,
-        "iconUrl": "http://icon-url"
+        "syncIntervalInMinute": 1440.0
       },
+      "pipelineEntityId": "PIPELINE~77C9E0FE312C3E93891D2D8C3869F283",
       "sourceDatasets": [
         "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
       ]
@@ -272,6 +155,68 @@
       "account": "source_account",
       "name": "source_db.schema.table2",
       "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "fivetran": {
+      "config": "{\"service_account\": \"service_account\", \"is_single_table_mode\": false, \"folder_id\": \"folder_url\"}",
+      "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_1/logs",
+      "connectorName": "google_drive",
+      "connectorTypeId": "google_drive",
+      "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_1",
+      "created": "2023-04-18T06:28:41.339405+00:00",
+      "creatorEmail": "user@foo.com",
+      "lastSucceeded": "2023-04-25T08:29:28.373000+00:00",
+      "paused": false,
+      "schemaMetadata": "[{\"name_in_source\": \"google_drive\", \"name_in_destination\": \"google_drive\", \"tables\": [{\"name_in_source\": \"dataset_foo_sheet_1\", \"name_in_destination\": \"dataset_foo_sheet_1\", \"columns\": [{\"name_in_source\": \"_line\", \"name_in_destination\": \"_line\", \"type_in_source\": \"Long\", \"type_in_destination\": \"INTEGER\", \"is_primary_key\": true, \"is_foreign_key\": false}, {\"name_in_source\": \"name\", \"name_in_destination\": \"name\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"user\", \"name_in_destination\": \"user\", \"type_in_source\": \"Unknown\", \"type_in_destination\": \"STRING\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+      "sources": [],
+      "status": {
+        "setupState": "connected",
+        "syncState": "scheduled",
+        "updateState": "on_schedule"
+      },
+      "syncIntervalInMinute": 1440.0,
+      "targets": [
+        "DATASET~0D8996C8792F4AF77B8EA008D16F41FA"
+      ]
+    },
+    "logicalId": {
+      "name": "connector_1",
+      "type": "FIVETRAN"
+    }
+  },
+  {
+    "fivetran": {
+      "config": "{\"database\": \"source_db\", \"password\": \"******\", \"is_private_key_encrypted\": false, \"port\": 443, \"auth\": \"PASSWORD\", \"update_method\": \"TELEPORT\", \"host\": \"source_account.snowflakecomputing.com\", \"user\": \"user\"}",
+      "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_2/logs",
+      "connectorName": "snowflake_db",
+      "connectorTypeId": "snowflake_db",
+      "connectorTypeName": "Snowflake",
+      "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_2",
+      "created": "2023-04-10T18:02:35.655597+00:00",
+      "creatorEmail": "user@foo.com",
+      "iconUrl": "http://icon-url",
+      "lastSucceeded": "2023-04-19T08:56:03.467000+00:00",
+      "paused": true,
+      "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"snowflake_db_schema\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+      "sources": [
+        "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E",
+        "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
+      ],
+      "status": {
+        "setupState": "connected",
+        "syncState": "paused",
+        "updateState": "on_schedule"
+      },
+      "syncIntervalInMinute": 1440.0,
+      "targets": [
+        "DATASET~D00A98B4A70497779067CB0F66E9C823",
+        "DATASET~DDECAAC2B6457B119E053DB9ECCA1660"
+      ]
+    },
+    "logicalId": {
+      "name": "connector_2",
+      "type": "FIVETRAN"
     }
   }
 ]
