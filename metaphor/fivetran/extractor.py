@@ -33,7 +33,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DatasetUpstream,
+    EntityUpstream,
     FieldMapping,
     FiveTranConnector,
     FiveTranConnectorStatus,
@@ -274,8 +274,8 @@ class FivetranExtractor(BaseExtractor):
                 platform=destination_platform,
                 account=self.get_snowflake_account_from_config(destination.config),
             ),
-            upstream=DatasetUpstream(
-                source_datasets=[],
+            entity_upstream=EntityUpstream(
+                source_entities=[],
                 field_mappings=[],
                 pipeline_entity_id=str(
                     to_pipeline_entity_id(connector.id, PipelineType.FIVETRAN)
@@ -287,13 +287,15 @@ class FivetranExtractor(BaseExtractor):
         pipeline = self._pipelines[connector.id]
         pipeline.fivetran.targets = list(set(pipeline.fivetran.targets + [dataset_id]))
 
-        dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
-            connector,
-            self._source_metadata.get(connector.service),
-            serialized_schema_metadata,
-            None
-            if connector.connected_by is None
-            else self._users.get(connector.connected_by),
+        dataset.entity_upstream.five_tran_connector = (
+            populate_fivetran_connector_detail(
+                connector,
+                self._source_metadata.get(connector.service),
+                serialized_schema_metadata,
+                None
+                if connector.connected_by is None
+                else self._users.get(connector.connected_by),
+            )
         )
 
         if connector.service in SOURCE_PLATFORM_MAPPING:
@@ -310,12 +312,14 @@ class FivetranExtractor(BaseExtractor):
                 logical_id=source_logical_id
             )
 
-            dataset.upstream.source_datasets = [source_entity_id]
+            dataset.entity_upstream.source_entities = [source_entity_id]
+            dataset.entity_upstream.five_tran_connector.source_entity_id = (
+                source_entity_id
+            )
+
             pipeline.fivetran.sources = list(
                 set(pipeline.fivetran.sources + [source_entity_id])
             )
-
-            dataset.upstream.five_tran_connector.source_entity_id = source_entity_id
 
             for column in table.columns:
                 field_mapping = FieldMapping(
@@ -328,7 +332,7 @@ class FivetranExtractor(BaseExtractor):
                         field=column.name_in_source,
                     )
                 )
-                dataset.upstream.field_mappings.append(field_mapping)
+                dataset.entity_upstream.field_mappings.append(field_mapping)
 
         pipeline.fivetran.sources.sort()
         pipeline.fivetran.targets.sort()
@@ -436,7 +440,7 @@ class FivetranExtractor(BaseExtractor):
                 continue
 
             if destination.service not in PLATFORM_MAPPING:
-                logger.warn(f"Not supported destination: {destination.service}")
+                logger.warning(f"Not supported destination: {destination.service}")
                 continue
 
             self._destinations[destination.group_id] = destination
