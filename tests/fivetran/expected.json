@@ -1,6 +1,11 @@
 [
   {
-    "entityUpstream": {
+    "logicalId": {
+      "account": "dest_account",
+      "name": "fivetran.google_drive.dataset_foo_sheet_1",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
       "fieldMappings": [],
       "fiveTranConnector": {
         "config": "{\"service_account\": \"service_account\", \"is_single_table_mode\": false, \"folder_id\": \"folder_url\"}",
@@ -21,16 +26,16 @@
         "syncIntervalInMinute": 1440.0
       },
       "pipelineEntityId": "PIPELINE~1E2532BAB8D4B86B7FB893D1D1DD256D",
-      "sourceEntities": []
-    },
-    "logicalId": {
-      "account": "dest_account",
-      "name": "fivetran.google_drive.dataset_foo_sheet_1",
-      "platform": "SNOWFLAKE"
+      "sourceDatasets": []
     }
   },
   {
-    "entityUpstream": {
+    "logicalId": {
+      "account": "dest_account",
+      "name": "fivetran.snowflake_db_schema.table",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
       "fieldMappings": [
         {
           "destination": "col1",
@@ -83,18 +88,18 @@
         "syncIntervalInMinute": 1440.0
       },
       "pipelineEntityId": "PIPELINE~77C9E0FE312C3E93891D2D8C3869F283",
-      "sourceEntities": [
+      "sourceDatasets": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
       ]
-    },
-    "logicalId": {
-      "account": "dest_account",
-      "name": "fivetran.snowflake_db_schema.table",
-      "platform": "SNOWFLAKE"
     }
   },
   {
-    "entityUpstream": {
+    "logicalId": {
+      "account": "dest_account",
+      "name": "fivetran.snowflake_db_schema.table2",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
       "fieldMappings": [
         {
           "destination": "col1",
@@ -133,14 +138,9 @@
         "syncIntervalInMinute": 1440.0
       },
       "pipelineEntityId": "PIPELINE~77C9E0FE312C3E93891D2D8C3869F283",
-      "sourceEntities": [
+      "sourceDatasets": [
         "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
       ]
-    },
-    "logicalId": {
-      "account": "dest_account",
-      "name": "fivetran.snowflake_db_schema.table2",
-      "platform": "SNOWFLAKE"
     }
   },
   {
