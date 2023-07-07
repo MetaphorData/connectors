@@ -330,6 +330,9 @@ class FivetranExtractor(BaseExtractor):
                 )
                 dataset.upstream.field_mappings.append(field_mapping)
 
+        pipeline.fivetran.sources.sort()
+        pipeline.fivetran.targets.sort()
+
         self._datasets[destination_dataset_name] = dataset
 
     def _init_pipeline(
