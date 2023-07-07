@@ -352,7 +352,6 @@ class PowerBIClient:
             transform_response=transform_scan_result,
         )
 
-        # Filter workspace without name or type
         # The scan result will return workspaces without name or type if the workspace does not exist
         return [
             workspace for workspace in workspaces if workspace.name and workspace.type
