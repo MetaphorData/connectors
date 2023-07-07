@@ -126,8 +126,8 @@ class WorkspaceInfoReport(BaseModel):
 
 class WorkspaceInfo(BaseModel):
     id: str
-    name: str
-    type: str
+    name: Optional[str]
+    type: Optional[str]
     state: str
     reports: List[WorkspaceInfoReport] = []
     datasets: List[WorkspaceInfoDataset] = []
@@ -346,11 +346,15 @@ class PowerBIClient:
 
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/workspace-info-get-scan-result
         url = f"{self.API_ENDPOINT}/admin/workspaces/scanResult/{scan_id}"
-        return self._call_get(
+        workspaces = self._call_get(
             url,
             List[WorkspaceInfo],
             transform_response=transform_scan_result,
         )
+
+        return [
+            workspace for workspace in workspaces if workspace.name and workspace.type
+        ]
 
     T = TypeVar("T")
 
