@@ -1,0 +1,29 @@
+---
+name: backup
+
+on:
+  schedule:
+    # Run daily at 4am UTC
+    - cron: 0 4 * * *
+
+  workflow_dispatch:
+
+jobs:
+  bakcup:
+    name: Backup code to S3
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.BACKUP_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.BACKUP_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Sync to S3
+        run: >
+          aws s3 sync --delete --no-follow-symlinks . s3://metaphor-github/connectors
