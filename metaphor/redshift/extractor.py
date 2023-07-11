@@ -13,6 +13,7 @@ from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, 
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.config import RedshiftRunConfig
+from metaphor.redshift.utils import exclude_system_databases
 
 logger = get_logger()
 
@@ -34,6 +35,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
         self._tag_matchers = config.tag_matchers
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_excluded_usernames = config.query_log.excluded_usernames
+        self._filter = exclude_system_databases(self._filter)
 
         self._logs: List[QueryLog] = []
 
@@ -47,6 +49,10 @@ class RedshiftExtractor(PostgreSQLExtractor):
         )
 
         for db in databases:
+            if not self._filter.include_database(db):
+                logger.info(f"Skipping database {db}")
+                continue
+
             conn = await self._connect_database(db)
             try:
                 await self._fetch_tables(conn, db, True)
