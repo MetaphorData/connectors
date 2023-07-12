@@ -194,9 +194,20 @@ def test_merge():
 
 
 def test_include_database():
-    filter = DatasetFilter(includes={"*db": None, "test": None}, excludes={"foo": None})
-
+    # Includes only
+    filter = DatasetFilter(includes={"*db": None, "test": {"schema1": ["*"]}})
+    assert filter.include_database("foo_db")
     assert filter.include_database("TestDb")
     assert filter.include_database("TEST")
     assert not filter.include_database("app")
+
+    # Excludes only
+    filter = DatasetFilter(excludes={"foo": None, "bar": {"schame1": ["table1"]}})
+    assert filter.include_database("test")
+    assert filter.include_database("bar")
     assert not filter.include_database("foo")
+
+    # Excludes take precedence over includes
+    filter = DatasetFilter(includes={"foo*": None}, excludes={"foo_bar": None})
+    assert filter.include_database("foo_baz")
+    assert not filter.include_database("foo_bar")

@@ -200,11 +200,23 @@ class DatasetFilter:
         self,
         database_name: str,
     ) -> bool:
-        if not self.includes or len(self.includes) == 0:
-            return True
-
         database_lower = database_name.lower()
-        for pattern in self.includes:
-            if fnmatch(database_lower, pattern):
-                return True
-        return False
+
+        if self.excludes is not None:
+            for pattern, schema_filter in self.excludes.items():
+                # Only exclude if the entire database is excluded
+                if schema_filter is not None and len(schema_filter) > 0:
+                    continue
+
+                if fnmatch(database_lower, pattern):
+                    return False
+
+        if self.includes is not None:
+            for pattern in self.includes:
+                if fnmatch(database_lower, pattern):
+                    return True
+
+            # can't match any include patterns
+            return False
+
+        return True

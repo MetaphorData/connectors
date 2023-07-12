@@ -18,6 +18,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.postgresql.extractor import PostgreSQLExtractor
 from metaphor.redshift.lineage.config import RedshiftLineageRunConfig
+from metaphor.redshift.utils import exclude_system_databases
 
 logger = get_logger()
 
@@ -42,6 +43,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         self._enable_lineage_from_sql = config.enable_lineage_from_sql
         self._enable_view_lineage = config.enable_view_lineage
         self._include_self_lineage = config.include_self_lineage
+        self._filter = exclude_system_databases(self._filter)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching lineage info from redshift host {self._host}")
@@ -53,6 +55,10 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         )
 
         for db in databases:
+            if not self._filter.include_database(db):
+                logger.info(f"Skipping database {db}")
+                continue
+
             conn = await self._connect_database(db)
 
             if self._enable_view_lineage:

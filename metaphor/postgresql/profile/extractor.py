@@ -61,7 +61,11 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
             else list(self._filter.includes.keys())
         )
 
-        coroutines = [self._profile_database(database) for database in databases]
+        coroutines = [
+            self._profile_database(database)
+            for database in databases
+            if self._filter.include_database(database)
+        ]
 
         await asyncio.gather(*coroutines)
 
