@@ -1,6 +1,6 @@
 from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional, Union
 
 
 def start_of_day(daysAgo=0) -> datetime:
@@ -44,6 +44,11 @@ def generate_querylog_id(platform: str, id: str) -> str:
 def to_utc_time(time: datetime) -> datetime:
     """convert local datatime to utc timezone"""
     return time.replace(tzinfo=timezone.utc)
+
+
+def convert_to_float(value: Optional[Union[float, int, str]]) -> Optional[float]:
+    """Converts a value to float, return None if the original value is None or NaN"""
+    return None if value is None or value != value else float(value)
 
 
 def chunk_by_size(

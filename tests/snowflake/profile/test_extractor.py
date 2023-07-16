@@ -205,7 +205,7 @@ def test_parse_profiling_result():
         11,
         12,
         13,
-        14,
+        float("NAN"),
     )
     dataset = SnowflakeProfileExtractor._init_dataset(
         account="a", normalized_name="foo"
@@ -242,7 +242,7 @@ def test_parse_profiling_result():
                     min_value=11.0,
                     nonnull_value_count=0.0,
                     null_value_count=10.0,
-                    std_dev=14.0,
+                    std_dev=None,
                 ),
             ]
         ),
