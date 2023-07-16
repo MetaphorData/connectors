@@ -74,6 +74,7 @@ class LocalStorage(BaseStorage):
 class S3StorageConfig:
     aws_access_key_id: Optional[str] = None
     aws_secret_access_key: Optional[str] = None
+    region_name: Optional[str] = None
 
 
 class S3Storage(BaseStorage):
@@ -87,6 +88,7 @@ class S3Storage(BaseStorage):
         session = boto3.Session(
             aws_access_key_id=config.aws_access_key_id,
             aws_secret_access_key=config.aws_secret_access_key,
+            region_name=config.region_name,
         )
         if assume_role_arn is not None:
             self._session = assume_role(session, assume_role_arn)

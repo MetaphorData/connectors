@@ -23,7 +23,20 @@ output:
     assume_role_arn: <iam_role_arn>
 ```
 
-To write the output to a S3 bucket, you must also set the AWS region & credentials using the [AWS CLI environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html), specifically, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY`.
+### Write to S3
+
+To write the output to a S3 bucket, you must also add the AWS region & credentials to the config:
+
+```yaml
+output:
+  file:
+    directory: s3://<bucket>/<path>
+
+    s3_auth_config:
+      aws_access_key_id: <AWS_ACCESS_KEY_ID>
+      aws_secret_access_key: <AWS_SECRET_ACCESS_KEY>
+      region_name: <AWS_REGION>
+```
 
 ## Output to API
 
