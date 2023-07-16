@@ -12,7 +12,6 @@ from metaphor.models.metadata_change_event import (
     KnowledgeCard,
     MetadataChangeEvent,
     Metric,
-    Person,
     Pipeline,
     QueryLogs,
     VirtualView,
@@ -21,9 +20,7 @@ from metaphor.models.metadata_change_event import (
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-ENTITY_TYPES = Union[
-    Dashboard, Dataset, Metric, Person, KnowledgeCard, VirtualView, QueryLogs
-]
+ENTITY_TYPES = Union[Dashboard, Dataset, Metric, KnowledgeCard, VirtualView, QueryLogs]
 
 
 class EventUtil:
@@ -48,8 +45,6 @@ class EventUtil:
             return self._build_event(dataset=entity)
         elif type(entity) is Metric:
             return self._build_event(metric=entity)
-        elif type(entity) is Person:
-            return self._build_event(person=entity)
         elif type(entity) is Pipeline:
             return self._build_event(pipeline=entity)
         elif type(entity) is KnowledgeCard:
