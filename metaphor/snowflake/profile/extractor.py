@@ -1,20 +1,21 @@
 import logging
 from typing import Collection, Dict, List, Tuple
 
-from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.models.crawler_run_metadata import Platform
-
 try:
     from snowflake.connector import ProgrammingError, SnowflakeConnection
 except ImportError:
     print("Please install metaphor[snowflake] extra\n")
     raise
 
+
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
+from metaphor.common.snowflake import normalize_snowflake_account
+from metaphor.common.utils import convert_to_float
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -254,23 +255,19 @@ class SnowflakeProfileExtractor(BaseExtractor):
             min_value, max_value, avg, std_dev = None, None, None, None
             if SnowflakeProfileExtractor._is_numeric(data_type):
                 if column_statistics.min_value:
-                    min_value = (
-                        None if results[index] is None else float(results[index])
-                    )
+                    min_value = convert_to_float(results[index])
                     index += 1
 
                 if column_statistics.max_value:
-                    max_value = (
-                        None if results[index] is None else float(results[index])
-                    )
+                    max_value = convert_to_float(results[index])
                     index += 1
 
                 if column_statistics.avg_value:
-                    avg = None if results[index] is None else float(results[index])
+                    avg = convert_to_float(results[index])
                     index += 1
 
                 if column_statistics.std_dev:
-                    std_dev = None if results[index] is None else float(results[index])
+                    std_dev = convert_to_float(results[index])
                     index += 1
 
             fields.append(
