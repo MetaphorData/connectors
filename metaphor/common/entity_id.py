@@ -6,14 +6,13 @@ from pydantic.dataclasses import dataclass
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.utils import md5_digest
+from metaphor.models.logical_id import PersonLogicalID
 from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DataPlatform,
     DatasetLogicalID,
     EntityType,
-    GroupID,
     KnowledgeCardLogicalID,
-    PersonLogicalID,
     PipelineLogicalID,
     PipelineType,
     VirtualViewLogicalID,
@@ -27,7 +26,6 @@ class EntityId:
     logicalId: Union[
         DatasetLogicalID,
         DashboardLogicalID,
-        GroupID,
         KnowledgeCardLogicalID,
         PersonLogicalID,
         PipelineLogicalID,

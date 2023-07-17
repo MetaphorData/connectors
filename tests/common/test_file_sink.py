@@ -10,9 +10,10 @@ from metaphor.common.file_sink import FileSink, FileSinkConfig
 from metaphor.common.logger import add_debug_file
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, RunStatus
 from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
     MetadataChangeEvent,
-    Person,
-    PersonLogicalID,
 )
 from tests.test_utils import load_json
 
@@ -26,8 +27,16 @@ def test_file_sink_no_split(test_root_dir):
     directory = tempfile.mkdtemp()
 
     messages = [
-        MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo1@bar.com"))),
-        MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo2@bar.com"))),
+        MetadataChangeEvent(
+            dataset=Dataset(
+                logical_id=DatasetLogicalID(name="foo1", platform=DataPlatform.BIGQUERY)
+            )
+        ),
+        MetadataChangeEvent(
+            dataset=Dataset(
+                logical_id=DatasetLogicalID(name="foo2", platform=DataPlatform.BIGQUERY)
+            )
+        ),
     ]
 
     # Set batch_size_bytes so large that all messages can fit in the same file
@@ -41,11 +50,31 @@ def test_file_sink_split(test_root_dir):
     directory = tempfile.mkdtemp()
 
     messages = [
-        MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo1@bar.com"))),
-        MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo2@bar.com"))),
-        MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo3@bar.com"))),
-        MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo4@bar.com"))),
-        MetadataChangeEvent(person=Person(logical_id=PersonLogicalID("foo5@bar.com"))),
+        MetadataChangeEvent(
+            dataset=Dataset(
+                logical_id=DatasetLogicalID(name="foo1", platform=DataPlatform.BIGQUERY)
+            )
+        ),
+        MetadataChangeEvent(
+            dataset=Dataset(
+                logical_id=DatasetLogicalID(name="foo2", platform=DataPlatform.BIGQUERY)
+            )
+        ),
+        MetadataChangeEvent(
+            dataset=Dataset(
+                logical_id=DatasetLogicalID(name="foo3", platform=DataPlatform.BIGQUERY)
+            )
+        ),
+        MetadataChangeEvent(
+            dataset=Dataset(
+                logical_id=DatasetLogicalID(name="foo4", platform=DataPlatform.BIGQUERY)
+            )
+        ),
+        MetadataChangeEvent(
+            dataset=Dataset(
+                logical_id=DatasetLogicalID(name="foo5", platform=DataPlatform.BIGQUERY)
+            )
+        ),
     ]
 
     # Set batch_size_bytes so small that only one message can be fit in each file
