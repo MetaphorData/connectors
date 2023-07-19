@@ -35,7 +35,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetUpstream,
     FieldMapping,
-    FiveTranConnector,
     FiveTranConnectorStatus,
     FivetranPipeline,
     Pipeline,
@@ -224,7 +223,6 @@ class FivetranExtractor(BaseExtractor):
                     schema=schema,
                     table=table,
                     connector=connector,
-                    serialized_schema_metadata=serialized_schema_metadata,
                 )
 
     def _get_source_logical_id(
@@ -260,7 +258,6 @@ class FivetranExtractor(BaseExtractor):
         table: TableMetadata,
         destination: DestinationPayload,
         connector: ConnectorPayload,
-        serialized_schema_metadata: str,
     ):
         db = self.get_database_name_from_destination(destination)
         destination_dataset_name = dataset_normalized_name(
@@ -287,15 +284,6 @@ class FivetranExtractor(BaseExtractor):
         pipeline = self._pipelines[connector.id]
         pipeline.fivetran.targets = list(set(pipeline.fivetran.targets + [dataset_id]))
 
-        dataset.upstream.five_tran_connector = populate_fivetran_connector_detail(
-            connector,
-            self._source_metadata.get(connector.service),
-            serialized_schema_metadata,
-            None
-            if connector.connected_by is None
-            else self._users.get(connector.connected_by),
-        )
-
         if connector.service in SOURCE_PLATFORM_MAPPING:
             source_db = self.get_database_name_from_connector(connector)
             source_logical_id = self._get_source_logical_id(
@@ -311,7 +299,6 @@ class FivetranExtractor(BaseExtractor):
             )
 
             dataset.upstream.source_datasets = [source_entity_id]
-            dataset.upstream.five_tran_connector.source_entity_id = source_entity_id
 
             pipeline.fivetran.sources = list(
                 set(pipeline.fivetran.sources + [source_entity_id])
@@ -537,39 +524,3 @@ class FivetranExtractor(BaseExtractor):
     def _call_get(self, url: str, **kwargs):
         headers = {"Accept": "application/json;version=2"}
         return get_request(url=url, headers=headers, auth=self._auth, **kwargs)
-
-
-def populate_fivetran_connector_detail(
-    connector: ConnectorPayload,
-    source_metadata: Optional[SourceMetadataPayload],
-    serialized_schema_metadata: str,
-    creator_email: Optional[str],
-) -> FiveTranConnector:
-    url = f"https://fivetran.com/dashboard/connectors/{connector.id}"
-
-    connector_type_name = source_metadata.name if source_metadata else None
-    icon_url = source_metadata.icon_url if source_metadata else None
-    sync_interval = (
-        float(connector.sync_frequency) if connector.sync_frequency else None
-    )
-
-    return FiveTranConnector(
-        status=FiveTranConnectorStatus(
-            setup_state=connector.status.setup_state,
-            update_state=connector.status.update_state,
-            sync_state=connector.status.sync_state,
-        ),
-        config=json.dumps(connector.config),
-        created_at=connector.created_at,
-        paused=connector.paused,
-        succeeded_at=connector.succeeded_at,
-        connector_url=url,
-        connector_name=connector.schema_,
-        connector_type_name=connector_type_name,
-        connector_type_id=connector.service,
-        connector_logs_url=f"{url}/logs",
-        schema_metadata=serialized_schema_metadata,
-        sync_interval_in_minute=sync_interval,
-        creator_email=creator_email,
-        icon_url=icon_url,
-    )
