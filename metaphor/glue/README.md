@@ -13,14 +13,14 @@ We recommend creating a dedicated AWS IAM user for the crawler with limited perm
     [
         {
             "Effect": "Allow",
-            "Actions":
+            "Action":
             [
                 "glue:GetTable",
                 "glue:GetTables",
                 "glue:GetDatabase",
                 "glue:GetDataBases"
             ],
-            "resources":
+            "Resource":
             [
                 "*"
             ]
