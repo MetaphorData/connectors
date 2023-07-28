@@ -488,6 +488,7 @@ class ManifestParser:
                 field = init_field(dbt_model.fields, column_name)
                 field.description = col.description
                 field.native_type = col.data_type or "Not Set"
+                field.tags = col.tags
 
                 if col.meta is not None:
                     self._parse_column_meta(model, column_name, col.meta)

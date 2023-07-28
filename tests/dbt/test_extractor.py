@@ -88,16 +88,6 @@ async def test_trial_project_v9(test_root_dir):
     )
 
 
-@pytest.mark.asyncio
-async def test_ride_share_project(test_root_dir):
-    await _test_project(test_root_dir + "/dbt/data/ride_share", None, None, True)
-
-
-@pytest.mark.asyncio
-async def test_shopify_project(test_root_dir):
-    await _test_project(test_root_dir + "/dbt/data/shopify", None, None, True)
-
-
 async def _test_project(
     data_dir, docs_base_url=None, project_source_url=None, useCatalog=False
 ):

@@ -1,12 +1,12 @@
 {
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v4.json",
-    "dbt_version": "1.0.0",
-    "generated_at": "2022-11-22T13:53:09.832571Z",
-    "invocation_id": "5e01458c-328f-453d-871c-078305a516bf",
+    "dbt_version": "1.0.9",
+    "generated_at": "2023-07-28T22:00:29.380046Z",
+    "invocation_id": "c6afcff7-c44e-4cdb-b4c3-9e70027968e8",
     "env": {},
     "project_id": "58723627fcebc230ab0d53ddf5f16e34",
-    "user_id": "b41b90a7-7667-4cc1-bc5e-5aee8aedc616",
+    "user_id": "36d1b748-e77d-4c8c-bc6a-1e0a693e3bd9",
     "send_anonymous_usage_stats": true,
     "adapter_type": "snowflake"
   },
@@ -75,7 +75,10 @@
           "tags": []
         }
       },
-      "meta": {},
+      "meta": {
+        "owner": "yi@metaphor.io",
+        "pii": true
+      },
       "docs": {
         "show": true
       },
@@ -90,7 +93,7 @@
         },
         "materialized": "view"
       },
-      "created_at": 1669125190.1516652,
+      "created_at": 1690581629.7635806,
       "compiled_sql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -176,7 +179,7 @@
         },
         "materialized": "view"
       },
-      "created_at": 1669125190.1521096,
+      "created_at": 1690581629.7641692,
       "compiled_sql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -273,7 +276,10 @@
           "meta": {},
           "data_type": null,
           "quote": null,
-          "tags": []
+          "tags": [
+            "country_code",
+            "not_pii"
+          ]
         },
         "release_year": {
           "name": "release_year",
@@ -299,7 +305,7 @@
         },
         "materialized": "table"
       },
-      "created_at": 1669125190.1537738,
+      "created_at": 1690581629.766699,
       "compiled_sql": "\n\nselect show_id, type, title, country, release_year \nfrom DEV_DB.DBT_DEV.NETFLIX",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -423,7 +429,7 @@
         "materialized": "table",
         "alias": "sales_summary"
       },
-      "created_at": 1669125190.1561341,
+      "created_at": 1690581629.77006,
       "compiled_sql": "\n\nselect country, item_type, \n  year(order_date) as year, \n  sum(total_revenue) as revenue, \n  sum(total_profit) as profit\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\ngroup by country, item_type, year(order_date)\norder by revenue desc",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -502,7 +508,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1601222,
+      "created_at": 1690581629.7752435,
       "compiled_sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -583,7 +589,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.161901,
+      "created_at": 1690581629.777802,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -664,7 +670,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1635287,
+      "created_at": 1690581629.7798738,
       "compiled_sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -745,7 +751,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1651018,
+      "created_at": 1690581629.78214,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -826,7 +832,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1665952,
+      "created_at": 1690581629.7844682,
       "compiled_sql": "\n    \n    \n\nselect\n    show_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere show_id is not null\ngroup by show_id\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -907,7 +913,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1681018,
+      "created_at": 1690581629.7866359,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -988,7 +994,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1695948,
+      "created_at": 1690581629.788801,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1069,7 +1075,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1710575,
+      "created_at": 1690581629.7910285,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1150,7 +1156,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.172562,
+      "created_at": 1690581629.793215,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere country is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1231,7 +1237,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.174201,
+      "created_at": 1690581629.795305,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere item_type is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1312,7 +1318,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1756892,
+      "created_at": 1690581629.797467,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere year is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1393,7 +1399,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1772172,
+      "created_at": 1690581629.8004694,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere revenue is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1474,7 +1480,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.178811,
+      "created_at": 1690581629.8027883,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere profit is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1556,7 +1562,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1933677,
+      "created_at": 1690581629.8206346,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere COUNTRY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1638,7 +1644,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1951513,
+      "created_at": 1690581629.823241,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere REGION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1720,7 +1726,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1969237,
+      "created_at": 1690581629.8252347,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ITEM_TYPE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1802,7 +1808,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.1985183,
+      "created_at": 1690581629.8273275,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere SALES_CHANNEL is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1884,7 +1890,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2001503,
+      "created_at": 1690581629.8294306,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_PRIORITY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -1966,7 +1972,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.202011,
+      "created_at": 1690581629.8316748,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_DATE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2048,7 +2054,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2039866,
+      "created_at": 1690581629.8341894,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_ID is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2130,7 +2136,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2058768,
+      "created_at": 1690581629.8369482,
       "compiled_sql": "\n    \n    \n\nselect\n    ORDER_ID as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere ORDER_ID is not null\ngroup by ORDER_ID\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2212,7 +2218,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2077503,
+      "created_at": 1690581629.839233,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere SHIP_DATE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2294,7 +2300,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2094836,
+      "created_at": 1690581629.8413594,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere UNITS_SOLD is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2376,7 +2382,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2110403,
+      "created_at": 1690581629.843881,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere UNIT_PRICE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2458,7 +2464,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.212604,
+      "created_at": 1690581629.8470898,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere UNIT_COST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2540,7 +2546,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2140925,
+      "created_at": 1690581629.8508463,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_REVENUE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2622,7 +2628,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.215724,
+      "created_at": 1690581629.8541408,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_COST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2704,7 +2710,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.21722,
+      "created_at": 1690581629.8577325,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.SALES_RECORDS\nwhere TOTAL_PROFIT is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2786,7 +2792,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.219274,
+      "created_at": 1690581629.8603864,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere SHOW_ID is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2868,7 +2874,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2209334,
+      "created_at": 1690581629.862802,
       "compiled_sql": "\n    \n    \n\nselect\n    SHOW_ID as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere SHOW_ID is not null\ngroup by SHOW_ID\nhaving count(*) > 1\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -2950,7 +2956,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2224326,
+      "created_at": 1690581629.8651054,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere TYPE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3032,7 +3038,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2240126,
+      "created_at": 1690581629.8687785,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere TITLE is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3114,7 +3120,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.22558,
+      "created_at": 1690581629.8710618,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere DIRECTOR is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3196,7 +3202,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.227115,
+      "created_at": 1690581629.8734252,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere CAST is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3278,7 +3284,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2285707,
+      "created_at": 1690581629.875437,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere COUNTRY is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3360,7 +3366,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2300987,
+      "created_at": 1690581629.8777106,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere DATE_ADDED is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3442,7 +3448,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2316096,
+      "created_at": 1690581629.8801837,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere RELEASE_YEAR is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3524,7 +3530,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2331402,
+      "created_at": 1690581629.8827734,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere RATING is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3606,7 +3612,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.2346704,
+      "created_at": 1690581629.8851805,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere DURATION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3688,7 +3694,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.236212,
+      "created_at": 1690581629.8876743,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere LISTED_IN is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3770,7 +3776,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1669125190.237692,
+      "created_at": 1690581629.8897138,
       "compiled_sql": "\n    \n    \n\nselect *\nfrom DEV_DB.DBT_DEV.NETFLIX\nwhere DESCRIPTION is null\n\n\n",
       "extra_ctes_injected": true,
       "extra_ctes": [],
@@ -3943,7 +3949,7 @@
       "patch_path": null,
       "unrendered_config": {},
       "relation_name": "DEV_DB.DBT_DEV.SALES_RECORDS",
-      "created_at": 1669125190.2187545
+      "created_at": 1690581629.8595407
     },
     "source.trial.DBT_DEV.NETFLIX": {
       "fqn": [
@@ -4092,14 +4098,14 @@
       "patch_path": null,
       "unrendered_config": {},
       "relation_name": "DEV_DB.DBT_DEV.NETFLIX",
-      "created_at": 1669125190.238978
+      "created_at": 1690581629.8913522
     }
   },
   "macros": {
     "macro.dbt_snowflake.snowflake__create_table_as": {
       "unique_id": "macro.dbt_snowflake.snowflake__create_table_as",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__create_table_as",
@@ -4116,12 +4122,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8897884
+      "created_at": 1690581629.4584665
     },
     "macro.dbt_snowflake.get_column_comment_sql": {
       "unique_id": "macro.dbt_snowflake.get_column_comment_sql",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "get_column_comment_sql",
@@ -4138,12 +4144,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8901453
+      "created_at": 1690581629.458884
     },
     "macro.dbt_snowflake.get_persist_docs_column_list": {
       "unique_id": "macro.dbt_snowflake.get_persist_docs_column_list",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "get_persist_docs_column_list",
@@ -4162,12 +4168,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.890633
+      "created_at": 1690581629.4594395
     },
     "macro.dbt_snowflake.snowflake__create_view_as": {
       "unique_id": "macro.dbt_snowflake.snowflake__create_view_as",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__create_view_as",
@@ -4187,12 +4193,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8914185
+      "created_at": 1690581629.460288
     },
     "macro.dbt_snowflake.snowflake__get_columns_in_relation": {
       "unique_id": "macro.dbt_snowflake.snowflake__get_columns_in_relation",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__get_columns_in_relation",
@@ -4211,12 +4217,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8923888
+      "created_at": 1690581629.4611716
     },
     "macro.dbt_snowflake.snowflake__list_schemas": {
       "unique_id": "macro.dbt_snowflake.snowflake__list_schemas",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__list_schemas",
@@ -4235,12 +4241,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.892947
+      "created_at": 1690581629.461789
     },
     "macro.dbt_snowflake.snowflake__list_relations_without_caching": {
       "unique_id": "macro.dbt_snowflake.snowflake__list_relations_without_caching",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__list_relations_without_caching",
@@ -4259,12 +4265,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.893472
+      "created_at": 1690581629.4623528
     },
     "macro.dbt_snowflake.snowflake__check_schema_exists": {
       "unique_id": "macro.dbt_snowflake.snowflake__check_schema_exists",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__check_schema_exists",
@@ -4283,12 +4289,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8938196
+      "created_at": 1690581629.462758
     },
     "macro.dbt_snowflake.snowflake__current_timestamp": {
       "unique_id": "macro.dbt_snowflake.snowflake__current_timestamp",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__current_timestamp",
@@ -4305,12 +4311,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.893895
+      "created_at": 1690581629.4628518
     },
     "macro.dbt_snowflake.snowflake__snapshot_string_as_time": {
       "unique_id": "macro.dbt_snowflake.snowflake__snapshot_string_as_time",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__snapshot_string_as_time",
@@ -4327,12 +4333,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.894069
+      "created_at": 1690581629.463061
     },
     "macro.dbt_snowflake.snowflake__snapshot_get_time": {
       "unique_id": "macro.dbt_snowflake.snowflake__snapshot_get_time",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__snapshot_get_time",
@@ -4351,12 +4357,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8941703
+      "created_at": 1690581629.4631763
     },
     "macro.dbt_snowflake.snowflake__rename_relation": {
       "unique_id": "macro.dbt_snowflake.snowflake__rename_relation",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__rename_relation",
@@ -4375,12 +4381,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8943539
+      "created_at": 1690581629.4633825
     },
     "macro.dbt_snowflake.snowflake__alter_column_type": {
       "unique_id": "macro.dbt_snowflake.snowflake__alter_column_type",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__alter_column_type",
@@ -4399,12 +4405,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8946028
+      "created_at": 1690581629.4636836
     },
     "macro.dbt_snowflake.snowflake__alter_relation_comment": {
       "unique_id": "macro.dbt_snowflake.snowflake__alter_relation_comment",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__alter_relation_comment",
@@ -4421,12 +4427,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8948207
+      "created_at": 1690581629.463911
     },
     "macro.dbt_snowflake.snowflake__alter_column_comment": {
       "unique_id": "macro.dbt_snowflake.snowflake__alter_column_comment",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__alter_column_comment",
@@ -4445,12 +4451,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8953316
+      "created_at": 1690581629.464496
     },
     "macro.dbt_snowflake.get_current_query_tag": {
       "unique_id": "macro.dbt_snowflake.get_current_query_tag",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "get_current_query_tag",
@@ -4469,12 +4475,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8955107
+      "created_at": 1690581629.4647853
     },
     "macro.dbt_snowflake.set_query_tag": {
       "unique_id": "macro.dbt_snowflake.set_query_tag",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "set_query_tag",
@@ -4494,12 +4500,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.895982
+      "created_at": 1690581629.465455
     },
     "macro.dbt_snowflake.unset_query_tag": {
       "unique_id": "macro.dbt_snowflake.unset_query_tag",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "unset_query_tag",
@@ -4518,12 +4524,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8965492
+      "created_at": 1690581629.4660711
     },
     "macro.dbt_snowflake.snowflake__alter_relation_add_remove_columns": {
       "unique_id": "macro.dbt_snowflake.snowflake__alter_relation_add_remove_columns",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__alter_relation_add_remove_columns",
@@ -4542,12 +4548,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8973553
+      "created_at": 1690581629.4668624
     },
     "macro.dbt_snowflake.snowflake_dml_explicit_transaction": {
       "unique_id": "macro.dbt_snowflake.snowflake_dml_explicit_transaction",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake_dml_explicit_transaction",
@@ -4564,12 +4570,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8975651
+      "created_at": 1690581629.4670904
     },
     "macro.dbt_snowflake.snowflake__truncate_relation": {
       "unique_id": "macro.dbt_snowflake.snowflake__truncate_relation",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/adapters.sql",
       "original_file_path": "macros/adapters.sql",
       "name": "snowflake__truncate_relation",
@@ -4589,12 +4595,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.8978252
+      "created_at": 1690581629.467332
     },
     "macro.dbt_snowflake.snowflake__get_catalog": {
       "unique_id": "macro.dbt_snowflake.snowflake__get_catalog",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/catalog.sql",
       "original_file_path": "macros/catalog.sql",
       "name": "snowflake__get_catalog",
@@ -4613,12 +4619,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9009695
+      "created_at": 1690581629.4698658
     },
     "macro.dbt_snowflake.materialization_snapshot_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_snapshot_snowflake",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/snapshot.sql",
       "original_file_path": "macros/materializations/snapshot.sql",
       "name": "materialization_snapshot_snowflake",
@@ -4639,12 +4645,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9025161
+      "created_at": 1690581629.4713938
     },
     "macro.dbt_snowflake.snowflake__load_csv_rows": {
       "unique_id": "macro.dbt_snowflake.snowflake__load_csv_rows",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/seed.sql",
       "original_file_path": "macros/materializations/seed.sql",
       "name": "snowflake__load_csv_rows",
@@ -4664,12 +4670,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9058235
+      "created_at": 1690581629.4746394
     },
     "macro.dbt_snowflake.materialization_seed_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_seed_snowflake",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/seed.sql",
       "original_file_path": "macros/materializations/seed.sql",
       "name": "materialization_seed_snowflake",
@@ -4690,12 +4696,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.906147
+      "created_at": 1690581629.4749608
     },
     "macro.dbt_snowflake.materialization_view_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_view_snowflake",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/view.sql",
       "original_file_path": "macros/materializations/view.sql",
       "name": "materialization_view_snowflake",
@@ -4717,12 +4723,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9076135
+      "created_at": 1690581629.4762316
     },
     "macro.dbt_snowflake.materialization_table_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_table_snowflake",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/table.sql",
       "original_file_path": "macros/materializations/table.sql",
       "name": "materialization_table_snowflake",
@@ -4747,12 +4753,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9099205
+      "created_at": 1690581629.4785047
     },
     "macro.dbt_snowflake.snowflake__get_merge_sql": {
       "unique_id": "macro.dbt_snowflake.snowflake__get_merge_sql",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/merge.sql",
       "original_file_path": "macros/materializations/merge.sql",
       "name": "snowflake__get_merge_sql",
@@ -4773,12 +4779,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.912033
+      "created_at": 1690581629.4806788
     },
     "macro.dbt_snowflake.snowflake__get_delete_insert_merge_sql": {
       "unique_id": "macro.dbt_snowflake.snowflake__get_delete_insert_merge_sql",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/merge.sql",
       "original_file_path": "macros/materializations/merge.sql",
       "name": "snowflake__get_delete_insert_merge_sql",
@@ -4798,12 +4804,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9123428
+      "created_at": 1690581629.4810183
     },
     "macro.dbt_snowflake.snowflake__snapshot_merge_sql": {
       "unique_id": "macro.dbt_snowflake.snowflake__snapshot_merge_sql",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/merge.sql",
       "original_file_path": "macros/materializations/merge.sql",
       "name": "snowflake__snapshot_merge_sql",
@@ -4823,12 +4829,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9126103
+      "created_at": 1690581629.4813006
     },
     "macro.dbt_snowflake.dbt_snowflake_validate_get_incremental_strategy": {
       "unique_id": "macro.dbt_snowflake.dbt_snowflake_validate_get_incremental_strategy",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/incremental.sql",
       "original_file_path": "macros/materializations/incremental.sql",
       "name": "dbt_snowflake_validate_get_incremental_strategy",
@@ -4845,12 +4851,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.915121
+      "created_at": 1690581629.4835799
     },
     "macro.dbt_snowflake.dbt_snowflake_get_incremental_sql": {
       "unique_id": "macro.dbt_snowflake.dbt_snowflake_get_incremental_sql",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/incremental.sql",
       "original_file_path": "macros/materializations/incremental.sql",
       "name": "dbt_snowflake_get_incremental_sql",
@@ -4870,12 +4876,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9157054
+      "created_at": 1690581629.4841511
     },
     "macro.dbt_snowflake.materialization_incremental_snowflake": {
       "unique_id": "macro.dbt_snowflake.materialization_incremental_snowflake",
       "package_name": "dbt_snowflake",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/snowflake",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/snowflake",
       "path": "macros/materializations/incremental.sql",
       "original_file_path": "macros/materializations/incremental.sql",
       "name": "materialization_incremental_snowflake",
@@ -4907,12 +4913,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.917898
+      "created_at": 1690581629.486318
     },
     "macro.dbt.generate_schema_name": {
       "unique_id": "macro.dbt.generate_schema_name",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/get_custom_name/get_custom_schema.sql",
       "original_file_path": "macros/get_custom_name/get_custom_schema.sql",
       "name": "generate_schema_name",
@@ -4931,12 +4937,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9193604
+      "created_at": 1690581629.4882457
     },
     "macro.dbt.default__generate_schema_name": {
       "unique_id": "macro.dbt.default__generate_schema_name",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/get_custom_name/get_custom_schema.sql",
       "original_file_path": "macros/get_custom_name/get_custom_schema.sql",
       "name": "default__generate_schema_name",
@@ -4953,12 +4959,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.919691
+      "created_at": 1690581629.4885578
     },
     "macro.dbt.generate_schema_name_for_env": {
       "unique_id": "macro.dbt.generate_schema_name_for_env",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/get_custom_name/get_custom_schema.sql",
       "original_file_path": "macros/get_custom_name/get_custom_schema.sql",
       "name": "generate_schema_name_for_env",
@@ -4975,12 +4981,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.920013
+      "created_at": 1690581629.488875
     },
     "macro.dbt.generate_database_name": {
       "unique_id": "macro.dbt.generate_database_name",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/get_custom_name/get_custom_database.sql",
       "original_file_path": "macros/get_custom_name/get_custom_database.sql",
       "name": "generate_database_name",
@@ -4999,12 +5005,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.921458
+      "created_at": 1690581629.4905083
     },
     "macro.dbt.default__generate_database_name": {
       "unique_id": "macro.dbt.default__generate_database_name",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/get_custom_name/get_custom_database.sql",
       "original_file_path": "macros/get_custom_name/get_custom_database.sql",
       "name": "default__generate_database_name",
@@ -5021,12 +5027,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9217966
+      "created_at": 1690581629.4907966
     },
     "macro.dbt.generate_alias_name": {
       "unique_id": "macro.dbt.generate_alias_name",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/get_custom_name/get_custom_alias.sql",
       "original_file_path": "macros/get_custom_name/get_custom_alias.sql",
       "name": "generate_alias_name",
@@ -5045,12 +5051,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9231696
+      "created_at": 1690581629.4923217
     },
     "macro.dbt.default__generate_alias_name": {
       "unique_id": "macro.dbt.default__generate_alias_name",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/get_custom_name/get_custom_alias.sql",
       "original_file_path": "macros/get_custom_name/get_custom_alias.sql",
       "name": "default__generate_alias_name",
@@ -5067,12 +5073,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9234104
+      "created_at": 1690581629.4925606
     },
     "macro.dbt.set_sql_header": {
       "unique_id": "macro.dbt.set_sql_header",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/configs.sql",
       "original_file_path": "macros/materializations/configs.sql",
       "name": "set_sql_header",
@@ -5089,12 +5095,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9248009
+      "created_at": 1690581629.494146
     },
     "macro.dbt.should_full_refresh": {
       "unique_id": "macro.dbt.should_full_refresh",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/configs.sql",
       "original_file_path": "macros/materializations/configs.sql",
       "name": "should_full_refresh",
@@ -5111,12 +5117,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.925126
+      "created_at": 1690581629.4945157
     },
     "macro.dbt.should_store_failures": {
       "unique_id": "macro.dbt.should_store_failures",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/configs.sql",
       "original_file_path": "macros/materializations/configs.sql",
       "name": "should_store_failures",
@@ -5133,12 +5139,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9254382
+      "created_at": 1690581629.4948533
     },
     "macro.dbt.run_hooks": {
       "unique_id": "macro.dbt.run_hooks",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/hooks.sql",
       "original_file_path": "macros/materializations/hooks.sql",
       "name": "run_hooks",
@@ -5157,12 +5163,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9273796
+      "created_at": 1690581629.4971735
     },
     "macro.dbt.make_hook_config": {
       "unique_id": "macro.dbt.make_hook_config",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/hooks.sql",
       "original_file_path": "macros/materializations/hooks.sql",
       "name": "make_hook_config",
@@ -5179,12 +5185,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9276018
+      "created_at": 1690581629.4974093
     },
     "macro.dbt.before_begin": {
       "unique_id": "macro.dbt.before_begin",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/hooks.sql",
       "original_file_path": "macros/materializations/hooks.sql",
       "name": "before_begin",
@@ -5203,12 +5209,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9277632
+      "created_at": 1690581629.49757
     },
     "macro.dbt.in_transaction": {
       "unique_id": "macro.dbt.in_transaction",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/hooks.sql",
       "original_file_path": "macros/materializations/hooks.sql",
       "name": "in_transaction",
@@ -5227,12 +5233,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9279191
+      "created_at": 1690581629.497726
     },
     "macro.dbt.after_commit": {
       "unique_id": "macro.dbt.after_commit",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/hooks.sql",
       "original_file_path": "macros/materializations/hooks.sql",
       "name": "after_commit",
@@ -5251,12 +5257,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9280634
+      "created_at": 1690581629.4978812
     },
     "macro.dbt.create_or_replace_view": {
       "unique_id": "macro.dbt.create_or_replace_view",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/view/create_or_replace_view.sql",
       "original_file_path": "macros/materializations/models/view/create_or_replace_view.sql",
       "name": "create_or_replace_view",
@@ -5279,12 +5285,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9301753
+      "created_at": 1690581629.5007486
     },
     "macro.dbt.materialization_view_default": {
       "unique_id": "macro.dbt.materialization_view_default",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/view/view.sql",
       "original_file_path": "macros/materializations/models/view/view.sql",
       "name": "materialization_view_default",
@@ -5307,12 +5313,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9343083
+      "created_at": 1690581629.5061889
     },
     "macro.dbt.handle_existing_table": {
       "unique_id": "macro.dbt.handle_existing_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/view/helpers.sql",
       "original_file_path": "macros/materializations/models/view/helpers.sql",
       "name": "handle_existing_table",
@@ -5331,12 +5337,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9354336
+      "created_at": 1690581629.5077178
     },
     "macro.dbt.default__handle_existing_table": {
       "unique_id": "macro.dbt.default__handle_existing_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/view/helpers.sql",
       "original_file_path": "macros/materializations/models/view/helpers.sql",
       "name": "default__handle_existing_table",
@@ -5353,12 +5359,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9356773
+      "created_at": 1690581629.5079763
     },
     "macro.dbt.get_create_view_as_sql": {
       "unique_id": "macro.dbt.get_create_view_as_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/view/create_view_as.sql",
       "original_file_path": "macros/materializations/models/view/create_view_as.sql",
       "name": "get_create_view_as_sql",
@@ -5377,12 +5383,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9369822
+      "created_at": 1690581629.5101235
     },
     "macro.dbt.default__get_create_view_as_sql": {
       "unique_id": "macro.dbt.default__get_create_view_as_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/view/create_view_as.sql",
       "original_file_path": "macros/materializations/models/view/create_view_as.sql",
       "name": "default__get_create_view_as_sql",
@@ -5401,12 +5407,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9371526
+      "created_at": 1690581629.51031
     },
     "macro.dbt.create_view_as": {
       "unique_id": "macro.dbt.create_view_as",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/view/create_view_as.sql",
       "original_file_path": "macros/materializations/models/view/create_view_as.sql",
       "name": "create_view_as",
@@ -5425,12 +5431,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.937329
+      "created_at": 1690581629.5105052
     },
     "macro.dbt.default__create_view_as": {
       "unique_id": "macro.dbt.default__create_view_as",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/view/create_view_as.sql",
       "original_file_path": "macros/materializations/models/view/create_view_as.sql",
       "name": "default__create_view_as",
@@ -5447,12 +5453,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9375906
+      "created_at": 1690581629.5107877
     },
     "macro.dbt.get_quoted_csv": {
       "unique_id": "macro.dbt.get_quoted_csv",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/column_helpers.sql",
       "original_file_path": "macros/materializations/models/incremental/column_helpers.sql",
       "name": "get_quoted_csv",
@@ -5469,12 +5475,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9392939
+      "created_at": 1690581629.5124772
     },
     "macro.dbt.diff_columns": {
       "unique_id": "macro.dbt.diff_columns",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/column_helpers.sql",
       "original_file_path": "macros/materializations/models/incremental/column_helpers.sql",
       "name": "diff_columns",
@@ -5491,12 +5497,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9398632
+      "created_at": 1690581629.513084
     },
     "macro.dbt.diff_column_data_types": {
       "unique_id": "macro.dbt.diff_column_data_types",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/column_helpers.sql",
       "original_file_path": "macros/materializations/models/incremental/column_helpers.sql",
       "name": "diff_column_data_types",
@@ -5513,12 +5519,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9404757
+      "created_at": 1690581629.5137548
     },
     "macro.dbt.incremental_validate_on_schema_change": {
       "unique_id": "macro.dbt.incremental_validate_on_schema_change",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/on_schema_change.sql",
       "original_file_path": "macros/materializations/models/incremental/on_schema_change.sql",
       "name": "incremental_validate_on_schema_change",
@@ -5535,12 +5541,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9457057
+      "created_at": 1690581629.5198874
     },
     "macro.dbt.check_for_schema_changes": {
       "unique_id": "macro.dbt.check_for_schema_changes",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/on_schema_change.sql",
       "original_file_path": "macros/materializations/models/incremental/on_schema_change.sql",
       "name": "check_for_schema_changes",
@@ -5560,12 +5566,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9470289
+      "created_at": 1690581629.5212297
     },
     "macro.dbt.sync_column_schemas": {
       "unique_id": "macro.dbt.sync_column_schemas",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/on_schema_change.sql",
       "original_file_path": "macros/materializations/models/incremental/on_schema_change.sql",
       "name": "sync_column_schemas",
@@ -5585,12 +5591,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9482315
+      "created_at": 1690581629.5225482
     },
     "macro.dbt.process_schema_changes": {
       "unique_id": "macro.dbt.process_schema_changes",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/on_schema_change.sql",
       "original_file_path": "macros/materializations/models/incremental/on_schema_change.sql",
       "name": "process_schema_changes",
@@ -5610,12 +5616,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.948957
+      "created_at": 1690581629.5232918
     },
     "macro.dbt.get_merge_sql": {
       "unique_id": "macro.dbt.get_merge_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/merge.sql",
       "original_file_path": "macros/materializations/models/incremental/merge.sql",
       "name": "get_merge_sql",
@@ -5634,12 +5640,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9522715
+      "created_at": 1690581629.5271118
     },
     "macro.dbt.default__get_merge_sql": {
       "unique_id": "macro.dbt.default__get_merge_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/merge.sql",
       "original_file_path": "macros/materializations/models/incremental/merge.sql",
       "name": "default__get_merge_sql",
@@ -5658,12 +5664,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9534206
+      "created_at": 1690581629.52832
     },
     "macro.dbt.get_delete_insert_merge_sql": {
       "unique_id": "macro.dbt.get_delete_insert_merge_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/merge.sql",
       "original_file_path": "macros/materializations/models/incremental/merge.sql",
       "name": "get_delete_insert_merge_sql",
@@ -5682,12 +5688,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.953651
+      "created_at": 1690581629.5285625
     },
     "macro.dbt.default__get_delete_insert_merge_sql": {
       "unique_id": "macro.dbt.default__get_delete_insert_merge_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/merge.sql",
       "original_file_path": "macros/materializations/models/incremental/merge.sql",
       "name": "default__get_delete_insert_merge_sql",
@@ -5706,12 +5712,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9540894
+      "created_at": 1690581629.5289967
     },
     "macro.dbt.get_insert_overwrite_merge_sql": {
       "unique_id": "macro.dbt.get_insert_overwrite_merge_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/merge.sql",
       "original_file_path": "macros/materializations/models/incremental/merge.sql",
       "name": "get_insert_overwrite_merge_sql",
@@ -5730,12 +5736,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.954346
+      "created_at": 1690581629.5292616
     },
     "macro.dbt.default__get_insert_overwrite_merge_sql": {
       "unique_id": "macro.dbt.default__get_insert_overwrite_merge_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/merge.sql",
       "original_file_path": "macros/materializations/models/incremental/merge.sql",
       "name": "default__get_insert_overwrite_merge_sql",
@@ -5754,12 +5760,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9549682
+      "created_at": 1690581629.529891
     },
     "macro.dbt.materialization_incremental_default": {
       "unique_id": "macro.dbt.materialization_incremental_default",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/incremental.sql",
       "original_file_path": "macros/materializations/models/incremental/incremental.sql",
       "name": "materialization_incremental_default",
@@ -5790,12 +5796,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9604418
+      "created_at": 1690581629.5362182
     },
     "macro.dbt.is_incremental": {
       "unique_id": "macro.dbt.is_incremental",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/incremental/is_incremental.sql",
       "original_file_path": "macros/materializations/models/incremental/is_incremental.sql",
       "name": "is_incremental",
@@ -5814,12 +5820,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9618678
+      "created_at": 1690581629.538202
     },
     "macro.dbt.get_create_table_as_sql": {
       "unique_id": "macro.dbt.get_create_table_as_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/table/create_table_as.sql",
       "original_file_path": "macros/materializations/models/table/create_table_as.sql",
       "name": "get_create_table_as_sql",
@@ -5838,12 +5844,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.962878
+      "created_at": 1690581629.5398226
     },
     "macro.dbt.default__get_create_table_as_sql": {
       "unique_id": "macro.dbt.default__get_create_table_as_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/table/create_table_as.sql",
       "original_file_path": "macros/materializations/models/table/create_table_as.sql",
       "name": "default__get_create_table_as_sql",
@@ -5862,12 +5868,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9630673
+      "created_at": 1690581629.5400631
     },
     "macro.dbt.create_table_as": {
       "unique_id": "macro.dbt.create_table_as",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/table/create_table_as.sql",
       "original_file_path": "macros/materializations/models/table/create_table_as.sql",
       "name": "create_table_as",
@@ -5886,12 +5892,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.96327
+      "created_at": 1690581629.540292
     },
     "macro.dbt.default__create_table_as": {
       "unique_id": "macro.dbt.default__create_table_as",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/table/create_table_as.sql",
       "original_file_path": "macros/materializations/models/table/create_table_as.sql",
       "name": "default__create_table_as",
@@ -5908,12 +5914,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9636958
+      "created_at": 1690581629.540743
     },
     "macro.dbt.materialization_table_default": {
       "unique_id": "macro.dbt.materialization_table_default",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/models/table/table.sql",
       "original_file_path": "macros/materializations/models/table/table.sql",
       "name": "materialization_table_default",
@@ -5937,12 +5943,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9677496
+      "created_at": 1690581629.545768
     },
     "macro.dbt.materialization_snapshot_default": {
       "unique_id": "macro.dbt.materialization_snapshot_default",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/snapshot.sql",
       "original_file_path": "macros/materializations/snapshots/snapshot.sql",
       "name": "materialization_snapshot_default",
@@ -5973,12 +5979,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.973728
+      "created_at": 1690581629.5532794
     },
     "macro.dbt.snapshot_merge_sql": {
       "unique_id": "macro.dbt.snapshot_merge_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/snapshot_merge.sql",
       "original_file_path": "macros/materializations/snapshots/snapshot_merge.sql",
       "name": "snapshot_merge_sql",
@@ -5997,12 +6003,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.974873
+      "created_at": 1690581629.5550268
     },
     "macro.dbt.default__snapshot_merge_sql": {
       "unique_id": "macro.dbt.default__snapshot_merge_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/snapshot_merge.sql",
       "original_file_path": "macros/materializations/snapshots/snapshot_merge.sql",
       "name": "default__snapshot_merge_sql",
@@ -6019,12 +6025,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.975138
+      "created_at": 1690581629.5554562
     },
     "macro.dbt.create_columns": {
       "unique_id": "macro.dbt.create_columns",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "create_columns",
@@ -6043,12 +6049,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9787235
+      "created_at": 1690581629.559641
     },
     "macro.dbt.default__create_columns": {
       "unique_id": "macro.dbt.default__create_columns",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "default__create_columns",
@@ -6067,12 +6073,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.979007
+      "created_at": 1690581629.5599933
     },
     "macro.dbt.post_snapshot": {
       "unique_id": "macro.dbt.post_snapshot",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "post_snapshot",
@@ -6091,12 +6097,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9791684
+      "created_at": 1690581629.5602005
     },
     "macro.dbt.default__post_snapshot": {
       "unique_id": "macro.dbt.default__post_snapshot",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "default__post_snapshot",
@@ -6113,12 +6119,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.979253
+      "created_at": 1690581629.5602942
     },
     "macro.dbt.snapshot_staging_table": {
       "unique_id": "macro.dbt.snapshot_staging_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "snapshot_staging_table",
@@ -6137,12 +6143,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9794545
+      "created_at": 1690581629.5605085
     },
     "macro.dbt.default__snapshot_staging_table": {
       "unique_id": "macro.dbt.default__snapshot_staging_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "default__snapshot_staging_table",
@@ -6161,12 +6167,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.980315
+      "created_at": 1690581629.5614524
     },
     "macro.dbt.build_snapshot_table": {
       "unique_id": "macro.dbt.build_snapshot_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "build_snapshot_table",
@@ -6185,12 +6191,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9804971
+      "created_at": 1690581629.5616508
     },
     "macro.dbt.default__build_snapshot_table": {
       "unique_id": "macro.dbt.default__build_snapshot_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "default__build_snapshot_table",
@@ -6207,12 +6213,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9807515
+      "created_at": 1690581629.561916
     },
     "macro.dbt.build_snapshot_staging_table": {
       "unique_id": "macro.dbt.build_snapshot_staging_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/helpers.sql",
       "original_file_path": "macros/materializations/snapshots/helpers.sql",
       "name": "build_snapshot_staging_table",
@@ -6234,12 +6240,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9811683
+      "created_at": 1690581629.5623665
     },
     "macro.dbt.strategy_dispatch": {
       "unique_id": "macro.dbt.strategy_dispatch",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "strategy_dispatch",
@@ -6256,12 +6262,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9851909
+      "created_at": 1690581629.566815
     },
     "macro.dbt.snapshot_hash_arguments": {
       "unique_id": "macro.dbt.snapshot_hash_arguments",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "snapshot_hash_arguments",
@@ -6280,12 +6286,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.985366
+      "created_at": 1690581629.567014
     },
     "macro.dbt.default__snapshot_hash_arguments": {
       "unique_id": "macro.dbt.default__snapshot_hash_arguments",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "default__snapshot_hash_arguments",
@@ -6302,12 +6308,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9855902
+      "created_at": 1690581629.567241
     },
     "macro.dbt.snapshot_get_time": {
       "unique_id": "macro.dbt.snapshot_get_time",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "snapshot_get_time",
@@ -6326,12 +6332,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.985745
+      "created_at": 1690581629.5673862
     },
     "macro.dbt.default__snapshot_get_time": {
       "unique_id": "macro.dbt.default__snapshot_get_time",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "default__snapshot_get_time",
@@ -6350,12 +6356,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.985839
+      "created_at": 1690581629.5674806
     },
     "macro.dbt.snapshot_timestamp_strategy": {
       "unique_id": "macro.dbt.snapshot_timestamp_strategy",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "snapshot_timestamp_strategy",
@@ -6374,12 +6380,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9866338
+      "created_at": 1690581629.5682108
     },
     "macro.dbt.snapshot_string_as_time": {
       "unique_id": "macro.dbt.snapshot_string_as_time",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "snapshot_string_as_time",
@@ -6398,12 +6404,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9868076
+      "created_at": 1690581629.5684557
     },
     "macro.dbt.default__snapshot_string_as_time": {
       "unique_id": "macro.dbt.default__snapshot_string_as_time",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "default__snapshot_string_as_time",
@@ -6420,12 +6426,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9869704
+      "created_at": 1690581629.5686252
     },
     "macro.dbt.snapshot_check_all_get_existing_columns": {
       "unique_id": "macro.dbt.snapshot_check_all_get_existing_columns",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "snapshot_check_all_get_existing_columns",
@@ -6444,12 +6450,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9880035
+      "created_at": 1690581629.5696254
     },
     "macro.dbt.snapshot_check_strategy": {
       "unique_id": "macro.dbt.snapshot_check_strategy",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/snapshots/strategies.sql",
       "original_file_path": "macros/materializations/snapshots/strategies.sql",
       "name": "snapshot_check_strategy",
@@ -6472,12 +6478,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9898915
+      "created_at": 1690581629.571509
     },
     "macro.dbt.materialization_seed_default": {
       "unique_id": "macro.dbt.materialization_seed_default",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/seed.sql",
       "original_file_path": "macros/materializations/seeds/seed.sql",
       "name": "materialization_seed_default",
@@ -6503,12 +6509,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9934661
+      "created_at": 1690581629.576024
     },
     "macro.dbt.create_csv_table": {
       "unique_id": "macro.dbt.create_csv_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "create_csv_table",
@@ -6527,12 +6533,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9980896
+      "created_at": 1690581629.5812318
     },
     "macro.dbt.default__create_csv_table": {
       "unique_id": "macro.dbt.default__create_csv_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "default__create_csv_table",
@@ -6551,12 +6557,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9990256
+      "created_at": 1690581629.5822756
     },
     "macro.dbt.reset_csv_table": {
       "unique_id": "macro.dbt.reset_csv_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "reset_csv_table",
@@ -6575,12 +6581,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9992616
+      "created_at": 1690581629.5825186
     },
     "macro.dbt.default__reset_csv_table": {
       "unique_id": "macro.dbt.default__reset_csv_table",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "default__reset_csv_table",
@@ -6599,12 +6605,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9997468
+      "created_at": 1690581629.5830598
     },
     "macro.dbt.get_binding_char": {
       "unique_id": "macro.dbt.get_binding_char",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "get_binding_char",
@@ -6623,12 +6629,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.999888
+      "created_at": 1690581629.5832267
     },
     "macro.dbt.default__get_binding_char": {
       "unique_id": "macro.dbt.default__get_binding_char",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "default__get_binding_char",
@@ -6645,12 +6651,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125189.9999967
+      "created_at": 1690581629.5833404
     },
     "macro.dbt.get_batch_size": {
       "unique_id": "macro.dbt.get_batch_size",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "get_batch_size",
@@ -6669,12 +6675,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0001516
+      "created_at": 1690581629.5835009
     },
     "macro.dbt.default__get_batch_size": {
       "unique_id": "macro.dbt.default__get_batch_size",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "default__get_batch_size",
@@ -6691,12 +6697,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.00026
+      "created_at": 1690581629.5836356
     },
     "macro.dbt.get_seed_column_quoted_csv": {
       "unique_id": "macro.dbt.get_seed_column_quoted_csv",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "get_seed_column_quoted_csv",
@@ -6713,12 +6719,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0007284
+      "created_at": 1690581629.5841541
     },
     "macro.dbt.load_csv_rows": {
       "unique_id": "macro.dbt.load_csv_rows",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "load_csv_rows",
@@ -6737,12 +6743,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0009089
+      "created_at": 1690581629.584338
     },
     "macro.dbt.default__load_csv_rows": {
       "unique_id": "macro.dbt.default__load_csv_rows",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/seeds/helpers.sql",
       "original_file_path": "macros/materializations/seeds/helpers.sql",
       "name": "default__load_csv_rows",
@@ -6763,12 +6769,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0021834
+      "created_at": 1690581629.5856822
     },
     "macro.dbt.materialization_test_default": {
       "unique_id": "macro.dbt.materialization_test_default",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/tests/test.sql",
       "original_file_path": "macros/materializations/tests/test.sql",
       "name": "materialization_test_default",
@@ -6790,12 +6796,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0050144
+      "created_at": 1690581629.5888119
     },
     "macro.dbt.get_test_sql": {
       "unique_id": "macro.dbt.get_test_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/tests/helpers.sql",
       "original_file_path": "macros/materializations/tests/helpers.sql",
       "name": "get_test_sql",
@@ -6814,12 +6820,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0061746
+      "created_at": 1690581629.590119
     },
     "macro.dbt.default__get_test_sql": {
       "unique_id": "macro.dbt.default__get_test_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/tests/helpers.sql",
       "original_file_path": "macros/materializations/tests/helpers.sql",
       "name": "default__get_test_sql",
@@ -6836,12 +6842,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0064766
+      "created_at": 1690581629.5904517
     },
     "macro.dbt.get_where_subquery": {
       "unique_id": "macro.dbt.get_where_subquery",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/tests/where_subquery.sql",
       "original_file_path": "macros/materializations/tests/where_subquery.sql",
       "name": "get_where_subquery",
@@ -6860,12 +6866,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0075574
+      "created_at": 1690581629.591535
     },
     "macro.dbt.default__get_where_subquery": {
       "unique_id": "macro.dbt.default__get_where_subquery",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/materializations/tests/where_subquery.sql",
       "original_file_path": "macros/materializations/tests/where_subquery.sql",
       "name": "default__get_where_subquery",
@@ -6882,12 +6888,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0079577
+      "created_at": 1690581629.5919735
     },
     "macro.dbt.statement": {
       "unique_id": "macro.dbt.statement",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/etc/statement.sql",
       "original_file_path": "macros/etc/statement.sql",
       "name": "statement",
@@ -6904,12 +6910,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.009758
+      "created_at": 1690581629.5938046
     },
     "macro.dbt.noop_statement": {
       "unique_id": "macro.dbt.noop_statement",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/etc/statement.sql",
       "original_file_path": "macros/etc/statement.sql",
       "name": "noop_statement",
@@ -6926,12 +6932,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0103364
+      "created_at": 1690581629.5944245
     },
     "macro.dbt.run_query": {
       "unique_id": "macro.dbt.run_query",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/etc/statement.sql",
       "original_file_path": "macros/etc/statement.sql",
       "name": "run_query",
@@ -6950,12 +6956,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.010631
+      "created_at": 1690581629.5947204
     },
     "macro.dbt.convert_datetime": {
       "unique_id": "macro.dbt.convert_datetime",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/etc/datetime.sql",
       "original_file_path": "macros/etc/datetime.sql",
       "name": "convert_datetime",
@@ -6972,12 +6978,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0131493
+      "created_at": 1690581629.5972009
     },
     "macro.dbt.dates_in_range": {
       "unique_id": "macro.dbt.dates_in_range",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/etc/datetime.sql",
       "original_file_path": "macros/etc/datetime.sql",
       "name": "dates_in_range",
@@ -6996,12 +7002,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0143774
+      "created_at": 1690581629.598548
     },
     "macro.dbt.partition_range": {
       "unique_id": "macro.dbt.partition_range",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/etc/datetime.sql",
       "original_file_path": "macros/etc/datetime.sql",
       "name": "partition_range",
@@ -7020,12 +7026,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0152261
+      "created_at": 1690581629.5995548
     },
     "macro.dbt.py_current_timestring": {
       "unique_id": "macro.dbt.py_current_timestring",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/etc/datetime.sql",
       "original_file_path": "macros/etc/datetime.sql",
       "name": "py_current_timestring",
@@ -7042,12 +7048,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0154605
+      "created_at": 1690581629.5998101
     },
     "macro.dbt.default__test_relationships": {
       "unique_id": "macro.dbt.default__test_relationships",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/generic_test_sql/relationships.sql",
       "original_file_path": "macros/generic_test_sql/relationships.sql",
       "name": "default__test_relationships",
@@ -7064,12 +7070,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0165114
+      "created_at": 1690581629.6013937
     },
     "macro.dbt.default__test_not_null": {
       "unique_id": "macro.dbt.default__test_not_null",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/generic_test_sql/not_null.sql",
       "original_file_path": "macros/generic_test_sql/not_null.sql",
       "name": "default__test_not_null",
@@ -7086,12 +7092,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0174477
+      "created_at": 1690581629.6025143
     },
     "macro.dbt.default__test_accepted_values": {
       "unique_id": "macro.dbt.default__test_accepted_values",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/generic_test_sql/accepted_values.sql",
       "original_file_path": "macros/generic_test_sql/accepted_values.sql",
       "name": "default__test_accepted_values",
@@ -7108,12 +7114,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0187511
+      "created_at": 1690581629.6037257
     },
     "macro.dbt.default__test_unique": {
       "unique_id": "macro.dbt.default__test_unique",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/generic_test_sql/unique.sql",
       "original_file_path": "macros/generic_test_sql/unique.sql",
       "name": "default__test_unique",
@@ -7130,12 +7136,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0196218
+      "created_at": 1690581629.6046047
     },
     "macro.dbt.get_catalog": {
       "unique_id": "macro.dbt.get_catalog",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "get_catalog",
@@ -7154,12 +7160,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0217195
+      "created_at": 1690581629.606601
     },
     "macro.dbt.default__get_catalog": {
       "unique_id": "macro.dbt.default__get_catalog",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "default__get_catalog",
@@ -7176,12 +7182,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0219777
+      "created_at": 1690581629.6068625
     },
     "macro.dbt.information_schema_name": {
       "unique_id": "macro.dbt.information_schema_name",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "information_schema_name",
@@ -7200,12 +7206,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0221646
+      "created_at": 1690581629.607067
     },
     "macro.dbt.default__information_schema_name": {
       "unique_id": "macro.dbt.default__information_schema_name",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "default__information_schema_name",
@@ -7222,12 +7228,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0223134
+      "created_at": 1690581629.6072214
     },
     "macro.dbt.list_schemas": {
       "unique_id": "macro.dbt.list_schemas",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "list_schemas",
@@ -7246,12 +7252,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0224931
+      "created_at": 1690581629.607401
     },
     "macro.dbt.default__list_schemas": {
       "unique_id": "macro.dbt.default__list_schemas",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "default__list_schemas",
@@ -7271,12 +7277,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0227435
+      "created_at": 1690581629.6076493
     },
     "macro.dbt.check_schema_exists": {
       "unique_id": "macro.dbt.check_schema_exists",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "check_schema_exists",
@@ -7295,12 +7301,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0229466
+      "created_at": 1690581629.6078553
     },
     "macro.dbt.default__check_schema_exists": {
       "unique_id": "macro.dbt.default__check_schema_exists",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "default__check_schema_exists",
@@ -7319,12 +7325,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0232491
+      "created_at": 1690581629.6081731
     },
     "macro.dbt.list_relations_without_caching": {
       "unique_id": "macro.dbt.list_relations_without_caching",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "list_relations_without_caching",
@@ -7343,12 +7349,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.023438
+      "created_at": 1690581629.6083593
     },
     "macro.dbt.default__list_relations_without_caching": {
       "unique_id": "macro.dbt.default__list_relations_without_caching",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/metadata.sql",
       "original_file_path": "macros/adapters/metadata.sql",
       "name": "default__list_relations_without_caching",
@@ -7365,12 +7371,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.023601
+      "created_at": 1690581629.608518
     },
     "macro.dbt.get_columns_in_relation": {
       "unique_id": "macro.dbt.get_columns_in_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "get_columns_in_relation",
@@ -7389,12 +7395,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.02621
+      "created_at": 1690581629.6109066
     },
     "macro.dbt.default__get_columns_in_relation": {
       "unique_id": "macro.dbt.default__get_columns_in_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "default__get_columns_in_relation",
@@ -7411,12 +7417,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0263772
+      "created_at": 1690581629.61109
     },
     "macro.dbt.sql_convert_columns_in_relation": {
       "unique_id": "macro.dbt.sql_convert_columns_in_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "sql_convert_columns_in_relation",
@@ -7433,12 +7439,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0266974
+      "created_at": 1690581629.6113997
     },
     "macro.dbt.get_columns_in_query": {
       "unique_id": "macro.dbt.get_columns_in_query",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "get_columns_in_query",
@@ -7457,12 +7463,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.026976
+      "created_at": 1690581629.6115801
     },
     "macro.dbt.default__get_columns_in_query": {
       "unique_id": "macro.dbt.default__get_columns_in_query",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "default__get_columns_in_query",
@@ -7481,12 +7487,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0273213
+      "created_at": 1690581629.6120007
     },
     "macro.dbt.alter_column_type": {
       "unique_id": "macro.dbt.alter_column_type",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "alter_column_type",
@@ -7505,12 +7511,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0275426
+      "created_at": 1690581629.6122327
     },
     "macro.dbt.default__alter_column_type": {
       "unique_id": "macro.dbt.default__alter_column_type",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "default__alter_column_type",
@@ -7529,12 +7535,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0281334
+      "created_at": 1690581629.6128526
     },
     "macro.dbt.alter_relation_add_remove_columns": {
       "unique_id": "macro.dbt.alter_relation_add_remove_columns",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "alter_relation_add_remove_columns",
@@ -7553,12 +7559,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0283873
+      "created_at": 1690581629.6131284
     },
     "macro.dbt.default__alter_relation_add_remove_columns": {
       "unique_id": "macro.dbt.default__alter_relation_add_remove_columns",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/columns.sql",
       "original_file_path": "macros/adapters/columns.sql",
       "name": "default__alter_relation_add_remove_columns",
@@ -7577,12 +7583,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0291677
+      "created_at": 1690581629.6139793
     },
     "macro.dbt.make_temp_relation": {
       "unique_id": "macro.dbt.make_temp_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "make_temp_relation",
@@ -7601,12 +7607,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0317616
+      "created_at": 1690581629.616785
     },
     "macro.dbt.default__make_temp_relation": {
       "unique_id": "macro.dbt.default__make_temp_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "default__make_temp_relation",
@@ -7623,12 +7629,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0321074
+      "created_at": 1690581629.6171377
     },
     "macro.dbt.drop_relation": {
       "unique_id": "macro.dbt.drop_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "drop_relation",
@@ -7647,12 +7653,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.032304
+      "created_at": 1690581629.6173441
     },
     "macro.dbt.default__drop_relation": {
       "unique_id": "macro.dbt.default__drop_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "default__drop_relation",
@@ -7671,12 +7677,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0325325
+      "created_at": 1690581629.6175594
     },
     "macro.dbt.truncate_relation": {
       "unique_id": "macro.dbt.truncate_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "truncate_relation",
@@ -7695,12 +7701,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.032739
+      "created_at": 1690581629.6177428
     },
     "macro.dbt.default__truncate_relation": {
       "unique_id": "macro.dbt.default__truncate_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "default__truncate_relation",
@@ -7719,12 +7725,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0329013
+      "created_at": 1690581629.6179006
     },
     "macro.dbt.rename_relation": {
       "unique_id": "macro.dbt.rename_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "rename_relation",
@@ -7743,12 +7749,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0331106
+      "created_at": 1690581629.6181173
     },
     "macro.dbt.default__rename_relation": {
       "unique_id": "macro.dbt.default__rename_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "default__rename_relation",
@@ -7767,12 +7773,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0333955
+      "created_at": 1690581629.6183965
     },
     "macro.dbt.get_or_create_relation": {
       "unique_id": "macro.dbt.get_or_create_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "get_or_create_relation",
@@ -7791,12 +7797,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.033643
+      "created_at": 1690581629.6186454
     },
     "macro.dbt.default__get_or_create_relation": {
       "unique_id": "macro.dbt.default__get_or_create_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "default__get_or_create_relation",
@@ -7813,12 +7819,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0342135
+      "created_at": 1690581629.6192205
     },
     "macro.dbt.load_relation": {
       "unique_id": "macro.dbt.load_relation",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "load_relation",
@@ -7835,12 +7841,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0344484
+      "created_at": 1690581629.6194475
     },
     "macro.dbt.drop_relation_if_exists": {
       "unique_id": "macro.dbt.drop_relation_if_exists",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/relation.sql",
       "original_file_path": "macros/adapters/relation.sql",
       "name": "drop_relation_if_exists",
@@ -7857,12 +7863,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0346684
+      "created_at": 1690581629.619649
     },
     "macro.dbt.current_timestamp": {
       "unique_id": "macro.dbt.current_timestamp",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/freshness.sql",
       "original_file_path": "macros/adapters/freshness.sql",
       "name": "current_timestamp",
@@ -7881,12 +7887,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0359433
+      "created_at": 1690581629.6211414
     },
     "macro.dbt.default__current_timestamp": {
       "unique_id": "macro.dbt.default__current_timestamp",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/freshness.sql",
       "original_file_path": "macros/adapters/freshness.sql",
       "name": "default__current_timestamp",
@@ -7903,12 +7909,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0361023
+      "created_at": 1690581629.6213346
     },
     "macro.dbt.collect_freshness": {
       "unique_id": "macro.dbt.collect_freshness",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/freshness.sql",
       "original_file_path": "macros/adapters/freshness.sql",
       "name": "collect_freshness",
@@ -7927,12 +7933,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.036351
+      "created_at": 1690581629.6215875
     },
     "macro.dbt.default__collect_freshness": {
       "unique_id": "macro.dbt.default__collect_freshness",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/freshness.sql",
       "original_file_path": "macros/adapters/freshness.sql",
       "name": "default__collect_freshness",
@@ -7952,12 +7958,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0370889
+      "created_at": 1690581629.622054
     },
     "macro.dbt.create_schema": {
       "unique_id": "macro.dbt.create_schema",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/schema.sql",
       "original_file_path": "macros/adapters/schema.sql",
       "name": "create_schema",
@@ -7976,12 +7982,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.038342
+      "created_at": 1690581629.6234965
     },
     "macro.dbt.default__create_schema": {
       "unique_id": "macro.dbt.default__create_schema",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/schema.sql",
       "original_file_path": "macros/adapters/schema.sql",
       "name": "default__create_schema",
@@ -8000,12 +8006,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0385332
+      "created_at": 1690581629.623699
     },
     "macro.dbt.drop_schema": {
       "unique_id": "macro.dbt.drop_schema",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/schema.sql",
       "original_file_path": "macros/adapters/schema.sql",
       "name": "drop_schema",
@@ -8024,12 +8030,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0387123
+      "created_at": 1690581629.6238647
     },
     "macro.dbt.default__drop_schema": {
       "unique_id": "macro.dbt.default__drop_schema",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/schema.sql",
       "original_file_path": "macros/adapters/schema.sql",
       "name": "default__drop_schema",
@@ -8048,12 +8054,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0388951
+      "created_at": 1690581629.6241698
     },
     "macro.dbt.alter_column_comment": {
       "unique_id": "macro.dbt.alter_column_comment",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/persist_docs.sql",
       "original_file_path": "macros/adapters/persist_docs.sql",
       "name": "alter_column_comment",
@@ -8072,12 +8078,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.040246
+      "created_at": 1690581629.625613
     },
     "macro.dbt.default__alter_column_comment": {
       "unique_id": "macro.dbt.default__alter_column_comment",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/persist_docs.sql",
       "original_file_path": "macros/adapters/persist_docs.sql",
       "name": "default__alter_column_comment",
@@ -8094,12 +8100,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0404294
+      "created_at": 1690581629.625791
     },
     "macro.dbt.alter_relation_comment": {
       "unique_id": "macro.dbt.alter_relation_comment",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/persist_docs.sql",
       "original_file_path": "macros/adapters/persist_docs.sql",
       "name": "alter_relation_comment",
@@ -8118,12 +8124,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.040645
+      "created_at": 1690581629.626004
     },
     "macro.dbt.default__alter_relation_comment": {
       "unique_id": "macro.dbt.default__alter_relation_comment",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/persist_docs.sql",
       "original_file_path": "macros/adapters/persist_docs.sql",
       "name": "default__alter_relation_comment",
@@ -8140,12 +8146,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0408266
+      "created_at": 1690581629.6261737
     },
     "macro.dbt.persist_docs": {
       "unique_id": "macro.dbt.persist_docs",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/persist_docs.sql",
       "original_file_path": "macros/adapters/persist_docs.sql",
       "name": "persist_docs",
@@ -8164,12 +8170,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0411077
+      "created_at": 1690581629.6264486
     },
     "macro.dbt.default__persist_docs": {
       "unique_id": "macro.dbt.default__persist_docs",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/persist_docs.sql",
       "original_file_path": "macros/adapters/persist_docs.sql",
       "name": "default__persist_docs",
@@ -8190,12 +8196,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0415974
+      "created_at": 1690581629.626961
     },
     "macro.dbt.get_create_index_sql": {
       "unique_id": "macro.dbt.get_create_index_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/indexes.sql",
       "original_file_path": "macros/adapters/indexes.sql",
       "name": "get_create_index_sql",
@@ -8214,12 +8220,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0427847
+      "created_at": 1690581629.6281288
     },
     "macro.dbt.default__get_create_index_sql": {
       "unique_id": "macro.dbt.default__get_create_index_sql",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/indexes.sql",
       "original_file_path": "macros/adapters/indexes.sql",
       "name": "default__get_create_index_sql",
@@ -8236,12 +8242,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0429215
+      "created_at": 1690581629.62827
     },
     "macro.dbt.create_indexes": {
       "unique_id": "macro.dbt.create_indexes",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/indexes.sql",
       "original_file_path": "macros/adapters/indexes.sql",
       "name": "create_indexes",
@@ -8260,12 +8266,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0430794
+      "created_at": 1690581629.6284273
     },
     "macro.dbt.default__create_indexes": {
       "unique_id": "macro.dbt.default__create_indexes",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "macros/adapters/indexes.sql",
       "original_file_path": "macros/adapters/indexes.sql",
       "name": "default__create_indexes",
@@ -8285,12 +8291,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0434775
+      "created_at": 1690581629.6288397
     },
     "macro.dbt.test_unique": {
       "unique_id": "macro.dbt.test_unique",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "tests/generic/builtin.sql",
       "original_file_path": "tests/generic/builtin.sql",
       "name": "test_unique",
@@ -8309,12 +8315,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.04472
+      "created_at": 1690581629.6300821
     },
     "macro.dbt.test_not_null": {
       "unique_id": "macro.dbt.test_not_null",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "tests/generic/builtin.sql",
       "original_file_path": "tests/generic/builtin.sql",
       "name": "test_not_null",
@@ -8333,12 +8339,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0449576
+      "created_at": 1690581629.6304379
     },
     "macro.dbt.test_accepted_values": {
       "unique_id": "macro.dbt.test_accepted_values",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "tests/generic/builtin.sql",
       "original_file_path": "tests/generic/builtin.sql",
       "name": "test_accepted_values",
@@ -8357,12 +8363,12 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0452507
+      "created_at": 1690581629.6307986
     },
     "macro.dbt.test_relationships": {
       "unique_id": "macro.dbt.test_relationships",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "tests/generic/builtin.sql",
       "original_file_path": "tests/generic/builtin.sql",
       "name": "test_relationships",
@@ -8381,18 +8387,18 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1669125190.0456092
+      "created_at": 1690581629.631108
     }
   },
   "docs": {
     "dbt.__overview__": {
       "unique_id": "dbt.__overview__",
       "package_name": "dbt",
-      "root_path": "/usr/local/lib/python3.9/site-packages/dbt/include/global_project",
+      "root_path": "/usr/local/lib/python3.8/site-packages/dbt/include/global_project",
       "path": "overview.md",
       "original_file_path": "docs/overview.md",
       "name": "__overview__",
-      "block_contents": "### Welcome!\n\nWelcome to the auto-generated documentation for your dbt project!\n\n### Navigation\n\nYou can use the `Project` and `Database` navigation tabs on the left side of the window to explore the models\nin your project.\n\n#### Project Tab\nThe `Project` tab mirrors the directory structure of your dbt project. In this tab, you can see all of the\nmodels defined in your dbt project, as well as models imported from dbt packages.\n\n#### Database Tab\nThe `Database` tab also exposes your models, but in a format that looks more like a database explorer. This view\nshows relations (tables and views) grouped into database schemas. Note that ephemeral models are _not_ shown\nin this interface, as they do not exist in the database.\n\n### Graph Exploration\nYou can click the blue icon on the bottom-right corner of the page to view the lineage graph of your models.\n\nOn model pages, you'll see the immediate parents and children of the model you're exploring. By clicking the `Expand`\nbutton at the top-right of this lineage pane, you'll be able to see all of the models that are used to build,\nor are built from, the model you're exploring.\n\nOnce expanded, you'll be able to use the `--select` and `--exclude` model selection syntax to filter the\nmodels in the graph. For more information on model selection, check out the [dbt docs](https://docs.getdbt.com/docs/model-selection-syntax).\n\nNote that you can also right-click on models to interactively filter and explore the graph.\n\n---\n\n### More information\n\n- [What is dbt](https://docs.getdbt.com/docs/overview)?\n- Read the [dbt viewpoint](https://docs.getdbt.com/docs/viewpoint)\n- [Installation](https://docs.getdbt.com/docs/installation)\n- Join the [dbt Community](https://www.getdbt.com/community/) for questions and discussion"
+      "block_contents": "### Welcome!\n\nWelcome to the auto-generated documentation for your dbt project!\n\n### Navigation\n\nYou can use the `Project` and `Database` navigation tabs on the left side of the window to explore the models\nin your project.\n\n#### Project Tab\nThe `Project` tab mirrors the directory structure of your dbt project. In this tab, you can see all of the\nmodels defined in your dbt project, as well as models imported from dbt packages.\n\n#### Database Tab\nThe `Database` tab also exposes your models, but in a format that looks more like a database explorer. This view\nshows relations (tables and views) grouped into database schemas. Note that ephemeral models are _not_ shown\nin this interface, as they do not exist in the database.\n\n### Graph Exploration\nYou can click the blue icon on the bottom-right corner of the page to view the lineage graph of your models.\n\nOn model pages, you'll see the immediate parents and children of the model you're exploring. By clicking the `Expand`\nbutton at the top-right of this lineage pane, you'll be able to see all of the models that are used to build,\nor are built from, the model you're exploring.\n\nOnce expanded, you'll be able to use the `--select` and `--exclude` model selection syntax to filter the\nmodels in the graph. For more information on model selection, check out the [dbt docs](https://docs.getdbt.com/docs/model-selection-syntax).\n\nNote that you can also right-click on models to interactively filter and explore the graph.\n\n---\n\n### More information\n\n- [What is dbt](https://docs.getdbt.com/docs/introduction)?\n- Read the [dbt viewpoint](https://docs.getdbt.com/docs/viewpoint)\n- [Installation](https://docs.getdbt.com/docs/installation)\n- Join the [dbt Community](https://www.getdbt.com/community/) for questions and discussion"
     }
   },
   "exposures": {},
@@ -8444,7 +8450,7 @@
           "trial_model_1"
         ]
       ],
-      "created_at": 1669125190.1911838
+      "created_at": 1690581629.8183012
     }
   },
   "selectors": {},
