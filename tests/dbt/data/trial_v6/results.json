@@ -169,7 +169,8 @@
           "description": "The primary key for this table, auto generated id",
           "fieldName": "id",
           "fieldPath": "id",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         }
       ],
       "materialization": {
@@ -222,7 +223,8 @@
           "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'",
           "fieldName": "id",
           "fieldPath": "id",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         }
       ],
       "materialization": {
@@ -279,31 +281,39 @@
           "description": "The show id, primary key for this table",
           "fieldName": "show_id",
           "fieldPath": "show_id",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The type of the show, e.g. Movie or TV Show",
           "fieldName": "type",
           "fieldPath": "type",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The title of the show",
           "fieldName": "title",
           "fieldPath": "title",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The country where the show was originated from",
           "fieldName": "country",
           "fieldPath": "country",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": [
+            "country_code",
+            "not_pii"
+          ]
         },
         {
           "description": "The year the show was released",
           "fieldName": "release_year",
           "fieldPath": "release_year",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         }
       ],
       "materialization": {
@@ -386,31 +396,36 @@
           "description": "The country where the sales records are from",
           "fieldName": "country",
           "fieldPath": "country",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The type of the item, e.g. clothes, household, etc",
           "fieldName": "item_type",
           "fieldPath": "item_type",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The year that the aggregated sales statistics is for",
           "fieldName": "year",
           "fieldPath": "year",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The total revenue aggregated over the country + item_type + year",
           "fieldName": "revenue",
           "fieldPath": "revenue",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The total profit aggregated over the country + item_type + year",
           "fieldName": "profit",
           "fieldPath": "profit",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         }
       ],
       "materialization": {

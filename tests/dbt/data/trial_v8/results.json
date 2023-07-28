@@ -169,7 +169,8 @@
           "description": "The primary key for this table, auto generated id",
           "fieldName": "id",
           "fieldPath": "id",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         }
       ],
       "materialization": {
@@ -214,6 +215,64 @@
   },
   {
     "dbtModel": {
+      "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
+      "description": "A starter dbt model, my_second_dbt_model",
+      "docsUrl": "http://localhost:8080/#!/model/model.trial.my_second_dbt_model",
+      "fields": [
+        {
+          "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'",
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~81710CAF4D9C7ADB5729E487404E7925",
+        "type": "VIEW"
+      },
+      "packageName": "trial",
+      "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
+      ],
+      "tags": [],
+      "tests": [
+        {
+          "columns": [
+            "id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_my_second_dbt_model_id",
+          "uniqueId": "test.trial.unique_my_second_dbt_model_id.57a0f8c493",
+          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n"
+        },
+        {
+          "columns": [
+            "id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_my_second_dbt_model_id",
+          "uniqueId": "test.trial.not_null_my_second_dbt_model_id.151b76d778",
+          "sql": "\n    \n    \n\n\n\nselect id\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
+    },
+    "logicalId": {
+      "name": "trial.my_second_dbt_model",
+      "type": "DBT_MODEL"
+    }
+  },
+  {
+    "dbtModel": {
       "compiledSql": "\n\nselect show_id, type, title, country, release_year \nfrom DEV_DB.DBT_DEV.NETFLIX",
       "description": "First trial model, mapping columns from NETFLIX source table",
       "docsUrl": "http://localhost:8080/#!/model/model.trial.trial_model_1",
@@ -222,31 +281,39 @@
           "description": "The show id, primary key for this table",
           "fieldName": "show_id",
           "fieldPath": "show_id",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The type of the show, e.g. Movie or TV Show",
           "fieldName": "type",
           "fieldPath": "type",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The title of the show",
           "fieldName": "title",
           "fieldPath": "title",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The country where the show was originated from",
           "fieldName": "country",
           "fieldPath": "country",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": [
+            "country_code",
+            "not_pii"
+          ]
         },
         {
           "description": "The year the show was released",
           "fieldName": "release_year",
           "fieldPath": "release_year",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         }
       ],
       "materialization": {
@@ -329,31 +396,36 @@
           "description": "The country where the sales records are from",
           "fieldName": "country",
           "fieldPath": "country",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The type of the item, e.g. clothes, household, etc",
           "fieldName": "item_type",
           "fieldPath": "item_type",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The year that the aggregated sales statistics is for",
           "fieldName": "year",
           "fieldPath": "year",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The total revenue aggregated over the country + item_type + year",
           "fieldName": "revenue",
           "fieldPath": "revenue",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         },
         {
           "description": "The total profit aggregated over the country + item_type + year",
           "fieldName": "profit",
           "fieldPath": "profit",
-          "nativeType": "Not Set"
+          "nativeType": "Not Set",
+          "tags": []
         }
       ],
       "materialization": {
@@ -435,63 +507,6 @@
     },
     "logicalId": {
       "name": "trial.trial_model_2",
-      "type": "DBT_MODEL"
-    }
-  },
-  {
-    "dbtModel": {
-      "compiledSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id = 1",
-      "description": "A starter dbt model, my_second_dbt_model",
-      "docsUrl": "http://localhost:8080/#!/model/model.trial.my_second_dbt_model",
-      "fields": [
-        {
-          "description": "The primary key for this table, referencing the primary key in 'my_first_dbt_model'",
-          "fieldName": "id",
-          "fieldPath": "id",
-          "nativeType": "Not Set"
-        }
-      ],
-      "materialization": {
-        "targetDataset": "DATASET~81710CAF4D9C7ADB5729E487404E7925",
-        "type": "VIEW"
-      },
-      "packageName": "trial",
-      "rawSql": "-- Use the `ref` function to select from other models\n\nselect *\nfrom {{ ref('my_first_dbt_model') }}\nwhere id = 1",
-      "sourceDatasets": [],
-      "sourceModels": [
-        "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
-      ],
-      "tags": [],
-      "tests": [
-        {
-          "columns": [
-            "id"
-          ],
-          "dependsOnMacros": [
-            "macro.dbt.test_unique",
-            "macro.dbt.get_where_subquery"
-          ],
-          "name": "unique_my_second_dbt_model_id",
-          "uniqueId": "test.trial.unique_my_second_dbt_model_id.57a0f8c493",
-          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n"
-        },
-        {
-          "columns": [
-            "id"
-          ],
-          "dependsOnMacros": [
-            "macro.dbt.test_not_null",
-            "macro.dbt.get_where_subquery"
-          ],
-          "name": "not_null_my_second_dbt_model_id",
-          "uniqueId": "test.trial.not_null_my_second_dbt_model_id.151b76d778",
-          "sql": "\n    \n    \n\n\n\nselect id\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n"
-        }
-      ],
-      "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
-    },
-    "logicalId": {
-      "name": "trial.my_second_dbt_model",
       "type": "DBT_MODEL"
     }
   },
