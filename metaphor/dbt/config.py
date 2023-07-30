@@ -34,7 +34,6 @@ class MetaTag:
 @dataclass(config=ConnectorConfig)
 class DbtRunConfig(BaseConfig):
     manifest: str
-    catalog: Optional[str] = None
 
     # the database service account this DBT project is connected to
     account: Optional[str] = None
