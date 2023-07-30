@@ -8,7 +8,7 @@ connections:
     database: db1
     default_schema: schema1
     platform: SNOWFLAKE
-    account: account1
+    snowflake_account: account1
   conn2:
     database: db2
     default_schema: schema2

@@ -20,7 +20,7 @@ def test_yaml_config(test_root_dir):
                 database="db1",
                 default_schema="schema1",
                 platform=DataPlatform.SNOWFLAKE,
-                account="account1",
+                snowflake_account="account1",
             ),
             "conn2": LookerConnectionConfig(
                 database="db2",
@@ -45,7 +45,7 @@ def test_yaml_config_with_git(test_root_dir):
         connections={
             "conn1": LookerConnectionConfig(
                 database="db1",
-                account="account1",
+                snowflake_account="account1",
                 default_schema="schema1",
                 platform="SNOWFLAKE",
             )

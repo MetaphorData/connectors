@@ -97,7 +97,7 @@ async def _test_project(
 
     config = DbtRunConfig(
         output=OutputConfig(),
-        account="metaphor",
+        snowflake_account="metaphor",
         manifest=manifest,
         catalog=catalog,
         docs_base_url=docs_base_url,

@@ -129,9 +129,9 @@ class DbtCloudExtractor(BaseExtractor):
         project_id, run_id = client.get_last_successful_run(self._job_id)
         logger.info(f"Last successful run ID: {run_id}, project ID: {project_id}")
 
-        account = client.get_snowflake_account(project_id)
-        if account is not None:
-            logger.info(f"Snowflake account: {account}")
+        snowflake_account = client.get_snowflake_account(project_id)
+        if snowflake_account is not None:
+            logger.info(f"Snowflake account: {snowflake_account}")
 
         manifest_json = client.get_run_artifact(run_id, "manifest.json")
         logger.info(f"manifest.json saved to {manifest_json}")
@@ -144,7 +144,7 @@ class DbtCloudExtractor(BaseExtractor):
         return await DbtExtractor(
             DbtRunConfig(
                 manifest=manifest_json,
-                account=account,
+                snowflake_account=snowflake_account,
                 docs_base_url=docs_base_url,
                 output=self._output,
                 meta_ownerships=self._meta_ownerships,

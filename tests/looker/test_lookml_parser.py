@@ -21,7 +21,7 @@ connection_map = {
         database="db",
         default_schema="schema",
         platform=DataPlatform.SNOWFLAKE,
-        account="account",
+        snowflake_account="account",
     ),
     "bigquery": LookerConnectionConfig(
         database="db",

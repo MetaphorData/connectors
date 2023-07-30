@@ -17,7 +17,7 @@ class LookerConnectionConfig:
 
     # "Account" portion of the resulting Dataset Logical ID.
     # Use Snowflake account for Snowflake connection.
-    account: Optional[str] = None
+    snowflake_account: Optional[str] = None
 
     # Default schema for the connection
     default_schema: Optional[str] = None

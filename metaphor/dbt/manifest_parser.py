@@ -214,7 +214,7 @@ class ManifestParser:
         self._virtual_views = virtual_views
         self._metrics = metrics
 
-        self._account = config.account
+        self._account = config.snowflake_account
         if self._account and platform == DataPlatform.SNOWFLAKE:
             self._account = normalize_snowflake_account(self._account)
 

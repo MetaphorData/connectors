@@ -11,5 +11,5 @@ connections:
     database: db1
     default_schema: schema1
     platform: SNOWFLAKE
-    account: account1
+    snowflake_account: account1
 output: {}

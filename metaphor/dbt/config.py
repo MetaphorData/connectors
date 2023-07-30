@@ -37,7 +37,7 @@ class DbtRunConfig(BaseConfig):
     catalog: Optional[str] = None
 
     # the database service account this DBT project is connected to
-    account: Optional[str] = None
+    snowflake_account: Optional[str] = None
 
     # the dbt docs base URL
     docs_base_url: Optional[str] = None

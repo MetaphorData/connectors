@@ -99,7 +99,9 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
     # Normalize dataset name by lower casing & dropping the quotation marks
     full_name = full_name.replace('"', "").replace("`", "").lower()
 
-    return to_dataset_entity_id(full_name, connection.platform, connection.account)
+    return to_dataset_entity_id(
+        full_name, connection.platform, connection.snowflake_account
+    )
 
 
 def _get_upstream_datasets(

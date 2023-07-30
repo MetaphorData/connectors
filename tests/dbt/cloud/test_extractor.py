@@ -48,7 +48,7 @@ async def test_extractor(
     mock_dbt_extractor_class.assert_called_once_with(
         DbtRunConfig(
             manifest="tempfile",
-            account="snowflake_account",
+            snowflake_account="snowflake_account",
             docs_base_url="https://cloud.metaphor.getdbt.com/accounts/1111/jobs/2222/docs",
             output=OutputConfig(),
         )
