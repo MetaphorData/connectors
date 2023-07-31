@@ -136,7 +136,13 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Check existing version
+        id: check
+        continue-on-error: true
+        run: docker manifest inspect ${{ env.DOCKER_IMAGE }}:${{ needs.version.outputs.full }} > /dev/null
+
       - name: Build Docker image
+        if: steps.check.outcome == 'failure'
         uses: docker/build-push-action@v2
         with:
           push: true
