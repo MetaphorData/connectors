@@ -24,7 +24,7 @@ def test_yaml_config_with_credentials(test_root_dir):
     config = BigQueryRunConfig.from_yaml_file(f"{test_root_dir}/bigquery/config2.yml")
 
     assert config == BigQueryRunConfig(
-        output=OutputConfig(api=None, file=None),
+        output=OutputConfig(file=None),
         key_path=None,
         credentials=BigQueryCredentials(
             project_id="metaphor",
