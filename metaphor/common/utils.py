@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -47,8 +48,13 @@ def to_utc_time(time: datetime) -> datetime:
 
 
 def convert_to_float(value: Optional[Union[float, int, str]]) -> Optional[float]:
-    """Converts a value to float, return None if the original value is None or NaN"""
-    return None if value is None or value != value else float(value)
+    """Converts a value to float, return None if the original value is None or NaN or INF"""
+    return (
+        None
+        if value is None
+        or (isinstance(value, float) and (math.isnan(value) or math.isinf(value)))
+        else float(value)
+    )
 
 
 def chunk_by_size(
