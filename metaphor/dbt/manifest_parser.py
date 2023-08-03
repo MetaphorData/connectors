@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from pydantic.utils import unique_list
@@ -99,6 +100,12 @@ from .generated.dbt_manifest_v9 import Macro as MacroV9
 from .generated.dbt_manifest_v9 import Metric as MetricV9
 from .generated.dbt_manifest_v9 import ModelNode as ModelNodeV9
 from .generated.dbt_manifest_v9 import SourceDefinition as SourceDefinitionV9
+from .generated.dbt_manifest_v10 import DbtManifest as DbtManifestV10
+from .generated.dbt_manifest_v10 import DependsOn as DependsOnV10
+from .generated.dbt_manifest_v10 import GenericTestNode as GenericTestNodeV10
+from .generated.dbt_manifest_v10 import Macro as MacroV10
+from .generated.dbt_manifest_v10 import ModelNode as ModelNodeV10
+from .generated.dbt_manifest_v10 import SourceDefinition as SourceDefinitionV10
 
 logger = get_logger()
 
@@ -114,6 +121,7 @@ MODEL_NODE_TYPE = Union[
     ParsedModelNodeV7,
     ModelNodeV8,
     ModelNodeV9,
+    ModelNodeV10,
 ]
 
 TEST_NODE_TYPE = Union[
@@ -123,6 +131,7 @@ TEST_NODE_TYPE = Union[
     CompiledTestNodeV7,
     GenericTestNodeV8,
     GenericTestNodeV9,
+    GenericTestNodeV10,
     ParsedTestNodeV3,
     ParsedTestNodeV5,
     ParsedTestNodeV6,
@@ -136,6 +145,7 @@ SOURCE_DEFINITION_TYPE = Union[
     ParsedSourceDefinitionV7,
     SourceDefinitionV8,
     SourceDefinitionV9,
+    SourceDefinitionV10,
 ]
 
 SOURCE_DEFINITION_MAP = Union[
@@ -145,6 +155,7 @@ SOURCE_DEFINITION_MAP = Union[
     Dict[str, ParsedSourceDefinitionV7],
     Dict[str, SourceDefinitionV8],
     Dict[str, SourceDefinitionV9],
+    Dict[str, SourceDefinitionV10],
 ]
 
 METRIC_TYPE = Union[
@@ -162,6 +173,7 @@ DEPENDS_ON_TYPE = Union[
     DependsOnV7,
     DependsOnV8,
     DependsOnV9,
+    DependsOnV10,
 ]
 
 MACRO_MAP = Union[
@@ -171,6 +183,7 @@ MACRO_MAP = Union[
     Dict[str, ParsedMacroV7],
     Dict[str, MacroV8],
     Dict[str, MacroV9],
+    Dict[str, MacroV10],
 ]
 
 MANIFEST_CLASS_TYPE = Union[
@@ -180,6 +193,7 @@ MANIFEST_CLASS_TYPE = Union[
     Type[DbtManifestV7],
     Type[DbtManifestV8],
     Type[DbtManifestV9],
+    Type[DbtManifestV10],
 ]
 
 # Maps dbt schema version to manifest class
@@ -193,6 +207,7 @@ dbt_version_manifest_class_map: Dict[str, MANIFEST_CLASS_TYPE] = {
     "v7": DbtManifestV7,
     "v8": DbtManifestV8,
     "v9": DbtManifestV9,
+    "v10": DbtManifestV10,
 }
 
 
@@ -218,6 +233,23 @@ class ManifestParser:
         if self._account and platform == DataPlatform.SNOWFLAKE:
             self._account = normalize_snowflake_account(self._account)
 
+    def sanitize_manifest(self, manifest_json: Dict, schema_version: str) -> Dict:
+        manifest_json = deepcopy(manifest_json)
+
+        # It's possible for dbt to generate "docs block" in the manifest that doesn't
+        # conform to the JSON schema. Specifically, the "name" field can be None in
+        # some cases. Since the field is not actually used, it's safe to clear it out to
+        # avoid hitting any validation issues.
+        manifest_json["docs"] = {}
+
+        # dbt 1.6 generates nodes not compatible with published JSON schema
+        if schema_version == "v10":
+            manifest_json["disabled"] = {}
+            manifest_json["metrics"] = {}
+            manifest_json["semantic_models"] = {}
+
+        return manifest_json
+
     def parse(self, manifest_json: Dict) -> None:
         manifest_metadata = manifest_json.get("metadata", {})
 
@@ -228,11 +260,7 @@ class ManifestParser:
         )
         logger.info(f"parsing manifest.json {schema_version} ...")
 
-        # It's possible for dbt to generate "docs block" in the manifest that doesn't
-        # conform to the JSON schema. Specifically, the "name" field can be None in
-        # some cases. Since the field is not actually used, it's safe to clear it out to
-        # avoid hitting any validation issues.
-        manifest_json["docs"] = {}
+        manifest_json = self.sanitize_manifest(manifest_json, schema_version)
 
         dbt_manifest_class = dbt_version_manifest_class_map.get(schema_version)
         if dbt_manifest_class is None:
@@ -266,6 +294,7 @@ class ManifestParser:
                     ParsedModelNodeV7,
                     ModelNodeV8,
                     ModelNodeV9,
+                    ModelNodeV10,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(MODEL_NODE_TYPE)
@@ -286,6 +315,7 @@ class ManifestParser:
                     ParsedTestNodeV7,
                     GenericTestNodeV8,
                     GenericTestNodeV9,
+                    GenericTestNodeV10,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(TEST_NODE_TYPE)
@@ -336,7 +366,13 @@ class ManifestParser:
         ):
             dbt_test.sql = test.compiled_sql
         elif isinstance(
-            test, (CompiledTestNodeV7, GenericTestNodeV8, GenericTestNodeV9)
+            test,
+            (
+                CompiledTestNodeV7,
+                GenericTestNodeV8,
+                GenericTestNodeV9,
+                GenericTestNodeV10,
+            ),
         ):
             dbt_test.sql = test.compiled_code
 
@@ -370,7 +406,9 @@ class ManifestParser:
         ):
             virtual_view.dbt_model.raw_sql = model.raw_sql
             dbt_model.compiled_sql = model.compiled_sql
-        elif isinstance(model, (CompiledModelNodeV7, ModelNodeV8, ModelNodeV9)):
+        elif isinstance(
+            model, (CompiledModelNodeV7, ModelNodeV8, ModelNodeV9, ModelNodeV10)
+        ):
             virtual_view.dbt_model.raw_sql = model.raw_code
             dbt_model.compiled_sql = model.compiled_code
 
