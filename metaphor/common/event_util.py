@@ -3,7 +3,7 @@ import logging
 from importlib import resources
 from typing import Union
 
-import fastjsonschema
+from jsonschema import ValidationError, validate
 
 from metaphor import models  # type: ignore
 from metaphor.models.metadata_change_event import (
@@ -27,7 +27,7 @@ class EventUtil:
     """Event utilities"""
 
     with resources.open_text(models, "metadata_change_event.json") as f:
-        validate = fastjsonschema.compile(json.load(f))
+        schema = json.load(f)
 
     def __init__(self, extractor_class="", server=""):
         self._extractor_class = extractor_class
@@ -60,8 +60,8 @@ class EventUtil:
     def validate_message(message: dict) -> bool:
         """Validate message against json schema"""
         try:
-            EventUtil.validate(message)
-        except fastjsonschema.JsonSchemaException as e:
+            validate(message, EventUtil.schema)
+        except ValidationError as e:
             logger.error(f"MCE validation error: {e}. Message: {message}")
             return False
         return True
