@@ -243,6 +243,7 @@ class ManifestParser:
         manifest_json["docs"] = {}
 
         # dbt 1.6 generates nodes not compatible with published JSON schema
+        # https://github.com/dbt-labs/dbt-core/issues/8328
         if schema_version == "v10":
             manifest_json["disabled"] = {}
             manifest_json["metrics"] = {}
