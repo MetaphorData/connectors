@@ -104,6 +104,7 @@ from .generated.dbt_manifest_v10 import DbtManifest as DbtManifestV10
 from .generated.dbt_manifest_v10 import DependsOn as DependsOnV10
 from .generated.dbt_manifest_v10 import GenericTestNode as GenericTestNodeV10
 from .generated.dbt_manifest_v10 import Macro as MacroV10
+from .generated.dbt_manifest_v10 import Metric as MetricV10
 from .generated.dbt_manifest_v10 import ModelNode as ModelNodeV10
 from .generated.dbt_manifest_v10 import SourceDefinition as SourceDefinitionV10
 
@@ -164,6 +165,7 @@ METRIC_TYPE = Union[
     ParsedMetricV7,
     MetricV8,
     MetricV9,
+    MetricV10,
 ]
 
 DEPENDS_ON_TYPE = Union[
@@ -241,13 +243,6 @@ class ManifestParser:
         # some cases. Since the field is not actually used, it's safe to clear it out to
         # avoid hitting any validation issues.
         manifest_json["docs"] = {}
-
-        # dbt 1.6 generates nodes not compatible with published JSON schema
-        # https://github.com/dbt-labs/dbt-core/issues/8328
-        if schema_version == "v10":
-            manifest_json["disabled"] = {}
-            manifest_json["metrics"] = {}
-            manifest_json["semantic_models"] = {}
 
         return manifest_json
 
@@ -643,6 +638,10 @@ class ManifestParser:
         source_map: Dict[str, EntityId],
         macro_map: Dict[str, DbtMacro],
     ) -> None:
+        # TODO: Add support for v10 Metric
+        if isinstance(metric, MetricV10):
+            return
+
         metric_entity = init_metric(self._metrics, metric.unique_id)
         metric_entity.dbt_metric = DbtMetric(
             package_name=metric.package_name,
