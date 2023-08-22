@@ -167,7 +167,8 @@
         ],
         "type": "ANSWER"
       },
-      "title": "Answer 1"
+      "title": "Answer 1",
+      "dashboardType": "THOUGHT_SPOT_ANSWER"
     },
     "logicalId": {
       "dashboardId": "answer1",
@@ -231,7 +232,8 @@
         ],
         "type": "LIVEBOARD"
       },
-      "title": "Board 1"
+      "title": "Board 1",
+      "dashboardType": "THOUGHT_SPOT_LIVEBOARD"
     },
     "logicalId": {
       "dashboardId": "board1",
