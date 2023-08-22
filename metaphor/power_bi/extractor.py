@@ -18,6 +18,7 @@ from metaphor.models.metadata_change_event import (
     DashboardInfo,
     DashboardLogicalID,
     DashboardPlatform,
+    DashboardType,
     DashboardUpstream,
     EntityType,
 )
@@ -215,6 +216,7 @@ class PowerBIExtractor(BaseExtractor):
                     title=wi_report.name,
                     power_bi=pbi_info,
                     charts=charts,
+                    dashboard_type=DashboardType.POWER_BI_REPORT,
                 ),
                 source_info=SourceInfo(
                     main_url=report.webUrl,
@@ -265,6 +267,7 @@ class PowerBIExtractor(BaseExtractor):
                     title=wi_dashboard.displayName,
                     charts=self.transform_tiles_to_charts(tiles),
                     power_bi=pbi_info,
+                    dashboard_type=DashboardType.POWER_BI_DASHBOARD,
                 ),
                 source_info=SourceInfo(
                     main_url=pbi_dashboard.webUrl,

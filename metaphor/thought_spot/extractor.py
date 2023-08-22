@@ -25,6 +25,7 @@ from metaphor.models.metadata_change_event import (
     DashboardInfo,
     DashboardLogicalID,
     DashboardPlatform,
+    DashboardType,
     DashboardUpstream,
     EntityType,
     EntityUpstream,
@@ -478,6 +479,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         type=ThoughtSpotDashboardType.ANSWER,
                         tags=self._tag_names(answer.header.tags),
                     ),
+                    dashboard_type=DashboardType.THOUGHT_SPOT_ANSWER,
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
@@ -491,7 +493,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         for tml_result in ThoughtSpot.fetch_tml(self._client, ids):
             if not tml_result.edoc:
                 continue
-            tml = parse_raw_as(TMLObject, tml_result.edoc)
+            tml = parse_raw_as(TMLObject, tml_result.edoc)  # type: ignore
 
             answer_id = tml.guid
             dashboard = self._dashboards.get(answer_id)
@@ -604,6 +606,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         tags=self._tag_names(board.header.tags),
                         embed_url=f"{self._base_url}/#/embed/viz/{board_id}",
                     ),
+                    dashboard_type=DashboardType.THOUGHT_SPOT_LIVEBOARD,
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/pinboard/{board_id}",

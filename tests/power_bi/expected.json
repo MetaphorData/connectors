@@ -108,7 +108,8 @@
           "name": "Workspace"
         }
       },
-      "title": "Foo Report"
+      "title": "Foo Report",
+      "dashboardType": "POWER_BI_REPORT"
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000004",
@@ -143,7 +144,8 @@
           "name": "Workspace"
         }
       },
-      "title": "Bar Report"
+      "title": "Bar Report",
+      "dashboardType": "POWER_BI_REPORT"
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000006",
@@ -183,7 +185,8 @@
           "name": "Workspace"
         }
       },
-      "title": "Dashboard A"
+      "title": "Dashboard A",
+      "dashboardType": "POWER_BI_DASHBOARD"
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000007",
@@ -220,7 +223,8 @@
           "name": "Workspace"
         }
       },
-      "title": "Dashboard B"
+      "title": "Dashboard B",
+      "dashboardType": "POWER_BI_DASHBOARD"
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000009",
