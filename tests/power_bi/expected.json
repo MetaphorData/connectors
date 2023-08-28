@@ -1,5 +1,38 @@
 [
   {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "table1.col1",
+          "sources": [
+            {
+              "dataset": {
+                "name": "db.public.table",
+                "platform": "REDSHIFT"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
+            }
+          ]
+        },
+        {
+          "destination": "table1.col2",
+          "sources": [
+            {
+              "dataset": {
+                "name": "db.public.table",
+                "platform": "REDSHIFT"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
+      ]
+    },
     "logicalId": {
       "name": "00000000-0000-0000-0000-000000000002",
       "type": "POWER_BI_DATASET"
@@ -23,6 +56,7 @@
               "type": "int"
             }
           ],
+          "expression": "let\n    Source = AmazonRedshift.Database(\"url:5439\",\"db\"),\n    public = Source{[Name=\"public\"]}[Data],\n    table1 = public{[Name=\"table\"]}[Data]\nin\n    table1",
           "measures": [
             {
               "description": "this is exp1",
@@ -45,6 +79,68 @@
     }
   },
   {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "table2.col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "some-account",
+                "name": "db.public.test",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~6D79656CAC3AB97C1FC567A817F7D611"
+            }
+          ]
+        },
+        {
+          "destination": "table2.col2",
+          "sources": [
+            {
+              "dataset": {
+                "account": "some-account",
+                "name": "db.public.test",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~6D79656CAC3AB97C1FC567A817F7D611"
+            }
+          ]
+        },
+        {
+          "destination": "table2.col1",
+          "sources": [
+            {
+              "dataset": {
+                "name": "test-project.test.example",
+                "platform": "BIGQUERY"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
+            }
+          ]
+        },
+        {
+          "destination": "table2.col2",
+          "sources": [
+            {
+              "dataset": {
+                "name": "test-project.test.example",
+                "platform": "BIGQUERY"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~6D79656CAC3AB97C1FC567A817F7D611",
+        "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
+      ]
+    },
     "logicalId": {
       "name": "00000000-0000-0000-0000-000000000003",
       "type": "POWER_BI_DATASET"
@@ -68,6 +164,7 @@
               "type": "int"
             }
           ],
+          "expression": "let\n    Source = Snowflake.Databases(\"some-account.snowflakecomputing.com\",\"COMPUTE_WH\"),\n    DB_Database = Source{[Name=\"DB\",Kind=\"Database\"]}[Data],\n    PUBLIC_Schema = DB_Database{[Name=\"PUBLIC\",Kind=\"Schema\"]}[Data],\n    TEST_Table = PUBLIC_Schema{[Name=\"TEST\",Kind=\"Table\"]}[Data]\nin\n    TEST_Table",
           "measures": [],
           "name": "table2"
         },
@@ -82,6 +179,7 @@
               "type": "int"
             }
           ],
+          "expression": "let\n    Source = GoogleBigQuery.Database(),\n    #\"test-project\" = Source{[Name=\"test-project\"]}[Data],\n    test_Schema = #\"test-project\"{[Name=\"test\",Kind=\"Schema\"]}[Data],\n    example_Table = test_Schema{[Name=\"example\",Kind=\"Table\"]}[Data]\nin\n    example_Table",
           "measures": [],
           "name": "table2"
         }
@@ -96,6 +194,7 @@
   {
     "dashboardInfo": {
       "charts": [],
+      "dashboardType": "POWER_BI_REPORT",
       "description": "This is a report about foo",
       "powerBi": {
         "app": {
@@ -108,8 +207,7 @@
           "name": "Workspace"
         }
       },
-      "title": "Foo Report",
-      "dashboardType": "POWER_BI_REPORT"
+      "title": "Foo Report"
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000004",
@@ -136,6 +234,7 @@
           "title": "Second Page"
         }
       ],
+      "dashboardType": "POWER_BI_REPORT",
       "description": "This is a report about bar",
       "powerBi": {
         "powerBiDashboardType": "REPORT",
@@ -144,8 +243,7 @@
           "name": "Workspace"
         }
       },
-      "title": "Bar Report",
-      "dashboardType": "POWER_BI_REPORT"
+      "title": "Bar Report"
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000006",
@@ -174,6 +272,7 @@
           "url": ""
         }
       ],
+      "dashboardType": "POWER_BI_DASHBOARD",
       "powerBi": {
         "app": {
           "id": "00000000-0000-0000-0000-000000000001",
@@ -185,8 +284,7 @@
           "name": "Workspace"
         }
       },
-      "title": "Dashboard A",
-      "dashboardType": "POWER_BI_DASHBOARD"
+      "title": "Dashboard A"
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000007",
@@ -216,6 +314,7 @@
           "url": ""
         }
       ],
+      "dashboardType": "POWER_BI_DASHBOARD",
       "powerBi": {
         "powerBiDashboardType": "DASHBOARD",
         "workspace": {
@@ -223,8 +322,7 @@
           "name": "Workspace"
         }
       },
-      "title": "Dashboard B",
-      "dashboardType": "POWER_BI_DASHBOARD"
+      "title": "Dashboard B"
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000009",

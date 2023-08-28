@@ -21,6 +21,7 @@ from metaphor.models.metadata_change_event import (
     DashboardType,
     DashboardUpstream,
     EntityType,
+    EntityUpstream,
 )
 from metaphor.models.metadata_change_event import PowerBIApp as PbiApp
 from metaphor.models.metadata_change_event import PowerBIColumn as PbiColumn
@@ -64,14 +65,14 @@ class PowerBIExtractor(BaseExtractor):
         self._tenant_id = config.tenant_id
         self._workspaces = config.workspaces
 
+        self._client = PowerBIClient(self._config)
+
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._snowflake_account = config.snowflake_account
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Power BI tenant ID: {self._tenant_id}")
-
-        self._client = PowerBIClient(self._config)
 
         if len(self._workspaces) == 0:
             self._workspaces = [w.id for w in self._client.get_groups()]
@@ -108,8 +109,12 @@ class PowerBIExtractor(BaseExtractor):
         dataset_map = {d.id: d for d in self._client.get_datasets(workspace.id)}
 
         for wds in workspace.datasets:
-            expressions = []
-            tables = []
+            ds = dataset_map.get(wds.id, None)
+            if ds is None:
+                logger.warning(f"Skipping invalid dataset {wds.id}")
+                continue
+
+            tables: List[PowerBIDatasetTable] = []
             for table in wds.tables:
                 tables.append(
                     PowerBIDatasetTable(
@@ -126,29 +131,31 @@ class PowerBIExtractor(BaseExtractor):
                             for m in table.measures
                         ],
                         name=table.name,
+                        expression=table.source[0].get("expression", None)
+                        if len(table.source) > 0
+                        else None,
                     )
                 )
 
-                for source in table.source:
-                    expressions.append(source["expression"])
-
             source_datasets = []
-            for expression in expressions:
+            field_mappings = []
+            for datasetTable in tables:
                 try:
-                    source_datasets.extend(
-                        PowerQueryParser.parse_source_datasets(
-                            expression, self._snowflake_account
+                    if datasetTable.expression:
+                        sources, fields = PowerQueryParser.parse_query_expression(
+                            datasetTable.name,
+                            [c.field for c in datasetTable.columns],
+                            datasetTable.expression,
+                            self._snowflake_account,
                         )
-                    )
+                        source_datasets.extend(sources)
+                        field_mappings.extend(fields)
                 except Exception as e:
                     logger.error(
                         f"Failed to parse expression for dataset {wds.id}: {e}"
                     )
 
-            ds = dataset_map.get(wds.id, None)
-            if ds is None:
-                logger.warn(f"Skipping invalid dataset {wds.id}")
-                continue
+            source_entity_ids = unique_list([str(d) for d in source_datasets])
 
             last_refreshed = None
             if ds.isRefreshable:
@@ -163,10 +170,13 @@ class PowerBIExtractor(BaseExtractor):
                     tables=tables,
                     name=wds.name,
                     url=ds.webUrl,
-                    source_datasets=unique_list([str(d) for d in source_datasets]),
+                    source_datasets=source_entity_ids,
                     description=wds.description,
                     workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
                     last_refreshed=last_refreshed,
+                ),
+                entity_upstream=EntityUpstream(
+                    source_entities=source_entity_ids, field_mappings=field_mappings
                 ),
             )
 
@@ -179,7 +189,7 @@ class PowerBIExtractor(BaseExtractor):
 
         for wi_report in workspace.reports:
             if wi_report.datasetId is None:
-                logger.warn(f"Skipping report without datasetId: {wi_report.id}")
+                logger.warning(f"Skipping report without datasetId: {wi_report.id}")
                 continue
 
             virtual_view = self._virtual_views.get(wi_report.datasetId)
@@ -193,7 +203,7 @@ class PowerBIExtractor(BaseExtractor):
 
             report = report_map.get(wi_report.id, None)
             if report is None:
-                logger.warn(f"Skipping invalid report {wi_report.id}")
+                logger.warning(f"Skipping invalid report {wi_report.id}")
                 continue
 
             pbi_info = self._make_power_bi_info(
@@ -251,7 +261,7 @@ class PowerBIExtractor(BaseExtractor):
 
             pbi_dashboard = dashboard_map.get(wi_dashboard.id, None)
             if pbi_dashboard is None:
-                logger.warn(f"Skipping invalid dashboard {wi_dashboard.id}")
+                logger.warning(f"Skipping invalid dashboard {wi_dashboard.id}")
                 continue
 
             pbi_info = self._make_power_bi_info(
@@ -294,7 +304,7 @@ class PowerBIExtractor(BaseExtractor):
 
             original_dashboard = self._dashboards.get(original_dashboard_id)
             if original_dashboard is None:
-                # Cannot not found corresponding non-app dashboard
+                # Cannot not find corresponding non-app dashboard
                 logger.warning(
                     f"Non-app version dashboard not found, id: {original_dashboard_id}"
                 )
@@ -312,8 +322,8 @@ class PowerBIExtractor(BaseExtractor):
             )
             del self._dashboards[dashboard_id]
 
+    @staticmethod
     def _make_power_bi_info(
-        self,
         type: PowerBIDashboardType,
         workspace: WorkspaceInfo,
         app_id: Optional[str],
@@ -331,8 +341,9 @@ class PowerBIExtractor(BaseExtractor):
 
         return pbi_info
 
+    @staticmethod
     def _find_last_completed_refresh(
-        self, refreshes: List[PowerBIRefresh]
+        refreshes: List[PowerBIRefresh],
     ) -> Optional[datetime]:
         try:
             # Assume refreshes are already sorted in reversed chronological order
@@ -349,7 +360,8 @@ class PowerBIExtractor(BaseExtractor):
             logger.error(f"Failed to parse refresh time: {refresh.endTime}")
             return None
 
-    def _get_dashboard_id_from_url(self, url: str) -> Optional[str]:
+    @staticmethod
+    def _get_dashboard_id_from_url(url: str) -> Optional[str]:
         path = parse.urlparse(url).path
         pattern = re.compile(r"apps/([^/]+)/(reports|dashboards)/([^/]+)")
         match = pattern.search(path)
