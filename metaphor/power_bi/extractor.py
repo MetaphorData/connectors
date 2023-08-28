@@ -177,7 +177,9 @@ class PowerBIExtractor(BaseExtractor):
                 ),
                 entity_upstream=EntityUpstream(
                     source_entities=source_entity_ids, field_mappings=field_mappings
-                ),
+                )
+                if field_mappings
+                else None,
             )
 
             self._virtual_views[wds.id] = virtual_view
