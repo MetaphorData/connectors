@@ -35,7 +35,7 @@ class Factory:
 @dataclass
 class LinkedService:
     database: Optional[str] = None
-    snowflake_account: Optional[str] = None
+    account: Optional[str] = None
     project: Optional[str] = None
 
 
@@ -86,13 +86,17 @@ class AzureDataFactoryExtractor(BaseExtractor):
             subscription_id=config.subscription_id,
         )
 
-    def _get_factories(self, client: DataFactoryManagementClient) -> List[Factory]:
-        def get_resource_group(factory: DfModels.Factory):
-            # id = /subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.DataFactory/factories/{factory_name}
-            return factory.id.split("/")[4]
+    @staticmethod
+    def _get_resource_group_from_factory(factory: DfModels.Factory):
+        # id = /subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.DataFactory/factories/{factory_name}
+        return factory.id.split("/")[4]
 
+    def _get_factories(self, client: DataFactoryManagementClient) -> List[Factory]:
         return [
-            Factory(name=factory.name, resource_group_name=get_resource_group(factory))
+            Factory(
+                name=factory.name,
+                resource_group_name=self._get_resource_group_from_factory(factory),
+            )
             for factory in client.factories.list()
         ]
 
@@ -147,7 +151,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
             json_dump_to_debug_file(
                 factory_data_flows, f"{factory.name}_data_flows.json"
             )
-        pass
 
     def _get_datasets(
         self, factory: Factory, client: DataFactoryManagementClient
@@ -162,18 +165,16 @@ class AzureDataFactoryExtractor(BaseExtractor):
         result = {}
         factory_datasets = []
         for dataset in datasets:
+            linked_service_name = dataset.properties.linked_service_name.reference_name
+            linked_service = linked_services.get(linked_service_name)
+            if linked_service is None:
+                logger.warning(
+                    f"Can not found the linked service for dataset: {dataset.name}, linked_service_name: {linked_service_name}"
+                )
+                continue
+
             if isinstance(dataset.properties, DfModels.SnowflakeDataset):
                 snowflake_dataset: DfModels.SnowflakeDataset = dataset.properties
-                linked_service_name = (
-                    snowflake_dataset.linked_service_name.reference_name
-                )
-                linked_service = linked_services.get(linked_service_name)
-                if linked_service is None:
-                    logger.warning(
-                        f"Can not found the linked service for dataset: {dataset.name}, linked_service_name: {linked_service_name}"
-                    )
-                    continue
-                snowflake_dataset.schema = []
 
                 def get_schema(
                     snowflake_dataset: DfModels.SnowflakeDataset,
@@ -201,7 +202,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
 
                 metaphor_dataset = Dataset(
                     logical_id=DatasetLogicalID(
-                        account=linked_service.snowflake_account,
+                        account=linked_service.account,
                         name=dataset_normalized_name(database, schema, table),
                         platform=DataPlatform.SNOWFLAKE,
                     ),
@@ -213,10 +214,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
 
                 result[dataset.name] = metaphor_dataset
                 self._datasets[dataset.id] = metaphor_dataset
-            elif isinstance(dataset.properties, DfModels.AzureSqlTableDataset):
-                sql_server_table: DfModels.AzureSqlTableDataset = dataset.properties
-                sql_server_table.schema_type_properties_schema
-                sql_server_table.table
 
             # Dump dataset for debug-purpose
             factory_datasets.append(dataset.as_dict())
@@ -253,7 +250,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 )
 
                 result[linked_service.name] = LinkedService(
-                    database=database, snowflake_account=snowflake_account
+                    database=database, account=snowflake_account
                 )
 
             # Dump linked service for debug-purpose

@@ -1,0 +1,34 @@
+[
+  {
+    "logicalId": {
+      "account": "snowflake_account",
+      "name": "database.schema.table1",
+      "platform": "SNOWFLAKE"
+    },
+    "structure": {
+      "database": "DATABASE",
+      "schema": "SCHEMA",
+      "table": "TABLE1"
+    },
+    "upstream": {
+      "sourceDatasets": []
+    }
+  },
+  {
+    "logicalId": {
+      "account": "snowflake_account",
+      "name": "database.schema.table2",
+      "platform": "SNOWFLAKE"
+    },
+    "structure": {
+      "database": "DATABASE",
+      "schema": "SCHEMA",
+      "table": "TABLE2"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
+      ]
+    }
+  }
+]
