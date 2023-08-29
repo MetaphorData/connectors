@@ -2611,13 +2611,13 @@ files = [
 
 [[package]]
 name = "jsonschema"
-version = "4.18.6"
+version = "4.19.0"
 description = "An implementation of JSON Schema validation for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jsonschema-4.18.6-py3-none-any.whl", hash = "sha256:dc274409c36175aad949c68e5ead0853aaffbe8e88c830ae66bb3c7a1728ad2d"},
-    {file = "jsonschema-4.18.6.tar.gz", hash = "sha256:ce71d2f8c7983ef75a756e568317bf54bc531dc3ad7e66a128eae0d51623d8a3"},
+    {file = "jsonschema-4.19.0-py3-none-any.whl", hash = "sha256:043dc26a3845ff09d20e4420d6012a9c91c9aa8999fa184e7efcfeccb41e32cb"},
+    {file = "jsonschema-4.19.0.tar.gz", hash = "sha256:6e1e7569ac13be8139b2dd2c21a55d350066ee3f80df06c608b398cdc6f30e8f"},
 ]
 
 [package.dependencies]
@@ -2783,13 +2783,13 @@ files = [
 
 [[package]]
 name = "looker-sdk"
-version = "23.8.1"
+version = "23.14.1"
 description = "Looker REST API"
 optional = true
 python-versions = ">=3.6"
 files = [
-    {file = "looker_sdk-23.8.1-py3-none-any.whl", hash = "sha256:c44c3595952b612241afe5b6adbc9f6c0e1c99f6f7c46915b84ac18f0b68a306"},
-    {file = "looker_sdk-23.8.1.tar.gz", hash = "sha256:0be19113c0788cf8400494eed7a60b252849e28712d3e9bf1f88b635c1051c50"},
+    {file = "looker_sdk-23.14.1-py3-none-any.whl", hash = "sha256:678a8007c18ccc79e52be7b8bc9f27c5de6697cc6d90fc24d2fab5efff0e5587"},
+    {file = "looker_sdk-23.14.1.tar.gz", hash = "sha256:9510aabec41aae75d41cb0c81a53fe18c00c3fbe774ac610cc62c9410c5ea0a4"},
 ]
 
 [package.dependencies]
@@ -3034,13 +3034,13 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.26.2"
+version = "0.26.4"
 description = ""
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "metaphor_models-0.26.2-py3-none-any.whl", hash = "sha256:7fae11f6da8a3a27260cff465cbece1877551ff01b1283fd0c28fc7ff0f8ab5b"},
-    {file = "metaphor_models-0.26.2.tar.gz", hash = "sha256:f2ca04c2bebaaa39cd9959fd29f449a193678e8fe5edc7aa0a1b2595d011502d"},
+    {file = "metaphor_models-0.26.4-py3-none-any.whl", hash = "sha256:de97c379bcdf952f2a60b0d729f481381d9386fca8c85f7ebeccec053e8d19eb"},
+    {file = "metaphor_models-0.26.4.tar.gz", hash = "sha256:a6e4eb07a5f04fe8cd0a3581d5289ad563d03eae2426ad5337e1824c01d82a48"},
 ]
 
 [[package]]
@@ -5073,13 +5073,13 @@ files = [
 
 [[package]]
 name = "types-requests"
-version = "2.31.0.1"
+version = "2.31.0.2"
 description = "Typing stubs for requests"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-requests-2.31.0.1.tar.gz", hash = "sha256:3de667cffa123ce698591de0ad7db034a5317457a596eb0b4944e5a9d9e8d1ac"},
-    {file = "types_requests-2.31.0.1-py3-none-any.whl", hash = "sha256:afb06ef8f25ba83d59a1d424bd7a5a939082f94b94e90ab5e6116bd2559deaa3"},
+    {file = "types-requests-2.31.0.2.tar.gz", hash = "sha256:6aa3f7faf0ea52d728bb18c0a0d1522d9bfd8c72d26ff6f61bfc3d06a411cf40"},
+    {file = "types_requests-2.31.0.2-py3-none-any.whl", hash = "sha256:56d181c85b5925cbc59f4489a57e72a8b2166f18273fd8ba7b6fe0c0b986f12a"},
 ]
 
 [package.dependencies]
@@ -5404,4 +5404,4 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "e76859f0641b63e02e5b2ce43b64363971991c558388227db3af034bd0114186"
+content-hash = "6841970e111747e830ef04e6560dccf7965535e2e9a2cc6fc8b2483d4c7151e3"
