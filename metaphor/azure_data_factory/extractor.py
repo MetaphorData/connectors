@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Collection, Dict, List, Optional
+from typing import Any, Collection, Dict, List, Optional
 from urllib.parse import ParseResult, parse_qs, urlparse
 
 import azure.mgmt.datafactory.models as DfModels
@@ -89,12 +89,12 @@ class AzureDataFactoryExtractor(BaseExtractor):
     @staticmethod
     def _get_resource_group_from_factory(factory: DfModels.Factory):
         # id = /subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.DataFactory/factories/{factory_name}
-        return factory.id.split("/")[4]
+        return factory.id.split("/")[4]  # type: ignore
 
     def _get_factories(self, client: DataFactoryManagementClient) -> List[Factory]:
         return [
             Factory(
-                name=factory.name,
+                name=factory.name,  # type: ignore
                 resource_group_name=self._get_resource_group_from_factory(factory),
             )
             for factory in client.factories.list()
@@ -118,6 +118,9 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 def get_dataset_from_source_or_sink(
                     transformation: DfModels.Transformation,
                 ) -> Optional[Dataset]:
+                    if transformation.dataset is None:
+                        return None
+
                     dataset_name = transformation.dataset.reference_name
                     dataset = factory_datasets.get(dataset_name)
                     if dataset is None:
@@ -125,20 +128,29 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         return None
                     return dataset
 
-                sources = [
-                    dataset
-                    for dataset in map(
-                        get_dataset_from_source_or_sink, mappingDataflow.sources
-                    )
-                    if dataset
-                ]
-                sinks = [
-                    dataset
-                    for dataset in map(
-                        get_dataset_from_source_or_sink, mappingDataflow.sinks
-                    )
-                    if dataset
-                ]
+                sources = (
+                    [
+                        dataset
+                        for dataset in map(
+                            get_dataset_from_source_or_sink, mappingDataflow.sources
+                        )
+                        if dataset
+                    ]
+                    if mappingDataflow.sources
+                    else []
+                )
+
+                sinks = (
+                    [
+                        dataset
+                        for dataset in map(
+                            get_dataset_from_source_or_sink, mappingDataflow.sinks
+                        )
+                        if dataset
+                    ]
+                    if mappingDataflow.sinks
+                    else []
+                )
 
                 for source, sink in zip(sources, sinks):
                     sink.upstream.source_datasets.append(
@@ -162,8 +174,8 @@ class AzureDataFactoryExtractor(BaseExtractor):
             resource_group_name=factory.resource_group_name,
         )
 
-        result = {}
-        factory_datasets = []
+        result: Dict[str, DfModels.Dataset] = {}
+        factory_datasets: List[Any] = []
         for dataset in datasets:
             linked_service_name = dataset.properties.linked_service_name.reference_name
             linked_service = linked_services.get(linked_service_name)
@@ -212,8 +224,10 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     ),
                 )
 
-                result[dataset.name] = metaphor_dataset
-                self._datasets[dataset.id] = metaphor_dataset
+                dataset_name: str = dataset.name  # type: ignore
+                result[dataset_name] = metaphor_dataset
+                dataset_id: str = dataset.id  # type: ignore
+                self._datasets[dataset_id] = metaphor_dataset
 
             # Dump dataset for debug-purpose
             factory_datasets.append(dataset.as_dict())
@@ -230,7 +244,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
             resource_group_name=factory.resource_group_name,
         )
 
-        result = {}
+        result: Dict[str, LinkedService] = {}
         factory_linked_services = []
         for linked_service in linked_services:
             if isinstance(linked_service.properties, DfModels.SnowflakeLinkedService):
@@ -238,6 +252,12 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     linked_service.properties
                 )
                 connection_string = snowflake_connection.connection_string
+
+                if not isinstance(connection_string, str):
+                    logger.warning(
+                        f"unknown connection string for {linked_service.name}, connection string: {connection_string}"
+                    )
+                    continue
 
                 url: ParseResult = urlparse(connection_string)
                 query_db = parse_qs(url.query or "").get("db")
