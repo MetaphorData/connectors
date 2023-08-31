@@ -1,15 +1,13 @@
 import traceback
-from typing import Collection, Dict
+from typing import Collection, Dict, List
 
-from metaphor.common.snowflake import normalize_snowflake_account
+from dateutil import parser
 
 try:
     from pycarlo.core import Client, Session
 except ImportError:
     print("Please install metaphor[monte_carlo] extra\n")
     raise
-
-from dateutil import parser
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -18,12 +16,14 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
+from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataMonitor,
     DataMonitorSeverity,
     DataMonitorStatus,
     DataMonitorTarget,
+    DataPlatform,
     DataQualityProvider,
     Dataset,
     DatasetDataQuality,
@@ -47,6 +47,12 @@ monitor_status_map = {
     "IN_TRAINING": DataMonitorStatus.UNKNOWN,
 }
 
+connection_type_platform_map = {
+    "BIGQUERY": DataPlatform.BIGQUERY,
+    "REDSHIFT": DataPlatform.REDSHIFT,
+    "SNOWFLAKE": DataPlatform.SNOWFLAKE,
+}
+
 
 class MonteCarloExtractor(BaseExtractor):
     """MonteCarlo metadata extractor"""
@@ -57,7 +63,6 @@ class MonteCarloExtractor(BaseExtractor):
 
     def __init__(self, config: MonteCarloRunConfig):
         super().__init__(config, "Monte Carlo metadata crawler", Platform.TABLEAU)
-        self._data_platform = config.data_platform
         self._account = (
             normalize_snowflake_account(config.snowflake_account)
             if config.snowflake_account
@@ -67,17 +72,24 @@ class MonteCarloExtractor(BaseExtractor):
             session=Session(mcd_id=config.api_key_id, mcd_token=config.api_key_secret)
         )
 
+        self._mcon_platform_map: Dict[str, DataPlatform] = {}
+
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Monte Carlo")
 
+        self._fetch_tables()
         self._fetch_monitors()
 
         return self._datasets.values()
 
     def _fetch_monitors(self) -> None:
-        # fetch all monitors
+        """Fetch all monitors
+
+        See https://apidocs.getmontecarlo.com/#query-getMonitors
+        """
+
         try:
             monitors = self._client(
                 """
@@ -104,7 +116,63 @@ class MonteCarloExtractor(BaseExtractor):
             self._parse_monitors(monitors)
         except Exception as error:
             traceback.print_exc()
-            logger.error(f"failed to get all monitors, error {error}")
+            logger.error(f"Failed to get all monitors, error {error}")
+
+    def _fetch_tables(self) -> None:
+        """Fetch all tables
+
+        See https://apidocs.getmontecarlo.com/#query-getTables
+        """
+
+        batch_size = 500
+        end_cursor = None
+        result: List[Dict] = []
+
+        while True:
+            logger.info(f"Querying getTables after {end_cursor} ({len(result)} tables)")
+            resp = self._client(
+                """
+                query getTables($first: Int, $after: String) {
+                  getTables(first: $first after: $after) {
+                    edges {
+                        node {
+                            mcon
+                            warehouse {
+                                connectionType
+                            }
+                        }
+                    }
+                    pageInfo {
+                        endCursor
+                        hasNextPage
+                    }
+                  }
+                }
+                """,
+                {"first": batch_size, "after": end_cursor},
+            )
+
+            nodes = [edge["node"] for edge in resp["get_tables"]["edges"]]
+            result.extend(nodes)
+
+            if not resp["get_tables"]["page_info"]["has_next_page"]:
+                break
+
+            end_cursor = resp["get_tables"]["page_info"]["end_cursor"]
+
+        logger.info(f"Fetched {len(result)} tables")
+        json_dump_to_debug_file(result, "getTables.json")
+
+        for node in result:
+            mcon = node["mcon"]
+            connection_type = node["warehouse"]["connection_type"]
+            platform = connection_type_platform_map.get(connection_type)
+            if platform is None:
+                logger.warn(
+                    f"Unsupported connection type: {connection_type} for {mcon}"
+                )
+            else:
+                self._mcon_platform_map[mcon] = platform
 
     def _parse_monitors(self, monitors) -> None:
         for monitor in monitors["get_monitors"]:
@@ -133,14 +201,20 @@ class MonteCarloExtractor(BaseExtractor):
                 ],
             )
 
-            target_datasets = [
-                self._convert_dataset_name(entity) for entity in monitor["entities"]
-            ]
-            for index, target in enumerate(target_datasets):
-                dataset = self._init_dataset(target)
-                dataset.data_quality.url = (
-                    f"{assets_base_url}/{monitor['entityMcons'][index]}/custom-monitors"
-                )
+            for index, entity in enumerate(monitor["entities"]):
+                if index > len(monitor["entityMcons"]) - 1:
+                    logger.warning(f"Unmatched entity mcon in monitor {monitor}")
+                    break
+
+                mcon = monitor["entityMcons"][index]
+                platform = self._mcon_platform_map.get(mcon)
+                if platform is None:
+                    logger.warning(f"Unable to determine platform for {mcon}")
+                    continue
+
+                name = self._convert_dataset_name(entity)
+                dataset = self._init_dataset(name, platform)
+                dataset.data_quality.url = f"{assets_base_url}/{mcon}/custom-monitors"
                 dataset.data_quality.monitors.append(data_monitor)
 
     @staticmethod
@@ -148,11 +222,13 @@ class MonteCarloExtractor(BaseExtractor):
         """entity name format is <db>:<schema>.<table>"""
         return normalize_full_dataset_name(entity.replace(":", ".", 1))
 
-    def _init_dataset(self, normalized_name: str) -> Dataset:
+    def _init_dataset(self, normalized_name: str, platform: DataPlatform) -> Dataset:
+        account = self._account if platform == DataPlatform.SNOWFLAKE else None
+
         logical_id = DatasetLogicalID(
             name=normalized_name,
-            platform=self._data_platform,
-            account=self._account,
+            platform=platform,
+            account=account,
         )
         dataset_id = str(to_dataset_entity_id_from_logical_id(logical_id))
 
