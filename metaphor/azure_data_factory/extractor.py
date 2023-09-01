@@ -303,6 +303,8 @@ class AzureDataFactoryExtractor(BaseExtractor):
         result: Dict[str, LinkedService] = {}
         factory_linked_services = []
         for linked_service in linked_services:
+            linked_service_name: str = linked_service.name  # type: ignore
+
             if isinstance(linked_service.properties, DfModels.SnowflakeLinkedService):
                 snowflake_connection: DfModels.SnowflakeLinkedService = (
                     linked_service.properties
@@ -329,7 +331,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     else None
                 )
 
-                result[linked_service.name] = LinkedService(
+                result[linked_service_name] = LinkedService(
                     database=database, account=snowflake_account
                 )
             if isinstance(
@@ -360,7 +362,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     if key == "Initial Catalog":
                         database = value
 
-                result[linked_service.name] = LinkedService(
+                result[linked_service_name] = LinkedService(
                     database=database, account=server_host
                 )
 
@@ -534,7 +536,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 pipeline_name, df_client, factory
             )
             if last_pipeline_run:
-                last_duration_in_ms = float(last_pipeline_run.duration_in_ms)
+                last_duration_in_ms = float(last_pipeline_run.duration_in_ms)  # type: ignore
                 invoked_by: DfModels.PipelineRunInvokedBy = last_pipeline_run.invoked_by  # type: ignore
                 last_invoke_type = invoked_by.invoked_by_type
                 last_run_message = last_pipeline_run.message
