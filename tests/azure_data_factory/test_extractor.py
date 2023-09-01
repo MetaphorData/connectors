@@ -194,9 +194,6 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
     extractor = AzureDataFactoryExtractor(config)
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    import json
-
-    print(json.dumps(events, indent=2))
     assert events == load_json(f"{test_root_dir}/azure_data_factory/expected.json")
 
 
