@@ -8,6 +8,7 @@ from metaphor.common.utils import (
     chunk_by_size,
     filter_empty_strings,
     must_set_exactly_one,
+    removesuffix,
     start_of_day,
     unique_list,
 )
@@ -92,3 +93,10 @@ def test_unique_list():
     assert unique_list(["a", "b", "c"]) == ["a", "b", "c"]
     assert unique_list(["a", "a", "c"]) == ["a", "c"]
     assert unique_list(["c", "a", "c"]) == ["c", "a"]
+
+
+def test_remove_suffix():
+    assert removesuffix("abcdefg", "fg") == "abcde"
+    assert removesuffix("abcdefg", "gf") == "abcdefg"
+    assert removesuffix("example.com/index.html", "index.html") == "example.com/"
+    assert removesuffix("example.com/index.html", "/index.html") == "example.com"

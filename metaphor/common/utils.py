@@ -116,7 +116,7 @@ def chunk_by_size(
     return slices
 
 
-def removesuffix(text, suffix):
+def removesuffix(text: str, suffix: str):
     if text.endswith(suffix):
         return text[: -len(suffix)]
     else:
