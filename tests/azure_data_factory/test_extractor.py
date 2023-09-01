@@ -57,6 +57,22 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
                     },
                 }
             ),
+            DfModels.DatasetResource.deserialize(
+                {
+                    "id": "003",
+                    "name": "dataset_3",
+                    "properties": {
+                        "type": "AzureSqlTable",
+                        "linkedServiceName": {
+                            "referenceName": "sql_database_linked_service"
+                        },
+                        "typeProperties": {
+                            "schema": "adf",
+                            "table": "example",
+                        },
+                    },
+                }
+            ),
         ]
 
     mock_client.datasets.list_by_factory.side_effect = mock_list_datasets
@@ -74,6 +90,17 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
                     },
                 }
             ),
+            DfModels.LinkedServiceResource.deserialize(
+                {
+                    "name": "sql_database_linked_service",
+                    "properties": {
+                        "type": "AzureSqlDatabase",
+                        "typeProperties": {
+                            "connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=sql-server-host.database.windows.net;Initial Catalog=main-db",
+                        },
+                    },
+                }
+            ),
         ]
 
     mock_client.linked_services.list_by_factory.side_effect = mock_list_linked_services
@@ -82,6 +109,7 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
         return [
             DfModels.DataFlowResource.deserialize(
                 {
+                    "name": "data_flow_1",
                     "properties": {
                         "type": "MappingDataFlow",
                         "typeProperties": {
@@ -94,6 +122,65 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
         ]
 
     mock_client.data_flows.list_by_factory.side_effect = mock_list_data_flows
+
+    def mock_list_pipelines(factory_name, resource_group_name):
+        return [
+            DfModels.PipelineResource.deserialize(
+                {
+                    "name": "pipeline-1",
+                    "id": "pipeline-id-1",
+                    "properties": {
+                        "activities": [
+                            {
+                                "name": "Data flow1",
+                                "type": "ExecuteDataFlow",
+                                "dependsOn": [],
+                                "userProperties": [],
+                                "typeProperties": {
+                                    "dataFlow": {
+                                        "referenceName": "data_flow_1",
+                                        "type": "DataFlowReference",
+                                    },
+                                },
+                            },
+                            {
+                                "name": "Copy data1",
+                                "type": "Copy",
+                                "dependsOn": [
+                                    {
+                                        "activity": "Data flow1",
+                                        "dependencyConditions": ["Succeeded"],
+                                    }
+                                ],
+                                "userProperties": [],
+                                "inputs": [
+                                    {
+                                        "referenceName": "dataset_2",
+                                        "type": "DatasetReference",
+                                    }
+                                ],
+                                "outputs": [
+                                    {
+                                        "referenceName": "dataset_3",
+                                        "type": "DatasetReference",
+                                    }
+                                ],
+                            },
+                        ]
+                    },
+                }
+            )
+        ]
+
+    mock_client.pipelines.list_by_factory.side_effect = mock_list_pipelines
+
+    def mock_get_pipeline_runs(factory_name, resource_group_name, filter_parameters):
+        return DfModels.PipelineRunsQueryResponse(value=[])
+
+    mock_client.pipeline_runs.query_by_factory.side_effect = mock_get_pipeline_runs
+    mock_client.pipeline_runs._serialize.body.side_effect = lambda _1, _2: {
+        "filters": []
+    }
 
     mock_build_client.side_effect = lambda _: mock_client
 

@@ -4,14 +4,6 @@
       "account": "snowflake_account",
       "name": "database.schema.table1",
       "platform": "SNOWFLAKE"
-    },
-    "structure": {
-      "database": "DATABASE",
-      "schema": "SCHEMA",
-      "table": "TABLE1"
-    },
-    "upstream": {
-      "sourceDatasets": []
     }
   },
   {
@@ -20,15 +12,58 @@
       "name": "database.schema.table2",
       "platform": "SNOWFLAKE"
     },
-    "structure": {
-      "database": "DATABASE",
-      "schema": "SCHEMA",
-      "table": "TABLE2"
-    },
     "upstream": {
       "sourceDatasets": [
         "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
       ]
+    }
+  },
+  {
+    "logicalId": {
+      "account": "sql-server-host",
+      "name": "main-db.adf.example",
+      "platform": "MSSQL"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~F6AD22A4276E97E0A7B9B09AD86BFDB7"
+      ]
+    }
+  },
+  {
+    "azureDataFactoryPipeline": {
+      "activities": [
+        {
+          "dependsOn": [],
+          "name": "Data flow1",
+          "type": "ExecuteDataFlow"
+        },
+        {
+          "dependsOn": [
+            {
+              "dependencyConditions": [
+                "Succeeded"
+              ],
+              "name": "Data flow1"
+            }
+          ],
+          "name": "Copy data1",
+          "type": "Copy"
+        }
+      ],
+      "pipelineName": "pipeline-1",
+      "sinks": [
+        "DATASET~F6AD22A4276E97E0A7B9B09AD86BFDB7",
+        "DATASET~3D47E66557297571AD3225FF197AE151"
+      ],
+      "sources": [
+        "DATASET~D0BB6D0EA7E559C7966357BE929E840B",
+        "DATASET~F6AD22A4276E97E0A7B9B09AD86BFDB7"
+      ]
+    },
+    "logicalId": {
+      "name": "pipeline-id-1",
+      "type": "AZURE_DATA_FACTORY_PIPELINE"
     }
   }
 ]
