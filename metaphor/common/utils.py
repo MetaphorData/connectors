@@ -114,3 +114,10 @@ def chunk_by_size(
         slices.append(slice(start, len(list_to_chunk)))
 
     return slices
+
+
+def removesuffix(text, suffix):
+    if text.endswith(suffix):
+        return text[: -len(suffix)]
+    else:
+        return text

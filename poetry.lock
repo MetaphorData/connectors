@@ -3034,13 +3034,13 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.26.4"
+version = "0.26.5"
 description = ""
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "metaphor_models-0.26.4-py3-none-any.whl", hash = "sha256:de97c379bcdf952f2a60b0d729f481381d9386fca8c85f7ebeccec053e8d19eb"},
-    {file = "metaphor_models-0.26.4.tar.gz", hash = "sha256:a6e4eb07a5f04fe8cd0a3581d5289ad563d03eae2426ad5337e1824c01d82a48"},
+    {file = "metaphor_models-0.26.5-py3-none-any.whl", hash = "sha256:d2b96b842f350d70e241190e4723bec2291ebdfc76cecc8642a9491f93699fd5"},
+    {file = "metaphor_models-0.26.5.tar.gz", hash = "sha256:e3ec0142000c9c6da70e46e99d9d12e7650ad47fcde745d771149f51029cafe2"},
 ]
 
 [[package]]
