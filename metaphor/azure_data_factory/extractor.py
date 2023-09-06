@@ -292,19 +292,15 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     storage_account = linked_service.account
                     abs_location = json_dataset.location
 
-                    def check_str(s: Any) -> bool:
-                        return isinstance(s, str)
-
-                    parts: List[str] = list(
-                        filter(
-                            check_str,
-                            [
-                                abs_location.container,
-                                abs_location.folder_path,
-                                abs_location.file_name,
-                            ],
-                        )
-                    )
+                    parts: List[str] = [
+                        part  # type: ignore
+                        for part in [
+                            abs_location.container,
+                            abs_location.folder_path,
+                            abs_location.file_name,
+                        ]
+                        if part is not None and isinstance(part, str)
+                    ]
 
                     full_path = urljoin(storage_account, "/".join(parts))
 
