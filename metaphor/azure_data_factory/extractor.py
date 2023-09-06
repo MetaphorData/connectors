@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from itertools import chain
 from typing import IO, Any, Collection, Dict, List, Optional, Tuple
-from urllib.parse import ParseResult, parse_qs, urlparse
+from urllib.parse import ParseResult, parse_qs, urlencode, urljoin, urlparse
 
 import azure.mgmt.datafactory.models as DfModels
 from azure.identity import ClientSecretCredential
@@ -38,6 +38,7 @@ logger = get_logger()
 @dataclass
 class Factory:
     name: str
+    id: str
     resource_group_name: str
 
 
@@ -118,6 +119,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
         return [
             Factory(
                 name=factory.name,  # type: ignore
+                id=factory.id,  # type: ignore
                 resource_group_name=self._get_resource_group_from_factory(factory),
             )
             for factory in client.factories.list()
@@ -282,6 +284,36 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     upstream=DatasetUpstream(source_datasets=[]),
                 )
 
+            if isinstance(dataset.properties, DfModels.JsonDataset):
+                json_dataset = dataset.properties
+
+                if (
+                    isinstance(json_dataset.location, DfModels.AzureBlobStorageLocation)
+                    and linked_service.account
+                ):
+                    storage_account = linked_service.account
+                    abs_location = json_dataset.location
+
+                    parts: List[str] = [
+                        part  # type: ignore
+                        for part in [
+                            abs_location.container,
+                            abs_location.folder_path,
+                            abs_location.file_name,
+                        ]
+                        if part is not None and isinstance(part, str)
+                    ]
+
+                    full_path = urljoin(storage_account, "/".join(parts))
+
+                    metaphor_dataset = Dataset(
+                        logical_id=DatasetLogicalID(
+                            name=full_path,
+                            platform=DataPlatform.AZURE_BLOB_STORAGE,
+                        ),
+                        upstream=DatasetUpstream(source_datasets=[]),
+                    )
+
             if metaphor_dataset:
                 factory_datasets[dataset_name] = metaphor_dataset
 
@@ -365,6 +397,14 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 result[linked_service_name] = LinkedService(
                     database=database, account=server_host
                 )
+
+            if isinstance(
+                linked_service.properties, DfModels.AzureBlobStorageLinkedService
+            ):
+                blob_storage = linked_service.properties
+                service_endpoint = blob_storage.service_endpoint
+
+                result[linked_service_name] = LinkedService(account=service_endpoint)
 
             # Dump linked service for debug-purpose
             factory_linked_services.append(linked_service.as_dict())
@@ -548,11 +588,16 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 pipeline.activities or [], factory_datasets, factory_data_flows
             )
 
+            params = {"factory": factory.id}
+            pipeline_url = f"https://adf.azure.com/authoring/pipeline/{pipeline_name}?{urlencode(params)}"
+
             metaphor_pipeline = Pipeline(
                 logical_id=PipelineLogicalID(
                     name=pipeline_id, type=PipelineType.AZURE_DATA_FACTORY_PIPELINE
                 ),
                 azure_data_factory_pipeline=AzureDataFactoryPipeline(
+                    factory=factory.name,
+                    pipeline_url=pipeline_url,
                     last_duration_in_ms=last_duration_in_ms,
                     last_invoke_type=last_invoke_type,
                     last_publish_time=None,

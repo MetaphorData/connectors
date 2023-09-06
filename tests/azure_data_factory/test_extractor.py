@@ -73,6 +73,24 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
                     },
                 }
             ),
+            DfModels.DatasetResource.deserialize(
+                {
+                    "id": "004",
+                    "name": "dataset_4",
+                    "properties": {
+                        "type": "Json",
+                        "linkedServiceName": {"referenceName": "azure_blob_storage"},
+                        "typeProperties": {
+                            "location": {
+                                "type": "AzureBlobStorageLocation",
+                                "folderPath": "foo",
+                                "fileName": "bar.json",
+                                "container": "test",
+                            }
+                        },
+                    },
+                }
+            ),
         ]
 
     mock_client.datasets.list_by_factory.side_effect = mock_list_datasets
@@ -100,6 +118,16 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
                         },
                     },
                 }
+            ),
+            DfModels.LinkedServiceResource.deserialize(
+                {
+                    "name": "azure_blob_storage",
+                    "properties": {
+                        "type": "AzureBlobStorage",
+                        "serviceEndpoint": "https://storage-account.blob.core.windows.net/",
+                        "accountKind": "StorageV2",
+                    },
+                },
             ),
         ]
 
@@ -155,13 +183,13 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
                                 "userProperties": [],
                                 "inputs": [
                                     {
-                                        "referenceName": "dataset_2",
+                                        "referenceName": "dataset_3",
                                         "type": "DatasetReference",
                                     }
                                 ],
                                 "outputs": [
                                     {
-                                        "referenceName": "dataset_3",
+                                        "referenceName": "dataset_4",
                                         "type": "DatasetReference",
                                     }
                                 ],
@@ -194,6 +222,7 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
     extractor = AzureDataFactoryExtractor(config)
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+
     assert events == load_json(f"{test_root_dir}/azure_data_factory/expected.json")
 
 

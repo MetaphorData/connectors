@@ -20,6 +20,7 @@ from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     Dashboard,
     DashboardInfo,
@@ -83,14 +84,14 @@ class ThoughtSpotExtractor(BaseExtractor):
         self._base_url = config.base_url
         self._config = config
 
+        self._client = ThoughtSpot.create_client(self._config)
+
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._column_references: Dict[str, ColumnReference] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from ThoughtSpot")
-
-        self._client = ThoughtSpot.create_client(self._config)
 
         self.fetch_virtual_views()
         self.fetch_dashboards()
@@ -140,6 +141,7 @@ class ThoughtSpotExtractor(BaseExtractor):
     ):
         for table in tables.values():
             table_id = table.header.id
+            table_type = mapping_data_object_type(table.type)
 
             field_mappings = []
             for column in table.columns:
@@ -184,6 +186,10 @@ class ThoughtSpotExtractor(BaseExtractor):
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
                 ),
+                structure=AssetStructure(
+                    directories=[table_type.name],
+                    name=table_id,
+                ),
                 thought_spot=ThoughtSpotDataObject(
                     columns=[
                         ThoughtSpotColumn(
@@ -196,7 +202,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ],
                     name=table.header.name,
                     description=table.header.description,
-                    type=mapping_data_object_type(table.type),
+                    type=table_type,
                     url=f"{self._base_url}/#/data/tables/{table_id}",
                     tags=self._tag_names(table.header.tags),
                 ),
@@ -469,6 +475,10 @@ class ThoughtSpotExtractor(BaseExtractor):
                     dashboard_id=answer_id,
                     platform=DashboardPlatform.THOUGHT_SPOT,
                 ),
+                structure=AssetStructure(
+                    directories=[ThoughtSpotDashboardType.ANSWER.name],
+                    name=answer_id,
+                ),
                 dashboard_info=DashboardInfo(
                     description=answer.header.description,
                     title=answer.header.name,
@@ -594,6 +604,10 @@ class ThoughtSpotExtractor(BaseExtractor):
                 logical_id=DashboardLogicalID(
                     dashboard_id=board_id,
                     platform=DashboardPlatform.THOUGHT_SPOT,
+                ),
+                structure=AssetStructure(
+                    directories=[ThoughtSpotDashboardType.LIVEBOARD.name],
+                    name=board_id,
                 ),
                 dashboard_info=DashboardInfo(
                     description=board.header.description,
