@@ -12,6 +12,7 @@ from metaphor.common.logger import get_logger
 from metaphor.common.utils import chunks, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     ChartType,
     Dashboard,
@@ -166,6 +167,9 @@ class PowerBIExtractor(BaseExtractor):
                 logical_id=VirtualViewLogicalID(
                     name=wds.id, type=VirtualViewType.POWER_BI_DATASET
                 ),
+                structure=AssetStructure(
+                    directories=self._get_workspace_hierarchy(workspace), name=wds.id
+                ),
                 power_bi_dataset=VirtualViewPowerBIDataset(
                     tables=tables,
                     name=wds.name,
@@ -223,6 +227,10 @@ class PowerBIExtractor(BaseExtractor):
                     dashboard_id=wi_report.id,
                     platform=DashboardPlatform.POWER_BI,
                 ),
+                structure=AssetStructure(
+                    directories=self._get_workspace_hierarchy(workspace),
+                    name=wi_report.id,
+                ),
                 dashboard_info=DashboardInfo(
                     description=wi_report.description,
                     title=wi_report.name,
@@ -274,6 +282,10 @@ class PowerBIExtractor(BaseExtractor):
                 logical_id=DashboardLogicalID(
                     dashboard_id=wi_dashboard.id,
                     platform=DashboardPlatform.POWER_BI,
+                ),
+                structure=AssetStructure(
+                    directories=self._get_workspace_hierarchy(workspace),
+                    name=wi_dashboard.id,
                 ),
                 dashboard_info=DashboardInfo(
                     title=wi_dashboard.displayName,
@@ -342,6 +354,10 @@ class PowerBIExtractor(BaseExtractor):
                 pbi_info.app = PbiApp(id=app.id, name=app.name)
 
         return pbi_info
+
+    @staticmethod
+    def _get_workspace_hierarchy(workspace: WorkspaceInfo) -> List[str]:
+        return (workspace.name or "").split(".")
 
     @staticmethod
     def _find_last_completed_refresh(
