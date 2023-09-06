@@ -7,6 +7,12 @@
       "name": "worksheet1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
+    "structure": {
+      "directories": [
+        "WORKSHEET"
+      ],
+      "name": "worksheet1"
+    },
     "thoughtSpot": {
       "columns": [],
       "description": "This is worksheet1",
@@ -20,9 +26,31 @@
     }
   },
   {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "field": "col1",
+              "sourceEntityId": "DATASET~29779E6A8F6548832D2305896A583002"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~29779E6A8F6548832D2305896A583002"
+      ]
+    },
     "logicalId": {
       "name": "table1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "structure": {
+      "directories": [
+        "TABLE"
+      ],
+      "name": "table1"
     },
     "thoughtSpot": {
       "columns": [
@@ -41,44 +69,28 @@
       ],
       "type": "TABLE",
       "url": "http://base.url/#/data/tables/table1"
-    },
-    "entityUpstream": {
-      "fieldMappings": [
-        {
-          "sources": [
-            {
-              "field": "col1",
-              "sourceEntityId": "DATASET~29779E6A8F6548832D2305896A583002"
-            }
-          ],
-          "destination": "col1"
-        }
-      ],
-      "sourceEntities": [
-        "DATASET~29779E6A8F6548832D2305896A583002"
-      ]
     }
   },
   {
     "entityUpstream": {
       "fieldMappings": [
         {
+          "destination": "col1",
           "sources": [
             {
               "field": "col1",
               "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
             }
-          ],
-          "destination": "col1"
+          ]
         },
         {
+          "destination": "col2",
           "sources": [
             {
               "field": "col1",
               "sourceEntityId": "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
             }
-          ],
-          "destination": "col2"
+          ]
         }
       ],
       "sourceEntities": [
@@ -88,6 +100,12 @@
     "logicalId": {
       "name": "view1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "structure": {
+      "directories": [
+        "VIEW"
+      ],
+      "name": "view1"
     },
     "thoughtSpot": {
       "columns": [
@@ -114,10 +132,6 @@
   },
   {
     "entityUpstream": {
-      "transformation": "select c as sql_col1 from project.schema.table",
-      "sourceEntities": [
-        "DATASET~29779E6A8F6548832D2305896A583002"
-      ],
       "fieldMappings": [
         {
           "destination": "sql_col1",
@@ -129,11 +143,21 @@
           ],
           "transformation": "c"
         }
-      ]
+      ],
+      "sourceEntities": [
+        "DATASET~29779E6A8F6548832D2305896A583002"
+      ],
+      "transformation": "select c as sql_col1 from project.schema.table"
     },
     "logicalId": {
       "name": "sql_view_1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "structure": {
+      "directories": [
+        "VIEW"
+      ],
+      "name": "sql_view_1"
     },
     "thoughtSpot": {
       "columns": [
@@ -160,6 +184,7 @@
           "title": "Answer 1"
         }
       ],
+      "dashboardType": "THOUGHT_SPOT_ANSWER",
       "description": "This is answer1",
       "thoughtSpot": {
         "tags": [
@@ -167,25 +192,9 @@
         ],
         "type": "ANSWER"
       },
-      "title": "Answer 1",
-      "dashboardType": "THOUGHT_SPOT_ANSWER"
-    },
-    "logicalId": {
-      "dashboardId": "answer1",
-      "platform": "THOUGHT_SPOT"
-    },
-    "sourceInfo": {
-      "mainUrl": "http://base.url/#/saved-answer/answer1"
-    },
-    "upstream": {
-      "sourceVirtualViews": [
-        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
-      ]
+      "title": "Answer 1"
     },
     "entityUpstream": {
-      "sourceEntities": [
-        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
-      ],
       "fieldMappings": [
         {
           "destination": "x",
@@ -211,6 +220,27 @@
           ],
           "transformation": "CASE\n    WHEN sum(\"ta_1\".\"col3\") IS NOT NULL THEN sum(\"ta_1\".\"col3\")\n    ELSE 0\n  END"
         }
+      ],
+      "sourceEntities": [
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "answer1",
+      "platform": "THOUGHT_SPOT"
+    },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/saved-answer/answer1"
+    },
+    "structure": {
+      "directories": [
+        "ANSWER"
+      ],
+      "name": "answer1"
+    },
+    "upstream": {
+      "sourceVirtualViews": [
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ]
     }
   },
@@ -224,6 +254,7 @@
           "url": "http://base.url#/embed/viz/board1/viz2"
         }
       ],
+      "dashboardType": "THOUGHT_SPOT_LIVEBOARD",
       "description": "This is board1",
       "thoughtSpot": {
         "embedUrl": "http://base.url/#/embed/viz/board1",
@@ -232,20 +263,7 @@
         ],
         "type": "LIVEBOARD"
       },
-      "title": "Board 1",
-      "dashboardType": "THOUGHT_SPOT_LIVEBOARD"
-    },
-    "logicalId": {
-      "dashboardId": "board1",
-      "platform": "THOUGHT_SPOT"
-    },
-    "sourceInfo": {
-      "mainUrl": "http://base.url/#/pinboard/board1"
-    },
-    "upstream": {
-      "sourceVirtualViews": [
-        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
-      ]
+      "title": "Board 1"
     },
     "entityUpstream": {
       "fieldMappings": [
@@ -260,6 +278,24 @@
         }
       ],
       "sourceEntities": [
+        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "board1",
+      "platform": "THOUGHT_SPOT"
+    },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/pinboard/board1"
+    },
+    "structure": {
+      "directories": [
+        "LIVEBOARD"
+      ],
+      "name": "board1"
+    },
+    "upstream": {
+      "sourceVirtualViews": [
         "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ]
     }
