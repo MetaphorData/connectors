@@ -76,6 +76,12 @@
         "id": "workspace-1",
         "name": "Workspace"
       }
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "00000000-0000-0000-0000-000000000002"
     }
   },
   {
@@ -189,6 +195,12 @@
         "id": "workspace-1",
         "name": "Workspace"
       }
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "00000000-0000-0000-0000-000000000003"
     }
   },
   {
@@ -215,6 +227,12 @@
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/groups/me/apps/00000000-0000-0000-0000-000000000000/reports/00000000-0000-0000-0000-000000000004"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "00000000-0000-0000-0000-000000000004"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -251,6 +269,12 @@
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/report/00000000-0000-0000-0000-000000000006"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "00000000-0000-0000-0000-000000000006"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -293,6 +317,12 @@
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/groups/me/apps/00000000-0000-0000-0000-000000000001/dashboards/00000000-0000-0000-0000-000000000007"
     },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "00000000-0000-0000-0000-000000000007"
+    },
     "upstream": {
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
@@ -330,6 +360,12 @@
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/dashboard/00000000-0000-0000-0000-000000000009"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "00000000-0000-0000-0000-000000000009"
     },
     "upstream": {
       "sourceVirtualViews": [
