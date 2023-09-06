@@ -292,9 +292,12 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     storage_account = linked_service.account
                     abs_location = json_dataset.location
 
+                    def check_str(s: Any) -> bool:
+                        return isinstance(s, str)
+
                     parts: List[str] = list(
                         filter(
-                            lambda s: isinstance(s, str),
+                            check_str,
                             [
                                 abs_location.container,
                                 abs_location.folder_path,
