@@ -57,6 +57,8 @@
           "type": "Copy"
         }
       ],
+      "factory": "testADF",
+      "pipelineUrl": "https://adf.azure.com/authoring/pipeline/pipeline-1?factory=%28%27%2Fsubscriptions%2F%3Csub_id%3E%2FresourceGroups%2F%3Cresource_group%3E%2Fproviders%2FMicrosoft.DataFactory%2Ffactories%2FtestADF%27%2C%29",
       "pipelineName": "pipeline-1",
       "sinks": [
         "DATASET~F6AD22A4276E97E0A7B9B09AD86BFDB7",
