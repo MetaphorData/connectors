@@ -23,10 +23,16 @@
       "account": "sql-server-host",
       "name": "main-db.adf.example",
       "platform": "MSSQL"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "https://storage-account.blob.core.windows.net/test/foo/bar.json",
+      "platform": "AZURE_BLOB_STORAGE"
     },
     "upstream": {
       "sourceDatasets": [
-        "DATASET~F6AD22A4276E97E0A7B9B09AD86BFDB7"
+        "DATASET~3D47E66557297571AD3225FF197AE151"
       ]
     }
   },
@@ -54,11 +60,11 @@
       "pipelineName": "pipeline-1",
       "sinks": [
         "DATASET~F6AD22A4276E97E0A7B9B09AD86BFDB7",
-        "DATASET~3D47E66557297571AD3225FF197AE151"
+        "DATASET~29AD373035A2350D24C99996F29E4C42"
       ],
       "sources": [
         "DATASET~D0BB6D0EA7E559C7966357BE929E840B",
-        "DATASET~F6AD22A4276E97E0A7B9B09AD86BFDB7"
+        "DATASET~3D47E66557297571AD3225FF197AE151"
       ]
     },
     "logicalId": {

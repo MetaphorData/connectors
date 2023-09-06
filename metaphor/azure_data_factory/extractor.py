@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from itertools import chain
 from typing import IO, Any, Collection, Dict, List, Optional, Tuple
-from urllib.parse import ParseResult, parse_qs, urlparse
+from urllib.parse import ParseResult, parse_qs, urljoin, urlparse
 
 import azure.mgmt.datafactory.models as DfModels
 from azure.identity import ClientSecretCredential
@@ -282,6 +282,37 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     upstream=DatasetUpstream(source_datasets=[]),
                 )
 
+            if isinstance(dataset.properties, DfModels.JsonDataset):
+                json_dataset = dataset.properties
+
+                if (
+                    isinstance(json_dataset.location, DfModels.AzureBlobStorageLocation)
+                    and linked_service.account
+                ):
+                    storage_account = linked_service.account
+                    abs_location = json_dataset.location
+
+                    parts: List[str] = list(
+                        filter(
+                            lambda s: isinstance(s, str),
+                            [
+                                abs_location.container,
+                                abs_location.folder_path,
+                                abs_location.file_name,
+                            ],
+                        )
+                    )
+
+                    full_path = urljoin(storage_account, "/".join(parts))
+
+                    metaphor_dataset = Dataset(
+                        logical_id=DatasetLogicalID(
+                            name=full_path,
+                            platform=DataPlatform.AZURE_BLOB_STORAGE,
+                        ),
+                        upstream=DatasetUpstream(source_datasets=[]),
+                    )
+
             if metaphor_dataset:
                 factory_datasets[dataset_name] = metaphor_dataset
 
@@ -365,6 +396,14 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 result[linked_service_name] = LinkedService(
                     database=database, account=server_host
                 )
+
+            if isinstance(
+                linked_service.properties, DfModels.AzureBlobStorageLinkedService
+            ):
+                blob_storage = linked_service.properties
+                service_endpoint = blob_storage.service_endpoint
+
+                result[linked_service_name] = LinkedService(account=service_endpoint)
 
             # Dump linked service for debug-purpose
             factory_linked_services.append(linked_service.as_dict())
