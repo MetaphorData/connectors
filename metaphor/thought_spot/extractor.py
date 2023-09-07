@@ -1,3 +1,4 @@
+import json
 from itertools import chain
 from typing import Collection, Dict, List, Optional, Tuple
 
@@ -44,7 +45,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadataDetail,
-    ConnectionMetadataDetail,
+    ConnectionDetail,
     DataSourceTypeEnum,
     Header,
     LiveBoardMetadataDetail,
@@ -136,7 +137,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_virtual_views(
         self,
-        connections: Dict[str, ConnectionMetadataDetail],
+        connections: Dict[str, ConnectionDetail],
         tables: Dict[str, LogicalTableMetadataDetail],
     ):
         for table in tables.values():
@@ -258,7 +259,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_lineage(
         self,
-        connections: Dict[str, ConnectionMetadataDetail],
+        connections: Dict[str, ConnectionDetail],
         tables: Dict[str, LogicalTableMetadataDetail],
     ):
         """
@@ -324,22 +325,30 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     @staticmethod
     def get_source_entity_id_from_connection(
-        connections: Dict[str, ConnectionMetadataDetail],
+        connections: Dict[str, ConnectionDetail],
         normalized_name: str,
         source_id: str,
     ) -> str:
         connection = connections[source_id]
+
+        try:
+            accountName = json.loads(connection.details.configuration).get(
+                "accountName"
+            )
+        except json.decoder.JSONDecodeError:
+            accountName = None
+
         return str(
             to_dataset_entity_id(
                 normalized_name,
                 mapping_data_platform(connection.type),
-                account=connection.dataSourceContent.configuration.accountName,
+                account=accountName,
             )
         )
 
     @staticmethod
     def find_entity_id_from_connection(
-        connections: Dict[str, ConnectionMetadataDetail],
+        connections: Dict[str, ConnectionDetail],
         mapping: TableMappingInfo,
         source_id: str,
     ) -> str:

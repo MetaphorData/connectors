@@ -142,25 +142,18 @@ class LiveBoardHeader(Header):
     resolvedObjects: Dict[str, ResolvedObject]
 
 
-class ConnectionHeader(Header):
-    type: str
-    authorName: str = ""
-
-
 class LogicalTable(Metadata):
     columns: List[ColumnMetadata]
     logicalTableContent: LogicalTableContent
 
 
-class ConnectionMetadataDetail(Metadata):
-    header: Header
+class ConnectionDetail(Header):
     type: ConnectionType
-    dataSourceContent: DataSourceContent
-    logicalTableList: List[LogicalTable]
+    configuration: str
 
 
-class ConnectionMetadata(BaseModel):
-    metadata_detail: ConnectionMetadataDetail
+class Connection(BaseModel):
+    details: ConnectionDetail
 
 
 class LogicalTableMetadataDetail(Metadata):
