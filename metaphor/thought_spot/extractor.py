@@ -188,7 +188,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 ),
                 structure=AssetStructure(
                     directories=[table_type.name],
-                    name=table_id,
+                    name=table.header.name,
                 ),
                 thought_spot=ThoughtSpotDataObject(
                     columns=[
@@ -477,7 +477,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 ),
                 structure=AssetStructure(
                     directories=[ThoughtSpotDashboardType.ANSWER.name],
-                    name=answer_id,
+                    name=answer.header.name,
                 ),
                 dashboard_info=DashboardInfo(
                     description=answer.header.description,
@@ -607,7 +607,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 ),
                 structure=AssetStructure(
                     directories=[ThoughtSpotDashboardType.LIVEBOARD.name],
-                    name=board_id,
+                    name=board.header.name,
                 ),
                 dashboard_info=DashboardInfo(
                     description=board.header.description,

@@ -81,7 +81,7 @@
       "directories": [
         "Workspace"
       ],
-      "name": "00000000-0000-0000-0000-000000000002"
+      "name": "Foo Dataset"
     }
   },
   {
@@ -200,7 +200,7 @@
       "directories": [
         "Workspace"
       ],
-      "name": "00000000-0000-0000-0000-000000000003"
+      "name": "Bar Dataset"
     }
   },
   {
@@ -232,7 +232,7 @@
       "directories": [
         "Workspace"
       ],
-      "name": "00000000-0000-0000-0000-000000000004"
+      "name": "Foo Report"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -274,7 +274,7 @@
       "directories": [
         "Workspace"
       ],
-      "name": "00000000-0000-0000-0000-000000000006"
+      "name": "Bar Report"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -321,7 +321,7 @@
       "directories": [
         "Workspace"
       ],
-      "name": "00000000-0000-0000-0000-000000000007"
+      "name": "Dashboard A"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -365,7 +365,7 @@
       "directories": [
         "Workspace"
       ],
-      "name": "00000000-0000-0000-0000-000000000009"
+      "name": "Dashboard B"
     },
     "upstream": {
       "sourceVirtualViews": [
