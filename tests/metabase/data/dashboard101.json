@@ -1,0 +1,180 @@
+{
+  "description": "This is Metabase dashboard for clean rides",
+  "archived": false,
+  "collection_position": null,
+  "ordered_cards": [
+    {
+      "size_x": 4,
+      "series": [],
+      "action_id": null,
+      "collection_authority_level": null,
+      "card": {
+        "description": "Cleand bike rides count  and grouped by Total minutes",
+        "archived": false,
+        "collection_position": null,
+        "table_id": 86,
+        "result_metadata": [
+          {
+            "description": "The total minutes of a particular journey in a month and general time of day.",
+            "semantic_type": null,
+            "coercion_strategy": null,
+            "name": "TOTAL_MINUTES",
+            "settings": null,
+            "field_ref": [
+              "field",
+              1300,
+              {
+                "binning": {
+                  "strategy": "num-bins",
+                  "min-value": 0.0,
+                  "max-value": 8000.0,
+                  "num-bins": 8,
+                  "bin-width": 1000
+                }
+              }
+            ],
+            "effective_type": "type/Number",
+            "id": 1300,
+            "visibility_type": "normal",
+            "display_name": "Total Minutes",
+            "fingerprint": {
+              "global": {
+                "distinct-count": 558,
+                "nil%": 0.0
+              },
+              "type": {
+                "type/Number": {
+                  "min": 0.0,
+                  "q1": 67.24845113293351,
+                  "q3": 156.21847591110514,
+                  "max": 7983.0,
+                  "sd": 339.4613332469227,
+                  "avg": 166.16123595505613
+                }
+              }
+            },
+            "base_type": "type/Number"
+          },
+          {
+            "display_name": "Count",
+            "semantic_type": "type/Quantity",
+            "field_ref": [
+              "aggregation",
+              0
+            ],
+            "name": "count",
+            "base_type": "type/Number",
+            "effective_type": "type/Number",
+            "fingerprint": {
+              "global": {
+                "distinct-count": 6,
+                "nil%": 0.0
+              },
+              "type": {
+                "type/Number": {
+                  "min": 2.0,
+                  "q1": 2.3542486889354093,
+                  "q3": 43.5,
+                  "max": 5237.0,
+                  "sd": 1846.5287897643436,
+                  "avg": 667.5
+                }
+              }
+            }
+          }
+        ],
+        "database_id": 2,
+        "enable_embedding": false,
+        "collection_id": null,
+        "query_type": "query",
+        "name": "Cleaned Bike Rides, Count, Grouped by Total Minutes",
+        "query_average_duration": 620,
+        "creator_id": 1,
+        "moderation_reviews": [],
+        "updated_at": "2023-06-16T14:54:03.511737Z",
+        "made_public_by_id": null,
+        "embedding_params": null,
+        "cache_ttl": null,
+        "dataset_query": {
+          "type": "query",
+          "query": {
+            "source-table": 86,
+            "aggregation": [
+              [
+                "count"
+              ]
+            ],
+            "breakout": [
+              [
+                "field",
+                1300,
+                {
+                  "binning": {
+                    "strategy": "default"
+                  }
+                }
+              ]
+            ]
+          },
+          "database": 2
+        },
+        "id": 133,
+        "parameter_mappings": null,
+        "display": "bar",
+        "entity_id": null,
+        "collection_preview": true,
+        "visualization_settings": {
+          "graph.dimensions": [
+            "TOTAL_MINUTES"
+          ],
+          "graph.metrics": [
+            "count"
+          ]
+        },
+        "parameters": null,
+        "dataset": false,
+        "created_at": "2022-05-06T15:52:07.556639Z",
+        "public_uuid": null
+      },
+      "updated_at": "2022-05-06T15:52:18.391144Z",
+      "col": 0,
+      "id": 133,
+      "parameter_mappings": [],
+      "card_id": 133,
+      "entity_id": null,
+      "visualization_settings": {},
+      "size_y": 4,
+      "dashboard_id": 101,
+      "created_at": "2022-05-06T15:52:18.227151Z",
+      "row": 0
+    }
+  ],
+  "param_values": null,
+  "can_write": true,
+  "enable_embedding": false,
+  "collection_id": 2,
+  "show_in_getting_started": false,
+  "name": "Clean rides",
+  "caveats": null,
+  "collection_authority_level": null,
+  "creator_id": 1,
+  "updated_at": "2022-05-06T15:52:18.508261Z",
+  "made_public_by_id": null,
+  "embedding_params": null,
+  "cache_ttl": null,
+  "id": 101,
+  "position": null,
+  "entity_id": null,
+  "param_fields": null,
+  "last-edit-info": {
+    "id": 1,
+    "email": "dev@metaphor.io",
+    "first_name": "Metaphor",
+    "last_name": "Data",
+    "timestamp": "2022-05-06T15:52:18.526181Z"
+  },
+  "parameters": [],
+  "created_at": "2022-05-06T15:47:21.693289Z",
+  "public_uuid": null,
+  "points_of_interest": null
+}

@@ -1,96 +1,58 @@
+from unittest.mock import MagicMock, patch
+
+import pytest
+import requests
+
 from metaphor.common.base_config import OutputConfig
-from metaphor.common.entity_id import to_dataset_entity_id
+from metaphor.common.event_util import EventUtil
 from metaphor.metabase.config import MetabaseRunConfig
-from metaphor.metabase.extractor import DatabaseInfo, MetabaseExtractor
-from metaphor.models.metadata_change_event import Chart, ChartType, DataPlatform
+from metaphor.metabase.extractor import MetabaseExtractor
+from tests.test_utils import load_json
 
 
-def test_parse_database_and_card():
-    config = MetabaseRunConfig(
-        server_url="", username="", password="", output=OutputConfig()
-    )
-    extractor = MetabaseExtractor(config)
-
-    database_json = {
-        "name": "metaphor_bigquery",
-        "updated_at": "2022-01-19T06:11:29.507426Z",
-        "native_permissions": "write",
-        "details": {
-            "project-id": "metaphor",
-            "service-account-json": "**MetabasePass**",
-            "dataset-id": "foo",
-            "use-jvm-timezone": False,
-            "include-user-id-and-hash": True,
-            "project-id-from-credentials": "metaphor",
-        },
-        "is_sample": False,
-        "id": 1,
-        "is_on_demand": False,
-        "options": None,
-        "engine": "bigquery-cloud-sdk",
-        "created_at": "2022-01-19T06:09:07.180228Z",
-    }
-
-    extractor._parse_database(database_json)
-
-    assert len(extractor._databases) == 1
-    assert extractor._databases[1] == DatabaseInfo(
-        platform=DataPlatform.BIGQUERY, database="metaphor", schema="foo", account=None
+def dummy_config():
+    return MetabaseRunConfig(
+        server_url="https://localhost", username="", password="", output=OutputConfig()
     )
 
-    card_json = {
-        "description": None,
-        "archived": False,
-        "table_id": 200,
-        "creator": {
-            "email": "abc@metaphor.io",
-            "first_name": "Metaphor",
-            "last_login": "2022-02-04T21:37:40.260905Z",
-            "is_qbnewb": False,
-            "is_superuser": True,
-            "id": 1,
-            "last_name": "Data",
-            "date_joined": "2022-01-14T23:13:15.600349Z",
-            "common_name": "Metaphor Data",
-        },
-        "database_id": 1,
-        "enable_embedding": False,
-        "collection_id": 34,
-        "query_type": "query",
-        "name": "Sample Sales Records by Total Revenue",
-        "creator_id": 1,
-        "updated_at": "2022-01-31T07:20:41.511367Z",
-        "made_public_by_id": False,
-        "dataset_query": {
-            "type": "native",
-            "database": 1,
-            "native": {
-                "query": "select a, b, c from table1 join table2 on table1.id = table2.id"
-            },
-        },
-        "id": 3,
-        "display": "bar",
-        "last-edit-info": {
-            "id": 1,
-            "email": "abc@metaphor.io",
-            "first_name": "Metaphor",
-            "last_name": "Data",
-            "timestamp": "2022-01-31T07:19:03.389714Z",
-        },
-        "favorite": False,
-        "created_at": "2022-01-31T07:19:03.374289Z",
-    }
 
-    extractor._parse_chart(card_json)
+class MockResponse:
+    def __init__(self, json_data, status_code=200):
+        self.json_data = json_data
+        self.status_code = status_code
 
-    assert len(extractor._charts) == 1
-    assert extractor._charts[3].chart == Chart(
-        chart_type=ChartType.BAR,
-        title="Sample Sales Records by Total Revenue",
-        url="/card/3",
-    )
+    def json(self):
+        return self.json_data
 
-    assert set(extractor._charts[3].upstream) == {
-        str(to_dataset_entity_id("metaphor.foo.table1", DataPlatform.BIGQUERY)),
-        str(to_dataset_entity_id("metaphor.foo.table2", DataPlatform.BIGQUERY)),
-    }
+    def raise_for_status(self):
+        return
+
+
+@patch.object(requests, "post")
+@patch.object(requests.Session, "get")
+@pytest.mark.asyncio
+async def test_extractor(
+    mock_get_method: MagicMock, mock_post_method: MagicMock, test_root_dir: str
+):
+    mock_post_method.side_effect = [
+        MockResponse({"id": "abc"}),
+    ]
+
+    mock_get_method.side_effect = [
+        MockResponse(
+            load_json(f"{test_root_dir}/metabase/data/databases.json"),
+        ),
+        MockResponse(
+            load_json(f"{test_root_dir}/metabase/data/cards.json"),
+        ),
+        MockResponse(load_json(f"{test_root_dir}/metabase/data/table86.json")),
+        MockResponse(load_json(f"{test_root_dir}/metabase/data/dashboards.json")),
+        MockResponse(
+            load_json(f"{test_root_dir}/metabase/data/dashboard101.json"),
+        ),
+    ]
+
+    extractor = MetabaseExtractor(dummy_config())
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+
+    assert events == load_json(f"{test_root_dir}/metabase/expected.json")
