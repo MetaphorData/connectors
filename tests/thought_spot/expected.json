@@ -11,7 +11,7 @@
       "directories": [
         "WORKSHEET"
       ],
-      "name": "worksheet1"
+      "name": "Worksheet 1"
     },
     "thoughtSpot": {
       "columns": [],
@@ -50,7 +50,7 @@
       "directories": [
         "TABLE"
       ],
-      "name": "table1"
+      "name": "Table 1"
     },
     "thoughtSpot": {
       "columns": [
@@ -105,7 +105,7 @@
       "directories": [
         "VIEW"
       ],
-      "name": "view1"
+      "name": "View 1"
     },
     "thoughtSpot": {
       "columns": [
@@ -157,7 +157,7 @@
       "directories": [
         "VIEW"
       ],
-      "name": "sql_view_1"
+      "name": "JOIN SQL view"
     },
     "thoughtSpot": {
       "columns": [
@@ -236,7 +236,7 @@
       "directories": [
         "ANSWER"
       ],
-      "name": "answer1"
+      "name": "Answer 1"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -292,7 +292,7 @@
       "directories": [
         "LIVEBOARD"
       ],
-      "name": "board1"
+      "name": "Board 1"
     },
     "upstream": {
       "sourceVirtualViews": [

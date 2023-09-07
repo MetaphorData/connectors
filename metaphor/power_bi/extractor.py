@@ -168,7 +168,7 @@ class PowerBIExtractor(BaseExtractor):
                     name=wds.id, type=VirtualViewType.POWER_BI_DATASET
                 ),
                 structure=AssetStructure(
-                    directories=self._get_workspace_hierarchy(workspace), name=wds.id
+                    directories=self._get_workspace_hierarchy(workspace), name=wds.name
                 ),
                 power_bi_dataset=VirtualViewPowerBIDataset(
                     tables=tables,
@@ -229,7 +229,7 @@ class PowerBIExtractor(BaseExtractor):
                 ),
                 structure=AssetStructure(
                     directories=self._get_workspace_hierarchy(workspace),
-                    name=wi_report.id,
+                    name=wi_report.name,
                 ),
                 dashboard_info=DashboardInfo(
                     description=wi_report.description,
@@ -285,7 +285,7 @@ class PowerBIExtractor(BaseExtractor):
                 ),
                 structure=AssetStructure(
                     directories=self._get_workspace_hierarchy(workspace),
-                    name=wi_dashboard.id,
+                    name=wi_dashboard.displayName,
                 ),
                 dashboard_info=DashboardInfo(
                     title=wi_dashboard.displayName,
