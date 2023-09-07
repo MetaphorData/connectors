@@ -12,6 +12,7 @@ from metaphor.common.logger import get_logger
 from metaphor.metabase.config import MetabaseRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     ChartType,
     Dashboard,
@@ -182,6 +183,7 @@ class MetabaseExtractor(BaseExtractor):
 
         # need to fetch the dashboard details, which contains the cards info
         dashboard_details = self._fetch_asset("dashboard", dashboard_id)
+        name = dashboard_details["name"]
 
         cards = dashboard_details.get("ordered_cards", [])
         charts, upstream_datasets = [], set()
@@ -196,7 +198,7 @@ class MetabaseExtractor(BaseExtractor):
                 upstream_datasets.update(self._charts[card_id].upstream)
 
         dashboard_info = DashboardInfo(
-            title=dashboard_details["name"],
+            title=name,
             description=dashboard_details["description"],
             charts=charts,
         )
@@ -215,6 +217,7 @@ class MetabaseExtractor(BaseExtractor):
             logical_id=DashboardLogicalID(
                 dashboard_id=str(dashboard_id), platform=DashboardPlatform.METABASE
             ),
+            structure=AssetStructure(directories=[], name=name),
             dashboard_info=dashboard_info,
             source_info=source_info,
             upstream=dashboard_upstream,
