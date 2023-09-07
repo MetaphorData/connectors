@@ -14,6 +14,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     dataset_normalized_name,
     to_dataset_entity_id_from_logical_id,
+    to_pipeline_entity_id_from_logical_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
@@ -471,6 +472,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
 
     @staticmethod
     def _process_activities(
+        pipeline_entity_id: str,
         activities: List[DfModels.Activity],
         factory_datasets: Dict[str, Dataset],
         factory_data_flows: Dict[str, DfModels.DataFlowResource],
@@ -516,6 +518,9 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         for source_id in copy_from:
                             dataset.upstream.source_datasets.append(source_id)
 
+                        # Assign pipeline entityId to output's upstream
+                        dataset.upstream.pipeline_entity_id = pipeline_entity_id
+
             if isinstance(activity, DfModels.ExecuteDataFlowActivity):
                 data_flow = factory_data_flows.get(activity.data_flow.reference_name)
                 (
@@ -542,6 +547,10 @@ class AzureDataFactoryExtractor(BaseExtractor):
                             )
                         )
                     )
+
+                    # Assign pipeline entityId to sink's upstream
+                    sink_dataset.upstream.pipeline_entity_id = pipeline_entity_id
+
         return metaphor_activities, sources, sinks
 
     def _extract_pipeline_metadata(
@@ -584,17 +593,22 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 last_run_end = last_pipeline_run.run_end
                 last_run_status = last_pipeline_run.status
 
+            pipeline_logical_id = PipelineLogicalID(
+                name=pipeline_id, type=PipelineType.AZURE_DATA_FACTORY_PIPELINE
+            )
+
             activities, sources, sinks = self._process_activities(
-                pipeline.activities or [], factory_datasets, factory_data_flows
+                str(to_pipeline_entity_id_from_logical_id(pipeline_logical_id)),
+                pipeline.activities or [],
+                factory_datasets,
+                factory_data_flows,
             )
 
             params = {"factory": factory.id}
             pipeline_url = f"https://adf.azure.com/authoring/pipeline/{pipeline_name}?{urlencode(params)}"
 
             metaphor_pipeline = Pipeline(
-                logical_id=PipelineLogicalID(
-                    name=pipeline_id, type=PipelineType.AZURE_DATA_FACTORY_PIPELINE
-                ),
+                logical_id=pipeline_logical_id,
                 azure_data_factory_pipeline=AzureDataFactoryPipeline(
                     factory=factory.name,
                     pipeline_url=pipeline_url,
