@@ -332,9 +332,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         connection = connections[source_id]
 
         try:
-            accountName = json.loads(connection.details.configuration).get(
-                "accountName"
-            )
+            accountName = json.loads(connection.configuration).get("accountName")
         except json.decoder.JSONDecodeError:
             accountName = None
 

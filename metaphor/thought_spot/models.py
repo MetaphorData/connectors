@@ -20,6 +20,9 @@ class Header(BaseModel):
     description: Optional[str]
     tags: List[Tag] = []
 
+    def __repr__(self):
+        return self.id
+
 
 class Reference(BaseModel):
     id: str

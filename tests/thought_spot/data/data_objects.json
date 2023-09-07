@@ -139,7 +139,7 @@
         "worksheetType": "VIEW"
       },
       "type": "SQL_VIEW",
-      "dataSourceId": "conn1",
+      "dataSourceId": "conn2",
       "dataSourceTypeEnum": "RDBMS_SNOWFLAKE",
       "header": {
         "id": "sql_view_1",
