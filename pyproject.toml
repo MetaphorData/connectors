@@ -88,7 +88,7 @@ throughtspot = ["thoughtspot-rest-api-v1"]
 unity_catalog = ["databricks-cli"]
 
 [tool.poetry.dev-dependencies]
-apache-airflow = "^2.6.3"
+apache-airflow = "^2.7.0"
 bandit = "^1.7.2"
 black = "^23.3.0"
 coverage = "^7.1.0"
