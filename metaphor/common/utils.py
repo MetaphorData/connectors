@@ -29,7 +29,7 @@ def chunks(list, n):
 def must_set_exactly_one(values: Dict, keys: List[str]):
     not_none = [k for k in keys if values.get(k) is not None]
     if len(not_none) != 1:
-        raise ValueError(f"must set exactly one of {keys}, found {not_none}")
+        raise ValueError(f"Must set exactly one of {keys}, found {not_none}")
 
 
 def md5_digest(value: bytes) -> str:
