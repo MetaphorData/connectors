@@ -45,19 +45,12 @@ jobs:
       - name: Test
         run: |
           poetry run coverage run --source=metaphor --omit='**/__init__.py' -m pytest
-          poetry run coverage lcov
           poetry run coverage xml
 
       - name: Codecov
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: coverage.lcov
 
       - name: Pytest coverage comment
         uses: orgoro/coverage@v3

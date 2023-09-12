@@ -2,7 +2,7 @@
 
 # Metaphor Connectors
 
-[![Coverage](https://coveralls.io/repos/github/MetaphorData/connectors/badge.svg?branch=main)](https://coveralls.io/github/MetaphorData/connectors?branch=main)
+[![Codecov](https://img.shields.io/codecov/c/github/MetaphorData/connectors)](https://app.codecov.io/gh/MetaphorData/connectors/tree/main)
 [![CodeQL](https://github.com/MetaphorData/connectors/workflows/CodeQL/badge.svg)](https://github.com/MetaphorData/connectors/actions/workflows/codeql-analysis.yml)
 [![PyPI Version](https://img.shields.io/pypi/v/metaphor-connectors)](https://pypi.org/project/metaphor-connectors/)
 ![Python version 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)
