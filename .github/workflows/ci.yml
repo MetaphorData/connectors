@@ -48,6 +48,11 @@ jobs:
           poetry run coverage lcov
           poetry run coverage xml
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
@@ -59,8 +64,8 @@ jobs:
         with:
           coverageFile: ./coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          thresholdAll: 0.8
-          thresholdNew: 0.8
+          thresholdAll: 0.85
+          thresholdNew: 0.85
           thresholdModified: 0.0
 
   docker:
