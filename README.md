@@ -45,12 +45,13 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | Connector Name                                                | Metadata                                 |
 |---------------------------------------------------------------|------------------------------------------|  
 | [airflow_plugin](metaphor/airflow_plugin/README.md)           | Lineage                                  |
+| [azure_data_factory](metaphor/azure_data_factory/README.md)   | Lineage, Pipeline                        |
 | [bigquery](metaphor/bigquery/README.md)                       | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/README.md)       | Lineage                                  |
 | [bigquery.profile](metaphor/bigquery/profile/README.md)       | Data profile                             |
 | [dbt](metaphor/dbt/README.md)                                 | dbt model, test, lineage                 |
 | [dbt.cloud](metaphor/dbt/cloud/README.md)                     | dbt model, test, lineage                 |
-| [fivetran](metaphor/fivetran/README.md)                       | lineage                                  |
+| [fivetran](metaphor/fivetran/README.md)                       | Lineage, Pipeline                        |
 | [glue](metaphor/glue/README.md)                               | Schema, description                      |
 | [looker](metaphor/looker/README.md)                           | Looker view, explore, dashboard, lineage |
 | [custom.data_quality](metaphor/custom/data_quality/README.md) | Data quality                             |
