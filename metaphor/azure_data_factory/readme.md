@@ -8,7 +8,7 @@ We recommend creating a dedicated Azure AD Application for the connector to use.
 
 1. Follow [Step 1 of this doc](https://docs.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal#step-1---create-an-azure-ad-app) to create an Azure AD app and a client secret.
 
-2. Give the app a reader role to access REST APIs. Go to the resource you want to connect to. For example, a subscription. On the resource page, select `Access Control (IAM)`, and add the built-in `Reader` role to the app you created in Step 1.
+2. Give the app a reader role for each data factory to access REST APIs. In the Azure portal, search `Data Factories`, click the data factory you want to connect to. Select `Access Control (IAM)`, and add the built-in `Reader` role to the app you created in Step 1.
 
 ## Config File
 
