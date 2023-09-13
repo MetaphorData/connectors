@@ -176,6 +176,51 @@
     }
   },
   {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "sql_col2",
+          "sources": [
+            {
+              "field": "c",
+              "sourceEntityId": "DATASET~844586420073B959F7B75FED699C23E9"
+            }
+          ],
+          "transformation": "c"
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~844586420073B959F7B75FED699C23E9"
+      ],
+      "transformation": "select c as sql_col2 from project.schema.table"
+    },
+    "logicalId": {
+      "name": "sql_view_2",
+      "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "structure": {
+      "directories": [
+        "VIEW"
+      ],
+      "name": "JOIN SQL view"
+    },
+    "thoughtSpot": {
+      "columns": [
+        {
+          "name": "sql_col2",
+          "type": "VARCHAR"
+        }
+      ],
+      "name": "JOIN SQL view",
+      "sourceDatasets": [
+        "DATASET~844586420073B959F7B75FED699C23E9"
+      ],
+      "tags": [],
+      "type": "VIEW",
+      "url": "http://base.url/#/data/tables/sql_view_2"
+    }
+  },
+  {
     "dashboardInfo": {
       "charts": [
         {
