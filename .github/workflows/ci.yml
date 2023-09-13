@@ -45,22 +45,20 @@ jobs:
       - name: Test
         run: |
           poetry run coverage run --source=metaphor --omit='**/__init__.py' -m pytest
-          poetry run coverage lcov
           poetry run coverage xml
 
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: coverage.lcov
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Pytest coverage comment
         uses: orgoro/coverage@v3
         with:
           coverageFile: ./coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          thresholdAll: 0.8
-          thresholdNew: 0.8
+          thresholdAll: 0.85
+          thresholdNew: 0.85
           thresholdModified: 0.0
 
   docker:

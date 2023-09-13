@@ -70,13 +70,12 @@ jobs:
         run: |
           poetry install -E all
           poetry run coverage run --source=metaphor -m pytest
-          poetry run coverage lcov
+          poetry run coverage xml
 
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: coverage.lcov
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   pypi:
     name: Publish to PyPI
