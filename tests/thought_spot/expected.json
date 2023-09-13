@@ -138,14 +138,14 @@
           "sources": [
             {
               "field": "c",
-              "sourceEntityId": "DATASET~29779E6A8F6548832D2305896A583002"
+              "sourceEntityId": "DATASET~9A61719497E3AC013ACBCA83F9F732B7"
             }
           ],
           "transformation": "c"
         }
       ],
       "sourceEntities": [
-        "DATASET~29779E6A8F6548832D2305896A583002"
+        "DATASET~9A61719497E3AC013ACBCA83F9F732B7"
       ],
       "transformation": "select c as sql_col1 from project.schema.table"
     },
@@ -168,11 +168,56 @@
       ],
       "name": "JOIN SQL view",
       "sourceDatasets": [
-        "DATASET~29779E6A8F6548832D2305896A583002"
+        "DATASET~9A61719497E3AC013ACBCA83F9F732B7"
       ],
       "tags": [],
       "type": "VIEW",
       "url": "http://base.url/#/data/tables/sql_view_1"
+    }
+  },
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "sql_col2",
+          "sources": [
+            {
+              "field": "c",
+              "sourceEntityId": "DATASET~844586420073B959F7B75FED699C23E9"
+            }
+          ],
+          "transformation": "c"
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~844586420073B959F7B75FED699C23E9"
+      ],
+      "transformation": "select c as sql_col2 from project.schema.table"
+    },
+    "logicalId": {
+      "name": "sql_view_2",
+      "type": "THOUGHT_SPOT_DATA_OBJECT"
+    },
+    "structure": {
+      "directories": [
+        "VIEW"
+      ],
+      "name": "JOIN SQL view"
+    },
+    "thoughtSpot": {
+      "columns": [
+        {
+          "name": "sql_col2",
+          "type": "VARCHAR"
+        }
+      ],
+      "name": "JOIN SQL view",
+      "sourceDatasets": [
+        "DATASET~844586420073B959F7B75FED699C23E9"
+      ],
+      "tags": [],
+      "type": "VIEW",
+      "url": "http://base.url/#/data/tables/sql_view_2"
     }
   },
   {
