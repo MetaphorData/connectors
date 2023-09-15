@@ -1,0 +1,29 @@
+{
+  "SubscriptionEntities": [
+    {
+      "id": "some-uuid",
+      "title": "Subscription title",
+      "artifactId": "dashboard-uuid",
+      "artifactDisplayName": "Report Name",
+      "subArtifactDisplayName": "Page Name",
+      "artifactType": "Report",
+      "isEnabled": true,
+      "frequency": "Daily",
+      "startDate": "9/12/2023 12:00:00 AM",
+      "endDate": "9/12/2024 12:00:00 AM",
+      "linkToContent": true,
+      "previewImage": true,
+      "attachmentFormat": "PNG",
+      "owner": {
+        "emailAddress": "test@testdomain.abc",
+        "displayName": "Test account",
+        "identifier": "test@testdomain.abc",
+        "graphId": "user-uuid",
+        "principalType": "User"
+      },
+      "users": []
+    }
+  ],
+  "continuationUri": "https://continuationUri.url/",
+  "continuationToken": "token"
+}
