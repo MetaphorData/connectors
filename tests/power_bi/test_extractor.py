@@ -277,7 +277,14 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                         displayName="Metaphor",
                         graphId="user-id",
                         principalType="User",
-                    )
+                    ),
+                    WorkspaceInfoUser(
+                        emailAddress=None,
+                        groupUserAccessRight="Viewer",
+                        displayName="Group",
+                        graphId="group-id",
+                        principalType="Group",
+                    ),
                 ],
             )
         ]
@@ -316,7 +323,12 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                 artifactDisplayName=dashboard1.displayName,
                 subArtifactDisplayName=None,
                 users=[],
-            )
+            ),
+            PowerBISubscription(
+                id="subscription-2",
+                artifactId="some-random-id",
+                title="",
+            ),
         ]
 
     mock_instance.get_datasets.side_effect = fake_get_datasets

@@ -152,11 +152,11 @@ class PowerBISubscription(BaseModel):
     id: str
     artifactId: str
     title: str
-    frequency: Optional[str]
-    endDate: Optional[str]
-    startDate: Optional[str]
-    artifactDisplayName: Optional[str]
-    subArtifactDisplayName: Optional[str]
+    frequency: Optional[str] = None
+    endDate: Optional[str] = None
+    startDate: Optional[str] = None
+    artifactDisplayName: Optional[str] = None
+    subArtifactDisplayName: Optional[str] = None
     users: List[PowerBiSubscriptionUser] = []
 
 

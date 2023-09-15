@@ -177,7 +177,7 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
                                 "dependsOn": [
                                     {
                                         "activity": "Data flow1",
-                                        "dependencyConditions": ["Succeeded"],
+                                        "dependencyConditions": ["Succeeded", "Foo"],
                                     }
                                 ],
                                 "userProperties": [],
