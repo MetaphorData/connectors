@@ -306,7 +306,23 @@
         "workspace": {
           "id": "workspace-1",
           "name": "Workspace"
-        }
+        },
+        "subscriptions": [
+          {
+            "artifactDisplayName": "Dashboard A",
+            "endDate": "2000-09-06T00:13:52+00:00",
+            "startDate": "1998-11-30T17:05:52+00:00",
+            "frequency": "Daily",
+            "id": "subscription-1",
+            "title": "First Subscription",
+            "users": [
+              {
+                "displayName": "Metaphor",
+                "emailAddress": "powerbi@metaphor.io"
+              }
+            ]
+          }
+        ]
       },
       "title": "Dashboard A"
     },

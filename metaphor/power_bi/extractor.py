@@ -32,6 +32,10 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.models.metadata_change_event import PowerBIDatasetTable, PowerBIInfo
 from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
+from metaphor.models.metadata_change_event import PowerBISubscription as Subscription
+from metaphor.models.metadata_change_event import (
+    PowerBISubscriptionUser as SubscriptionUser,
+)
 from metaphor.models.metadata_change_event import PowerBIWorkspace as PbiWorkspace
 from metaphor.models.metadata_change_event import (
     SourceInfo,
@@ -45,6 +49,8 @@ from metaphor.power_bi.power_bi_client import (
     PowerBIClient,
     PowerBIPage,
     PowerBIRefresh,
+    PowerBISubscription,
+    PowerBiSubscriptionUser,
     PowerBITile,
     WorkspaceInfo,
 )
@@ -97,6 +103,7 @@ class PowerBIExtractor(BaseExtractor):
         for workspace in workspaces:
             self.map_wi_reports_to_dashboard(workspace, app_map)
             self.map_wi_dashboards_to_dashboard(workspace, app_map)
+            self.extract_subscriptions(workspace)
 
         self.dedupe_app_version_dashboards()
 
@@ -335,6 +342,71 @@ class PowerBIExtractor(BaseExtractor):
                 else original_dashboard.source_info.main_url
             )
             del self._dashboards[dashboard_id]
+
+    def extract_subscriptions(self, workspace: WorkspaceInfo):
+        subscriptions: Dict[str, PowerBISubscription] = {}
+
+        for user in workspace.users:
+            # Skip group and service principal
+            if user.principalType != "User":
+                continue
+
+            user_id = user.graphId
+            subscription_user = PowerBiSubscriptionUser(
+                emailAddress=user.emailAddress, displayName=user.displayName
+            )
+            user_subscriptions = self._client.get_user_subscriptions(user_id)
+
+            for user_subscription in user_subscriptions:
+                subscription = subscriptions.setdefault(
+                    user_subscription.id, user_subscription
+                )
+                subscription.users.append(subscription_user)
+
+        for subscription in subscriptions.values():
+            dashboard = self._dashboards.get(subscription.artifactId)
+
+            if dashboard is None:
+                logger.warn(
+                    f"Can't found related artifact for subscription: {subscription.id}"
+                )
+                continue
+
+            power_bi_info = dashboard.dashboard_info.power_bi
+            if power_bi_info.subscriptions is None:
+                power_bi_info.subscriptions = []
+
+            def safe_parse_date(datetime_str: Optional[str]) -> Optional[datetime]:
+                # Example date time 9/12/2023 12:00:00 AM
+                datetime_format = "%m/%d/%Y %I:%M:%S %p"
+                if not datetime_str:
+                    return None
+                try:
+                    return datetime.strptime(datetime_str, datetime_format).replace(
+                        tzinfo=timezone.utc
+                    )
+                except ValueError:
+                    logger.warn(f"Unable to parse time: {datetime_str}")
+                    return None
+
+            power_bi_info.subscriptions.append(
+                Subscription(
+                    artifact_display_name=subscription.artifactDisplayName,
+                    end_date=safe_parse_date(subscription.endDate),
+                    start_date=safe_parse_date(subscription.startDate),
+                    sub_artifact_display_name=subscription.subArtifactDisplayName,
+                    frequency=subscription.frequency,
+                    title=subscription.title,
+                    id=subscription.id,
+                    users=[
+                        SubscriptionUser(
+                            email_address=user.emailAddress,
+                            display_name=user.displayName,
+                        )
+                        for user in subscription.users
+                    ],
+                )
+            )
 
     @staticmethod
     def _make_power_bi_info(

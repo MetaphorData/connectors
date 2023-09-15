@@ -124,6 +124,14 @@ class WorkspaceInfoReport(BaseModel):
     description: str = ""
 
 
+class WorkspaceInfoUser(BaseModel):
+    emailAddress: Optional[str]
+    groupUserAccessRight: str
+    displayName: Optional[str]
+    graphId: str
+    principalType: str
+
+
 class WorkspaceInfo(BaseModel):
     id: str
     name: Optional[str]
@@ -132,6 +140,29 @@ class WorkspaceInfo(BaseModel):
     reports: List[WorkspaceInfoReport] = []
     datasets: List[WorkspaceInfoDataset] = []
     dashboards: List[WorkspaceInfoDashboard] = []
+    users: List[WorkspaceInfoUser] = []
+
+
+class PowerBiSubscriptionUser(BaseModel):
+    emailAddress: str
+    displayName: str
+
+
+class PowerBISubscription(BaseModel):
+    id: str
+    artifactId: str
+    title: str
+    frequency: Optional[str]
+    endDate: Optional[str]
+    startDate: Optional[str]
+    artifactDisplayName: Optional[str]
+    subArtifactDisplayName: Optional[str]
+    users: List[PowerBiSubscriptionUser] = []
+
+
+class SubscriptionsByUserResponse(BaseModel):
+    SubscriptionEntities: List[PowerBISubscription]
+    continuationUri: Optional[str]
 
 
 class AccessTokenError(Exception):
@@ -237,6 +268,27 @@ class PowerBIClient:
         return self._call_get(
             url, List[PowerBIReport], transform_response=lambda r: r.json()["value"]
         )
+
+    def get_user_subscriptions(self, user_id: str) -> List[PowerBISubscription]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/users-get-user-subscriptions-as-admin
+        url = f"{self.API_ENDPOINT}/admin/users/{user_id}/subscriptions"
+
+        continuationUri: Optional[str] = url
+        subscriptions: List[PowerBISubscription] = []
+        while continuationUri:
+            try:
+                response = self._call_get(continuationUri, SubscriptionsByUserResponse)
+            except EntityNotFoundError:
+                logger.error(f"Unable to find user {user_id} in workspace.")
+                break
+
+            continuationUri = response.continuationUri
+            chunk = response.SubscriptionEntities
+            if len(chunk) == 0:
+                break
+            subscriptions += chunk
+
+        return subscriptions
 
     def get_pages(self, group_id: str, report_id: str) -> List[PowerBIPage]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/reports/get-pages-in-group
