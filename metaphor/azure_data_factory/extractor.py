@@ -28,6 +28,7 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUpstream,
+    DependencyCondition,
     Pipeline,
     PipelineLogicalID,
     PipelineType,
@@ -471,6 +472,20 @@ class AzureDataFactoryExtractor(BaseExtractor):
         return None
 
     @staticmethod
+    def _map_dependency_conditions(conditions: list) -> List[DependencyCondition]:
+        result: List[DependencyCondition] = []
+        for condition in conditions:
+            if isinstance(condition, str):
+                try:
+                    result.append(DependencyCondition(condition))
+                except ValueError:
+                    logger.warn(
+                        f"Invalid enum value for DependencyCondition: {condition}"
+                    )
+                    continue
+        return result
+
+    @staticmethod
     def _process_activities(
         pipeline_entity_id: str,
         activities: List[DfModels.Activity],
@@ -478,12 +493,15 @@ class AzureDataFactoryExtractor(BaseExtractor):
         factory_data_flows: Dict[str, DfModels.DataFlowResource],
     ) -> Tuple[List[AzureDataFactoryActivity], List[str], List[str]]:
         metaphor_activities, sources, sinks = [], [], []
+
         for activity in activities:
             metaphor_activities.append(
                 AzureDataFactoryActivity(
                     depends_on=[
                         ActivityDependency(
-                            dependency_conditions=dependent.dependency_conditions,
+                            dependency_conditions=AzureDataFactoryExtractor._map_dependency_conditions(
+                                dependent.dependency_conditions
+                            ),
                             name=dependent.activity,
                         )
                         for dependent in (activity.depends_on or [])

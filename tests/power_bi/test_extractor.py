@@ -14,6 +14,7 @@ from metaphor.power_bi.power_bi_client import (
     PowerBIPage,
     PowerBIRefresh,
     PowerBIReport,
+    PowerBISubscription,
     PowerBITable,
     PowerBITableColumn,
     PowerBITableMeasure,
@@ -22,6 +23,7 @@ from metaphor.power_bi.power_bi_client import (
     WorkspaceInfoDashboard,
     WorkspaceInfoDataset,
     WorkspaceInfoReport,
+    WorkspaceInfoUser,
 )
 from tests.test_utils import load_json
 
@@ -216,6 +218,8 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                                 ],
                             )
                         ],
+                        upstreamDataflows=None,
+                        upstreamDatasets=None,
                     ),
                     WorkspaceInfoDataset(
                         configuredBy="bob@foo.com",
@@ -250,6 +254,8 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                                 ],
                             ),
                         ],
+                        upstreamDataflows=None,
+                        upstreamDatasets=None,
                     ),
                 ],
                 dashboards=[
@@ -263,6 +269,22 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                         appId=app2.id,
                     ),
                     WorkspaceInfoDashboard(displayName="Dashboard B", id=dashboard2_id),
+                ],
+                users=[
+                    WorkspaceInfoUser(
+                        emailAddress="powerbi@metaphor.io",
+                        groupUserAccessRight="Viewer",
+                        displayName="Metaphor",
+                        graphId="user-id",
+                        principalType="User",
+                    ),
+                    WorkspaceInfoUser(
+                        emailAddress=None,
+                        groupUserAccessRight="Viewer",
+                        displayName="Group",
+                        graphId="group-id",
+                        principalType="Group",
+                    ),
                 ],
             )
         ]
@@ -289,6 +311,26 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     def fake_get_apps() -> List[PowerBIApp]:
         return [app1, app2]
 
+    def fake_get_user_subscriptions(user_id: str) -> List[PowerBISubscription]:
+        return [
+            PowerBISubscription(
+                id="subscription-1",
+                artifactId=dashboard1.id,
+                title="First Subscription",
+                frequency="Daily",
+                endDate="9/6/2000 12:13:52 AM",
+                startDate="11/30/1998 5:05:52 PM",
+                artifactDisplayName=dashboard1.displayName,
+                subArtifactDisplayName=None,
+                users=[],
+            ),
+            PowerBISubscription(
+                id="subscription-2",
+                artifactId="some-random-id",
+                title="",
+            ),
+        ]
+
     mock_instance.get_datasets.side_effect = fake_get_datasets
     mock_instance.get_reports.side_effect = fake_get_reports
     mock_instance.get_dashboards.side_effect = fake_get_dashboards
@@ -296,6 +338,7 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     mock_instance.get_pages.side_effect = fake_get_pages
     mock_instance.get_refreshes.side_effect = fake_get_refreshes
     mock_instance.get_apps.side_effect = fake_get_apps
+    mock_instance.get_user_subscriptions = fake_get_user_subscriptions
 
     mock_client.return_value = mock_instance
 
