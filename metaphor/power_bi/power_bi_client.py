@@ -131,6 +131,9 @@ class WorkspaceInfoUser(BaseModel):
     graphId: str
     principalType: str
 
+    def __hash__(self):
+        return hash(self.graphId)
+
 
 class WorkspaceInfo(BaseModel):
     id: str

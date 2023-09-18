@@ -103,7 +103,8 @@ class PowerBIExtractor(BaseExtractor):
         for workspace in workspaces:
             self.map_wi_reports_to_dashboard(workspace, app_map)
             self.map_wi_dashboards_to_dashboard(workspace, app_map)
-            self.extract_subscriptions(workspace)
+
+        self.extract_subscriptions(workspaces)
 
         self.dedupe_app_version_dashboards()
 
@@ -343,14 +344,17 @@ class PowerBIExtractor(BaseExtractor):
             )
             del self._dashboards[dashboard_id]
 
-    def extract_subscriptions(self, workspace: WorkspaceInfo):
+    def extract_subscriptions(self, workspaces: List[WorkspaceInfo]):
+        users = set(
+            user
+            for workspace in workspaces
+            for user in workspace.users
+            # Skipping report without datasetId
+            if user.principalType == "User"
+        )
         subscriptions: Dict[str, PowerBISubscription] = {}
 
-        for user in workspace.users:
-            # Skip group and service principal
-            if user.principalType != "User":
-                continue
-
+        for user in users:
             user_id = user.graphId
             subscription_user = PowerBiSubscriptionUser(
                 emailAddress=user.emailAddress, displayName=user.displayName
