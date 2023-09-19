@@ -238,16 +238,13 @@ class FivetranExtractor(BaseExtractor):
         source_platform = (
             SOURCE_PLATFORM_MAPPING.get(connector.service) or DataPlatform.EXTERNAL
         )
-        source_account = (
-            self.get_snowflake_account_from_config(connector.config)
-            if source_platform == DataPlatform.SNOWFLAKE
-            else None
-        )
 
         source_logical_id = DatasetLogicalID(
             name=source_dataset_name,
             platform=source_platform,
-            account=source_account,
+            account=self.get_source_account_from_config(
+                connector.config, source_platform
+            ),
         )
 
         return source_logical_id
@@ -390,6 +387,18 @@ class FivetranExtractor(BaseExtractor):
         # remove snowflakecomputing.com parts
         account = ".".join(host.split(".")[:-2])
         return normalize_snowflake_account(account)
+
+    @staticmethod
+    def get_source_account_from_config(
+        config: dict, source_platform: DataPlatform
+    ) -> Optional[str]:
+        if source_platform == DataPlatform.SNOWFLAKE:
+            return FivetranExtractor.get_snowflake_account_from_config(config)
+        elif source_platform == DataPlatform.MSSQL:
+            host = config.get("host")
+            if host:
+                return host.lower()
+        return None
 
     @staticmethod
     def get_database_name_from_destination(

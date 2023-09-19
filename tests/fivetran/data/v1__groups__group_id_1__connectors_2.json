@@ -28,6 +28,32 @@
         "setup_tests": null,
         "config": null,
         "source_sync_details": null
+      },
+      {
+        "id": "connector_3",
+        "group_id": "group_id_1",
+        "service": "sql_server",
+        "service_version": 0,
+        "schema": "sqldb_foo",
+        "connected_by": "user_id",
+        "created_at": "2023-04-10T18:02:35.655597Z",
+        "succeeded_at": "2023-04-19T08:56:03.467Z",
+        "failed_at": null,
+        "paused": false,
+        "pause_after_trial": false,
+        "sync_frequency": 1440,
+        "daily_sync_time": null,
+        "schedule_type": "auto",
+        "status": {
+          "setup_state": "connected",
+          "sync_state": "paused",
+          "update_state": "on_schedule",
+          "is_historical_sync": false,
+          "tasks": [],
+          "warnings": []
+        },
+        "setup_tests": null,
+        "source_sync_details": null
       }
     ]
   }
