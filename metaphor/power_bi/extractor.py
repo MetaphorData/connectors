@@ -429,11 +429,11 @@ class PowerBIExtractor(BaseExtractor):
             power_bi_dashboard_type=type,
             workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
             created_by=dashboard.createdBy,
-            created_date_time=PowerBIExtractor._safe_parse_ISO8061(
+            created_date_time=PowerBIExtractor._safe_parse_ISO8601(
                 dashboard.createdDateTime
             ),
             modified_by=dashboard.modifiedBy,
-            modified_date_time=PowerBIExtractor._safe_parse_ISO8061(
+            modified_date_time=PowerBIExtractor._safe_parse_ISO8601(
                 dashboard.modifiedDateTime
             ),
         )
@@ -449,13 +449,14 @@ class PowerBIExtractor(BaseExtractor):
                 endorsement = PowerBIEndorsementType(
                     dashboard.endorsementDetails.endorsement
                 )
+                pbi_info.endorsement = PowerBIEndorsement(
+                    endorsement=endorsement,
+                    certified_by=dashboard.endorsementDetails.certifiedBy,
+                )
             except ValueError:
-                logger.warn(f"Endorsement type {endorsement} are not supported")
-
-            pbi_info.endorsement = PowerBIEndorsement(
-                endorsement=endorsement,
-                certified_by=dashboard.endorsementDetails.certifiedBy,
-            )
+                logger.warn(
+                    f"Endorsement type {dashboard.endorsementDetails.endorsement} are not supported"
+                )
 
         return pbi_info
 
@@ -464,7 +465,7 @@ class PowerBIExtractor(BaseExtractor):
         return (workspace.name or "").split(".")
 
     @staticmethod
-    def _safe_parse_ISO8061(iso8061_str: Optional[str]) -> Optional[datetime]:
+    def _safe_parse_ISO8601(iso8061_str: Optional[str]) -> Optional[datetime]:
         if iso8061_str is None:
             return None
         try:
@@ -486,7 +487,7 @@ class PowerBIExtractor(BaseExtractor):
         except StopIteration:
             return None
 
-        return PowerBIExtractor._safe_parse_ISO8061(refresh.endTime)
+        return PowerBIExtractor._safe_parse_ISO8601(refresh.endTime)
 
     @staticmethod
     def _get_dashboard_id_from_url(url: str) -> Optional[str]:

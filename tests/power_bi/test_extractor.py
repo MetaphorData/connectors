@@ -194,6 +194,9 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                         name=report2.name,
                         datasetId=report2.datasetId,
                         description="This is a report about bar",
+                        endorsementDetails=EndorsementDetails(
+                            endorsement="Invalid", certifiedBy="admin@foo.bar"
+                        ),
                     ),
                 ],
                 datasets=[
@@ -366,3 +369,16 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")
+
+
+def test_safe_parse_ISO8061():
+    assert PowerBIExtractor._safe_parse_ISO8601(None) is None
+    assert (
+        PowerBIExtractor._safe_parse_ISO8601("2023-09-20T08:10:15Z").isoformat()
+        == "2023-09-20T08:10:15+00:00"
+    )
+    assert (
+        PowerBIExtractor._safe_parse_ISO8601("2023-09-20T08:10:15").isoformat()
+        == "2023-09-20T08:10:15+00:00"
+    )
+    assert PowerBIExtractor._safe_parse_ISO8601("isvalid") is None
