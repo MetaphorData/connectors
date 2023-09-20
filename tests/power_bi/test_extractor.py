@@ -409,9 +409,6 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     )
     extractor = PowerBIExtractor(config)
 
-    import json
-
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    print(json.dumps(events))
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")
