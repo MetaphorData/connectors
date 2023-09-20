@@ -13,14 +13,17 @@ from metaphor.power_bi.power_bi_client import (
     PowerBIDataset,
     PowerBIPage,
     PowerBIRefresh,
+    PowerBiRefreshSchedule,
     PowerBIReport,
     PowerBISubscription,
     PowerBITable,
     PowerBITableColumn,
     PowerBITableMeasure,
     PowerBITile,
+    UpstreamDataflow,
     WorkspaceInfo,
     WorkspaceInfoDashboard,
+    WorkspaceInfoDataflow,
     WorkspaceInfoDataset,
     WorkspaceInfoReport,
     WorkspaceInfoUser,
@@ -60,6 +63,14 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
         name="Bar Dataset",
         isRefreshable=False,
         webUrl=f"https://powerbi.com/{dataset2_id}",
+    )
+
+    dataset3_id = "00000000-0000-0000-0001-000000000003"
+    dataset3 = PowerBIDataset(
+        id=dataset3_id,
+        name="Dataflow dataset",
+        isRefreshable=False,
+        webUrl=f"https://powerbi.com/{dataset3_id}",
     )
 
     report1_id = "00000000-0000-0000-0000-000000000004"
@@ -160,6 +171,8 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
         }
     }
 
+    dataflow_id = "00000000-0000-0000-0001-00000000000A"
+
     mock_instance.get_workspace_info = MagicMock(
         return_value=[
             WorkspaceInfo(
@@ -257,6 +270,31 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                         upstreamDataflows=None,
                         upstreamDatasets=None,
                     ),
+                    WorkspaceInfoDataset(
+                        configuredBy="bob@foo.com",
+                        id=dataset3.id,
+                        name=dataset3.name,
+                        description="Dataset from dataflow",
+                        tables=[
+                            PowerBITable(
+                                name="table3",
+                                columns=[
+                                    PowerBITableColumn(name="col1", dataType="string"),
+                                    PowerBITableColumn(name="col2", dataType="int"),
+                                ],
+                                measures=[],
+                                source=[
+                                    {
+                                        "expression": 'let\n    Source = PowerPlatform.Dataflows(null),\n    Workspaces = Source{[Id="Workspaces"]}[Data],\n    #"{workspace1_id}" = Workspaces{[workspaceId="{workspace1_id}"]}[Data],\n    #"{dataflow_id}" = #"{workspace1_id}"{[dataflowId="{dataflow_id}"]}[Data],\n    ENTITY_NAME_ = #"{dataflow_id}"{[entity="ENTITY_NAME",version=""]}[Data]\nin\n    ENTITY_NAME_'
+                                    }
+                                ],
+                            ),
+                        ],
+                        upstreamDataflows=[
+                            UpstreamDataflow(targetDataflowId=dataflow_id)
+                        ],
+                        upstreamDatasets=None,
+                    ),
                 ],
                 dashboards=[
                     WorkspaceInfoDashboard(
@@ -286,12 +324,28 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                         principalType="Group",
                     ),
                 ],
+                dataflows=[
+                    WorkspaceInfoDataflow(
+                        objectId=dataflow_id,
+                        name="Dataflow",
+                        description="A dataflow",
+                        modifiedBy="dataflow.owner@test.foo",
+                        modifiedDateTime="2023-09-19T06:08:01.3550729+00:00",
+                        refreshSchedule=PowerBiRefreshSchedule(
+                            days=["Saturday"],
+                            enabled=True,
+                            localTimeZoneId="UTC",
+                            notifyOption="MailOnFailure",
+                            times=["1:00:00"],
+                        ),
+                    )
+                ],
             )
         ]
     )
 
     def fake_get_datasets(workspace_id: str) -> List[PowerBIDataset]:
-        return [dataset1, dataset2]
+        return [dataset1, dataset2, dataset3]
 
     def fake_get_reports(workspace_id: str) -> List[PowerBIReport]:
         return [report1, report2, report1_app]
@@ -331,6 +385,9 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
             ),
         ]
 
+    def fake_export_dataflow(workspace_id: str, dataflow_id: str) -> dict:
+        return load_json(f"{test_root_dir}/power_bi/data/dataflow_1.json")
+
     mock_instance.get_datasets.side_effect = fake_get_datasets
     mock_instance.get_reports.side_effect = fake_get_reports
     mock_instance.get_dashboards.side_effect = fake_get_dashboards
@@ -339,6 +396,7 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     mock_instance.get_refreshes.side_effect = fake_get_refreshes
     mock_instance.get_apps.side_effect = fake_get_apps
     mock_instance.get_user_subscriptions = fake_get_user_subscriptions
+    mock_instance.export_dataflow = fake_export_dataflow
 
     mock_client.return_value = mock_instance
 
@@ -351,6 +409,9 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     )
     extractor = PowerBIExtractor(config)
 
+    import json
+
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    print(json.dumps(events))
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")
