@@ -204,6 +204,53 @@
     }
   },
   {
+    "entityUpstream": {
+      "pipelineEntityId": "PIPELINE~6B8372CAC4B45FCA1C413FEAD24B1E2C",
+      "sourceEntities": [
+        "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
+      ]
+    },
+    "logicalId": {
+      "name": "00000000-0000-0000-0001-000000000003",
+      "type": "POWER_BI_DATASET"
+    },
+    "powerBIDataset": {
+      "description": "Dataset from dataflow",
+      "name": "Dataflow dataset",
+      "sourceDatasets": [
+        "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
+      ],
+      "tables": [
+        {
+          "columns": [
+            {
+              "field": "col1",
+              "type": "string"
+            },
+            {
+              "field": "col2",
+              "type": "int"
+            }
+          ],
+          "expression": "let\n    Source = PowerPlatform.Dataflows(null),\n    Workspaces = Source{[Id=\"Workspaces\"]}[Data],\n    #\"{workspace1_id}\" = Workspaces{[workspaceId=\"{workspace1_id}\"]}[Data],\n    #\"{dataflow_id}\" = #\"{workspace1_id}\"{[dataflowId=\"{dataflow_id}\"]}[Data],\n    ENTITY_NAME_ = #\"{dataflow_id}\"{[entity=\"ENTITY_NAME\",version=\"\"]}[Data]\nin\n    ENTITY_NAME_",
+          "measures": [],
+          "name": "table3"
+        }
+      ],
+      "url": "https://powerbi.com/00000000-0000-0000-0001-000000000003",
+      "workspace": {
+        "id": "workspace-1",
+        "name": "Workspace"
+      }
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "Dataflow dataset"
+    }
+  },
+  {
     "dashboardInfo": {
       "charts": [],
       "dashboardType": "POWER_BI_REPORT",
@@ -400,6 +447,30 @@
         "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
         "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
       ]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "00000000-0000-0000-0001-00000000000A",
+      "type": "POWER_BI_DATAFLOW"
+    },
+    "powerBiDataflow": {
+      "content": "{\"name\": \"Dataflow\", \"description\": \"A dataflow\", \"version\": \"1.0\", \"culture\": \"en-US\", \"modifiedTime\": \"2023-09-19T06:08:01.3550729+00:00\", \"ppdf:outputFileFormat\": \"Csv\", \"pbi:mashup\": {\"fastCombine\": false, \"allowNativeQueries\": false, \"queriesMetadata\": {\"TABLE_NAME\": {\"queryId\": \"query_id\", \"queryName\": \"TABLE_NAME\", \"loadEnabled\": true}}, \"document\": \"section Section1;\\r\\nshared ENTITY_NAME = let\\r\\n  Source = Snowflake.Databases(\\\"account.snowflakecomputing.com\\\", \\\"COMPUTE_WH\\\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\\r\\n  Navigation = Source{[Name = \\\"DB\\\", Kind = \\\"Database\\\"]}[Data],\\r\\n  #\\\"Navigation 1\\\" = Navigation{[Name = \\\"SCHEMA\\\", Kind = \\\"Schema\\\"]}[Data],\\r\\n  #\\\"Navigation 2\\\" = #\\\"Navigation 1\\\"{[Name = \\\"TABLE_NAME\\\", Kind = \\\"Table\\\"]}[Data]\\r\\nin\\r\\n  #\\\"Navigation 2\\\";\\r\\n\", \"connectionOverrides\": [{\"path\": \"account.snowflakecomputing.com;COMPUTE_WH\", \"kind\": \"Snowflake\", \"provider\": \"CdsA\", \"authenticationKind\": null, \"environmentName\": null, \"apiName\": null, \"connectionName\": \"{\\\"kind\\\":\\\"Snowflake\\\",\\\"path\\\":\\\"account.snowflakecomputing.com;COMPUTE_WH\\\"}\", \"audience\": null}]}, \"annotations\": [{\"name\": \"pbi:QueryGroups\", \"value\": \"[]\"}], \"entities\": [{\"$type\": \"LocalEntity\", \"name\": \"ENTITY_NAME\", \"description\": \"\", \"pbi:refreshPolicy\": {\"$type\": \"FullRefreshPolicy\", \"location\": \"ENTITY_NAME.csv\"}, \"attributes\": [{\"name\": \"COL_1\", \"dataType\": \"double\"}, {\"name\": \"COL_2\", \"dataType\": \"double\"}], \"partitions\": [{\"name\": \"FullRefreshPolicyPartition\", \"refreshTime\": \"2023-09-19T06:21:43.1195053+00:00\", \"location\": \"location-url\"}]}]}",
+      "description": "A dataflow",
+      "document": "section Section1;\r\nshared ENTITY_NAME = let\r\n  Source = Snowflake.Databases(\"account.snowflakecomputing.com\", \"COMPUTE_WH\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\r\n  Navigation = Source{[Name = \"DB\", Kind = \"Database\"]}[Data],\r\n  #\"Navigation 1\" = Navigation{[Name = \"SCHEMA\", Kind = \"Schema\"]}[Data],\r\n  #\"Navigation 2\" = #\"Navigation 1\"{[Name = \"TABLE_NAME\", Kind = \"Table\"]}[Data]\r\nin\r\n  #\"Navigation 2\";\r\n",
+      "modifiedDateTime": "2023-09-19T06:08:01.355072+00:00",
+      "name": "Dataflow",
+      "refreshSchedule": {
+        "days": [
+          "Saturday"
+        ],
+        "enabled": true,
+        "localTimeZoneId": "UTC",
+        "notifyOption": "MailOnFailure",
+        "times": [
+          "1:00:00"
+        ]
+      }
     }
   }
 ]

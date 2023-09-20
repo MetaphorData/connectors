@@ -102,6 +102,10 @@ class EndorsementDetails(BaseModel):
     certifiedBy: Optional[str] = ""
 
 
+class UpstreamDataflow(BaseModel):
+    targetDataflowId: str
+
+
 class WorkspaceInfoDataset(BaseModel):
     id: str
     name: str
@@ -111,7 +115,7 @@ class WorkspaceInfoDataset(BaseModel):
     ContentProviderType: str = ""
     CreatedDate: str = ""
 
-    upstreamDataflows: Optional[Any]
+    upstreamDataflows: Optional[List[UpstreamDataflow]] = None
     upstreamDatasets: Optional[Any]
     endorsementDetails: Optional[EndorsementDetails] = None
 
@@ -147,6 +151,24 @@ class WorkspaceInfoUser(BaseModel):
         return hash(self.graphId)
 
 
+class PowerBiRefreshSchedule(BaseModel):
+    days: List[str] = []
+    times: List[str] = []
+    enabled: bool = False
+    localTimeZoneId: str = "UTC"
+    notifyOption: str = "MailOnFailure"
+
+
+class WorkspaceInfoDataflow(BaseModel):
+    objectId: str
+    name: str
+    description: str
+    configuredBy: Optional[str] = None
+    modifiedBy: Optional[str] = None
+    modifiedDateTime: Optional[str] = None
+    refreshSchedule: Optional[PowerBiRefreshSchedule]
+
+
 class WorkspaceInfo(BaseModel):
     id: str
     name: Optional[str]
@@ -155,6 +177,7 @@ class WorkspaceInfo(BaseModel):
     reports: List[WorkspaceInfoReport] = []
     datasets: List[WorkspaceInfoDataset] = []
     dashboards: List[WorkspaceInfoDashboard] = []
+    dataflows: List[WorkspaceInfoDataflow] = []
     users: List[WorkspaceInfoUser] = []
 
 
@@ -348,6 +371,23 @@ class PowerBIClient:
             )
 
         return []
+
+    def export_dataflow(self, group_id: str, dataflow_id: str) -> Optional[dict]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/dataflows-export-dataflow-as-admin
+        url = f"{self.API_ENDPOINT}/admin/dataflows/{dataflow_id}/export"
+        try:
+            data_sources = self._call_get(
+                url,
+                dict,
+                transform_response=lambda r: r.json(),
+            )
+            return data_sources
+        except Exception as e:
+            # Fail gracefully for any other errors
+            logger.error(
+                f"Failed to get datasource from dataflow {dataflow_id} in workspace {group_id}: {e}"
+            )
+        return None
 
     def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:

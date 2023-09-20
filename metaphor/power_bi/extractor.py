@@ -1,3 +1,4 @@
+import json
 import re
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Optional
@@ -6,7 +7,7 @@ from urllib import parse
 from dateutil.parser import isoparse
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import EntityId
+from metaphor.common.entity_id import EntityId, to_pipeline_entity_id_from_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import chunks, unique_list
@@ -23,10 +24,13 @@ from metaphor.models.metadata_change_event import (
     DashboardUpstream,
     EntityType,
     EntityUpstream,
+    Pipeline,
+    PipelineLogicalID,
+    PipelineType,
 )
 from metaphor.models.metadata_change_event import PowerBIApp as PbiApp
 from metaphor.models.metadata_change_event import PowerBIColumn as PbiColumn
-from metaphor.models.metadata_change_event import PowerBIDashboardType
+from metaphor.models.metadata_change_event import PowerBIDashboardType, PowerBIDataflow
 from metaphor.models.metadata_change_event import (
     PowerBIDataset as VirtualViewPowerBIDataset,
 )
@@ -37,6 +41,7 @@ from metaphor.models.metadata_change_event import (
     PowerBIInfo,
 )
 from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
+from metaphor.models.metadata_change_event import PowerBIRefreshSchedule
 from metaphor.models.metadata_change_event import PowerBISubscription as Subscription
 from metaphor.models.metadata_change_event import (
     PowerBISubscriptionUser as SubscriptionUser,
@@ -82,6 +87,8 @@ class PowerBIExtractor(BaseExtractor):
 
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
+        self._pipelines: Dict[str, Pipeline] = {}
+        self._dataflow_sources: Dict[str, List[EntityId]] = {}
         self._snowflake_account = config.snowflake_account
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -101,6 +108,9 @@ class PowerBIExtractor(BaseExtractor):
         ):
             workspaces.extend(self._client.get_workspace_info(workspace_ids))
 
+        for workspace in workspaces:
+            self.map_wi_dataflow_to_pipeline(workspace)
+
         # As there may be cross-workspace reference in dashboards & reports,
         # we must process the datasets across all workspaces first
         for workspace in workspaces:
@@ -117,8 +127,64 @@ class PowerBIExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._virtual_views.values())
         entities.extend(self._dashboards.values())
+        entities.extend(self._pipelines.values())
 
         return entities
+
+    def map_wi_dataflow_to_pipeline(self, workspace: WorkspaceInfo) -> None:
+        for wdf in workspace.dataflows:
+            data_flow_id = wdf.objectId
+
+            dataflow: Optional[dict] = self._client.export_dataflow(
+                workspace.id, data_flow_id
+            )
+
+            document_str: Optional[str] = None
+            if (
+                dataflow
+                and "pbi:mashup" in dataflow
+                and "document" in dataflow["pbi:mashup"]
+            ):
+                document_str = dataflow["pbi:mashup"]["document"]
+                sources, _ = PowerQueryParser.parse_query_expression(
+                    "",
+                    [],
+                    document_str or "",
+                    self._snowflake_account,
+                )
+
+                self._dataflow_sources[data_flow_id] = sources
+
+            pipeline = Pipeline(
+                logical_id=PipelineLogicalID(
+                    name=data_flow_id,
+                    type=PipelineType.POWER_BI_DATAFLOW,
+                ),
+                power_bi_dataflow=PowerBIDataflow(
+                    configured_by=wdf.configuredBy,
+                    description=wdf.description,
+                    document=document_str,
+                    modified_by=wdf.configuredBy,
+                    modified_date_time=isoparse(wdf.modifiedDateTime).replace(
+                        tzinfo=timezone.utc
+                    )
+                    if wdf.modifiedDateTime
+                    else None,
+                    content=json.dumps(dataflow) if dataflow else None,
+                    name=wdf.name,
+                    refresh_schedule=PowerBIRefreshSchedule(
+                        days=wdf.refreshSchedule.days,
+                        times=wdf.refreshSchedule.times,
+                        enabled=wdf.refreshSchedule.enabled,
+                        local_time_zone_id=wdf.refreshSchedule.localTimeZoneId,
+                        notify_option=wdf.refreshSchedule.notifyOption,
+                    )
+                    if wdf.refreshSchedule
+                    else None,
+                ),
+            )
+
+            self._pipelines[data_flow_id] = pipeline
 
     def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
         dataset_map = {d.id: d for d in self._client.get_datasets(workspace.id)}
@@ -172,6 +238,28 @@ class PowerBIExtractor(BaseExtractor):
 
             source_entity_ids = unique_list([str(d) for d in source_datasets])
 
+            # TODO(sc-21025): to support multiple pipelines
+            pipeline_entity_id: Optional[str] = None
+
+            if wds.upstreamDataflows:
+                for df in wds.upstreamDataflows:
+                    dataflow = self._pipelines.get(df.targetDataflowId)
+                    if dataflow:
+                        pipeline_entity_id = str(
+                            to_pipeline_entity_id_from_logical_id(dataflow.logical_id)
+                        )
+                        break
+
+                source_entity_ids = unique_list(
+                    [
+                        str(entity_id)
+                        for df in wds.upstreamDataflows
+                        for entity_id in (
+                            self._dataflow_sources.get(df.targetDataflowId) or []
+                        )
+                    ]
+                )
+
             last_refreshed = None
             if ds.isRefreshable:
                 refreshes = self._client.get_refreshes(workspace.id, wds.id)
@@ -194,9 +282,11 @@ class PowerBIExtractor(BaseExtractor):
                     last_refreshed=last_refreshed,
                 ),
                 entity_upstream=EntityUpstream(
-                    source_entities=source_entity_ids, field_mappings=field_mappings
+                    source_entities=source_entity_ids or None,
+                    field_mappings=field_mappings or None,
+                    pipeline_entity_id=pipeline_entity_id or None,
                 )
-                if field_mappings
+                if field_mappings or source_entity_ids or pipeline_entity_id
                 else None,
             )
 

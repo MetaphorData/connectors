@@ -23,7 +23,7 @@ class MockResponse:
 @patch("requests.get")
 @patch("msal.ConfidentialClientApplication")
 @pytest.mark.asyncio
-async def test_extractor(
+async def test_get_user_subscriptions(
     mock_msal_app: MagicMock, mock_get_method: MagicMock, test_root_dir: str
 ):
     mock_msal_app = MagicMock()
@@ -62,3 +62,30 @@ async def test_extractor(
             users=[],
         ).dict()
     )
+
+
+@patch("requests.get")
+@patch("msal.ConfidentialClientApplication")
+@pytest.mark.asyncio
+async def test_get_export_dataflow(
+    mock_msal_app: MagicMock, mock_get_method: MagicMock, test_root_dir: str
+):
+    mock_msal_app = MagicMock()
+    mock_msal_app.acquire_token_silent = MagicMock(
+        return_value={"access_token": "token"}
+    )
+
+    mock_get_method.side_effect = [
+        MockResponse(load_json(f"{test_root_dir}/power_bi/data/dataflow_1.json")),
+    ]
+    client = PowerBIClient(
+        PowerBIRunConfig(
+            tenant_id="tenant-id",
+            client_id="client-id",
+            secret="secret",
+            output=OutputConfig(),
+        )
+    )
+
+    dataflow = client.export_dataflow("group_id", "dataflow_id")
+    assert dataflow == load_json(f"{test_root_dir}/power_bi/data/dataflow_1.json")
