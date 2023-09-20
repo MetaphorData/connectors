@@ -30,12 +30,16 @@ class PowerQueryParser:
         table_name: str, columns: List[str], power_query: str
     ) -> Tuple[List[EntityId], List[FieldMapping]]:
         lines = power_query.split("\n")
-        platform_pattern = re.compile(r"Source = (\w+).")
-        match = platform_pattern.search(lines[1])
+
+        platform_pattern = re.compile(r"Source = (\w+).Database")
+        for idx, line in enumerate(lines):
+            match = platform_pattern.search(line)
+            if match:
+                break
         assert match, "Can't parse platform from power query expression."
         platform_str = match.group(1)
 
-        field_pattern_param = re.compile(r'{\[Name="([\w\-]+)".*\]}')
+        field_pattern_param = re.compile(r'{\[Name\s*=\s*"([\w\-]+)".*\]}')
         field_pattern_var = re.compile(r"^\s+(\w+)_\w+ = .+")
 
         def get_field(text: str) -> str:
@@ -56,37 +60,37 @@ class PowerQueryParser:
         if platform_str == "AmazonRedshift":
             platform = DataPlatform.REDSHIFT
             db_pattern = re.compile(r"Source = (\w+).Database\((.*)\),$")
-            match = db_pattern.search(lines[1])
+            match = db_pattern.search(lines[idx])
             assert (
                 match
             ), "Can't parse AmazonRedshift database from power query expression"
 
             db = match.group(2).split(",")[1].strip().replace('"', "")
-            schema = get_field(lines[2])
-            table = get_field(lines[3])
-            direct_import = is_direct_import(lines[4])
+            schema = get_field(lines[idx + 1])
+            table = get_field(lines[idx + 2])
+            direct_import = is_direct_import(lines[idx + 3])
 
         elif platform_str == "Snowflake":
             platform = DataPlatform.SNOWFLAKE
             account_pattern = re.compile(r'Snowflake.Databases\("([\w\-\.]+)"')
 
-            match = account_pattern.search(lines[1])
+            match = account_pattern.search(lines[idx])
             assert match, "Can't parse Snowflake account from power query expression"
 
             # remove trailing snowflakecomputing.com
             account = ".".join(match.group(1).split(".")[:-2])
 
-            db = get_field(lines[2])
-            schema = get_field(lines[3])
-            table = get_field(lines[4])
-            direct_import = is_direct_import(lines[5])
+            db = get_field(lines[idx + 1])
+            schema = get_field(lines[idx + 2])
+            table = get_field(lines[idx + 3])
+            direct_import = is_direct_import(lines[idx + 4])
 
         elif platform_str == "GoogleBigQuery":
             platform = DataPlatform.BIGQUERY
-            db = get_field(lines[2])
-            schema = get_field(lines[3])
-            table = get_field(lines[4])
-            direct_import = is_direct_import(lines[5])
+            db = get_field(lines[idx + 1])
+            schema = get_field(lines[idx + 2])
+            table = get_field(lines[idx + 3])
+            direct_import = is_direct_import(lines[idx + 4])
 
         else:
             raise AssertionError(f"Unknown platform ${platform_str}")
