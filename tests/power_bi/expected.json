@@ -458,7 +458,8 @@
         "times": [
           "1:00:00"
         ]
-      }
+      },
+      "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0001-00000000000A"
     }
   }
 ]

@@ -175,6 +175,7 @@ class PowerBIExtractor(BaseExtractor):
                     )
                     if wdf.refreshSchedule
                     else None,
+                    dataflow_url=f"https://app.powerbi.com/groups/{workspace.id}/dataflows/{data_flow_id}",
                 ),
             )
 
