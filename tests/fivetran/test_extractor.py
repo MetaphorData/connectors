@@ -56,6 +56,9 @@ async def test_extractor(mock_get: MagicMock, test_root_dir: str):
             load_json(f"{test_root_dir}/fivetran/data/v1__connectors__connector_2.json")
         ),
         MockResponse(
+            load_json(f"{test_root_dir}/fivetran/data/v1__connectors__connector_3.json")
+        ),
+        MockResponse(
             load_json(
                 f"{test_root_dir}/fivetran/data/v1__groups__group_id_1__users.json"
             )
@@ -88,6 +91,21 @@ async def test_extractor(mock_get: MagicMock, test_root_dir: str):
         MockResponse(
             load_json(
                 f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_2__columns.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_3__schemas.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_3__tables.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/fivetran/data/v1__metadata__connectors__connector_3__columns.json"
             )
         ),
     ]
