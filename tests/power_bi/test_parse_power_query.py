@@ -158,3 +158,17 @@ def test_extract_function_parameter():
         '  abc.foo(20, \n    \t(1+2), \n   "SELECT foo from TABLE  ", "())), asd")',
         "foo",
     ) == ["20", "(1+2)", '"SELECT foo from TABLE  "', '"())), asd"']
+
+
+def test_parse_dataflow_snowflake():
+    exp = 'section Section1;\r\nshared ENTITY_NAME = let\n    Source = Snowflake.Databases("some-account.snowflakecomputing.com","COMPUTE_WH"),\n    DB_Database = Source{[Name = "DB",Kind="Database"]}[Data],\n    PUBLIC_Schema = DB_Database{[Name="PUBLIC",Kind="Schema"]}[Data],\n    TEST_Table = PUBLIC_Schema{[Name="TEST",Kind="Table"]}[Data]\nin\n    TEST_Table'
+    assert PowerQueryParser.parse_query_expression("table", [], exp) == (
+        [
+            to_dataset_entity_id(
+                "db.public.test",
+                platform=DataPlatform.SNOWFLAKE,
+                account="some-account",
+            )
+        ],
+        [],
+    )
