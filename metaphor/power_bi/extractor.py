@@ -30,7 +30,12 @@ from metaphor.models.metadata_change_event import PowerBIDashboardType
 from metaphor.models.metadata_change_event import (
     PowerBIDataset as VirtualViewPowerBIDataset,
 )
-from metaphor.models.metadata_change_event import PowerBIDatasetTable, PowerBIInfo
+from metaphor.models.metadata_change_event import (
+    PowerBIDatasetTable,
+    PowerBIEndorsement,
+    PowerBIEndorsementType,
+    PowerBIInfo,
+)
 from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
 from metaphor.models.metadata_change_event import PowerBISubscription as Subscription
 from metaphor.models.metadata_change_event import (
@@ -53,6 +58,7 @@ from metaphor.power_bi.power_bi_client import (
     PowerBiSubscriptionUser,
     PowerBITile,
     WorkspaceInfo,
+    WorkspaceInfoDashboardBase,
 )
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 
@@ -221,7 +227,7 @@ class PowerBIExtractor(BaseExtractor):
                 continue
 
             pbi_info = self._make_power_bi_info(
-                PowerBIDashboardType.REPORT, workspace, wi_report.appId, app_map
+                PowerBIDashboardType.REPORT, workspace, wi_report, app_map
             )
 
             # The "app" version of report doesn't have pages
@@ -283,7 +289,7 @@ class PowerBIExtractor(BaseExtractor):
                 continue
 
             pbi_info = self._make_power_bi_info(
-                PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard.appId, app_map
+                PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard, app_map
             )
 
             dashboard = Dashboard(
@@ -416,24 +422,56 @@ class PowerBIExtractor(BaseExtractor):
     def _make_power_bi_info(
         type: PowerBIDashboardType,
         workspace: WorkspaceInfo,
-        app_id: Optional[str],
+        dashboard: WorkspaceInfoDashboardBase,
         app_map: Dict[str, PowerBIApp],
     ) -> PowerBIInfo:
         pbi_info = PowerBIInfo(
             power_bi_dashboard_type=type,
             workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+            created_by=dashboard.createdBy,
+            created_date_time=PowerBIExtractor._safe_parse_ISO8061(
+                dashboard.createdDateTime
+            ),
+            modified_by=dashboard.modifiedBy,
+            modified_date_time=PowerBIExtractor._safe_parse_ISO8061(
+                dashboard.modifiedDateTime
+            ),
         )
 
-        if app_id is not None:
+        if dashboard.appId is not None:
+            app_id = dashboard.appId
             app = app_map.get(app_id)
             if app is not None:
                 pbi_info.app = PbiApp(id=app.id, name=app.name)
+
+        if dashboard.endorsementDetails is not None:
+            try:
+                endorsement = PowerBIEndorsementType(
+                    dashboard.endorsementDetails.endorsement
+                )
+            except ValueError:
+                logger.warn(f"Endorsement type {endorsement} are not supported")
+
+            pbi_info.endorsement = PowerBIEndorsement(
+                endorsement=endorsement,
+                certified_by=dashboard.endorsementDetails.certifiedBy,
+            )
 
         return pbi_info
 
     @staticmethod
     def _get_workspace_hierarchy(workspace: WorkspaceInfo) -> List[str]:
         return (workspace.name or "").split(".")
+
+    @staticmethod
+    def _safe_parse_ISO8061(iso8061_str: Optional[str]) -> Optional[datetime]:
+        if iso8061_str is None:
+            return None
+        try:
+            return isoparse(iso8061_str).replace(tzinfo=timezone.utc)
+        except Exception:
+            logger.error(f"Failed to parse ISO8061 time: {iso8061_str}")
+            return None
 
     @staticmethod
     def _find_last_completed_refresh(
@@ -448,11 +486,7 @@ class PowerBIExtractor(BaseExtractor):
         except StopIteration:
             return None
 
-        try:
-            return isoparse(refresh.endTime).replace(tzinfo=timezone.utc)
-        except Exception:
-            logger.error(f"Failed to parse refresh time: {refresh.endTime}")
-            return None
+        return PowerBIExtractor._safe_parse_ISO8061(refresh.endTime)
 
     @staticmethod
     def _get_dashboard_id_from_url(url: str) -> Optional[str]:
