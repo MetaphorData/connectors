@@ -53,13 +53,14 @@ def to_utc_time(time: datetime) -> datetime:
     return time.replace(tzinfo=timezone.utc)
 
 
-def safe_parse_ISO8601(iso8061_str: Optional[str]) -> Optional[datetime]:
-    if iso8061_str is None:
+def safe_parse_ISO8601(iso8601_str: Optional[str]) -> Optional[datetime]:
+    """Safely convert ISO 8601 string to UTC datetime"""
+    if iso8601_str is None:
         return None
     try:
-        return isoparse(iso8061_str).replace(tzinfo=timezone.utc)
+        return isoparse(iso8601_str).replace(tzinfo=timezone.utc)
     except Exception:
-        logger.error(f"Failed to parse ISO8061 time: {iso8061_str}")
+        logger.error(f"Failed to parse ISO8061 time: {iso8601_str}")
         return None
 
 
