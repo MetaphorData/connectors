@@ -4,13 +4,11 @@ from datetime import datetime, timezone
 from typing import Collection, Dict, List, Optional
 from urllib import parse
 
-from dateutil.parser import isoparse
-
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import EntityId, to_pipeline_entity_id_from_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import chunks, unique_list
+from metaphor.common.utils import chunks, safe_parse_ISO8601, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetStructure,
@@ -169,11 +167,7 @@ class PowerBIExtractor(BaseExtractor):
                     description=wdf.description,
                     document=document_str,
                     modified_by=wdf.configuredBy,
-                    modified_date_time=isoparse(wdf.modifiedDateTime).replace(
-                        tzinfo=timezone.utc
-                    )
-                    if wdf.modifiedDateTime
-                    else None,
+                    modified_date_time=safe_parse_ISO8601(wdf.modifiedDateTime),
                     content=json.dumps(dataflow) if dataflow else None,
                     name=wdf.name,
                     refresh_schedule=PowerBIRefreshSchedule(
@@ -524,13 +518,9 @@ class PowerBIExtractor(BaseExtractor):
             power_bi_dashboard_type=type,
             workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
             created_by=dashboard.createdBy,
-            created_date_time=PowerBIExtractor._safe_parse_ISO8601(
-                dashboard.createdDateTime
-            ),
+            created_date_time=safe_parse_ISO8601(dashboard.createdDateTime),
             modified_by=dashboard.modifiedBy,
-            modified_date_time=PowerBIExtractor._safe_parse_ISO8601(
-                dashboard.modifiedDateTime
-            ),
+            modified_date_time=safe_parse_ISO8601(dashboard.modifiedDateTime),
         )
 
         if dashboard.appId is not None:
@@ -560,16 +550,6 @@ class PowerBIExtractor(BaseExtractor):
         return (workspace.name or "").split(".")
 
     @staticmethod
-    def _safe_parse_ISO8601(iso8061_str: Optional[str]) -> Optional[datetime]:
-        if iso8061_str is None:
-            return None
-        try:
-            return isoparse(iso8061_str).replace(tzinfo=timezone.utc)
-        except Exception:
-            logger.error(f"Failed to parse ISO8061 time: {iso8061_str}")
-            return None
-
-    @staticmethod
     def _find_last_completed_refresh(
         refreshes: List[PowerBIRefresh],
     ) -> Optional[datetime]:
@@ -582,7 +562,7 @@ class PowerBIExtractor(BaseExtractor):
         except StopIteration:
             return None
 
-        return PowerBIExtractor._safe_parse_ISO8601(refresh.endTime)
+        return safe_parse_ISO8601(refresh.endTime)
 
     @staticmethod
     def _get_dashboard_id_from_url(url: str) -> Optional[str]:
