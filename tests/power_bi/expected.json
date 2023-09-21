@@ -470,7 +470,21 @@
         "times": [
           "1:00:00"
         ]
-      }
+      },
+      "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0001-00000000000A"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "00000000-0000-0000-0002-00000000000A",
+      "type": "POWER_BI_DATAFLOW"
+    },
+    "powerBiDataflow": {
+      "content": "{\"name\": \"Dataflow\", \"description\": \"A dataflow\", \"version\": \"1.0\", \"culture\": \"en-US\", \"modifiedTime\": \"2023-09-19T06:08:01.3550729+00:00\", \"ppdf:outputFileFormat\": \"Csv\", \"pbi:mashup\": {\"fastCombine\": false, \"allowNativeQueries\": false, \"queriesMetadata\": {\"TABLE_NAME\": {\"queryId\": \"query_id\", \"queryName\": \"TABLE_NAME\", \"loadEnabled\": true}}, \"document\": \"section Section1;\\r\\nshared ENTITY_NAME = let\\r\\n  Source = GoogleAnalytics.Accounts(\\\"account.snowflakecomputing.com\\\", \\\"COMPUTE_WH\\\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\\r\\n  Navigation = Source{[Name = \\\"DB\\\", Kind = \\\"Database\\\"]}[Data],\\r\\n  #\\\"Navigation 1\\\" = Navigation{[Name = \\\"SCHEMA\\\", Kind = \\\"Schema\\\"]}[Data],\\r\\n  #\\\"Navigation 2\\\" = #\\\"Navigation 1\\\"{[Name = \\\"TABLE_NAME\\\", Kind = \\\"Table\\\"]}[Data]\\r\\nin\\r\\n  #\\\"Navigation 2\\\";\\r\\n\"}}",
+      "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0002-00000000000A",
+      "description": "",
+      "document": "section Section1;\r\nshared ENTITY_NAME = let\r\n  Source = GoogleAnalytics.Accounts(\"account.snowflakecomputing.com\", \"COMPUTE_WH\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\r\n  Navigation = Source{[Name = \"DB\", Kind = \"Database\"]}[Data],\r\n  #\"Navigation 1\" = Navigation{[Name = \"SCHEMA\", Kind = \"Schema\"]}[Data],\r\n  #\"Navigation 2\" = #\"Navigation 1\"{[Name = \"TABLE_NAME\", Kind = \"Table\"]}[Data]\r\nin\r\n  #\"Navigation 2\";\r\n",
+      "name": "Dataflow 2"
     }
   }
 ]
