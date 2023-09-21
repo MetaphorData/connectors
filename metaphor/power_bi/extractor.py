@@ -140,14 +140,18 @@ class PowerBIExtractor(BaseExtractor):
                 and "document" in dataflow["pbi:mashup"]
             ):
                 document_str = dataflow["pbi:mashup"]["document"]
-                sources, _ = PowerQueryParser.parse_query_expression(
-                    "",
-                    [],
-                    document_str or "",
-                    self._snowflake_account,
-                )
-
-                self._dataflow_sources[data_flow_id] = sources
+                try:
+                    sources, _ = PowerQueryParser.parse_query_expression(
+                        "",
+                        [],
+                        document_str or "",
+                        self._snowflake_account,
+                    )
+                    self._dataflow_sources[data_flow_id] = sources
+                except Exception as e:
+                    logger.error(
+                        f"Failed to parse expression for dataflow {data_flow_id}: {e}"
+                    )
 
             pipeline = Pipeline(
                 logical_id=PipelineLogicalID(
