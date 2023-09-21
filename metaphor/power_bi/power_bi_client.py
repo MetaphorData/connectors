@@ -154,7 +154,7 @@ class WorkspaceInfoDataflow(BaseModel):
     configuredBy: Optional[str] = None
     modifiedBy: Optional[str] = None
     modifiedDateTime: Optional[str] = None
-    refreshSchedule: Optional[PowerBiRefreshSchedule]
+    refreshSchedule: Optional[PowerBiRefreshSchedule] = None
 
 
 class WorkspaceInfo(BaseModel):

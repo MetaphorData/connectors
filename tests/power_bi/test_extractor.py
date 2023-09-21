@@ -172,6 +172,7 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     }
 
     dataflow_id = "00000000-0000-0000-0001-00000000000A"
+    dataflow_id2 = "00000000-0000-0000-0002-00000000000A"
 
     mock_instance.get_workspace_info = MagicMock(
         return_value=[
@@ -338,7 +339,12 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                             notifyOption="MailOnFailure",
                             times=["1:00:00"],
                         ),
-                    )
+                    ),
+                    WorkspaceInfoDataflow(
+                        objectId=dataflow_id2,
+                        name="Dataflow 2",
+                        description="",
+                    ),
                 ],
             )
         ]
@@ -385,8 +391,11 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
             ),
         ]
 
-    def fake_export_dataflow(workspace_id: str, dataflow_id: str) -> dict:
-        return load_json(f"{test_root_dir}/power_bi/data/dataflow_1.json")
+    def fake_export_dataflow(workspace_id: str, df_id: str) -> dict:
+        if df_id == dataflow_id:
+            return load_json(f"{test_root_dir}/power_bi/data/dataflow_1.json")
+        else:
+            return load_json(f"{test_root_dir}/power_bi/data/dataflow_2.json")
 
     mock_instance.get_datasets.side_effect = fake_get_datasets
     mock_instance.get_reports.side_effect = fake_get_reports
