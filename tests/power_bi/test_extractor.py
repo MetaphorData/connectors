@@ -391,8 +391,8 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
             ),
         ]
 
-    def fake_export_dataflow(workspace_id: str, dataflow_id: str) -> dict:
-        if dataflow_id == dataflow_id:
+    def fake_export_dataflow(workspace_id: str, df_id: str) -> dict:
+        if df_id == dataflow_id:
             return load_json(f"{test_root_dir}/power_bi/data/dataflow_1.json")
         else:
             return load_json(f"{test_root_dir}/power_bi/data/dataflow_2.json")
