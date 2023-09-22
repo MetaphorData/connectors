@@ -9,6 +9,7 @@ from metaphor.common.utils import (
     filter_empty_strings,
     must_set_exactly_one,
     removesuffix,
+    safe_parse_ISO8601,
     start_of_day,
     unique_list,
 )
@@ -100,3 +101,16 @@ def test_remove_suffix():
     assert removesuffix("abcdefg", "gf") == "abcdefg"
     assert removesuffix("example.com/index.html", "index.html") == "example.com/"
     assert removesuffix("example.com/index.html", "/index.html") == "example.com"
+
+
+def test_safe_parse_ISO8061():
+    assert safe_parse_ISO8601(None) is None
+    assert (
+        safe_parse_ISO8601("2023-09-20T08:10:15Z").isoformat()
+        == "2023-09-20T08:10:15+00:00"
+    )
+    assert (
+        safe_parse_ISO8601("2023-09-20T08:10:15").isoformat()
+        == "2023-09-20T08:10:15+00:00"
+    )
+    assert safe_parse_ISO8601("isvalid") is None

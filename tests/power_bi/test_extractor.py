@@ -8,6 +8,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.extractor import PowerBIExtractor
 from metaphor.power_bi.power_bi_client import (
+    EndorsementDetails,
     PowerBIApp,
     PowerBIDashboard,
     PowerBIDataset,
@@ -187,6 +188,13 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                         name=report1.name,
                         datasetId=report1.datasetId,
                         description="This is a report about foo",
+                        createdBy="creator@foo.bar",
+                        createdDateTime="2022-04-06T04:25:06.777",
+                        modifiedBy="editor@foo.bar",
+                        modifiedDateTime="2022-04-06T04:25:06.777",
+                        endorsementDetails=EndorsementDetails(
+                            endorsement="Promoted", certifiedBy="admin@foo.bar"
+                        ),
                     ),
                     WorkspaceInfoReport(
                         id=report1_app.id,
@@ -200,6 +208,9 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                         name=report2.name,
                         datasetId=report2.datasetId,
                         description="This is a report about bar",
+                        endorsementDetails=EndorsementDetails(
+                            endorsement="Invalid", certifiedBy="admin@foo.bar"
+                        ),
                     ),
                 ],
                 datasets=[
@@ -301,6 +312,10 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                     WorkspaceInfoDashboard(
                         displayName="Dashboard A",
                         id=dashboard1_id,
+                        createdBy="creator@foo.bar",
+                        createdDateTime="2022-04-06T04:25:06.777",
+                        modifiedBy="editor@foo.bar",
+                        modifiedDateTime="2022-04-06T04:25:06.777",
                     ),
                     WorkspaceInfoDashboard(
                         displayName="Dashboard A",

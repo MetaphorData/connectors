@@ -4,13 +4,11 @@ from datetime import datetime, timezone
 from typing import Collection, Dict, List, Optional
 from urllib import parse
 
-from dateutil.parser import isoparse
-
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import EntityId, to_pipeline_entity_id_from_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import chunks, unique_list
+from metaphor.common.utils import chunks, safe_parse_ISO8601, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetStructure,
@@ -34,7 +32,12 @@ from metaphor.models.metadata_change_event import PowerBIDashboardType, PowerBID
 from metaphor.models.metadata_change_event import (
     PowerBIDataset as VirtualViewPowerBIDataset,
 )
-from metaphor.models.metadata_change_event import PowerBIDatasetTable, PowerBIInfo
+from metaphor.models.metadata_change_event import (
+    PowerBIDatasetTable,
+    PowerBIEndorsement,
+    PowerBIEndorsementType,
+    PowerBIInfo,
+)
 from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
 from metaphor.models.metadata_change_event import PowerBIRefreshSchedule
 from metaphor.models.metadata_change_event import PowerBISubscription as Subscription
@@ -58,6 +61,7 @@ from metaphor.power_bi.power_bi_client import (
     PowerBiSubscriptionUser,
     PowerBITile,
     WorkspaceInfo,
+    WorkspaceInfoDashboardBase,
 )
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 
@@ -163,11 +167,7 @@ class PowerBIExtractor(BaseExtractor):
                     description=wdf.description,
                     document=document_str,
                     modified_by=wdf.configuredBy,
-                    modified_date_time=isoparse(wdf.modifiedDateTime).replace(
-                        tzinfo=timezone.utc
-                    )
-                    if wdf.modifiedDateTime
-                    else None,
+                    modified_date_time=safe_parse_ISO8601(wdf.modifiedDateTime),
                     content=json.dumps(dataflow) if dataflow else None,
                     name=wdf.name,
                     refresh_schedule=PowerBIRefreshSchedule(
@@ -316,7 +316,7 @@ class PowerBIExtractor(BaseExtractor):
                 continue
 
             pbi_info = self._make_power_bi_info(
-                PowerBIDashboardType.REPORT, workspace, wi_report.appId, app_map
+                PowerBIDashboardType.REPORT, workspace, wi_report, app_map
             )
 
             # The "app" version of report doesn't have pages
@@ -378,7 +378,7 @@ class PowerBIExtractor(BaseExtractor):
                 continue
 
             pbi_info = self._make_power_bi_info(
-                PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard.appId, app_map
+                PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard, app_map
             )
 
             dashboard = Dashboard(
@@ -511,18 +511,37 @@ class PowerBIExtractor(BaseExtractor):
     def _make_power_bi_info(
         type: PowerBIDashboardType,
         workspace: WorkspaceInfo,
-        app_id: Optional[str],
+        dashboard: WorkspaceInfoDashboardBase,
         app_map: Dict[str, PowerBIApp],
     ) -> PowerBIInfo:
         pbi_info = PowerBIInfo(
             power_bi_dashboard_type=type,
             workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+            created_by=dashboard.createdBy,
+            created_date_time=safe_parse_ISO8601(dashboard.createdDateTime),
+            modified_by=dashboard.modifiedBy,
+            modified_date_time=safe_parse_ISO8601(dashboard.modifiedDateTime),
         )
 
-        if app_id is not None:
+        if dashboard.appId is not None:
+            app_id = dashboard.appId
             app = app_map.get(app_id)
             if app is not None:
                 pbi_info.app = PbiApp(id=app.id, name=app.name)
+
+        if dashboard.endorsementDetails is not None:
+            try:
+                endorsement = PowerBIEndorsementType(
+                    dashboard.endorsementDetails.endorsement
+                )
+                pbi_info.endorsement = PowerBIEndorsement(
+                    endorsement=endorsement,
+                    certified_by=dashboard.endorsementDetails.certifiedBy,
+                )
+            except ValueError:
+                logger.warn(
+                    f"Endorsement type {dashboard.endorsementDetails.endorsement} are not supported"
+                )
 
         return pbi_info
 
@@ -543,11 +562,7 @@ class PowerBIExtractor(BaseExtractor):
         except StopIteration:
             return None
 
-        try:
-            return isoparse(refresh.endTime).replace(tzinfo=timezone.utc)
-        except Exception:
-            logger.error(f"Failed to parse refresh time: {refresh.endTime}")
-            return None
+        return safe_parse_ISO8601(refresh.endTime)
 
     @staticmethod
     def _get_dashboard_id_from_url(url: str) -> Optional[str]:

@@ -3,6 +3,12 @@ from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
 from typing import Any, Callable, Dict, List, Optional, Union
 
+from dateutil.parser import isoparse
+
+from metaphor.common.logger import get_logger
+
+logger = get_logger()
+
 
 def start_of_day(daysAgo=0) -> datetime:
     """Returns the start of day in UTC time, for today or N days ago"""
@@ -45,6 +51,17 @@ def generate_querylog_id(platform: str, id: str) -> str:
 def to_utc_time(time: datetime) -> datetime:
     """convert local datatime to utc timezone"""
     return time.replace(tzinfo=timezone.utc)
+
+
+def safe_parse_ISO8601(iso8601_str: Optional[str]) -> Optional[datetime]:
+    """Safely convert ISO 8601 string to UTC datetime"""
+    if iso8601_str is None:
+        return None
+    try:
+        return isoparse(iso8601_str).replace(tzinfo=timezone.utc)
+    except Exception:
+        logger.error(f"Failed to parse ISO8061 time: {iso8601_str}")
+        return None
 
 
 def convert_to_float(value: Optional[Union[float, int, str]]) -> Optional[float]:

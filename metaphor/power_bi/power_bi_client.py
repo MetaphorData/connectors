@@ -97,6 +97,11 @@ class PowerBITable(BaseModel):
     source: List[Any] = []
 
 
+class EndorsementDetails(BaseModel):
+    endorsement: str
+    certifiedBy: Optional[str] = ""
+
+
 class UpstreamDataflow(BaseModel):
     targetDataflowId: str
 
@@ -112,17 +117,24 @@ class WorkspaceInfoDataset(BaseModel):
 
     upstreamDataflows: Optional[List[UpstreamDataflow]] = None
     upstreamDatasets: Optional[Any]
+    endorsementDetails: Optional[EndorsementDetails] = None
 
 
-class WorkspaceInfoDashboard(BaseModel):
+class WorkspaceInfoDashboardBase(BaseModel):
     id: str
     appId: Optional[str] = None
+    createdDateTime: Optional[str] = None
+    modifiedDateTime: Optional[str] = None
+    createdBy: Optional[str] = None
+    modifiedBy: Optional[str] = None
+    endorsementDetails: Optional[EndorsementDetails] = None
+
+
+class WorkspaceInfoDashboard(WorkspaceInfoDashboardBase):
     displayName: str
 
 
-class WorkspaceInfoReport(BaseModel):
-    id: str
-    appId: Optional[str] = None
+class WorkspaceInfoReport(WorkspaceInfoDashboardBase):
     name: str
     datasetId: Optional[str] = None
     description: str = ""
