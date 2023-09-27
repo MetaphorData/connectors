@@ -14,7 +14,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
 from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.utils import convert_to_float
+from metaphor.common.utils import safe_float, safe_int
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -78,7 +78,9 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
             for database in databases:
                 tables = self._fetch_tables(cursor, database)
-                logger.info(f"Include {len(tables)} tables from {database}")
+                logger.info(
+                    f"Include {len(tables)} {'tables/views' if self._include_views else 'tables'} from {database}"
+                )
 
                 self._fetch_columns_async(self._conn, tables)
 
@@ -113,7 +115,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 self._account, normalized_name
             )
             tables[normalized_name] = DatasetInfo(
-                database, schema, name, table_type, int(row_count)
+                database, schema, name, table_type, safe_int(row_count)
             )
 
         return tables
@@ -255,19 +257,19 @@ class SnowflakeProfileExtractor(BaseExtractor):
             min_value, max_value, avg, std_dev = None, None, None, None
             if SnowflakeProfileExtractor._is_numeric(data_type):
                 if column_statistics.min_value:
-                    min_value = convert_to_float(results[index])
+                    min_value = safe_float(results[index])
                     index += 1
 
                 if column_statistics.max_value:
-                    max_value = convert_to_float(results[index])
+                    max_value = safe_float(results[index])
                     index += 1
 
                 if column_statistics.avg_value:
-                    avg = convert_to_float(results[index])
+                    avg = safe_float(results[index])
                     index += 1
 
                 if column_statistics.std_dev:
-                    std_dev = convert_to_float(results[index])
+                    std_dev = safe_float(results[index])
                     index += 1
 
             fields.append(

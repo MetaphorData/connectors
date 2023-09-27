@@ -14,6 +14,7 @@ from metaphor.common.entity_id import (
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
+from metaphor.common.utils import safe_float
 from metaphor.fivetran.config import FivetranRunConfig
 from metaphor.fivetran.models import (
     ConnectorPayload,
@@ -345,9 +346,7 @@ class FivetranExtractor(BaseExtractor):
 
         connector_type_name = source_metadata.name if source_metadata else None
         icon_url = source_metadata.icon_url if source_metadata else None
-        sync_interval = (
-            float(connector.sync_frequency) if connector.sync_frequency else None
-        )
+        sync_interval = safe_float(connector.sync_frequency)
 
         fivetran = FivetranPipeline(
             status=FiveTranConnectorStatus(
