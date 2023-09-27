@@ -20,7 +20,7 @@ from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import convert_to_float
+from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -246,19 +246,19 @@ class BigQueryProfileExtractor(BaseExtractor):
             min_value, max_value, avg, std_dev = None, None, None, None
             if BigQueryProfileExtractor._is_numeric(data_type):
                 if column_statistics.min_value:
-                    min_value = convert_to_float(results[index])
+                    min_value = safe_float(results[index])
                     index += 1
 
                 if column_statistics.max_value:
-                    max_value = convert_to_float(results[index])
+                    max_value = safe_float(results[index])
                     index += 1
 
                 if column_statistics.avg_value:
-                    avg = convert_to_float(results[index])
+                    avg = safe_float(results[index])
                     index += 1
 
                 if column_statistics.std_dev:
-                    std_dev = convert_to_float(results[index])
+                    std_dev = safe_float(results[index])
                     index += 1
 
             fields.append(

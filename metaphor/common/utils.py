@@ -64,13 +64,23 @@ def safe_parse_ISO8601(iso8601_str: Optional[str]) -> Optional[datetime]:
         return None
 
 
-def convert_to_float(value: Optional[Union[float, int, str]]) -> Optional[float]:
+def safe_float(value: Optional[Union[float, int, str]]) -> Optional[float]:
     """Converts a value to float, return None if the original value is None or NaN or INF"""
     return (
         None
         if value is None
         or (isinstance(value, float) and (math.isnan(value) or math.isinf(value)))
         else float(value)
+    )
+
+
+def safe_int(value: Any) -> Optional[int]:
+    """Converts a value to int, return None if the original value is None or NaN or INF"""
+    return (
+        None
+        if value is None
+        or (isinstance(value, float) and (math.isnan(value) or math.isinf(value)))
+        else int(value)
     )
 
 

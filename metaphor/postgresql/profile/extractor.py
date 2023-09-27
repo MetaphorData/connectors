@@ -12,6 +12,7 @@ from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
+from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -160,7 +161,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
             nullable = field.nullable
             is_numeric = field.precision is not None
 
-            unique_values = float(results[index])
+            unique_values = safe_float(results[index])
             index += 1
 
             if nullable:
@@ -170,11 +171,11 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
                 nulls = 0.0
 
             if is_numeric:
-                min_value = float(results[index]) if results[index] else None
+                min_value = safe_float(results[index])
                 index += 1
-                max_value = float(results[index]) if results[index] else None
+                max_value = safe_float(results[index])
                 index += 1
-                avg = float(results[index]) if results[index] else None
+                avg = safe_float(results[index])
                 index += 1
             else:
                 min_value, max_value, avg = None, None, None

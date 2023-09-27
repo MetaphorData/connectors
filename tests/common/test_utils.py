@@ -9,6 +9,8 @@ from metaphor.common.utils import (
     filter_empty_strings,
     must_set_exactly_one,
     removesuffix,
+    safe_float,
+    safe_int,
     safe_parse_ISO8601,
     start_of_day,
     unique_list,
@@ -114,3 +116,19 @@ def test_safe_parse_ISO8061():
         == "2023-09-20T08:10:15+00:00"
     )
     assert safe_parse_ISO8601("isvalid") is None
+
+
+def test_safe_float():
+    assert safe_float(None) is None
+    assert safe_float(float("NaN")) is None
+    assert safe_float(float("Inf")) is None
+    assert safe_float(1) == 1.0
+    assert safe_float(1.7) == 1.7
+
+
+def test_safe_int():
+    assert safe_int(None) is None
+    assert safe_float(float("NaN")) is None
+    assert safe_float(float("Inf")) is None
+    assert safe_int(1) == 1
+    assert safe_int(1.7) == 1
