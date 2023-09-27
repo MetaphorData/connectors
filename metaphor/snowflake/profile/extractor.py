@@ -78,8 +78,9 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
             for database in databases:
                 tables = self._fetch_tables(cursor, database)
-                object_type = "tables/views" if self._include_views else "tables"
-                logger.info(f"Include {len(tables)} {object_type} from {database}")
+                logger.info(
+                    f"Include {len(tables)} {'tables/views' if self._include_views else 'tables'} from {database}"
+                )
 
                 self._fetch_columns_async(self._conn, tables)
 
