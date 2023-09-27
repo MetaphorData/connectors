@@ -440,7 +440,7 @@ class SnowflakeExtractor(BaseExtractor):
             x: QueryWithParam(
                 f"""
                 SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
-                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED,
+                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED,
                   DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
@@ -471,7 +471,7 @@ class SnowflakeExtractor(BaseExtractor):
             x: QueryWithParam(
                 f"""
                 SELECT QUERY_ID, USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
-                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED
+                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 WHERE EXECUTION_STATUS = 'SUCCESS'
                   AND START_TIME > %s AND START_TIME <= %s
@@ -503,6 +503,8 @@ class SnowflakeExtractor(BaseExtractor):
             bytes_scanned,
             bytes_written,
             rows_produced,
+            rows_inserted,
+            rows_updated,
             *access_objects,
         ) in query_logs:
             try:
@@ -524,13 +526,24 @@ class SnowflakeExtractor(BaseExtractor):
                     account=self._account,
                     start_time=start_time,
                     duration=float(elapsed_time / 1000.0),
-                    cost=float(credit) if credit else None,
+                    cost=float(credit) if credit is not None else None,
                     user_id=username,
                     default_database=default_database,
                     default_schema=default_schema,
-                    rows_written=float(rows_produced) if rows_produced else None,
-                    bytes_read=float(bytes_scanned) if bytes_scanned else None,
-                    bytes_written=float(bytes_written) if bytes_written else None,
+                    rows_read=float(rows_produced)
+                    if rows_produced is not None
+                    else None,
+                    rows_written=float(rows_inserted)
+                    if rows_inserted is not None
+                    else float(rows_updated)
+                    if rows_updated is not None
+                    else None,
+                    bytes_read=float(bytes_scanned)
+                    if bytes_scanned is not None
+                    else None,
+                    bytes_written=float(bytes_written)
+                    if bytes_written is not None
+                    else None,
                     sources=sources,
                     targets=targets,
                     sql=query_text,
