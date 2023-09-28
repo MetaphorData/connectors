@@ -1,4 +1,3 @@
-import tempfile
 from time import sleep
 from typing import Any, Callable, List, Optional, Type, TypeVar
 
@@ -161,8 +160,8 @@ class PowerBiRefreshSchedule(BaseModel):
 
 class WorkspaceInfoDataflow(BaseModel):
     objectId: str
-    name: str
-    description: str
+    name: Optional[str] = None
+    description: Optional[str] = None
     configuredBy: Optional[str] = None
     modifiedBy: Optional[str] = None
     modifiedDateTime: Optional[str] = None
@@ -189,7 +188,7 @@ class PowerBiSubscriptionUser(BaseModel):
 class PowerBISubscription(BaseModel):
     id: str
     artifactId: str
-    title: str
+    title: Optional[str] = None
     frequency: Optional[str] = None
     endDate: Optional[str] = None
     startDate: Optional[str] = None
@@ -439,12 +438,6 @@ class PowerBIClient:
             return False
 
         def transform_scan_result(response: requests.Response) -> dict:
-            # Write output to file to help debug issues
-            fd, name = tempfile.mkstemp(suffix=".json")
-            with open(fd, "w") as fp:
-                fp.write(response.text)
-            logger.info(f"Scan result written to {name}")
-
             return response.json()["workspaces"]
 
         scan_id = create_scan()

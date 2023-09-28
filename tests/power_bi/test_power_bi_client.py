@@ -89,3 +89,42 @@ async def test_get_export_dataflow(
 
     dataflow = client.export_dataflow("group_id", "dataflow_id")
     assert dataflow == load_json(f"{test_root_dir}/power_bi/data/dataflow_1.json")
+
+
+@patch("requests.get")
+@patch("requests.post")
+@patch("msal.ConfidentialClientApplication")
+@pytest.mark.asyncio
+async def test_get_workspace_info(
+    mock_msal_app: MagicMock,
+    mock_post_method: MagicMock,
+    mock_get_method: MagicMock,
+    test_root_dir: str,
+):
+    mock_msal_app = MagicMock()
+    mock_msal_app.acquire_token_silent = MagicMock(
+        return_value={"access_token": "token"}
+    )
+
+    mock_post_method.side_effect = [
+        MockResponse({"id": "scan_id"}, 202),
+    ]
+
+    mock_get_method.side_effect = [
+        MockResponse({"status": "Processing"}),
+        MockResponse({"status": "Succeeded"}),
+        MockResponse(load_json(f"{test_root_dir}/power_bi/data/workspace_scan.json")),
+    ]
+    client = PowerBIClient(
+        PowerBIRunConfig(
+            tenant_id="tenant-id",
+            client_id="client-id",
+            secret="secret",
+            output=OutputConfig(),
+        )
+    )
+
+    workspaces = client.get_workspace_info([])
+
+    # Verified modeling was correct
+    assert len(workspaces) == 1
