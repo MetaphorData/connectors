@@ -161,8 +161,8 @@ class PowerBiRefreshSchedule(BaseModel):
 
 class WorkspaceInfoDataflow(BaseModel):
     objectId: str
-    name: str
-    description: str
+    name: Optional[str] = None
+    description: Optional[str] = None
     configuredBy: Optional[str] = None
     modifiedBy: Optional[str] = None
     modifiedDateTime: Optional[str] = None
