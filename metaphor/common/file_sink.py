@@ -55,6 +55,7 @@ class FileSink(Sink):
         self.write_logs = config.write_logs
         self.batch_size_count = config.batch_size_count
         self.batch_size_bytes = config.batch_size_bytes
+        logger.info(f"Write files to {self.path}")
 
         if config.directory.startswith("s3://"):
             self._storage: BaseStorage = S3Storage(
@@ -65,7 +66,6 @@ class FileSink(Sink):
 
     def _sink(self, messages: List[dict]) -> bool:
         """Write records to file with auto-splitting"""
-        # split MCE into parts and write to files
 
         slices = chunk_by_size(
             messages,
@@ -73,14 +73,15 @@ class FileSink(Sink):
             self.batch_size_bytes,
             lambda item: len(json.dumps(item)),
         )
+        logger.info(f"Split MCE records into {len(slices)} chunks")
 
         for part, slice in enumerate(slices):
             file_name = f"{part+1}-of-{len(slices)}.json"
+            logger.info(f"Writing {file_name} ({slice.stop - slice.start} records)")
             self._storage.write_file(
                 f"{self.path}/{file_name}",
                 json.dumps(messages[slice]),
             )
-            logger.info(f"Written {file_name} ({slice.stop - slice.start} records)")
 
         logger.info(f"Written {len(slices)} MCE files")
 
