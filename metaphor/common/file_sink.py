@@ -67,13 +67,13 @@ class FileSink(Sink):
     def _sink(self, messages: List[dict]) -> bool:
         """Write records to file with auto-splitting"""
 
+        logger.info("Split MCE records into chunks")
         slices = chunk_by_size(
             messages,
             self.batch_size_count,
             self.batch_size_bytes,
             lambda item: len(json.dumps(item)),
         )
-        logger.info(f"Split MCE records into {len(slices)} chunks")
 
         for part, slice in enumerate(slices):
             file_name = f"{part+1}-of-{len(slices)}.json"
