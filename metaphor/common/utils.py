@@ -148,3 +148,8 @@ def removesuffix(text: str, suffix: str):
         return text[: -len(suffix)]
     else:
         return text
+
+
+def safe_del(dict: Dict, key: str):
+    if key in dict:
+        del dict[key]
