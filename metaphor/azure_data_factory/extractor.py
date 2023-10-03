@@ -479,7 +479,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 try:
                     result.append(DependencyCondition(condition))
                 except ValueError:
-                    logger.warn(
+                    logger.warning(
                         f"Invalid enum value for DependencyCondition: {condition}"
                     )
                     continue

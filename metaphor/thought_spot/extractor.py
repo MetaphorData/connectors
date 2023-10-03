@@ -578,7 +578,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 )
         except (ValueError, IndexError) as error:
             # if the target name is not matched the assumption
-            logger.warn(
+            logger.warning(
                 f"{error} The target column name in answer sql didn't match the assumption, sql: {answer_sql}"
             )
             return []
