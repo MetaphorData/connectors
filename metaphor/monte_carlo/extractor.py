@@ -168,7 +168,7 @@ class MonteCarloExtractor(BaseExtractor):
             connection_type = node["warehouse"]["connection_type"]
             platform = connection_type_platform_map.get(connection_type)
             if platform is None:
-                logger.warn(
+                logger.warning(
                     f"Unsupported connection type: {connection_type} for {mcon}"
                 )
             else:

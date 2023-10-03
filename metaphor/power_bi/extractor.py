@@ -466,7 +466,7 @@ class PowerBIExtractor(BaseExtractor):
             dashboard = self._dashboards.get(subscription.artifactId)
 
             if dashboard is None:
-                logger.warn(
+                logger.warning(
                     f"Can't found related artifact for subscription: {subscription.id}"
                 )
                 continue
@@ -485,7 +485,7 @@ class PowerBIExtractor(BaseExtractor):
                         tzinfo=timezone.utc
                     )
                 except ValueError:
-                    logger.warn(f"Unable to parse time: {datetime_str}")
+                    logger.warning(f"Unable to parse time: {datetime_str}")
                     return None
 
             power_bi_info.subscriptions.append(
@@ -539,7 +539,7 @@ class PowerBIExtractor(BaseExtractor):
                     certified_by=dashboard.endorsementDetails.certifiedBy,
                 )
             except ValueError:
-                logger.warn(
+                logger.warning(
                     f"Endorsement type {dashboard.endorsementDetails.endorsement} are not supported"
                 )
 

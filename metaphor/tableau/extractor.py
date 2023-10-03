@@ -272,7 +272,7 @@ class TableauExtractor(BaseExtractor):
     ) -> Dict[str, List[str]]:
         platform = connection_type_map.get(custom_sql_table.connectionType)
         if platform is None:
-            logger.warn(
+            logger.warning(
                 f"Unsupported connection type {custom_sql_table.connectionType} for custom sql table: {custom_sql_table.id}"
             )
             return {}
@@ -283,7 +283,7 @@ class TableauExtractor(BaseExtractor):
 
         datasource_ids = self._custom_sql_datasource_ids(custom_sql_table)
         if len(datasource_ids) == 0:
-            logger.warn(
+            logger.warning(
                 f"Missing datasource IDs for custom sql table: {custom_sql_table.id}"
             )
             return {}
@@ -305,7 +305,7 @@ class TableauExtractor(BaseExtractor):
         for source_table in source_tables:
             fullname = str(source_table).lower()
             if fullname.count(".") != 2:
-                logger.warn(f"Ignore non-fully qualified source table {fullname}")
+                logger.warning(f"Ignore non-fully qualified source table {fullname}")
                 continue
 
             self._init_dataset(fullname, platform, account)
