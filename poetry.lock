@@ -2611,13 +2611,13 @@ files = [
 
 [[package]]
 name = "jsonschema"
-version = "4.19.0"
+version = "4.19.1"
 description = "An implementation of JSON Schema validation for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jsonschema-4.19.0-py3-none-any.whl", hash = "sha256:043dc26a3845ff09d20e4420d6012a9c91c9aa8999fa184e7efcfeccb41e32cb"},
-    {file = "jsonschema-4.19.0.tar.gz", hash = "sha256:6e1e7569ac13be8139b2dd2c21a55d350066ee3f80df06c608b398cdc6f30e8f"},
+    {file = "jsonschema-4.19.1-py3-none-any.whl", hash = "sha256:cd5f1f9ed9444e554b38ba003af06c0a8c2868131e56bfbef0550fb450c0330e"},
+    {file = "jsonschema-4.19.1.tar.gz", hash = "sha256:ec84cc37cfa703ef7cd4928db24f9cb31428a5d0fa77747b8b51a847458e0bbf"},
 ]
 
 [package.dependencies]
@@ -4730,13 +4730,13 @@ files = [
 
 [[package]]
 name = "sql-metadata"
-version = "2.8.0"
+version = "2.9.0"
 description = "Uses tokenized query returned by python-sqlparse and generates query metadata"
 optional = true
-python-versions = ">=3.7.2,<4.0.0"
+python-versions = ">=3.8,<4.0"
 files = [
-    {file = "sql_metadata-2.8.0-py3-none-any.whl", hash = "sha256:f0cadad6915ce99ac9869245399d8702536f17b1feba68a2b5763a0f2aa43352"},
-    {file = "sql_metadata-2.8.0.tar.gz", hash = "sha256:3897dc881ae00b49d8efa1b0fa8270617fa4f6d818d2a945703f594cecfe93ad"},
+    {file = "sql_metadata-2.9.0-py3-none-any.whl", hash = "sha256:82791389ca1b37829c75a7f4cff854352ec8ec19ebcdbf59aa7965698f29b15e"},
+    {file = "sql_metadata-2.9.0.tar.gz", hash = "sha256:0243bfc80f93337ee89a438d416b28e5f301deb1e328245e2b974da14321dece"},
 ]
 
 [package.dependencies]
@@ -5405,4 +5405,4 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "abffc210a0a82a32a3226752985ca0be75270e8ce74ee089c628d0a85165cb1b"
+content-hash = "44d69fcaa536bdda15a6c8731222d6c44e6b533bd9c2e06bbba7eca4d311313a"

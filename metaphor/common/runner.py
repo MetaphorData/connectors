@@ -64,8 +64,7 @@ def run_connector(
         f"Ended running with {run_status} at {end_time}, fetched {entity_count} entities, took {format((end_time - start_time).total_seconds(), '.1f')}s"
     )
 
-    event_util = EventUtil(name)
-    events = [event_util.build_event(entity) for entity in entities]
+    events = [EventUtil.build_event(entity) for entity in entities]
 
     run_metadata = CrawlerRunMetadata(
         crawler_name=name,
