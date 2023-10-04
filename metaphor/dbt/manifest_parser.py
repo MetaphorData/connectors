@@ -244,6 +244,20 @@ class ManifestParser:
         # avoid hitting any validation issues.
         manifest_json["docs"] = {}
 
+        # Temporarily strip off all the extra "labels" in "semantic_models" until
+        # https://github.com/dbt-labs/dbt-core/issues/8763 is fixed
+        for _, semantic_model in manifest_json.get("semantic_models", {}).items():
+            semantic_model.pop("label", None)
+
+            for entity in semantic_model.get("entities", []):
+                entity.pop("label", None)
+
+            for dimension in semantic_model.get("dimensions", []):
+                dimension.pop("label", None)
+
+            for measure in semantic_model.get("measures", []):
+                measure.pop("label", None)
+
         return manifest_json
 
     def parse(self, manifest_json: Dict) -> None:
