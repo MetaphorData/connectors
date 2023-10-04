@@ -150,6 +150,9 @@ def removesuffix(text: str, suffix: str):
         return text
 
 
-def safe_del(dict: Dict, key: str):
+def safe_del(dict: Dict, key: str) -> Dict:
+    """Safely remove a key from a dict even if the key doesn't exist"""
     if key in dict:
         del dict[key]
+
+    return dict

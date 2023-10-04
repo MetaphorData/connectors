@@ -9,6 +9,7 @@ from metaphor.common.utils import (
     filter_empty_strings,
     must_set_exactly_one,
     removesuffix,
+    safe_del,
     safe_float,
     safe_int,
     safe_parse_ISO8601,
@@ -132,3 +133,9 @@ def test_safe_int():
     assert safe_float(float("Inf")) is None
     assert safe_int(1) == 1
     assert safe_int(1.7) == 1
+
+
+def test_safe_del():
+    assert safe_del({"foo": "bar"}, "foo") == {}
+    assert safe_del({"foo": "bar"}, "baz") == {"foo": "bar"}
+    assert safe_del({}, "foo") == {}
