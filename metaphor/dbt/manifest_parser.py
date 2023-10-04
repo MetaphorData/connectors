@@ -6,7 +6,7 @@ from pydantic.utils import unique_list
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.utils import filter_empty_strings, safe_del
+from metaphor.common.utils import filter_empty_strings
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import (
     build_metric_docs_url,
@@ -247,16 +247,16 @@ class ManifestParser:
         # Temporarily strip off all the extra "labels" in "semantic_models" until
         # https://github.com/dbt-labs/dbt-core/issues/8763 is fixed
         for _, semantic_model in manifest_json.get("semantic_models", {}).items():
-            safe_del(semantic_model, "label")
+            semantic_model.pop("label", None)
 
             for entity in semantic_model.get("entities", []):
-                safe_del(entity, "label")
+                entity.pop("label", None)
 
             for dimension in semantic_model.get("dimensions", []):
-                safe_del(dimension, "label")
+                dimension.pop("label", None)
 
             for measure in semantic_model.get("measures", []):
-                safe_del(measure, "label")
+                measure.pop("label", None)
 
         return manifest_json
 
