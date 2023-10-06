@@ -9,6 +9,14 @@
       "fieldMappings": [],
       "pipelineEntityId": "PIPELINE~1E2532BAB8D4B86B7FB893D1D1DD256D",
       "sourceDatasets": []
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": true,
+          "pipelineEntityId": "PIPELINE~1E2532BAB8D4B86B7FB893D1D1DD256D"
+        }
+      ]
     }
   },
   {
@@ -52,6 +60,15 @@
       "sourceDatasets": [
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
       ]
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~77C9E0FE312C3E93891D2D8C3869F283",
+          "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
+        }
+      ]
     }
   },
   {
@@ -80,6 +97,15 @@
       "pipelineEntityId": "PIPELINE~77C9E0FE312C3E93891D2D8C3869F283",
       "sourceDatasets": [
         "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
+      ]
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~77C9E0FE312C3E93891D2D8C3869F283",
+          "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
+        }
       ]
     }
   },
@@ -124,6 +150,15 @@
       "sourceDatasets": [
         "DATASET~CA36B7F1E380295A5286B5E231A6A088"
       ]
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~A49A21FB45EC17B27B135D4905DFB0AA",
+          "sourceEntityId": "DATASET~CA36B7F1E380295A5286B5E231A6A088"
+        }
+      ]
     }
   },
   {
@@ -152,6 +187,15 @@
       "pipelineEntityId": "PIPELINE~A49A21FB45EC17B27B135D4905DFB0AA",
       "sourceDatasets": [
         "DATASET~640B6534F4B207F3A50447769DB47B38"
+      ]
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~A49A21FB45EC17B27B135D4905DFB0AA",
+          "sourceEntityId": "DATASET~640B6534F4B207F3A50447769DB47B38"
+        }
       ]
     }
   },
