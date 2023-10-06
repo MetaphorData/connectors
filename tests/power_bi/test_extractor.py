@@ -303,7 +303,8 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                             ),
                         ],
                         upstreamDataflows=[
-                            UpstreamDataflow(targetDataflowId=dataflow_id)
+                            UpstreamDataflow(targetDataflowId=dataflow_id),
+                            UpstreamDataflow(targetDataflowId=dataflow_id2),
                         ],
                         upstreamDatasets=None,
                     ),
