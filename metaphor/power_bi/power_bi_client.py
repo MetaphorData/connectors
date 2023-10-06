@@ -173,6 +173,7 @@ class WorkspaceInfo(BaseModel):
     name: Optional[str]
     type: Optional[str]
     state: str
+    description: Optional[str]
     reports: List[WorkspaceInfoReport] = []
     datasets: List[WorkspaceInfoDataset] = []
     dashboards: List[WorkspaceInfoDashboard] = []
