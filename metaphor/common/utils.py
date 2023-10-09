@@ -148,3 +148,8 @@ def removesuffix(text: str, suffix: str):
         return text[: -len(suffix)]
     else:
         return text
+
+
+def filter_none(lst: List) -> List:
+    """Filter out all None values from the list"""
+    return list(filter(lambda e: e is not None, lst))

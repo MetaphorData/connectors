@@ -7,6 +7,7 @@ from freezegun import freeze_time
 from metaphor.common.utils import (
     chunk_by_size,
     filter_empty_strings,
+    filter_none,
     must_set_exactly_one,
     removesuffix,
     safe_float,
@@ -132,3 +133,10 @@ def test_safe_int():
     assert safe_float(float("Inf")) is None
     assert safe_int(1) == 1
     assert safe_int(1.7) == 1
+
+
+def test_filter_none():
+    assert filter_none([]) == []
+    assert filter_none([1, 2]) == [1, 2]
+    assert filter_none(["foo", None, "bar"]) == ["foo", "bar"]
+    assert filter_none([None, None]) == []

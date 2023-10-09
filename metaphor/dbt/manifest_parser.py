@@ -6,7 +6,7 @@ from pydantic.utils import unique_list
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.utils import filter_empty_strings
+from metaphor.common.utils import filter_empty_strings, filter_none
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import (
     build_metric_docs_url,
@@ -243,6 +243,15 @@ class ManifestParser:
         # some cases. Since the field is not actually used, it's safe to clear it out to
         # avoid hitting any validation issues.
         manifest_json["docs"] = {}
+
+        # dbt can erroneously generate null for test's "depends_on"
+        # Filter these out for now
+        nodes = manifest_json.get("nodes", {})
+        for key, node in nodes.items():
+            if key.startswith("test."):
+                depends_on = node.get("depends_on", {})
+                depends_on["macros"] = filter_none(depends_on.get("macros", []))
+                depends_on["nodes"] = filter_none(depends_on.get("nodes", []))
 
         # Temporarily strip off all the extra "labels" in "semantic_models" until
         # https://github.com/dbt-labs/dbt-core/issues/8763 is fixed
