@@ -8,7 +8,6 @@ def test_yaml_config(test_root_dir):
 
     assert config == DbtRunConfig(
         manifest="manifest",
-        catalog="catalog",
         docs_base_url="http://localhost",
         project_source_url="http://foo.bar",
         meta_ownerships=[

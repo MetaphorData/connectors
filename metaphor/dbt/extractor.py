@@ -14,8 +14,6 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 
-from .catalog_parser_v1 import CatalogParserV1
-
 logger = get_logger()
 
 
@@ -32,7 +30,6 @@ class DbtExtractor(BaseExtractor):
     def __init__(self, config: DbtRunConfig):
         super().__init__(config, "dbt metadata crawler", Platform.DBT_MODEL)
         self._manifest = config.manifest
-        self._catalog = config.catalog
         self._config = config
 
         self._data_platform = DataPlatform.UNKNOWN
@@ -41,8 +38,6 @@ class DbtExtractor(BaseExtractor):
         self._metrics: Dict[str, Metric] = {}
 
         add_debug_file(config.manifest)
-        if config.catalog:
-            add_debug_file(config.catalog)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from DBT repo")
@@ -63,17 +58,6 @@ class DbtExtractor(BaseExtractor):
             self._metrics,
         )
         manifest_parser.parse(manifest_json)
-
-        if self._catalog:
-            catalog_parser = CatalogParserV1(
-                self._config,
-                self._data_platform,
-                self._datasets,
-                self._virtual_views,
-            )
-
-            logger.info("parsing catalog.json ...")
-            catalog_parser.parse(self._catalog)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
