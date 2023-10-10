@@ -2,7 +2,6 @@ import pytest
 from pydantic import ValidationError
 from pydantic.dataclasses import dataclass
 
-from metaphor.common.api_sink import ApiSinkConfig
 from metaphor.common.base_config import BaseConfig, OutputConfig
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.file_sink import FileSinkConfig
@@ -13,7 +12,6 @@ def test_yaml_config(test_root_dir):
 
     assert config == BaseConfig(
         output=OutputConfig(
-            api=ApiSinkConfig(url="url", api_key="api_key", batch_size=1, timeout=2),
             file=FileSinkConfig(
                 directory="path",
                 assume_role_arn="arn",
