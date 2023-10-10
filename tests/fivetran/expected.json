@@ -85,6 +85,78 @@
   },
   {
     "logicalId": {
+      "account": "dest_account",
+      "name": "fivetran.sqldb_foo.table",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "sql-server.foo.bar",
+                "name": "source_db.schema.table",
+                "platform": "MSSQL"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~CA36B7F1E380295A5286B5E231A6A088"
+            }
+          ]
+        },
+        {
+          "destination": "col2",
+          "sources": [
+            {
+              "dataset": {
+                "account": "sql-server.foo.bar",
+                "name": "source_db.schema.table",
+                "platform": "MSSQL"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~CA36B7F1E380295A5286B5E231A6A088"
+            }
+          ]
+        }
+      ],
+      "pipelineEntityId": "PIPELINE~A49A21FB45EC17B27B135D4905DFB0AA",
+      "sourceDatasets": [
+        "DATASET~CA36B7F1E380295A5286B5E231A6A088"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "account": "dest_account",
+      "name": "fivetran.sqldb_foo.table2",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "sql-server.foo.bar",
+                "name": "source_db.schema.table2",
+                "platform": "MSSQL"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~640B6534F4B207F3A50447769DB47B38"
+            }
+          ]
+        }
+      ],
+      "pipelineEntityId": "PIPELINE~A49A21FB45EC17B27B135D4905DFB0AA",
+      "sourceDatasets": [
+        "DATASET~640B6534F4B207F3A50447769DB47B38"
+      ]
+    }
+  },
+  {
+    "logicalId": {
       "account": "source_account",
       "name": "source_db.schema.table",
       "platform": "SNOWFLAKE"
@@ -95,6 +167,20 @@
       "account": "source_account",
       "name": "source_db.schema.table2",
       "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "sql-server.foo.bar",
+      "name": "source_db.schema.table",
+      "platform": "MSSQL"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "sql-server.foo.bar",
+      "name": "source_db.schema.table2",
+      "platform": "MSSQL"
     }
   },
   {
@@ -156,6 +242,38 @@
     },
     "logicalId": {
       "name": "connector_2",
+      "type": "FIVETRAN"
+    }
+  },
+  {
+    "fivetran": {
+      "config": "{\"database\": \"source_db\", \"password\": \"******\", \"host\": \"sql-Server.foo.bar\", \"user\": \"user\"}",
+      "connectorLogsUrl": "https://fivetran.com/dashboard/connectors/connector_3/logs",
+      "connectorName": "source_schema",
+      "connectorTypeId": "sql_server",
+      "connectorUrl": "https://fivetran.com/dashboard/connectors/connector_3",
+      "created": "2023-04-10T18:02:35.655597+00:00",
+      "creatorEmail": "user@foo.com",
+      "lastSucceeded": "2023-04-19T08:56:03.467000+00:00",
+      "paused": false,
+      "schemaMetadata": "[{\"name_in_source\": \"schema\", \"name_in_destination\": \"sqldb_foo\", \"tables\": [{\"name_in_source\": \"table\", \"name_in_destination\": \"table\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}, {\"name_in_source\": \"col2\", \"name_in_destination\": \"col2\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}, {\"name_in_source\": \"table2\", \"name_in_destination\": \"table2\", \"columns\": [{\"name_in_source\": \"col1\", \"name_in_destination\": \"col1\", \"type_in_source\": \"BigDecimal\", \"type_in_destination\": \"DECIMAL(38, 6)\", \"is_primary_key\": false, \"is_foreign_key\": false}]}]}]",
+      "sources": [
+        "DATASET~640B6534F4B207F3A50447769DB47B38",
+        "DATASET~CA36B7F1E380295A5286B5E231A6A088"
+      ],
+      "status": {
+        "setupState": "connected",
+        "syncState": "paused",
+        "updateState": "on_schedule"
+      },
+      "syncIntervalInMinute": 1440.0,
+      "targets": [
+        "DATASET~661DF54472FF1E1B8CDEB15867237572",
+        "DATASET~F1E5D0FDE9CEC9D0823EE564C457CD16"
+      ]
+    },
+    "logicalId": {
+      "name": "connector_3",
       "type": "FIVETRAN"
     }
   }

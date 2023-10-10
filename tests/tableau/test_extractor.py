@@ -8,6 +8,7 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     Dashboard,
     DashboardInfo,
@@ -117,20 +118,23 @@ def test_view_url():
 def test_asset_full_name():
     extractor = TableauExtractor(dummy_config())
 
-    assert (
-        extractor._build_asset_full_name("asset_name", "project_id", "project_name")
-        == "project_name.asset_name"
+    assert extractor._build_asset_full_name_and_structure(
+        "asset_name", "project_id", "project_name"
+    ) == (
+        "project_name.asset_name",
+        AssetStructure(directories=["project_name"], name="asset_name"),
     )
-    assert (
-        extractor._build_asset_full_name("asset_name", "project_id", None)
-        == "asset_name"
-    )
+    assert extractor._build_asset_full_name_and_structure(
+        "asset_name", "project_id", None
+    ) == ("asset_name", AssetStructure(name="asset_name"))
 
-    extractor._projects = {"project_id": "project.full_name"}
+    extractor._projects = {"project_id": ["parent", "project"]}
 
-    assert (
-        extractor._build_asset_full_name("asset_name", "project_id", "project_name")
-        == "project.full_name.asset_name"
+    assert extractor._build_asset_full_name_and_structure(
+        "asset_name", "project_id", "project_name"
+    ) == (
+        "parent.project.asset_name",
+        AssetStructure(directories=["parent", "project"], name="asset_name"),
     )
 
 
@@ -274,6 +278,7 @@ async def test_extractor(
         logical_id=DashboardLogicalID(
             dashboard_id="123", platform=DashboardPlatform.TABLEAU
         ),
+        structure=AssetStructure(directories=["project1"], name="wb"),
         dashboard_info=DashboardInfo(
             charts=[
                 Chart(

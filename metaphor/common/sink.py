@@ -15,8 +15,12 @@ class Sink(ABC):
 
     def sink(self, events: List[MetadataChangeEvent]) -> bool:
         """Sink MCE messages to the destination"""
-        records = [EventUtil.trim_event(e) for e in events]
-        valid_records = [r for r in records if EventUtil.validate_message(r)]
+        event_util = EventUtil()
+        records = [event_util.trim_event(e) for e in events]
+
+        logger.info("validating MCE records")
+        valid_records = [r for r in records if event_util.validate_message(r)]
+
         if len(valid_records) == 0:
             return False
 

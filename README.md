@@ -2,7 +2,7 @@
 
 # Metaphor Connectors
 
-[![Coverage](https://coveralls.io/repos/github/MetaphorData/connectors/badge.svg?branch=main)](https://coveralls.io/github/MetaphorData/connectors?branch=main)
+[![Codecov](https://img.shields.io/codecov/c/github/MetaphorData/connectors)](https://app.codecov.io/gh/MetaphorData/connectors/tree/main)
 [![CodeQL](https://github.com/MetaphorData/connectors/workflows/CodeQL/badge.svg)](https://github.com/MetaphorData/connectors/actions/workflows/codeql-analysis.yml)
 [![PyPI Version](https://img.shields.io/pypi/v/metaphor-connectors)](https://pypi.org/project/metaphor-connectors/)
 ![Python version 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)
@@ -45,12 +45,13 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | Connector Name                                                | Metadata                                 |
 |---------------------------------------------------------------|------------------------------------------|  
 | [airflow_plugin](metaphor/airflow_plugin/README.md)           | Lineage                                  |
+| [azure_data_factory](metaphor/azure_data_factory/README.md)   | Lineage, Pipeline                        |
 | [bigquery](metaphor/bigquery/README.md)                       | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/README.md)       | Lineage                                  |
 | [bigquery.profile](metaphor/bigquery/profile/README.md)       | Data profile                             |
 | [dbt](metaphor/dbt/README.md)                                 | dbt model, test, lineage                 |
 | [dbt.cloud](metaphor/dbt/cloud/README.md)                     | dbt model, test, lineage                 |
-| [fivetran](metaphor/fivetran/README.md)                       | lineage                                  |
+| [fivetran](metaphor/fivetran/README.md)                       | Lineage, Pipeline                        |
 | [glue](metaphor/glue/README.md)                               | Schema, description                      |
 | [looker](metaphor/looker/README.md)                           | Looker view, explore, dashboard, lineage |
 | [custom.data_quality](metaphor/custom/data_quality/README.md) | Data quality                             |

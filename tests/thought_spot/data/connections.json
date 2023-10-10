@@ -1,59 +1,26 @@
 [
   {
-    "metadata_detail": {
-      "header": {
-        "id": "conn1",
-        "name": "Connection 1",
-        "description": "connection 1 description",
-        "tags": []
-      },
+    "details": {
+      "name": "BigQuery",
       "type": "RDBMS_GCP_BIGQUERY",
-      "logicalTableList": [
-        {
-          "columns": [
-            {
-              "header": {
-                "id": "table1.col1",
-                "name": "col1"
-              },
-              "dataType": "VARCHAR",
-              "type": "ATTRIBUTE",
-              "sources": []
-            }
-          ],
-          "logicalTableContent": {
-            "joinType": "INNER",
-            "worksheetType": "VIEW",
-            "tableMappingInfo": {
-              "databaseName": "project",
-              "schemaName": "schema",
-              "tableName": "table",
-              "tableType": "TABLE"
-            }
-          },
-          "type": "ONE_TO_ONE_LOGICAL",
-          "dataSourceId": "conn1",
-          "dataSourceTypeEnum": "RDBMS_GCP_BIGQUERY",
-          "header": {
-            "id": "table1",
-            "name": "Table 1",
-            "description": "This is table1",
-            "tags": [
-              {
-                "name": "table",
-                "isDeleted": false,
-                "isHidden": false,
-                "isDeprecated": false
-              }
-            ]
-          }
-        }
-      ],
-      "dataSourceContent": {
-        "configuration": {
-          "project_id": "project"
-        }
-      }
+      "id": "conn1",
+      "configuration": "{\"oauth_pvt_key\":\"******\",\"project_id\":\"google-project\",\"password\":\"******\"}"
+    }
+  },
+  {
+    "details": {
+      "name": "Snowflake",
+      "type": "RDBMS_SNOWFLAKE",
+      "id": "conn2",
+      "configuration": "{\"password\":\"******\",\"role\":\"SNOWFLAKE_ROLE\",\"warehouse\":\"WH\",\"accountName\":\"account\",\"user\":\"user\"}"
+    }
+  },
+  {
+    "details": {
+      "name": "Snowflake",
+      "type": "RDBMS_SNOWFLAKE",
+      "id": "conn3",
+      "configuration": "..."
     }
   }
 ]

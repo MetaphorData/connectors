@@ -259,9 +259,11 @@ def test_parse_query_logs(mock_connect: MagicMock):
             "0.000296",
             "ACME",
             "RIDE_SHARE",
-            131072,
-            86016,
-            3868,
+            100,  # BYTES_SCANNED
+            200,  # BYTES_WRITTEN
+            10,  # ROWS_PRODUCED
+            20,  # ROWS_INSERTED
+            0,  # ROWS_UPDATED
             json.dumps(
                 [
                     {
@@ -569,6 +571,10 @@ def test_parse_query_logs(mock_connect: MagicMock):
     assert len(extractor._logs) == 1
     log0 = extractor._logs[0]
     assert log0.query_id == "id1"
+    assert log0.bytes_read == 100
+    assert log0.bytes_written == 200
+    assert log0.rows_read == 10
+    assert log0.rows_written == 20
     assert log0.sources == [
         QueriedDataset(
             id="DATASET~965CB9D50FF7E59D766536D8ED07E862",

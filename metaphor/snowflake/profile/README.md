@@ -28,10 +28,10 @@ The config file inherits all the required and optional fields from the general S
 
 #### Exclude Views
 
-By default, the connector only profile Snowflake "base table", i.e. exclude views and temporary tables. The following config can enable profiling on all tables and views.
+By default, the connector only profile Snowflake "base table," i.e., exclude views and temporary tables. The following config can enable profiling on all tables and views.
 
 ```yaml
-exclude_views: false
+include_views: false
 ```
 
 #### Column Statistics

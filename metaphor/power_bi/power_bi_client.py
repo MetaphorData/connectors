@@ -1,4 +1,3 @@
-import tempfile
 from time import sleep
 from typing import Any, Callable, List, Optional, Type, TypeVar
 
@@ -97,6 +96,15 @@ class PowerBITable(BaseModel):
     source: List[Any] = []
 
 
+class EndorsementDetails(BaseModel):
+    endorsement: str
+    certifiedBy: Optional[str] = ""
+
+
+class UpstreamDataflow(BaseModel):
+    targetDataflowId: str
+
+
 class WorkspaceInfoDataset(BaseModel):
     id: str
     name: str
@@ -106,22 +114,58 @@ class WorkspaceInfoDataset(BaseModel):
     ContentProviderType: str = ""
     CreatedDate: str = ""
 
-    upstreamDataflows: Optional[Any]
+    upstreamDataflows: Optional[List[UpstreamDataflow]] = None
     upstreamDatasets: Optional[Any]
+    endorsementDetails: Optional[EndorsementDetails] = None
 
 
-class WorkspaceInfoDashboard(BaseModel):
+class WorkspaceInfoDashboardBase(BaseModel):
     id: str
     appId: Optional[str] = None
+    createdDateTime: Optional[str] = None
+    modifiedDateTime: Optional[str] = None
+    createdBy: Optional[str] = None
+    modifiedBy: Optional[str] = None
+    endorsementDetails: Optional[EndorsementDetails] = None
+
+
+class WorkspaceInfoDashboard(WorkspaceInfoDashboardBase):
     displayName: str
 
 
-class WorkspaceInfoReport(BaseModel):
-    id: str
-    appId: Optional[str] = None
+class WorkspaceInfoReport(WorkspaceInfoDashboardBase):
     name: str
     datasetId: Optional[str] = None
     description: str = ""
+
+
+class WorkspaceInfoUser(BaseModel):
+    emailAddress: Optional[str]
+    groupUserAccessRight: str
+    displayName: Optional[str]
+    graphId: str
+    principalType: str
+
+    def __hash__(self):
+        return hash(self.graphId)
+
+
+class PowerBiRefreshSchedule(BaseModel):
+    days: List[str] = []
+    times: List[str] = []
+    enabled: bool = False
+    localTimeZoneId: str = "UTC"
+    notifyOption: str = "MailOnFailure"
+
+
+class WorkspaceInfoDataflow(BaseModel):
+    objectId: str
+    name: Optional[str] = None
+    description: Optional[str] = None
+    configuredBy: Optional[str] = None
+    modifiedBy: Optional[str] = None
+    modifiedDateTime: Optional[str] = None
+    refreshSchedule: Optional[PowerBiRefreshSchedule] = None
 
 
 class WorkspaceInfo(BaseModel):
@@ -129,9 +173,34 @@ class WorkspaceInfo(BaseModel):
     name: Optional[str]
     type: Optional[str]
     state: str
+    description: Optional[str]
     reports: List[WorkspaceInfoReport] = []
     datasets: List[WorkspaceInfoDataset] = []
     dashboards: List[WorkspaceInfoDashboard] = []
+    dataflows: List[WorkspaceInfoDataflow] = []
+    users: List[WorkspaceInfoUser] = []
+
+
+class PowerBiSubscriptionUser(BaseModel):
+    emailAddress: str
+    displayName: str
+
+
+class PowerBISubscription(BaseModel):
+    id: str
+    artifactId: str
+    title: Optional[str] = None
+    frequency: Optional[str] = None
+    endDate: Optional[str] = None
+    startDate: Optional[str] = None
+    artifactDisplayName: Optional[str] = None
+    subArtifactDisplayName: Optional[str] = None
+    users: List[PowerBiSubscriptionUser] = []
+
+
+class SubscriptionsByUserResponse(BaseModel):
+    SubscriptionEntities: List[PowerBISubscription]
+    continuationUri: Optional[str]
 
 
 class AccessTokenError(Exception):
@@ -238,6 +307,27 @@ class PowerBIClient:
             url, List[PowerBIReport], transform_response=lambda r: r.json()["value"]
         )
 
+    def get_user_subscriptions(self, user_id: str) -> List[PowerBISubscription]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/users-get-user-subscriptions-as-admin
+        url = f"{self.API_ENDPOINT}/admin/users/{user_id}/subscriptions"
+
+        continuationUri: Optional[str] = url
+        subscriptions: List[PowerBISubscription] = []
+        while continuationUri:
+            try:
+                response = self._call_get(continuationUri, SubscriptionsByUserResponse)
+            except EntityNotFoundError:
+                logger.error(f"Unable to find user {user_id} in workspace.")
+                break
+
+            continuationUri = response.continuationUri
+            chunk = response.SubscriptionEntities
+            if len(chunk) == 0:
+                break
+            subscriptions += chunk
+
+        return subscriptions
+
     def get_pages(self, group_id: str, report_id: str) -> List[PowerBIPage]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/reports/get-pages-in-group
         url = f"{self.API_ENDPOINT}/groups/{group_id}/reports/{report_id}/pages"
@@ -281,6 +371,23 @@ class PowerBIClient:
             )
 
         return []
+
+    def export_dataflow(self, group_id: str, dataflow_id: str) -> Optional[dict]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/dataflows-export-dataflow-as-admin
+        url = f"{self.API_ENDPOINT}/admin/dataflows/{dataflow_id}/export"
+        try:
+            data_sources = self._call_get(
+                url,
+                dict,
+                transform_response=lambda r: r.json(),
+            )
+            return data_sources
+        except Exception as e:
+            # Fail gracefully for any other errors
+            logger.error(
+                f"Failed to get datasource from dataflow {dataflow_id} in workspace {group_id}: {e}"
+            )
+        return None
 
     def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:
@@ -332,12 +439,6 @@ class PowerBIClient:
             return False
 
         def transform_scan_result(response: requests.Response) -> dict:
-            # Write output to file to help debug issues
-            fd, name = tempfile.mkstemp(suffix=".json")
-            with open(fd, "w") as fp:
-                fp.write(response.text)
-            logger.info(f"Scan result written to {name}")
-
             return response.json()["workspaces"]
 
         scan_id = create_scan()

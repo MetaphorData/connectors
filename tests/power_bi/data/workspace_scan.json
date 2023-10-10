@@ -1,0 +1,170 @@
+{
+  "workspaces": [
+    {
+      "id": "8528b457-a4c4-439f-a4a9-67a7b5156c4c",
+      "name": "Workspace 0",
+      "type": "Workspace",
+      "state": "Active",
+      "isOnDedicatedCapacity": true,
+      "capacityId": "b83c85bf-bec2-405c-8833-d1e26514ce1f",
+      "defaultDatasetStorageFormat": "Small",
+      "reports": [
+        {
+          "reportType": "PowerBIReport",
+          "id": "b2bc49ba-a890-4b2a-a3c5-702d32768e02",
+          "name": "Report 1",
+          "datasetId": "c8a40c30-5cf2-444b-95c4-431e260a62f2",
+          "createdDateTime": "2020-09-07T02:13:06.743",
+          "modifiedDateTime": "2020-09-07T02:13:06.743",
+          "users": []
+        },
+        {
+          "reportType": "PowerBIReport",
+          "id": "5c0ebefb-d4ef-4d84-9a19-d11e198a1ebb",
+          "name": "Report 2",
+          "datasetId": "8343c06f-5133-46bf-8614-ccca5700657e",
+          "createdDateTime": "2021-02-22T20:55:51.587",
+          "modifiedDateTime": "2021-02-22T22:05:40.42",
+          "sensitivityLabel": {
+            "labelId": "ac9f70bf-0f4b-4626-bc70-f65b3d682e8e"
+          },
+          "users": [
+            {
+              "dashboardUserAccessRight": "Owner",
+              "emailAddress": "foo@bar.com",
+              "displayName": "Foo Bar",
+              "identifier": "foo@bar.com",
+              "graphId": "a4f5fb7e-20b8-459b-941a-d1c140f0c631",
+              "principalType": "User",
+              "userType": "Member"
+            }
+          ]
+        }
+      ],
+      "dashboards": [
+        {
+          "id": "c32c106f-ed3f-4609-be39-59d0cab91a08",
+          "displayName": "Main Dashboard.pbix",
+          "isReadOnly": false,
+          "tiles": [
+            {
+              "id": "f3d13c5e-1632-4f8a-b811-4b14a58bc570",
+              "title": "Main Dashboard.pbix",
+              "reportId": "5c0ebefb-d4ef-4d84-9a19-d11e198a1ebb",
+              "datasetId": "6a76c964-cac4-45da-a1a1-d2aebeea7079"
+            }
+          ],
+          "users": []
+        }
+      ],
+      "datasets": [
+        {
+          "id": "4ce018eb-95d9-4798-bd64-8a1ccf91f890",
+          "name": "Main dataset",
+          "tables": [
+            {
+              "name": "TB",
+              "columns": [
+                {
+                  "name": "a",
+                  "dataType": "String",
+                  "isHidden": false,
+                  "columnType": "Data"
+                },
+                {
+                  "name": "b",
+                  "dataType": "String",
+                  "isHidden": false,
+                  "columnType": "Data"
+                },
+                {
+                  "name": "c Type",
+                  "dataType": "String",
+                  "isHidden": false,
+                  "expression": "if(TB[store_name]>2,\"OK\",\"FAIL\")",
+                  "columnType": "Calculated"
+                }
+              ],
+              "measures": [
+                {
+                  "name": "No. of b",
+                  "expression": "DISTINCTCOUNT(IIP[b])",
+                  "isHidden": false
+                }
+              ],
+              "isHidden": false,
+              "source": [
+                {
+                  "expression": "let\n    Source = Odbc.Query(\"dsn=TB_HW\") # A = B\n C = B\n"
+                }
+              ]
+            }
+          ],
+          "expressions": [
+            {
+              "name": "RangeStart",
+              "expression": "#date(2018, 1, 1) meta [IsParameterQuery=true, Type=\"Date\", IsParameterQueryRequired=true]"
+            },
+            {
+              "name": "RangeEnd",
+              "expression": "#date(9999, 12, 31) meta [IsParameterQuery=true, Type=\"Date\", IsParameterQueryRequired=true]"
+            }
+          ],
+          "configuredBy": "foo@bar.com",
+          "configuredById": "34c413b6-2e7c-4be1-8240-5ce5b63a277f",
+          "isEffectiveIdentityRequired": false,
+          "isEffectiveIdentityRolesRequired": false,
+          "targetStorageMode": "Abf",
+          "createdDate": "2022-02-21T23:44:46.51",
+          "contentProviderType": "PbixInImportMode",
+          "datasourceUsages": [
+            {
+              "datasourceInstanceId": "e3ff8c62-af13-468c-ada3-35716d5c462f"
+            }
+          ],
+          "users": []
+        }
+      ],
+      "dataflows": [
+        {
+          "objectId": "16f84838-3555-45e4-aec6-6778f379181a",
+          "name": null,
+          "modifiedDateTime": "2021-09-09T02:51:29.3Z",
+          "users": []
+        }
+      ],
+      "datamarts": [],
+      "users": [
+        {
+          "groupUserAccessRight": "Admin",
+          "emailAddress": "foo@bar.com",
+          "displayName": "Foo Bar",
+          "identifier": "foo@bar.com",
+          "graphId": "34c413b6-2e7c-4be1-8240-5ce5b63a277f",
+          "principalType": "User",
+          "userType": "Member"
+        }
+      ]
+    }
+  ],
+  "datasourceInstances": [
+    {
+      "datasourceType": "Extension",
+      "connectionDetails": {
+        "extensionDataSourceKind": "Snowflake",
+        "extensionDataSourcePath": "account.snowflakecomputing.com;USERA"
+      },
+      "datasourceId": "1a07f8ff-963e-4904-8c9e-fdaa554e5b6e",
+      "gatewayId": "f8f10dd5-abc9-4f3d-b89a-83bc04a12c69"
+    },
+    {
+      "datasourceType": "Extension",
+      "connectionDetails": {
+        "extensionDataSourceKind": "Snowflake",
+        "extensionDataSourcePath": "account.snowflakecomputing.com;USERB"
+      },
+      "datasourceId": "e554a353-839d-43b4-bb3b-b9e45d7799c7",
+      "gatewayId": "50d33bec-07e4-42d0-87b5-e77b13dd87ba"
+    }
+  ]
+}

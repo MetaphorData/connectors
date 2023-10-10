@@ -1,3 +1,4 @@
+import json
 from itertools import chain
 from typing import Collection, Dict, List, Optional, Tuple
 
@@ -20,11 +21,13 @@ from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     Dashboard,
     DashboardInfo,
     DashboardLogicalID,
     DashboardPlatform,
+    DashboardType,
     DashboardUpstream,
     EntityType,
     EntityUpstream,
@@ -42,7 +45,7 @@ from metaphor.models.metadata_change_event import (
 from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadataDetail,
-    ConnectionMetadataDetail,
+    ConnectionDetail,
     DataSourceTypeEnum,
     Header,
     LiveBoardMetadataDetail,
@@ -82,14 +85,14 @@ class ThoughtSpotExtractor(BaseExtractor):
         self._base_url = config.base_url
         self._config = config
 
+        self._client = ThoughtSpot.create_client(self._config)
+
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._column_references: Dict[str, ColumnReference] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from ThoughtSpot")
-
-        self._client = ThoughtSpot.create_client(self._config)
 
         self.fetch_virtual_views()
         self.fetch_dashboards()
@@ -134,11 +137,12 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_virtual_views(
         self,
-        connections: Dict[str, ConnectionMetadataDetail],
+        connections: Dict[str, ConnectionDetail],
         tables: Dict[str, LogicalTableMetadataDetail],
     ):
         for table in tables.values():
             table_id = table.header.id
+            table_type = mapping_data_object_type(table.type)
 
             field_mappings = []
             for column in table.columns:
@@ -183,6 +187,10 @@ class ThoughtSpotExtractor(BaseExtractor):
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
                 ),
+                structure=AssetStructure(
+                    directories=[table_type.name],
+                    name=table.header.name,
+                ),
                 thought_spot=ThoughtSpotDataObject(
                     columns=[
                         ThoughtSpotColumn(
@@ -195,7 +203,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ],
                     name=table.header.name,
                     description=table.header.description,
-                    type=mapping_data_object_type(table.type),
+                    type=table_type,
                     url=f"{self._base_url}/#/data/tables/{table_id}",
                     tags=self._tag_names(table.header.tags),
                 ),
@@ -251,7 +259,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     def populate_lineage(
         self,
-        connections: Dict[str, ConnectionMetadataDetail],
+        connections: Dict[str, ConnectionDetail],
         tables: Dict[str, LogicalTableMetadataDetail],
     ):
         """
@@ -317,22 +325,28 @@ class ThoughtSpotExtractor(BaseExtractor):
 
     @staticmethod
     def get_source_entity_id_from_connection(
-        connections: Dict[str, ConnectionMetadataDetail],
+        connections: Dict[str, ConnectionDetail],
         normalized_name: str,
         source_id: str,
     ) -> str:
         connection = connections[source_id]
+
+        try:
+            accountName = json.loads(connection.configuration).get("accountName")
+        except json.decoder.JSONDecodeError:
+            accountName = None
+
         return str(
             to_dataset_entity_id(
                 normalized_name,
                 mapping_data_platform(connection.type),
-                account=connection.dataSourceContent.configuration.accountName,
+                account=accountName,
             )
         )
 
     @staticmethod
     def find_entity_id_from_connection(
-        connections: Dict[str, ConnectionMetadataDetail],
+        connections: Dict[str, ConnectionDetail],
         mapping: TableMappingInfo,
         source_id: str,
     ) -> str:
@@ -468,6 +482,10 @@ class ThoughtSpotExtractor(BaseExtractor):
                     dashboard_id=answer_id,
                     platform=DashboardPlatform.THOUGHT_SPOT,
                 ),
+                structure=AssetStructure(
+                    directories=[ThoughtSpotDashboardType.ANSWER.name],
+                    name=answer.header.name,
+                ),
                 dashboard_info=DashboardInfo(
                     description=answer.header.description,
                     title=answer.header.name,
@@ -478,6 +496,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         type=ThoughtSpotDashboardType.ANSWER,
                         tags=self._tag_names(answer.header.tags),
                     ),
+                    dashboard_type=DashboardType.THOUGHT_SPOT_ANSWER,
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
@@ -491,7 +510,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         for tml_result in ThoughtSpot.fetch_tml(self._client, ids):
             if not tml_result.edoc:
                 continue
-            tml = parse_raw_as(TMLObject, tml_result.edoc)
+            tml = parse_raw_as(TMLObject, tml_result.edoc)  # type: ignore
 
             answer_id = tml.guid
             dashboard = self._dashboards.get(answer_id)
@@ -559,7 +578,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 )
         except (ValueError, IndexError) as error:
             # if the target name is not matched the assumption
-            logger.warn(
+            logger.warning(
                 f"{error} The target column name in answer sql didn't match the assumption, sql: {answer_sql}"
             )
             return []
@@ -593,6 +612,10 @@ class ThoughtSpotExtractor(BaseExtractor):
                     dashboard_id=board_id,
                     platform=DashboardPlatform.THOUGHT_SPOT,
                 ),
+                structure=AssetStructure(
+                    directories=[ThoughtSpotDashboardType.LIVEBOARD.name],
+                    name=board.header.name,
+                ),
                 dashboard_info=DashboardInfo(
                     description=board.header.description,
                     title=board.header.name,
@@ -604,6 +627,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         tags=self._tag_names(board.header.tags),
                         embed_url=f"{self._base_url}/#/embed/viz/{board_id}",
                     ),
+                    dashboard_type=DashboardType.THOUGHT_SPOT_LIVEBOARD,
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/pinboard/{board_id}",
