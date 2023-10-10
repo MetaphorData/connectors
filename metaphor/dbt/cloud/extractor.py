@@ -24,11 +24,7 @@ class DbtCloudExtractor(BaseExtractor):
     def __init__(self, config: DbtCloudConfig):
         super().__init__(config, "dbt cloud metadata crawler", Platform.DBT_MODEL)
         self._account_id = config.account_id
-        self._job_ids = (
-            [config.job_id]
-            if config.job_id and len(config.job_ids) == 0
-            else config.job_ids
-        )
+        self._job_ids = config.job_ids
         self._service_token = config.service_token
         self._meta_ownerships = config.meta_ownerships
         self._meta_tags = config.meta_tags
