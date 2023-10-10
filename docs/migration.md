@@ -1,5 +1,16 @@
 # Migration Guide
 
+## 0.12 to 0.13
+
+Breaking changes: https://github.com/MetaphorData/connectors/issues/523
+
+A few deprecated connectors & configs have been dropped:
+- [Drop support for dbt 0.x](https://github.com/MetaphorData/connectors/pull/561)
+- [Drop airflow plugin](https://github.com/MetaphorData/connectors/pull/562)
+- [Drop support for API sink ](hhttps://github.com/MetaphorData/connectors/pull/565)
+- [Drop job_id from dbt cloud config](https://github.com/MetaphorData/connectors/pull/619)
+- [Drop unused data_platform field from MC's config](https://github.com/MetaphorData/connectors/pull/620)
+
 ## 0.11 to 0.12
 
 Breaking changes: https://github.com/MetaphorData/connectors/issues/310
