@@ -9,7 +9,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import unique_list
+from metaphor.common.utils import safe_float, unique_list
 from metaphor.glue.config import AwsCredentials, GlueRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -170,7 +170,7 @@ class GlueExtractor(BaseExtractor):
         )
 
         dataset.statistics = DatasetStatistics()
-        dataset.statistics.record_count = float(row_count) if row_count else None
+        dataset.statistics.record_count = safe_float(row_count)
         dataset.statistics.last_updated = last_updated
 
         dataset.structure = DatasetStructure(schema=schema, table=name)

@@ -1,5 +1,38 @@
 [
   {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "table1.col1",
+          "sources": [
+            {
+              "dataset": {
+                "name": "db.public.table",
+                "platform": "REDSHIFT"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
+            }
+          ]
+        },
+        {
+          "destination": "table1.col2",
+          "sources": [
+            {
+              "dataset": {
+                "name": "db.public.table",
+                "platform": "REDSHIFT"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
+      ]
+    },
     "logicalId": {
       "name": "00000000-0000-0000-0000-000000000002",
       "type": "POWER_BI_DATASET"
@@ -23,6 +56,7 @@
               "type": "int"
             }
           ],
+          "expression": "let\n    Source = AmazonRedshift.Database(\"url:5439\",\"db\"),\n    public = Source{[Name=\"public\"]}[Data],\n    table1 = public{[Name=\"table\"]}[Data]\nin\n    table1",
           "measures": [
             {
               "description": "this is exp1",
@@ -38,13 +72,78 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0000-000000000002",
-      "workspace": {
-        "id": "workspace-1",
-        "name": "Workspace"
-      }
+      "workspaceId": "workspace-1"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "Foo Dataset"
     }
   },
   {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "table2.col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "some-account",
+                "name": "db.public.test",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~6D79656CAC3AB97C1FC567A817F7D611"
+            }
+          ]
+        },
+        {
+          "destination": "table2.col2",
+          "sources": [
+            {
+              "dataset": {
+                "account": "some-account",
+                "name": "db.public.test",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~6D79656CAC3AB97C1FC567A817F7D611"
+            }
+          ]
+        },
+        {
+          "destination": "table2.col1",
+          "sources": [
+            {
+              "dataset": {
+                "name": "test-project.test.example",
+                "platform": "BIGQUERY"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
+            }
+          ]
+        },
+        {
+          "destination": "table2.col2",
+          "sources": [
+            {
+              "dataset": {
+                "name": "test-project.test.example",
+                "platform": "BIGQUERY"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~6D79656CAC3AB97C1FC567A817F7D611",
+        "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
+      ]
+    },
     "logicalId": {
       "name": "00000000-0000-0000-0000-000000000003",
       "type": "POWER_BI_DATASET"
@@ -68,6 +167,7 @@
               "type": "int"
             }
           ],
+          "expression": "let\n    Source = Snowflake.Databases(\"some-account.snowflakecomputing.com\",\"COMPUTE_WH\"),\n    DB_Database = Source{[Name=\"DB\",Kind=\"Database\"]}[Data],\n    PUBLIC_Schema = DB_Database{[Name=\"PUBLIC\",Kind=\"Schema\"]}[Data],\n    TEST_Table = PUBLIC_Schema{[Name=\"TEST\",Kind=\"Table\"]}[Data]\nin\n    TEST_Table",
           "measures": [],
           "name": "table2"
         },
@@ -82,20 +182,69 @@
               "type": "int"
             }
           ],
+          "expression": "let\n    Source = GoogleBigQuery.Database(),\n    #\"test-project\" = Source{[Name=\"test-project\"]}[Data],\n    test_Schema = #\"test-project\"{[Name=\"test\",Kind=\"Schema\"]}[Data],\n    example_Table = test_Schema{[Name=\"example\",Kind=\"Table\"]}[Data]\nin\n    example_Table",
           "measures": [],
           "name": "table2"
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0000-000000000003",
-      "workspace": {
-        "id": "workspace-1",
-        "name": "Workspace"
-      }
+      "workspaceId": "workspace-1"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "Bar Dataset"
+    }
+  },
+  {
+    "entityUpstream": {
+      "pipelineEntityId": "PIPELINE~6B8372CAC4B45FCA1C413FEAD24B1E2C",
+      "sourceEntities": [
+        "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
+      ]
+    },
+    "logicalId": {
+      "name": "00000000-0000-0000-0001-000000000003",
+      "type": "POWER_BI_DATASET"
+    },
+    "powerBIDataset": {
+      "description": "Dataset from dataflow",
+      "name": "Dataflow dataset",
+      "sourceDatasets": [
+        "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
+      ],
+      "tables": [
+        {
+          "columns": [
+            {
+              "field": "col1",
+              "type": "string"
+            },
+            {
+              "field": "col2",
+              "type": "int"
+            }
+          ],
+          "expression": "let\n    Source = PowerPlatform.Dataflows(null),\n    Workspaces = Source{[Id=\"Workspaces\"]}[Data],\n    #\"{workspace1_id}\" = Workspaces{[workspaceId=\"{workspace1_id}\"]}[Data],\n    #\"{dataflow_id}\" = #\"{workspace1_id}\"{[dataflowId=\"{dataflow_id}\"]}[Data],\n    ENTITY_NAME_ = #\"{dataflow_id}\"{[entity=\"ENTITY_NAME\",version=\"\"]}[Data]\nin\n    ENTITY_NAME_",
+          "measures": [],
+          "name": "table3"
+        }
+      ],
+      "url": "https://powerbi.com/00000000-0000-0000-0001-000000000003",
+      "workspaceId": "workspace-1"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "Dataflow dataset"
     }
   },
   {
     "dashboardInfo": {
       "charts": [],
+      "dashboardType": "POWER_BI_REPORT",
       "description": "This is a report about foo",
       "powerBi": {
         "app": {
@@ -103,10 +252,15 @@
           "name": "foo app"
         },
         "powerBiDashboardType": "REPORT",
-        "workspace": {
-          "id": "workspace-1",
-          "name": "Workspace"
-        }
+        "workspaceId": "workspace-1",
+        "createdBy": "creator@foo.bar",
+        "createdDateTime": "2022-04-06T04:25:06.777000+00:00",
+        "endorsement": {
+          "certifiedBy": "admin@foo.bar",
+          "endorsement": "Promoted"
+        },
+        "modifiedBy": "editor@foo.bar",
+        "modifiedDateTime": "2022-04-06T04:25:06.777000+00:00"
       },
       "title": "Foo Report"
     },
@@ -116,6 +270,12 @@
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/groups/me/apps/00000000-0000-0000-0000-000000000000/reports/00000000-0000-0000-0000-000000000004"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "Foo Report"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -135,13 +295,11 @@
           "title": "Second Page"
         }
       ],
+      "dashboardType": "POWER_BI_REPORT",
       "description": "This is a report about bar",
       "powerBi": {
         "powerBiDashboardType": "REPORT",
-        "workspace": {
-          "id": "workspace-1",
-          "name": "Workspace"
-        }
+        "workspaceId": "workspace-1"
       },
       "title": "Bar Report"
     },
@@ -151,6 +309,12 @@
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/report/00000000-0000-0000-0000-000000000006"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "Bar Report"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -172,16 +336,34 @@
           "url": ""
         }
       ],
+      "dashboardType": "POWER_BI_DASHBOARD",
       "powerBi": {
         "app": {
           "id": "00000000-0000-0000-0000-000000000001",
           "name": "bar app"
         },
         "powerBiDashboardType": "DASHBOARD",
-        "workspace": {
-          "id": "workspace-1",
-          "name": "Workspace"
-        }
+        "workspaceId": "workspace-1",
+        "subscriptions": [
+          {
+            "artifactDisplayName": "Dashboard A",
+            "endDate": "2000-09-06T00:13:52+00:00",
+            "startDate": "1998-11-30T17:05:52+00:00",
+            "frequency": "Daily",
+            "id": "subscription-1",
+            "title": "First Subscription",
+            "users": [
+              {
+                "displayName": "Metaphor",
+                "emailAddress": "powerbi@metaphor.io"
+              }
+            ]
+          }
+        ],
+        "createdBy": "creator@foo.bar",
+        "createdDateTime": "2022-04-06T04:25:06.777000+00:00",
+        "modifiedBy": "editor@foo.bar",
+        "modifiedDateTime": "2022-04-06T04:25:06.777000+00:00"
       },
       "title": "Dashboard A"
     },
@@ -191,6 +373,12 @@
     },
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/groups/me/apps/00000000-0000-0000-0000-000000000001/dashboards/00000000-0000-0000-0000-000000000007"
+    },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "Dashboard A"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -213,12 +401,10 @@
           "url": ""
         }
       ],
+      "dashboardType": "POWER_BI_DASHBOARD",
       "powerBi": {
         "powerBiDashboardType": "DASHBOARD",
-        "workspace": {
-          "id": "workspace-1",
-          "name": "Workspace"
-        }
+        "workspaceId": "workspace-1"
       },
       "title": "Dashboard B"
     },
@@ -229,10 +415,84 @@
     "sourceInfo": {
       "mainUrl": "https://powerbi.com/dashboard/00000000-0000-0000-0000-000000000009"
     },
+    "structure": {
+      "directories": [
+        "Workspace"
+      ],
+      "name": "Dashboard B"
+    },
     "upstream": {
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
         "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "00000000-0000-0000-0001-00000000000A",
+      "type": "POWER_BI_DATAFLOW"
+    },
+    "powerBiDataflow": {
+      "content": "{\"name\": \"Dataflow\", \"description\": \"A dataflow\", \"version\": \"1.0\", \"culture\": \"en-US\", \"modifiedTime\": \"2023-09-19T06:08:01.3550729+00:00\", \"ppdf:outputFileFormat\": \"Csv\", \"pbi:mashup\": {\"fastCombine\": false, \"allowNativeQueries\": false, \"queriesMetadata\": {\"TABLE_NAME\": {\"queryId\": \"query_id\", \"queryName\": \"TABLE_NAME\", \"loadEnabled\": true}}, \"document\": \"section Section1;\\r\\nshared ENTITY_NAME = let\\r\\n  Source = Snowflake.Databases(\\\"account.snowflakecomputing.com\\\", \\\"COMPUTE_WH\\\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\\r\\n  Navigation = Source{[Name = \\\"DB\\\", Kind = \\\"Database\\\"]}[Data],\\r\\n  #\\\"Navigation 1\\\" = Navigation{[Name = \\\"SCHEMA\\\", Kind = \\\"Schema\\\"]}[Data],\\r\\n  #\\\"Navigation 2\\\" = #\\\"Navigation 1\\\"{[Name = \\\"TABLE_NAME\\\", Kind = \\\"Table\\\"]}[Data]\\r\\nin\\r\\n  #\\\"Navigation 2\\\";\\r\\n\", \"connectionOverrides\": [{\"path\": \"account.snowflakecomputing.com;COMPUTE_WH\", \"kind\": \"Snowflake\", \"provider\": \"CdsA\", \"authenticationKind\": null, \"environmentName\": null, \"apiName\": null, \"connectionName\": \"{\\\"kind\\\":\\\"Snowflake\\\",\\\"path\\\":\\\"account.snowflakecomputing.com;COMPUTE_WH\\\"}\", \"audience\": null}]}, \"annotations\": [{\"name\": \"pbi:QueryGroups\", \"value\": \"[]\"}], \"entities\": [{\"$type\": \"LocalEntity\", \"name\": \"ENTITY_NAME\", \"description\": \"\", \"pbi:refreshPolicy\": {\"$type\": \"FullRefreshPolicy\", \"location\": \"ENTITY_NAME.csv\"}, \"attributes\": [{\"name\": \"COL_1\", \"dataType\": \"double\"}, {\"name\": \"COL_2\", \"dataType\": \"double\"}], \"partitions\": [{\"name\": \"FullRefreshPolicyPartition\", \"refreshTime\": \"2023-09-19T06:21:43.1195053+00:00\", \"location\": \"location-url\"}]}]}",
+      "description": "A dataflow",
+      "document": "section Section1;\r\nshared ENTITY_NAME = let\r\n  Source = Snowflake.Databases(\"account.snowflakecomputing.com\", \"COMPUTE_WH\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\r\n  Navigation = Source{[Name = \"DB\", Kind = \"Database\"]}[Data],\r\n  #\"Navigation 1\" = Navigation{[Name = \"SCHEMA\", Kind = \"Schema\"]}[Data],\r\n  #\"Navigation 2\" = #\"Navigation 1\"{[Name = \"TABLE_NAME\", Kind = \"Table\"]}[Data]\r\nin\r\n  #\"Navigation 2\";\r\n",
+      "modifiedDateTime": "2023-09-19T06:08:01.355072+00:00",
+      "name": "Dataflow",
+      "refreshSchedule": {
+        "days": [
+          "Saturday"
+        ],
+        "enabled": true,
+        "localTimeZoneId": "UTC",
+        "notifyOption": "MailOnFailure",
+        "times": [
+          "1:00:00"
+        ]
+      },
+      "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0001-00000000000A"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "00000000-0000-0000-0002-00000000000A",
+      "type": "POWER_BI_DATAFLOW"
+    },
+    "powerBiDataflow": {
+      "content": "{\"name\": \"Dataflow\", \"description\": \"A dataflow\", \"version\": \"1.0\", \"culture\": \"en-US\", \"modifiedTime\": \"2023-09-19T06:08:01.3550729+00:00\", \"ppdf:outputFileFormat\": \"Csv\", \"pbi:mashup\": {\"fastCombine\": false, \"allowNativeQueries\": false, \"queriesMetadata\": {\"TABLE_NAME\": {\"queryId\": \"query_id\", \"queryName\": \"TABLE_NAME\", \"loadEnabled\": true}}, \"document\": \"section Section1;\\r\\nshared ENTITY_NAME = let\\r\\n  Source = GoogleAnalytics.Accounts(\\\"account.snowflakecomputing.com\\\", \\\"COMPUTE_WH\\\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\\r\\n  Navigation = Source{[Name = \\\"DB\\\", Kind = \\\"Database\\\"]}[Data],\\r\\n  #\\\"Navigation 1\\\" = Navigation{[Name = \\\"SCHEMA\\\", Kind = \\\"Schema\\\"]}[Data],\\r\\n  #\\\"Navigation 2\\\" = #\\\"Navigation 1\\\"{[Name = \\\"TABLE_NAME\\\", Kind = \\\"Table\\\"]}[Data]\\r\\nin\\r\\n  #\\\"Navigation 2\\\";\\r\\n\"}}",
+      "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0002-00000000000A",
+      "description": "",
+      "document": "section Section1;\r\nshared ENTITY_NAME = let\r\n  Source = GoogleAnalytics.Accounts(\"account.snowflakecomputing.com\", \"COMPUTE_WH\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\r\n  Navigation = Source{[Name = \"DB\", Kind = \"Database\"]}[Data],\r\n  #\"Navigation 1\" = Navigation{[Name = \"SCHEMA\", Kind = \"Schema\"]}[Data],\r\n  #\"Navigation 2\" = #\"Navigation 1\"{[Name = \"TABLE_NAME\", Kind = \"Table\"]}[Data]\r\nin\r\n  #\"Navigation 2\";\r\n",
+      "name": "Dataflow 2"
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "powerBiWorkspace": {
+        "name": "Workspace",
+        "url": "https://app.powerbi.com/groups/workspace-1"
+      },
+      "type": "POWER_BI_WORKSPACE"
+    },
+    "logicalId": {
+      "path": [
+        "POWER_BI_DATASET",
+        "workspace-1"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "powerBiWorkspace": {
+        "name": "Workspace",
+        "url": "https://app.powerbi.com/groups/workspace-1"
+      },
+      "type": "POWER_BI_WORKSPACE"
+    },
+    "logicalId": {
+      "path": [
+        "POWER_BI",
+        "workspace-1"
       ]
     }
   }

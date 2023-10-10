@@ -1,0 +1,79 @@
+[
+  {
+    "logicalId": {
+      "account": "snowflake_account",
+      "name": "database.schema.table1",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "snowflake_account",
+      "name": "database.schema.table2",
+      "platform": "SNOWFLAKE"
+    },
+    "upstream": {
+      "pipelineEntityId": "PIPELINE~C5A7C3EBCB2716D2DA1B718CEA511F8D",
+      "sourceDatasets": [
+        "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "account": "sql-server-host",
+      "name": "main-db.adf.example",
+      "platform": "MSSQL"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "https://storage-account.blob.core.windows.net/test/foo/bar.json",
+      "platform": "AZURE_BLOB_STORAGE"
+    },
+    "upstream": {
+      "pipelineEntityId": "PIPELINE~C5A7C3EBCB2716D2DA1B718CEA511F8D",
+      "sourceDatasets": [
+        "DATASET~3D47E66557297571AD3225FF197AE151"
+      ]
+    }
+  },
+  {
+    "azureDataFactoryPipeline": {
+      "activities": [
+        {
+          "dependsOn": [],
+          "name": "Data flow1",
+          "type": "ExecuteDataFlow"
+        },
+        {
+          "dependsOn": [
+            {
+              "dependencyConditions": [
+                "Succeeded"
+              ],
+              "name": "Data flow1"
+            }
+          ],
+          "name": "Copy data1",
+          "type": "Copy"
+        }
+      ],
+      "factory": "testADF",
+      "pipelineUrl": "https://adf.azure.com/authoring/pipeline/pipeline-1?factory=%28%27%2Fsubscriptions%2F%3Csub_id%3E%2FresourceGroups%2F%3Cresource_group%3E%2Fproviders%2FMicrosoft.DataFactory%2Ffactories%2FtestADF%27%2C%29",
+      "pipelineName": "pipeline-1",
+      "sinks": [
+        "DATASET~F6AD22A4276E97E0A7B9B09AD86BFDB7",
+        "DATASET~29AD373035A2350D24C99996F29E4C42"
+      ],
+      "sources": [
+        "DATASET~D0BB6D0EA7E559C7966357BE929E840B",
+        "DATASET~3D47E66557297571AD3225FF197AE151"
+      ]
+    },
+    "logicalId": {
+      "name": "pipeline-id-1",
+      "type": "AZURE_DATA_FACTORY_PIPELINE"
+    }
+  }
+]

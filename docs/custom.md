@@ -23,15 +23,16 @@ We generate Python [data classes](https://docs.python.org/3/library/dataclasses.
 ```py
 from metaphor.models.metadata_change_event import (
     Dataset,
-    DatasetUpstream,
+    EntityUpstream,
+    ...
 )
 
 
 dataset = Dataset(
-    logicalId=...,
+    logical_id=...,
     schema=...,
     statistics=...,
-    upstreamLineage=...,
+    entity_upstream=...,
 )
 ```
 
@@ -92,6 +93,7 @@ To output the entities to a local path (for development) or an S3 bucket (for pr
 
 ```py
 from metaphor.common.runner import run_connector
+from metaphor.models.crawler_run_metadata import Platform
 
 
 run_connector(
@@ -119,114 +121,16 @@ logger.warn('warning message')
 logger.error('error message')
 ```
 
-## Full Examples
+## Examples
 
 ### Custom Lineage Connector
 
-Here is a full example that showcases a custom connector that publishes the lineage. It specifies `db.schema.src1` & `db.schema.src2` as the upstream lineage (sources) of `db.schema.dest` in BigQuery.
-
-```py
-from typing import Collection
-
-from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.runner import metaphor_file_sink_config, run_connector
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetLogicalID,
-    DatasetUpstream,
-    Platform,
-)
-
-
-# The connector function that produces a list of entities
-def custom_lineage_connector() -> Collection[ENTITY_TYPES]:
-
-    # Create string-based entity IDs for src1 & src2
-    src1_id = str(
-        to_dataset_entity_id(
-            dataset_normalized_name("db", "schema", "src1"), DataPlatform.BIGQUERY
-        )
-    )
-    src2_id = str(
-        to_dataset_entity_id(
-            dataset_normalized_name("db", "schema", "src2"), DataPlatform.BIGQUERY
-        )
-    )
-
-    # Set the upstream aspect
-    dataset = Dataset(
-        logical_id=DatasetLogicalID(
-            name=dataset_normalized_name(
-                "db", "schema", "dest", platform=DataPlatform.BIGQUERY
-            )
-        ),
-        upstream=DatasetUpstream(source_datasets=[src1_id, src2_id]),
-    )
-
-    # Return a list of datasets
-    return [dataset]
-
-
-# Use the runner to run the connector and output events to the tenant's S3 bucket
-connector_name = "custom_lineage_connector"
-run_connector(
-    connector_func=custom_lineage_connector,
-    name=connector_name,
-    platform=Platform.OTHER,
-    description="This is a custom connector made by Acme, Inc.",
-    file_sink_config=metaphor_file_sink_config("tenant_name", connector_name),
-)
-```
+Here is a [full example](../examples/custom_lineage.py) that showcases a custom connector that publishes the lineage. It specifies `db.schema.src1` & `db.schema.src2` as the upstream lineage (sources) of `db.schema.dest` in BigQuery.
 
 ### Custom Data Quality Connector
 
-Here is another example demonstrating a custom connector that publishes data quality metadata.
+Here is [another example](../examples/custom_dq.py) demonstrating a custom connector that publishes data quality metadata.
 
-```py
-from typing import Collection
+### Custom Dashboard Connector
 
-from metaphor.common.entity_id import dataset_normalized_name
-from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.runner import metaphor_file_sink_config, run_connector
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetDataQuality,
-    DatasetLogicalID,
-    Platform,
-)
-
-
-# Run actual DQ tests and fill out DatasetDataQuality 
-def run_dq_tests() -> DatasetDataQuality:
-    pass
-
-
-# The connector function that produces a list of entities
-def custom_dq_connector() -> Collection[ENTITY_TYPES]:
-
-    # Set the upstream aspect
-    dataset = Dataset(
-        logical_id=DatasetLogicalID(
-            name=dataset_normalized_name("db", "schema", "dest"),
-            platform=DataPlatform.BIGQUERY,
-        ),
-        data_quality=run_dq_tests(),
-    )
-
-    # Return a list of datasets
-    return [dataset]
-
-
-# Use the runner to run the connector and output events to the tenant's S3 bucket
-connector_name = "custom_dq_connector"
-run_connector(
-    connector_func=custom_dq_connector,
-    name=connector_name,
-    platform=Platform.OTHER,
-    description="This is a custom connector made by Acme, Inc.",
-    file_sink_config=metaphor_file_sink_config("tenant_name", connector_name),
-)
-```
+[This example](../examples/custom_dashboard.py) shows how to publish metadata for a custom dashboard.

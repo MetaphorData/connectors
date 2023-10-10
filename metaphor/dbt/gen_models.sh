@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
+cd ${SCRIPT_DIR}
+
 # Generate various data models for dbt manifest & catalog using official JSON schemas
 
 if [ $# -ne 2 ]; then
@@ -11,14 +14,14 @@ fi
 SCHEMA="$1"
 VERSION="$2"
 
-URL=https://schemas.getdbt.com/dbt/$SCHEMA/$VERSION.json
+URL=https://schemas.getdbt.com/dbt/${SCHEMA}/${VERSION}.json
 
 OUTPUT=generated/dbt_${SCHEMA}_${VERSION}.py
 
 CLASS_NAME=""
-if [[ "$SCHEMA" == "manifest" ]]; then
+if [[ "${SCHEMA}" == "manifest" ]]; then
   CLASS_NAME="DbtManifest"
-elif [[ "$SCHEMA" == "catalog" ]]; then
+elif [[ "${SCHEMA}" == "catalog" ]]; then
   CLASS_NAME="DbtCatalog"
 else
   echo -e "Choose either 'manifest' or 'catalog'"
@@ -26,10 +29,11 @@ else
 fi
 
 poetry run datamodel-codegen \
-  --url $URL \
-  --class-name $CLASS_NAME \
+  --url ${URL} \
+  --class-name ${CLASS_NAME} \
   --enum-field-as-literal all \
-  --output $OUTPUT
+  --input-file-type jsonschema \
+  --output ${OUTPUT}
 
 # Disable mypy type-checking for generated files
-sed -i '' '1s;^;# mypy: ignore-errors\n\n;' $OUTPUT
+sed -i '' '1s;^;# mypy: ignore-errors\n\n;' ${OUTPUT}
