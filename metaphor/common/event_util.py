@@ -3,12 +3,14 @@ import logging
 from importlib import resources
 from typing import Union
 
-import fastjsonschema
+from jsonschema import ValidationError
+from jsonschema.validators import validator_for
 
 from metaphor import models  # type: ignore
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
+    Hierarchy,
     KnowledgeCard,
     MetadataChangeEvent,
     Metric,
@@ -20,48 +22,54 @@ from metaphor.models.metadata_change_event import (
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-ENTITY_TYPES = Union[Dashboard, Dataset, Metric, KnowledgeCard, VirtualView, QueryLogs]
+ENTITY_TYPES = Union[
+    Dashboard, Dataset, Metric, KnowledgeCard, VirtualView, QueryLogs, Hierarchy
+]
 
 
 class EventUtil:
     """Event utilities"""
 
-    with resources.open_text(models, "metadata_change_event.json") as f:
-        validate = fastjsonschema.compile(json.load(f))
+    def __init__(self):
+        with resources.open_text(models, "metadata_change_event.json") as f:
+            mce_schema = json.load(f)
 
-    def __init__(self, extractor_class="", server=""):
-        self._extractor_class = extractor_class
-        self._server = server
+        validator_class = validator_for(mce_schema)
+        validator_class.check_schema(mce_schema)
+        self._validator = validator_class(mce_schema)
 
-    def _build_event(self, **kwargs) -> MetadataChangeEvent:
+    @staticmethod
+    def _build_event(**kwargs) -> MetadataChangeEvent:
         """Create an MCE"""
         return MetadataChangeEvent(**kwargs)
 
-    def build_event(self, entity: ENTITY_TYPES):
+    @staticmethod
+    def build_event(entity: ENTITY_TYPES):
         """Build MCE given an entity"""
         if type(entity) is Dashboard:
-            return self._build_event(dashboard=entity)
+            return EventUtil._build_event(dashboard=entity)
         elif type(entity) is Dataset:
-            return self._build_event(dataset=entity)
+            return EventUtil._build_event(dataset=entity)
         elif type(entity) is Metric:
-            return self._build_event(metric=entity)
+            return EventUtil._build_event(metric=entity)
         elif type(entity) is Pipeline:
-            return self._build_event(pipeline=entity)
+            return EventUtil._build_event(pipeline=entity)
         elif type(entity) is KnowledgeCard:
-            return self._build_event(knowledge_card=entity)
+            return EventUtil._build_event(knowledge_card=entity)
         elif type(entity) is VirtualView:
-            return self._build_event(virtual_view=entity)
+            return EventUtil._build_event(virtual_view=entity)
         elif type(entity) is QueryLogs:
-            return self._build_event(query_logs=entity)
+            return EventUtil._build_event(query_logs=entity)
+        elif type(entity) is Hierarchy:
+            return EventUtil._build_event(hierarchy=entity)
         else:
             raise TypeError(f"invalid entity type {type(entity)}")
 
-    @staticmethod
-    def validate_message(message: dict) -> bool:
+    def validate_message(self, message: dict) -> bool:
         """Validate message against json schema"""
         try:
-            EventUtil.validate(message)
-        except fastjsonschema.JsonSchemaException as e:
+            self._validator.validate(message)
+        except ValidationError as e:
             logger.error(f"MCE validation error: {e}. Message: {message}")
             return False
         return True

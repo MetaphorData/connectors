@@ -139,10 +139,42 @@
         "worksheetType": "VIEW"
       },
       "type": "SQL_VIEW",
-      "dataSourceId": "conn1",
+      "dataSourceId": "conn2",
       "dataSourceTypeEnum": "RDBMS_SNOWFLAKE",
       "header": {
         "id": "sql_view_1",
+        "name": "JOIN SQL view",
+        "tags": [],
+        "type": "SQL_VIEW"
+      }
+    }
+  },
+  {
+    "metadata_detail": {
+      "columns": [
+        {
+          "header": {
+            "id": "sql_col2_id",
+            "name": "sql_col2"
+          },
+          "dataType": "VARCHAR",
+          "type": "ATTRIBUTE",
+          "columnMappingInfo": {
+            "columnName": "sql_col2"
+          },
+          "sources": []
+        }
+      ],
+      "logicalTableContent": {
+        "sqlQuery": "select c as sql_col2 from project.schema.table",
+        "joinType": "INNER",
+        "worksheetType": "VIEW"
+      },
+      "type": "SQL_VIEW",
+      "dataSourceId": "conn3",
+      "dataSourceTypeEnum": "RDBMS_SNOWFLAKE",
+      "header": {
+        "id": "sql_view_2",
         "name": "JOIN SQL view",
         "tags": [],
         "type": "SQL_VIEW"

@@ -61,7 +61,18 @@ async def test_trial_project_v9(test_root_dir):
     )
 
 
-async def _test_project(data_dir, docs_base_url=None, project_source_url=None):
+@pytest.mark.asyncio
+async def test_jaffle_v10(test_root_dir):
+    await _test_project(
+        test_root_dir + "/dbt/data/jaffle_v10",
+        "http://localhost:8080",
+        "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template",
+    )
+
+
+async def _test_project(
+    data_dir, docs_base_url=None, project_source_url=None, useCatalog=False
+):
     manifest = data_dir + "/manifest.json"
     expected = data_dir + "/results.json"
 

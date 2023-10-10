@@ -37,7 +37,7 @@ from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import md5_digest, start_of_day
+from metaphor.common.utils import md5_digest, safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -356,7 +356,7 @@ class BigQueryExtractor(BaseExtractor):
             query_id=job_change.job_name,
             platform=DataPlatform.BIGQUERY,
             start_time=job_change.start_time,
-            duration=float(elapsed_time) if elapsed_time else None,
+            duration=safe_float(elapsed_time),
             email=job_change.user_email,
             rows_written=float(job_change.output_rows)
             if job_change.output_rows

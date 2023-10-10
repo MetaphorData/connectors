@@ -33,7 +33,7 @@ def get_request(
     if result.status_code == 200:
         # Add JSON response to log.zip
         file_name = (
-            f"{urlparse(url).path[1:].replace('/', u'__')}_{secrets.token_hex(1)}"
+            f"{urlparse(url).path[1:].replace('/', u'__')}_{secrets.token_hex(4)}"
         )
         # Avoid file name too long error and truncate prefix to avoid duplicate file name
         # 250 is the lowest default maximum charactors file name length limit acrocess major file systems

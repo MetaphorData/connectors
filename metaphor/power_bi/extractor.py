@@ -1,34 +1,53 @@
+import json
 import re
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Optional
 from urllib import parse
 
-from dateutil.parser import isoparse
-
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import EntityId
+from metaphor.common.entity_id import EntityId, to_pipeline_entity_id_from_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import chunks, unique_list
+from metaphor.common.utils import chunks, safe_parse_ISO8601, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     ChartType,
     Dashboard,
     DashboardInfo,
     DashboardLogicalID,
     DashboardPlatform,
+    DashboardType,
     DashboardUpstream,
     EntityType,
+    EntityUpstream,
+    Hierarchy,
+    HierarchyInfo,
+    HierarchyLogicalID,
+    HierarchyType,
+    Pipeline,
+    PipelineLogicalID,
+    PipelineType,
 )
 from metaphor.models.metadata_change_event import PowerBIApp as PbiApp
 from metaphor.models.metadata_change_event import PowerBIColumn as PbiColumn
-from metaphor.models.metadata_change_event import PowerBIDashboardType
+from metaphor.models.metadata_change_event import PowerBIDashboardType, PowerBIDataflow
 from metaphor.models.metadata_change_event import (
     PowerBIDataset as VirtualViewPowerBIDataset,
 )
-from metaphor.models.metadata_change_event import PowerBIDatasetTable, PowerBIInfo
+from metaphor.models.metadata_change_event import (
+    PowerBIDatasetTable,
+    PowerBIEndorsement,
+    PowerBIEndorsementType,
+    PowerBIInfo,
+)
 from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
+from metaphor.models.metadata_change_event import PowerBIRefreshSchedule
+from metaphor.models.metadata_change_event import PowerBISubscription as Subscription
+from metaphor.models.metadata_change_event import (
+    PowerBISubscriptionUser as SubscriptionUser,
+)
 from metaphor.models.metadata_change_event import PowerBIWorkspace as PbiWorkspace
 from metaphor.models.metadata_change_event import (
     SourceInfo,
@@ -42,8 +61,11 @@ from metaphor.power_bi.power_bi_client import (
     PowerBIClient,
     PowerBIPage,
     PowerBIRefresh,
+    PowerBISubscription,
+    PowerBiSubscriptionUser,
     PowerBITile,
     WorkspaceInfo,
+    WorkspaceInfoDashboardBase,
 )
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 
@@ -63,14 +85,17 @@ class PowerBIExtractor(BaseExtractor):
         self._tenant_id = config.tenant_id
         self._workspaces = config.workspaces
 
+        self._client = PowerBIClient(self._config)
+
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
+        self._pipelines: Dict[str, Pipeline] = {}
+        self._dataflow_sources: Dict[str, List[EntityId]] = {}
+        self._hierarchies: List[Hierarchy] = []
         self._snowflake_account = config.snowflake_account
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Power BI tenant ID: {self._tenant_id}")
-
-        self._client = PowerBIClient(self._config)
 
         if len(self._workspaces) == 0:
             self._workspaces = [w.id for w in self._client.get_groups()]
@@ -80,11 +105,15 @@ class PowerBIExtractor(BaseExtractor):
         apps = self._client.get_apps()
         app_map = {app.id: app for app in apps}
 
-        workspaces = []
+        workspaces: List[WorkspaceInfo] = []
         for workspace_ids in chunks(
             self._workspaces, PowerBIClient.MAX_WORKSPACES_PER_SCAN
         ):
             workspaces.extend(self._client.get_workspace_info(workspace_ids))
+
+        for workspace in workspaces:
+            self.map_wi_dataflow_to_pipeline(workspace)
+            self.map_workspace_to_hierarchy(workspace)
 
         # As there may be cross-workspace reference in dashboards & reports,
         # we must process the datasets across all workspaces first
@@ -95,20 +124,113 @@ class PowerBIExtractor(BaseExtractor):
             self.map_wi_reports_to_dashboard(workspace, app_map)
             self.map_wi_dashboards_to_dashboard(workspace, app_map)
 
+        self.extract_subscriptions(workspaces)
+
         self.dedupe_app_version_dashboards()
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._virtual_views.values())
         entities.extend(self._dashboards.values())
+        entities.extend(self._pipelines.values())
+        entities.extend(self._hierarchies)
 
         return entities
+
+    def map_workspace_to_hierarchy(self, workspace: WorkspaceInfo) -> None:
+        workspace_id = workspace.id
+
+        pbi_workspace = PbiWorkspace(
+            name=workspace.name,
+            url=f"https://app.powerbi.com/groups/{workspace_id}",
+        )
+        hierarchy_info = HierarchyInfo(
+            description=workspace.description,
+            type=HierarchyType.POWER_BI_WORKSPACE,
+            power_bi_workspace=pbi_workspace,
+        )
+        self._hierarchies.append(
+            Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[VirtualViewType.POWER_BI_DATASET.value, workspace_id]
+                ),
+                hierarchy_info=hierarchy_info,
+            )
+        )
+        self._hierarchies.append(
+            Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[DashboardPlatform.POWER_BI.value, workspace_id]
+                ),
+                hierarchy_info=hierarchy_info,
+            )
+        )
+
+    def map_wi_dataflow_to_pipeline(self, workspace: WorkspaceInfo) -> None:
+        for wdf in workspace.dataflows:
+            data_flow_id = wdf.objectId
+
+            dataflow: Optional[dict] = self._client.export_dataflow(
+                workspace.id, data_flow_id
+            )
+
+            document_str: Optional[str] = None
+            if (
+                dataflow
+                and "pbi:mashup" in dataflow
+                and "document" in dataflow["pbi:mashup"]
+            ):
+                document_str = dataflow["pbi:mashup"]["document"]
+                try:
+                    sources, _ = PowerQueryParser.parse_query_expression(
+                        "",
+                        [],
+                        document_str or "",
+                        self._snowflake_account,
+                    )
+                    self._dataflow_sources[data_flow_id] = sources
+                except Exception as e:
+                    logger.error(
+                        f"Failed to parse expression for dataflow {data_flow_id}: {e}"
+                    )
+
+            pipeline = Pipeline(
+                logical_id=PipelineLogicalID(
+                    name=data_flow_id,
+                    type=PipelineType.POWER_BI_DATAFLOW,
+                ),
+                power_bi_dataflow=PowerBIDataflow(
+                    configured_by=wdf.configuredBy,
+                    description=wdf.description,
+                    document=document_str,
+                    modified_by=wdf.configuredBy,
+                    modified_date_time=safe_parse_ISO8601(wdf.modifiedDateTime),
+                    content=json.dumps(dataflow) if dataflow else None,
+                    name=wdf.name,
+                    refresh_schedule=PowerBIRefreshSchedule(
+                        days=wdf.refreshSchedule.days,
+                        times=wdf.refreshSchedule.times,
+                        enabled=wdf.refreshSchedule.enabled,
+                        local_time_zone_id=wdf.refreshSchedule.localTimeZoneId,
+                        notify_option=wdf.refreshSchedule.notifyOption,
+                    )
+                    if wdf.refreshSchedule
+                    else None,
+                    dataflow_url=f"https://app.powerbi.com/groups/{workspace.id}/dataflows/{data_flow_id}",
+                ),
+            )
+
+            self._pipelines[data_flow_id] = pipeline
 
     def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
         dataset_map = {d.id: d for d in self._client.get_datasets(workspace.id)}
 
         for wds in workspace.datasets:
-            expressions = []
-            tables = []
+            ds = dataset_map.get(wds.id, None)
+            if ds is None:
+                logger.warning(f"Skipping invalid dataset {wds.id}")
+                continue
+
+            tables: List[PowerBIDatasetTable] = []
             for table in wds.tables:
                 tables.append(
                     PowerBIDatasetTable(
@@ -125,29 +247,53 @@ class PowerBIExtractor(BaseExtractor):
                             for m in table.measures
                         ],
                         name=table.name,
+                        expression=table.source[0].get("expression", None)
+                        if len(table.source) > 0
+                        else None,
                     )
                 )
 
-                for source in table.source:
-                    expressions.append(source["expression"])
-
             source_datasets = []
-            for expression in expressions:
+            field_mappings = []
+            for datasetTable in tables:
                 try:
-                    source_datasets.extend(
-                        PowerQueryParser.parse_source_datasets(
-                            expression, self._snowflake_account
+                    if datasetTable.expression:
+                        sources, fields = PowerQueryParser.parse_query_expression(
+                            datasetTable.name,
+                            [c.field for c in datasetTable.columns],
+                            datasetTable.expression,
+                            self._snowflake_account,
                         )
-                    )
+                        source_datasets.extend(sources)
+                        field_mappings.extend(fields)
                 except Exception as e:
                     logger.error(
                         f"Failed to parse expression for dataset {wds.id}: {e}"
                     )
 
-            ds = dataset_map.get(wds.id, None)
-            if ds is None:
-                logger.warn(f"Skipping invalid dataset {wds.id}")
-                continue
+            source_entity_ids = unique_list([str(d) for d in source_datasets])
+
+            # TODO(sc-21025): to support multiple pipelines
+            pipeline_entity_id: Optional[str] = None
+
+            if wds.upstreamDataflows:
+                for df in wds.upstreamDataflows:
+                    dataflow = self._pipelines.get(df.targetDataflowId)
+                    if dataflow:
+                        pipeline_entity_id = str(
+                            to_pipeline_entity_id_from_logical_id(dataflow.logical_id)
+                        )
+                        break
+
+                source_entity_ids = unique_list(
+                    [
+                        str(entity_id)
+                        for df in wds.upstreamDataflows
+                        for entity_id in (
+                            self._dataflow_sources.get(df.targetDataflowId) or []
+                        )
+                    ]
+                )
 
             last_refreshed = None
             if ds.isRefreshable:
@@ -158,15 +304,25 @@ class PowerBIExtractor(BaseExtractor):
                 logical_id=VirtualViewLogicalID(
                     name=wds.id, type=VirtualViewType.POWER_BI_DATASET
                 ),
+                structure=AssetStructure(
+                    directories=self._get_workspace_hierarchy(workspace), name=wds.name
+                ),
                 power_bi_dataset=VirtualViewPowerBIDataset(
                     tables=tables,
                     name=wds.name,
                     url=ds.webUrl,
-                    source_datasets=unique_list([str(d) for d in source_datasets]),
+                    source_datasets=source_entity_ids,
                     description=wds.description,
-                    workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+                    workspace_id=workspace.id,
                     last_refreshed=last_refreshed,
                 ),
+                entity_upstream=EntityUpstream(
+                    source_entities=source_entity_ids or None,
+                    field_mappings=field_mappings or None,
+                    pipeline_entity_id=pipeline_entity_id or None,
+                )
+                if field_mappings or source_entity_ids or pipeline_entity_id
+                else None,
             )
 
             self._virtual_views[wds.id] = virtual_view
@@ -178,7 +334,7 @@ class PowerBIExtractor(BaseExtractor):
 
         for wi_report in workspace.reports:
             if wi_report.datasetId is None:
-                logger.warn(f"Skipping report without datasetId: {wi_report.id}")
+                logger.warning(f"Skipping report without datasetId: {wi_report.id}")
                 continue
 
             virtual_view = self._virtual_views.get(wi_report.datasetId)
@@ -192,11 +348,11 @@ class PowerBIExtractor(BaseExtractor):
 
             report = report_map.get(wi_report.id, None)
             if report is None:
-                logger.warn(f"Skipping invalid report {wi_report.id}")
+                logger.warning(f"Skipping invalid report {wi_report.id}")
                 continue
 
             pbi_info = self._make_power_bi_info(
-                PowerBIDashboardType.REPORT, workspace, wi_report.appId, app_map
+                PowerBIDashboardType.REPORT, workspace, wi_report, app_map
             )
 
             # The "app" version of report doesn't have pages
@@ -210,11 +366,16 @@ class PowerBIExtractor(BaseExtractor):
                     dashboard_id=wi_report.id,
                     platform=DashboardPlatform.POWER_BI,
                 ),
+                structure=AssetStructure(
+                    directories=self._get_workspace_hierarchy(workspace),
+                    name=wi_report.name,
+                ),
                 dashboard_info=DashboardInfo(
                     description=wi_report.description,
                     title=wi_report.name,
                     power_bi=pbi_info,
                     charts=charts,
+                    dashboard_type=DashboardType.POWER_BI_REPORT,
                 ),
                 source_info=SourceInfo(
                     main_url=report.webUrl,
@@ -249,11 +410,11 @@ class PowerBIExtractor(BaseExtractor):
 
             pbi_dashboard = dashboard_map.get(wi_dashboard.id, None)
             if pbi_dashboard is None:
-                logger.warn(f"Skipping invalid dashboard {wi_dashboard.id}")
+                logger.warning(f"Skipping invalid dashboard {wi_dashboard.id}")
                 continue
 
             pbi_info = self._make_power_bi_info(
-                PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard.appId, app_map
+                PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard, app_map
             )
 
             dashboard = Dashboard(
@@ -261,10 +422,15 @@ class PowerBIExtractor(BaseExtractor):
                     dashboard_id=wi_dashboard.id,
                     platform=DashboardPlatform.POWER_BI,
                 ),
+                structure=AssetStructure(
+                    directories=self._get_workspace_hierarchy(workspace),
+                    name=wi_dashboard.displayName,
+                ),
                 dashboard_info=DashboardInfo(
                     title=wi_dashboard.displayName,
                     charts=self.transform_tiles_to_charts(tiles),
                     power_bi=pbi_info,
+                    dashboard_type=DashboardType.POWER_BI_DASHBOARD,
                 ),
                 source_info=SourceInfo(
                     main_url=pbi_dashboard.webUrl,
@@ -291,7 +457,7 @@ class PowerBIExtractor(BaseExtractor):
 
             original_dashboard = self._dashboards.get(original_dashboard_id)
             if original_dashboard is None:
-                # Cannot not found corresponding non-app dashboard
+                # Cannot not find corresponding non-app dashboard
                 logger.warning(
                     f"Non-app version dashboard not found, id: {original_dashboard_id}"
                 )
@@ -309,27 +475,119 @@ class PowerBIExtractor(BaseExtractor):
             )
             del self._dashboards[dashboard_id]
 
+    def extract_subscriptions(self, workspaces: List[WorkspaceInfo]):
+        users = set(
+            user
+            for workspace in workspaces
+            for user in workspace.users
+            # Skipping report without datasetId
+            if user.principalType == "User"
+        )
+        subscriptions: Dict[str, PowerBISubscription] = {}
+
+        for user in users:
+            user_id = user.graphId
+            subscription_user = PowerBiSubscriptionUser(
+                emailAddress=user.emailAddress, displayName=user.displayName
+            )
+            user_subscriptions = self._client.get_user_subscriptions(user_id)
+
+            for user_subscription in user_subscriptions:
+                subscription = subscriptions.setdefault(
+                    user_subscription.id, user_subscription
+                )
+                subscription.users.append(subscription_user)
+
+        for subscription in subscriptions.values():
+            dashboard = self._dashboards.get(subscription.artifactId)
+
+            if dashboard is None:
+                logger.warning(
+                    f"Can't found related artifact for subscription: {subscription.id}"
+                )
+                continue
+
+            power_bi_info = dashboard.dashboard_info.power_bi
+            if power_bi_info.subscriptions is None:
+                power_bi_info.subscriptions = []
+
+            def safe_parse_date(datetime_str: Optional[str]) -> Optional[datetime]:
+                # Example date time 9/12/2023 12:00:00 AM
+                datetime_format = "%m/%d/%Y %I:%M:%S %p"
+                if not datetime_str:
+                    return None
+                try:
+                    return datetime.strptime(datetime_str, datetime_format).replace(
+                        tzinfo=timezone.utc
+                    )
+                except ValueError:
+                    logger.warning(f"Unable to parse time: {datetime_str}")
+                    return None
+
+            power_bi_info.subscriptions.append(
+                Subscription(
+                    artifact_display_name=subscription.artifactDisplayName,
+                    end_date=safe_parse_date(subscription.endDate),
+                    start_date=safe_parse_date(subscription.startDate),
+                    sub_artifact_display_name=subscription.subArtifactDisplayName,
+                    frequency=subscription.frequency,
+                    title=subscription.title,
+                    id=subscription.id,
+                    users=[
+                        SubscriptionUser(
+                            email_address=user.emailAddress,
+                            display_name=user.displayName,
+                        )
+                        for user in subscription.users
+                    ],
+                )
+            )
+
+    @staticmethod
     def _make_power_bi_info(
-        self,
         type: PowerBIDashboardType,
         workspace: WorkspaceInfo,
-        app_id: Optional[str],
+        dashboard: WorkspaceInfoDashboardBase,
         app_map: Dict[str, PowerBIApp],
     ) -> PowerBIInfo:
         pbi_info = PowerBIInfo(
             power_bi_dashboard_type=type,
-            workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+            workspace_id=workspace.id,
+            created_by=dashboard.createdBy,
+            created_date_time=safe_parse_ISO8601(dashboard.createdDateTime),
+            modified_by=dashboard.modifiedBy,
+            modified_date_time=safe_parse_ISO8601(dashboard.modifiedDateTime),
         )
 
-        if app_id is not None:
+        if dashboard.appId is not None:
+            app_id = dashboard.appId
             app = app_map.get(app_id)
             if app is not None:
                 pbi_info.app = PbiApp(id=app.id, name=app.name)
 
+        if dashboard.endorsementDetails is not None:
+            try:
+                endorsement = PowerBIEndorsementType(
+                    dashboard.endorsementDetails.endorsement
+                )
+                pbi_info.endorsement = PowerBIEndorsement(
+                    endorsement=endorsement,
+                    certified_by=dashboard.endorsementDetails.certifiedBy,
+                )
+            except ValueError:
+                logger.warning(
+                    f"Endorsement type {dashboard.endorsementDetails.endorsement} are not supported"
+                )
+
         return pbi_info
 
+    @staticmethod
+    def _get_workspace_hierarchy(workspace: WorkspaceInfo) -> List[str]:
+        return (workspace.name or "").split(".")
+
+    @staticmethod
     def _find_last_completed_refresh(
-        self, refreshes: List[PowerBIRefresh]
+        refreshes: List[PowerBIRefresh],
     ) -> Optional[datetime]:
         try:
             # Assume refreshes are already sorted in reversed chronological order
@@ -340,13 +598,10 @@ class PowerBIExtractor(BaseExtractor):
         except StopIteration:
             return None
 
-        try:
-            return isoparse(refresh.endTime).replace(tzinfo=timezone.utc)
-        except Exception:
-            logger.error(f"Failed to parse refresh time: {refresh.endTime}")
-            return None
+        return safe_parse_ISO8601(refresh.endTime)
 
-    def _get_dashboard_id_from_url(self, url: str) -> Optional[str]:
+    @staticmethod
+    def _get_dashboard_id_from_url(url: str) -> Optional[str]:
         path = parse.urlparse(url).path
         pattern = re.compile(r"apps/([^/]+)/(reports|dashboards)/([^/]+)")
         match = pattern.search(path)

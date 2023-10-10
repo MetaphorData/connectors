@@ -4,7 +4,7 @@ from typing import Callable, Collection, List, Optional
 
 from metaphor.common.api_sink import ApiSink, ApiSinkConfig
 from metaphor.common.event_util import ENTITY_TYPES, EventUtil
-from metaphor.common.file_sink import FileSink, FileSinkConfig
+from metaphor.common.file_sink import FileSink, FileSinkConfig, S3StorageConfig
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Platform, RunStatus
 from metaphor.models.metadata_change_event import MetadataChangeEvent
@@ -64,8 +64,7 @@ def run_connector(
         f"Ended running with {run_status} at {end_time}, fetched {entity_count} entities, took {format((end_time - start_time).total_seconds(), '.1f')}s"
     )
 
-    event_util = EventUtil(name)
-    events = [event_util.build_event(entity) for entity in entities]
+    events = [EventUtil.build_event(entity) for entity in entities]
 
     run_metadata = CrawlerRunMetadata(
         crawler_name=name,
@@ -93,7 +92,10 @@ def run_connector(
 
 
 def metaphor_file_sink_config(
-    tenant: str, connector_name: str, is_metaphor_cloud=True
+    tenant: str,
+    connector_name: str,
+    is_metaphor_cloud=False,
+    s3_auth_config=S3StorageConfig(),
 ) -> FileSinkConfig:
     """Create a FileSinkConfig for outputting events to a Metaphor tenant's cloud storage
 
@@ -104,7 +106,7 @@ def metaphor_file_sink_config(
     connector_name : str
         Name of the connector
     is_metaphor_cloud : bool
-        Whether this is a Metaphor cloud tenant (default is True)
+        Whether this is a Metaphor cloud tenant (default is False)
 
     Returns
     -------
@@ -117,7 +119,9 @@ def metaphor_file_sink_config(
         if is_metaphor_cloud
         else f"metaphor-mce-{tenant}"
     )
-    return FileSinkConfig(directory=f"s3://{bucket}/{connector_name}")
+    return FileSinkConfig(
+        directory=f"s3://{bucket}/{connector_name}", s3_auth_config=s3_auth_config
+    )
 
 
 def local_file_sink_config(directory: str) -> FileSinkConfig:

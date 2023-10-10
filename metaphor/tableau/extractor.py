@@ -1,7 +1,7 @@
 import base64
 import re
 import traceback
-from typing import Collection, Dict, List, Optional, Set, Union
+from typing import Collection, Dict, List, Optional, Set, Tuple, Union
 
 try:
     import tableauserverclient as tableau
@@ -21,6 +21,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     Dashboard,
     DashboardInfo,
@@ -73,7 +74,7 @@ class TableauExtractor(BaseExtractor):
         self._disable_preview_image = config.disable_preview_image
 
         self._views: Dict[str, tableau.ViewItem] = {}
-        self._projects: Dict[str, str] = {}
+        self._projects: Dict[str, List[str]] = {}  # project id -> project hierarchy
         self._datasets: Dict[EntityId, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
@@ -191,28 +192,43 @@ class TableauExtractor(BaseExtractor):
     def _parse_project_names(self, projects: List[tableau.ProjectItem]) -> None:
         for project in projects:
             if project.id:
-                self._projects[project.id] = project.name
+                self._projects[project.id] = [project.name]
 
         # second iteration to link child to parent project
         for project in projects:
             if project.id and project.parent_id in self._projects:
-                parent_name = self._projects[project.parent_id]
-                self._projects[project.id] = f"{parent_name}.{project.name}"
+                parent_hierarchy = self._projects[project.parent_id]
+                self._projects[project.id] = parent_hierarchy + [project.name]
 
-    def _build_asset_full_name(
+        logger.info(self._projects)
+
+    def _build_asset_full_name_and_structure(
         self,
         asset_name: Optional[str],
         project_id: Optional[str],
         project_name: Optional[str],
-    ) -> str:
+    ) -> Tuple[str, AssetStructure]:
         """
-        Builds the dashboard or datasource full name <project>.<asset_name>
+        Builds the dashboard or datasource full name <project>.<asset_name> And assetStructure
         Use 'project_id' to find the project full name, if not found, use the given project_name.
         If asset doesn't have project, use only the asset name
         """
         assert asset_name, "missing asset name"
-        project = self._projects.get(project_id or "", None) or project_name
-        return f"{project}.{asset_name}" if project else asset_name
+        project_hierarchy = (
+            self._projects.get(project_id or "", None) or [project_name]
+            if project_name
+            else None
+        )
+
+        full_name = (
+            f"{'.'.join(project_hierarchy)}.{asset_name}"
+            if project_hierarchy
+            else asset_name
+        )
+        structure = AssetStructure(
+            directories=project_hierarchy or None, name=asset_name
+        )
+        return full_name, structure
 
     def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
         if not workbook.webpage_url:
@@ -225,10 +241,12 @@ class TableauExtractor(BaseExtractor):
         charts = [self._parse_chart(self._views[view.id]) for view in views if view.id]
         total_views = sum([view.total_views for view in views])
 
+        full_name, structure = self._build_asset_full_name_and_structure(
+            workbook.name, workbook.project_id, workbook.project_name
+        )
+
         dashboard_info = DashboardInfo(
-            title=self._build_asset_full_name(
-                workbook.name, workbook.project_id, workbook.project_name
-            ),
+            title=full_name,
             description=workbook.description,
             charts=charts,
             view_count=float(total_views),
@@ -242,6 +260,7 @@ class TableauExtractor(BaseExtractor):
             logical_id=DashboardLogicalID(
                 dashboard_id=workbook_id, platform=DashboardPlatform.TABLEAU
             ),
+            structure=structure,
             dashboard_info=dashboard_info,
             source_info=source_info,
         )
@@ -253,7 +272,7 @@ class TableauExtractor(BaseExtractor):
     ) -> Dict[str, List[str]]:
         platform = connection_type_map.get(custom_sql_table.connectionType)
         if platform is None:
-            logger.warn(
+            logger.warning(
                 f"Unsupported connection type {custom_sql_table.connectionType} for custom sql table: {custom_sql_table.id}"
             )
             return {}
@@ -264,7 +283,7 @@ class TableauExtractor(BaseExtractor):
 
         datasource_ids = self._custom_sql_datasource_ids(custom_sql_table)
         if len(datasource_ids) == 0:
-            logger.warn(
+            logger.warning(
                 f"Missing datasource IDs for custom sql table: {custom_sql_table.id}"
             )
             return {}
@@ -286,7 +305,7 @@ class TableauExtractor(BaseExtractor):
         for source_table in source_tables:
             fullname = str(source_table).lower()
             if fullname.count(".") != 2:
-                logger.warn(f"Ignore non-fully qualified source table {fullname}")
+                logger.warning(f"Ignore non-fully qualified source table {fullname}")
                 continue
 
             self._init_dataset(fullname, platform, account)
@@ -335,16 +354,19 @@ class TableauExtractor(BaseExtractor):
                 self._parse_upstream_datasets(published_source.upstreamTables),
             )
 
+            full_name, structure = self._build_asset_full_name_and_structure(
+                published_source.name,
+                workbook.projectLuid,
+                workbook.projectName,
+            )
+
             self._virtual_views[published_source.luid] = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=published_source.luid
                 ),
+                structure=structure,
                 tableau_datasource=TableauDatasource(
-                    name=self._build_asset_full_name(
-                        published_source.name,
-                        workbook.projectLuid,
-                        workbook.projectName,
-                    ),
+                    name=full_name,
                     description=published_source.description or None,
                     fields=[
                         TableauField(field=f.name, description=f.description or None)
@@ -380,6 +402,10 @@ class TableauExtractor(BaseExtractor):
             self._virtual_views[embedded_source.id] = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=embedded_source.id
+                ),
+                structure=AssetStructure(
+                    directories=[workbook.projectName],
+                    name=embedded_source.name,
                 ),
                 tableau_datasource=TableauDatasource(
                     name=f"{workbook.projectName}.{embedded_source.name}",

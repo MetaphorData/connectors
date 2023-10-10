@@ -7,7 +7,12 @@ from freezegun import freeze_time
 from metaphor.common.utils import (
     chunk_by_size,
     filter_empty_strings,
+    filter_none,
     must_set_exactly_one,
+    removesuffix,
+    safe_float,
+    safe_int,
+    safe_parse_ISO8601,
     start_of_day,
     unique_list,
 )
@@ -92,3 +97,46 @@ def test_unique_list():
     assert unique_list(["a", "b", "c"]) == ["a", "b", "c"]
     assert unique_list(["a", "a", "c"]) == ["a", "c"]
     assert unique_list(["c", "a", "c"]) == ["c", "a"]
+
+
+def test_remove_suffix():
+    assert removesuffix("abcdefg", "fg") == "abcde"
+    assert removesuffix("abcdefg", "gf") == "abcdefg"
+    assert removesuffix("example.com/index.html", "index.html") == "example.com/"
+    assert removesuffix("example.com/index.html", "/index.html") == "example.com"
+
+
+def test_safe_parse_ISO8061():
+    assert safe_parse_ISO8601(None) is None
+    assert (
+        safe_parse_ISO8601("2023-09-20T08:10:15Z").isoformat()
+        == "2023-09-20T08:10:15+00:00"
+    )
+    assert (
+        safe_parse_ISO8601("2023-09-20T08:10:15").isoformat()
+        == "2023-09-20T08:10:15+00:00"
+    )
+    assert safe_parse_ISO8601("isvalid") is None
+
+
+def test_safe_float():
+    assert safe_float(None) is None
+    assert safe_float(float("NaN")) is None
+    assert safe_float(float("Inf")) is None
+    assert safe_float(1) == 1.0
+    assert safe_float(1.7) == 1.7
+
+
+def test_safe_int():
+    assert safe_int(None) is None
+    assert safe_float(float("NaN")) is None
+    assert safe_float(float("Inf")) is None
+    assert safe_int(1) == 1
+    assert safe_int(1.7) == 1
+
+
+def test_filter_none():
+    assert filter_none([]) == []
+    assert filter_none([1, 2]) == [1, 2]
+    assert filter_none(["foo", None, "bar"]) == ["foo", "bar"]
+    assert filter_none([None, None]) == []

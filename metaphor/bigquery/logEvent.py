@@ -7,7 +7,7 @@ from google.cloud._helpers import _rfc3339_nanos_to_datetime
 
 from metaphor.bigquery.utils import BigQueryResource, LogEntry
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import unique_list
+from metaphor.common.utils import safe_int, unique_list
 
 logger = get_logger()
 logger.setLevel(logging.INFO)
@@ -102,10 +102,10 @@ class JobChangeEvent:
             default_dataset = query_job.get("defaultDataset", None)
 
             processed_bytes = query_stats.get("totalProcessedBytes", None)
-            input_bytes = int(processed_bytes) if processed_bytes else None
+            input_bytes = safe_int(processed_bytes)
 
             output_row_count = query_stats.get("outputRowCount", None)
-            output_rows = int(output_row_count) if output_row_count else None
+            output_rows = safe_int(output_row_count)
         else:
             logger.error(f"unsupported job type {job_type}")
             return None

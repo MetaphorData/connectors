@@ -1,0 +1,42 @@
+[
+  {
+    "description": "This is Metabase dashboard for clean rides",
+    "archived": false,
+    "collection_position": null,
+    "creator": {
+      "email": "dev@metaphor.io",
+      "first_name": "Metaphor",
+      "last_login": "2023-09-06T23:29:11.339802Z",
+      "is_qbnewb": false,
+      "is_superuser": true,
+      "id": 1,
+      "last_name": "Data",
+      "date_joined": "2022-01-14T23:13:15.600349Z",
+      "common_name": "Metaphor Data"
+    },
+    "enable_embedding": false,
+    "collection_id": 2,
+    "show_in_getting_started": false,
+    "name": "Clean rides",
+    "caveats": null,
+    "creator_id": 1,
+    "updated_at": "2022-05-06T15:52:18.508261Z",
+    "made_public_by_id": null,
+    "embedding_params": null,
+    "cache_ttl": null,
+    "id": 101,
+    "position": null,
+    "entity_id": null,
+    "last-edit-info": {
+      "id": 1,
+      "email": "dev@metaphor.io",
+      "first_name": "Metaphor",
+      "last_name": "Data",
+      "timestamp": "2022-05-06T15:52:18.526181Z"
+    },
+    "parameters": [],
+    "created_at": "2022-05-06T15:47:21.693289Z",
+    "public_uuid": null,
+    "points_of_interest": null
+  }
+]
