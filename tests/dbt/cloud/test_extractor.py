@@ -32,7 +32,7 @@ async def test_extractor(
     config = DbtCloudConfig(
         output=OutputConfig(),
         account_id=1111,
-        job_id=2222,
+        job_ids=[2222],
         base_url="https://cloud.metaphor.getdbt.com",
         service_token="service_token",
     )

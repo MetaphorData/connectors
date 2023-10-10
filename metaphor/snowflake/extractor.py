@@ -20,7 +20,7 @@ from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import chunks, md5_digest, start_of_day
+from metaphor.common.utils import chunks, md5_digest, safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -231,8 +231,8 @@ class SnowflakeExtractor(BaseExtractor):
                     field_path=column,
                     field_name=column,
                     native_type=data_type,
-                    max_length=float(max_length) if max_length is not None else None,
-                    precision=float(precision) if precision is not None else None,
+                    max_length=safe_float(max_length),
+                    precision=safe_float(precision),
                     nullable=nullable == "YES",
                     description=comment,
                     subfields=None,
@@ -440,7 +440,7 @@ class SnowflakeExtractor(BaseExtractor):
             x: QueryWithParam(
                 f"""
                 SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
-                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED,
+                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED,
                   DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
@@ -471,7 +471,7 @@ class SnowflakeExtractor(BaseExtractor):
             x: QueryWithParam(
                 f"""
                 SELECT QUERY_ID, USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
-                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED
+                  DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 WHERE EXECUTION_STATUS = 'SUCCESS'
                   AND START_TIME > %s AND START_TIME <= %s
@@ -503,6 +503,8 @@ class SnowflakeExtractor(BaseExtractor):
             bytes_scanned,
             bytes_written,
             rows_produced,
+            rows_inserted,
+            rows_updated,
             *access_objects,
         ) in query_logs:
             try:
@@ -523,14 +525,15 @@ class SnowflakeExtractor(BaseExtractor):
                     platform=DataPlatform.SNOWFLAKE,
                     account=self._account,
                     start_time=start_time,
-                    duration=float(elapsed_time / 1000.0),
-                    cost=float(credit) if credit else None,
+                    duration=safe_float(elapsed_time / 1000.0),
+                    cost=safe_float(credit),
                     user_id=username,
                     default_database=default_database,
                     default_schema=default_schema,
-                    rows_written=float(rows_produced) if rows_produced else None,
-                    bytes_read=float(bytes_scanned) if bytes_scanned else None,
-                    bytes_written=float(bytes_written) if bytes_written else None,
+                    rows_read=safe_float(rows_produced),
+                    rows_written=safe_float(rows_inserted) or safe_float(rows_updated),
+                    bytes_read=safe_float(bytes_scanned),
+                    bytes_written=safe_float(bytes_written),
                     sources=sources,
                     targets=targets,
                     sql=query_text,

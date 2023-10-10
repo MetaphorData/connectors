@@ -4,6 +4,13 @@
       "dashboardId": "123",
       "platform": "TABLEAU"
     },
+    "structure": {
+      "directories": [
+        "parent",
+        "child"
+      ],
+      "name": "wb"
+    },
     "dashboardInfo": {
       "charts": [
         {
@@ -32,6 +39,13 @@
       "name": "sourceId1",
       "type": "TABLEAU_DATASOURCE"
     },
+    "structure": {
+      "directories": [
+        "parent",
+        "child"
+      ],
+      "name": "source1"
+    },
     "tableauDatasource": {
       "embedded": false,
       "fields": [],
@@ -47,6 +61,12 @@
       "name": "sourceId2",
       "type": "TABLEAU_DATASOURCE"
     },
+    "structure": {
+      "directories": [
+        "default"
+      ],
+      "name": "source2"
+    },
     "tableauDatasource": {
       "embedded": true,
       "fields": [],
@@ -60,6 +80,12 @@
     "logicalId": {
       "name": "sourceId3",
       "type": "TABLEAU_DATASOURCE"
+    },
+    "structure": {
+      "directories": [
+        "default"
+      ],
+      "name": "source3"
     },
     "tableauDatasource": {
       "embedded": true,

@@ -203,7 +203,7 @@ def test_parse_profiling_result():
         9,
         10,
         11,
-        12,
+        float("inf"),
         13,
         float("NAN"),
     )
@@ -238,7 +238,7 @@ def test_parse_profiling_result():
                     average=13.0,
                     distinct_value_count=9.0,
                     field_path="year",
-                    max_value=12.0,
+                    max_value=None,
                     min_value=11.0,
                     nonnull_value_count=0.0,
                     null_value_count=10.0,

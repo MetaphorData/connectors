@@ -7,7 +7,7 @@ def test_yaml_config(test_root_dir):
 
     assert config == DbtCloudConfig(
         account_id=1234,
-        job_id=5678,
+        job_ids=[5678, 9012],
         service_token="token",
         base_url="https://cloud.metaphor.getdbt.com",
         output=OutputConfig(),

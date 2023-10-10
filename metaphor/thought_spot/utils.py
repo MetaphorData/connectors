@@ -15,8 +15,8 @@ from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadata,
     AnswerMetadataDetail,
-    ConnectionMetadata,
-    ConnectionMetadataDetail,
+    Connection,
+    ConnectionDetail,
     ConnectionType,
     LiveBoardMetadata,
     LiveBoardMetadataDetail,
@@ -107,32 +107,33 @@ class ThoughtSpot:
         return client
 
     @staticmethod
-    def fetch_connections(client: TSRestApiV2) -> List[ConnectionMetadataDetail]:
+    def fetch_connections(client: TSRestApiV2) -> List[ConnectionDetail]:
         supported_platform = set(ConnectionType)
 
-        connection_details: List[ConnectionMetadataDetail] = []
+        connection_details: List[ConnectionDetail] = []
 
         batch_count = 0
         batch_size = 100
 
         while True:
-            search_response = client.metadata_search(
+            search_response = client.connection_search(
                 {
-                    "metadata": [{"type": "CONNECTION"}],
                     "include_details": True,
                     "record_size": batch_size,
                     "record_offset": batch_count * batch_size,
                 }
             )
-            json_dump_to_debug_file(search_response, "metadata_search__connection.json")
+            json_dump_to_debug_file(
+                search_response, f"connection_search__{batch_count}.json"
+            )
 
             batch_count += 1
 
-            connections = parse_obj_as(List[ConnectionMetadata], search_response)
+            connections = parse_obj_as(List[Connection], search_response)
 
             for connection in connections:
-                if connection.metadata_detail.type in supported_platform:
-                    connection_details.append(connection.metadata_detail)
+                if connection.details.type in supported_platform:
+                    connection_details.append(connection.details)
 
             if len(connections) < batch_size:
                 break

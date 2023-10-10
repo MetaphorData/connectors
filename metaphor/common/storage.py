@@ -99,6 +99,7 @@ class S3Storage(BaseStorage):
             self._session = session
 
         self._client = self._session.client("s3")
+        logger.info("Created S3 client")
 
     def write_file(
         self, path: str, payload: Union[str, bytes], binary_mode=False

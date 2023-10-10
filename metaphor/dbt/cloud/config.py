@@ -13,11 +13,11 @@ class DbtCloudConfig(BaseConfig):
     # dbt cloud account ID
     account_id: int
 
-    # dbt cloud job ID
-    job_id: int
-
     # Service token for dbt cloud
     service_token: str
+
+    # dbt cloud job IDs
+    job_ids: List[int]
 
     # map meta field to ownerships
     meta_ownerships: List[MetaOwnership] = dataclass_field(default_factory=lambda: [])

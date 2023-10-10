@@ -1,6 +1,13 @@
+import math
 from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
 from typing import Any, Callable, Dict, List, Optional, Union
+
+from dateutil.parser import isoparse
+
+from metaphor.common.logger import get_logger
+
+logger = get_logger()
 
 
 def start_of_day(daysAgo=0) -> datetime:
@@ -28,7 +35,7 @@ def chunks(list, n):
 def must_set_exactly_one(values: Dict, keys: List[str]):
     not_none = [k for k in keys if values.get(k) is not None]
     if len(not_none) != 1:
-        raise ValueError(f"must set exactly one of {keys}, found {not_none}")
+        raise ValueError(f"Must set exactly one of {keys}, found {not_none}")
 
 
 def md5_digest(value: bytes) -> str:
@@ -46,9 +53,35 @@ def to_utc_time(time: datetime) -> datetime:
     return time.replace(tzinfo=timezone.utc)
 
 
-def convert_to_float(value: Optional[Union[float, int, str]]) -> Optional[float]:
-    """Converts a value to float, return None if the original value is None or NaN"""
-    return None if value is None or value != value else float(value)
+def safe_parse_ISO8601(iso8601_str: Optional[str]) -> Optional[datetime]:
+    """Safely convert ISO 8601 string to UTC datetime"""
+    if iso8601_str is None:
+        return None
+    try:
+        return isoparse(iso8601_str).replace(tzinfo=timezone.utc)
+    except Exception:
+        logger.error(f"Failed to parse ISO8061 time: {iso8601_str}")
+        return None
+
+
+def safe_float(value: Optional[Union[float, int, str]]) -> Optional[float]:
+    """Converts a value to float, return None if the original value is None or NaN or INF"""
+    return (
+        None
+        if value is None
+        or (isinstance(value, float) and (math.isnan(value) or math.isinf(value)))
+        else float(value)
+    )
+
+
+def safe_int(value: Any) -> Optional[int]:
+    """Converts a value to int, return None if the original value is None or NaN or INF"""
+    return (
+        None
+        if value is None
+        or (isinstance(value, float) and (math.isnan(value) or math.isinf(value)))
+        else int(value)
+    )
 
 
 def chunk_by_size(
@@ -108,3 +141,15 @@ def chunk_by_size(
         slices.append(slice(start, len(list_to_chunk)))
 
     return slices
+
+
+def removesuffix(text: str, suffix: str):
+    if text.endswith(suffix):
+        return text[: -len(suffix)]
+    else:
+        return text
+
+
+def filter_none(lst: List) -> List:
+    """Filter out all None values from the list"""
+    return [e for e in lst if e is not None]
