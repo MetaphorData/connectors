@@ -470,8 +470,30 @@
     "hierarchyInfo": {
       "powerBiWorkspace": {
         "name": "Workspace",
-        "url": "https://app.powerbi.com/groups/workspace-1"
+        "url": "https://app.powerbi.com/groups/workspace-1",
+        "users": [
+          {
+            "displayName": "Metaphor",
+            "emailAddress": "powerbi@metaphor.io",
+            "groupUserAccessRight": "Viewer"
+          },
+          {
+            "displayName": "Metaphor Admin",
+            "emailAddress": "powerbi-admin@metaphor.io",
+            "groupUserAccessRight": "Admin"
+          },
+          {
+            "displayName": "Metaphor Member",
+            "emailAddress": "powerbi-member@metaphor.io",
+            "groupUserAccessRight": "Member"
+          },
+          {
+            "displayName": "Metaphor UNKNOWN",
+            "emailAddress": "powerbi-unknown@metaphor.io"
+          }
+        ]
       },
+      "description": "workspace desc",
       "type": "POWER_BI_WORKSPACE"
     },
     "logicalId": {
@@ -485,8 +507,30 @@
     "hierarchyInfo": {
       "powerBiWorkspace": {
         "name": "Workspace",
-        "url": "https://app.powerbi.com/groups/workspace-1"
+        "url": "https://app.powerbi.com/groups/workspace-1",
+        "users": [
+          {
+            "displayName": "Metaphor",
+            "emailAddress": "powerbi@metaphor.io",
+            "groupUserAccessRight": "Viewer"
+          },
+          {
+            "displayName": "Metaphor Admin",
+            "emailAddress": "powerbi-admin@metaphor.io",
+            "groupUserAccessRight": "Admin"
+          },
+          {
+            "displayName": "Metaphor Member",
+            "emailAddress": "powerbi-member@metaphor.io",
+            "groupUserAccessRight": "Member"
+          },
+          {
+            "displayName": "Metaphor UNKNOWN",
+            "emailAddress": "powerbi-unknown@metaphor.io"
+          }
+        ]
       },
+      "description": "workspace desc",
       "type": "POWER_BI_WORKSPACE"
     },
     "logicalId": {

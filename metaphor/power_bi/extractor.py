@@ -22,6 +22,7 @@ from metaphor.models.metadata_change_event import (
     DashboardUpstream,
     EntityType,
     EntityUpstream,
+    GroupUserAccessRight,
     Hierarchy,
     HierarchyInfo,
     HierarchyLogicalID,
@@ -50,6 +51,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.models.metadata_change_event import PowerBIWorkspace as PbiWorkspace
 from metaphor.models.metadata_change_event import (
+    PowerBIWorkspaceUser,
     SourceInfo,
     VirtualView,
     VirtualViewLogicalID,
@@ -139,9 +141,29 @@ class PowerBIExtractor(BaseExtractor):
     def map_workspace_to_hierarchy(self, workspace: WorkspaceInfo) -> None:
         workspace_id = workspace.id
 
+        def get_access_right(access_right_str: str) -> Optional[GroupUserAccessRight]:
+            if access_right_str in (
+                GroupUserAccessRight.ADMIN.value,
+                GroupUserAccessRight.MEMBER.value,
+                GroupUserAccessRight.VIEWER.value,
+            ):
+                return GroupUserAccessRight(access_right_str)
+            return None
+
+        users = [
+            PowerBIWorkspaceUser(
+                email_address=user.emailAddress,
+                display_name=user.displayName,
+                group_user_access_right=get_access_right(user.groupUserAccessRight),
+            )
+            for user in workspace.users
+            if user.emailAddress  # Filter out group or service principal
+        ]
+
         pbi_workspace = PbiWorkspace(
             name=workspace.name,
             url=f"https://app.powerbi.com/groups/{workspace_id}",
+            users=users,
         )
         hierarchy_info = HierarchyInfo(
             description=workspace.description,
