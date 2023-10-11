@@ -30,7 +30,9 @@ from metaphor.models.metadata_change_event import (
     DatasetUpstream,
     DependencyCondition,
     Pipeline,
+    PipelineInfo,
     PipelineLogicalID,
+    PipelineMapping,
     PipelineType,
 )
 
@@ -492,7 +494,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
         factory_datasets: Dict[str, Dataset],
         factory_data_flows: Dict[str, DfModels.DataFlowResource],
     ) -> Tuple[List[AzureDataFactoryActivity], List[str], List[str]]:
-        metaphor_activities, sources, sinks = [], [], []
+        metaphor_activities, pipeline_sources, pipeline_sinks = [], [], []
 
         for activity in activities:
             metaphor_activities.append(
@@ -520,13 +522,13 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         dataset_id = str(
                             to_dataset_entity_id_from_logical_id(dataset.logical_id)
                         )
-                        sources.append(dataset_id)
+                        pipeline_sources.append(dataset_id)
                         copy_from.append(dataset_id)
 
                 for dataset_reference in activity.outputs or []:
                     dataset = factory_datasets.get(dataset_reference.reference_name)
                     if dataset:
-                        sinks.append(
+                        pipeline_sinks.append(
                             str(
                                 to_dataset_entity_id_from_logical_id(dataset.logical_id)
                             )
@@ -539,6 +541,18 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         # Assign pipeline entityId to output's upstream
                         dataset.upstream.pipeline_entity_id = pipeline_entity_id
 
+                        # Pipeline info for each copy activity output entity
+                        dataset.pipeline_info = PipelineInfo(
+                            pipeline_mapping=[
+                                PipelineMapping(
+                                    is_virtual=False,
+                                    source_entity_id=source_id,
+                                    pipeline_entity_id=pipeline_entity_id,
+                                )
+                                for source_id in copy_from
+                            ]
+                        )
+
             if isinstance(activity, DfModels.ExecuteDataFlowActivity):
                 data_flow = factory_data_flows.get(activity.data_flow.reference_name)
                 (
@@ -548,17 +562,15 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     data_flow, factory_datasets
                 )
 
-                for source_dataset in data_flow_sources:
-                    sources.append(
-                        str(
-                            to_dataset_entity_id_from_logical_id(
-                                source_dataset.logical_id
-                            )
-                        )
-                    )
+                activity_sources = [
+                    str(to_dataset_entity_id_from_logical_id(source_dataset.logical_id))
+                    for source_dataset in data_flow_sources
+                ]
+
+                pipeline_sources.extend(activity_sources)
 
                 for sink_dataset in data_flow_sinks:
-                    sinks.append(
+                    pipeline_sinks.append(
                         str(
                             to_dataset_entity_id_from_logical_id(
                                 sink_dataset.logical_id
@@ -569,7 +581,19 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     # Assign pipeline entityId to sink's upstream
                     sink_dataset.upstream.pipeline_entity_id = pipeline_entity_id
 
-        return metaphor_activities, sources, sinks
+                    # Pipeline info for each sink of a dataflow activity
+                    sink_dataset.pipeline_info = PipelineInfo(
+                        pipeline_mapping=[
+                            PipelineMapping(
+                                is_virtual=False,
+                                source_entity_id=source_id,
+                                pipeline_entity_id=pipeline_entity_id,
+                            )
+                            for source_id in activity_sources
+                        ]
+                    )
+
+        return metaphor_activities, pipeline_sources, pipeline_sinks
 
     def _extract_pipeline_metadata(
         self,
