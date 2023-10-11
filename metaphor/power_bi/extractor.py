@@ -22,6 +22,10 @@ from metaphor.models.metadata_change_event import (
     DashboardUpstream,
     EntityType,
     EntityUpstream,
+    Hierarchy,
+    HierarchyInfo,
+    HierarchyLogicalID,
+    HierarchyType,
     Pipeline,
     PipelineInfo,
     PipelineLogicalID,
@@ -90,6 +94,7 @@ class PowerBIExtractor(BaseExtractor):
         self._virtual_views: Dict[str, VirtualView] = {}
         self._pipelines: Dict[str, Pipeline] = {}
         self._dataflow_sources: Dict[str, List[EntityId]] = {}
+        self._hierarchies: List[Hierarchy] = []
         self._snowflake_account = config.snowflake_account
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -103,7 +108,7 @@ class PowerBIExtractor(BaseExtractor):
         apps = self._client.get_apps()
         app_map = {app.id: app for app in apps}
 
-        workspaces = []
+        workspaces: List[WorkspaceInfo] = []
         for workspace_ids in chunks(
             self._workspaces, PowerBIClient.MAX_WORKSPACES_PER_SCAN
         ):
@@ -111,6 +116,7 @@ class PowerBIExtractor(BaseExtractor):
 
         for workspace in workspaces:
             self.map_wi_dataflow_to_pipeline(workspace)
+            self.map_workspace_to_hierarchy(workspace)
 
         # As there may be cross-workspace reference in dashboards & reports,
         # we must process the datasets across all workspaces first
@@ -129,8 +135,38 @@ class PowerBIExtractor(BaseExtractor):
         entities.extend(self._virtual_views.values())
         entities.extend(self._dashboards.values())
         entities.extend(self._pipelines.values())
+        entities.extend(self._hierarchies)
 
         return entities
+
+    def map_workspace_to_hierarchy(self, workspace: WorkspaceInfo) -> None:
+        workspace_id = workspace.id
+
+        pbi_workspace = PbiWorkspace(
+            name=workspace.name,
+            url=f"https://app.powerbi.com/groups/{workspace_id}",
+        )
+        hierarchy_info = HierarchyInfo(
+            description=workspace.description,
+            type=HierarchyType.POWER_BI_WORKSPACE,
+            power_bi_workspace=pbi_workspace,
+        )
+        self._hierarchies.append(
+            Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[VirtualViewType.POWER_BI_DATASET.value, workspace_id]
+                ),
+                hierarchy_info=hierarchy_info,
+            )
+        )
+        self._hierarchies.append(
+            Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[DashboardPlatform.POWER_BI.value, workspace_id]
+                ),
+                hierarchy_info=hierarchy_info,
+            )
+        )
 
     def map_wi_dataflow_to_pipeline(self, workspace: WorkspaceInfo) -> None:
         for wdf in workspace.dataflows:
@@ -334,7 +370,7 @@ class PowerBIExtractor(BaseExtractor):
                     name=wds.name,
                     url=ds.webUrl,
                     description=wds.description,
-                    workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+                    workspace_id=workspace.id,
                     last_refreshed=last_refreshed,
                 ),
             )
@@ -569,7 +605,7 @@ class PowerBIExtractor(BaseExtractor):
     ) -> PowerBIInfo:
         pbi_info = PowerBIInfo(
             power_bi_dashboard_type=type,
-            workspace=PbiWorkspace(id=workspace.id, name=workspace.name),
+            workspace_id=workspace.id,
             created_by=dashboard.createdBy,
             created_date_time=safe_parse_ISO8601(dashboard.createdDateTime),
             modified_by=dashboard.modifiedBy,

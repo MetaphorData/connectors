@@ -10,6 +10,7 @@ from metaphor import models  # type: ignore
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
+    Hierarchy,
     KnowledgeCard,
     MetadataChangeEvent,
     Metric,
@@ -21,7 +22,9 @@ from metaphor.models.metadata_change_event import (
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-ENTITY_TYPES = Union[Dashboard, Dataset, Metric, KnowledgeCard, VirtualView, QueryLogs]
+ENTITY_TYPES = Union[
+    Dashboard, Dataset, Metric, KnowledgeCard, VirtualView, QueryLogs, Hierarchy
+]
 
 
 class EventUtil:
@@ -57,6 +60,8 @@ class EventUtil:
             return EventUtil._build_event(virtual_view=entity)
         elif type(entity) is QueryLogs:
             return EventUtil._build_event(query_logs=entity)
+        elif type(entity) is Hierarchy:
+            return EventUtil._build_event(hierarchy=entity)
         else:
             raise TypeError(f"invalid entity type {type(entity)}")
 

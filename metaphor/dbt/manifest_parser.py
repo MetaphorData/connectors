@@ -6,7 +6,7 @@ from pydantic.utils import unique_list
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.utils import filter_empty_strings
+from metaphor.common.utils import filter_empty_strings, filter_none
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import (
     build_metric_docs_url,
@@ -43,16 +43,6 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 
-from .generated.dbt_manifest_v3 import CompiledModelNode as CompiledModelNodeV3
-from .generated.dbt_manifest_v3 import CompiledSchemaTestNode as CompiledTestNodeV3
-from .generated.dbt_manifest_v3 import DbtManifest as DbtManifestV3
-from .generated.dbt_manifest_v3 import DependsOn as DependsOnV3
-from .generated.dbt_manifest_v3 import ParsedMacro as ParsedMacroV3
-from .generated.dbt_manifest_v3 import ParsedModelNode as ParsedModelNodeV3
-from .generated.dbt_manifest_v3 import ParsedSchemaTestNode as ParsedTestNodeV3
-from .generated.dbt_manifest_v3 import (
-    ParsedSourceDefinition as ParsedSourceDefinitionV3,
-)
 from .generated.dbt_manifest_v5 import CompiledGenericTestNode as CompiledTestNodeV5
 from .generated.dbt_manifest_v5 import CompiledModelNode as CompiledModelNodeV5
 from .generated.dbt_manifest_v5 import DbtManifest as DbtManifestV5
@@ -112,11 +102,9 @@ logger = get_logger()
 
 
 MODEL_NODE_TYPE = Union[
-    CompiledModelNodeV3,
     CompiledModelNodeV5,
     CompiledModelNodeV6,
     CompiledModelNodeV7,
-    ParsedModelNodeV3,
     ParsedModelNodeV5,
     ParsedModelNodeV6,
     ParsedModelNodeV7,
@@ -126,21 +114,18 @@ MODEL_NODE_TYPE = Union[
 ]
 
 TEST_NODE_TYPE = Union[
-    CompiledTestNodeV3,
     CompiledTestNodeV5,
     CompiledTestNodeV6,
     CompiledTestNodeV7,
     GenericTestNodeV8,
     GenericTestNodeV9,
     GenericTestNodeV10,
-    ParsedTestNodeV3,
     ParsedTestNodeV5,
     ParsedTestNodeV6,
     ParsedTestNodeV7,
 ]
 
 SOURCE_DEFINITION_TYPE = Union[
-    ParsedSourceDefinitionV3,
     ParsedSourceDefinitionV5,
     ParsedSourceDefinitionV6,
     ParsedSourceDefinitionV7,
@@ -150,7 +135,6 @@ SOURCE_DEFINITION_TYPE = Union[
 ]
 
 SOURCE_DEFINITION_MAP = Union[
-    Dict[str, ParsedSourceDefinitionV3],
     Dict[str, ParsedSourceDefinitionV5],
     Dict[str, ParsedSourceDefinitionV6],
     Dict[str, ParsedSourceDefinitionV7],
@@ -169,7 +153,6 @@ METRIC_TYPE = Union[
 ]
 
 DEPENDS_ON_TYPE = Union[
-    DependsOnV3,
     DependsOnV5,
     DependsOnV6,
     DependsOnV7,
@@ -179,7 +162,6 @@ DEPENDS_ON_TYPE = Union[
 ]
 
 MACRO_MAP = Union[
-    Dict[str, ParsedMacroV3],
     Dict[str, ParsedMacroV5],
     Dict[str, ParsedMacroV6],
     Dict[str, ParsedMacroV7],
@@ -189,7 +171,6 @@ MACRO_MAP = Union[
 ]
 
 MANIFEST_CLASS_TYPE = Union[
-    Type[DbtManifestV3],
     Type[DbtManifestV5],
     Type[DbtManifestV6],
     Type[DbtManifestV7],
@@ -200,9 +181,6 @@ MANIFEST_CLASS_TYPE = Union[
 
 # Maps dbt schema version to manifest class
 dbt_version_manifest_class_map: Dict[str, MANIFEST_CLASS_TYPE] = {
-    "v1": DbtManifestV3,
-    "v2": DbtManifestV3,
-    "v3": DbtManifestV3,
     "v4": DbtManifestV5,
     "v5": DbtManifestV5,
     "v6": DbtManifestV6,
@@ -243,6 +221,15 @@ class ManifestParser:
         # some cases. Since the field is not actually used, it's safe to clear it out to
         # avoid hitting any validation issues.
         manifest_json["docs"] = {}
+
+        # dbt can erroneously generate null for test's "depends_on"
+        # Filter these out for now
+        nodes = manifest_json.get("nodes", {})
+        for key, node in nodes.items():
+            if key.startswith("test."):
+                depends_on = node.get("depends_on", {})
+                depends_on["macros"] = filter_none(depends_on.get("macros", []))
+                depends_on["nodes"] = filter_none(depends_on.get("nodes", []))
 
         # Temporarily strip off all the extra "labels" in "semantic_models" until
         # https://github.com/dbt-labs/dbt-core/issues/8763 is fixed
@@ -285,8 +272,7 @@ class ManifestParser:
         nodes = manifest.nodes
         sources = manifest.sources
         macros = manifest.macros
-
-        metrics: Dict = {} if isinstance(manifest, DbtManifestV3) else manifest.metrics
+        metrics = manifest.metrics
 
         models = {
             k: v
@@ -294,11 +280,9 @@ class ManifestParser:
             if isinstance(
                 v,
                 (
-                    CompiledModelNodeV3,
                     CompiledModelNodeV5,
                     CompiledModelNodeV6,
                     CompiledModelNodeV7,
-                    ParsedModelNodeV3,
                     ParsedModelNodeV5,
                     ParsedModelNodeV6,
                     ParsedModelNodeV7,
@@ -315,11 +299,9 @@ class ManifestParser:
             if isinstance(
                 v,
                 (
-                    CompiledTestNodeV3,
                     CompiledTestNodeV5,
                     CompiledTestNodeV6,
                     CompiledTestNodeV7,
-                    ParsedTestNodeV3,
                     ParsedTestNodeV5,
                     ParsedTestNodeV6,
                     ParsedTestNodeV7,
@@ -371,9 +353,7 @@ class ManifestParser:
         )
 
         # v7 changed from "compiled_sql" to "compiled_code"
-        if isinstance(
-            test, (CompiledTestNodeV3, CompiledTestNodeV5, CompiledTestNodeV6)
-        ):
+        if isinstance(test, (CompiledTestNodeV5, CompiledTestNodeV6)):
             dbt_test.sql = test.compiled_sql
         elif isinstance(
             test,
@@ -411,9 +391,7 @@ class ManifestParser:
         )
         dbt_model = virtual_view.dbt_model
 
-        if isinstance(
-            model, (CompiledModelNodeV3, CompiledModelNodeV5, CompiledModelNodeV6)
-        ):
+        if isinstance(model, (CompiledModelNodeV5, CompiledModelNodeV6)):
             virtual_view.dbt_model.raw_sql = model.raw_sql
             dbt_model.compiled_sql = model.compiled_sql
         elif isinstance(

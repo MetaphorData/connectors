@@ -48,7 +48,7 @@ def test_yaml_config_with_private_key(test_root_dir):
     )
 
     assert config == SnowflakeRunConfig(
-        output=OutputConfig(api=None, file=None),
+        output=OutputConfig(file=None),
         account="account",
         user="user",
         password=None,

@@ -72,10 +72,7 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0000-000000000002",
-      "workspace": {
-        "id": "workspace-1",
-        "name": "Workspace"
-      }
+      "workspaceId": "workspace-1"
     },
     "structure": {
       "directories": [
@@ -191,10 +188,7 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0000-000000000003",
-      "workspace": {
-        "id": "workspace-1",
-        "name": "Workspace"
-      }
+      "workspaceId": "workspace-1"
     },
     "structure": {
       "directories": [
@@ -251,10 +245,7 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0001-000000000003",
-      "workspace": {
-        "id": "workspace-1",
-        "name": "Workspace"
-      }
+      "workspaceId": "workspace-1"
     },
     "structure": {
       "directories": [
@@ -274,10 +265,7 @@
           "name": "foo app"
         },
         "powerBiDashboardType": "REPORT",
-        "workspace": {
-          "id": "workspace-1",
-          "name": "Workspace"
-        },
+        "workspaceId": "workspace-1",
         "createdBy": "creator@foo.bar",
         "createdDateTime": "2022-04-06T04:25:06.777000+00:00",
         "endorsement": {
@@ -324,10 +312,7 @@
       "description": "This is a report about bar",
       "powerBi": {
         "powerBiDashboardType": "REPORT",
-        "workspace": {
-          "id": "workspace-1",
-          "name": "Workspace"
-        }
+        "workspaceId": "workspace-1"
       },
       "title": "Bar Report"
     },
@@ -371,10 +356,7 @@
           "name": "bar app"
         },
         "powerBiDashboardType": "DASHBOARD",
-        "workspace": {
-          "id": "workspace-1",
-          "name": "Workspace"
-        },
+        "workspaceId": "workspace-1",
         "subscriptions": [
           {
             "artifactDisplayName": "Dashboard A",
@@ -435,10 +417,7 @@
       "dashboardType": "POWER_BI_DASHBOARD",
       "powerBi": {
         "powerBiDashboardType": "DASHBOARD",
-        "workspace": {
-          "id": "workspace-1",
-          "name": "Workspace"
-        }
+        "workspaceId": "workspace-1"
       },
       "title": "Dashboard B"
     },
@@ -498,6 +477,36 @@
       "description": "",
       "document": "section Section1;\r\nshared ENTITY_NAME = let\r\n  Source = GoogleAnalytics.Accounts(\"account.snowflakecomputing.com\", \"COMPUTE_WH\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\r\n  Navigation = Source{[Name = \"DB\", Kind = \"Database\"]}[Data],\r\n  #\"Navigation 1\" = Navigation{[Name = \"SCHEMA\", Kind = \"Schema\"]}[Data],\r\n  #\"Navigation 2\" = #\"Navigation 1\"{[Name = \"TABLE_NAME\", Kind = \"Table\"]}[Data]\r\nin\r\n  #\"Navigation 2\";\r\n",
       "name": "Dataflow 2"
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "powerBiWorkspace": {
+        "name": "Workspace",
+        "url": "https://app.powerbi.com/groups/workspace-1"
+      },
+      "type": "POWER_BI_WORKSPACE"
+    },
+    "logicalId": {
+      "path": [
+        "POWER_BI_DATASET",
+        "workspace-1"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "powerBiWorkspace": {
+        "name": "Workspace",
+        "url": "https://app.powerbi.com/groups/workspace-1"
+      },
+      "type": "POWER_BI_WORKSPACE"
+    },
+    "logicalId": {
+      "path": [
+        "POWER_BI",
+        "workspace-1"
+      ]
     }
   }
 ]

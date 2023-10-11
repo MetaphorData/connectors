@@ -44,7 +44,6 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 
 | Connector Name                                                | Metadata                                 |
 |---------------------------------------------------------------|------------------------------------------|  
-| [airflow_plugin](metaphor/airflow_plugin/README.md)           | Lineage                                  |
 | [azure_data_factory](metaphor/azure_data_factory/README.md)   | Lineage, Pipeline                        |
 | [bigquery](metaphor/bigquery/README.md)                       | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/README.md)       | Lineage                                  |

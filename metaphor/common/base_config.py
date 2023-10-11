@@ -5,7 +5,6 @@ from pydantic import parse_obj_as
 from pydantic.dataclasses import dataclass
 from smart_open import open
 
-from metaphor.common.api_sink import ApiSinkConfig
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.file_sink import FileSinkConfig
 from metaphor.common.variable import variable_substitution
@@ -18,7 +17,6 @@ T = TypeVar("T", bound="BaseConfig")
 class OutputConfig:
     """Config for where to output the data"""
 
-    api: Optional[ApiSinkConfig] = None
     file: Optional[FileSinkConfig] = None
 
 
