@@ -39,7 +39,9 @@ from metaphor.models.metadata_change_event import (
     FiveTranConnectorStatus,
     FivetranPipeline,
     Pipeline,
+    PipelineInfo,
     PipelineLogicalID,
+    PipelineMapping,
     PipelineType,
     SourceField,
 )
@@ -263,6 +265,16 @@ class FivetranExtractor(BaseExtractor):
         )
         destination_platform = PLATFORM_MAPPING.get(destination.service)
 
+        pipeline_entity_id = str(
+            to_pipeline_entity_id(connector.id, PipelineType.FIVETRAN)
+        )
+
+        pipeline_mapping = PipelineMapping(
+            is_virtual=True,
+            source_entity_id=None,
+            pipeline_entity_id=pipeline_entity_id,
+        )
+
         dataset = Dataset(
             logical_id=DatasetLogicalID(
                 name=destination_dataset_name,
@@ -272,9 +284,7 @@ class FivetranExtractor(BaseExtractor):
             upstream=DatasetUpstream(
                 source_datasets=[],
                 field_mappings=[],
-                pipeline_entity_id=str(
-                    to_pipeline_entity_id(connector.id, PipelineType.FIVETRAN)
-                ),
+                pipeline_entity_id=pipeline_entity_id,
             ),
         )
         dataset_id = str(to_dataset_entity_id_from_logical_id(dataset.logical_id))
@@ -296,6 +306,10 @@ class FivetranExtractor(BaseExtractor):
                 logical_id=source_logical_id
             )
 
+            # Non virtual upstream entity
+            pipeline_mapping.is_virtual = False
+            pipeline_mapping.source_entity_id = source_entity_id
+
             dataset.upstream.source_datasets = [source_entity_id]
 
             pipeline.fivetran.sources = list(
@@ -314,6 +328,8 @@ class FivetranExtractor(BaseExtractor):
                     )
                 )
                 dataset.upstream.field_mappings.append(field_mapping)
+
+        dataset.pipeline_info = PipelineInfo(pipeline_mapping=[pipeline_mapping])
 
         pipeline.fivetran.sources.sort()
         pipeline.fivetran.targets.sort()

@@ -17,6 +17,15 @@
       "sourceDatasets": [
         "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
       ]
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~C5A7C3EBCB2716D2DA1B718CEA511F8D",
+          "sourceEntityId": "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
+        }
+      ]
     }
   },
   {
@@ -35,6 +44,15 @@
       "pipelineEntityId": "PIPELINE~C5A7C3EBCB2716D2DA1B718CEA511F8D",
       "sourceDatasets": [
         "DATASET~3D47E66557297571AD3225FF197AE151"
+      ]
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~C5A7C3EBCB2716D2DA1B718CEA511F8D",
+          "sourceEntityId": "DATASET~3D47E66557297571AD3225FF197AE151"
+        }
       ]
     }
   },

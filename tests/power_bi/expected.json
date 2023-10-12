@@ -208,6 +208,19 @@
       "name": "00000000-0000-0000-0001-000000000003",
       "type": "POWER_BI_DATASET"
     },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~6B8372CAC4B45FCA1C413FEAD24B1E2C",
+          "sourceEntityId": "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
+        },
+        {
+          "isVirtual": true,
+          "pipelineEntityId": "PIPELINE~CFA89B575679409FD7863680563B265D"
+        }
+      ]
+    },
     "powerBIDataset": {
       "description": "Dataset from dataflow",
       "name": "Dataflow dataset",

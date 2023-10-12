@@ -28,7 +28,9 @@ from metaphor.models.metadata_change_event import (
     HierarchyLogicalID,
     HierarchyType,
     Pipeline,
+    PipelineInfo,
     PipelineLogicalID,
+    PipelineMapping,
     PipelineType,
 )
 from metaphor.models.metadata_change_event import PowerBIApp as PbiApp
@@ -68,6 +70,7 @@ from metaphor.power_bi.power_bi_client import (
     PowerBITile,
     WorkspaceInfo,
     WorkspaceInfoDashboardBase,
+    WorkspaceInfoDataset,
 )
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 
@@ -243,6 +246,126 @@ class PowerBIExtractor(BaseExtractor):
 
             self._pipelines[data_flow_id] = pipeline
 
+    @staticmethod
+    def _get_pbi_dataset_tables(wds: WorkspaceInfoDataset) -> List[PowerBIDatasetTable]:
+        return [
+            PowerBIDatasetTable(
+                columns=[
+                    PbiColumn(field=c.name, type=c.dataType) for c in table.columns
+                ],
+                measures=[
+                    PbiMeasure(
+                        field=m.name,
+                        expression=m.expression,
+                        description=m.description,
+                    )
+                    for m in table.measures
+                ],
+                name=table.name,
+                expression=table.source[0].get("expression", None)
+                if len(table.source) > 0
+                else None,
+            )
+            for table in wds.tables
+        ]
+
+    def _extract_column_level_lineage(
+        self,
+        wds: WorkspaceInfoDataset,
+        virtual_view: VirtualView,
+    ) -> None:
+        source_datasets = []
+        field_mappings = []
+
+        for datasetTable in virtual_view.power_bi_dataset.tables or []:
+            try:
+                if datasetTable.expression:
+                    sources, fields = PowerQueryParser.parse_query_expression(
+                        datasetTable.name,
+                        [c.field for c in datasetTable.columns],
+                        datasetTable.expression,
+                        self._snowflake_account,
+                    )
+                    source_datasets.extend(sources)
+                    field_mappings.extend(fields)
+            except Exception as e:
+                logger.error(f"Failed to parse expression for dataset {wds.id}: {e}")
+
+        source_entity_ids = unique_list([str(d) for d in source_datasets])
+
+        if source_entity_ids or field_mappings:
+            virtual_view.entity_upstream = EntityUpstream(
+                source_entities=source_entity_ids or None,
+                field_mappings=field_mappings or None,
+            )
+            virtual_view.power_bi_dataset.source_datasets = source_entity_ids or None
+
+    def _extract_pipeline_info(
+        self, wds: WorkspaceInfoDataset, virtual_view: VirtualView
+    ) -> None:
+        if not wds.upstreamDataflows:
+            return
+
+        # TODO(sc-21025): to support multiple pipelines
+        first_pipeline_entity_id: Optional[str] = None
+
+        pipeline_mappings: List[PipelineMapping] = []
+
+        for df in wds.upstreamDataflows:
+            dataflow = self._pipelines.get(df.targetDataflowId)
+
+            if dataflow is None:
+                logger.warning(f"Can't found dataflow: {df.targetDataflowId}")
+                continue
+
+            pipeline_entity_id = str(
+                to_pipeline_entity_id_from_logical_id(dataflow.logical_id)
+            )
+
+            first_pipeline_entity_id = first_pipeline_entity_id or pipeline_entity_id
+
+            # Get supported source entity ids
+            supported_source_entities = (
+                self._dataflow_sources.get(df.targetDataflowId) or []
+            )
+
+            for entity_id in supported_source_entities:
+                pipeline_mappings.append(
+                    PipelineMapping(
+                        is_virtual=False,
+                        pipeline_entity_id=pipeline_entity_id,
+                        source_entity_id=str(entity_id),
+                    )
+                )
+
+            # Set virtual upstream entity if there is no supported source entity
+            if not supported_source_entities:
+                pipeline_mappings.append(
+                    PipelineMapping(
+                        is_virtual=True, pipeline_entity_id=pipeline_entity_id
+                    )
+                )
+
+        source_entity_ids = unique_list(
+            [
+                str(entity_id)
+                for df in wds.upstreamDataflows
+                for entity_id in (self._dataflow_sources.get(df.targetDataflowId) or [])
+            ]
+        )
+
+        if source_entity_ids or first_pipeline_entity_id:
+            virtual_view.entity_upstream = EntityUpstream(
+                source_entities=source_entity_ids or None,
+                pipeline_entity_id=first_pipeline_entity_id,
+            )
+            virtual_view.power_bi_dataset.source_datasets = source_entity_ids or None
+
+        if pipeline_mappings:
+            virtual_view.pipeline_info = PipelineInfo(
+                pipeline_mapping=pipeline_mappings
+            )
+
     def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
         dataset_map = {d.id: d for d in self._client.get_datasets(workspace.id)}
 
@@ -251,71 +374,6 @@ class PowerBIExtractor(BaseExtractor):
             if ds is None:
                 logger.warning(f"Skipping invalid dataset {wds.id}")
                 continue
-
-            tables: List[PowerBIDatasetTable] = []
-            for table in wds.tables:
-                tables.append(
-                    PowerBIDatasetTable(
-                        columns=[
-                            PbiColumn(field=c.name, type=c.dataType)
-                            for c in table.columns
-                        ],
-                        measures=[
-                            PbiMeasure(
-                                field=m.name,
-                                expression=m.expression,
-                                description=m.description,
-                            )
-                            for m in table.measures
-                        ],
-                        name=table.name,
-                        expression=table.source[0].get("expression", None)
-                        if len(table.source) > 0
-                        else None,
-                    )
-                )
-
-            source_datasets = []
-            field_mappings = []
-            for datasetTable in tables:
-                try:
-                    if datasetTable.expression:
-                        sources, fields = PowerQueryParser.parse_query_expression(
-                            datasetTable.name,
-                            [c.field for c in datasetTable.columns],
-                            datasetTable.expression,
-                            self._snowflake_account,
-                        )
-                        source_datasets.extend(sources)
-                        field_mappings.extend(fields)
-                except Exception as e:
-                    logger.error(
-                        f"Failed to parse expression for dataset {wds.id}: {e}"
-                    )
-
-            source_entity_ids = unique_list([str(d) for d in source_datasets])
-
-            # TODO(sc-21025): to support multiple pipelines
-            pipeline_entity_id: Optional[str] = None
-
-            if wds.upstreamDataflows:
-                for df in wds.upstreamDataflows:
-                    dataflow = self._pipelines.get(df.targetDataflowId)
-                    if dataflow:
-                        pipeline_entity_id = str(
-                            to_pipeline_entity_id_from_logical_id(dataflow.logical_id)
-                        )
-                        break
-
-                source_entity_ids = unique_list(
-                    [
-                        str(entity_id)
-                        for df in wds.upstreamDataflows
-                        for entity_id in (
-                            self._dataflow_sources.get(df.targetDataflowId) or []
-                        )
-                    ]
-                )
 
             last_refreshed = None
             if ds.isRefreshable:
@@ -330,22 +388,17 @@ class PowerBIExtractor(BaseExtractor):
                     directories=self._get_workspace_hierarchy(workspace), name=wds.name
                 ),
                 power_bi_dataset=VirtualViewPowerBIDataset(
-                    tables=tables,
+                    tables=self._get_pbi_dataset_tables(wds),
                     name=wds.name,
                     url=ds.webUrl,
-                    source_datasets=source_entity_ids,
                     description=wds.description,
                     workspace_id=workspace.id,
                     last_refreshed=last_refreshed,
                 ),
-                entity_upstream=EntityUpstream(
-                    source_entities=source_entity_ids or None,
-                    field_mappings=field_mappings or None,
-                    pipeline_entity_id=pipeline_entity_id or None,
-                )
-                if field_mappings or source_entity_ids or pipeline_entity_id
-                else None,
             )
+
+            self._extract_column_level_lineage(wds, virtual_view)
+            self._extract_pipeline_info(wds, virtual_view)
 
             self._virtual_views[wds.id] = virtual_view
 
