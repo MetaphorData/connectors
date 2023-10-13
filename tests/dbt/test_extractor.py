@@ -4,6 +4,7 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.dbt.config import DbtRunConfig, MetaOwnership, MetaTag
 from metaphor.dbt.extractor import DbtExtractor
+from metaphor.dbt.manifest_parser import ManifestParser
 from tests.test_utils import load_json
 
 
@@ -89,3 +90,127 @@ async def _test_project(
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(expected)
+
+
+def test_sanitize_manifest_empty_docs(test_root_dir):
+    manifest = {
+        "docs": {"foo": "bar"},
+    }
+
+    assert ManifestParser.sanitize_manifest(manifest, "v10") == {
+        "docs": {},
+    }
+
+
+def test_sanitize_manifest_strip_null_tests_depends_on(test_root_dir):
+    manifest = {
+        "nodes": {
+            "test.example": {
+                "depends_on": {
+                    "macros": [None, "macro1"],
+                    "nodes": ["node1", None, "node2"],
+                }
+            }
+        }
+    }
+
+    assert ManifestParser.sanitize_manifest(manifest, "v10") == {
+        "nodes": {
+            "test.example": {
+                "depends_on": {
+                    "macros": ["macro1"],
+                    "nodes": ["node1", "node2"],
+                }
+            }
+        }
+    }
+
+
+def test_sanitize_manifest_strip_semantic_models_labels(test_root_dir):
+    manifest = {
+        "semantic_models": {
+            "model1": {
+                "label": "foo",
+                "entities": [
+                    {
+                        "name": "entity1",
+                        "label": "bar",
+                    }
+                ],
+                "dimensions": [
+                    {
+                        "name": "dim1",
+                        "label": "baz",
+                    }
+                ],
+                "measures": [
+                    {
+                        "name": "measure1",
+                        "label": "qux",
+                    }
+                ],
+            }
+        }
+    }
+
+    assert ManifestParser.sanitize_manifest(manifest, "v10") == {
+        "semantic_models": {
+            "model1": {
+                "entities": [
+                    {
+                        "name": "entity1",
+                    }
+                ],
+                "dimensions": [
+                    {
+                        "name": "dim1",
+                    }
+                ],
+                "measures": [
+                    {
+                        "name": "measure1",
+                    }
+                ],
+            }
+        }
+    }
+
+
+def test_sanitize_manifest_strip_metric_type_params_extra_fields(test_root_dir):
+    manifest = {
+        "metrics": {
+            "metric1": {
+                "type_params": {
+                    "measure": {
+                        "name": "measure1",
+                        "fill_nulls_with": "foo",
+                        "join_to_timespine": "bar",
+                    },
+                    "input_measures": [
+                        {
+                            "name": "measure2",
+                            "fill_nulls_with": "foo",
+                            "join_to_timespine": "bar",
+                        }
+                    ],
+                }
+            }
+        }
+    }
+
+    assert ManifestParser.sanitize_manifest(manifest, "v10") == {
+        "metrics": {
+            "metric1": {
+                "type_params": {
+                    "measure": {
+                        "name": "measure1",
+                    },
+                    "input_measures": [
+                        {
+                            "name": "measure2",
+                        }
+                    ],
+                }
+            }
+        }
+    }

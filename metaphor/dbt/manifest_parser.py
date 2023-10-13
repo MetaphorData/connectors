@@ -213,14 +213,16 @@ class ManifestParser:
         if self._account and platform == DataPlatform.SNOWFLAKE:
             self._account = normalize_snowflake_account(self._account)
 
-    def sanitize_manifest(self, manifest_json: Dict, schema_version: str) -> Dict:
+    @staticmethod
+    def sanitize_manifest(manifest_json: Dict, schema_version: str) -> Dict:
         manifest_json = deepcopy(manifest_json)
 
         # It's possible for dbt to generate "docs block" in the manifest that doesn't
         # conform to the JSON schema. Specifically, the "name" field can be None in
         # some cases. Since the field is not actually used, it's safe to clear it out to
         # avoid hitting any validation issues.
-        manifest_json["docs"] = {}
+        if manifest_json.get("docs") is not None:
+            manifest_json["docs"] = {}
 
         # dbt can erroneously generate null for test's "depends_on"
         # Filter these out for now
@@ -245,6 +247,23 @@ class ManifestParser:
             for measure in semantic_model.get("measures", []):
                 measure.pop("label", None)
 
+        # Temporarily strip off all the extra "fill_nulls_with" &
+        # "join_to_teimspine" fields in metrics' "type_params" until
+        # https://github.com/dbt-labs/dbt-core/issues/8851 is fixed
+        for _, metric in manifest_json.get("metrics", {}).items():
+            type_params = metric.get("type_params", {})
+
+            measure = type_params.get("measure", {})
+            if measure is not None:
+                measure.pop("fill_nulls_with", None)
+                measure.pop("join_to_timespine", None)
+
+            input_measures = type_params.get("input_measures", [])
+            if input_measures is not None:
+                for input_measure in input_measures:
+                    input_measure.pop("fill_nulls_with", None)
+                    input_measure.pop("join_to_timespine", None)
+
         return manifest_json
 
     def parse(self, manifest_json: Dict) -> None:
@@ -257,7 +276,7 @@ class ManifestParser:
         )
         logger.info(f"parsing manifest.json {schema_version} ...")
 
-        manifest_json = self.sanitize_manifest(manifest_json, schema_version)
+        manifest_json = ManifestParser.sanitize_manifest(manifest_json, schema_version)
 
         dbt_manifest_class = dbt_version_manifest_class_map.get(schema_version)
         if dbt_manifest_class is None:
