@@ -1,6 +1,7 @@
 import base64
 import re
 import traceback
+from dataclasses import dataclass
 from typing import Collection, Dict, List, Optional, Set, Tuple, Union
 
 try:
@@ -50,6 +51,18 @@ from metaphor.tableau.query import (
 )
 
 logger = get_logger()
+
+
+@dataclass
+class CustomSqlSource:
+    """
+    The result class for parsing custom SQL table
+    """
+
+    query: str
+    platform: DataPlatform
+    account: Optional[str]
+    sources: List[str]  # source dataset IDs
 
 
 class TableauExtractor(BaseExtractor):
@@ -270,7 +283,7 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_custom_sql_table(
         self, custom_sql_table: CustomSqlTable
-    ) -> Dict[str, Tuple[str, List[str]]]:
+    ) -> Dict[str, CustomSqlSource]:
         """
         Parse custom SQL and return mapping of datasource ID to (query, List of upstream dataset IDs)
         """
@@ -317,9 +330,13 @@ class TableauExtractor(BaseExtractor):
                 str(to_dataset_entity_id(fullname, platform, account))
             )
 
+        custom_query_source = CustomSqlSource(
+            query=query, platform=platform, account=account, sources=upstream_datasets
+        )
+
         datasource_upstream_datasets = {}
         for datasource_id in datasource_ids:
-            datasource_upstream_datasets[datasource_id] = (query, upstream_datasets)
+            datasource_upstream_datasets[datasource_id] = custom_query_source
 
         return datasource_upstream_datasets
 
@@ -335,7 +352,7 @@ class TableauExtractor(BaseExtractor):
     def _parse_workbook_query_response(
         self,
         workbook: WorkbookQueryResponse,
-        datasource_upstream_datasets: Dict[str, Tuple[str, List[str]]],
+        datasource_upstream_datasets: Dict[str, CustomSqlSource],
     ) -> None:
         dashboard = self._dashboards[workbook.vizportalUrlId]
         source_virtual_views: List[str] = []
@@ -354,15 +371,11 @@ class TableauExtractor(BaseExtractor):
                 continue
 
             # Use the upstream datasets parsed from custom SQL if available
-            query, source_datasets = datasource_upstream_datasets.get(
-                published_source.id,
-                (None, None),
-            )
+            custom_sql_source = datasource_upstream_datasets.get(published_source.id)
             # if source_datasets is None or empty from custom SQL, use the upstreamTables of the datasource
-            if not source_datasets:
-                source_datasets = self._parse_upstream_datasets(
-                    published_source.upstreamTables
-                )
+            source_datasets = (
+                custom_sql_source.sources if custom_sql_source else None
+            ) or self._parse_upstream_datasets(published_source.upstreamTables)
 
             full_name, structure = self._build_asset_full_name_and_structure(
                 published_source.name,
@@ -383,7 +396,13 @@ class TableauExtractor(BaseExtractor):
                         for f in published_source.fields
                     ],
                     embedded=False,
-                    query=query,
+                    query=custom_sql_source.query if custom_sql_source else None,
+                    source_platform=custom_sql_source.platform
+                    if custom_sql_source
+                    else None,
+                    source_dataset_account=custom_sql_source.account
+                    if custom_sql_source
+                    else None,
                     url=f"{self._base_url}/datasources/{published_source.vizportalUrlId}",
                     source_datasets=source_datasets or None,
                 ),
@@ -405,15 +424,11 @@ class TableauExtractor(BaseExtractor):
             )
 
             # Use the upstream datasets parsed from custom SQL if available
-            query, source_datasets = datasource_upstream_datasets.get(
-                embedded_source.id,
-                (None, None),
-            )
+            custom_sql_source = datasource_upstream_datasets.get(embedded_source.id)
             # if source_datasets is None or empty from custom SQL, use the upstreamTables of the datasource
-            if not source_datasets:
-                source_datasets = self._parse_upstream_datasets(
-                    embedded_source.upstreamTables
-                )
+            source_datasets = (
+                custom_sql_source.sources if custom_sql_source else None
+            ) or self._parse_upstream_datasets(embedded_source.upstreamTables)
 
             self._virtual_views[embedded_source.id] = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -430,7 +445,13 @@ class TableauExtractor(BaseExtractor):
                         for f in embedded_source.fields
                     ],
                     embedded=True,
-                    query=query,
+                    query=custom_sql_source.query if custom_sql_source else None,
+                    source_platform=custom_sql_source.platform
+                    if custom_sql_source
+                    else None,
+                    source_dataset_account=custom_sql_source.account
+                    if custom_sql_source
+                    else None,
                     source_datasets=source_datasets or None,
                 ),
             )
