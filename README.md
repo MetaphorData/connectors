@@ -38,6 +38,10 @@ Similarly, you can also install the package using `requirements.txt` or `pyproje
 
 We automatically push a [docker image](https://hub.docker.com/r/metaphordata/connectors) to Docker Hub as par of the CI/CD. See [this page](./docs/docker.md) for more details.
 
+## GitHub Action
+
+You can also run the connectors in your CI/CD pipeline using the [Metaphor Connectors](https://github.com/marketplace/actions/metaphor-connectors-github-action) GitHub Action.
+
 ## Connectors
 
 Each connector is placed under its own directory under [metaphor](./metaphor) and extends the `metaphor.common.BaseExtractor` class.
