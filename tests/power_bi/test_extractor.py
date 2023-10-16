@@ -182,6 +182,7 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                 name="Workspace",
                 type="normal",
                 state="",
+                description="workspace desc",
                 reports=[
                     WorkspaceInfoReport(
                         id=report1.id,
@@ -340,6 +341,27 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
                         graphId="group-id",
                         principalType="Group",
                     ),
+                    WorkspaceInfoUser(
+                        emailAddress="powerbi-admin@metaphor.io",
+                        groupUserAccessRight="Admin",
+                        displayName="Metaphor Admin",
+                        graphId="user-id-admin",
+                        principalType="User",
+                    ),
+                    WorkspaceInfoUser(
+                        emailAddress="powerbi-member@metaphor.io",
+                        groupUserAccessRight="Member",
+                        displayName="Metaphor Member",
+                        graphId="user-id-member",
+                        principalType="User",
+                    ),
+                    WorkspaceInfoUser(
+                        emailAddress="powerbi-unknown@metaphor.io",
+                        groupUserAccessRight="UNKNOWN",
+                        displayName="Metaphor UNKNOWN",
+                        graphId="user-id-unknown",
+                        principalType="User",
+                    ),
                 ],
                 dataflows=[
                     WorkspaceInfoDataflow(
@@ -388,24 +410,26 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
         return [app1, app2]
 
     def fake_get_user_subscriptions(user_id: str) -> List[PowerBISubscription]:
-        return [
-            PowerBISubscription(
-                id="subscription-1",
-                artifactId=dashboard1.id,
-                title="First Subscription",
-                frequency="Daily",
-                endDate="9/6/2000 12:13:52 AM",
-                startDate="11/30/1998 5:05:52 PM",
-                artifactDisplayName=dashboard1.displayName,
-                subArtifactDisplayName=None,
-                users=[],
-            ),
-            PowerBISubscription(
-                id="subscription-2",
-                artifactId="some-random-id",
-                title="",
-            ),
-        ]
+        if user_id == "user-id":
+            return [
+                PowerBISubscription(
+                    id="subscription-1",
+                    artifactId=dashboard1.id,
+                    title="First Subscription",
+                    frequency="Daily",
+                    endDate="9/6/2000 12:13:52 AM",
+                    startDate="11/30/1998 5:05:52 PM",
+                    artifactDisplayName=dashboard1.displayName,
+                    subArtifactDisplayName=None,
+                    users=[],
+                ),
+                PowerBISubscription(
+                    id="subscription-2",
+                    artifactId="some-random-id",
+                    title="",
+                ),
+            ]
+        return []
 
     def fake_export_dataflow(workspace_id: str, df_id: str) -> dict:
         if df_id == dataflow_id:

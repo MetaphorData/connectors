@@ -143,6 +143,33 @@
           "graphId": "34c413b6-2e7c-4be1-8240-5ce5b63a277f",
           "principalType": "User",
           "userType": "Member"
+        },
+        {
+          "groupUserAccessRight": "Member",
+          "emailAddress": "foo-member@bar.com",
+          "displayName": "Foo Bar",
+          "identifier": "foo-member@bar.com",
+          "graphId": "34c413b6-2e7c-4be1-8240-5ce5b63a2771",
+          "principalType": "User",
+          "userType": "Member"
+        },
+        {
+          "groupUserAccessRight": "Viewer",
+          "emailAddress": "foo-viewer@bar.com",
+          "displayName": "Foo Bar",
+          "identifier": "foo-viewer@bar.com",
+          "graphId": "34c413b6-2e7c-4be1-8240-5ce5b63a2772",
+          "principalType": "User",
+          "userType": "Member"
+        },
+        {
+          "groupUserAccessRight": "Viewer",
+          "emailAddress": null,
+          "displayName": "Foo Bar",
+          "identifier": "34c413b6-2e7c-4be1-8240-5ce5b63a2773",
+          "graphId": "34c413b6-2e7c-4be1-8240-5ce5b63a2773",
+          "principalType": "Group",
+          "userType": null
         }
       ]
     }
