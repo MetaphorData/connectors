@@ -167,6 +167,14 @@ class PowerBIExtractor(BaseExtractor):
                 hierarchy_info=hierarchy_info,
             )
         )
+        self._hierarchies.append(
+            Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[PipelineType.POWER_BI_DATAFLOW.value, workspace_id]
+                ),
+                hierarchy_info=hierarchy_info,
+            )
+        )
 
     def map_wi_dataflow_to_pipeline(self, workspace: WorkspaceInfo) -> None:
         for wdf in workspace.dataflows:
@@ -219,6 +227,7 @@ class PowerBIExtractor(BaseExtractor):
                     if wdf.refreshSchedule
                     else None,
                     dataflow_url=f"https://app.powerbi.com/groups/{workspace.id}/dataflows/{data_flow_id}",
+                    workspace_id=workspace.id,
                 ),
             )
 
