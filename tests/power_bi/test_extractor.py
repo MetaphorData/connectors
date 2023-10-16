@@ -237,7 +237,33 @@ def fake_get_activities() -> list:
             RequestId="req-id",
             ArtifactKind="Report",
             ArtifactId="report-1",
-        )
+        ),
+        PowerBIActivityEventEntity(
+            Id="activity-id",
+            CreationTime=datetime(2023, 10, 17, 1, 0, 0),
+            OrganizationId="org-id",
+            WorkspaceId="workspace-id",
+            UserType=8,
+            UserId="",
+            Activity="ViewReport",
+            IsSuccess=True,
+            RequestId="req-id",
+            ArtifactKind="Report",
+            ArtifactId="report-1",
+        ),
+        PowerBIActivityEventEntity(
+            Id="activity-id",
+            CreationTime=datetime(2023, 10, 17, 1, 0, 0),
+            OrganizationId="org-id",
+            WorkspaceId="workspace-id",
+            UserType=8,
+            UserId="",
+            Activity="ViewReport",
+            IsSuccess=True,
+            RequestId="req-id",
+            ArtifactKind="Report",
+            ArtifactId=None,
+        ),
     ]
 
 

@@ -650,6 +650,7 @@ class PowerBIExtractor(BaseExtractor):
 
             if activity.UserId is None or not is_email(activity.UserId):
                 logger.warning("SKIP activity without userId")
+                continue
 
             entity_id = str(
                 to_dashboard_entity_id_from_logical_id(
