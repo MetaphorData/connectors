@@ -5,10 +5,15 @@ from typing import Collection, Dict, List, Optional
 from urllib import parse
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import EntityId, to_pipeline_entity_id_from_logical_id
+from metaphor.common.entity_id import (
+    EntityId,
+    to_dashboard_entity_id_from_logical_id,
+    to_person_entity_id,
+    to_pipeline_entity_id_from_logical_id,
+)
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import chunks, safe_parse_ISO8601, unique_list
+from metaphor.common.utils import chunks, is_email, safe_parse_ISO8601, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetStructure,
@@ -53,6 +58,9 @@ from metaphor.models.metadata_change_event import (
 from metaphor.models.metadata_change_event import PowerBIWorkspace as PbiWorkspace
 from metaphor.models.metadata_change_event import (
     SourceInfo,
+    UserActivity,
+    UserActivitySource,
+    UserActivityType,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
@@ -109,6 +117,7 @@ class PowerBIExtractor(BaseExtractor):
         app_map = {app.id: app for app in apps}
 
         workspaces: List[WorkspaceInfo] = []
+
         for workspace_ids in chunks(
             self._workspaces, PowerBIClient.MAX_WORKSPACES_PER_SCAN
         ):
@@ -131,11 +140,14 @@ class PowerBIExtractor(BaseExtractor):
 
         self.dedupe_app_version_dashboards()
 
+        user_activities = self.extract_activities()
+
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._virtual_views.values())
         entities.extend(self._dashboards.values())
         entities.extend(self._pipelines.values())
         entities.extend(self._hierarchies)
+        entities.extend(user_activities)
 
         return entities
 
@@ -595,6 +607,44 @@ class PowerBIExtractor(BaseExtractor):
                     ],
                 )
             )
+
+    def extract_activities(self) -> List[UserActivity]:
+        res: List[UserActivity] = []
+
+        activities = self._client.get_activities()
+        for activity in activities:
+            if activity.ArtifactId is None:
+                logger.warning("SKIP activity without dashboard id")
+                continue
+
+            if activity.UserId is None or not is_email(activity.UserId):
+                logger.warning("SKIP activity without userId")
+
+            entity_id = str(
+                to_dashboard_entity_id_from_logical_id(
+                    logical_id=DashboardLogicalID(
+                        dashboard_id=activity.ArtifactId,
+                        platform=DashboardPlatform.POWER_BI,
+                    )
+                )
+            )
+
+            user_id = str(to_person_entity_id(activity.UserId))
+
+            res.append(
+                UserActivity(
+                    id=activity.Id,
+                    activity_type=UserActivityType.VIEW,
+                    source=UserActivitySource.POWER_BI,
+                    entity_id=entity_id,
+                    duration_in_seconds=0.0,
+                    actor=user_id,
+                    measure=1.0,
+                    timestamp=activity.CreationTime,
+                )
+            )
+
+        return res
 
     @staticmethod
     def _make_power_bi_info(

@@ -96,6 +96,13 @@ def to_pipeline_entity_id(name: str, pipeline_type: PipelineType) -> EntityId:
     )
 
 
+def to_dashboard_entity_id_from_logical_id(logical_id: DashboardLogicalID) -> EntityId:
+    """
+    converts a dashboard logical ID to entity ID
+    """
+    return EntityId(EntityType.DASHBOARD, logical_id)
+
+
 def normalize_full_dataset_name(name: str) -> str:
     """
     Normalizes a fully qualified dataset name

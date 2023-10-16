@@ -1,4 +1,5 @@
 import math
+import re
 from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -153,3 +154,11 @@ def removesuffix(text: str, suffix: str):
 def filter_none(lst: List) -> List:
     """Filter out all None values from the list"""
     return [e for e in lst if e is not None]
+
+
+def is_email(email: str) -> bool:
+    email_regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
+
+    if re.fullmatch(email_regex, email):
+        return True
+    return False

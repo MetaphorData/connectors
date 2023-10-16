@@ -1,11 +1,15 @@
+from datetime import datetime, timedelta
+from enum import Enum
 from time import sleep
 from typing import Any, Callable, List, Optional, Type, TypeVar
+from urllib.parse import quote, urlencode
 
 import requests
 from pydantic import BaseModel
 
 from metaphor.common.api_request import ApiError, get_request
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import start_of_day
 from metaphor.power_bi.config import PowerBIRunConfig
 
 try:
@@ -200,6 +204,34 @@ class PowerBISubscription(BaseModel):
 
 class SubscriptionsByUserResponse(BaseModel):
     SubscriptionEntities: List[PowerBISubscription]
+    continuationUri: Optional[str]
+
+
+class PowerBIActivityEventEntity(BaseModel):
+    Id: str
+    CreationTime: datetime
+    OrganizationId: str
+    WorkspaceId: Optional[str] = None
+    UserType: int
+    UserId: str
+    Activity: str
+    IsSuccess: Optional[bool] = None
+    RequestId: Optional[str] = None
+
+    ArtifactKind: Optional[str] = None
+    ArtifactId: Optional[str] = None
+
+
+class PowerBIActivityType(Enum):
+    view_report = "ViewReport"
+    view_dashboard = "ViewDashboard"
+    view_metadata = "ViewMetadata"
+    view_dataflow = "ViewDataflow"
+    view_tile = "ViewTile"
+
+
+class GetActivitiesResponse(BaseModel):
+    activityEventEntities: List[PowerBIActivityEventEntity]
     continuationUri: Optional[str]
 
 
@@ -457,6 +489,56 @@ class PowerBIClient:
         return [
             workspace for workspace in workspaces if workspace.name and workspace.type
         ]
+
+    def get_activities(
+        self,
+        lookback_days: int = 1,
+    ) -> List[PowerBIActivityEventEntity]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/get-activity-events
+        url = f"{self.API_ENDPOINT}/admin/activityevents"
+
+        continuationUri: Optional[str] = None
+        activities: List[PowerBIActivityEventEntity] = []
+
+        start_date = start_of_day(lookback_days)
+        end_date = start_date + timedelta(days=1) - timedelta(milliseconds=1)
+        for _ in range(lookback_days + 1):
+            params = {
+                "startDateTime": f"'{start_date.isoformat(timespec='milliseconds').replace('+00:00', 'Z')}'",
+                "endDateTime": f"'{end_date.isoformat(timespec='milliseconds').replace('+00:00', 'Z')}'",
+            }
+
+            continuationUri = f"{url}?{urlencode(params, quote_via=quote)}"
+
+            while continuationUri:
+                try:
+                    response = self._call_get(
+                        continuationUri,
+                        GetActivitiesResponse,
+                    )
+                except EntityNotFoundError:
+                    logger.error(f"HTTP 404 error, url: {continuationUri}")
+                    break
+
+                continuationUri = response.continuationUri
+                chunk = response.activityEventEntities
+                if len(chunk) == 0:
+                    break
+
+                def is_view_activity(activity: PowerBIActivityEventEntity) -> bool:
+                    if activity.Activity in (
+                        PowerBIActivityType.view_report.value,
+                        PowerBIActivityType.view_dashboard,
+                    ):
+                        return True
+                    return False
+
+                activities.extend(filter(is_view_activity, chunk))
+
+            start_date += timedelta(days=1)
+            end_date += timedelta(days=1)
+
+        return activities
 
     T = TypeVar("T")
 
