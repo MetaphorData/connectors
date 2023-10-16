@@ -128,3 +128,33 @@ async def test_get_workspace_info(
 
     # Verified modeling was correct
     assert len(workspaces) == 1
+
+
+@patch("requests.get")
+@patch("msal.ConfidentialClientApplication")
+@pytest.mark.asyncio
+async def test_get_activities(
+    mock_msal_app: MagicMock, mock_get_method: MagicMock, test_root_dir: str
+):
+    mock_msal_app = MagicMock()
+    mock_msal_app.acquire_token_silent = MagicMock(
+        return_value={"access_token": "token"}
+    )
+
+    mock_get_method.side_effect = [
+        MockResponse(load_json(f"{test_root_dir}/power_bi/data/activities_1.json")),
+        MockResponse(load_json(f"{test_root_dir}/power_bi/data/activities_2.json")),
+        MockResponse(load_json(f"{test_root_dir}/power_bi/data/activities_3.json")),
+    ]
+    client = PowerBIClient(
+        PowerBIRunConfig(
+            tenant_id="tenant-id",
+            client_id="client-id",
+            secret="secret",
+            output=OutputConfig(),
+        )
+    )
+
+    activities = client.get_activities(0)
+
+    assert len(activities) == 2
