@@ -91,6 +91,8 @@
       "embedded": true,
       "fields": [],
       "name": "default.source3",
+      "query": "select * from db.schema.table",
+      "source_platform": "BIGQUERY",
       "sourceDatasets": [
         "DATASET~5375BC53A82C65FD48653B9418094BB0"
       ]
