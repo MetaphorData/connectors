@@ -1,8 +1,8 @@
 import json
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel, parse_obj_as, validator
 
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import CustomMetadataItem
@@ -71,8 +71,18 @@ class Table(BaseModel):
 
 
 def parse_table_from_object(obj: object):
-    logger.debug(f"table object: {json.dumps(obj)}")
     return parse_obj_as(Table, obj)
+
+
+class NoPermission(BaseModel):
+    has_permission: bool = False
+
+    @validator("has_permission")
+    def has_permission_must_be_false(cls, value):
+        if value is False:
+            return value
+
+        raise ValueError("has_permission must be False")
 
 
 class LineageColumnInfo(BaseModel):
@@ -83,8 +93,13 @@ class LineageColumnInfo(BaseModel):
 
 
 class ColumnLineage(BaseModel):
-    upstream_cols: List[LineageColumnInfo] = []
-    downstream_cols: List[LineageColumnInfo] = []
+    upstream_cols: List[Union[LineageColumnInfo, NoPermission]] = []
+    downstream_cols: List[Union[LineageColumnInfo, NoPermission]] = []
+
+
+class FileInfo(BaseModel):
+    path: str
+    has_permission: bool
 
 
 class TableInfo(BaseModel):
@@ -94,7 +109,8 @@ class TableInfo(BaseModel):
 
 
 class LineageInfo(BaseModel):
-    tableInfo: TableInfo
+    tableInfo: Optional[Union[TableInfo, NoPermission]] = None
+    fileInfo: Optional[FileInfo] = None
 
 
 class TableLineage(BaseModel):
