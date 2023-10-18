@@ -4,7 +4,11 @@ import pytest
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.power_bi.config import PowerBIRunConfig
-from metaphor.power_bi.power_bi_client import PowerBIClient, PowerBISubscription
+from metaphor.power_bi.power_bi_client import (
+    PowerBIActivityEventEntity,
+    PowerBIClient,
+    PowerBISubscription,
+)
 from tests.test_utils import load_json
 
 
@@ -157,4 +161,9 @@ async def test_get_activities(
 
     activities = client.get_activities(0)
 
-    assert len(activities) == 2
+    assert activities == [
+        PowerBIActivityEventEntity(**activity)
+        for activity in load_json(
+            f"{test_root_dir}/power_bi/data/expected_activities.json"
+        )
+    ]
