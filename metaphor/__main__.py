@@ -1,4 +1,5 @@
 import argparse
+import subprocess
 from importlib import import_module
 
 from metaphor.common.logger import get_logger
@@ -6,7 +7,18 @@ from metaphor.common.logger import get_logger
 logger = get_logger()
 
 
+def print_packages():
+    # Print all pip packages and their versions
+    process = subprocess.Popen(
+        ["pip", "list"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+    )
+    for line in process.stdout:
+        logger.debug(line.strip().decode())
+
+
 def main():
+    print_packages()
+
     parser = argparse.ArgumentParser(description="Metaphor Connectors")
 
     parser.add_argument(
