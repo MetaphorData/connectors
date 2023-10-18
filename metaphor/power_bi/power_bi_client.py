@@ -490,14 +490,43 @@ class PowerBIClient:
             workspace for workspace in workspaces if workspace.name and workspace.type
         ]
 
+    def _get_activities(self, url: str) -> List[PowerBIActivityEventEntity]:
+        continuationUri: Optional[str] = url
+        activities: List[PowerBIActivityEventEntity] = []
+
+        while continuationUri:
+            try:
+                response = self._call_get(
+                    continuationUri,
+                    GetActivitiesResponse,
+                )
+            except EntityNotFoundError:
+                logger.error(f"HTTP 404 error, url: {continuationUri}")
+                break
+
+            continuationUri = response.continuationUri
+            chunk = response.activityEventEntities
+            if len(chunk) == 0:
+                break
+
+            def is_view_activity(activity: PowerBIActivityEventEntity) -> bool:
+                if activity.Activity in (
+                    PowerBIActivityType.view_report.value,
+                    PowerBIActivityType.view_dashboard,
+                ):
+                    return True
+                return False
+
+            activities.extend(filter(is_view_activity, chunk))
+        return activities
+
     def get_activities(
         self,
         lookback_days: int = 1,
     ) -> List[PowerBIActivityEventEntity]:
         # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/get-activity-events
-        url = f"{self.API_ENDPOINT}/admin/activityevents"
+        endpoint = f"{self.API_ENDPOINT}/admin/activityevents"
 
-        continuationUri: Optional[str] = None
         activities: List[PowerBIActivityEventEntity] = []
 
         start_date = start_of_day(lookback_days)
@@ -508,32 +537,8 @@ class PowerBIClient:
                 "endDateTime": f"'{end_date.isoformat(timespec='milliseconds').replace('+00:00', 'Z')}'",
             }
 
-            continuationUri = f"{url}?{urlencode(params, quote_via=quote)}"
-
-            while continuationUri:
-                try:
-                    response = self._call_get(
-                        continuationUri,
-                        GetActivitiesResponse,
-                    )
-                except EntityNotFoundError:
-                    logger.error(f"HTTP 404 error, url: {continuationUri}")
-                    break
-
-                continuationUri = response.continuationUri
-                chunk = response.activityEventEntities
-                if len(chunk) == 0:
-                    break
-
-                def is_view_activity(activity: PowerBIActivityEventEntity) -> bool:
-                    if activity.Activity in (
-                        PowerBIActivityType.view_report.value,
-                        PowerBIActivityType.view_dashboard,
-                    ):
-                        return True
-                    return False
-
-                activities.extend(filter(is_view_activity, chunk))
+            url = f"{endpoint}?{urlencode(params, quote_via=quote)}"
+            activities.extend(self._get_activities(url))
 
             start_date += timedelta(days=1)
             end_date += timedelta(days=1)

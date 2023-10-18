@@ -1,10 +1,10 @@
 import math
-import re
 from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from dateutil.parser import isoparse
+from pydantic import validate_email
 
 from metaphor.common.logger import get_logger
 
@@ -157,8 +157,8 @@ def filter_none(lst: List) -> List:
 
 
 def is_email(email: str) -> bool:
-    email_regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
-
-    if re.fullmatch(email_regex, email):
-        return True
-    return False
+    try:
+        validate_email(email)
+    except Exception:
+        return False
+    return True
