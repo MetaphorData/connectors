@@ -8,8 +8,10 @@ from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.extractor import UnityCatalogExtractor
 from metaphor.unity_catalog.models import (
     ColumnLineage,
+    FileInfo,
     LineageColumnInfo,
     LineageInfo,
+    NoPermission,
     TableInfo,
     TableLineage,
 )
@@ -117,9 +119,15 @@ async def test_extractor(
                 LineageInfo(
                     tableInfo=TableInfo(
                         name="upstream", catalog_name="db", schema_name="schema"
-                    )
-                )
-            ]
+                    ),
+                    fileInfo=None,
+                ),
+                LineageInfo(
+                    tableInfo=None,
+                    fileInfo=FileInfo(path="s3://path", has_permission=True),
+                ),
+                LineageInfo(tableInfo=NoPermission(), fileInfo=None),
+            ],
         ),
         TableLineage(),
     ]

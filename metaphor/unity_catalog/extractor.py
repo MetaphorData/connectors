@@ -11,7 +11,7 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -30,7 +30,12 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
-from metaphor.unity_catalog.models import Table, TableType, parse_table_from_object
+from metaphor.unity_catalog.models import (
+    NoPermission,
+    Table,
+    TableType,
+    parse_table_from_object,
+)
 from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
 
 logger = get_logger()
@@ -97,6 +102,8 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def _get_catalogs(self) -> List[str]:
         response = self._api.list_catalogs()
+        json_dump_to_debug_file(response, "list-catalogs.json")
+
         catalogs = []
         for catalog in response.get("catalogs", []):
             if "name" in catalog:
@@ -105,6 +112,8 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def _get_schemas(self, catalog: str) -> List[str]:
         response = self._api.list_schemas(catalog_name=catalog, name_pattern=None)
+        json_dump_to_debug_file(response, f"list-schemas-{catalog}.json")
+
         schemas = []
         for schema in response.get("schemas", []):
             if "name" in schema:
@@ -115,6 +124,7 @@ class UnityCatalogExtractor(BaseExtractor):
         response = self._api.list_tables(
             catalog_name=catalog, schema_name=schema, name_pattern=None
         )
+        json_dump_to_debug_file(response, f"list-tables-{catalog}-{schema}.json")
         for table in response.get("tables", []):
             yield parse_table_from_object(table)
 
@@ -168,11 +178,12 @@ class UnityCatalogExtractor(BaseExtractor):
 
         # Skip table without upstream
         if not lineage.upstreams:
-            logging.info(f"Skip table: {table_name} for no upstream")
+            logging.info(f"Table {table_name} has no upstream")
             return
 
         source_datasets = []
         field_mappings = []
+        has_permission_issues = False
         for field in dataset.schema.fields:
             column_name = field.field_name
             column_lineage = list_column_lineage(
@@ -181,6 +192,10 @@ class UnityCatalogExtractor(BaseExtractor):
 
             field_mapping = FieldMapping(destination=column_name, sources=[])
             for upstream_col in column_lineage.upstream_cols:
+                if isinstance(upstream_col, NoPermission):
+                    has_permission_issues = True
+                    continue
+
                 normalized_name = dataset_normalized_name(
                     upstream_col.catalog_name,
                     upstream_col.schema_name,
@@ -201,6 +216,11 @@ class UnityCatalogExtractor(BaseExtractor):
                     )
                 )
             field_mappings.append(field_mapping)
+
+        if has_permission_issues:
+            logger.error(
+                f"Unable to extract lineage for {table_name} due to permission issues"
+            )
 
         dataset.upstream = DatasetUpstream(
             source_datasets=unique_list(source_datasets), field_mappings=field_mappings
