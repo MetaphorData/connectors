@@ -389,6 +389,10 @@ class PowerBIExtractor(BaseExtractor):
                 refreshes = self._client.get_refreshes(workspace.id, wds.id)
                 last_refreshed = self._find_last_completed_refresh(refreshes)
 
+            refresh_schedule = self._extract_refresh_schedule(
+                self._client, workspace.id, wds.id
+            )
+
             virtual_view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=wds.id, type=VirtualViewType.POWER_BI_DATASET
@@ -403,6 +407,7 @@ class PowerBIExtractor(BaseExtractor):
                     description=wds.description,
                     workspace_id=workspace.id,
                     last_refreshed=last_refreshed,
+                    refresh_schedule=refresh_schedule,
                 ),
             )
 
@@ -626,6 +631,45 @@ class PowerBIExtractor(BaseExtractor):
                     ],
                 )
             )
+
+    @staticmethod
+    def _extract_refresh_schedule(
+        client: PowerBIClient, workspace_id: str, dataset_id: str
+    ) -> Optional[PowerBIRefreshSchedule]:
+        modeled_dataset_refresh_schedule = client.get_refresh_schedule(
+            workspace_id, dataset_id
+        )
+
+        if modeled_dataset_refresh_schedule:
+            return PowerBIRefreshSchedule(
+                days=modeled_dataset_refresh_schedule.days,
+                times=modeled_dataset_refresh_schedule.times,
+                enabled=modeled_dataset_refresh_schedule.enabled or False,
+                local_time_zone_id=modeled_dataset_refresh_schedule.localTimeZoneId,
+                notify_option=modeled_dataset_refresh_schedule.notifyOption,
+            )
+
+        direct_query_dataset_refresh_schedule = (
+            client.get_direct_query_refresh_schedule(workspace_id, dataset_id)
+        )
+
+        if direct_query_dataset_refresh_schedule:
+            if direct_query_dataset_refresh_schedule.frequency:
+                frequency_in_minutes = float(
+                    direct_query_dataset_refresh_schedule.frequency
+                )
+            else:
+                frequency_in_minutes = None
+            return PowerBIRefreshSchedule(
+                frequency_in_minutes=frequency_in_minutes,
+                days=direct_query_dataset_refresh_schedule.days,
+                times=direct_query_dataset_refresh_schedule.times,
+                enabled=direct_query_dataset_refresh_schedule.enabled or False,
+                local_time_zone_id=direct_query_dataset_refresh_schedule.localTimeZoneId,
+                notify_option=direct_query_dataset_refresh_schedule.notifyOption,
+            )
+
+        return None
 
     @staticmethod
     def _make_power_bi_info(

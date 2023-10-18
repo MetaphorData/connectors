@@ -151,11 +151,12 @@ class WorkspaceInfoUser(BaseModel):
 
 
 class PowerBiRefreshSchedule(BaseModel):
-    days: List[str] = []
-    times: List[str] = []
-    enabled: bool = False
-    localTimeZoneId: str = "UTC"
-    notifyOption: str = "MailOnFailure"
+    frequency: Optional[str] = None
+    days: Optional[List[str]] = None
+    times: Optional[List[str]] = None
+    enabled: Optional[bool] = None
+    localTimeZoneId: Optional[str] = None
+    notifyOption: Optional[str] = None
 
 
 class WorkspaceInfoDataflow(BaseModel):
@@ -367,10 +368,60 @@ class PowerBIClient:
         except Exception as e:
             # Fail gracefully for any other errors
             logger.error(
-                f"Failed to get pages from dataset {dataset_id} in workspace {group_id}: {e}"
+                f"Failed to get refreshes from dataset {dataset_id} in workspace {group_id}: {e}"
             )
 
         return []
+
+    def get_refresh_schedule(
+        self, group_id: str, dataset_id: str
+    ) -> Optional[PowerBiRefreshSchedule]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-schedule
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}/refreshSchedule"
+
+        try:
+            return self._call_get(
+                url,
+                PowerBiRefreshSchedule,
+                transform_response=lambda r: r.json(),
+            )
+        except EntityNotFoundError:
+            logger.error(
+                f"Unable to find dataset {dataset_id} in workspace {group_id}. "
+                f"Please add the service principal as a viewer to the workspace"
+            )
+        except Exception as e:
+            # Fail gracefully for any other errors
+            logger.error(
+                f"Failed to get refresh schedule from dataset {dataset_id} in workspace {group_id}: {e}"
+            )
+
+        return None
+
+    def get_direct_query_refresh_schedule(
+        self, group_id: str, dataset_id: str
+    ) -> Optional[PowerBiRefreshSchedule]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-schedule
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}/directQueryRefreshSchedule"
+
+        try:
+            return self._call_get(
+                url,
+                PowerBiRefreshSchedule,
+                transform_response=lambda r: r.json(),
+            )
+        except EntityNotFoundError:
+            logger.error(
+                f"Unable to find dataset {dataset_id} in workspace {group_id}. "
+                f"Please add the service principal as a viewer to the workspace"
+            )
+        except Exception as e:
+            # Fail gracefully for any other errors
+            logger.error(
+                f"Failed to get refresh schedule from dataset {dataset_id} in workspace {group_id}: {e}"
+            )
+
+        return None
 
     def export_dataflow(self, group_id: str, dataflow_id: str) -> Optional[dict]:
         # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/dataflows-export-dataflow-as-admin
