@@ -591,5 +591,15 @@
         "workspace-1"
       ]
     }
+  },
+  {
+    "_id": "activity-id",
+    "activityType": "VIEW",
+    "actor": "PERSON~6FB4F4EEE50BD1233071D70B74463061",
+    "durationInSeconds": 0.0,
+    "entityId": "DASHBOARD~E264A8C3DE81E67DB3A9A2DC55B940D6",
+    "measure": 1.0,
+    "source": "POWER_BI",
+    "timestamp": "2023-10-17T01:00:00"
   }
 ]
