@@ -8,6 +8,7 @@ from metaphor.common.utils import (
     chunk_by_size,
     filter_empty_strings,
     filter_none,
+    is_email,
     must_set_exactly_one,
     removesuffix,
     safe_float,
@@ -140,3 +141,10 @@ def test_filter_none():
     assert filter_none([1, 2]) == [1, 2]
     assert filter_none(["foo", None, "bar"]) == ["foo", "bar"]
     assert filter_none([None, None]) == []
+
+
+def test_is_email():
+    assert is_email("a@b.c")
+    assert is_email("a+c@b.c")
+    assert not is_email("foo")
+    assert not is_email("foo@127.0.0.1")
