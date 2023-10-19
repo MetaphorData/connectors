@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, List
 from unittest.mock import MagicMock, patch
 
@@ -9,6 +10,7 @@ from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.extractor import PowerBIExtractor
 from metaphor.power_bi.power_bi_client import (
     EndorsementDetails,
+    PowerBIActivityEventEntity,
     PowerBIApp,
     PowerBIDashboard,
     PowerBIDataset,
@@ -438,6 +440,50 @@ def fake_get_user_subscriptions(user_id: str) -> List[PowerBISubscription]:
     return []
 
 
+def fake_get_activities() -> list:
+    return [
+        PowerBIActivityEventEntity(
+            Id="activity-id",
+            CreationTime=datetime(2023, 10, 17, 1, 0, 0),
+            OrganizationId="org-id",
+            WorkspaceId="workspace-id",
+            UserType=8,
+            UserId="test@foo.bar",
+            Activity="ViewReport",
+            IsSuccess=True,
+            RequestId="req-id",
+            ArtifactKind="Report",
+            ArtifactId="report-1",
+        ),
+        PowerBIActivityEventEntity(
+            Id="activity-id",
+            CreationTime=datetime(2023, 10, 17, 1, 0, 0),
+            OrganizationId="org-id",
+            WorkspaceId="workspace-id",
+            UserType=8,
+            UserId="",
+            Activity="ViewReport",
+            IsSuccess=True,
+            RequestId="req-id",
+            ArtifactKind="Report",
+            ArtifactId="report-1",
+        ),
+        PowerBIActivityEventEntity(
+            Id="activity-id",
+            CreationTime=datetime(2023, 10, 17, 1, 0, 0),
+            OrganizationId="org-id",
+            WorkspaceId="workspace-id",
+            UserType=8,
+            UserId="",
+            Activity="ViewReport",
+            IsSuccess=True,
+            RequestId="req-id",
+            ArtifactKind="Report",
+            ArtifactId=None,
+        ),
+    ]
+
+
 @patch("metaphor.power_bi.extractor.PowerBIClient")
 @pytest.mark.asyncio
 async def test_extractor(mock_client: MagicMock, test_root_dir: str):
@@ -481,6 +527,7 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
         ),
         None,
     ]
+    mock_instance.get_activities = fake_get_activities
 
     mock_client.return_value = mock_instance
 

@@ -16,6 +16,7 @@ from metaphor.models.metadata_change_event import (
     Metric,
     Pipeline,
     QueryLogs,
+    UserActivity,
     VirtualView,
 )
 
@@ -23,7 +24,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 ENTITY_TYPES = Union[
-    Dashboard, Dataset, Metric, KnowledgeCard, VirtualView, QueryLogs, Hierarchy
+    Dashboard,
+    Dataset,
+    Hierarchy,
+    KnowledgeCard,
+    Metric,
+    Pipeline,
+    QueryLogs,
+    UserActivity,
+    VirtualView,
 ]
 
 
@@ -62,6 +71,8 @@ class EventUtil:
             return EventUtil._build_event(query_logs=entity)
         elif type(entity) is Hierarchy:
             return EventUtil._build_event(hierarchy=entity)
+        elif type(entity) is UserActivity:
+            return EventUtil._build_event(user_activity=entity)
         else:
             raise TypeError(f"invalid entity type {type(entity)}")
 

@@ -1,0 +1,39 @@
+{
+  "activityEventEntities": [
+    {
+      "Id": "activity-uuid-001",
+      "RecordType": 20,
+      "CreationTime": "2023-10-09T03:10:06",
+      "Operation": "ViewReport",
+      "OrganizationId": "org-1",
+      "UserType": 6,
+      "UserKey": "user-key",
+      "Workload": "PowerBI",
+      "UserId": "user-id",
+      "WorkSpaceName": "Workspace name",
+      "WorkspaceId": "workspace-id",
+      "RefreshEnforcementPolicy": 0,
+      "ClientIP": "127.0.0.1",
+      "Activity": "ViewReport",
+      "ItemName": "Report name",
+      "DatasetName": "Dataset name",
+      "ReportName": "Report name",
+      "ObjectId": "Report name",
+      "DatasetId": "dataset-uuid",
+      "ReportId": "report-uuid",
+      "ArtifactId": "report-uuid",
+      "ArtifactName": "Report Name",
+      "IsSuccess": true,
+      "ReportType": "PowerBIReport",
+      "RequestId": "request-id",
+      "ActivityId": "activity-id",
+      "DistributionMethod": "Workspace",
+      "ConsumptionMethod": "Export Report",
+      "SensitivityLabelId": "sensitivity-uuid",
+      "ArtifactKind": "Report"
+    }
+  ],
+  "continuationUri": "https://continuationUri",
+  "continuationToken": "token",
+  "lastResultSet": false
+}

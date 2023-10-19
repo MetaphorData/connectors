@@ -1,0 +1,28 @@
+[
+  {
+    "Id": "activity-uuid-001",
+    "CreationTime": "2023-10-09 03:10:06",
+    "OrganizationId": "org-1",
+    "WorkspaceId": "workspace-id",
+    "UserType": 6,
+    "UserId": "user-id",
+    "Activity": "ViewReport",
+    "IsSuccess": true,
+    "RequestId": "request-id",
+    "ArtifactKind": "Report",
+    "ArtifactId": "report-uuid"
+  },
+  {
+    "Id": "activity-uuid-002",
+    "CreationTime": "2023-10-09 03:10:06",
+    "OrganizationId": "org-1",
+    "WorkspaceId": "workspace-id",
+    "UserType": 6,
+    "UserId": "user-id",
+    "Activity": "ViewReport",
+    "IsSuccess": true,
+    "RequestId": "request-id",
+    "ArtifactKind": "Report",
+    "ArtifactId": "report-uuid"
+  }
+]

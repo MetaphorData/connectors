@@ -4,6 +4,7 @@ from hashlib import md5
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from dateutil.parser import isoparse
+from pydantic import validate_email
 
 from metaphor.common.logger import get_logger
 
@@ -153,3 +154,11 @@ def removesuffix(text: str, suffix: str):
 def filter_none(lst: List) -> List:
     """Filter out all None values from the list"""
     return [e for e in lst if e is not None]
+
+
+def is_email(email: str) -> bool:
+    try:
+        validate_email(email)
+    except (ValueError, AssertionError):
+        return False
+    return True
