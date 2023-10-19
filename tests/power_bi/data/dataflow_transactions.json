@@ -1,0 +1,19 @@
+{
+  "@odata.context": "url",
+  "value": [
+    {
+      "id": "2023-10-19T01:06:02.2745010Z@001",
+      "refreshType": "Scheduled",
+      "startTime": "2023-10-19T01:06:02.37Z",
+      "endTime": "2023-10-19T01:06:10.29Z",
+      "status": "Success"
+    },
+    {
+      "id": "2023-10-18T01:12:29.5493231Z@002",
+      "refreshType": "Scheduled",
+      "startTime": "2023-10-18T01:12:29.747Z",
+      "endTime": "2023-10-18T01:12:36.66Z",
+      "status": "Success"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.extractor import PowerBIExtractor
 from metaphor.power_bi.power_bi_client import (
+    DataflowTransaction,
     EndorsementDetails,
     PowerBIActivityEventEntity,
     PowerBIApp,
@@ -267,6 +268,25 @@ def fake_get_activities() -> list:
     ]
 
 
+def fake_get_dataflow_transactions(*_):
+    return [
+        DataflowTransaction(
+            id="2023-10-19T01:06:02.2745010Z@001",
+            status="Success",
+            startTime="2023-10-19T01:06:02.37Z",
+            endTime="2023-10-19T01:06:10.29Z",
+            refreshType="Scheduled",
+        ),
+        DataflowTransaction(
+            id="2023-10-18T01:12:29.5493231Z@002",
+            status="Success",
+            startTime="2023-10-18T01:12:29.747Z",
+            endTime="2023-10-18T01:12:36.66Z",
+            refreshType="Scheduled",
+        ),
+    ]
+
+
 @patch("metaphor.power_bi.extractor.PowerBIClient")
 @pytest.mark.asyncio
 async def test_extractor(mock_client: MagicMock, test_root_dir: str):
@@ -501,6 +521,7 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     mock_instance.get_user_subscriptions = fake_get_user_subscriptions
     mock_instance.export_dataflow = fake_export_dataflow
     mock_instance.get_activities = fake_get_activities
+    mock_instance.get_dataflow_transactions.side_effect = fake_get_dataflow_transactions
 
     mock_client.return_value = mock_instance
 
