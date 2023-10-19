@@ -159,6 +159,6 @@ def filter_none(lst: List) -> List:
 def is_email(email: str) -> bool:
     try:
         validate_email(email)
-    except Exception:
+    except (ValueError, AssertionError):
         return False
     return True
