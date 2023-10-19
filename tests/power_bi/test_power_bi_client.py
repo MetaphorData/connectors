@@ -185,6 +185,7 @@ async def test_get_transactions(
         MockResponse(
             load_json(f"{test_root_dir}/power_bi/data/dataflow_transactions.json")
         ),
+        MockResponse("", 500),
     ]
     client = PowerBIClient(
         PowerBIRunConfig(
@@ -213,3 +214,5 @@ async def test_get_transactions(
             refreshType="Scheduled",
         ),
     ]
+
+    assert client.get_dataflow_transactions("", "") == []

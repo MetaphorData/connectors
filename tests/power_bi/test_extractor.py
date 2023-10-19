@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List
 from unittest.mock import MagicMock, patch
 
@@ -537,3 +537,10 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")
+
+
+def test_find_refresh_time_from_transaction():
+    assert PowerBIExtractor._find_refresh_time_from_transaction([]) is None
+    assert PowerBIExtractor._find_refresh_time_from_transaction(
+        fake_get_dataflow_transactions()
+    ) == datetime(2023, 10, 19, 1, 6, 10, 290000, tzinfo=timezone.utc)
