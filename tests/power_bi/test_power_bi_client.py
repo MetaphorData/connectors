@@ -7,6 +7,7 @@ from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.power_bi_client import (
     PowerBIActivityEventEntity,
     PowerBIClient,
+    PowerBiRefreshSchedule,
     PowerBISubscription,
 )
 from tests.test_utils import load_json
@@ -167,3 +168,87 @@ async def test_get_activities(
             f"{test_root_dir}/power_bi/data/expected_activities.json"
         )
     ]
+
+
+@patch("requests.get")
+@patch("msal.ConfidentialClientApplication")
+@pytest.mark.asyncio
+async def test_get_refresh_schedule(
+    mock_msal_app: MagicMock, mock_get_method: MagicMock, test_root_dir: str
+):
+    mock_msal_app = MagicMock()
+    mock_msal_app.acquire_token_silent = MagicMock(
+        return_value={"access_token": "token"}
+    )
+
+    mock_get_method.side_effect = [
+        MockResponse(
+            load_json(f"{test_root_dir}/power_bi/data/dataset_refresh_schedule.json")
+        ),
+    ]
+    client = PowerBIClient(
+        PowerBIRunConfig(
+            tenant_id="tenant-id",
+            client_id="client-id",
+            secret="secret",
+            output=OutputConfig(),
+        )
+    )
+
+    refresh_schedule = client.get_refresh_schedule("", "")
+
+    assert refresh_schedule == PowerBiRefreshSchedule(
+        frequency=None,
+        days=[
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ],
+        times=["10:30"],
+        enabled=False,
+        localTimeZoneId="UTC",
+        notifyOption="MailOnFailure",
+    )
+
+
+@patch("requests.get")
+@patch("msal.ConfidentialClientApplication")
+@pytest.mark.asyncio
+async def test_get_direct_query_refresh_schedule(
+    mock_msal_app: MagicMock, mock_get_method: MagicMock, test_root_dir: str
+):
+    mock_msal_app = MagicMock()
+    mock_msal_app.acquire_token_silent = MagicMock(
+        return_value={"access_token": "token"}
+    )
+
+    mock_get_method.side_effect = [
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/power_bi/data/direct_query_refresh_schedule.json"
+            )
+        ),
+    ]
+    client = PowerBIClient(
+        PowerBIRunConfig(
+            tenant_id="tenant-id",
+            client_id="client-id",
+            secret="secret",
+            output=OutputConfig(),
+        )
+    )
+
+    refresh_schedule = client.get_direct_query_refresh_schedule("", "")
+
+    assert refresh_schedule == PowerBiRefreshSchedule(
+        frequency="60",
+        days=[],
+        times=[],
+        enabled=None,
+        localTimeZoneId="UTC",
+        notifyOption=None,
+    )
