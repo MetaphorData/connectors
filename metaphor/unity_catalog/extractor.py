@@ -172,6 +172,18 @@ class UnityCatalogExtractor(BaseExtractor):
 
         return dataset
 
+    def _table_logical_id(
+        self, catalog_name: str, schema_name: str, table_name: str
+    ) -> str:
+        name = dataset_normalized_name(catalog_name, schema_name, table_name)
+        return DatasetLogicalID(name=name, platform=DataPlatform.UNITY_CATALOG)
+
+    def _table_entity_id(
+        self, catalog_name: str, schema_name: str, table_name: str
+    ) -> str:
+        logical_id = self._table_logical_id(catalog_name, schema_name, table_name)
+        return str(to_dataset_entity_id_from_logical_id(logical_id))
+
     def _populate_lineage(self, dataset: Dataset):
         table_name = f"{dataset.structure.database}.{dataset.structure.schema}.{dataset.structure.table}"
         lineage = list_table_lineage(self._api.client.client, table_name)
@@ -181,7 +193,19 @@ class UnityCatalogExtractor(BaseExtractor):
             logging.info(f"Table {table_name} has no upstream")
             return
 
-        source_datasets = []
+        # Add table-level lineage
+        source_datasets: List[str] = []
+        for upstream in lineage.upstreams:
+            table_info = upstream.tableInfo
+            if table_info is None or isinstance(table_info, NoPermission):
+                continue
+
+            entity_id = self._table_entity_id(
+                table_info.catalog_name, table_info.schema_name, table_info.name
+            )
+            source_datasets.append(entity_id)
+
+        # Add column-level lineage if available
         field_mappings = []
         has_permission_issues = False
         for field in dataset.schema.fields:
@@ -196,22 +220,17 @@ class UnityCatalogExtractor(BaseExtractor):
                     has_permission_issues = True
                     continue
 
-                normalized_name = dataset_normalized_name(
+                logical_id = self._table_logical_id(
                     upstream_col.catalog_name,
                     upstream_col.schema_name,
                     upstream_col.table_name,
                 )
-                source_logical_id = DatasetLogicalID(
-                    name=normalized_name.lower(), platform=DataPlatform.UNITY_CATALOG
-                )
-                source_entity_id = str(
-                    to_dataset_entity_id_from_logical_id(source_logical_id)
-                )
-                source_datasets.append(source_entity_id)
+                entity_id = str(to_dataset_entity_id_from_logical_id(logical_id))
+                source_datasets.append(entity_id)
                 field_mapping.sources.append(
                     SourceField(
-                        dataset=source_logical_id,
-                        source_entity_id=source_entity_id,
+                        dataset=logical_id,
+                        source_entity_id=entity_id,
                         field=upstream_col.name,
                     )
                 )
