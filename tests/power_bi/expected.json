@@ -72,7 +72,18 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0000-000000000002",
-      "workspaceId": "workspace-1"
+      "workspaceId": "workspace-1",
+      "refreshSchedule": {
+        "days": [
+          "Monday"
+        ],
+        "enabled": true,
+        "localTimeZoneId": "Pacific Standard Time",
+        "notifyOption": "MailOnFailure",
+        "times": [
+          "10:00"
+        ]
+      }
     },
     "structure": {
       "directories": [
@@ -188,7 +199,15 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0000-000000000003",
-      "workspaceId": "workspace-1"
+      "workspaceId": "workspace-1",
+      "refreshSchedule": {
+        "days": [],
+        "enabled": true,
+        "localTimeZoneId": "Pacific Standard Time",
+        "notifyOption": "MailOnFailure",
+        "frequencyInMinutes": 120.0,
+        "times": []
+      }
     },
     "structure": {
       "directories": [

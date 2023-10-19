@@ -1,0 +1,18 @@
+{
+  "@odata.context": "url",
+  "days": [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ],
+  "times": [
+    "10:30"
+  ],
+  "enabled": false,
+  "localTimeZoneId": "UTC",
+  "notifyOption": "MailOnFailure"
+}
