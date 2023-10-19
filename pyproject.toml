@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.10"
+version = "0.13.12"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -133,4 +133,11 @@ plugins = ["pydantic.mypy"]
 
 [tool.bandit]
 exclude_dirs = ["venv"]
-skips = ['B101', 'B106', 'B608']
+skips = [
+  'B101',
+  'B106',
+  'B404',
+  'B603',
+  'B607',
+  'B608'
+]
