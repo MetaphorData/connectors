@@ -123,6 +123,12 @@ async def test_extractor(
                     fileInfo=None,
                 ),
                 LineageInfo(
+                    tableInfo=TableInfo(
+                        name="upstream2", catalog_name="db", schema_name="schema"
+                    ),
+                    fileInfo=None,
+                ),
+                LineageInfo(
                     tableInfo=None,
                     fileInfo=FileInfo(path="s3://path", has_permission=True),
                 ),
