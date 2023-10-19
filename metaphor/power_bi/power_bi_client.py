@@ -401,7 +401,7 @@ class PowerBIClient:
     def get_direct_query_refresh_schedule(
         self, group_id: str, dataset_id: str
     ) -> Optional[PowerBiRefreshSchedule]:
-        # https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/get-refresh-schedule
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/get-direct-query-refresh-schedule-in-group
         url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}/directQueryRefreshSchedule"
 
         try:
