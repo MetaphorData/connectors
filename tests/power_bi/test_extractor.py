@@ -459,8 +459,28 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     mock_instance.get_apps.side_effect = fake_get_apps
     mock_instance.get_user_subscriptions.side_effect = fake_get_user_subscriptions
     mock_instance.export_dataflow.side_effect = fake_export_dataflow
-    mock_instance.get_refresh_schedule.side_effect = lambda *_: None
-    mock_instance.get_direct_query_refresh_schedule.side_effect = lambda *_: None
+    mock_instance.get_refresh_schedule.side_effect = [
+        PowerBiRefreshSchedule(
+            days=["Monday"],
+            times=["10:00"],
+            enabled=True,
+            localTimeZoneId="Pacific Standard Time",
+            notifyOption="MailOnFailure",
+        ),
+        None,
+        None,
+    ]
+    mock_instance.get_direct_query_refresh_schedule.side_effect = [
+        PowerBiRefreshSchedule(
+            frequency="120",
+            days=[],
+            times=[],
+            enabled=True,
+            localTimeZoneId="Pacific Standard Time",
+            notifyOption="MailOnFailure",
+        ),
+        None,
+    ]
 
     mock_client.return_value = mock_instance
 

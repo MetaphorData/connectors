@@ -640,6 +640,8 @@ class PowerBIExtractor(BaseExtractor):
             workspace_id, dataset_id
         )
 
+        print(modeled_dataset_refresh_schedule)
+
         if modeled_dataset_refresh_schedule:
             return PowerBIRefreshSchedule(
                 days=modeled_dataset_refresh_schedule.days,
