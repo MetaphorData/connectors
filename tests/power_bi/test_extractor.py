@@ -47,6 +47,28 @@ app2 = PowerBIApp(
     workspaceId=workspace1_id,
 )
 
+dashboard1_id = "00000000-0000-0000-0000-000000000007"
+dashboard1 = PowerBIDashboard(
+    id=dashboard1_id,
+    displayName="Dashboard A",
+    webUrl=f"https://powerbi.com/dashboard/{dashboard1_id}",
+)
+
+dashboard1_app_id = "00000000-0000-0000-0000-000000000008"
+dashboard1_app = PowerBIDashboard(
+    id=dashboard1_app_id,
+    displayName="Dashboard A",
+    webUrl=f"https://powerbi.com/groups/me/apps/{app2.id}/dashboards/{dashboard1_id}",
+)
+
+dashboard2_id = "00000000-0000-0000-0000-000000000009"
+dashboard2 = PowerBIDashboard(
+    id=dashboard2_id,
+    displayName="Dashboard B",
+    webUrl=f"https://powerbi.com/dashboard/{dashboard2_id}",
+)
+
+
 dataset1_id = "00000000-0000-0000-0000-000000000002"
 dataset1 = PowerBIDataset(
     id=dataset1_id,
@@ -95,27 +117,6 @@ report2 = PowerBIReport(
     datasetId=dataset2_id,
     reportType="",
     webUrl=f"https://powerbi.com/report/{report2_id}",
-)
-
-dashboard1_id = "00000000-0000-0000-0000-000000000007"
-dashboard1 = PowerBIDashboard(
-    id=dashboard1_id,
-    displayName="Dashboard A",
-    webUrl=f"https://powerbi.com/dashboard/{dashboard1_id}",
-)
-
-dashboard1_app_id = "00000000-0000-0000-0000-000000000008"
-dashboard1_app = PowerBIDashboard(
-    id=dashboard1_app_id,
-    displayName="Dashboard A",
-    webUrl=f"https://powerbi.com/groups/me/apps/{app2.id}/dashboards/{dashboard1_id}",
-)
-
-dashboard2_id = "00000000-0000-0000-0000-000000000009"
-dashboard2 = PowerBIDashboard(
-    id=dashboard2_id,
-    displayName="Dashboard B",
-    webUrl=f"https://powerbi.com/dashboard/{dashboard2_id}",
 )
 
 tile1 = PowerBITile(
@@ -193,11 +194,227 @@ def fake_get_pages(workspace_id: str, report_id: str) -> List[PowerBIPage]:
 
 
 def fake_get_refreshes(workspace_id: str, dataset_id: str) -> List[PowerBIRefresh]:
-    return refreshes[workspace_id][dataset_id]
+    workspace_refreshes = refreshes.get(workspace_id)
+    if workspace_refreshes is None:
+        return []
+    return workspace_refreshes.get(dataset_id) or []
 
 
 def fake_get_apps() -> List[PowerBIApp]:
     return [app1, app2]
+
+
+def face_get_workspace_info(workspace_id: str) -> List[WorkspaceInfo]:
+    return [
+        WorkspaceInfo(
+            id=workspace1_id,
+            name="Workspace",
+            type="normal",
+            state="",
+            description="workspace desc",
+            reports=[
+                WorkspaceInfoReport(
+                    id=report1.id,
+                    name=report1.name,
+                    datasetId=report1.datasetId,
+                    description="This is a report about foo",
+                    createdBy="creator@foo.bar",
+                    createdDateTime="2022-04-06T04:25:06.777",
+                    modifiedBy="editor@foo.bar",
+                    modifiedDateTime="2022-04-06T04:25:06.777",
+                    endorsementDetails=EndorsementDetails(
+                        endorsement="Promoted", certifiedBy="admin@foo.bar"
+                    ),
+                ),
+                WorkspaceInfoReport(
+                    id=report1_app.id,
+                    appId=app1.id,
+                    name=report1_app.name,
+                    datasetId=report1_app.datasetId,
+                    description="[app] This is a report about foo",
+                ),
+                WorkspaceInfoReport(
+                    id=report2.id,
+                    name=report2.name,
+                    datasetId=report2.datasetId,
+                    description="This is a report about bar",
+                    endorsementDetails=EndorsementDetails(
+                        endorsement="Invalid", certifiedBy="admin@foo.bar"
+                    ),
+                ),
+            ],
+            datasets=[
+                WorkspaceInfoDataset(
+                    configuredBy="alice@foo.com",
+                    id=dataset1.id,
+                    name=dataset1.name,
+                    description="This is a dataset",
+                    tables=[
+                        PowerBITable(
+                            name="table1",
+                            columns=[
+                                PowerBITableColumn(name="col1", dataType="string"),
+                                PowerBITableColumn(name="col2", dataType="int"),
+                            ],
+                            measures=[
+                                PowerBITableMeasure(
+                                    name="exp1",
+                                    expression="avg(col1)",
+                                    description="this is exp1",
+                                ),
+                                PowerBITableMeasure(
+                                    name="exp2", expression="max(col1)"
+                                ),
+                            ],
+                            source=[
+                                {
+                                    "expression": 'let\n    Source = AmazonRedshift.Database("url:5439","db"),\n    public = Source{[Name="public"]}[Data],\n    table1 = public{[Name="table"]}[Data]\nin\n    table1'
+                                }
+                            ],
+                        )
+                    ],
+                    upstreamDataflows=None,
+                    upstreamDatasets=None,
+                ),
+                WorkspaceInfoDataset(
+                    configuredBy="bob@foo.com",
+                    id=dataset2.id,
+                    name=dataset2.name,
+                    description="This is another dataset",
+                    tables=[
+                        PowerBITable(
+                            name="table2",
+                            columns=[
+                                PowerBITableColumn(name="col1", dataType="string"),
+                                PowerBITableColumn(name="col2", dataType="int"),
+                            ],
+                            measures=[],
+                            source=[
+                                {
+                                    "expression": 'let\n    Source = Snowflake.Databases("some-account.snowflakecomputing.com","COMPUTE_WH"),\n    DB_Database = Source{[Name="DB",Kind="Database"]}[Data],\n    PUBLIC_Schema = DB_Database{[Name="PUBLIC",Kind="Schema"]}[Data],\n    TEST_Table = PUBLIC_Schema{[Name="TEST",Kind="Table"]}[Data]\nin\n    TEST_Table'
+                                }
+                            ],
+                        ),
+                        PowerBITable(
+                            name="table2",
+                            columns=[
+                                PowerBITableColumn(name="col1", dataType="string"),
+                                PowerBITableColumn(name="col2", dataType="int"),
+                            ],
+                            measures=[],
+                            source=[
+                                {
+                                    "expression": 'let\n    Source = GoogleBigQuery.Database(),\n    #"test-project" = Source{[Name="test-project"]}[Data],\n    test_Schema = #"test-project"{[Name="test",Kind="Schema"]}[Data],\n    example_Table = test_Schema{[Name="example",Kind="Table"]}[Data]\nin\n    example_Table'
+                                }
+                            ],
+                        ),
+                    ],
+                    upstreamDataflows=None,
+                    upstreamDatasets=None,
+                ),
+                WorkspaceInfoDataset(
+                    configuredBy="bob@foo.com",
+                    id=dataset3.id,
+                    name=dataset3.name,
+                    description="Dataset from dataflow",
+                    tables=[
+                        PowerBITable(
+                            name="table3",
+                            columns=[
+                                PowerBITableColumn(name="col1", dataType="string"),
+                                PowerBITableColumn(name="col2", dataType="int"),
+                            ],
+                            measures=[],
+                            source=[
+                                {
+                                    "expression": 'let\n    Source = PowerPlatform.Dataflows(null),\n    Workspaces = Source{[Id="Workspaces"]}[Data],\n    #"{workspace1_id}" = Workspaces{[workspaceId="{workspace1_id}"]}[Data],\n    #"{dataflow_id}" = #"{workspace1_id}"{[dataflowId="{dataflow_id}"]}[Data],\n    ENTITY_NAME_ = #"{dataflow_id}"{[entity="ENTITY_NAME",version=""]}[Data]\nin\n    ENTITY_NAME_'
+                                }
+                            ],
+                        ),
+                    ],
+                    upstreamDataflows=[
+                        UpstreamDataflow(targetDataflowId=dataflow_id),
+                        UpstreamDataflow(targetDataflowId=dataflow_id2),
+                    ],
+                    upstreamDatasets=None,
+                ),
+            ],
+            dashboards=[
+                WorkspaceInfoDashboard(
+                    displayName="Dashboard A",
+                    id=dashboard1_id,
+                    createdBy="creator@foo.bar",
+                    createdDateTime="2022-04-06T04:25:06.777",
+                    modifiedBy="editor@foo.bar",
+                    modifiedDateTime="2022-04-06T04:25:06.777",
+                ),
+                WorkspaceInfoDashboard(
+                    displayName="Dashboard A",
+                    id=dashboard1_app_id,
+                    appId=app2.id,
+                ),
+                WorkspaceInfoDashboard(displayName="Dashboard B", id=dashboard2_id),
+            ],
+            users=[
+                WorkspaceInfoUser(
+                    emailAddress="powerbi@metaphor.io",
+                    groupUserAccessRight="Viewer",
+                    displayName="Metaphor",
+                    graphId="user-id",
+                    principalType="User",
+                ),
+                WorkspaceInfoUser(
+                    emailAddress=None,
+                    groupUserAccessRight="Viewer",
+                    displayName="Group",
+                    graphId="group-id",
+                    principalType="Group",
+                ),
+                WorkspaceInfoUser(
+                    emailAddress="powerbi-admin@metaphor.io",
+                    groupUserAccessRight="Admin",
+                    displayName="Metaphor Admin",
+                    graphId="user-id-admin",
+                    principalType="User",
+                ),
+                WorkspaceInfoUser(
+                    emailAddress="powerbi-member@metaphor.io",
+                    groupUserAccessRight="Member",
+                    displayName="Metaphor Member",
+                    graphId="user-id-member",
+                    principalType="User",
+                ),
+                WorkspaceInfoUser(
+                    emailAddress="powerbi-unknown@metaphor.io",
+                    groupUserAccessRight="UNKNOWN",
+                    displayName="Metaphor UNKNOWN",
+                    graphId="user-id-unknown",
+                    principalType="User",
+                ),
+            ],
+            dataflows=[
+                WorkspaceInfoDataflow(
+                    objectId=dataflow_id,
+                    name="Dataflow",
+                    description="A dataflow",
+                    modifiedBy="dataflow.owner@test.foo",
+                    modifiedDateTime="2023-09-19T06:08:01.3550729+00:00",
+                    refreshSchedule=PowerBiRefreshSchedule(
+                        days=["Saturday"],
+                        enabled=True,
+                        localTimeZoneId="UTC",
+                        notifyOption="MailOnFailure",
+                        times=["1:00:00"],
+                    ),
+                ),
+                WorkspaceInfoDataflow(
+                    objectId=dataflow_id2,
+                    name="Dataflow 2",
+                    description="",
+                ),
+            ],
+        )
+    ]
 
 
 def fake_get_user_subscriptions(user_id: str) -> List[PowerBISubscription]:
@@ -272,225 +489,13 @@ def fake_get_activities() -> list:
 async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     mock_instance = MagicMock()
 
-    mock_instance.get_workspace_info = MagicMock(
-        return_value=[
-            WorkspaceInfo(
-                id=workspace1_id,
-                name="Workspace",
-                type="normal",
-                state="",
-                description="workspace desc",
-                reports=[
-                    WorkspaceInfoReport(
-                        id=report1.id,
-                        name=report1.name,
-                        datasetId=report1.datasetId,
-                        description="This is a report about foo",
-                        createdBy="creator@foo.bar",
-                        createdDateTime="2022-04-06T04:25:06.777",
-                        modifiedBy="editor@foo.bar",
-                        modifiedDateTime="2022-04-06T04:25:06.777",
-                        endorsementDetails=EndorsementDetails(
-                            endorsement="Promoted", certifiedBy="admin@foo.bar"
-                        ),
-                    ),
-                    WorkspaceInfoReport(
-                        id=report1_app.id,
-                        appId=app1.id,
-                        name=report1_app.name,
-                        datasetId=report1_app.datasetId,
-                        description="[app] This is a report about foo",
-                    ),
-                    WorkspaceInfoReport(
-                        id=report2.id,
-                        name=report2.name,
-                        datasetId=report2.datasetId,
-                        description="This is a report about bar",
-                        endorsementDetails=EndorsementDetails(
-                            endorsement="Invalid", certifiedBy="admin@foo.bar"
-                        ),
-                    ),
-                ],
-                datasets=[
-                    WorkspaceInfoDataset(
-                        configuredBy="alice@foo.com",
-                        id=dataset1.id,
-                        name=dataset1.name,
-                        description="This is a dataset",
-                        tables=[
-                            PowerBITable(
-                                name="table1",
-                                columns=[
-                                    PowerBITableColumn(name="col1", dataType="string"),
-                                    PowerBITableColumn(name="col2", dataType="int"),
-                                ],
-                                measures=[
-                                    PowerBITableMeasure(
-                                        name="exp1",
-                                        expression="avg(col1)",
-                                        description="this is exp1",
-                                    ),
-                                    PowerBITableMeasure(
-                                        name="exp2", expression="max(col1)"
-                                    ),
-                                ],
-                                source=[
-                                    {
-                                        "expression": 'let\n    Source = AmazonRedshift.Database("url:5439","db"),\n    public = Source{[Name="public"]}[Data],\n    table1 = public{[Name="table"]}[Data]\nin\n    table1'
-                                    }
-                                ],
-                            )
-                        ],
-                        upstreamDataflows=None,
-                        upstreamDatasets=None,
-                    ),
-                    WorkspaceInfoDataset(
-                        configuredBy="bob@foo.com",
-                        id=dataset2.id,
-                        name=dataset2.name,
-                        description="This is another dataset",
-                        tables=[
-                            PowerBITable(
-                                name="table2",
-                                columns=[
-                                    PowerBITableColumn(name="col1", dataType="string"),
-                                    PowerBITableColumn(name="col2", dataType="int"),
-                                ],
-                                measures=[],
-                                source=[
-                                    {
-                                        "expression": 'let\n    Source = Snowflake.Databases("some-account.snowflakecomputing.com","COMPUTE_WH"),\n    DB_Database = Source{[Name="DB",Kind="Database"]}[Data],\n    PUBLIC_Schema = DB_Database{[Name="PUBLIC",Kind="Schema"]}[Data],\n    TEST_Table = PUBLIC_Schema{[Name="TEST",Kind="Table"]}[Data]\nin\n    TEST_Table'
-                                    }
-                                ],
-                            ),
-                            PowerBITable(
-                                name="table2",
-                                columns=[
-                                    PowerBITableColumn(name="col1", dataType="string"),
-                                    PowerBITableColumn(name="col2", dataType="int"),
-                                ],
-                                measures=[],
-                                source=[
-                                    {
-                                        "expression": 'let\n    Source = GoogleBigQuery.Database(),\n    #"test-project" = Source{[Name="test-project"]}[Data],\n    test_Schema = #"test-project"{[Name="test",Kind="Schema"]}[Data],\n    example_Table = test_Schema{[Name="example",Kind="Table"]}[Data]\nin\n    example_Table'
-                                    }
-                                ],
-                            ),
-                        ],
-                        upstreamDataflows=None,
-                        upstreamDatasets=None,
-                    ),
-                    WorkspaceInfoDataset(
-                        configuredBy="bob@foo.com",
-                        id=dataset3.id,
-                        name=dataset3.name,
-                        description="Dataset from dataflow",
-                        tables=[
-                            PowerBITable(
-                                name="table3",
-                                columns=[
-                                    PowerBITableColumn(name="col1", dataType="string"),
-                                    PowerBITableColumn(name="col2", dataType="int"),
-                                ],
-                                measures=[],
-                                source=[
-                                    {
-                                        "expression": 'let\n    Source = PowerPlatform.Dataflows(null),\n    Workspaces = Source{[Id="Workspaces"]}[Data],\n    #"{workspace1_id}" = Workspaces{[workspaceId="{workspace1_id}"]}[Data],\n    #"{dataflow_id}" = #"{workspace1_id}"{[dataflowId="{dataflow_id}"]}[Data],\n    ENTITY_NAME_ = #"{dataflow_id}"{[entity="ENTITY_NAME",version=""]}[Data]\nin\n    ENTITY_NAME_'
-                                    }
-                                ],
-                            ),
-                        ],
-                        upstreamDataflows=[
-                            UpstreamDataflow(targetDataflowId=dataflow_id),
-                            UpstreamDataflow(targetDataflowId=dataflow_id2),
-                        ],
-                        upstreamDatasets=None,
-                    ),
-                ],
-                dashboards=[
-                    WorkspaceInfoDashboard(
-                        displayName="Dashboard A",
-                        id=dashboard1_id,
-                        createdBy="creator@foo.bar",
-                        createdDateTime="2022-04-06T04:25:06.777",
-                        modifiedBy="editor@foo.bar",
-                        modifiedDateTime="2022-04-06T04:25:06.777",
-                    ),
-                    WorkspaceInfoDashboard(
-                        displayName="Dashboard A",
-                        id=dashboard1_app_id,
-                        appId=app2.id,
-                    ),
-                    WorkspaceInfoDashboard(displayName="Dashboard B", id=dashboard2_id),
-                ],
-                users=[
-                    WorkspaceInfoUser(
-                        emailAddress="powerbi@metaphor.io",
-                        groupUserAccessRight="Viewer",
-                        displayName="Metaphor",
-                        graphId="user-id",
-                        principalType="User",
-                    ),
-                    WorkspaceInfoUser(
-                        emailAddress=None,
-                        groupUserAccessRight="Viewer",
-                        displayName="Group",
-                        graphId="group-id",
-                        principalType="Group",
-                    ),
-                    WorkspaceInfoUser(
-                        emailAddress="powerbi-admin@metaphor.io",
-                        groupUserAccessRight="Admin",
-                        displayName="Metaphor Admin",
-                        graphId="user-id-admin",
-                        principalType="User",
-                    ),
-                    WorkspaceInfoUser(
-                        emailAddress="powerbi-member@metaphor.io",
-                        groupUserAccessRight="Member",
-                        displayName="Metaphor Member",
-                        graphId="user-id-member",
-                        principalType="User",
-                    ),
-                    WorkspaceInfoUser(
-                        emailAddress="powerbi-unknown@metaphor.io",
-                        groupUserAccessRight="UNKNOWN",
-                        displayName="Metaphor UNKNOWN",
-                        graphId="user-id-unknown",
-                        principalType="User",
-                    ),
-                ],
-                dataflows=[
-                    WorkspaceInfoDataflow(
-                        objectId=dataflow_id,
-                        name="Dataflow",
-                        description="A dataflow",
-                        modifiedBy="dataflow.owner@test.foo",
-                        modifiedDateTime="2023-09-19T06:08:01.3550729+00:00",
-                        refreshSchedule=PowerBiRefreshSchedule(
-                            days=["Saturday"],
-                            enabled=True,
-                            localTimeZoneId="UTC",
-                            notifyOption="MailOnFailure",
-                            times=["1:00:00"],
-                        ),
-                    ),
-                    WorkspaceInfoDataflow(
-                        objectId=dataflow_id2,
-                        name="Dataflow 2",
-                        description="",
-                    ),
-                ],
-            )
-        ]
-    )
-
     def fake_export_dataflow(workspace_id: str, df_id: str) -> dict:
         if df_id == dataflow_id:
             return load_json(f"{test_root_dir}/power_bi/data/dataflow_1.json")
         else:
             return load_json(f"{test_root_dir}/power_bi/data/dataflow_2.json")
 
+    mock_instance.get_workspace_info.side_effect = face_get_workspace_info
     mock_instance.get_datasets.side_effect = fake_get_datasets
     mock_instance.get_reports.side_effect = fake_get_reports
     mock_instance.get_dashboards.side_effect = fake_get_dashboards
@@ -498,8 +503,30 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     mock_instance.get_pages.side_effect = fake_get_pages
     mock_instance.get_refreshes.side_effect = fake_get_refreshes
     mock_instance.get_apps.side_effect = fake_get_apps
-    mock_instance.get_user_subscriptions = fake_get_user_subscriptions
-    mock_instance.export_dataflow = fake_export_dataflow
+    mock_instance.get_user_subscriptions.side_effect = fake_get_user_subscriptions
+    mock_instance.export_dataflow.side_effect = fake_export_dataflow
+    mock_instance.get_refresh_schedule.side_effect = [
+        PowerBiRefreshSchedule(
+            days=["Monday"],
+            times=["10:00"],
+            enabled=True,
+            localTimeZoneId="Pacific Standard Time",
+            notifyOption="MailOnFailure",
+        ),
+        None,
+        None,
+    ]
+    mock_instance.get_direct_query_refresh_schedule.side_effect = [
+        PowerBiRefreshSchedule(
+            frequency="120",
+            days=[],
+            times=[],
+            enabled=True,
+            localTimeZoneId="Pacific Standard Time",
+            notifyOption="MailOnFailure",
+        ),
+        None,
+    ]
     mock_instance.get_activities = fake_get_activities
 
     mock_client.return_value = mock_instance
