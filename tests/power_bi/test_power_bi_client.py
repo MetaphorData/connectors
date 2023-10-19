@@ -182,6 +182,8 @@ async def test_get_refresh_schedule(
     )
 
     mock_get_method.side_effect = [
+        MockResponse("", 404),
+        MockResponse("", 500),
         MockResponse(
             load_json(f"{test_root_dir}/power_bi/data/dataset_refresh_schedule.json")
         ),
@@ -194,6 +196,9 @@ async def test_get_refresh_schedule(
             output=OutputConfig(),
         )
     )
+
+    assert client.get_refresh_schedule("", "") is None
+    assert client.get_refresh_schedule("", "") is None
 
     refresh_schedule = client.get_refresh_schedule("", "")
 
@@ -227,6 +232,8 @@ async def test_get_direct_query_refresh_schedule(
     )
 
     mock_get_method.side_effect = [
+        MockResponse("", 404),
+        MockResponse("", 500),
         MockResponse(
             load_json(
                 f"{test_root_dir}/power_bi/data/direct_query_refresh_schedule.json"
@@ -242,6 +249,8 @@ async def test_get_direct_query_refresh_schedule(
         )
     )
 
+    assert client.get_direct_query_refresh_schedule("", "") is None
+    assert client.get_direct_query_refresh_schedule("", "") is None
     refresh_schedule = client.get_direct_query_refresh_schedule("", "")
 
     assert refresh_schedule == PowerBiRefreshSchedule(
