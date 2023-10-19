@@ -109,6 +109,14 @@ class UpstreamDataflow(BaseModel):
     targetDataflowId: str
 
 
+class DataflowTransaction(BaseModel):
+    id: str
+    status: Optional[str] = None
+    startTime: Optional[str] = None
+    endTime: Optional[str] = None
+    refreshType: Optional[str] = None
+
+
 class WorkspaceInfoDataset(BaseModel):
     id: str
     name: str
@@ -471,6 +479,24 @@ class PowerBIClient:
                 f"Failed to get datasource from dataflow {dataflow_id} in workspace {group_id}: {e}"
             )
         return None
+
+    def get_dataflow_transactions(
+        self, group_id: str, dataflow_id: str
+    ) -> List[DataflowTransaction]:
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/dataflows/{dataflow_id}/transactions"
+        try:
+            data_sources = self._call_get(
+                url,
+                List[DataflowTransaction],
+                transform_response=lambda r: r.json()["value"],
+            )
+            return data_sources
+        except Exception as e:
+            # Fail gracefully for any other errors
+            logger.error(
+                f"Failed to get transactions from dataflow {dataflow_id} in workspace {group_id}: {e}"
+            )
+        return []
 
     def get_workspace_info(self, workspace_ids: List[str]) -> List[WorkspaceInfo]:
         def create_scan() -> str:

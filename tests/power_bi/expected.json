@@ -483,7 +483,8 @@
         ]
       },
       "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0001-00000000000A",
-      "workspaceId": "workspace-1"
+      "workspaceId": "workspace-1",
+      "lastRefreshed": "2023-10-19T01:06:10.290000+00:00"
     }
   },
   {
@@ -497,7 +498,8 @@
       "description": "",
       "document": "section Section1;\r\nshared ENTITY_NAME = let\r\n  Source = GoogleAnalytics.Accounts(\"account.snowflakecomputing.com\", \"COMPUTE_WH\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\r\n  Navigation = Source{[Name = \"DB\", Kind = \"Database\"]}[Data],\r\n  #\"Navigation 1\" = Navigation{[Name = \"SCHEMA\", Kind = \"Schema\"]}[Data],\r\n  #\"Navigation 2\" = #\"Navigation 1\"{[Name = \"TABLE_NAME\", Kind = \"Table\"]}[Data]\r\nin\r\n  #\"Navigation 2\";\r\n",
       "name": "Dataflow 2",
-      "workspaceId": "workspace-1"
+      "workspaceId": "workspace-1",
+      "lastRefreshed": "2023-10-19T01:06:10.290000+00:00"
     }
   },
   {

@@ -5,6 +5,7 @@ import pytest
 from metaphor.common.base_config import OutputConfig
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.power_bi_client import (
+    DataflowTransaction,
     PowerBIActivityEventEntity,
     PowerBIClient,
     PowerBiRefreshSchedule,
@@ -172,7 +173,6 @@ async def test_get_activities(
 
 @patch("requests.get")
 @patch("msal.ConfidentialClientApplication")
-@pytest.mark.asyncio
 async def test_get_refresh_schedule(
     mock_msal_app: MagicMock, mock_get_method: MagicMock, test_root_dir: str
 ):
@@ -261,3 +261,50 @@ async def test_get_direct_query_refresh_schedule(
         localTimeZoneId="UTC",
         notifyOption=None,
     )
+
+
+@patch("requests.get")
+@patch("msal.ConfidentialClientApplication")
+@pytest.mark.asyncio
+async def test_get_transactions(
+    mock_msal_app: MagicMock, mock_get_method: MagicMock, test_root_dir: str
+):
+    mock_msal_app = MagicMock()
+    mock_msal_app.acquire_token_silent = MagicMock(
+        return_value={"access_token": "token"}
+    )
+
+    mock_get_method.side_effect = [
+        MockResponse(
+            load_json(f"{test_root_dir}/power_bi/data/dataflow_transactions.json")
+        ),
+        MockResponse("", 500),
+    ]
+    client = PowerBIClient(
+        PowerBIRunConfig(
+            tenant_id="tenant-id",
+            client_id="client-id",
+            secret="secret",
+            output=OutputConfig(),
+        )
+    )
+    transactions = client.get_dataflow_transactions("", "")
+
+    assert transactions == [
+        DataflowTransaction(
+            id="2023-10-19T01:06:02.2745010Z@001",
+            status="Success",
+            startTime="2023-10-19T01:06:02.37Z",
+            endTime="2023-10-19T01:06:10.29Z",
+            refreshType="Scheduled",
+        ),
+        DataflowTransaction(
+            id="2023-10-18T01:12:29.5493231Z@002",
+            status="Success",
+            startTime="2023-10-18T01:12:29.747Z",
+            endTime="2023-10-18T01:12:36.66Z",
+            refreshType="Scheduled",
+        ),
+    ]
+
+    assert client.get_dataflow_transactions("", "") == []

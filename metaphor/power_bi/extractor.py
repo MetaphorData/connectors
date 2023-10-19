@@ -69,6 +69,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.power_bi_client import (
+    DataflowTransaction,
     PowerBIApp,
     PowerBIClient,
     PowerBIPage,
@@ -238,6 +239,10 @@ class PowerBIExtractor(BaseExtractor):
                         f"Failed to parse expression for dataflow {data_flow_id}: {e}"
                     )
 
+            transactions = self._client.get_dataflow_transactions(
+                workspace.id, data_flow_id
+            )
+
             pipeline = Pipeline(
                 logical_id=PipelineLogicalID(
                     name=data_flow_id,
@@ -262,6 +267,9 @@ class PowerBIExtractor(BaseExtractor):
                     else None,
                     dataflow_url=f"https://app.powerbi.com/groups/{workspace.id}/dataflows/{data_flow_id}",
                     workspace_id=workspace.id,
+                    last_refreshed=self._find_refresh_time_from_transaction(
+                        transactions
+                    ),
                 ),
             )
 
@@ -775,6 +783,24 @@ class PowerBIExtractor(BaseExtractor):
             # Empty endTime means still in progress
             refresh = next(
                 r for r in refreshes if r.status == "Completed" and r.endTime != ""
+            )
+        except StopIteration:
+            return None
+
+        return safe_parse_ISO8601(refresh.endTime)
+
+    @staticmethod
+    def _find_refresh_time_from_transaction(
+        transactions: List[DataflowTransaction],
+    ) -> Optional[datetime]:
+        """
+        Find the last success transaction (refresh) time from a list of dataflow transactions
+        """
+        try:
+            # Assume refreshes are already sorted in reversed chronological order
+            # Empty endTime means still in progress
+            refresh = next(
+                t for t in transactions if t.status == "Success" and t.endTime != ""
             )
         except StopIteration:
             return None

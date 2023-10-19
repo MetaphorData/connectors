@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List
 from unittest.mock import MagicMock, patch
 
@@ -9,6 +9,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.extractor import PowerBIExtractor
 from metaphor.power_bi.power_bi_client import (
+    DataflowTransaction,
     EndorsementDetails,
     PowerBIActivityEventEntity,
     PowerBIApp,
@@ -484,6 +485,25 @@ def fake_get_activities() -> list:
     ]
 
 
+def fake_get_dataflow_transactions(*_):
+    return [
+        DataflowTransaction(
+            id="2023-10-19T01:06:02.2745010Z@001",
+            status="Success",
+            startTime="2023-10-19T01:06:02.37Z",
+            endTime="2023-10-19T01:06:10.29Z",
+            refreshType="Scheduled",
+        ),
+        DataflowTransaction(
+            id="2023-10-18T01:12:29.5493231Z@002",
+            status="Success",
+            startTime="2023-10-18T01:12:29.747Z",
+            endTime="2023-10-18T01:12:36.66Z",
+            refreshType="Scheduled",
+        ),
+    ]
+
+
 @patch("metaphor.power_bi.extractor.PowerBIClient")
 @pytest.mark.asyncio
 async def test_extractor(mock_client: MagicMock, test_root_dir: str):
@@ -528,6 +548,7 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
         None,
     ]
     mock_instance.get_activities = fake_get_activities
+    mock_instance.get_dataflow_transactions.side_effect = fake_get_dataflow_transactions
 
     mock_client.return_value = mock_instance
 
@@ -543,3 +564,10 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")
+
+
+def test_find_refresh_time_from_transaction():
+    assert PowerBIExtractor._find_refresh_time_from_transaction([]) is None
+    assert PowerBIExtractor._find_refresh_time_from_transaction(
+        fake_get_dataflow_transactions()
+    ) == datetime(2023, 10, 19, 1, 6, 10, 290000, tzinfo=timezone.utc)
