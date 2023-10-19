@@ -307,6 +307,7 @@ class TableauExtractor(BaseExtractor):
 
         query = custom_sql_table.query
         upstream_datasets = []
+        source_tables = []
 
         try:
             parser = LineageRunner(query)
