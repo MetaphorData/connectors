@@ -1,26 +1,14 @@
 [
   {
-    "customMetadata": {
-      "metadata": [
+    "unityCatalog": {
+      "tableType": "MANAGED",
+      "dataSourceFormat": "CSV",
+      "owner": "foo@bar.com",
+      "storageLocation": "s3://path",
+      "properties": [
         {
-          "key": "data_source_format",
-          "value": "\"CSV\""
-        },
-        {
-          "key": "owner",
-          "value": "\"foo@bar.com\""
-        },
-        {
-          "key": "properties",
-          "value": "{\"delta.lastCommitTimestamp\": \"1664444422000\"}"
-        },
-        {
-          "key": "storage_location",
-          "value": "\"s3://path\""
-        },
-        {
-          "key": "table_type",
-          "value": "\"MANAGED\""
+          "key": "delta.lastCommitTimestamp",
+          "value": "\"1664444422000\""
         }
       ]
     },
@@ -68,26 +56,75 @@
         "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84",
         "DATASET~97D032124F4B526411F0D04797CEAC96"
       ]
+    },
+    "sourceInfo": {
+      "mainUrl": "http://dummy.host/explore/data/catalog/schema/table"
     }
   },
   {
-    "customMetadata": {
-      "metadata": [
+    "unityCatalog": {
+      "tableType": "VIEW",
+      "owner": "foo@bar.com",
+      "properties": [
         {
-          "key": "generation",
-          "value": "1"
+          "key": "view.catalogAndNamespace.numParts",
+          "value": "\"2\""
         },
         {
-          "key": "owner",
-          "value": "\"foo@bar.com\""
+          "key": "view.sqlConfig.spark.sql.hive.convertCTAS",
+          "value": "\"true\""
         },
         {
-          "key": "properties",
-          "value": "{\"view.catalogAndNamespace.numParts\": \"2\", \"view.sqlConfig.spark.sql.hive.convertCTAS\": \"true\", \"view.query.out.col.0\": \"key\", \"view.sqlConfig.spark.sql.parquet.compression.codec\": \"snappy\", \"view.query.out.numCols\": \"3\", \"view.referredTempViewNames\": \"[]\", \"view.query.out.col.1\": \"values\", \"view.sqlConfig.spark.sql.streaming.stopTimeout\": \"15s\", \"view.catalogAndNamespace.part.0\": \"catalog\", \"view.sqlConfig.spark.sql.sources.commitProtocolClass\": \"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\", \"view.sqlConfig.spark.sql.sources.default\": \"delta\", \"view.sqlConfig.spark.sql.legacy.createHiveTableByDefault\": \"false\", \"view.query.out.col.2\": \"nested_values\", \"view.referredTempFunctionsNames\": \"[]\", \"view.catalogAndNamespace.part.1\": \"default\"}"
+          "key": "view.query.out.col.0",
+          "value": "\"key\""
         },
         {
-          "key": "table_type",
-          "value": "\"VIEW\""
+          "key": "view.sqlConfig.spark.sql.parquet.compression.codec",
+          "value": "\"snappy\""
+        },
+        {
+          "key": "view.query.out.numCols",
+          "value": "\"3\""
+        },
+        {
+          "key": "view.referredTempViewNames",
+          "value": "\"[]\""
+        },
+        {
+          "key": "view.query.out.col.1",
+          "value": "\"values\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.streaming.stopTimeout",
+          "value": "\"15s\""
+        },
+        {
+          "key": "view.catalogAndNamespace.part.0",
+          "value": "\"catalog\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.sources.commitProtocolClass",
+          "value": "\"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.sources.default",
+          "value": "\"delta\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault",
+          "value": "\"false\""
+        },
+        {
+          "key": "view.query.out.col.2",
+          "value": "\"nested_values\""
+        },
+        {
+          "key": "view.referredTempFunctionsNames",
+          "value": "\"[]\""
+        },
+        {
+          "key": "view.catalogAndNamespace.part.1",
+          "value": "\"default\""
         }
       ]
     },
@@ -115,6 +152,9 @@
       "database": "catalog",
       "schema": "schema",
       "table": "view"
+    },
+    "sourceInfo": {
+      "mainUrl": "http://dummy.host/explore/data/catalog/schema/view"
     }
   }
 ]

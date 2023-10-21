@@ -14,6 +14,7 @@ from metaphor.common.utils import (
     safe_float,
     safe_int,
     safe_parse_ISO8601,
+    safe_str,
     start_of_day,
     unique_list,
 )
@@ -118,6 +119,12 @@ def test_safe_parse_ISO8061():
         == "2023-09-20T08:10:15+00:00"
     )
     assert safe_parse_ISO8601("isvalid") is None
+
+
+def test_safe_str():
+    assert safe_str(None) is None
+    assert safe_str("string") == "string"
+    assert safe_str(100) == "100"
 
 
 def test_safe_float():

@@ -20,7 +20,7 @@ from tests.test_utils import load_json
 
 def dummy_config():
     return UnityCatalogRunConfig(
-        host="",
+        host="http://dummy.host",
         token="",
         output=OutputConfig(),
     )

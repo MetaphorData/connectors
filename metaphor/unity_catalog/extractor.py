@@ -1,4 +1,6 @@
+import json
 import logging
+import urllib.parse
 from typing import Collection, Dict, Generator, List
 
 from databricks_cli.sdk.api_client import ApiClient
@@ -12,10 +14,9 @@ from metaphor.common.entity_id import (
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.common.utils import unique_list
+from metaphor.common.utils import safe_str, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
-    CustomMetadata,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -23,11 +24,15 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     DatasetUpstream,
     FieldMapping,
+    KeyValuePair,
     MaterializationType,
     SchemaField,
     SchemaType,
     SourceField,
+    SourceInfo,
     SQLSchema,
+    UnityCatalog,
+    UnityCatalogTableType,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.models import (
@@ -48,10 +53,11 @@ DEFAULT_FILTER: DatasetFilter = DatasetFilter(
     }
 )
 
-TABLE_TYPE_MAP = {
+TABLE_TYPE_MATERIALIZATION_TYPE_MAP = {
     TableType.MANAGED: MaterializationType.TABLE,
     TableType.EXTERNAL: MaterializationType.EXTERNAL,
     TableType.VIEW: MaterializationType.VIEW,
+    TableType.MATERIALIZED_VIEW: MaterializationType.MATERIALIZED_VIEW,
 }
 
 
@@ -159,14 +165,28 @@ class UnityCatalogExtractor(BaseExtractor):
                 for column in table.columns
             ],
             sql_schema=SQLSchema(
-                materialization=TABLE_TYPE_MAP.get(
+                materialization=TABLE_TYPE_MATERIALIZATION_TYPE_MAP.get(
                     table.table_type, MaterializationType.TABLE
                 ),
                 table_schema=table.view_definition if table.view_definition else None,
             ),
         )
 
-        dataset.custom_metadata = CustomMetadata(metadata=table.extra_metadata())
+        path = urllib.parse.quote(
+            f"/explore/data/{database}/{schema_name}/{table_name}"
+        )
+        dataset.source_info = SourceInfo(main_url=f"{self._host}{path}")
+
+        dataset.unity_catalog = UnityCatalog(
+            table_type=UnityCatalogTableType[table.table_type],
+            data_source_format=safe_str(table.data_source_format),
+            storage_location=table.storage_location,
+            owner=table.owner,
+            properties=[
+                KeyValuePair(key=k, value=json.dumps(v))
+                for k, v in table.properties.items()
+            ],
+        )
 
         self._datasets[normalized_name] = dataset
 

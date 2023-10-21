@@ -1,11 +1,9 @@
-import json
 from enum import Enum
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, parse_obj_as, validator
 
 from metaphor.common.logger import get_logger
-from metaphor.models.metadata_change_event import CustomMetadataItem
 
 logger = get_logger()
 
@@ -21,6 +19,8 @@ class TableType(str, Enum):
     MANAGED = "MANAGED"
     EXTERNAL = "EXTERNAL"
     VIEW = "VIEW"
+    MATERIALIZED_VIEW = "MATERIALIZED_VIEW"
+    STREAMING_TABLE = "STREAMING_TABLE"
 
 
 class DataSourceFormat(str, Enum):
@@ -36,6 +36,9 @@ class DataSourceFormat(str, Enum):
     )
     DELTASHARING = "DELTASHARING"  # a Table shared through the Delta Sharing protocol
 
+    def __str__(self):
+        return str(self.value)
+
 
 class Table(BaseModel):
     catalog_name: str
@@ -45,7 +48,7 @@ class Table(BaseModel):
     generation: Optional[int]
     name: str
     owner: str
-    properties: object
+    properties: dict
     schema_name: str
     storage_location: Optional[str]
     sql_path: Optional[str]
@@ -53,21 +56,6 @@ class Table(BaseModel):
     updated_at: int
     updated_by: str
     view_definition: Optional[str]
-
-    def extra_metadata(self) -> List[CustomMetadataItem]:
-        properties = [
-            "data_source_format",
-            "generation",
-            "owner",
-            "properties",
-            "storage_location",
-            "sql_path",
-            "table_type",
-        ]
-        return [
-            CustomMetadataItem(key=p, value=json.dumps(getattr(self, p)))
-            for p in filter(lambda p: getattr(self, p, None), properties)
-        ]
 
 
 def parse_table_from_object(obj: object):
