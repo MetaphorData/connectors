@@ -23,8 +23,8 @@ class MssqlColumn(BaseModel):
     max_length: float
     precision: float
     is_nullable: bool
-    is_unique: Optional[bool]
-    is_primary_key: Optional[bool]
+    is_unique: Optional[bool] = None
+    is_primary_key: Optional[bool] = None
 
 
 class MssqlForeignKey(BaseModel):
@@ -43,19 +43,19 @@ class MssqlTable(BaseModel):
     column_dict: Dict[str, MssqlColumn]
     create_time: datetime
     is_external: bool
-    external_source: Optional[str]
-    external_file_format: Optional[str]
+    external_source: Optional[str] = None
+    external_file_format: Optional[str] = None
 
 
 class MssqlQueryLog(BaseModel):
     request_id: str
-    session_id: Optional[str]
+    session_id: Optional[str] = None
     sql_query: str
     login_name: str
     start_time: datetime
     end_time: datetime
     duration_in_ms: int
-    query_size_in_mb: Optional[int]
-    error: Optional[str]
-    row_count: Optional[int]
-    query_operation: Optional[str]
+    query_size_in_mb: Optional[int] = None
+    error: Optional[str] = None
+    row_count: Optional[int] = None
+    query_operation: Optional[str] = None

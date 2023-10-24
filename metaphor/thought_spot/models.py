@@ -17,7 +17,7 @@ class Tag(BaseModel):
 class Header(BaseModel):
     id: str
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
     tags: List[Tag] = []
 
     def __repr__(self):
@@ -37,9 +37,9 @@ class Metadata(BaseModel):
 
 
 class DataSourceConfiguration(BaseModel):
-    accountName: Optional[str]
-    user: Optional[str]
-    project_id: Optional[str]
+    accountName: Optional[str] = None
+    user: Optional[str] = None
+    project_id: Optional[str] = None
 
 
 class DataSourceContent(BaseModel):
@@ -54,11 +54,11 @@ class TableMappingInfo(BaseModel):
 
 
 class LogicalTableContent(BaseModel):
-    physicalTableName: Optional[str]
+    physicalTableName: Optional[str] = None
     worksheetType: str
     joinType: str
-    tableMappingInfo: Optional[TableMappingInfo]
-    sqlQuery: Optional[str]
+    tableMappingInfo: Optional[TableMappingInfo] = None
+    sqlQuery: Optional[str] = None
 
 
 class ConnectionType(Enum):
@@ -85,10 +85,10 @@ class ColumnMappingInfo(BaseModel):
 
 class ColumnMetadata(Metadata):
     type: str
-    columnMappingInfo: Optional[ColumnMappingInfo]
+    columnMappingInfo: Optional[ColumnMappingInfo] = None
     sources: List[ColumnSource]
-    dataType: Optional[str]
-    optionalType: Optional[str]
+    dataType: Optional[str] = None
+    optionalType: Optional[str] = None
 
 
 class SourceType(Enum):
@@ -99,8 +99,8 @@ class SourceType(Enum):
 
 
 class VizColumn(BaseModel):
-    referencedTableHeaders: Optional[List[Reference]]
-    referencedColumnHeaders: Optional[List[Reference]]
+    referencedTableHeaders: Optional[List[Reference]] = None
+    referencedColumnHeaders: Optional[List[Reference]] = None
 
 
 class RefAnswerBook(BaseModel):
@@ -109,9 +109,9 @@ class RefAnswerBook(BaseModel):
 
 class VizContent(BaseModel):
     vizType: str
-    chartType: Optional[str]
-    refVizId: Optional[str]
-    refAnswerBook: Optional[RefAnswerBook]
+    chartType: Optional[str] = None
+    refVizId: Optional[str] = None
+    refAnswerBook: Optional[RefAnswerBook] = None
     columns: List[VizColumn] = []
 
 
@@ -129,8 +129,8 @@ class Question(BaseModel):
 
 class Sheet(Metadata):
     sheetContent: SheetContent
-    sheetType: Optional[str]
-    question: Optional[Question]
+    sheetType: Optional[str] = None
+    question: Optional[Question] = None
 
 
 class ReportContent(BaseModel):
@@ -192,24 +192,24 @@ class LiveBoardMetadata(BaseModel):
 
 class TMLResult(BaseModel):
     info: Header
-    edoc: Optional[str]
+    edoc: Optional[str] = None
 
 
 class TMLFormula(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     name: str
     expr: str
 
 
 class TMLBase(BaseModel):
     name: str
-    formulas: Optional[List[TMLFormula]]
+    formulas: Optional[List[TMLFormula]] = None
 
 
 class TMLColumn(BaseModel):
     name: str
-    column_id: Optional[str]
-    formula_id: Optional[str]
+    column_id: Optional[str] = None
+    formula_id: Optional[str] = None
 
 
 class TMLWorksheet(TMLBase):
@@ -222,8 +222,8 @@ class TMLView(TMLBase):
 
 class TMLTable(BaseModel):
     name: str
-    id: Optional[str]
-    fqn: Optional[str]
+    id: Optional[str] = None
+    fqn: Optional[str] = None
 
 
 class TMLAnswerTableObject(BaseModel):
@@ -237,6 +237,6 @@ class TMLAnswer(TMLBase):
 
 class TMLObject(BaseModel):
     guid: str
-    worksheet: Optional[TMLWorksheet]
-    view: Optional[TMLView]
-    answer: Optional[TMLAnswer]
+    worksheet: Optional[TMLWorksheet] = None
+    view: Optional[TMLView] = None
+    answer: Optional[TMLAnswer] = None

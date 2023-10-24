@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, parse_obj_as, validator
+from pydantic import field_validator, BaseModel, parse_obj_as
 
 from metaphor.common.logger import get_logger
 
@@ -43,19 +43,19 @@ class DataSourceFormat(str, Enum):
 class Table(BaseModel):
     catalog_name: str
     columns: List[Column]
-    comment: Optional[str]
-    data_source_format: Optional[DataSourceFormat]
-    generation: Optional[int]
+    comment: Optional[str] = None
+    data_source_format: Optional[DataSourceFormat] = None
+    generation: Optional[int] = None
     name: str
     owner: str
     properties: dict
     schema_name: str
-    storage_location: Optional[str]
-    sql_path: Optional[str]
+    storage_location: Optional[str] = None
+    sql_path: Optional[str] = None
     table_type: TableType
     updated_at: int
     updated_by: str
-    view_definition: Optional[str]
+    view_definition: Optional[str] = None
 
 
 def parse_table_from_object(obj: object):
@@ -65,7 +65,8 @@ def parse_table_from_object(obj: object):
 class NoPermission(BaseModel):
     has_permission: bool = False
 
-    @validator("has_permission")
+    @field_validator("has_permission")
+    @classmethod
     def has_permission_must_be_false(cls, value):
         if value is False:
             return value

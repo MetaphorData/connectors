@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class AccessedObjectColumn(BaseModel):
-    columnId: Optional[int]
+    columnId: Optional[int] = None
     columnName: str
 
 

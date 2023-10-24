@@ -9,13 +9,12 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Extra, Field, constr
-from typing_extensions import Literal
+from pydantic import StringConstraints, ConfigDict, BaseModel, Field
+from typing_extensions import Annotated, Literal
 
 
 class ManifestMetadata(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     dbt_schema_version: Optional[
         str
@@ -29,9 +28,9 @@ class ManifestMetadata(BaseModel):
     )
     user_id: Optional[
         Optional[
-            constr(
-                regex=r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-            )
+            Annotated[str, StringConstraints(
+                pattern=r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+            )]
         ]
     ] = Field(None, description='A unique identifier for the user')
     send_anonymous_usage_stats: Optional[Optional[bool]] = Field(
@@ -43,16 +42,14 @@ class ManifestMetadata(BaseModel):
 
 
 class FileHash(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     checksum: str
 
 
 class Hook(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     sql: str
     transaction: Optional[bool] = True
@@ -60,16 +57,14 @@ class Hook(BaseModel):
 
 
 class Docs(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     show: Optional[bool] = True
     node_color: Optional[Optional[str]] = None
 
 
 class ColumnInfo(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     name: str
     description: Optional[str] = ''
@@ -80,24 +75,21 @@ class ColumnInfo(BaseModel):
 
 
 class DependsOn(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     macros: Optional[List[str]] = []
     nodes: Optional[List[str]] = []
 
 
 class InjectedCTE(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     id: str
     sql: str
 
 
 class TestConfig(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     enabled: Optional[bool] = True
     alias: Optional[Optional[str]] = None
@@ -107,7 +99,7 @@ class TestConfig(BaseModel):
     meta: Optional[Dict[str, Any]] = {}
     materialized: Optional[str] = 'test'
     severity: Optional[
-        constr(regex=r'^([Ww][Aa][Rr][Nn]|[Ee][Rr][Rr][Oo][Rr])$')
+        Annotated[str, StringConstraints(pattern=r'^([Ww][Aa][Rr][Nn]|[Ee][Rr][Rr][Oo][Rr])$')]
     ] = 'ERROR'
     store_failures: Optional[Optional[bool]] = None
     where: Optional[Optional[str]] = None
@@ -118,8 +110,7 @@ class TestConfig(BaseModel):
 
 
 class TestMetadata(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     kwargs: Optional[Dict[str, Any]] = {}
@@ -127,8 +118,7 @@ class TestMetadata(BaseModel):
 
 
 class SnapshotConfig(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     enabled: Optional[bool] = True
     alias: Optional[Optional[str]] = None
@@ -157,8 +147,7 @@ class SnapshotConfig(BaseModel):
 
 
 class SeedConfig(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     enabled: Optional[bool] = True
     alias: Optional[Optional[str]] = None
@@ -183,8 +172,7 @@ class SeedConfig(BaseModel):
 
 
 class Quoting(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[bool]] = None
     schema_: Optional[Optional[bool]] = Field(None, alias='schema')
@@ -193,8 +181,7 @@ class Quoting(BaseModel):
 
 
 class FreshnessMetadata(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     dbt_schema_version: Optional[str] = 'https://schemas.getdbt.com/dbt/sources/v3.json'
     dbt_version: Optional[str] = '1.4.0rc1'
@@ -204,8 +191,7 @@ class FreshnessMetadata(BaseModel):
 
 
 class SourceFreshnessRuntimeError(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     unique_id: str
     error: Optional[Optional[Union[str, int]]] = None
@@ -213,16 +199,14 @@ class SourceFreshnessRuntimeError(BaseModel):
 
 
 class Time(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     count: Optional[Optional[int]] = None
     period: Optional[Optional[Literal['minute', 'hour', 'day']]] = None
 
 
 class TimingInfo(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     started_at: Optional[Optional[datetime]] = None
@@ -230,8 +214,7 @@ class TimingInfo(BaseModel):
 
 
 class ExternalPartition(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     name: Optional[str] = ''
     description: Optional[str] = ''
@@ -240,22 +223,19 @@ class ExternalPartition(BaseModel):
 
 
 class SourceConfig(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     enabled: Optional[bool] = True
 
 
 class MacroDependsOn(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     macros: Optional[List[str]] = []
 
 
 class MacroArgument(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     type: Optional[Optional[str]] = None
@@ -263,8 +243,7 @@ class MacroArgument(BaseModel):
 
 
 class Documentation(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     resource_type: Literal['doc']
@@ -276,23 +255,20 @@ class Documentation(BaseModel):
 
 
 class ExposureOwner(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     email: str
     name: Optional[Optional[str]] = None
 
 
 class ExposureConfig(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     enabled: Optional[bool] = True
 
 
 class MetricFilter(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     field: str
     operator: str
@@ -300,23 +276,20 @@ class MetricFilter(BaseModel):
 
 
 class MetricTime(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     count: Optional[Optional[int]] = None
     period: Optional[Optional[Literal['day', 'week', 'month', 'year']]] = None
 
 
 class MetricConfig(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     enabled: Optional[bool] = True
 
 
 class NodeConfig(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     enabled: Optional[bool] = True
     alias: Optional[Optional[str]] = None
@@ -340,8 +313,7 @@ class NodeConfig(BaseModel):
 
 
 class SingularTestNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -396,8 +368,7 @@ class SingularTestNode(BaseModel):
 
 
 class HookNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -458,8 +429,7 @@ class HookNode(BaseModel):
 
 
 class ModelNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -519,8 +489,7 @@ class ModelNode(BaseModel):
 
 
 class RPCNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -580,8 +549,7 @@ class RPCNode(BaseModel):
 
 
 class SqlNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -641,8 +609,7 @@ class SqlNode(BaseModel):
 
 
 class GenericTestNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     test_metadata: TestMetadata
     database: Optional[Optional[str]] = None
@@ -700,8 +667,7 @@ class GenericTestNode(BaseModel):
 
 
 class SnapshotNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -741,8 +707,7 @@ class SnapshotNode(BaseModel):
 
 
 class SeedNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -794,8 +759,7 @@ class SeedNode(BaseModel):
 
 
 class FreshnessThreshold(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     warn_after: Optional[Optional[Time]] = {'count': None, 'period': None}
     error_after: Optional[Optional[Time]] = {'count': None, 'period': None}
@@ -803,8 +767,7 @@ class FreshnessThreshold(BaseModel):
 
 
 class SourceFreshnessOutput(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     unique_id: str
     max_loaded_at: datetime
@@ -819,8 +782,7 @@ class SourceFreshnessOutput(BaseModel):
 
 
 class ExternalTable(BaseModel):
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     location: Optional[Optional[str]] = None
     file_format: Optional[Optional[str]] = None
@@ -830,8 +792,7 @@ class ExternalTable(BaseModel):
 
 
 class Macro(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     resource_type: Literal['macro']
@@ -851,8 +812,7 @@ class Macro(BaseModel):
 
 
 class Exposure(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     resource_type: Literal['exposure']
@@ -879,8 +839,7 @@ class Exposure(BaseModel):
 
 
 class Metric(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     resource_type: Literal['metric']
@@ -912,8 +871,7 @@ class Metric(BaseModel):
 
 
 class AnalysisNode(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -973,8 +931,7 @@ class AnalysisNode(BaseModel):
 
 
 class SourceDefinition(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     database: Optional[Optional[str]] = None
     schema_: str = Field(..., alias='schema')
@@ -1011,8 +968,7 @@ class SourceDefinition(BaseModel):
 
 
 class DbtManifest(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     metadata: ManifestMetadata = Field(..., description='Metadata about the manifest')
     nodes: Dict[

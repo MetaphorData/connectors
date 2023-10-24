@@ -31,7 +31,7 @@ class PowerBIApp(BaseModel):
 class PowerBIDataSource(BaseModel):
     datasourceType: str
     datasourceId: str
-    connectionDetails: Any
+    connectionDetails: Any = None
     gatewayId: str
 
 
@@ -39,13 +39,13 @@ class PowerBIDataset(BaseModel):
     id: str
     name: str
     isRefreshable: bool
-    webUrl: Optional[str]
+    webUrl: Optional[str] = None
 
 
 class PowerBIDashboard(BaseModel):
     id: str
     displayName: str
-    webUrl: Optional[str]
+    webUrl: Optional[str] = None
 
 
 class PowerBIWorkspace(BaseModel):
@@ -60,7 +60,7 @@ class PowerBIReport(BaseModel):
     name: str
     datasetId: Optional[str] = None
     reportType: str
-    webUrl: Optional[str]
+    webUrl: Optional[str] = None
 
 
 class PowerBIPage(BaseModel):
@@ -74,7 +74,7 @@ class PowerBITile(BaseModel):
     title: str = ""
     datasetId: str = ""
     reportId: str = ""
-    embedUrl: Optional[str]
+    embedUrl: Optional[str] = None
 
 
 class PowerBIRefresh(BaseModel):
@@ -128,7 +128,7 @@ class WorkspaceInfoDataset(BaseModel):
     configuredBy: Optional[str] = None
 
     upstreamDataflows: Optional[List[UpstreamDataflow]] = None
-    upstreamDatasets: Optional[Any]
+    upstreamDatasets: Optional[Any] = None
     endorsementDetails: Optional[EndorsementDetails] = None
 
 
@@ -153,9 +153,9 @@ class WorkspaceInfoReport(WorkspaceInfoDashboardBase):
 
 
 class WorkspaceInfoUser(BaseModel):
-    emailAddress: Optional[str]
+    emailAddress: Optional[str] = None
     groupUserAccessRight: str
-    displayName: Optional[str]
+    displayName: Optional[str] = None
     graphId: str
     principalType: str
 
@@ -184,10 +184,10 @@ class WorkspaceInfoDataflow(BaseModel):
 
 class WorkspaceInfo(BaseModel):
     id: str
-    name: Optional[str]
-    type: Optional[str]
+    name: Optional[str] = None
+    type: Optional[str] = None
     state: str
-    description: Optional[str]
+    description: Optional[str] = None
     reports: List[WorkspaceInfoReport] = []
     datasets: List[WorkspaceInfoDataset] = []
     dashboards: List[WorkspaceInfoDashboard] = []
@@ -214,7 +214,7 @@ class PowerBISubscription(BaseModel):
 
 class SubscriptionsByUserResponse(BaseModel):
     SubscriptionEntities: List[PowerBISubscription]
-    continuationUri: Optional[str]
+    continuationUri: Optional[str] = None
 
 
 class PowerBIActivityEventEntity(BaseModel):
@@ -242,7 +242,7 @@ class PowerBIActivityType(Enum):
 
 class GetActivitiesResponse(BaseModel):
     activityEventEntities: List[PowerBIActivityEventEntity]
-    continuationUri: Optional[str]
+    continuationUri: Optional[str] = None
 
 
 class AccessTokenError(Exception):

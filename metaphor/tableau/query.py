@@ -69,22 +69,22 @@ query($first: Int, $offset: Int) {
 
 class Database(BaseModel):
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
     connectionType: str
 
 
 class DatabaseTable(BaseModel):
     luid: str
     name: str
-    fullName: Optional[str]
-    schema_: Optional[str] = Field(alias="schema")
-    description: Optional[str]
-    database: Optional[Database]
+    fullName: Optional[str] = None
+    schema_: Optional[str] = Field(None, alias="schema")
+    description: Optional[str] = None
+    database: Optional[Database] = None
 
 
 class DatasourceField(BaseModel):
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
 
 
 class PublishedDatasource(BaseModel):
@@ -92,7 +92,7 @@ class PublishedDatasource(BaseModel):
     luid: str
     vizportalUrlId: str
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
     fields: List[DatasourceField]
     upstreamTables: List[DatabaseTable]
 
@@ -109,7 +109,7 @@ class WorkbookQueryResponse(BaseModel):
 
     luid: str
     name: str
-    projectLuid: Optional[str]
+    projectLuid: Optional[str] = None
     projectName: str
     vizportalUrlId: str
     upstreamDatasources: List[PublishedDatasource]
