@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, Generic, List, Optional, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 DataT = TypeVar("DataT")
 
@@ -61,7 +61,8 @@ class DestinationPayload(V1CompatBaseModel):
     config: Any = None
 
 
-class ConnectorStatus(V1CompatBaseModel):
+class ConnectorStatus(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
     setup_state: str
     update_state: str
     sync_state: str

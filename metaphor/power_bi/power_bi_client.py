@@ -5,6 +5,7 @@ from typing import Any, Callable, List, Optional, Type, TypeVar
 from urllib.parse import quote, urlencode
 
 import requests
+from pydantic import BaseModel, ConfigDict
 
 from metaphor.common.api_request import ApiError, get_request
 from metaphor.common.logger import get_logger
@@ -163,7 +164,8 @@ class WorkspaceInfoUser(BaseModel):
         return hash(self.graphId)
 
 
-class PowerBiRefreshSchedule(V1CompatBaseModel):
+class PowerBiRefreshSchedule(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
     frequency: Optional[str] = None
     days: Optional[List[str]] = None
     times: Optional[List[str]] = None

@@ -21,7 +21,7 @@
           "setup_state": "connected",
           "sync_state": "paused",
           "update_state": "on_schedule",
-          "is_historical_sync": "False",
+          "is_historical_sync": false,
           "tasks": [],
           "warnings": []
         },
@@ -48,7 +48,7 @@
           "setup_state": "connected",
           "sync_state": "paused",
           "update_state": "on_schedule",
-          "is_historical_sync": "False",
+          "is_historical_sync": false,
           "tasks": [],
           "warnings": []
         },
