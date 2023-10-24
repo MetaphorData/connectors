@@ -158,9 +158,8 @@ class SnowflakeLineageExtractor(BaseExtractor):
         source_datasets = []
 
         # Extract source tables/views
-        source_objects = TypeAdapter(List[AccessedObject]).validate_json(
-            objects_accessed
-        )
+        ta = TypeAdapter(List[AccessedObject])
+        source_objects = ta.validate_json(objects_accessed)
         for obj in source_objects:
             if (
                 not obj.objectDomain

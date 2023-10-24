@@ -45,7 +45,7 @@ class TableauRunConfig(BaseConfig):
     # whether to disable Chart preview image
     disable_preview_image: bool = False
 
-    @model_validator(mode="before")
-    def have_access_token_or_user_password(cls, values):
-        must_set_exactly_one(values, ["access_token", "user_password"])
-        return values
+    @model_validator(mode="after")
+    def have_access_token_or_user_password(self):
+        must_set_exactly_one(self.__dict__, ["access_token", "user_password"])
+        return self
