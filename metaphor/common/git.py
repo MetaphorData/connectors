@@ -28,10 +28,10 @@ class GitRepoConfig:
     # relative path to the project, default to the root of the repo
     project_path: str = ""
 
-    @model_validator(mode="after")
-    def have_token_or_password(self) -> "GitRepoConfig":
-        must_set_exactly_one(self.__dict__, ["access_token", "password"])
-        return self
+    @model_validator(mode="before")
+    def have_token_or_password(cls, values):
+        must_set_exactly_one(values, ["access_token", "password"])
+        return values
 
 
 def clone_repo(config: GitRepoConfig, local_dir: Optional[str] = None) -> str:

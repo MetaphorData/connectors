@@ -604,7 +604,8 @@ class SnowflakeExtractor(BaseExtractor):
         )
 
     def _parse_accessed_objects(self, raw_objects: str) -> List[QueriedDataset]:
-        objects = TypeAdapter(List[AccessedObject]).validate_json(raw_objects)
+        ta = TypeAdapter(List[AccessedObject])
+        objects = ta.validate_json(raw_objects)
         queried_datasets: List[QueriedDataset] = []
         for obj in objects:
             if not obj.objectDomain or obj.objectDomain.upper() not in (
