@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional, Union
 
-from pydantic import field_validator, BaseModel, parse_obj_as
+from pydantic import BaseModel, field_validator, parse_obj_as
 
 from metaphor.common.logger import get_logger
 
