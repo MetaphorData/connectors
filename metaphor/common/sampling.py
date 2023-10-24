@@ -1,4 +1,4 @@
-from pydantic import field_validator
+from pydantic import Field
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
@@ -13,9 +13,3 @@ class SamplingConfig:
 
     # Sampling only affect table large than threshold
     threshold: int = 100000
-
-    @field_validator("percentage")
-    @classmethod
-    def percentage_must_between_1_and_100(cls, v):
-        assert 1 <= v <= 100, "Must be between 1 and 100"
-        return v
