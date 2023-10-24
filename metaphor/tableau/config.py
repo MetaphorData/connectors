@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Dict, Optional
 
-from pydantic import root_validator
+from pydantic import model_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -45,7 +45,7 @@ class TableauRunConfig(BaseConfig):
     # whether to disable Chart preview image
     disable_preview_image: bool = False
 
-    @root_validator
+    @model_validator(mode="before")
     def have_access_token_or_user_password(cls, values):
         must_set_exactly_one(values, ["access_token", "user_password"])
         return values

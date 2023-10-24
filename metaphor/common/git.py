@@ -4,7 +4,7 @@ from typing import Optional
 from urllib.parse import quote, urlparse
 
 from git import Repo
-from pydantic import root_validator
+from pydantic import model_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
@@ -28,7 +28,7 @@ class GitRepoConfig:
     # relative path to the project, default to the root of the repo
     project_path: str = ""
 
-    @root_validator
+    @model_validator(mode="before")
     def have_token_or_password(cls, values):
         must_set_exactly_one(values, ["access_token", "password"])
         return values

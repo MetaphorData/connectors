@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 
-from pydantic import root_validator
+from pydantic import model_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -47,7 +47,7 @@ class LookerRunConfig(BaseConfig):
     verify_ssl: bool = True
     timeout: int = 120
 
-    @root_validator
+    @model_validator(mode="before")
     def have_local_or_git_dir_for_lookml(cls, values):
         must_set_exactly_one(values, ["lookml_dir", "lookml_git_repo"])
         return values
