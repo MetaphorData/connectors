@@ -84,6 +84,6 @@ class BigQueryRunConfig(BaseConfig):
     query_log: BigQueryQueryLogConfig = BigQueryQueryLogConfig()
 
     @model_validator(mode="after")
-    def have_key_path_or_credentials(self) -> "BigQueryQueryLogConfig":
+    def have_key_path_or_credentials(self) -> "BigQueryRunConfig":
         must_set_exactly_one(self.__dict__, ["key_path", "credentials"])
         return self
