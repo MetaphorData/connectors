@@ -1,6 +1,6 @@
 {
   "@odata.context": "url",
-  "frequency": "60",
+  "frequency": 60,
   "days": [],
   "times": [],
   "localTimeZoneId": "UTC"

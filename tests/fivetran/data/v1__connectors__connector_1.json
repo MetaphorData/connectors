@@ -18,7 +18,7 @@
       "setup_state": "connected",
       "sync_state": "scheduled",
       "update_state": "on_schedule",
-      "is_historical_sync": "False",
+      "is_historical_sync": false,
       "tasks": [],
       "warnings": []
     },

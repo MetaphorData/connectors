@@ -8,3 +8,4 @@ class ConnectorConfig:
 
     validate_all = True
     extra = Extra.forbid
+    coerce_numbers_to_str = True
