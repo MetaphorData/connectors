@@ -1,24 +1,22 @@
 import datetime
 from typing import Any, Generic, List, Optional, TypeVar
 
-from pydantic import Field
-
-from metaphor.common.models import V1CompatBaseModel
+from pydantic import BaseModel, Field
 
 DataT = TypeVar("DataT")
 
 
-class GenericData(V1CompatBaseModel, Generic[DataT]):
+class GenericData(BaseModel, Generic[DataT]):
     next_cursor: Optional[str] = None
     items: List[DataT]
 
 
-class GenericListResponse(V1CompatBaseModel, Generic[DataT]):
+class GenericListResponse(BaseModel, Generic[DataT]):
     code: str
     data: Optional[GenericData[DataT]] = None
 
 
-class GenericResponse(V1CompatBaseModel, Generic[DataT]):
+class GenericResponse(BaseModel, Generic[DataT]):
     code: str
     data: Optional[DataT] = None
 

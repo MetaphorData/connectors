@@ -152,7 +152,7 @@ class WorkspaceInfoReport(WorkspaceInfoDashboardBase):
     description: str = ""
 
 
-class WorkspaceInfoUser(V1CompatBaseModel):
+class WorkspaceInfoUser(BaseModel):
     emailAddress: Optional[str] = None
     groupUserAccessRight: str
     displayName: Optional[str] = None

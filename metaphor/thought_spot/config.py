@@ -18,7 +18,10 @@ class ThoughtSpotRunConfig(BaseConfig):
     secret_key: Optional[str] = None
     password: Optional[str] = None
 
-    @model_validator(mode="after")
-    def check_password_or_secret_key(self) -> "ThoughtSpotRunConfig":
-        must_set_at_least_one(self.__dict__, ["secret_key", "password"])
-        return self
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
+    @validator("password")
+    def check_password_or_secret_key(cls, password, values):
+        if "secret_key" not in values and not password:
+            raise ValueError("Either password or secret_key is required")
+        return password

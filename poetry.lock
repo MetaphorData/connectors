@@ -3642,4 +3642,4 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "416c09e5821ccf4574c088ae10d186bccbc798f0171d102fd0c82ec64ca116e1"
+content-hash = "0fd29df63fbfb851da6382f17175d563140ad9652d14c4760abaaa6b0c2e79f0"
