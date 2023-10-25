@@ -18,7 +18,7 @@ def list_table_lineage(client: ApiClient, table_name: str) -> TableLineage:
         return parse_obj_as(TableLineage, resp)
     except HTTPError as e:
         # Lineage API returns 503 on GCP as it's not yet available
-        if e.response.status_code == 503:
+        if e.response is not None and e.response.status_code == 503:
             return TableLineage()
 
         raise e
@@ -38,7 +38,7 @@ def list_column_lineage(
         return parse_obj_as(ColumnLineage, resp)
     except HTTPError as e:
         # Lineage API returns 503 on GCP as it's not yet available
-        if e.response.status_code == 503:
+        if e.response is not None and e.response.status_code == 503:
             return ColumnLineage()
 
         raise e

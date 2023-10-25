@@ -756,7 +756,7 @@ class SqlNode(BaseModel):
     database: Optional[str] = None
     schema_: str = Field(..., alias='schema')
     name: str
-    resource_type: Literal['sql operation']
+    resource_type: Literal['sql_operation']
     package_name: str
     path: str
     original_file_path: str
@@ -1330,7 +1330,7 @@ class SemanticModel(BaseModel):
         'operation',
         'seed',
         'rpc',
-        'sql operation',
+        'sql_operation',
         'doc',
         'source',
         'macro',
