@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class MssqlConnectConfig(BaseModel):
@@ -36,6 +36,7 @@ class MssqlForeignKey(BaseModel):
 
 
 class MssqlTable(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
     id: str
     name: str
     schema_name: str
