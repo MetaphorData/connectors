@@ -53,8 +53,6 @@ exit
 
 To make life easier, we recommend to always develop in a poetry shell. Many of the following commands will only work inside a poetry shell as well.
 
-> See [Building for Apple Silicon](apple_silicon.md) for more information on installing the dependencies on Apple Silicon machines.
-
 ## Setup Pre-commit
 
 Install [pre-commit](https://pre-commit.com/#installation) then setup git hooks
