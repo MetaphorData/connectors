@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, field_validator, parse_obj_as
+from pydantic import BaseModel, TypeAdapter, field_validator
 
 from metaphor.common.logger import get_logger
 
@@ -59,7 +59,8 @@ class Table(BaseModel):
 
 
 def parse_table_from_object(obj: object):
-    return TypeAdapter(Table).validate_python(obj)
+    ta = TypeAdapter(Table)
+    return ta.validate_python(obj)
 
 
 class NoPermission(BaseModel):
