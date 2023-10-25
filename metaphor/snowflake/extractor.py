@@ -29,6 +29,7 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     DatasetStructure,
     EntityType,
+    Hierarchy,
     MaterializationType,
     QueriedDataset,
     QueryLog,
@@ -36,6 +37,8 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SourceInfo,
     SQLSchema,
+    SystemTag,
+    SystemTagSource,
 )
 from metaphor.snowflake import auth
 from metaphor.snowflake.accessed_object import AccessedObject
@@ -85,6 +88,7 @@ class SnowflakeExtractor(BaseExtractor):
         self._config = config
 
         self._datasets: Dict[str, Dataset] = {}
+        self._hierarchies: Dict[str, Hierarchy] = {}
         self._logs: List[QueryLog] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -135,6 +139,7 @@ class SnowflakeExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(datasets)
         entities.extend(chunk_query_logs(self._logs))
+        entities.extend(list(self._hierarchies.values()))
         return entities
 
     @staticmethod
@@ -364,7 +369,7 @@ class SnowflakeExtractor(BaseExtractor):
             """
             SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
             FROM snowflake.account_usage.tag_references
-            WHERE DOMAIN in ('TABLE', 'COLUMN')
+            WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
             ORDER BY OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME
             """
         )
@@ -398,6 +403,18 @@ class SnowflakeExtractor(BaseExtractor):
                 if not field.tags:
                     field.tags = []
                 field.tags.append(tag)
+            elif object_type == "DATASET" or object_type == "SCHEMA":
+                if normalized_dataset_name not in self._hierarchies:
+                    self._hierarchies[normalized_dataset_name] = Hierarchy(
+                        system_tags=[]
+                    )
+                self._hierarchies[normalized_dataset_name].system_tags.append(
+                    SystemTag(
+                        key=key,
+                        system_tag_source=SystemTagSource.SNOWFLAKE,
+                        value=value,
+                    )
+                )
 
     def _fetch_query_logs(self) -> None:
         logger.info("Fetching Snowflake query logs")
