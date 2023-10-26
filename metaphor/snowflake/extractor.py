@@ -30,6 +30,7 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     EntityType,
     Hierarchy,
+    HierarchyLogicalID,
     MaterializationType,
     QueriedDataset,
     QueryLog,
@@ -364,6 +365,43 @@ class SnowflakeExtractor(BaseExtractor):
                 sql_schema.primary_key = []
             sql_schema.primary_key.append(column)
 
+    def _add_hierarchy(
+        self,
+        database: Optional[str],
+        schema: Optional[str],
+        object_type: str,
+        tag_key: str,
+        tag_value: str,
+    ) -> None:
+        if not database:
+            logger.error("Cannot extract tag without database info")
+            return
+
+        # Extract database & schema level tags
+        #
+        # In Snowflake the hierarchy is as follows:
+        # database > schema > table
+        path = [DataPlatform.SNOWFLAKE.value]
+        if object_type == "DATABASE":
+            path.extend([database])
+            hierarchy_key = dataset_normalized_name(database)
+        elif schema is not None:
+            path.extend([database, schema])
+            hierarchy_key = dataset_normalized_name(database, schema)
+        logical_id = HierarchyLogicalID(path=path)
+
+        if hierarchy_key not in self._hierarchies:
+            self._hierarchies[hierarchy_key] = Hierarchy(
+                logical_id=logical_id, system_tags=[]
+            )
+        self._hierarchies[hierarchy_key].system_tags.append(
+            SystemTag(
+                key=tag_key,
+                system_tag_source=SystemTagSource.SNOWFLAKE,
+                value=tag_value,
+            )
+        )
+
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
         cursor.execute(
             """
@@ -403,18 +441,8 @@ class SnowflakeExtractor(BaseExtractor):
                 if not field.tags:
                     field.tags = []
                 field.tags.append(tag)
-            elif object_type == "DATASET" or object_type == "SCHEMA":
-                if normalized_dataset_name not in self._hierarchies:
-                    self._hierarchies[normalized_dataset_name] = Hierarchy(
-                        system_tags=[]
-                    )
-                self._hierarchies[normalized_dataset_name].system_tags.append(
-                    SystemTag(
-                        key=key,
-                        system_tag_source=SystemTagSource.SNOWFLAKE,
-                        value=value,
-                    )
-                )
+            elif object_type == "DATABASE" or object_type == "SCHEMA":
+                self._add_hierarchy(database, schema, object_type, key, value)
 
     def _fetch_query_logs(self) -> None:
         logger.info("Fetching Snowflake query logs")
