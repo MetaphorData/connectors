@@ -33,5 +33,4 @@ class BaseConfig:
     def from_yaml_file(cls: Type[T], path: str) -> T:
         with open(path, encoding="utf8") as fin:
             obj = yaml.safe_load(fin.read())
-            ta = TypeAdapter(cls)
-            return ta.validate_python(variable_substitution(obj))
+            return TypeAdapter(cls).validate_python(variable_substitution(obj))
