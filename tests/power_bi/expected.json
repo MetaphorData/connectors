@@ -207,7 +207,9 @@
         "notifyOption": "MailOnFailure",
         "frequencyInMinutes": 120.0,
         "times": []
-      }
+      },
+      "configuredBy": "bob@foo.com",
+      "createdDate": "2022-03-30T23:28:21.060000+00:00"
     },
     "structure": {
       "directories": [
@@ -264,7 +266,8 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0001-000000000003",
-      "workspaceId": "workspace-1"
+      "workspaceId": "workspace-1",
+      "configuredBy": "bob@foo.com"
     },
     "structure": {
       "directories": [

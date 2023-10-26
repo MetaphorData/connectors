@@ -123,8 +123,9 @@ class WorkspaceInfoDataset(BaseModel):
     tables: List[PowerBITable] = []
 
     description: str = ""
-    ContentProviderType: str = ""
-    CreatedDate: str = ""
+    contentProviderType: str = ""
+    createdDate: str = ""
+    configuredBy: Optional[str] = None
 
     upstreamDataflows: Optional[List[UpstreamDataflow]] = None
     upstreamDatasets: Optional[Any]
