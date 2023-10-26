@@ -33,7 +33,8 @@ poetry run datamodel-codegen \
   --class-name ${CLASS_NAME} \
   --enum-field-as-literal all \
   --input-file-type jsonschema \
-  --output ${OUTPUT}
+  --output ${OUTPUT} \
+  --output-model-type pydantic_v2.BaseModel
 
 # Disable mypy type-checking for generated files
 sed -i '' '1s;^;# mypy: ignore-errors\n\n;' ${OUTPUT}
