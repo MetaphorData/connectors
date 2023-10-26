@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional, Union
 
+from pydantic import BaseModel, ConfigDict
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
@@ -44,3 +45,12 @@ def to_dataset_statistics(
         record_count=safe_float(rows),
         last_updated=last_updated,
     )
+
+
+class V1CompatBaseModel(BaseModel):
+    """
+    A Pydantic model that preserves the behavior in Pydantic v1, i.e.
+    numbers and `bool`s are parsed to `str`s by default.
+    """
+
+    model_config = ConfigDict(coerce_numbers_to_str=True)

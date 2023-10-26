@@ -1,40 +1,42 @@
 import datetime
 from typing import Any, Generic, List, Optional, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
+
+from metaphor.common.models import V1CompatBaseModel
 
 DataT = TypeVar("DataT")
 
 
-class GenericData(BaseModel, Generic[DataT]):
+class GenericData(V1CompatBaseModel, Generic[DataT]):
     next_cursor: Optional[str] = None
     items: List[DataT]
 
 
-class GenericListResponse(BaseModel, Generic[DataT]):
+class GenericListResponse(V1CompatBaseModel, Generic[DataT]):
     code: str
     data: Optional[GenericData[DataT]] = None
 
 
-class GenericResponse(BaseModel, Generic[DataT]):
+class GenericResponse(V1CompatBaseModel, Generic[DataT]):
     code: str
     data: Optional[DataT] = None
 
 
-class MetadataSchemaPayload(BaseModel):
+class MetadataSchemaPayload(V1CompatBaseModel):
     id: str
     name_in_source: Optional[str] = None
     name_in_destination: str
 
 
-class MetadataTablePayload(BaseModel):
+class MetadataTablePayload(V1CompatBaseModel):
     id: str
     parent_id: str
     name_in_source: str
     name_in_destination: str
 
 
-class MetadataColumnPayload(BaseModel):
+class MetadataColumnPayload(V1CompatBaseModel):
     id: str
     parent_id: str
     name_in_source: str
@@ -45,13 +47,13 @@ class MetadataColumnPayload(BaseModel):
     is_foreign_key: bool
 
 
-class GroupPayload(BaseModel):
+class GroupPayload(V1CompatBaseModel):
     id: str
     name: str
     created_at: datetime.datetime
 
 
-class DestinationPayload(BaseModel):
+class DestinationPayload(V1CompatBaseModel):
     id: str
     group_id: str
     service: str
@@ -61,15 +63,14 @@ class DestinationPayload(BaseModel):
     config: Any = None
 
 
-class ConnectorStatus(BaseModel):
-    model_config = ConfigDict(coerce_numbers_to_str=True)
+class ConnectorStatus(V1CompatBaseModel):
     setup_state: str
     update_state: str
     sync_state: str
     is_historical_sync: str
 
 
-class ConnectorPayload(BaseModel):
+class ConnectorPayload(V1CompatBaseModel):
     id: str
     group_id: str
     service: str
@@ -88,7 +89,7 @@ class ConnectorPayload(BaseModel):
         return hash(self.id)
 
 
-class SourceMetadataPayload(BaseModel):
+class SourceMetadataPayload(V1CompatBaseModel):
     id: str
     name: str
     type: str
@@ -96,6 +97,6 @@ class SourceMetadataPayload(BaseModel):
     icon_url: Optional[str] = None
 
 
-class UserPayload(BaseModel):
+class UserPayload(V1CompatBaseModel):
     id: str
     email: str

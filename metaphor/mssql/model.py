@@ -1,23 +1,23 @@
 from datetime import datetime
 from typing import Dict, Optional
 
-from pydantic import BaseModel, ConfigDict
+from metaphor.common.models import V1CompatBaseModel
 
 
-class MssqlConnectConfig(BaseModel):
+class MssqlConnectConfig(V1CompatBaseModel):
     endpoint: str
     username: str
     password: str
 
 
-class MssqlDatabase(BaseModel):
+class MssqlDatabase(V1CompatBaseModel):
     id: int
     name: str
     create_time: datetime
     collation_name: str
 
 
-class MssqlColumn(BaseModel):
+class MssqlColumn(V1CompatBaseModel):
     name: str
     type: str
     max_length: float
@@ -27,7 +27,7 @@ class MssqlColumn(BaseModel):
     is_primary_key: Optional[bool] = None
 
 
-class MssqlForeignKey(BaseModel):
+class MssqlForeignKey(V1CompatBaseModel):
     name: str
     table_id: str
     column_name: str
@@ -35,8 +35,7 @@ class MssqlForeignKey(BaseModel):
     referenced_column: str
 
 
-class MssqlTable(BaseModel):
-    model_config = ConfigDict(coerce_numbers_to_str=True)
+class MssqlTable(V1CompatBaseModel):
     id: str
     name: str
     schema_name: str
@@ -48,7 +47,7 @@ class MssqlTable(BaseModel):
     external_file_format: Optional[str] = None
 
 
-class MssqlQueryLog(BaseModel):
+class MssqlQueryLog(V1CompatBaseModel):
     request_id: str
     session_id: Optional[str] = None
     sql_query: str
