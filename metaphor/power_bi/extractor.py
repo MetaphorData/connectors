@@ -428,6 +428,8 @@ class PowerBIExtractor(BaseExtractor):
                     workspace_id=workspace.id,
                     last_refreshed=last_refreshed,
                     refresh_schedule=refresh_schedule,
+                    created_date=safe_parse_ISO8601(wds.createdDate),
+                    configured_by=wds.configuredBy,
                 ),
             )
 

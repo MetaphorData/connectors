@@ -246,7 +246,6 @@ def face_get_workspace_info(workspace_id: str) -> List[WorkspaceInfo]:
             ],
             datasets=[
                 WorkspaceInfoDataset(
-                    configuredBy="alice@foo.com",
                     id=dataset1.id,
                     name=dataset1.name,
                     description="This is a dataset",
@@ -279,6 +278,7 @@ def face_get_workspace_info(workspace_id: str) -> List[WorkspaceInfo]:
                 ),
                 WorkspaceInfoDataset(
                     configuredBy="bob@foo.com",
+                    createdDate="2022-03-30T23:28:21.06",
                     id=dataset2.id,
                     name=dataset2.name,
                     description="This is another dataset",
