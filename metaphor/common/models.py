@@ -51,9 +51,6 @@ class V1CompatBaseModel(BaseModel):
     """
     A Pydantic model that preserves the behavior in Pydantic v1, i.e.
     numbers and `bool`s are parsed to `str`s by default.
-
-    TODO: drop this, just parse numbers to numbers. If it's a string
-    then it should be quoted in the source config yaml file.
     """
 
     model_config = ConfigDict(coerce_numbers_to_str=True)
