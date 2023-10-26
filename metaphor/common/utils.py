@@ -39,6 +39,11 @@ def must_set_exactly_one(values: Dict, keys: List[str]):
         raise ValueError(f"Must set exactly one of {keys}, found {not_none}")
 
 
+def must_set_at_least_one(values: Dict, keys: List[str]):
+    if not next((k for k in keys if values.get(k) is not None), None):
+        raise ValueError(f"Must set at least one of {keys}")
+
+
 def md5_digest(value: bytes) -> str:
     """For computing non-crypto use of MD5 digest"""
     return md5(value).hexdigest()  # nosec B303, B324

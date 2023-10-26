@@ -9,6 +9,7 @@ from metaphor.common.utils import (
     filter_empty_strings,
     filter_none,
     is_email,
+    must_set_at_least_one,
     must_set_exactly_one,
     removesuffix,
     safe_float,
@@ -39,6 +40,19 @@ def test_must_set_exactly_one():
 
     with pytest.raises(ValueError):
         must_set_exactly_one({"foo": 1, "bar": 1}, ["foo", "bar"])
+
+
+def test_must_set_at_least_one():
+    must_set_at_least_one({"foo": 1}, ["foo"])
+    must_set_at_least_one({"foo": 1, "bar": None}, ["foo", "bar"])
+    must_set_at_least_one({"foo": 1, "bar": 42}, ["foo", "bar"])
+    must_set_at_least_one({"bar": 1, "baz": None}, ["foo", "bar", "baz"])
+
+    with pytest.raises(ValueError):
+        must_set_at_least_one({}, ["foo"])
+
+    with pytest.raises(ValueError):
+        must_set_at_least_one({"foo": 1, "bar": 1}, ["baz"])
 
 
 def test_filter_empty_strings():
