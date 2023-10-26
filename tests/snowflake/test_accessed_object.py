@@ -30,8 +30,7 @@ def test_pydantic_dataclass():
         },
     ]
 
-    ta = TypeAdapter(List[AccessedObject])
-    result = ta.validate_python(data)
+    result = TypeAdapter(List[AccessedObject]).validate_python(data)
     assert len(result) == 3
 
 

@@ -59,8 +59,7 @@ class Table(BaseModel):
 
 
 def parse_table_from_object(obj: object):
-    ta = TypeAdapter(Table)
-    return ta.validate_python(obj)
+    return TypeAdapter(Table).validate_python(obj)
 
 
 class NoPermission(BaseModel):
