@@ -13,7 +13,7 @@ from metaphor.models.metadata_change_event import (
     QueriedDataset,
     SchemaField,
 )
-from metaphor.snowflake.config import SnowflakeRunConfig
+from metaphor.snowflake.config import SnowflakeQueryLogConfig, SnowflakeRunConfig
 from metaphor.snowflake.extractor import SnowflakeExtractor
 from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
 
@@ -251,14 +251,14 @@ def test_fetch_shared_databases(mock_connect: MagicMock):
 def test_parse_query_logs(mock_connect: MagicMock):
     query_logs: List[Tuple[Any, ...]] = [
         (
-            "id1",
-            "METAPHOR",
-            "create or replace transient table ACME.ride_share.rides_by_month_start_station_2017  as ...",
-            "2022-12-12 14:01:02.778 -0800",
-            2514,
-            "0.000296",
-            "ACME",
-            "RIDE_SHARE",
+            "id1",  # QUERY_ID
+            "METAPHOR",  # USER_NAME
+            "short query text less than 40 chars",  # QUERY_TEXT
+            "2022-12-12 14:01:02.778 -0800",  # START_TIME
+            2514,  # TOTAL_ELAPSED_TIME
+            "0.000296",  # CREDITS_USED_CLOUD_SERVICES
+            "ACME",  # DATABASE_NAME
+            "RIDE_SHARE",  # SCHEMA_NAME
             100,  # BYTES_SCANNED
             200,  # BYTES_WRITTEN
             10,  # ROWS_PRODUCED
@@ -562,10 +562,29 @@ def test_parse_query_logs(mock_connect: MagicMock):
                     },
                 ]
             ),
-        )
+        ),
+        (
+            # Large query - expected to be ignored
+            "id1",  # QUERY_ID
+            "METAPHOR",  # USER_NAME
+            "a very very long query that exceeds 40 chars",  # QUERY_TEXT
+            "2022-12-12 14:01:02.778 -0800",  # START_TIME
+            2514,  # TOTAL_ELAPSED_TIME
+            "0.000296",  # CREDITS_USED_CLOUD_SERVICES
+            "ACME",  # DATABASE_NAME
+            "RIDE_SHARE",  # SCHEMA_NAME
+            100,  # BYTES_SCANNED
+            200,  # BYTES_WRITTEN
+            10,  # ROWS_PRODUCED
+            20,  # ROWS_INSERTED
+            0,  # ROWS_UPDATED
+        ),
     ]
 
-    extractor = SnowflakeExtractor(make_snowflake_config())
+    config = make_snowflake_config()
+    config.query_log = SnowflakeQueryLogConfig(max_query_size=40)
+
+    extractor = SnowflakeExtractor(config)
     extractor._parse_query_logs("1", query_logs)
 
     assert len(extractor._logs) == 1

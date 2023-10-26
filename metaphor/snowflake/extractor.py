@@ -80,6 +80,7 @@ class SnowflakeExtractor(BaseExtractor):
         self._query_log_excluded_usernames = config.query_log.excluded_usernames
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_fetch_size = config.query_log.fetch_size
+        self._query_log_max_query_size = config.query_log.max_query_size
         self._max_concurrency = config.max_concurrency
         self._config = config
 
@@ -518,6 +519,10 @@ class SnowflakeExtractor(BaseExtractor):
                     if len(access_objects) == 2
                     else None
                 )
+
+                # Skip large queries
+                if len(query_text) >= self._query_log_max_query_size:
+                    continue
 
                 query_log = QueryLog(
                     id=f"{DataPlatform.SNOWFLAKE.name}:{query_id}",
