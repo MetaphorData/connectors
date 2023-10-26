@@ -20,6 +20,5 @@ class ThoughtSpotRunConfig(BaseConfig):
 
     @model_validator(mode="after")
     def check_password_or_secret_key(self) -> "ThoughtSpotRunConfig":
-        if self.password is None and self.secret_key is None:
-            raise ValueError("Either password or secret_key is required")
+        must_set_at_least_one(self.__dict__, ["secret_key", "password"])
         return self
