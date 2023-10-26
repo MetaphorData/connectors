@@ -368,7 +368,7 @@ class SnowflakeExtractor(BaseExtractor):
     def _add_system_tag(
         self,
         database: Optional[str],
-        schema: Optional[str],
+        object_name: Optional[str],
         object_type: str,
         tag_key: str,
         tag_value: str,
@@ -379,18 +379,18 @@ class SnowflakeExtractor(BaseExtractor):
         will contain only the database name. Otherwise it will have both the
         database name and schema name.
         """
-        if not database:
-            logger.error("Cannot extract tag without database info")
+        if not object_name:
+            logger.error("Cannot extract tag without object name")
             return
 
         # Set hierarchy key and logical_id
         path = [DataPlatform.SNOWFLAKE.value]
         if object_type == "DATABASE":
-            path.extend([database])
-            hierarchy_key = dataset_normalized_name(database)
-        elif schema is not None:
-            path.extend([database, schema])
-            hierarchy_key = dataset_normalized_name(database, schema)
+            path.extend([object_name])
+            hierarchy_key = dataset_normalized_name(object_name)
+        elif object_name is not None:
+            path.extend([database, object_name])
+            hierarchy_key = dataset_normalized_name(database, object_name)
         logical_id = HierarchyLogicalID(path=path)
 
         if hierarchy_key not in self._hierarchies:
@@ -417,37 +417,40 @@ class SnowflakeExtractor(BaseExtractor):
             """
         )
 
-        for key, value, object_type, database, schema, table_name, column in cursor:
+        for key, value, object_type, database, schema, object_name, column in cursor:
             normalized_dataset_name = dataset_normalized_name(
-                database, schema, table_name
+                database, schema, object_name
             )
             tag = self._build_tag_string(key, value)
 
-            dataset = self._datasets.get(normalized_dataset_name)
-            if dataset is None or dataset.schema is None:
-                logger.error(f"Table {normalized_dataset_name} not found for tag {tag}")
-                continue
-
-            if object_type == "TABLE":
-                if not dataset.schema.tags:
-                    dataset.schema.tags = []
-                dataset.schema.tags.append(tag)
-            elif object_type == "COLUMN" and column:
-                field = next(
-                    fd
-                    for fd in dataset.schema.fields
-                    if fd.field_path.upper() == column.upper()
-                )
-                if not field:
+            if object_type == "TABLE" or object_type == "COLUMN":
+                dataset = self._datasets.get(normalized_dataset_name)
+                if dataset is None or dataset.schema is None:
                     logger.error(
-                        f"Field {column} not found in {normalized_dataset_name} for tag {tag}"
+                        f"Table {normalized_dataset_name} not found for tag {tag}"
                     )
                     continue
-                if not field.tags:
-                    field.tags = []
-                field.tags.append(tag)
-            elif object_type == "DATABASE" or object_type == "SCHEMA":
-                self._add_system_tag(database, schema, object_type, key, value)
+
+                if object_type == "TABLE":
+                    if not dataset.schema.tags:
+                        dataset.schema.tags = []
+                    dataset.schema.tags.append(tag)
+                elif column:
+                    field = next(
+                        fd
+                        for fd in dataset.schema.fields
+                        if fd.field_path.upper() == column.upper()
+                    )
+                    if not field:
+                        logger.error(
+                            f"Field {column} not found in {normalized_dataset_name} for tag {tag}"
+                        )
+                        continue
+                    if not field.tags:
+                        field.tags = []
+                    field.tags.append(tag)
+            else:
+                self._add_system_tag(database, object_name, object_type, key, value)
 
     def _fetch_query_logs(self) -> None:
         logger.info("Fetching Snowflake query logs")
