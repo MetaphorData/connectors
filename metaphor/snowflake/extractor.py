@@ -365,7 +365,7 @@ class SnowflakeExtractor(BaseExtractor):
                 sql_schema.primary_key = []
             sql_schema.primary_key.append(column)
 
-    def _add_hierarchy(
+    def _add_system_tag(
         self,
         database: Optional[str],
         schema: Optional[str],
@@ -373,14 +373,17 @@ class SnowflakeExtractor(BaseExtractor):
         tag_key: str,
         tag_value: str,
     ) -> None:
+        """
+        Adds a system tag (i.e. a database-level or schema-level tag) to MCE.
+        If it's a database-level tag, the corresponding hierarchy's logical_id
+        will contain only the database name. Otherwise it will have both the
+        database name and schema name.
+        """
         if not database:
             logger.error("Cannot extract tag without database info")
             return
 
-        # Extract database & schema level tags
-        #
-        # In Snowflake the hierarchy is as follows:
-        # database > schema > table
+        # Set hierarchy key and logical_id
         path = [DataPlatform.SNOWFLAKE.value]
         if object_type == "DATABASE":
             path.extend([database])
@@ -394,6 +397,8 @@ class SnowflakeExtractor(BaseExtractor):
             self._hierarchies[hierarchy_key] = Hierarchy(
                 logical_id=logical_id, system_tags=[]
             )
+
+        # `system_tags` is never None here
         self._hierarchies[hierarchy_key].system_tags.append(
             SystemTag(
                 key=tag_key,
@@ -442,7 +447,7 @@ class SnowflakeExtractor(BaseExtractor):
                     field.tags = []
                 field.tags.append(tag)
             elif object_type == "DATABASE" or object_type == "SCHEMA":
-                self._add_hierarchy(database, schema, object_type, key, value)
+                self._add_system_tag(database, schema, object_type, key, value)
 
     def _fetch_query_logs(self) -> None:
         logger.info("Fetching Snowflake query logs")
