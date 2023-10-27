@@ -140,7 +140,7 @@ class SnowflakeExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(datasets)
         entities.extend(chunk_query_logs(self._logs))
-        entities.extend(list(self._hierarchies.values()))
+        entities.extend(self._hierarchies.values())
         return entities
 
     @staticmethod
