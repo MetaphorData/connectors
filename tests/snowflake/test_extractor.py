@@ -248,6 +248,8 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
             ("baz", "qux", "SCHEMA", database, None, table_name, None),
             ("quux", "corge", "SCHEMA", database, None, table_name, None),
             ("grault", "garply", "DATABASE", None, None, table_name, None),
+            ("bad", "bad", "DATABASE", None, None, None, None),
+            ("not", "good", "SCHEMA", None, None, None, None),
         ]
     )
 

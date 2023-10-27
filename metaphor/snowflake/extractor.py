@@ -1,6 +1,6 @@
 import math
 from datetime import datetime, timezone
-from typing import Collection, Dict, List, Mapping, Optional, Tuple
+from typing import Collection, Dict, List, Literal, Mapping, Optional, Tuple
 
 from pydantic import TypeAdapter
 
@@ -369,7 +369,7 @@ class SnowflakeExtractor(BaseExtractor):
         self,
         database: Optional[str],
         object_name: Optional[str],
-        object_type: str,
+        object_type: Literal["DATABASE", "SCHEMA"],
         tag_key: str,
         tag_value: str,
     ) -> None:
@@ -388,18 +388,17 @@ class SnowflakeExtractor(BaseExtractor):
         if object_type == "DATABASE":
             path.extend([object_name])
             hierarchy_key = dataset_normalized_name(object_name)
-        elif object_name is not None:
+        else:
+            if not database:
+                logger.error("Cannot extract schema level tag without database name")
+                return
             path.extend([database, object_name])
             hierarchy_key = dataset_normalized_name(database, object_name)
         logical_id = HierarchyLogicalID(path=path)
 
-        if hierarchy_key not in self._hierarchies:
-            self._hierarchies[hierarchy_key] = Hierarchy(
-                logical_id=logical_id, system_tags=[]
-            )
-
-        # `system_tags` is never None here
-        self._hierarchies[hierarchy_key].system_tags.append(
+        self._hierarchies.setdefault(
+            hierarchy_key, Hierarchy(logical_id=logical_id, system_tags=[])
+        ).system_tags.append(
             SystemTag(
                 key=tag_key,
                 system_tag_source=SystemTagSource.SNOWFLAKE,
