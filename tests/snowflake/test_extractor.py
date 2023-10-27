@@ -9,9 +9,12 @@ from metaphor.common.filter import DatasetFilter
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     DatasetLogicalID,
+    HierarchyLogicalID,
     MaterializationType,
     QueriedDataset,
     SchemaField,
+    SystemTag,
+    SystemTagSource,
 )
 from metaphor.snowflake.config import SnowflakeQueryLogConfig, SnowflakeRunConfig
 from metaphor.snowflake.extractor import SnowflakeExtractor
@@ -217,6 +220,7 @@ def test_fetch_tags(mock_connect: MagicMock):
             ("key1", "value1", "TABLE", database, schema, table_name, None),
             ("key1", "value1", "TABLE", database, schema, "foo", None),
             ("key1", "col_tag1", "COLUMN", database, schema, table_name, "col1"),
+            ("foo", "bar", "COLUMN", database, schema, table_name, "bad_column"),
         ]
     )
 
@@ -233,6 +237,59 @@ def test_fetch_tags(mock_connect: MagicMock):
     assert dataset.schema.tags == ["key1=value1"]
     assert dataset.schema.fields[0].field_path == "col1"
     assert dataset.schema.fields[0].tags == ["key1=col_tag1"]
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            ("foo", "bar", "DATABASE", None, None, table_name, None),
+            ("baz", "qux", "SCHEMA", database, None, table_name, None),
+            ("quux", "corge", "SCHEMA", database, None, table_name, None),
+            ("grault", "garply", "DATABASE", None, None, table_name, None),
+            ("bad", "bad", "DATABASE", None, None, None, None),
+            ("not", "good", "SCHEMA", None, None, None, None),
+            ("no", "db", "SCHEMA", None, None, table_name, None),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    extractor._datasets[normalized_name] = dataset
+
+    extractor._fetch_tags(mock_cursor)
+
+    assert dataset.schema.tags is None
+    assert extractor._hierarchies.get(dataset_normalized_name(table_name)) is not None
+    db_hierarchy = extractor._hierarchies[dataset_normalized_name(table_name)]
+    assert db_hierarchy.logical_id == HierarchyLogicalID(
+        path=[DataPlatform.SNOWFLAKE.value, table_name]
+    )
+    assert db_hierarchy.system_tags is not None
+    assert db_hierarchy.system_tags == [
+        SystemTag(key="foo", system_tag_source=SystemTagSource.SNOWFLAKE, value="bar"),
+        SystemTag(
+            key="grault", system_tag_source=SystemTagSource.SNOWFLAKE, value="garply"
+        ),
+    ]
+    schema_hierarchy = extractor._hierarchies[
+        dataset_normalized_name(database, table_name)
+    ]
+    assert schema_hierarchy.logical_id == HierarchyLogicalID(
+        path=[DataPlatform.SNOWFLAKE.value, database, table_name]
+    )
+    assert schema_hierarchy.system_tags is not None
+    assert schema_hierarchy.system_tags == [
+        SystemTag(key="baz", system_tag_source=SystemTagSource.SNOWFLAKE, value="qux"),
+        SystemTag(
+            key="quux", system_tag_source=SystemTagSource.SNOWFLAKE, value="corge"
+        ),
+    ]
 
 
 @patch("metaphor.snowflake.auth.connect")
