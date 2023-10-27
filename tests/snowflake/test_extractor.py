@@ -220,6 +220,7 @@ def test_fetch_tags(mock_connect: MagicMock):
             ("key1", "value1", "TABLE", database, schema, table_name, None),
             ("key1", "value1", "TABLE", database, schema, "foo", None),
             ("key1", "col_tag1", "COLUMN", database, schema, table_name, "col1"),
+            ("foo", "bar", "COLUMN", database, schema, table_name, "bad_column"),
         ]
     )
 
@@ -250,6 +251,7 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
             ("grault", "garply", "DATABASE", None, None, table_name, None),
             ("bad", "bad", "DATABASE", None, None, None, None),
             ("not", "good", "SCHEMA", None, None, None, None),
+            ("no", "db", "SCHEMA", None, None, table_name, None),
         ]
     )
 

@@ -436,9 +436,12 @@ class SnowflakeExtractor(BaseExtractor):
                     dataset.schema.tags.append(tag)
                 elif column:
                     field = next(
-                        fd
-                        for fd in dataset.schema.fields
-                        if fd.field_path.upper() == column.upper()
+                        (
+                            fd
+                            for fd in dataset.schema.fields
+                            if fd.field_path.upper() == column.upper()
+                        ),
+                        None,
                     )
                     if not field:
                         logger.error(
