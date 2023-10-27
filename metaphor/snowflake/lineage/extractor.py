@@ -2,7 +2,7 @@ import logging
 import math
 from typing import Collection, Dict, List, Tuple, Union
 
-from pydantic import parse_raw_as
+from pydantic import TypeAdapter
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -158,7 +158,9 @@ class SnowflakeLineageExtractor(BaseExtractor):
         source_datasets = []
 
         # Extract source tables/views
-        source_objects = parse_raw_as(List[AccessedObject], objects_accessed)
+        source_objects = TypeAdapter(List[AccessedObject]).validate_json(
+            objects_accessed
+        )
         for obj in source_objects:
             if (
                 not obj.objectDomain
@@ -177,7 +179,9 @@ class SnowflakeLineageExtractor(BaseExtractor):
             return
 
         # Assign source tables as upstream of each destination tables
-        target_objects = parse_raw_as(List[AccessedObject], objects_modified)
+        target_objects = TypeAdapter(List[AccessedObject]).validate_json(
+            objects_modified
+        )
         for obj in target_objects:
             if (
                 not obj.objectDomain

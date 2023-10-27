@@ -2,7 +2,7 @@ import math
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Mapping, Optional, Tuple
 
-from pydantic import parse_raw_as
+from pydantic import TypeAdapter
 
 try:
     from snowflake.connector.cursor import DictCursor, SnowflakeCursor
@@ -604,7 +604,7 @@ class SnowflakeExtractor(BaseExtractor):
         )
 
     def _parse_accessed_objects(self, raw_objects: str) -> List[QueriedDataset]:
-        objects = parse_raw_as(List[AccessedObject], raw_objects)
+        objects = TypeAdapter(List[AccessedObject]).validate_json(raw_objects)
         queried_datasets: List[QueriedDataset] = []
         for obj in objects:
             if not obj.objectDomain or obj.objectDomain.upper() not in (

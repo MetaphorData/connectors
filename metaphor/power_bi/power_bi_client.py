@@ -5,10 +5,10 @@ from typing import Any, Callable, List, Optional, Type, TypeVar
 from urllib.parse import quote, urlencode
 
 import requests
-from pydantic import BaseModel
 
 from metaphor.common.api_request import ApiError, get_request
 from metaphor.common.logger import get_logger
+from metaphor.common.models import V1CompatBaseModel
 from metaphor.common.utils import start_of_day
 from metaphor.power_bi.config import PowerBIRunConfig
 
@@ -22,94 +22,94 @@ except ImportError:
 logger = get_logger()
 
 
-class PowerBIApp(BaseModel):
+class PowerBIApp(V1CompatBaseModel):
     id: str
     name: str
     workspaceId: str
 
 
-class PowerBIDataSource(BaseModel):
+class PowerBIDataSource(V1CompatBaseModel):
     datasourceType: str
     datasourceId: str
-    connectionDetails: Any
+    connectionDetails: Any = None
     gatewayId: str
 
 
-class PowerBIDataset(BaseModel):
+class PowerBIDataset(V1CompatBaseModel):
     id: str
     name: str
     isRefreshable: bool
-    webUrl: Optional[str]
+    webUrl: Optional[str] = None
 
 
-class PowerBIDashboard(BaseModel):
+class PowerBIDashboard(V1CompatBaseModel):
     id: str
     displayName: str
-    webUrl: Optional[str]
+    webUrl: Optional[str] = None
 
 
-class PowerBIWorkspace(BaseModel):
+class PowerBIWorkspace(V1CompatBaseModel):
     id: str
     name: str
     isReadOnly: bool
     type: str
 
 
-class PowerBIReport(BaseModel):
+class PowerBIReport(V1CompatBaseModel):
     id: str
     name: str
     datasetId: Optional[str] = None
     reportType: str
-    webUrl: Optional[str]
+    webUrl: Optional[str] = None
 
 
-class PowerBIPage(BaseModel):
+class PowerBIPage(V1CompatBaseModel):
     name: str
     displayName: str
     order: int
 
 
-class PowerBITile(BaseModel):
+class PowerBITile(V1CompatBaseModel):
     id: str
     title: str = ""
     datasetId: str = ""
     reportId: str = ""
-    embedUrl: Optional[str]
+    embedUrl: Optional[str] = None
 
 
-class PowerBIRefresh(BaseModel):
+class PowerBIRefresh(V1CompatBaseModel):
     status: str = ""
     endTime: str = ""
 
 
-class PowerBITableColumn(BaseModel):
+class PowerBITableColumn(V1CompatBaseModel):
     name: str
     dataType: str = "unknown"
 
 
-class PowerBITableMeasure(BaseModel):
+class PowerBITableMeasure(V1CompatBaseModel):
     name: str
     description: Optional[str] = None
     expression: str = ""
 
 
-class PowerBITable(BaseModel):
+class PowerBITable(V1CompatBaseModel):
     name: str
     columns: List[PowerBITableColumn] = []
     measures: List[PowerBITableMeasure] = []
     source: List[Any] = []
 
 
-class EndorsementDetails(BaseModel):
+class EndorsementDetails(V1CompatBaseModel):
     endorsement: str
     certifiedBy: Optional[str] = ""
 
 
-class UpstreamDataflow(BaseModel):
+class UpstreamDataflow(V1CompatBaseModel):
     targetDataflowId: str
 
 
-class DataflowTransaction(BaseModel):
+class DataflowTransaction(V1CompatBaseModel):
     id: str
     status: Optional[str] = None
     startTime: Optional[str] = None
@@ -117,7 +117,7 @@ class DataflowTransaction(BaseModel):
     refreshType: Optional[str] = None
 
 
-class WorkspaceInfoDataset(BaseModel):
+class WorkspaceInfoDataset(V1CompatBaseModel):
     id: str
     name: str
     tables: List[PowerBITable] = []
@@ -128,11 +128,11 @@ class WorkspaceInfoDataset(BaseModel):
     configuredBy: Optional[str] = None
 
     upstreamDataflows: Optional[List[UpstreamDataflow]] = None
-    upstreamDatasets: Optional[Any]
+    upstreamDatasets: Optional[Any] = None
     endorsementDetails: Optional[EndorsementDetails] = None
 
 
-class WorkspaceInfoDashboardBase(BaseModel):
+class WorkspaceInfoDashboardBase(V1CompatBaseModel):
     id: str
     appId: Optional[str] = None
     createdDateTime: Optional[str] = None
@@ -152,10 +152,10 @@ class WorkspaceInfoReport(WorkspaceInfoDashboardBase):
     description: str = ""
 
 
-class WorkspaceInfoUser(BaseModel):
-    emailAddress: Optional[str]
+class WorkspaceInfoUser(V1CompatBaseModel):
+    emailAddress: Optional[str] = None
     groupUserAccessRight: str
-    displayName: Optional[str]
+    displayName: Optional[str] = None
     graphId: str
     principalType: str
 
@@ -163,7 +163,7 @@ class WorkspaceInfoUser(BaseModel):
         return hash(self.graphId)
 
 
-class PowerBiRefreshSchedule(BaseModel):
+class PowerBiRefreshSchedule(V1CompatBaseModel):
     frequency: Optional[str] = None
     days: Optional[List[str]] = None
     times: Optional[List[str]] = None
@@ -172,7 +172,7 @@ class PowerBiRefreshSchedule(BaseModel):
     notifyOption: Optional[str] = None
 
 
-class WorkspaceInfoDataflow(BaseModel):
+class WorkspaceInfoDataflow(V1CompatBaseModel):
     objectId: str
     name: Optional[str] = None
     description: Optional[str] = None
@@ -182,12 +182,12 @@ class WorkspaceInfoDataflow(BaseModel):
     refreshSchedule: Optional[PowerBiRefreshSchedule] = None
 
 
-class WorkspaceInfo(BaseModel):
+class WorkspaceInfo(V1CompatBaseModel):
     id: str
-    name: Optional[str]
-    type: Optional[str]
+    name: Optional[str] = None
+    type: Optional[str] = None
     state: str
-    description: Optional[str]
+    description: Optional[str] = None
     reports: List[WorkspaceInfoReport] = []
     datasets: List[WorkspaceInfoDataset] = []
     dashboards: List[WorkspaceInfoDashboard] = []
@@ -195,12 +195,12 @@ class WorkspaceInfo(BaseModel):
     users: List[WorkspaceInfoUser] = []
 
 
-class PowerBiSubscriptionUser(BaseModel):
+class PowerBiSubscriptionUser(V1CompatBaseModel):
     emailAddress: str
     displayName: str
 
 
-class PowerBISubscription(BaseModel):
+class PowerBISubscription(V1CompatBaseModel):
     id: str
     artifactId: str
     title: Optional[str] = None
@@ -212,12 +212,12 @@ class PowerBISubscription(BaseModel):
     users: List[PowerBiSubscriptionUser] = []
 
 
-class SubscriptionsByUserResponse(BaseModel):
+class SubscriptionsByUserResponse(V1CompatBaseModel):
     SubscriptionEntities: List[PowerBISubscription]
-    continuationUri: Optional[str]
+    continuationUri: Optional[str] = None
 
 
-class PowerBIActivityEventEntity(BaseModel):
+class PowerBIActivityEventEntity(V1CompatBaseModel):
     Id: str
     CreationTime: datetime
     OrganizationId: str
@@ -240,9 +240,9 @@ class PowerBIActivityType(Enum):
     view_tile = "ViewTile"
 
 
-class GetActivitiesResponse(BaseModel):
+class GetActivitiesResponse(V1CompatBaseModel):
     activityEventEntities: List[PowerBIActivityEventEntity]
-    continuationUri: Optional[str]
+    continuationUri: Optional[str] = None
 
 
 class AccessTokenError(Exception):

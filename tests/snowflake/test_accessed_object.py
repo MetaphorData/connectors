@@ -1,7 +1,7 @@
 import json
 from typing import List
 
-from pydantic import parse_raw_as
+from pydantic import TypeAdapter
 
 from metaphor.models.metadata_change_event import QueriedDataset
 from metaphor.snowflake import SnowflakeExtractor
@@ -30,7 +30,7 @@ def test_pydantic_dataclass():
         },
     ]
 
-    result = parse_raw_as(List[AccessedObject], json.dumps(data))
+    result = TypeAdapter(List[AccessedObject]).validate_python(data)
     assert len(result) == 3
 
 

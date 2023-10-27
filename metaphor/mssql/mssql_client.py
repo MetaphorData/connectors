@@ -103,7 +103,7 @@ class MssqlClient:
                     schema_name=row[2],
                     type=row[3],
                     create_time=to_utc_time(row[4]),
-                    column_dict=[],
+                    column_dict={},
                     is_external=row[12],
                 )
                 if table.is_external:

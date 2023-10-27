@@ -1,7 +1,7 @@
 from dataclasses import field
 from typing import List, Optional, Set
 
-from pydantic import root_validator
+from pydantic import model_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -83,7 +83,7 @@ class BigQueryRunConfig(BaseConfig):
     # configs for fetching query logs
     query_log: BigQueryQueryLogConfig = BigQueryQueryLogConfig()
 
-    @root_validator
-    def have_key_path_or_credentials(cls, values):
-        must_set_exactly_one(values, ["key_path", "credentials"])
-        return values
+    @model_validator(mode="after")
+    def have_key_path_or_credentials(self) -> "BigQueryRunConfig":
+        must_set_exactly_one(self.__dict__, ["key_path", "credentials"])
+        return self

@@ -2,7 +2,7 @@ from typing import Optional
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
-from pydantic import root_validator
+from pydantic import model_validator
 from pydantic.dataclasses import dataclass
 from smart_open import open
 
@@ -34,10 +34,10 @@ class SnowflakeKeyPairAuthConfig:
     # provide decryption passphrase if private key is encrypted
     passphrase: Optional[str] = None
 
-    @root_validator
-    def have_key_file_or_key_content(cls, values):
-        must_set_exactly_one(values, ["key_file", "key_data"])
-        return values
+    @model_validator(mode="after")
+    def have_key_file_or_key_content(self):
+        must_set_exactly_one(self.__dict__, ["key_file", "key_data"])
+        return self
 
 
 @dataclass(config=ConnectorConfig)
@@ -63,10 +63,10 @@ class SnowflakeAuthConfig(BaseConfig):
     # the query tags for each snowflake query the connector issues
     query_tag: Optional[str] = METAPHOR_DATA
 
-    @root_validator
-    def have_password_or_private_key(cls, values):
-        must_set_exactly_one(values, ["password", "private_key"])
-        return values
+    @model_validator(mode="after")
+    def have_password_or_private_key(self):
+        must_set_exactly_one(self.__dict__, ["password", "private_key"])
+        return self
 
 
 def connect(config: SnowflakeAuthConfig) -> snowflake.connector.SnowflakeConnection:

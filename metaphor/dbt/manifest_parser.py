@@ -1,12 +1,10 @@
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
-from pydantic.utils import unique_list
-
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.utils import filter_empty_strings, filter_none
+from metaphor.common.utils import filter_empty_strings, filter_none, unique_list
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import (
     build_metric_docs_url,

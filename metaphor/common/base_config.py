@@ -1,7 +1,7 @@
 from typing import Optional, Type, TypeVar
 
 import yaml
-from pydantic import parse_obj_as
+from pydantic import TypeAdapter
 from pydantic.dataclasses import dataclass
 from smart_open import open
 
@@ -33,4 +33,4 @@ class BaseConfig:
     def from_yaml_file(cls: Type[T], path: str) -> T:
         with open(path, encoding="utf8") as fin:
             obj = yaml.safe_load(fin.read())
-            return parse_obj_as(cls, variable_substitution(obj))
+            return TypeAdapter(cls).validate_python(variable_substitution(obj))

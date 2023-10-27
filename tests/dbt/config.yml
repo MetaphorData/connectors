@@ -8,6 +8,6 @@ meta_ownerships:
     ownership_type: Maintainer
 meta_tags:
   - meta_key: pii
-    meta_value_matcher: false
+    meta_value_matcher: "False"
     tag_type: no_pii
 output: {}

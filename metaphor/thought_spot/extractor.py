@@ -2,7 +2,6 @@ import json
 from itertools import chain
 from typing import Collection, Dict, List, Optional, Tuple
 
-from pydantic import parse_raw_as
 from pydantic.dataclasses import dataclass
 from sqllineage.core.models import Column
 from sqllineage.exceptions import SQLLineageException
@@ -249,7 +248,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         for tml_result in ThoughtSpot.fetch_tml(self._client, ids):
             if not tml_result.edoc:
                 continue
-            tml = parse_raw_as(TMLObject, tml_result.edoc)
+            tml = TMLObject.model_validate_json(tml_result.edoc)
 
             column_expr_map = self.build_column_expr_map(tml)
 
@@ -510,7 +509,7 @@ class ThoughtSpotExtractor(BaseExtractor):
         for tml_result in ThoughtSpot.fetch_tml(self._client, ids):
             if not tml_result.edoc:
                 continue
-            tml = parse_raw_as(TMLObject, tml_result.edoc)  # type: ignore
+            tml = TMLObject.model_validate_json(tml_result.edoc)
 
             answer_id = tml.guid
             dashboard = self._dashboards.get(answer_id)
