@@ -57,6 +57,7 @@ async def test_extractor(
                             "type_name": "int",
                             "type_precision": 32,
                             "nullable": True,
+                            "comment": "some description",
                         }
                     ],
                     "storage_location": "s3://path",
