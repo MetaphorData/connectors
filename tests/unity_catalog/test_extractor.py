@@ -116,7 +116,11 @@ async def test_extractor(
             ),
         ]
 
-    def mock_list_query_history(include_metrics):
+    def mock_list_query_history(
+        filter_by,
+        include_metrics,
+        max_results,  # No pagination!
+    ):
         return [
             QueryInfo(
                 duration=1234,
