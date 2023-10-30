@@ -10,6 +10,7 @@ from databricks.sdk.service.catalog import (
 )
 from databricks.sdk.service.catalog import TableInfo as Table
 from databricks.sdk.service.catalog import TableType
+from databricks.sdk.service.sql import QueryInfo, QueryMetrics
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
@@ -115,6 +116,23 @@ async def test_extractor(
             ),
         ]
 
+    def mock_list_query_history(include_metrics):
+        return [
+            QueryInfo(
+                duration=1234,
+                query_id="foo",
+                metrics=QueryMetrics(
+                    read_remote_bytes=1234,
+                    write_remote_bytes=5678,
+                    rows_produced_count=5566,
+                    rows_read_count=9487,
+                ),
+                query_text="bogus query",
+                user_name="uwu",
+                query_start_time_ms=55667788,
+            )
+        ]
+
     mock_client = MagicMock()
     mock_client.catalogs = MagicMock()
     mock_client.catalogs.list = mock_list_catalogs
@@ -122,6 +140,8 @@ async def test_extractor(
     mock_client.schemas.list = mock_list_schemas
     mock_client.tables = MagicMock()
     mock_client.tables.list = mock_list_tables
+    mock_client.query_history = MagicMock()
+    mock_client.query_history.list = mock_list_query_history
     mock_list_table_lineage.side_effect = [
         TableLineage(
             upstreams=[

@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import urllib.parse
@@ -15,7 +16,7 @@ from metaphor.common.entity_id import (
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.common.utils import unique_list
+from metaphor.common.utils import md5_digest, safe_float, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -27,6 +28,8 @@ from metaphor.models.metadata_change_event import (
     FieldMapping,
     KeyValuePair,
     MaterializationType,
+    QueryLog,
+    QueryLogs,
     SchemaType,
     SourceField,
     SourceInfo,
@@ -106,10 +109,11 @@ class UnityCatalogExtractor(BaseExtractor):
                     dataset = self._init_dataset(table_info)
                     self._populate_lineage(dataset)
 
-        # TODO
-        self._get_query_logs()
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(list(self._datasets.values()))
+        entities.append(self._get_query_logs())
 
-        return self._datasets.values()
+        return entities
 
     def _get_catalogs(self) -> List[str]:
         catalogs = list(self._api.catalogs.list())
@@ -269,23 +273,50 @@ class UnityCatalogExtractor(BaseExtractor):
             source_datasets=unique_list(source_datasets), field_mappings=field_mappings
         )
 
-    def _get_query_logs(self):
+    def _get_query_logs(self) -> QueryLogs:
         metastore_id = self._api.metastores.current().metastore_id
         # Make sure access system table is enabled
         try:
             self._api.system_schemas.enable(metastore_id, EnableSchemaName.ACCESS)
         except DatabricksError as e:
-            if e.error_code != "SCHEMA_ALREADY_EXISTS":
+            if (
+                e.error_code != "SCHEMA_ALREADY_EXISTS"
+            ):  # SDK throws if it's already enabled
                 raise e
         except Exception as e:
             raise e
 
-        # Get audit logs
-        self._api.tables.get("system.access.audit")
-        self._api.query_history.list()
-        # audit_logs = parse_table_from_object(self._api.get_table("system.access.audit"))
-        connections = self._api.connections.list()
-        print(connections)
+        logs: List[QueryLog] = []
+        for query_info in self._api.query_history.list(include_metrics=True):
+            start_time = None
+            if query_info.query_start_time_ms is not None:
+                start_time = datetime.datetime.fromtimestamp(
+                    query_info.query_start_time_ms / 1000
+                )
+
+            query_log = QueryLog(
+                id=f"{DataPlatform.UNITY_CATALOG.name}:{query_info.query_id}",
+                duration=safe_float(query_info.duration),
+                user_id=query_info.user_name,
+                platform=DataPlatform.UNITY_CATALOG,
+                query_id=query_info.query_id,
+                sql=query_info.query_text,
+                sql_hash=md5_digest(query_info.query_text.encode("utf-8")),
+                start_time=start_time,
+            )
+            if query_info.metrics is not None:
+                query_log.bytes_read = safe_float(query_info.metrics.read_remote_bytes)
+                query_log.bytes_written = safe_float(
+                    query_info.metrics.write_remote_bytes
+                )
+                query_log.rows_read = safe_float(query_info.metrics.rows_read_count)
+                query_log.rows_written = safe_float(
+                    query_info.metrics.rows_produced_count
+                )
+
+            logs.append(query_log)
+
+        return QueryLogs(logs=logs)
 
     @staticmethod
     def create_api(host: str, token: str) -> WorkspaceClient:
