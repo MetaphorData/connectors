@@ -3605,7 +3605,7 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "azure-identity", "azure-mgmt-datafactory", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "msal", "pycarlo", "pymssql", "pymysql", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "azure-identity", "azure-mgmt-datafactory", "databricks-sdk", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "msal", "pycarlo", "pymssql", "pymysql", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 dbt = []
@@ -3626,4 +3626,4 @@ unity-catalog = ["databricks-sdk"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "5138e22ed6aa2900e626f9a6d5e39c712176db0f8ae244a54a47ae5bec99f7fd"
+content-hash = "909a5c208d1d1c75c321f6eeca9b4573aa38ed890c4e2a4907f114d06ddfd9cc"
