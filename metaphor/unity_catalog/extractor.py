@@ -302,7 +302,7 @@ class UnityCatalogExtractor(BaseExtractor):
             start_time = None
             if query_info.query_start_time_ms is not None:
                 start_time = datetime.datetime.fromtimestamp(
-                    query_info.query_start_time_ms / 1000
+                    query_info.query_start_time_ms / 1000, tz=datetime.timezone.utc
                 )
 
             query_log = QueryLog(
