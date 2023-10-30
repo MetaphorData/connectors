@@ -1,27 +1,13 @@
 from enum import Enum
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, TypeAdapter, field_validator
+from databricks.sdk.service.catalog import ColumnInfo
+from pydantic import BaseModel, field_validator
 
 from metaphor.common.logger import get_logger
+from metaphor.models.metadata_change_event import SchemaField
 
 logger = get_logger()
-
-
-class Column(BaseModel):
-    name: str
-    type_name: str
-    type_precision: int
-    nullable: bool
-    comment: Optional[str] = None
-
-
-class TableType(str, Enum):
-    MANAGED = "MANAGED"
-    EXTERNAL = "EXTERNAL"
-    VIEW = "VIEW"
-    MATERIALIZED_VIEW = "MATERIALIZED_VIEW"
-    STREAMING_TABLE = "STREAMING_TABLE"
 
 
 class DataSourceFormat(str, Enum):
@@ -41,26 +27,21 @@ class DataSourceFormat(str, Enum):
         return str(self.value)
 
 
-class Table(BaseModel):
-    catalog_name: str
-    columns: List[Column]
-    comment: Optional[str] = None
-    data_source_format: Optional[DataSourceFormat] = None
-    generation: Optional[int] = None
-    name: str
-    owner: str
-    properties: dict
-    schema_name: str
-    storage_location: Optional[str] = None
-    sql_path: Optional[str] = None
-    table_type: TableType
-    updated_at: int
-    updated_by: str
-    view_definition: Optional[str] = None
-
-
-def parse_table_from_object(obj: object):
-    return TypeAdapter(Table).validate_python(obj)
+def parse_schema_field_from_column_info(column: ColumnInfo) -> SchemaField:
+    if column.type_name is None:
+        raise ValueError(f"Invalid column {column.name}, no type_name found")
+    return SchemaField(
+        subfields=None,
+        field_name=column.name,
+        field_path=column.name,
+        native_type=column.type_name.value.lower(),
+        precision=(
+            float(column.type_precision)
+            if column.type_precision is not None
+            else float("nan")
+        ),
+        description=column.comment,
+    )
 
 
 class NoPermission(BaseModel):

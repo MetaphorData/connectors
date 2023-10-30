@@ -695,24 +695,22 @@ test = ["pretend", "pytest (>=6.2.0)", "pytest-benchmark", "pytest-cov", "pytest
 test-randomorder = ["pytest-randomly"]
 
 [[package]]
-name = "databricks-cli"
-version = "0.18.0"
-description = "A command line interface for Databricks"
+name = "databricks-sdk"
+version = "0.12.0"
+description = "Databricks SDK for Python (Beta)"
 optional = true
 python-versions = ">=3.7"
 files = [
-    {file = "databricks-cli-0.18.0.tar.gz", hash = "sha256:87569709eda9af3e9db8047b691e420b5e980c62ef01675575c0d2b9b4211eb7"},
-    {file = "databricks_cli-0.18.0-py2.py3-none-any.whl", hash = "sha256:1176a5f42d3e8af4abfc915446fb23abc44513e325c436725f5898cbb9e3384b"},
+    {file = "databricks-sdk-0.12.0.tar.gz", hash = "sha256:7b52f4dd78fde25e7a5fab98769ee9e17ebca192e9a6fad9f9234e219837d107"},
+    {file = "databricks_sdk-0.12.0-py3-none-any.whl", hash = "sha256:82ff29dd8bd465f8dc61fa479965768fdbf22beab03ae20d41542da29c664e6e"},
 ]
 
 [package.dependencies]
-click = ">=7.0"
-oauthlib = ">=3.1.0"
-pyjwt = ">=1.7.0"
-requests = ">=2.17.3"
-six = ">=1.10.0"
-tabulate = ">=0.7.7"
-urllib3 = ">=1.26.7,<3"
+requests = ">=2.28.1,<3"
+
+[package.extras]
+dev = ["autoflake", "ipython", "ipywidgets", "isort", "pycodestyle", "pytest", "pytest-cov", "pytest-mock", "pytest-xdist", "requests-mock", "wheel", "yapf"]
+notebook = ["ipython (>=8,<9)", "ipywidgets (>=8,<9)"]
 
 [[package]]
 name = "dataclasses-json"
@@ -3422,20 +3420,6 @@ urllib3 = ">=1.26.8,<1.27.0"
 test = ["argparse", "black", "mock", "mypy", "pytest (>=7.0)", "pytest-subtests", "requests-mock (>=1.0,<2.0)"]
 
 [[package]]
-name = "tabulate"
-version = "0.9.0"
-description = "Pretty-print tabular data"
-optional = true
-python-versions = ">=3.7"
-files = [
-    {file = "tabulate-0.9.0-py3-none-any.whl", hash = "sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f"},
-    {file = "tabulate-0.9.0.tar.gz", hash = "sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c"},
-]
-
-[package.extras]
-widechars = ["wcwidth"]
-
-[[package]]
 name = "thoughtspot-rest-api-v1"
 version = "1.5.3"
 description = "Library implementing the ThoughtSpot V1 REST API"
@@ -3642,4 +3626,4 @@ unity-catalog = ["databricks-cli"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "428e3eb950d80fae7a5eb071f43ed6a381e8a7291ca83987790b3197a03207fe"
+content-hash = "9aaa64d5513bb7d877b346b97467d64be7eabeb3019c926765fc222f77718d51"
