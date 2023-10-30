@@ -41,7 +41,11 @@ from metaphor.unity_catalog.models import (
     TableType,
     parse_table_from_object,
 )
-from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
+from metaphor.unity_catalog.utils import (
+    enable_system_table,
+    list_column_lineage,
+    list_table_lineage,
+)
 
 logger = get_logger()
 
@@ -104,6 +108,10 @@ class UnityCatalogExtractor(BaseExtractor):
                         continue
                     dataset = self._init_dataset(table)
                     self._populate_lineage(dataset)
+
+        # TODO
+        # ql = self._get_query_logs()
+
         return self._datasets.values()
 
     def _get_catalogs(self) -> List[str]:
@@ -265,6 +273,16 @@ class UnityCatalogExtractor(BaseExtractor):
         dataset.upstream = DatasetUpstream(
             source_datasets=unique_list(source_datasets), field_mappings=field_mappings
         )
+
+    def _get_query_logs(self):
+        metastores = self._api.list_metastores()["metastores"]
+        # There's only one metastore
+        metastore_id = metastores[0]["metastore_id"]
+        # Make sure access system table is enabled
+        enable_system_table(self._api.client.client, metastore_id, "access")
+
+        # Get audit logs
+        # audit_logs = parse_table_from_object(self._api.get_table("system.access.audit"))
 
     @staticmethod
     def create_api(host: str, token: str) -> UnityCatalogApi:

@@ -42,3 +42,28 @@ def list_column_lineage(
             return ColumnLineage()
 
         raise e
+
+
+def enable_system_table(client: ApiClient, metastore_id: str, table_name: str) -> None:
+    systemschemas = client.perform_query(
+        "GET",
+        f"/unity-catalog/metastores/{metastore_id}/systemschemas",
+        data={},
+        version="2.0",
+    )["schemas"]
+    table = next(
+        (schema for schema in systemschemas if schema["schema"] == table_name), None
+    )
+    if not table:
+        raise ValueError(f'Schema "{table_name}" not found in systemschemas')
+    if table["state"] == "AVAILABLE":  # This means it's not enabled yet
+        client.perform_query(
+            "PUT",
+            f"/unity-catalog/metastores/{metastore_id}/systemschemas/{table_name}",
+            data={},
+            version="2.0",
+        )
+    elif table["state"] != "ENABLE_COMPLETED":  # Nani
+        raise ValueError(
+            f"Cannot enable access schema, found schema state = {table['state']}"
+        )
