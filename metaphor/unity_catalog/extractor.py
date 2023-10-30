@@ -161,6 +161,7 @@ class UnityCatalogExtractor(BaseExtractor):
                     field_path=column.name,
                     native_type=column.type_name,
                     precision=float(column.type_precision),
+                    description=column.comment,
                 )
                 for column in table.columns
             ],

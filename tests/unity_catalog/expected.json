@@ -23,7 +23,8 @@
           "fieldName": "col1",
           "fieldPath": "col1",
           "nativeType": "int",
-          "precision": 32.0
+          "precision": 32.0,
+          "description": "some description"
         }
       ],
       "schemaType": "SQL",

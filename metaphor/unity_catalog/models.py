@@ -13,6 +13,7 @@ class Column(BaseModel):
     type_name: str
     type_precision: int
     nullable: bool
+    comment: Optional[str] = None
 
 
 class TableType(str, Enum):
