@@ -4,6 +4,7 @@ import urllib.parse
 from typing import Collection, Dict, Generator, List
 
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.core import DatabricksError
 from databricks.sdk.service.catalog import EnableSchemaName, TableInfo, TableType
 
 from metaphor.common.base_extractor import BaseExtractor
@@ -111,20 +112,20 @@ class UnityCatalogExtractor(BaseExtractor):
         return self._datasets.values()
 
     def _get_catalogs(self) -> List[str]:
-        catalogs = self._api.catalogs.list()
-        json_dump_to_debug_file(list(catalogs), "list-catalogs.json")
+        catalogs = list(self._api.catalogs.list())
+        json_dump_to_debug_file(catalogs, "list-catalogs.json")
         return [catalog.name for catalog in catalogs if catalog.name]
 
     def _get_schemas(self, catalog: str) -> List[str]:
-        schemas = self._api.schemas.list(catalog)
-        json_dump_to_debug_file(list(schemas), f"list-schemas-{catalog}.json")
+        schemas = list(self._api.schemas.list(catalog))
+        json_dump_to_debug_file(schemas, f"list-schemas-{catalog}.json")
         return [schema.name for schema in schemas if schema.name]
 
     def _get_table_infos(
         self, catalog: str, schema: str
     ) -> Generator[TableInfo, None, None]:
-        tables = self._api.tables.list(catalog, schema)
-        json_dump_to_debug_file(list(tables), f"list-tables-{catalog}-{schema}.json")
+        tables = list(self._api.tables.list(catalog, schema))
+        json_dump_to_debug_file(tables, f"list-tables-{catalog}-{schema}.json")
         for table in tables:
             yield table
 
@@ -271,10 +272,20 @@ class UnityCatalogExtractor(BaseExtractor):
     def _get_query_logs(self):
         metastore_id = self._api.metastores.current().metastore_id
         # Make sure access system table is enabled
-        self._api.system_schemas.enable(metastore_id, EnableSchemaName.ACCESS)
+        try:
+            self._api.system_schemas.enable(metastore_id, EnableSchemaName.ACCESS)
+        except DatabricksError as e:
+            if e.error_code != "SCHEMA_ALREADY_EXISTS":
+                raise e
+        except Exception as e:
+            raise e
 
         # Get audit logs
+        self._api.tables.get("system.access.audit")
+        self._api.query_history.list()
         # audit_logs = parse_table_from_object(self._api.get_table("system.access.audit"))
+        connections = self._api.connections.list()
+        print(connections)
 
     @staticmethod
     def create_api(host: str, token: str) -> WorkspaceClient:

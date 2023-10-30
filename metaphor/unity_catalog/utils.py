@@ -1,3 +1,5 @@
+import json
+
 from databricks.sdk.core import ApiClient
 from pydantic import parse_obj_as
 from requests import HTTPError
@@ -11,7 +13,9 @@ def list_table_lineage(client: ApiClient, table_name: str) -> TableLineage:
     resp = None
 
     try:
-        resp = client.do("GET", "/api/2.0/lineage-tracking/table-lineage", data=_data)
+        resp = client.do(
+            "GET", "/api/2.0/lineage-tracking/table-lineage", data=json.dumps(_data)
+        )
         json_dump_to_debug_file(resp, f"table-lineage-{table_name}.json")
         return parse_obj_as(TableLineage, resp)
     except HTTPError as e:
@@ -29,7 +33,9 @@ def list_column_lineage(
 
     # Lineage API returns 503 on GCP as it's not yet available
     try:
-        resp = client.do("GET", "/api/2.0/lineage-tracking/column-lineage", data=_data)
+        resp = client.do(
+            "GET", "/api/2.0/lineage-tracking/column-lineage", data=json.dumps(_data)
+        )
         json_dump_to_debug_file(resp, f"column-lineage-{table_name}-{column_name}.json")
         return parse_obj_as(ColumnLineage, resp)
     except HTTPError as e:
