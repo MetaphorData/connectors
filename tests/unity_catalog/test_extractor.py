@@ -188,3 +188,15 @@ async def test_extractor(
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/unity_catalog/expected.json")
+
+
+def test_init_invalid_dataset(
+    test_root_dir: str,
+) -> None:
+    extractor = UnityCatalogExtractor.from_config_file(
+        f"{test_root_dir}/unity_catalog/config.yml"
+    )
+    with pytest.raises(ValueError):
+        extractor._init_dataset(
+            Table(catalog_name="catalog", schema_name="schema", name="table")
+        )
