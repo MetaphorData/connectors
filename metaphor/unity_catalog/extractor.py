@@ -5,8 +5,7 @@ import urllib.parse
 from typing import Collection, Dict, Generator, List
 
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.core import DatabricksError
-from databricks.sdk.service.catalog import EnableSchemaName, TableInfo, TableType
+from databricks.sdk.service.catalog import TableInfo, TableType
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -280,18 +279,6 @@ class UnityCatalogExtractor(BaseExtractor):
         )
 
     def _get_query_logs(self) -> QueryLogs:
-        metastore_id = self._api.metastores.current().metastore_id
-        # Make sure access system table is enabled
-        try:
-            self._api.system_schemas.enable(metastore_id, EnableSchemaName.ACCESS)
-        except DatabricksError as e:
-            if (
-                e.error_code != "SCHEMA_ALREADY_EXISTS"
-            ):  # SDK throws if it's already enabled
-                raise e
-        except Exception as e:
-            raise e
-
         logs: List[QueryLog] = []
         for query_info in self._api.query_history.list(
             filter_by=build_query_log_filter_by(self._query_log_config, self._api),
