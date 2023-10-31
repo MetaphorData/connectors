@@ -1,9 +1,16 @@
+import datetime
 from unittest.mock import MagicMock
 
 import pytest
+from databricks.sdk.service.iam import User
 from requests import HTTPError, Response
 
-from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
+from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
+from metaphor.unity_catalog.utils import (
+    list_column_lineage,
+    list_table_lineage,
+    parse_query_log_filter_by,
+)
 
 
 def test_list_table_lineage():
@@ -104,3 +111,30 @@ def test_list_column_lineage_internal_server_error():
 
     with pytest.raises(HTTPError):
         list_column_lineage(client, "foo", "bar")
+
+
+def test_parse_query_log_filter_by():
+    client = MagicMock()
+    client.users = MagicMock()
+    client.users.list = lambda: [
+        User(id="u0", user_name="alice"),
+        User(id="u1", user_name="bob"),
+        User(id="u2", user_name="charlie"),
+        User(id="u3", user_name="dave"),
+    ]
+    config = UnityCatalogQueryLogConfig(
+        lookback_days=2,
+        excluded_usernames={"bob", "charlie"},
+    )
+    query_filter = parse_query_log_filter_by(config, client)
+    assert sorted(query_filter.user_ids) == ["u0", "u3"]
+    assert query_filter.query_start_time_range.start_time_ms is not None
+    start_time = datetime.datetime.fromtimestamp(
+        query_filter.query_start_time_range.start_time_ms / 1000
+    )
+    assert query_filter.query_start_time_range.end_time_ms is not None
+    end_time = datetime.datetime.fromtimestamp(
+        query_filter.query_start_time_range.end_time_ms / 1000
+    )
+    time_diff = end_time - start_time
+    assert time_diff == datetime.timedelta(days=2)

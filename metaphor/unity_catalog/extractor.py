@@ -2,12 +2,11 @@ import datetime
 import json
 import logging
 import urllib.parse
-from typing import Collection, Dict, Generator, List, Optional
+from typing import Collection, Dict, Generator, List
 
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.core import DatabricksError
 from databricks.sdk.service.catalog import EnableSchemaName, TableInfo, TableType
-from databricks.sdk.service.sql import QueryFilter
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -43,7 +42,11 @@ from metaphor.unity_catalog.models import (
     NoPermission,
     parse_schema_field_from_column_info,
 )
-from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
+from metaphor.unity_catalog.utils import (
+    list_column_lineage,
+    list_table_lineage,
+    parse_query_log_filter_by,
+)
 
 logger = get_logger()
 
@@ -79,12 +82,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
-        self._query_filter: Optional[QueryFilter] = None
-        if config.query_log:
-            self._query_filter = QueryFilter(
-                query_start_time_range=config.query_log.query_start_time_range,
-                user_ids=config.query_log.user_ids,
-            )
+        self._query_log_config = config.query_log
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Unity Catalog")
@@ -118,7 +116,8 @@ class UnityCatalogExtractor(BaseExtractor):
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(list(self._datasets.values()))
-        entities.append(self._get_query_logs())
+        if self._query_log_config.lookback_days > 0:
+            entities.append(self._get_query_logs())
 
         return entities
 
@@ -295,9 +294,9 @@ class UnityCatalogExtractor(BaseExtractor):
 
         logs: List[QueryLog] = []
         for query_info in self._api.query_history.list(
-            filter_by=self._query_filter,
+            filter_by=parse_query_log_filter_by(self._query_log_config, self._api),
             include_metrics=True,
-            max_results=None,  # No pagination!
+            max_results=self._query_log_config.max_results,
         ):
             start_time = None
             if query_info.query_start_time_ms is not None:

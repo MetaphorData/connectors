@@ -1,7 +1,6 @@
 from dataclasses import field
-from typing import List, Optional
+from typing import Optional, Set
 
-from databricks.sdk.service.sql import TimeRange
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -11,11 +10,14 @@ from metaphor.common.filter import DatasetFilter
 
 @dataclass(config=ConnectorConfig)
 class UnityCatalogQueryLogConfig:
-    # Filter for querying logs. No filter if not specified.
-    query_start_time_range: Optional[TimeRange] = None
+    # Number of days back of query logs to fetch, if 0, don't fetch query logs
+    lookback_days: int = 1
 
-    # Query log filter to match certain usernames
-    user_ids: List[int] = field(default_factory=lambda: [])
+    # Query log filter to exclude certain usernames
+    excluded_usernames: Set[str] = field(default_factory=lambda: set())
+
+    # Limit the number of results returned in one page. The default is 100.
+    max_results: Optional[int] = 100
 
 
 @dataclass(config=ConnectorConfig)
