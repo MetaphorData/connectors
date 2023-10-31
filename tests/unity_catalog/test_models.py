@@ -4,7 +4,7 @@ from databricks.sdk.service.catalog import ColumnInfo
 from metaphor.unity_catalog.models import (
     DataSourceFormat,
     NoPermission,
-    parse_schema_field_from_column_info,
+    extract_schema_field_from_column_info,
 )
 
 
@@ -15,7 +15,9 @@ def test_no_permission_cannot_have_permission() -> None:
 
 def test_parse_schema_field_from_invalid_column_info() -> None:
     with pytest.raises(ValueError):
-        parse_schema_field_from_column_info(ColumnInfo(comment="does not have a type"))
+        extract_schema_field_from_column_info(
+            ColumnInfo(comment="does not have a type")
+        )
 
 
 def test_stringify_data_source_format() -> None:

@@ -40,12 +40,12 @@ from metaphor.models.metadata_change_event import (
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.models import (
     NoPermission,
-    parse_schema_field_from_column_info,
+    extract_schema_field_from_column_info,
 )
 from metaphor.unity_catalog.utils import (
+    build_query_log_filter_by,
     list_column_lineage,
     list_table_lineage,
-    parse_query_log_filter_by,
 )
 
 logger = get_logger()
@@ -162,7 +162,7 @@ class UnityCatalogExtractor(BaseExtractor):
         fields = []
         if table.columns is not None:
             fields = [
-                parse_schema_field_from_column_info(column_info)
+                extract_schema_field_from_column_info(column_info)
                 for column_info in table.columns
             ]
 
@@ -294,7 +294,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
         logs: List[QueryLog] = []
         for query_info in self._api.query_history.list(
-            filter_by=parse_query_log_filter_by(self._query_log_config, self._api),
+            filter_by=build_query_log_filter_by(self._query_log_config, self._api),
             include_metrics=True,
             max_results=self._query_log_config.max_results,
         ):

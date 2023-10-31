@@ -50,7 +50,7 @@ def list_column_lineage(
         raise e
 
 
-def parse_query_log_filter_by(
+def build_query_log_filter_by(
     config: UnityCatalogQueryLogConfig,
     client: WorkspaceClient,
 ) -> QueryFilter:

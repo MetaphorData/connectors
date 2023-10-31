@@ -7,9 +7,9 @@ from requests import HTTPError, Response
 
 from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
 from metaphor.unity_catalog.utils import (
+    build_query_log_filter_by,
     list_column_lineage,
     list_table_lineage,
-    parse_query_log_filter_by,
 )
 
 
@@ -126,7 +126,7 @@ def test_parse_query_log_filter_by():
         lookback_days=2,
         excluded_usernames={"bob", "charlie"},
     )
-    query_filter = parse_query_log_filter_by(config, client)
+    query_filter = build_query_log_filter_by(config, client)
     assert sorted(query_filter.user_ids) == ["u0", "u3"]
     assert query_filter.query_start_time_range.start_time_ms is not None
     start_time = datetime.datetime.fromtimestamp(

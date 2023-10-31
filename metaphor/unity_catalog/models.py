@@ -27,7 +27,7 @@ class DataSourceFormat(str, Enum):
         return str(self.value)
 
 
-def parse_schema_field_from_column_info(column: ColumnInfo) -> SchemaField:
+def extract_schema_field_from_column_info(column: ColumnInfo) -> SchemaField:
     if column.type_name is None:
         raise ValueError(f"Invalid column {column.name}, no type_name found")
     return SchemaField(
