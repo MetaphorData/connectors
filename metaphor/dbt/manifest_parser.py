@@ -417,7 +417,7 @@ class ManifestParser:
             virtual_view.dbt_model.raw_sql = model.raw_code
             dbt_model.compiled_sql = model.compiled_code
 
-        self._parse_model_meta(model)
+        self._parse_model_meta(model, virtual_view)
 
         self._parse_model_materialization(model, dbt_model)
 
@@ -457,7 +457,9 @@ class ManifestParser:
 
         return macro_map
 
-    def _parse_model_meta(self, model: MODEL_NODE_TYPE) -> None:
+    def _parse_model_meta(
+        self, model: MODEL_NODE_TYPE, virtual_view: VirtualView
+    ) -> None:
         if model.config is None or model.database is None:
             logger.warning("Skipping model without config or database")
             return
@@ -488,9 +490,9 @@ class ManifestParser:
         # Assign ownership & tags to materialized table/view
         ownerships = get_ownerships_from_meta(meta, self._meta_ownerships)
         if len(ownerships) > 0:
-            get_dataset().ownership_assignment = OwnershipAssignment(
-                ownerships=ownerships
-            )
+            ownership_assignment = OwnershipAssignment(ownerships=ownerships)
+            get_dataset().ownership_assignment = ownership_assignment
+            virtual_view.ownership_assignment = ownership_assignment
 
         tag_names = get_tags_from_meta(meta, self._meta_tags)
         if len(tag_names) > 0:
