@@ -94,9 +94,9 @@ def get_ownerships_from_meta(
                     contact_designation_name=meta_ownership.ownership_type,
                     person=owner,
                 )
-                if meta_ownership.assignment_target != "materialized_table":
+                if meta_ownership.assignment_target in ["dbt_model", "both"]:
                     ownerships.dbt_model.append(ownership)
-                if meta_ownership.assignment_target != "dbt_model":
+                if meta_ownership.assignment_target in ["materialized_table", "both"]:
                     ownerships.materialized_table.append(ownership)
 
     return ownerships

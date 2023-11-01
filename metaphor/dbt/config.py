@@ -21,8 +21,8 @@ class MetaOwnership:
     email_domain: Optional[str] = None
 
     # The target to assign this ownership to. Can be either the dbt model, the materialized table, or both.
-    # Defaults to the materialized table.
-    assignment_target: MetaOwnershipAssignmentTarget = "materialized_table"
+    # Defaults to both.
+    assignment_target: MetaOwnershipAssignmentTarget = "both"
 
 
 @dataclass(config=ConnectorConfig)

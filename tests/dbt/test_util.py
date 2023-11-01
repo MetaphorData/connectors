@@ -50,6 +50,9 @@ def test_get_ownerships_from_meta(test_root_dir):
         get_ownerships_from_meta(meta, meta_ownerships).materialized_table
         == expected_ownerships
     )
+    assert (
+        get_ownerships_from_meta(meta, meta_ownerships).dbt_model == expected_ownerships
+    )
 
 
 def test_get_ownerships_with_assignment_targets(test_root_dir):

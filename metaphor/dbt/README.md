@@ -78,7 +78,7 @@ You can also choose between assigning the owner to the materialized table, the d
 meta_ownerships:
   - meta_key: owner
     ownership_type: Data Steward
-    assignment_target: dbt_model # Valid choices: "dbt_model", "materialized_table", "both". Default is "materialized_table"
+    assignment_target: dbt_model # Valid choices: "dbt_model", "materialized_table", "both". Default is "both"
 ```
 
 #### Governed Tags
