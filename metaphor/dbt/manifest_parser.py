@@ -489,10 +489,14 @@ class ManifestParser:
 
         # Assign ownership & tags to materialized table/view
         ownerships = get_ownerships_from_meta(meta, self._meta_ownerships)
-        if len(ownerships) > 0:
-            ownership_assignment = OwnershipAssignment(ownerships=ownerships)
-            get_dataset().ownership_assignment = ownership_assignment
-            virtual_view.ownership_assignment = ownership_assignment
+        if len(ownerships.materialized_table) > 0:
+            get_dataset().ownership_assignment = OwnershipAssignment(
+                ownerships=ownerships.materialized_table
+            )
+        if len(ownerships.dbt_model) > 0:
+            virtual_view.ownership_assignment = OwnershipAssignment(
+                ownerships=ownerships.dbt_model
+            )
 
         tag_names = get_tags_from_meta(meta, self._meta_tags)
         if len(tag_names) > 0:

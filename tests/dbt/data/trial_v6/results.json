@@ -211,14 +211,6 @@
     "logicalId": {
       "name": "trial.my_first_dbt_model",
       "type": "DBT_MODEL"
-    },
-    "ownershipAssignment": {
-      "ownerships": [
-        {
-          "contactDesignationName": "Maintainer",
-          "person": "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
-        }
-      ]
     }
   },
   {

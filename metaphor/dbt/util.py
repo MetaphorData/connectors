@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 from metaphor.common.entity_id import (
@@ -55,9 +56,15 @@ def get_metric_name_from_unique_id(unique_id: str) -> str:
     return unique_id[7:]
 
 
+@dataclass
+class Ownerships:
+    dbt_model: List[Ownership] = field(default_factory=lambda: [])
+    materialized_table: List[Ownership] = field(default_factory=lambda: [])
+
+
 def get_ownerships_from_meta(
     meta: Dict, meta_ownerships: List[MetaOwnership]
-) -> List[Ownership]:
+) -> Ownerships:
     """Extracts ownership info from models' meta field"""
 
     def to_owner(email_or_username: str, email_domain: Optional[str]) -> Optional[str]:
@@ -71,7 +78,7 @@ def get_ownerships_from_meta(
 
         return str(to_person_entity_id(email))
 
-    ownerships: List[Ownership] = []
+    ownerships = Ownerships()
     for meta_ownership in meta_ownerships:
         value = meta.get(meta_ownership.meta_key)
         email_or_usernames = []
@@ -83,12 +90,14 @@ def get_ownerships_from_meta(
         for email_or_username in email_or_usernames:
             owner = to_owner(email_or_username, meta_ownership.email_domain)
             if owner is not None:
-                ownerships.append(
-                    Ownership(
-                        contact_designation_name=meta_ownership.ownership_type,
-                        person=owner,
-                    )
+                ownership = Ownership(
+                    contact_designation_name=meta_ownership.ownership_type,
+                    person=owner,
                 )
+                if meta_ownership.assignment_target != "materialized_table":
+                    ownerships.dbt_model.append(ownership)
+                if meta_ownership.assignment_target != "dbt_model":
+                    ownerships.materialized_table.append(ownership)
 
     return ownerships
 

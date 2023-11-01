@@ -72,6 +72,15 @@ meta_ownerships:
     email_domain: test.com
 ```
 
+You can also choose between assigning the owner to the materialized table, the dbt model, or both:
+
+```yaml
+meta_ownerships:
+  - meta_key: owner@test.com
+    ownership_type: Data Steward
+    assignment_target: dbt_model # Valid choices: dbt_model, materialized_table, both. Default is materialized table
+```
+
 #### Governed Tags
 
 Similar to [Ownership](#ownership), you can optionally specify certain attributes in meta. For example:

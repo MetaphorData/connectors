@@ -1,10 +1,12 @@
 from dataclasses import field as dataclass_field
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.dataclass import ConnectorConfig
+
+MetaOwnershipAssignmentTarget = Literal["dbt_model", "materialized_table", "both"]
 
 
 @dataclass(config=ConnectorConfig)
@@ -17,6 +19,10 @@ class MetaOwnership:
 
     # Domain for user names
     email_domain: Optional[str] = None
+
+    # The target to assign this ownership to. Can be either the dbt model, the materialized table, or both.
+    # Defaults to the materialized table.
+    assignment_target: MetaOwnershipAssignmentTarget = "materialized_table"
 
 
 @dataclass(config=ConnectorConfig)
