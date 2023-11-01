@@ -46,7 +46,72 @@ def test_get_ownerships_from_meta(test_root_dir):
         ),
     ]
 
-    assert get_ownerships_from_meta(meta, meta_ownerships) == expected_ownerships
+    assert (
+        get_ownerships_from_meta(meta, meta_ownerships).materialized_table
+        == expected_ownerships
+    )
+    assert (
+        get_ownerships_from_meta(meta, meta_ownerships).dbt_model == expected_ownerships
+    )
+
+
+def test_get_ownerships_with_assignment_targets(test_root_dir):
+    meta = {
+        "owners_dbt_model": ["foo", "bar"],
+        "owners_materialized_table": ["bar", "qux"],
+        "owners_both": ["baz"],
+    }
+    meta_ownerships = [
+        MetaOwnership(
+            meta_key="owners_dbt_model",
+            ownership_type="dbt model owner",
+            email_domain="metaphor.io",
+            assignment_target="dbt_model",
+        ),
+        MetaOwnership(
+            meta_key="owners_both",
+            ownership_type="owner of both dbt model and materialized table",
+            email_domain="metaphor.io",
+            assignment_target="both",
+        ),
+        MetaOwnership(
+            meta_key="owners_materialized_table",
+            ownership_type="materialized table owner",
+            email_domain="metaphor.io",
+            assignment_target="materialized_table",
+        ),
+    ]
+    ownerships = get_ownerships_from_meta(meta, meta_ownerships)
+    expected_dbt_model_ownerships = [
+        Ownership(
+            contact_designation_name="dbt model owner",
+            person=str(to_person_entity_id("foo@metaphor.io")),
+        ),
+        Ownership(
+            contact_designation_name="dbt model owner",
+            person=str(to_person_entity_id("bar@metaphor.io")),
+        ),
+        Ownership(
+            contact_designation_name="owner of both dbt model and materialized table",
+            person=str(to_person_entity_id("baz@metaphor.io")),
+        ),
+    ]
+    expected_materialized_table_ownerships = [
+        Ownership(
+            contact_designation_name="owner of both dbt model and materialized table",
+            person=str(to_person_entity_id("baz@metaphor.io")),
+        ),
+        Ownership(
+            contact_designation_name="materialized table owner",
+            person=str(to_person_entity_id("bar@metaphor.io")),
+        ),
+        Ownership(
+            contact_designation_name="materialized table owner",
+            person=str(to_person_entity_id("qux@metaphor.io")),
+        ),
+    ]
+    assert ownerships.dbt_model == expected_dbt_model_ownerships
+    assert ownerships.materialized_table == expected_materialized_table_ownerships
 
 
 def test_get_tags_from_meta(test_root_dir):
