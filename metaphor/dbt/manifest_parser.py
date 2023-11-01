@@ -369,19 +369,12 @@ class ManifestParser:
             depends_on_macros=test.depends_on.macros,
         )
 
-        # v7 changed from "compiled_sql" to "compiled_code"
-        if isinstance(test, (CompiledTestNodeV5, CompiledTestNodeV6)):
-            dbt_test.sql = test.compiled_sql
-        elif isinstance(
-            test,
-            (
-                CompiledTestNodeV7,
-                GenericTestNodeV8,
-                GenericTestNodeV9,
-                GenericTestNodeV10,
-            ),
-        ):
-            dbt_test.sql = test.compiled_code
+        # V7 renamed "compiled_sql" to "compiled_code"
+        if hasattr(test, "compiled_sql"):
+            dbt_test.sql = getattr(test, "compiled_sql")
+
+        if hasattr(test, "compiled_code"):
+            dbt_test.sql = getattr(test, "compiled_code")
 
         init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
 
@@ -408,14 +401,22 @@ class ManifestParser:
         )
         dbt_model = virtual_view.dbt_model
 
-        if isinstance(model, (CompiledModelNodeV5, CompiledModelNodeV6)):
-            virtual_view.dbt_model.raw_sql = model.raw_sql
-            dbt_model.compiled_sql = model.compiled_sql
-        elif isinstance(
-            model, (CompiledModelNodeV7, ModelNodeV8, ModelNodeV9, ModelNodeV10)
-        ):
-            virtual_view.dbt_model.raw_sql = model.raw_code
-            dbt_model.compiled_sql = model.compiled_code
+        # raw_sql & complied_sql got renamed to raw_code & complied_code in V7
+        if hasattr(model, "raw_sql"):
+            virtual_view.dbt_model.raw_sql = getattr(model, "raw_sql")
+            dbt_model.raw_sql = getattr(model, "raw_sql")
+
+        if hasattr(model, "compiled_sql"):
+            virtual_view.dbt_model.compiled_sql = getattr(model, "compiled_sql")
+            dbt_model.compiled_sql = getattr(model, "compiled_sql")
+
+        if hasattr(model, "raw_code"):
+            virtual_view.dbt_model.raw_sql = getattr(model, "raw_code")
+            dbt_model.raw_sql = getattr(model, "raw_code")
+
+        if hasattr(model, "compiled_code"):
+            virtual_view.dbt_model.compiled_sql = getattr(model, "compiled_code")
+            dbt_model.compiled_sql = getattr(model, "compiled_code")
 
         self._parse_model_meta(model)
 
@@ -667,13 +668,18 @@ class ManifestParser:
             url=build_metric_docs_url(self._docs_base_url, metric.unique_id),
         )
 
-        # v7 changed from sql & type to expression & calculation_method
-        if isinstance(metric, (ParsedMetricV5, ParsedMetricV6)):
-            metric_entity.dbt_metric.sql = metric.sql
-            metric_entity.dbt_metric.type = metric.type
-        else:
-            metric_entity.dbt_metric.sql = metric.expression
-            metric_entity.dbt_metric.type = metric.calculation_method
+        # V7 renamed sql & type to expression & calculation_method
+        if hasattr(metric, "sql"):
+            metric_entity.dbt_metric.sql = getattr(metric, "sql")
+
+        if hasattr(metric, "type"):
+            metric_entity.dbt_metric.type = getattr(metric, "type")
+
+        if hasattr(metric, "expression"):
+            metric_entity.dbt_metric.sql = getattr(metric, "expression")
+
+        if hasattr(metric, "calculation_method"):
+            metric_entity.dbt_metric.type = getattr(metric, "calculation_method")
 
         dbt_metric = metric_entity.dbt_metric
         (
