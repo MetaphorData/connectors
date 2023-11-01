@@ -52,6 +52,34 @@ def test_get_ownerships_from_meta(test_root_dir):
     )
 
 
+def test_get_ownerships_comma_sep_str_value(test_root_dir):
+    meta = {"owner": "foo@test.io,bar@test.io  ,  baz@test.io    "}
+    meta_ownerships = [
+        MetaOwnership(
+            meta_key="owner",
+            ownership_type="Data Owner",
+        )
+    ]
+    expected_ownerships = [
+        Ownership(
+            contact_designation_name="Data Owner",
+            person=str(to_person_entity_id("foo@test.io")),
+        ),
+        Ownership(
+            contact_designation_name="Data Owner",
+            person=str(to_person_entity_id("bar@test.io")),
+        ),
+        Ownership(
+            contact_designation_name="Data Owner",
+            person=str(to_person_entity_id("baz@test.io")),
+        ),
+    ]
+    assert (
+        get_ownerships_from_meta(meta, meta_ownerships).materialized_table
+        == expected_ownerships
+    )
+
+
 def test_get_ownerships_with_assignment_targets(test_root_dir):
     meta = {
         "owners_dbt_model": ["foo", "bar"],
