@@ -61,6 +61,7 @@ from metaphor.models.metadata_change_event import (
     PowerBIWorkspaceUser,
     SourceInfo,
     UserActivity,
+    UserActivityActorInfo,
     UserActivitySource,
     UserActivityType,
     VirtualView,
@@ -669,6 +670,8 @@ class PowerBIExtractor(BaseExtractor):
                 )
                 continue
 
+            actor_email = activity.UserId
+
             entity_id = str(
                 to_dashboard_entity_id_from_logical_id(
                     logical_id=DashboardLogicalID(
@@ -678,7 +681,7 @@ class PowerBIExtractor(BaseExtractor):
                 )
             )
 
-            user_id = str(to_person_entity_id(activity.UserId))
+            user_id = str(to_person_entity_id(actor_email))
 
             res.append(
                 UserActivity(
@@ -690,6 +693,7 @@ class PowerBIExtractor(BaseExtractor):
                     actor=user_id,
                     measure=1.0,
                     timestamp=activity.CreationTime,
+                    actor_info=UserActivityActorInfo(email=actor_email),
                 )
             )
 
