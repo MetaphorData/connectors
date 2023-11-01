@@ -157,5 +157,23 @@
     "sourceInfo": {
       "mainUrl": "http://dummy.host/explore/data/catalog/schema/view"
     }
+  },
+  {
+    "logs": [
+      {
+        "_id": "UNITY_CATALOG:foo",
+        "bytesRead": 1234.0,
+        "bytesWritten": 5678.0,
+        "duration": 1234.0,
+        "platform": "UNITY_CATALOG",
+        "queryId": "foo",
+        "rowsRead": 9487.0,
+        "rowsWritten": 5566.0,
+        "sql": "bogus query",
+        "sqlHash": "4d562df2c6dc30bee38ccfac33bc47d7",
+        "startTime": "1970-01-01T15:27:47.788000+00:00",
+        "userId": "uwu"
+      }
+    ]
   }
 ]
