@@ -1,10 +1,11 @@
+import datetime
 import json
 import logging
 import urllib.parse
 from typing import Collection, Dict, Generator, List
 
-from databricks_cli.sdk.api_client import ApiClient
-from databricks_cli.unity_catalog.api import UnityCatalogApi
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.catalog import TableInfo, TableType
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -14,7 +15,7 @@ from metaphor.common.entity_id import (
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.common.utils import safe_str, unique_list
+from metaphor.common.utils import md5_digest, safe_float, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -26,7 +27,8 @@ from metaphor.models.metadata_change_event import (
     FieldMapping,
     KeyValuePair,
     MaterializationType,
-    SchemaField,
+    QueryLog,
+    QueryLogs,
     SchemaType,
     SourceField,
     SourceInfo,
@@ -37,11 +39,13 @@ from metaphor.models.metadata_change_event import (
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.models import (
     NoPermission,
-    Table,
-    TableType,
-    parse_table_from_object,
+    extract_schema_field_from_column_info,
 )
-from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
+from metaphor.unity_catalog.utils import (
+    build_query_log_filter_by,
+    list_column_lineage,
+    list_table_lineage,
+)
 
 logger = get_logger()
 
@@ -70,13 +74,14 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def __init__(self, config: UnityCatalogRunConfig):
         super().__init__(
-            config, "Unity Catalog metadata crawler", Platform.THOUGHT_SPOT
+            config, "Unity Catalog metadata crawler", Platform.UNITY_CATALOG
         )
         self._host = config.host
         self._token = config.token
 
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
+        self._query_log_config = config.query_log
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Unity Catalog")
@@ -97,44 +102,43 @@ class UnityCatalogExtractor(BaseExtractor):
                     )
                     continue
 
-                for table in self._get_tables(catalog, schema):
-                    table_name = f"{catalog}.{schema}.{table.name}"
-                    if not self._filter.include_table(catalog, schema, table.name):
+                for table_info in self._get_table_infos(catalog, schema):
+                    table_name = f"{catalog}.{schema}.{table_info.name}"
+                    if table_info.name is None:
+                        logger.error(f"Ignoring table without name: {table_info}")
+                        continue
+                    if not self._filter.include_table(catalog, schema, table_info.name):
                         logger.info(f"Ignore table: {table_name} due to filter config")
                         continue
-                    dataset = self._init_dataset(table)
+                    dataset = self._init_dataset(table_info)
                     self._populate_lineage(dataset)
-        return self._datasets.values()
+
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(list(self._datasets.values()))
+        if self._query_log_config.lookback_days > 0:
+            entities.append(self._get_query_logs())
+
+        return entities
 
     def _get_catalogs(self) -> List[str]:
-        response = self._api.list_catalogs()
-        json_dump_to_debug_file(response, "list-catalogs.json")
-
-        catalogs = []
-        for catalog in response.get("catalogs", []):
-            if "name" in catalog:
-                catalogs.append(catalog["name"])
-        return catalogs
+        catalogs = list(self._api.catalogs.list())
+        json_dump_to_debug_file(catalogs, "list-catalogs.json")
+        return [catalog.name for catalog in catalogs if catalog.name]
 
     def _get_schemas(self, catalog: str) -> List[str]:
-        response = self._api.list_schemas(catalog_name=catalog, name_pattern=None)
-        json_dump_to_debug_file(response, f"list-schemas-{catalog}.json")
+        schemas = list(self._api.schemas.list(catalog))
+        json_dump_to_debug_file(schemas, f"list-schemas-{catalog}.json")
+        return [schema.name for schema in schemas if schema.name]
 
-        schemas = []
-        for schema in response.get("schemas", []):
-            if "name" in schema:
-                schemas.append(schema["name"])
-        return schemas
+    def _get_table_infos(
+        self, catalog: str, schema: str
+    ) -> Generator[TableInfo, None, None]:
+        tables = list(self._api.tables.list(catalog, schema))
+        json_dump_to_debug_file(tables, f"list-tables-{catalog}-{schema}.json")
+        for table in tables:
+            yield table
 
-    def _get_tables(self, catalog: str, schema: str) -> Generator[Table, None, None]:
-        response = self._api.list_tables(
-            catalog_name=catalog, schema_name=schema, name_pattern=None
-        )
-        json_dump_to_debug_file(response, f"list-tables-{catalog}-{schema}.json")
-        for table in response.get("tables", []):
-            yield parse_table_from_object(table)
-
-    def _init_dataset(self, table: Table) -> Dataset:
+    def _init_dataset(self, table: TableInfo) -> Dataset:
         table_name = table.name
         schema_name = table.schema_name
         database = table.catalog_name
@@ -151,20 +155,20 @@ class UnityCatalogExtractor(BaseExtractor):
             database=database, schema=schema_name, table=table_name
         )
 
+        if table.table_type is None:
+            raise ValueError(f"Invalid table {table.name}, no table_type found")
+
+        fields = []
+        if table.columns is not None:
+            fields = [
+                extract_schema_field_from_column_info(column_info)
+                for column_info in table.columns
+            ]
+
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
             description=table.comment,
-            fields=[
-                SchemaField(
-                    subfields=None,
-                    field_name=column.name,
-                    field_path=column.name,
-                    native_type=column.type_name,
-                    precision=float(column.type_precision),
-                    description=column.comment,
-                )
-                for column in table.columns
-            ],
+            fields=fields,
             sql_schema=SQLSchema(
                 materialization=TABLE_TYPE_MATERIALIZATION_TYPE_MAP.get(
                     table.table_type, MaterializationType.TABLE
@@ -179,14 +183,18 @@ class UnityCatalogExtractor(BaseExtractor):
         dataset.source_info = SourceInfo(main_url=f"{self._host}{path}")
 
         dataset.unity_catalog = UnityCatalog(
-            table_type=UnityCatalogTableType[table.table_type],
-            data_source_format=safe_str(table.data_source_format),
+            table_type=UnityCatalogTableType[table.table_type.value],
+            data_source_format=table.data_source_format.value
+            if table.data_source_format is not None
+            else None,
             storage_location=table.storage_location,
             owner=table.owner,
             properties=[
                 KeyValuePair(key=k, value=json.dumps(v))
                 for k, v in table.properties.items()
-            ],
+            ]
+            if table.properties is not None
+            else [],
         )
 
         self._datasets[normalized_name] = dataset
@@ -195,7 +203,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def _table_logical_id(
         self, catalog_name: str, schema_name: str, table_name: str
-    ) -> str:
+    ) -> DatasetLogicalID:
         name = dataset_normalized_name(catalog_name, schema_name, table_name)
         return DatasetLogicalID(name=name, platform=DataPlatform.UNITY_CATALOG)
 
@@ -207,7 +215,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def _populate_lineage(self, dataset: Dataset):
         table_name = f"{dataset.structure.database}.{dataset.structure.schema}.{dataset.structure.table}"
-        lineage = list_table_lineage(self._api.client.client, table_name)
+        lineage = list_table_lineage(self._api.api_client, table_name)
 
         # Skip table without upstream
         if not lineage.upstreams:
@@ -229,33 +237,37 @@ class UnityCatalogExtractor(BaseExtractor):
         # Add column-level lineage if available
         field_mappings = []
         has_permission_issues = False
-        for field in dataset.schema.fields:
-            column_name = field.field_name
-            column_lineage = list_column_lineage(
-                self._api.client.client, table_name, column_name
-            )
-
-            field_mapping = FieldMapping(destination=column_name, sources=[])
-            for upstream_col in column_lineage.upstream_cols:
-                if isinstance(upstream_col, NoPermission):
-                    has_permission_issues = True
-                    continue
-
-                logical_id = self._table_logical_id(
-                    upstream_col.catalog_name,
-                    upstream_col.schema_name,
-                    upstream_col.table_name,
-                )
-                entity_id = str(to_dataset_entity_id_from_logical_id(logical_id))
-                source_datasets.append(entity_id)
-                field_mapping.sources.append(
-                    SourceField(
-                        dataset=logical_id,
-                        source_entity_id=entity_id,
-                        field=upstream_col.name,
+        if dataset.schema is not None and dataset.schema.fields is not None:
+            for field in dataset.schema.fields:
+                column_name = field.field_name
+                if column_name is not None:
+                    column_lineage = list_column_lineage(
+                        self._api.api_client, table_name, column_name
                     )
-                )
-            field_mappings.append(field_mapping)
+
+                    field_mapping = FieldMapping(destination=column_name, sources=[])
+                    for upstream_col in column_lineage.upstream_cols:
+                        if isinstance(upstream_col, NoPermission):
+                            has_permission_issues = True
+                            continue
+
+                        logical_id = self._table_logical_id(
+                            upstream_col.catalog_name,
+                            upstream_col.schema_name,
+                            upstream_col.table_name,
+                        )
+                        entity_id = str(
+                            to_dataset_entity_id_from_logical_id(logical_id)
+                        )
+                        source_datasets.append(entity_id)
+                        field_mapping.sources.append(
+                            SourceField(
+                                dataset=logical_id,
+                                source_entity_id=entity_id,
+                                field=upstream_col.name,
+                            )
+                        )
+                    field_mappings.append(field_mapping)
 
         if has_permission_issues:
             logger.error(
@@ -266,7 +278,43 @@ class UnityCatalogExtractor(BaseExtractor):
             source_datasets=unique_list(source_datasets), field_mappings=field_mappings
         )
 
+    def _get_query_logs(self) -> QueryLogs:
+        logs: List[QueryLog] = []
+        for query_info in self._api.query_history.list(
+            filter_by=build_query_log_filter_by(self._query_log_config, self._api),
+            include_metrics=True,
+            max_results=self._query_log_config.max_results,
+        ):
+            start_time = None
+            if query_info.query_start_time_ms is not None:
+                start_time = datetime.datetime.fromtimestamp(
+                    query_info.query_start_time_ms / 1000, tz=datetime.timezone.utc
+                )
+
+            query_log = QueryLog(
+                id=f"{DataPlatform.UNITY_CATALOG.name}:{query_info.query_id}",
+                duration=safe_float(query_info.duration),
+                user_id=query_info.user_name,
+                platform=DataPlatform.UNITY_CATALOG,
+                query_id=query_info.query_id,
+                sql=query_info.query_text,
+                sql_hash=md5_digest(query_info.query_text.encode("utf-8")),
+                start_time=start_time,
+            )
+            if query_info.metrics is not None:
+                query_log.bytes_read = safe_float(query_info.metrics.read_remote_bytes)
+                query_log.bytes_written = safe_float(
+                    query_info.metrics.write_remote_bytes
+                )
+                query_log.rows_read = safe_float(query_info.metrics.rows_read_count)
+                query_log.rows_written = safe_float(
+                    query_info.metrics.rows_produced_count
+                )
+
+            logs.append(query_log)
+
+        return QueryLogs(logs=logs)
+
     @staticmethod
-    def create_api(host: str, token: str) -> UnityCatalogApi:
-        api_client = ApiClient(host=host, token=token)
-        return UnityCatalogApi(api_client)
+    def create_api(host: str, token: str) -> WorkspaceClient:
+        return WorkspaceClient(host=host, token=token)

@@ -1,15 +1,21 @@
+import datetime
 from unittest.mock import MagicMock
 
 import pytest
-from databricks_cli.sdk.api_client import ApiClient
+from databricks.sdk.service.iam import User
 from requests import HTTPError, Response
 
-from metaphor.unity_catalog.utils import list_column_lineage, list_table_lineage
+from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
+from metaphor.unity_catalog.utils import (
+    build_query_log_filter_by,
+    list_column_lineage,
+    list_table_lineage,
+)
 
 
 def test_list_table_lineage():
-    client = ApiClient(host="foo")
-    client.perform_query = MagicMock(
+    client = MagicMock()
+    client.do = MagicMock(
         return_value={
             "upstreams": [
                 {
@@ -44,8 +50,8 @@ def test_list_table_lineage_unavailable_service():
     response = Response()
     response.status_code = 503
 
-    client = ApiClient(host="foo")
-    client.perform_query = MagicMock(side_effect=HTTPError(response=response))
+    client = MagicMock()
+    client.do = MagicMock(side_effect=HTTPError(response=response))
 
     result = list_table_lineage(client, "foo")
     assert not result.upstreams
@@ -56,16 +62,16 @@ def test_list_table_lineage_internal_server_error():
     response = Response()
     response.status_code = 500
 
-    client = ApiClient(host="foo")
-    client.perform_query = MagicMock(side_effect=HTTPError(response=response))
+    client = MagicMock()
+    client.do = MagicMock(side_effect=HTTPError(response=response))
 
     with pytest.raises(HTTPError):
         list_table_lineage(client, "foo")
 
 
 def test_list_column_lineage():
-    client = ApiClient(host="foo")
-    client.perform_query = MagicMock(
+    client = MagicMock()
+    client.do = MagicMock(
         return_value={
             "upstream_cols": [
                 {
@@ -88,8 +94,8 @@ def test_list_column_lineage_unavailable_service():
     response = Response()
     response.status_code = 503
 
-    client = ApiClient(host="foo")
-    client.perform_query = MagicMock(side_effect=HTTPError(response=response))
+    client = MagicMock()
+    client.do = MagicMock(side_effect=HTTPError(response=response))
 
     result = list_column_lineage(client, "foo", "bar")
     assert not result.upstream_cols
@@ -100,8 +106,35 @@ def test_list_column_lineage_internal_server_error():
     response = Response()
     response.status_code = 500
 
-    client = ApiClient(host="foo")
-    client.perform_query = MagicMock(side_effect=HTTPError(response=response))
+    client = MagicMock()
+    client.do = MagicMock(side_effect=HTTPError(response=response))
 
     with pytest.raises(HTTPError):
         list_column_lineage(client, "foo", "bar")
+
+
+def test_parse_query_log_filter_by():
+    client = MagicMock()
+    client.users = MagicMock()
+    client.users.list = lambda: [
+        User(id="u0", user_name="alice"),
+        User(id="u1", user_name="bob"),
+        User(id="u2", user_name="charlie"),
+        User(id="u3", user_name="dave"),
+    ]
+    config = UnityCatalogQueryLogConfig(
+        lookback_days=2,
+        excluded_usernames={"bob", "charlie"},
+    )
+    query_filter = build_query_log_filter_by(config, client)
+    assert sorted(query_filter.user_ids) == ["u0", "u3"]
+    assert query_filter.query_start_time_range.start_time_ms is not None
+    start_time = datetime.datetime.fromtimestamp(
+        query_filter.query_start_time_range.start_time_ms / 1000
+    )
+    assert query_filter.query_start_time_range.end_time_ms is not None
+    end_time = datetime.datetime.fromtimestamp(
+        query_filter.query_start_time_range.end_time_ms / 1000
+    )
+    time_diff = end_time - start_time
+    assert time_diff == datetime.timedelta(days=2)
