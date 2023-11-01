@@ -83,12 +83,7 @@ def get_ownerships_from_meta(
         value = meta.get(meta_ownership.meta_key)
         email_or_usernames = []
         if isinstance(value, str):
-            # If there's a comma in the string, treat it as a sequence of strings
-            if "," in value:
-                values = [x.strip() for x in value.split(",") if x.strip()]
-                email_or_usernames.extend(values)
-            else:
-                email_or_usernames.append(value)
+            email_or_usernames.append(value)
         elif isinstance(value, list):
             email_or_usernames.extend(value)
 
