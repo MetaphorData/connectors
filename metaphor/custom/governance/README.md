@@ -37,6 +37,13 @@ datasets:
       - description: <description_text>
         email: <author_email>
       ...
+    column_descriptions:
+      - column_name: <column_name>
+        descriptions:
+          - description: <description_text>
+            email: <author_email>
+          ...
+      ...
   ...
 output:
   file:

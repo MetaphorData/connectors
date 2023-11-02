@@ -22,4 +22,15 @@ datasets:
     descriptions:
       - description: Quick brown fox
         email: foo3@bar.com
+    column_descriptions:
+      - column_name: col1
+        descriptions:
+          - description: foo
+            email: foo@test.com
+          - description: bar
+            email: barbar@test.com
+      - column_name: col3
+        descriptions:
+          - description: baz
+            email: bazbazbaz@test.com
 output: {}
