@@ -1,5 +1,5 @@
 from dataclasses import field as dataclass_field
-from typing import List
+from typing import List, Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -10,6 +10,9 @@ from metaphor.common.models import DeserializableDatasetLogicalID
 from metaphor.models.metadata_change_event import (
     AssetDescription,
     ColumnDescriptionAssignment,
+    ColumnTagAssignment,
+    DescriptionAssignment,
+    TagAssignment,
 )
 
 
@@ -76,6 +79,39 @@ class DatasetGovernance:
     column_descriptions: List[ColumnDescriptions] = dataclass_field(
         default_factory=lambda: []
     )
+
+    def to_tag_assignment(self) -> Optional[TagAssignment]:
+        if not self.tags and not self.column_tags:
+            return None
+
+        tag_assignment = TagAssignment()
+        if self.tags:
+            tag_assignment.tag_names = self.tags
+        if self.column_tags:
+            tag_assignment.column_tag_assignments = [
+                ColumnTagAssignment(
+                    column_name=column_tag.column, tag_names=column_tag.tags
+                )
+                for column_tag in self.column_tags
+            ]
+
+        return tag_assignment
+
+    def to_description_assignment(self) -> Optional[DescriptionAssignment]:
+        if not self.descriptions and not self.column_descriptions:
+            return None
+
+        description_assignment = DescriptionAssignment()
+        if self.descriptions:
+            description_assignment.asset_descriptions = [
+                d.to_asset_description() for d in self.descriptions
+            ]
+        if self.column_descriptions:
+            description_assignment.column_description_assignments = [
+                d.to_column_asset_description() for d in self.column_descriptions
+            ]
+
+        return description_assignment
 
 
 @dataclass(config=ConnectorConfig)
