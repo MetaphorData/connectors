@@ -1,8 +1,5 @@
-class ConnectorConfig:
-    """
-    Pydantic dataclass Config for metaphor connector configurations
-    """
+from pydantic import ConfigDict
 
-    validate_default = True
-    extra = "forbid"
-    coerce_numbers_to_str = True
+ConnectorConfig = ConfigDict(
+    validate_default=True, extra="forbid", coerce_numbers_to_str=True
+)
