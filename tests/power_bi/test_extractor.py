@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Dict, List
 from unittest.mock import MagicMock, patch
 
@@ -6,6 +6,7 @@ import pytest
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.models.metadata_change_event import PowerBISensitivityLabel
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.extractor import PowerBIExtractor
 from metaphor.power_bi.models import (
@@ -24,6 +25,7 @@ from metaphor.power_bi.models import (
     PowerBITableColumn,
     PowerBITableMeasure,
     PowerBITile,
+    SensitivityLabel,
     UpstreamDataflow,
     WorkspaceInfo,
     WorkspaceInfoDashboard,
@@ -242,6 +244,7 @@ def face_get_workspace_info(workspace_id: str) -> List[WorkspaceInfo]:
                     endorsementDetails=EndorsementDetails(
                         endorsement="Invalid", certifiedBy="admin@foo.bar"
                     ),
+                    sensitivityLabel=SensitivityLabel(labelId="label-id"),
                 ),
             ],
             datasets=[
@@ -338,6 +341,7 @@ def face_get_workspace_info(workspace_id: str) -> List[WorkspaceInfo]:
                         UpstreamDataflow(targetDataflowId=dataflow_id2),
                     ],
                     upstreamDatasets=None,
+                    sensitivityLabel=SensitivityLabel(labelId="label-id"),
                 ),
             ],
             dashboards=[
@@ -348,6 +352,7 @@ def face_get_workspace_info(workspace_id: str) -> List[WorkspaceInfo]:
                     createdDateTime="2022-04-06T04:25:06.777",
                     modifiedBy="editor@foo.bar",
                     modifiedDateTime="2022-04-06T04:25:06.777",
+                    sensitivityLabel=SensitivityLabel(labelId="label-id"),
                 ),
                 WorkspaceInfoDashboard(
                     displayName="Dashboard A",
@@ -504,10 +509,24 @@ def fake_get_dataflow_transactions(*_):
     ]
 
 
+async def get_labels(label_id):
+    if label_id is None:
+        return None
+    return PowerBISensitivityLabel(
+        description="label description",
+        name="label name",
+        id=label_id,
+    )
+
+
+# Must patch the class in extractor
+@patch("metaphor.power_bi.extractor.GraphApiClient")
 @patch("metaphor.power_bi.extractor.PowerBIClient")
 @pytest.mark.asyncio
-async def test_extractor(mock_client: MagicMock, test_root_dir: str):
-    mock_instance = MagicMock()
+async def test_extractor(
+    mocked_pbi_client: MagicMock, mocked_graph_client: MagicMock, test_root_dir: str
+):
+    mocked_pbi_client_instance = MagicMock()
 
     def fake_export_dataflow(workspace_id: str, df_id: str) -> dict:
         if df_id == dataflow_id:
@@ -515,17 +534,19 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
         else:
             return load_json(f"{test_root_dir}/power_bi/data/dataflow_2.json")
 
-    mock_instance.get_workspace_info.side_effect = face_get_workspace_info
-    mock_instance.get_datasets.side_effect = fake_get_datasets
-    mock_instance.get_reports.side_effect = fake_get_reports
-    mock_instance.get_dashboards.side_effect = fake_get_dashboards
-    mock_instance.get_tiles.side_effect = fake_get_tiles
-    mock_instance.get_pages.side_effect = fake_get_pages
-    mock_instance.get_refreshes.side_effect = fake_get_refreshes
-    mock_instance.get_apps.side_effect = fake_get_apps
-    mock_instance.get_user_subscriptions.side_effect = fake_get_user_subscriptions
-    mock_instance.export_dataflow.side_effect = fake_export_dataflow
-    mock_instance.get_refresh_schedule.side_effect = [
+    mocked_pbi_client_instance.get_workspace_info.side_effect = face_get_workspace_info
+    mocked_pbi_client_instance.get_datasets.side_effect = fake_get_datasets
+    mocked_pbi_client_instance.get_reports.side_effect = fake_get_reports
+    mocked_pbi_client_instance.get_dashboards.side_effect = fake_get_dashboards
+    mocked_pbi_client_instance.get_tiles.side_effect = fake_get_tiles
+    mocked_pbi_client_instance.get_pages.side_effect = fake_get_pages
+    mocked_pbi_client_instance.get_refreshes.side_effect = fake_get_refreshes
+    mocked_pbi_client_instance.get_apps.side_effect = fake_get_apps
+    mocked_pbi_client_instance.get_user_subscriptions.side_effect = (
+        fake_get_user_subscriptions
+    )
+    mocked_pbi_client_instance.export_dataflow.side_effect = fake_export_dataflow
+    mocked_pbi_client_instance.get_refresh_schedule.side_effect = [
         PowerBiRefreshSchedule(
             days=["Monday"],
             times=["10:00"],
@@ -536,7 +557,7 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
         None,
         None,
     ]
-    mock_instance.get_direct_query_refresh_schedule.side_effect = [
+    mocked_pbi_client_instance.get_direct_query_refresh_schedule.side_effect = [
         PowerBiRefreshSchedule(
             frequency="120",
             days=[],
@@ -547,10 +568,16 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
         ),
         None,
     ]
-    mock_instance.get_activities = fake_get_activities
-    mock_instance.get_dataflow_transactions.side_effect = fake_get_dataflow_transactions
+    mocked_pbi_client_instance.get_activities = fake_get_activities
+    mocked_pbi_client_instance.get_dataflow_transactions.side_effect = (
+        fake_get_dataflow_transactions
+    )
 
-    mock_client.return_value = mock_instance
+    mocked_graph_client_instance = MagicMock()
+    mocked_graph_client_instance.get_labels = get_labels
+
+    mocked_pbi_client.return_value = mocked_pbi_client_instance
+    mocked_graph_client.return_value = mocked_graph_client_instance
 
     config = PowerBIRunConfig(
         output=OutputConfig(),
@@ -564,10 +591,3 @@ async def test_extractor(mock_client: MagicMock, test_root_dir: str):
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/power_bi/expected.json")
-
-
-def test_find_refresh_time_from_transaction():
-    assert PowerBIExtractor._find_refresh_time_from_transaction([]) is None
-    assert PowerBIExtractor._find_refresh_time_from_transaction(
-        fake_get_dataflow_transactions()
-    ) == datetime(2023, 10, 19, 1, 6, 10, 290000, tzinfo=timezone.utc)

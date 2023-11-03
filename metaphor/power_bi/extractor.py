@@ -1,8 +1,6 @@
 import json
-import re
 from datetime import datetime, timezone
 from typing import Collection, Dict, List, Optional
-from urllib import parse
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -17,8 +15,6 @@ from metaphor.common.utils import chunks, is_email, safe_parse_ISO8601, unique_l
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetStructure,
-    Chart,
-    ChartType,
     Dashboard,
     DashboardInfo,
     DashboardLogicalID,
@@ -37,20 +33,12 @@ from metaphor.models.metadata_change_event import (
     PipelineLogicalID,
     PipelineMapping,
     PipelineType,
+    PowerBIDashboardType,
+    PowerBIDataflow,
 )
-from metaphor.models.metadata_change_event import PowerBIApp as PbiApp
-from metaphor.models.metadata_change_event import PowerBIColumn as PbiColumn
-from metaphor.models.metadata_change_event import PowerBIDashboardType, PowerBIDataflow
 from metaphor.models.metadata_change_event import (
     PowerBIDataset as VirtualViewPowerBIDataset,
 )
-from metaphor.models.metadata_change_event import (
-    PowerBIDatasetTable,
-    PowerBIEndorsement,
-    PowerBIEndorsementType,
-    PowerBIInfo,
-)
-from metaphor.models.metadata_change_event import PowerBIMeasure as PbiMeasure
 from metaphor.models.metadata_change_event import PowerBIRefreshSchedule
 from metaphor.models.metadata_change_event import PowerBISubscription as Subscription
 from metaphor.models.metadata_change_event import (
@@ -69,20 +57,26 @@ from metaphor.models.metadata_change_event import (
     VirtualViewType,
 )
 from metaphor.power_bi.config import PowerBIRunConfig
-from metaphor.power_bi.graph_utils import GraphApiClient
+from metaphor.power_bi.graph_api_client import GraphApiClient
 from metaphor.power_bi.models import (
-    DataflowTransaction,
     PowerBIApp,
-    PowerBIPage,
-    PowerBIRefresh,
     PowerBISubscription,
     PowerBiSubscriptionUser,
-    PowerBITile,
     WorkspaceInfo,
-    WorkspaceInfoDashboardBase,
     WorkspaceInfoDataset,
 )
 from metaphor.power_bi.power_bi_client import PowerBIClient
+from metaphor.power_bi.power_bi_utils import (
+    extract_refresh_schedule,
+    find_last_completed_refresh,
+    find_refresh_time_from_transaction,
+    get_dashboard_id_from_url,
+    get_pbi_dataset_tables,
+    get_workspace_hierarchy,
+    make_power_bi_info,
+    transform_pages_to_charts,
+    transform_tiles_to_charts,
+)
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 
 logger = get_logger()
@@ -140,7 +134,7 @@ class PowerBIExtractor(BaseExtractor):
 
         for workspace in workspaces:
             await self.map_wi_reports_to_dashboard(workspace, app_map)
-            self.map_wi_dashboards_to_dashboard(workspace, app_map)
+            await self.map_wi_dashboards_to_dashboard(workspace, app_map)
 
         self.extract_subscriptions(workspaces)
 
@@ -270,36 +264,11 @@ class PowerBIExtractor(BaseExtractor):
                     else None,
                     dataflow_url=f"https://app.powerbi.com/groups/{workspace.id}/dataflows/{data_flow_id}",
                     workspace_id=workspace.id,
-                    last_refreshed=self._find_refresh_time_from_transaction(
-                        transactions
-                    ),
+                    last_refreshed=find_refresh_time_from_transaction(transactions),
                 ),
             )
 
             self._pipelines[data_flow_id] = pipeline
-
-    @staticmethod
-    def _get_pbi_dataset_tables(wds: WorkspaceInfoDataset) -> List[PowerBIDatasetTable]:
-        return [
-            PowerBIDatasetTable(
-                columns=[
-                    PbiColumn(field=c.name, type=c.dataType) for c in table.columns
-                ],
-                measures=[
-                    PbiMeasure(
-                        field=m.name,
-                        expression=m.expression,
-                        description=m.description,
-                    )
-                    for m in table.measures
-                ],
-                name=table.name,
-                expression=table.source[0].get("expression", None)
-                if len(table.source) > 0
-                else None,
-            )
-            for table in wds.tables
-        ]
 
     def _extract_column_level_lineage(
         self,
@@ -410,9 +379,9 @@ class PowerBIExtractor(BaseExtractor):
             last_refreshed = None
             if ds.isRefreshable:
                 refreshes = self._client.get_refreshes(workspace.id, wds.id)
-                last_refreshed = self._find_last_completed_refresh(refreshes)
+                last_refreshed = find_last_completed_refresh(refreshes)
 
-            refresh_schedule = self._extract_refresh_schedule(
+            refresh_schedule = extract_refresh_schedule(
                 self._client, workspace.id, wds.id
             )
 
@@ -421,10 +390,10 @@ class PowerBIExtractor(BaseExtractor):
                     name=wds.id, type=VirtualViewType.POWER_BI_DATASET
                 ),
                 structure=AssetStructure(
-                    directories=self._get_workspace_hierarchy(workspace), name=wds.name
+                    directories=get_workspace_hierarchy(workspace), name=wds.name
                 ),
                 power_bi_dataset=VirtualViewPowerBIDataset(
-                    tables=self._get_pbi_dataset_tables(wds),
+                    tables=get_pbi_dataset_tables(wds),
                     name=wds.name,
                     url=ds.webUrl,
                     description=wds.description,
@@ -468,7 +437,7 @@ class PowerBIExtractor(BaseExtractor):
                 logger.warning(f"Skipping invalid report {wi_report.id}")
                 continue
 
-            pbi_info = self._make_power_bi_info(
+            pbi_info = make_power_bi_info(
                 PowerBIDashboardType.REPORT, workspace, wi_report, app_map
             )
 
@@ -482,7 +451,7 @@ class PowerBIExtractor(BaseExtractor):
             charts = None
             if wi_report.appId is None:
                 pages = self._client.get_pages(workspace.id, wi_report.id)
-                charts = self.transform_pages_to_charts(pages)
+                charts = transform_pages_to_charts(pages)
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -490,7 +459,7 @@ class PowerBIExtractor(BaseExtractor):
                     platform=DashboardPlatform.POWER_BI,
                 ),
                 structure=AssetStructure(
-                    directories=self._get_workspace_hierarchy(workspace),
+                    directories=get_workspace_hierarchy(workspace),
                     name=wi_report.name,
                 ),
                 dashboard_info=DashboardInfo(
@@ -507,7 +476,7 @@ class PowerBIExtractor(BaseExtractor):
             )
             self._dashboards[wi_report.id] = dashboard
 
-    def map_wi_dashboards_to_dashboard(
+    async def map_wi_dashboards_to_dashboard(
         self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
     ) -> None:
         dashboard_map = {d.id: d for d in self._client.get_dashboards(workspace.id)}
@@ -536,8 +505,14 @@ class PowerBIExtractor(BaseExtractor):
                 logger.warning(f"Skipping invalid dashboard {wi_dashboard.id}")
                 continue
 
-            pbi_info = self._make_power_bi_info(
+            pbi_info = make_power_bi_info(
                 PowerBIDashboardType.DASHBOARD, workspace, wi_dashboard, app_map
+            )
+
+            pbi_info.sensitivity_label = await self._graph_client.get_labels(
+                wi_dashboard.sensitivityLabel.labelId
+                if wi_dashboard.sensitivityLabel
+                else None
             )
 
             dashboard = Dashboard(
@@ -546,12 +521,12 @@ class PowerBIExtractor(BaseExtractor):
                     platform=DashboardPlatform.POWER_BI,
                 ),
                 structure=AssetStructure(
-                    directories=self._get_workspace_hierarchy(workspace),
+                    directories=get_workspace_hierarchy(workspace),
                     name=wi_dashboard.displayName,
                 ),
                 dashboard_info=DashboardInfo(
                     title=wi_dashboard.displayName,
-                    charts=self.transform_tiles_to_charts(tiles),
+                    charts=transform_tiles_to_charts(tiles),
                     power_bi=pbi_info,
                     dashboard_type=DashboardType.POWER_BI_DASHBOARD,
                 ),
@@ -570,7 +545,7 @@ class PowerBIExtractor(BaseExtractor):
                 continue
 
             app_url = dashboard.source_info.main_url
-            original_dashboard_id = self._get_dashboard_id_from_url(
+            original_dashboard_id = get_dashboard_id_from_url(
                 dashboard.source_info.main_url
             )
 
@@ -709,137 +684,3 @@ class PowerBIExtractor(BaseExtractor):
             )
 
         return res
-
-    @staticmethod
-    def _extract_refresh_schedule(
-        client: PowerBIClient, workspace_id: str, dataset_id: str
-    ) -> Optional[PowerBIRefreshSchedule]:
-        modeled_dataset_refresh_schedule = client.get_refresh_schedule(
-            workspace_id, dataset_id
-        )
-
-        if modeled_dataset_refresh_schedule:
-            return PowerBIRefreshSchedule(
-                days=modeled_dataset_refresh_schedule.days,
-                times=modeled_dataset_refresh_schedule.times,
-                enabled=modeled_dataset_refresh_schedule.enabled or False,
-                local_time_zone_id=modeled_dataset_refresh_schedule.localTimeZoneId,
-                notify_option=modeled_dataset_refresh_schedule.notifyOption,
-            )
-
-        direct_query_dataset_refresh_schedule = (
-            client.get_direct_query_refresh_schedule(workspace_id, dataset_id)
-        )
-
-        if direct_query_dataset_refresh_schedule:
-            if direct_query_dataset_refresh_schedule.frequency:
-                frequency_in_minutes = float(
-                    direct_query_dataset_refresh_schedule.frequency
-                )
-            else:
-                frequency_in_minutes = None
-            return PowerBIRefreshSchedule(
-                frequency_in_minutes=frequency_in_minutes,
-                days=direct_query_dataset_refresh_schedule.days,
-                times=direct_query_dataset_refresh_schedule.times,
-                enabled=direct_query_dataset_refresh_schedule.enabled or False,
-                local_time_zone_id=direct_query_dataset_refresh_schedule.localTimeZoneId,
-                notify_option=direct_query_dataset_refresh_schedule.notifyOption,
-            )
-
-        return None
-
-    @staticmethod
-    def _make_power_bi_info(
-        type: PowerBIDashboardType,
-        workspace: WorkspaceInfo,
-        dashboard: WorkspaceInfoDashboardBase,
-        app_map: Dict[str, PowerBIApp],
-    ) -> PowerBIInfo:
-        pbi_info = PowerBIInfo(
-            power_bi_dashboard_type=type,
-            workspace_id=workspace.id,
-            created_by=dashboard.createdBy,
-            created_date_time=safe_parse_ISO8601(dashboard.createdDateTime),
-            modified_by=dashboard.modifiedBy,
-            modified_date_time=safe_parse_ISO8601(dashboard.modifiedDateTime),
-        )
-
-        if dashboard.appId is not None:
-            app_id = dashboard.appId
-            app = app_map.get(app_id)
-            if app is not None:
-                pbi_info.app = PbiApp(id=app.id, name=app.name)
-
-        if dashboard.endorsementDetails is not None:
-            try:
-                endorsement = PowerBIEndorsementType(
-                    dashboard.endorsementDetails.endorsement
-                )
-                pbi_info.endorsement = PowerBIEndorsement(
-                    endorsement=endorsement,
-                    certified_by=dashboard.endorsementDetails.certifiedBy,
-                )
-            except ValueError:
-                logger.warning(
-                    f"Endorsement type {dashboard.endorsementDetails.endorsement} are not supported"
-                )
-
-        return pbi_info
-
-    @staticmethod
-    def _get_workspace_hierarchy(workspace: WorkspaceInfo) -> List[str]:
-        return (workspace.name or "").split(".")
-
-    @staticmethod
-    def _find_last_completed_refresh(
-        refreshes: List[PowerBIRefresh],
-    ) -> Optional[datetime]:
-        try:
-            # Assume refreshes are already sorted in reversed chronological order
-            # Empty endTime means still in progress
-            refresh = next(
-                r for r in refreshes if r.status == "Completed" and r.endTime != ""
-            )
-        except StopIteration:
-            return None
-
-        return safe_parse_ISO8601(refresh.endTime)
-
-    @staticmethod
-    def _find_refresh_time_from_transaction(
-        transactions: List[DataflowTransaction],
-    ) -> Optional[datetime]:
-        """
-        Find the last success transaction (refresh) time from a list of dataflow transactions
-        """
-        try:
-            # Assume refreshes are already sorted in reversed chronological order
-            # Empty endTime means still in progress
-            refresh = next(
-                t for t in transactions if t.status == "Success" and t.endTime != ""
-            )
-        except StopIteration:
-            return None
-
-        return safe_parse_ISO8601(refresh.endTime)
-
-    @staticmethod
-    def _get_dashboard_id_from_url(url: str) -> Optional[str]:
-        path = parse.urlparse(url).path
-        pattern = re.compile(r"apps/([^/]+)/(reports|dashboards)/([^/]+)")
-        match = pattern.search(path)
-        if match and len(match.groups()) == 3:
-            return match.group(3)
-        return None
-
-    @staticmethod
-    def transform_tiles_to_charts(tiles: List[PowerBITile]) -> List[Chart]:
-        return [
-            Chart(title=t.title, url=t.embedUrl, chart_type=ChartType.OTHER)
-            for t in tiles
-        ]
-
-    @staticmethod
-    def transform_pages_to_charts(pages: List[PowerBIPage]) -> List[Chart]:
-        return [Chart(title=p.displayName, chart_type=ChartType.OTHER) for p in pages]
