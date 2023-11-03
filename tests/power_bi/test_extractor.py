@@ -8,7 +8,7 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.extractor import PowerBIExtractor
-from metaphor.power_bi.power_bi_client import (
+from metaphor.power_bi.models import (
     DataflowTransaction,
     EndorsementDetails,
     PowerBIActivityEventEntity,

@@ -69,10 +69,10 @@ from metaphor.models.metadata_change_event import (
     VirtualViewType,
 )
 from metaphor.power_bi.config import PowerBIRunConfig
-from metaphor.power_bi.power_bi_client import (
+from metaphor.power_bi.graph_utils import GraphApiClient
+from metaphor.power_bi.models import (
     DataflowTransaction,
     PowerBIApp,
-    PowerBIClient,
     PowerBIPage,
     PowerBIRefresh,
     PowerBISubscription,
@@ -82,6 +82,7 @@ from metaphor.power_bi.power_bi_client import (
     WorkspaceInfoDashboardBase,
     WorkspaceInfoDataset,
 )
+from metaphor.power_bi.power_bi_client import PowerBIClient
 from metaphor.power_bi.power_query_parser import PowerQueryParser
 
 logger = get_logger()
@@ -101,6 +102,7 @@ class PowerBIExtractor(BaseExtractor):
         self._workspaces = config.workspaces
 
         self._client = PowerBIClient(self._config)
+        self._graph_client = GraphApiClient(self._config)
 
         self._dashboards: Dict[str, Dashboard] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
@@ -134,10 +136,10 @@ class PowerBIExtractor(BaseExtractor):
         # As there may be cross-workspace reference in dashboards & reports,
         # we must process the datasets across all workspaces first
         for workspace in workspaces:
-            self.map_wi_datasets_to_virtual_views(workspace)
+            await self.map_wi_datasets_to_virtual_views(workspace)
 
         for workspace in workspaces:
-            self.map_wi_reports_to_dashboard(workspace, app_map)
+            await self.map_wi_reports_to_dashboard(workspace, app_map)
             self.map_wi_dashboards_to_dashboard(workspace, app_map)
 
         self.extract_subscriptions(workspaces)
@@ -396,7 +398,7 @@ class PowerBIExtractor(BaseExtractor):
                 pipeline_mapping=pipeline_mappings
             )
 
-    def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
+    async def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
         dataset_map = {d.id: d for d in self._client.get_datasets(workspace.id)}
 
         for wds in workspace.datasets:
@@ -431,6 +433,9 @@ class PowerBIExtractor(BaseExtractor):
                     refresh_schedule=refresh_schedule,
                     created_date=safe_parse_ISO8601(wds.createdDate),
                     configured_by=wds.configuredBy,
+                    sensitivity_label=await self._graph_client.get_labels(
+                        wds.sensitivityLabel.labelId if wds.sensitivityLabel else None
+                    ),
                 ),
             )
 
@@ -439,7 +444,7 @@ class PowerBIExtractor(BaseExtractor):
 
             self._virtual_views[wds.id] = virtual_view
 
-    def map_wi_reports_to_dashboard(
+    async def map_wi_reports_to_dashboard(
         self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
     ) -> None:
         report_map = {r.id: r for r in self._client.get_reports(workspace.id)}
@@ -465,6 +470,12 @@ class PowerBIExtractor(BaseExtractor):
 
             pbi_info = self._make_power_bi_info(
                 PowerBIDashboardType.REPORT, workspace, wi_report, app_map
+            )
+
+            pbi_info.sensitivity_label = await self._graph_client.get_labels(
+                wi_report.sensitivityLabel.labelId
+                if wi_report.sensitivityLabel
+                else None
             )
 
             # The "app" version of report doesn't have pages
