@@ -36,6 +36,8 @@ class GraphApiClient:
             return self._sensitivity_labels.get(label_id)
 
         try:
+            # This endpoint is still under beta
+            # https://learn.microsoft.com/en-us/graph/api/security-informationprotection-list-sensitivitylabels?view=graph-rest-beta&tabs=http
             builder = self._client.security.information_protection.sensitivity_labels.by_sensitivity_label_id(
                 label_id
             )
