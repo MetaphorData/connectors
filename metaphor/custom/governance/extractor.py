@@ -1,19 +1,9 @@
 from typing import List
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import to_person_entity_id
 from metaphor.common.logger import get_logger
 from metaphor.custom.governance.config import CustomGovernanceConfig
-from metaphor.models.metadata_change_event import (
-    AssetDescription,
-    ColumnTagAssignment,
-    Dataset,
-    DescriptionAssignment,
-    MetadataChangeEvent,
-    Ownership,
-    OwnershipAssignment,
-    TagAssignment,
-)
+from metaphor.models.metadata_change_event import Dataset, MetadataChangeEvent
 
 logger = get_logger()
 
@@ -38,45 +28,8 @@ class CustomGovernanceExtractor(BaseExtractor):
         for governance in self._datasets:
             dataset = Dataset(logical_id=governance.id.to_logical_id())
             datasets.append(dataset)
-
-            if len(governance.ownerships) > 0:
-                ownerships = [
-                    Ownership(
-                        contact_designation_name=o.type,
-                        person=str(to_person_entity_id(o.email)),
-                    )
-                    for o in governance.ownerships
-                ]
-
-                dataset.ownership_assignment = OwnershipAssignment(
-                    ownerships=ownerships
-                )
-
-            if len(governance.tags) > 0:
-                dataset.tag_assignment = TagAssignment(tag_names=governance.tags)
-
-            if len(governance.column_tags) > 0:
-                if dataset.tag_assignment is None:
-                    dataset.tag_assignment = TagAssignment()
-
-                dataset.tag_assignment.column_tag_assignments = [
-                    ColumnTagAssignment(
-                        column_name=column_tag.column, tag_names=column_tag.tags
-                    )
-                    for column_tag in governance.column_tags
-                ]
-
-            if len(governance.descriptions) > 0:
-                asset_descriptions = [
-                    AssetDescription(
-                        description=d.description,
-                        author=str(to_person_entity_id(d.email)),
-                    )
-                    for d in governance.descriptions
-                ]
-
-                dataset.description_assignment = DescriptionAssignment(
-                    asset_descriptions=asset_descriptions
-                )
+            dataset.ownership_assignment = governance.to_ownership_assignment()
+            dataset.description_assignment = governance.to_description_assignment()
+            dataset.tag_assignment = governance.to_tag_assignment()
 
         return datasets

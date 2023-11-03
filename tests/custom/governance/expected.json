@@ -43,6 +43,30 @@
           "author": "PERSON~415B746E7471B6C410D0A6580A390DC6",
           "description": "Quick brown fox"
         }
+      ],
+      "columnDescriptionAssignments": [
+        {
+          "columnName": "col1",
+          "assetDescriptions": [
+            {
+              "author": "PERSON~4E4C2D183E6A061625A2262B8F226C01",
+              "description": "foo"
+            },
+            {
+              "author": "PERSON~FE367FE3A3E545ACB19E971A32ACAC8B",
+              "description": "bar"
+            }
+          ]
+        },
+        {
+          "columnName": "col3",
+          "assetDescriptions": [
+            {
+              "author": "PERSON~BE2051F8C078781C9A2887E33789A25A",
+              "description": "baz"
+            }
+          ]
+        }
       ]
     }
   }
