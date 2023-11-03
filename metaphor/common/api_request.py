@@ -46,8 +46,7 @@ def get_request(
             json.dump(result.json(), fp, indent=2)
         debug_files.append(out_file)
         try:
-            ta = TypeAdapter(type_)
-            return ta.validate_python(transform_response(result))
+            return TypeAdapter(type_).validate_python(transform_response(result))
         except ValidationError as error:
             logger.error(
                 f"url: {url}, result: {json.dumps(result.json())}, error: {error}"
