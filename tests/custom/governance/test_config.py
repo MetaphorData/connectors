@@ -1,5 +1,6 @@
 from metaphor.common.base_config import OutputConfig
 from metaphor.custom.governance.config import (
+    ColumnDescriptions,
     ColumnTags,
     CustomGovernanceConfig,
     DatasetGovernance,
@@ -29,6 +30,21 @@ def test_yaml_config(test_root_dir):
                 ],
                 descriptions=[
                     Description(description="Quick brown fox", email="foo3@bar.com")
+                ],
+                column_descriptions=[
+                    ColumnDescriptions(
+                        column_name="col1",
+                        descriptions=[
+                            Description(description="foo", email="foo@test.com"),
+                            Description(description="bar", email="barbar@test.com"),
+                        ],
+                    ),
+                    ColumnDescriptions(
+                        column_name="col3",
+                        descriptions=[
+                            Description(description="baz", email="bazbazbaz@test.com"),
+                        ],
+                    ),
                 ],
             )
         ],
