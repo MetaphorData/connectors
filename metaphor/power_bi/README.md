@@ -10,9 +10,18 @@ We recommend creating a dedicated Azure AD Application and a dedicated security 
 
 > Note: Make sure to NOT add any Power BI Service permissions to the app. Doing so will lead to authentication errors when calling the APIs. See [this notice](https://docs.microsoft.com/en-us/power-bi/enterprise/read-only-apis-service-principal-authentication#:~:text=Make%20sure%20there%20are%20no%20Power%20BI%20admin%2Dconsent%2Drequired%20permissions%20set%20on%20this%20application.%20For%20more%20information%2C%20see%20Managing%20consent%20to%20applications%20and%20evaluating%20consent%20requests.) for more details.
 
-2. Follow [this doc](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal#create-a-basic-group-and-add-members) to create a security group and add the app's service principal as a member.
+2. To get the sensitivity labe information. Follow the steps to ddd `InformationProtectionPolicy.Read.All` to the dedicated Azure AD application.
+    1. Sign into the Azure portal
+    2. Select Azure Active Directory, then Enterprise applications.
+    3. Select the application you created
+    4. Select `Permissions`, and `Add a permission`
+    5. Select `Microsoft Graph` -> `Application permissions`
+    6. Find `InformationProtectionPolicy.Read.All` and click add button below.
+    7. Grant the permission you select.
 
-3. Log into [Power BI Admin Portal](https://app.powerbi.com/admin-portal/tenantSettings) as a Power BI admin, enable the following settings under **Admin API settings** for the security group created in the previous step:
+3. Follow [this doc](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal#create-a-basic-group-and-add-members) to create a security group and add the app's service principal as a member.
+
+4. Log into [Power BI Admin Portal](https://app.powerbi.com/admin-portal/tenantSettings) as a Power BI admin, enable the following settings under **Admin API settings** for the security group created in the previous step:
     - Allow service principals to use Power BI APIs
     - Allow service principals to use read-only Power BI admin APIs
     - Enhance admin APIs responses with detailed metadata
