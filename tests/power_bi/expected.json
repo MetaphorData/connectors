@@ -267,7 +267,12 @@
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0001-000000000003",
       "workspaceId": "workspace-1",
-      "configuredBy": "bob@foo.com"
+      "configuredBy": "bob@foo.com",
+      "sensitivityLabel": {
+        "description": "label description",
+        "id": "label-id",
+        "name": "label name"
+      }
     },
     "structure": {
       "directories": [
@@ -334,7 +339,12 @@
       "description": "This is a report about bar",
       "powerBi": {
         "powerBiDashboardType": "REPORT",
-        "workspaceId": "workspace-1"
+        "workspaceId": "workspace-1",
+        "sensitivityLabel": {
+          "description": "label description",
+          "id": "label-id",
+          "name": "label name"
+        }
       },
       "title": "Bar Report"
     },
@@ -398,7 +408,12 @@
         "createdBy": "creator@foo.bar",
         "createdDateTime": "2022-04-06T04:25:06.777000+00:00",
         "modifiedBy": "editor@foo.bar",
-        "modifiedDateTime": "2022-04-06T04:25:06.777000+00:00"
+        "modifiedDateTime": "2022-04-06T04:25:06.777000+00:00",
+        "sensitivityLabel": {
+          "description": "label description",
+          "id": "label-id",
+          "name": "label name"
+        }
       },
       "title": "Dashboard A"
     },

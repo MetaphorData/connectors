@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Type, TypeVar
 from urllib.parse import urlparse
 
 import requests
-from pydantic import ValidationError, parse_obj_as
+from pydantic import TypeAdapter, ValidationError
 
 from metaphor.common.logger import debug_files, get_logger
 
@@ -46,7 +46,7 @@ def get_request(
             json.dump(result.json(), fp, indent=2)
         debug_files.append(out_file)
         try:
-            return parse_obj_as(type_, transform_response(result))
+            return TypeAdapter(type_).validate_python(transform_response(result))
         except ValidationError as error:
             logger.error(
                 f"url: {url}, result: {json.dumps(result.json())}, error: {error}"

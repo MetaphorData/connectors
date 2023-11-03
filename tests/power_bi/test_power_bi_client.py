@@ -55,7 +55,7 @@ async def test_get_user_subscriptions(
     subscriptions = client.get_user_subscriptions("user_id")
     assert len(subscriptions) == 1
     assert (
-        subscriptions[0].dict()
+        subscriptions[0].model_dump()
         == PowerBISubscription(
             id="some-uuid",
             artifactId="dashboard-uuid",
@@ -66,7 +66,7 @@ async def test_get_user_subscriptions(
             artifactDisplayName="Report Name",
             subArtifactDisplayName="Page Name",
             users=[],
-        ).dict()
+        ).model_dump()
     )
 
 
