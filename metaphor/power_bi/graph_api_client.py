@@ -3,7 +3,6 @@ from typing import Dict, Optional
 from azure.identity import ClientSecretCredential
 from msgraph_beta import GraphServiceClient
 from msgraph_beta.generated.models.o_data_errors.o_data_error import ODataError
-from msgraph_beta.generated.models.security.sensitivity_label import SensitivityLabel
 
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import PowerBISensitivityLabel
@@ -29,7 +28,7 @@ class GraphApiClient:
 
     async def get_labels(
         self, label_id: Optional[str] = None
-    ) -> Optional[SensitivityLabel]:
+    ) -> Optional[PowerBISensitivityLabel]:
         if label_id is None:
             return None
 
@@ -37,15 +36,17 @@ class GraphApiClient:
             return self._sensitivity_labels.get(label_id)
 
         try:
-            label = await self._client.security.information_protection.sensitivity_labels.by_sensitivity_label_id(
+            builder = self._client.security.information_protection.sensitivity_labels.by_sensitivity_label_id(
                 label_id
-            ).get()
+            )
+            label = await builder.get()
         except ODataError as error:
             if error.response_status_code == 403:
                 logger.error(
                     "Please add InformationProtectionPolicy.Read.All permission to this application"
                 )
                 return None
+            raise error
 
         if label is None:
             return None
