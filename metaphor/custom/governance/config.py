@@ -12,8 +12,11 @@ from metaphor.models.metadata_change_event import (
     ColumnDescriptionAssignment,
     ColumnTagAssignment,
     DescriptionAssignment,
-    TagAssignment,
 )
+from metaphor.models.metadata_change_event import (
+    Ownership as OwnershipAssignmentOwnership,
+)
+from metaphor.models.metadata_change_event import OwnershipAssignment, TagAssignment
 
 
 @dataclass(config=ConnectorConfig)
@@ -79,6 +82,20 @@ class DatasetGovernance:
     column_descriptions: List[ColumnDescriptions] = dataclass_field(
         default_factory=lambda: []
     )
+
+    def to_ownership_assignment(self) -> Optional[OwnershipAssignment]:
+        if not self.ownerships:
+            return None
+
+        ownerships = [
+            OwnershipAssignmentOwnership(
+                contact_designation_name=o.type,
+                person=str(to_person_entity_id(o.email)),
+            )
+            for o in self.ownerships
+        ]
+
+        return OwnershipAssignment(ownerships=ownerships)
 
     def to_tag_assignment(self) -> Optional[TagAssignment]:
         if not self.tags and not self.column_tags:

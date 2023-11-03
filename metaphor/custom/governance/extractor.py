@@ -1,15 +1,9 @@
 from typing import List
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import to_person_entity_id
 from metaphor.common.logger import get_logger
 from metaphor.custom.governance.config import CustomGovernanceConfig
-from metaphor.models.metadata_change_event import (
-    Dataset,
-    MetadataChangeEvent,
-    Ownership,
-    OwnershipAssignment,
-)
+from metaphor.models.metadata_change_event import Dataset, MetadataChangeEvent
 
 logger = get_logger()
 
@@ -34,19 +28,7 @@ class CustomGovernanceExtractor(BaseExtractor):
         for governance in self._datasets:
             dataset = Dataset(logical_id=governance.id.to_logical_id())
             datasets.append(dataset)
-
-            if len(governance.ownerships) > 0:
-                ownerships = [
-                    Ownership(
-                        contact_designation_name=o.type,
-                        person=str(to_person_entity_id(o.email)),
-                    )
-                    for o in governance.ownerships
-                ]
-
-                dataset.ownership_assignment = OwnershipAssignment(
-                    ownerships=ownerships
-                )
+            dataset.ownership_assignment = governance.to_ownership_assignment()
             dataset.description_assignment = governance.to_description_assignment()
             dataset.tag_assignment = governance.to_tag_assignment()
 
