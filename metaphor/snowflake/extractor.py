@@ -20,7 +20,7 @@ from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import chunks, md5_digest, safe_float, start_of_day
+from metaphor.common.utils import chunks, is_email, md5_digest, safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -579,6 +579,11 @@ class SnowflakeExtractor(BaseExtractor):
                 if len(query_text) >= self._query_log_max_query_size:
                     continue
 
+                # User IDs can be an email address
+                user_id, email = (
+                    (None, username) if is_email(username) else (username, None)
+                )
+
                 query_log = QueryLog(
                     id=f"{DataPlatform.SNOWFLAKE.name}:{query_id}",
                     query_id=query_id,
@@ -587,7 +592,8 @@ class SnowflakeExtractor(BaseExtractor):
                     start_time=start_time,
                     duration=safe_float(elapsed_time / 1000.0),
                     cost=safe_float(credit),
-                    user_id=username,
+                    user_id=user_id,
+                    email=email,
                     default_database=default_database,
                     default_schema=default_schema,
                     rows_read=safe_float(rows_produced),
