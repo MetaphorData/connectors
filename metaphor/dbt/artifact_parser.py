@@ -423,29 +423,62 @@ class ArtifactParser:
         else:
             status = DataMonitorStatus.PASSED
 
+        def is_target_dataset(dataset: Dataset) -> bool:
+            name = dataset_normalized_name(
+                model.database, model.schema_, model.alias or model.name
+            ).lower()
+            # We found the dataset if the name matches or it's dbt model's materialized table
+            return dataset.logical_id and (
+                dataset.logical_id.name == name
+                or str(to_dataset_entity_id(name, self._platform, self._account))
+                == dbt_model.materialization.target_dataset
+            )
+
         dataset = next(
             (
                 dataset
                 for dataset in self._datasets.values()
-                if dataset.logical_id
-                and str(
-                    self._get_dataset_str_entity_id(
-                        model.database, model.schema_, model.alias or model.name
-                    )
-                )
-                == dbt_model.materialization.target_dataset
+                if is_target_dataset(dataset)
             ),
             None,
         )
         if dataset:
             if dataset.data_quality is None:
-                dataset.data_quality = DatasetDataQuality(monitors=[])
+                dataset.data_quality = DatasetDataQuality(monitors=[])  # TODO: provider
 
-            monitor = DataMonitor(
-                targets=[DataMonitorTarget(column=test.column_name)],
-                status=status,
+            exisiting_monitor = next(
+                (
+                    monitor
+                    for monitor in dataset.data_quality.monitors
+                    if monitor.targets[0].column
+                    == test.column_name  # For dbt there is only one column per monitor
+                ),
+                None,
             )
-            dataset.data_quality.monitors.append(monitor)
+            if exisiting_monitor is None:
+                monitor = DataMonitor(
+                    targets=[DataMonitorTarget(column=test.column_name)],
+                    status=status,
+                )
+                dataset.data_quality.monitors.append(monitor)
+            else:
+
+                def get_next_status(
+                    statuses: List[DataMonitorStatus],
+                ) -> DataMonitorStatus:
+                    for status in [
+                        DataMonitorStatus.ERROR,
+                        DataMonitorStatus.WARNING,
+                        DataMonitorStatus.UNKNOWN,
+                        DataMonitorStatus.PASSED,
+                    ]:
+                        if status in statuses:
+                            return status
+                    assert False  # Impossible!
+
+                exisiting_monitor.status = get_next_status(
+                    [exisiting_monitor.status, status]
+                )
 
     def _parse_model(
         self,
