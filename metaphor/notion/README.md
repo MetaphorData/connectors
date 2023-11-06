@@ -6,3 +6,33 @@ This connector extracts documents from an appropriately configured Notion site u
 
 A Notion integration's API token is required for this connector. Follow [these instructions](https://developers.notion.com/docs/create-a-notion-integration#create-your-integration-in-notion) to create a Notion integration and retrieve the associated API secret. 
 
+The integration will only have access to pages that it has been added to, or pages whose parent it has been added to. To ensure a certain section or group of pages is crawled, add the integration to the parent of those pages by following [these instructions](https://developers.notion.com/docs/create-a-notion-integration#give-your-integration-page-permissions).
+
+## Config File
+
+Create a YAML config file based on the following template.
+
+### Required Configurations
+
+```yaml
+api_key_token: <api_key_token>
+api_key_version: <api_key_version> # "2022-06-08" by default
+mongo_uri: <mongo_uri>
+embedding_chunk_size: <embedding_chunk_size> # 512 by default
+embedding_overlap_size: <embedding_overlap_size> # 50 by default
+output:
+  file:
+    directory: <output_directory> 
+```
+
+## Testing
+
+Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `notion` extra.
+
+To test the connector locally, change the config file to output to a local path and run the following command.
+
+```shell
+metaphor notion <config_file>
+```
+
+Manually verify the output after the command finishes.
