@@ -284,7 +284,6 @@ class FivetranExtractor(BaseExtractor):
             upstream=DatasetUpstream(
                 source_datasets=[],
                 field_mappings=[],
-                pipeline_entity_id=pipeline_entity_id,
             ),
         )
         dataset_id = str(to_dataset_entity_id_from_logical_id(dataset.logical_id))

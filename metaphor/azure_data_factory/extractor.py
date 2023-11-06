@@ -538,9 +538,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         for source_id in copy_from:
                             dataset.upstream.source_datasets.append(source_id)
 
-                        # Assign pipeline entityId to output's upstream
-                        dataset.upstream.pipeline_entity_id = pipeline_entity_id
-
                         # Pipeline info for each copy activity output entity
                         dataset.pipeline_info = PipelineInfo(
                             pipeline_mapping=[
@@ -577,9 +574,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
                             )
                         )
                     )
-
-                    # Assign pipeline entityId to sink's upstream
-                    sink_dataset.upstream.pipeline_entity_id = pipeline_entity_id
 
                     # Pipeline info for each sink of a dataflow activity
                     sink_dataset.pipeline_info = PipelineInfo(
