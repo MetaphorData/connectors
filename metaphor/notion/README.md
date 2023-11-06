@@ -15,14 +15,19 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 ```yaml
-api_key_token: <api_key_token>
+notion_api_tok: <notion_api_tok>
+openai_api_tok: <openai_api_tok>
 mongo_uri: <mongo_uri>
+mongo_db_name: <mongo_db_name>
+mongo_collection_name: <mongo_collection_name>
 output:
   file:
     directory: <output_directory> 
 ```
 
 ### Optional Configurations
+
+These defaults are provided; you don't have to manually configure them.
 
 ```yaml
 api_key_version: <api_key_version> # "2022-06-08" by default

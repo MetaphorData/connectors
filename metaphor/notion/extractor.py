@@ -27,22 +27,45 @@ class NotionExtractor(BaseExtractor):
 
     def __init__(self, config: NotionRunConfig):
         super().__init__(config, "Notion document crawler", Platform.NOTION)
-        self.notion_tok = config.api_key_token
-        self.notion_ver = config.api
+
+        # set up various configurations
+        self.notion_api_tok = config.notion_api_tok
+        self.openai_api_tok = config.openai_api_tok
+
+        self.mongo_uri = config.mongo_uri
+        self.mongo_db_name = config.mongo_db_name
+        self.mongo_collection_name = config.mongo_collection_name
+
+        self.notion_api_version = config.api_key_version
+
+        self.embedding_chunk_size = config.embedding_chunk_size
+        self.embedding_overlap_size = config.embedding_overlap_size
 
         # Set up LlamaIndex Notion integration
         npr = download_loader("NotionPageReader")
-        self.NotionReader = npr(integration_token=self.notion_tok)
+        self.NotionReader = npr(integration_token=self.notion_api_tok)
 
     async def extract(self) -> Collection(Document):
         logger.info("Fetching documents from Notion")
+
         # this method should do all the things
         dbs = self._get_databases()
         docs = self._get_all_documents()
 
-        # call embedder function here and return embedding-augmented Docs
-
-        return docs
+        # call embedder function here
+        logger.info("Starting embedding process")
+        embed_documents(docs, 
+                        self.mongo_uri, 
+                        self.mongo_db_name, 
+                        self.mongo_collection_name,
+                        self.openai_api_tok,
+                        logger,
+                        self.embedding_chunk_size,
+                        self.embedding_overlap_size)
+        logger.info("Embedding complete")
+        
+        # what to return? documents are not supported?
+        return True
 
     def _get_databases(self) -> Collection[str]:
         """
@@ -50,8 +73,8 @@ class NotionExtractor(BaseExtractor):
         """
 
         headers = {
-            "Authorization": f"Bearer {self.notion_tok}",
-            "Notion-Version": f"{self.notion_ver}",
+            "Authorization": f"Bearer {self.notion_api_tok}",
+            "Notion-Version": f"{self.notion_api_version}",
         }
 
         payload = {"query": "", 

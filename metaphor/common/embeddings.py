@@ -68,7 +68,7 @@ def embed_documents(
     )
 
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-        
+    logger.info("Retrieving embeddings")
     index = VectorStoreIndex.from_documents(
         docs, storage_context=storage_context, service_context=service_context)
 
