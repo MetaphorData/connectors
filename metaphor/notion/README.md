@@ -16,23 +16,16 @@ Create a YAML config file based on the following template.
 
 ```yaml
 api_key_token: <api_key_token>
-api_key_version: <api_key_version> # "2022-06-08" by default
 mongo_uri: <mongo_uri>
-embedding_chunk_size: <embedding_chunk_size> # 512 by default
-embedding_overlap_size: <embedding_overlap_size> # 50 by default
 output:
   file:
     directory: <output_directory> 
 ```
 
-## Testing
+### Optional Configurations
 
-Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `notion` extra.
-
-To test the connector locally, change the config file to output to a local path and run the following command.
-
-```shell
-metaphor notion <config_file>
+```yaml
+api_key_version: <api_key_version> # "2022-06-08" by default
+embedding_chunk_size: <embedding_chunk_size> # 512 by default
+embedding_overlap_size: <embedding_overlap_size> # 50 by default
 ```
-
-Manually verify the output after the command finishes.
