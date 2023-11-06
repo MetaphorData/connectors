@@ -16,7 +16,7 @@ Create a YAML config file based the following template.
 
 ```yaml
 manifest: <path_to_manifest_json>
-catalog: <path_to_catalog_json>
+run_results: <path_to_run_results_json>
 output:
   file:
     directory: <output_directory>

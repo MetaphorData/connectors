@@ -6,6 +6,7 @@ from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.utils import filter_empty_strings, filter_none, unique_list
 from metaphor.dbt.config import DbtRunConfig
+from metaphor.dbt.generated.dbt_run_results_v4 import DbtRunResults
 from metaphor.dbt.util import (
     build_metric_docs_url,
     build_model_docs_url,
@@ -25,8 +26,12 @@ from metaphor.dbt.util import (
 )
 from metaphor.models.metadata_change_event import (
     ColumnTagAssignment,
+    DataMonitor,
+    DataMonitorStatus,
+    DataMonitorTarget,
     DataPlatform,
     Dataset,
+    DatasetDataQuality,
     DbtMacro,
     DbtMacroArgument,
     DbtMaterialization,
@@ -189,7 +194,7 @@ dbt_version_manifest_class_map: Dict[str, MANIFEST_CLASS_TYPE] = {
 }
 
 
-class ManifestParser:
+class ArtifactParser:
     def __init__(
         self,
         config: DbtRunConfig,
@@ -264,7 +269,7 @@ class ManifestParser:
 
         return manifest_json
 
-    def parse(self, manifest_json: Dict) -> None:
+    def parse(self, manifest_json: Dict, run_results_json: Dict) -> None:
         manifest_metadata = manifest_json.get("metadata", {})
 
         schema_version = (
@@ -274,14 +279,16 @@ class ManifestParser:
         )
         logger.info(f"parsing manifest.json {schema_version} ...")
 
-        manifest_json = ManifestParser.sanitize_manifest(manifest_json, schema_version)
+        manifest_json = ArtifactParser.sanitize_manifest(manifest_json, schema_version)
+
+        run_results = DbtRunResults.model_validate(run_results_json)
 
         dbt_manifest_class = dbt_version_manifest_class_map.get(schema_version)
         if dbt_manifest_class is None:
             raise ValueError(f"unsupported manifest schema '{schema_version}'")
 
         try:
-            manifest = dbt_manifest_class.parse_obj(manifest_json)
+            manifest = dbt_manifest_class.model_validate(manifest_json)
         except Exception as e:
             logger.error(f"Parse manifest json error: {e}")
             raise e
@@ -342,12 +349,17 @@ class ManifestParser:
             self._parse_model(model, source_map, macro_map)
 
         for _, test in tests.items():
-            self._parse_test(test)
+            self._parse_test(test, run_results, models)
 
         for _, metric in metrics.items():
             self._parse_metric(metric, source_map, macro_map)
 
-    def _parse_test(self, test: TEST_NODE_TYPE) -> None:
+    def _parse_test(
+        self,
+        test: TEST_NODE_TYPE,
+        run_results: DbtRunResults,
+        models: Dict[str, MODEL_NODE_TYPE],
+    ) -> None:
         # check test is referring a model
         if test.depends_on is None or not test.depends_on.nodes:
             return
@@ -377,6 +389,63 @@ class ManifestParser:
             dbt_test.sql = getattr(test, "compiled_code")
 
         init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
+
+        self._parse_test_result(test, model_unique_id, run_results, models)
+
+    def _parse_test_result(
+        self,
+        test: TEST_NODE_TYPE,
+        model_unique_id: str,
+        run_results: DbtRunResults,
+        models: Dict[str, MODEL_NODE_TYPE],
+    ) -> None:
+        test_result = next(
+            (
+                result
+                for result in run_results.results
+                if result.unique_id == test.unique_id
+            ),
+            None,
+        )
+        if test_result is None:
+            logger.warn(f"Cannot find run result for test: {test.unique_id}")
+            return
+
+        dbt_model = self._virtual_views[model_unique_id].dbt_model
+        model = models[model_unique_id]
+
+        if test_result.status == "warn":
+            status = DataMonitorStatus.WARNING
+        elif test_result.status == "skipped":
+            status = DataMonitorStatus.UNKNOWN
+        elif test_result.status in ["error", "fail", "runtime error"]:
+            status = DataMonitorStatus.ERROR
+        else:
+            status = DataMonitorStatus.PASSED
+
+        dataset = next(
+            (
+                dataset
+                for dataset in self._datasets.values()
+                if dataset.logical_id
+                and str(
+                    self._get_dataset_str_entity_id(
+                        model.database, model.schema_, model.alias or model.name
+                    )
+                )
+                == dbt_model.materialization.target_dataset
+            ),
+            None,
+        )
+        if dataset:
+            if dataset.data_quality is None:
+                dataset.data_quality = DatasetDataQuality(monitors=[])
+
+            monitor = DataMonitor(
+                targets=[DataMonitorTarget(column=test.column_name)],
+                status=status,
+            )
+            dataset.data_quality.monitors.append(monitor)
 
     def _parse_model(
         self,
@@ -521,14 +590,19 @@ class ManifestParser:
         dbt_model.materialization = DbtMaterialization(
             type=materialization_type,
             target_dataset=str(
-                to_dataset_entity_id(
-                    dataset_normalized_name(
-                        model.database, model.schema_, model.alias or model.name
-                    ),
-                    self._platform,
-                    self._account,
+                self._get_dataset_str_entity_id(
+                    model.database, model.schema_, model.alias or model.name
                 )
             ),
+        )
+
+    def _get_dataset_str_entity_id(
+        self, database: Optional[str], schema: str, table: str
+    ) -> EntityId:
+        return to_dataset_entity_id(
+            dataset_normalized_name(database, schema, table),
+            self._platform,
+            self._account,
         )
 
     def _parse_model_columns(self, model: MODEL_NODE_TYPE, dbt_model: DbtModel) -> None:
@@ -580,12 +654,8 @@ class ManifestParser:
         source_map: Dict[str, EntityId] = {}
         for key, source in sources.items():
             assert source.database is not None
-            source_map[key] = to_dataset_entity_id(
-                dataset_normalized_name(
-                    source.database, source.schema_, source.identifier
-                ),
-                self._platform,
-                self._account,
+            source_map[key] = self._get_dataset_str_entity_id(
+                source.database, source.schema_, source.identifier
             )
 
             self._parse_source(source)

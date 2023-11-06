@@ -4,8 +4,8 @@ from typing import Collection, Dict, List
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import add_debug_file, get_logger
+from metaphor.dbt.artifact_parser import ArtifactParser
 from metaphor.dbt.config import DbtRunConfig
-from metaphor.dbt.manifest_parser import ManifestParser
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -30,6 +30,7 @@ class DbtExtractor(BaseExtractor):
     def __init__(self, config: DbtRunConfig):
         super().__init__(config, "dbt metadata crawler", Platform.DBT_MODEL)
         self._manifest = config.manifest
+        self._run_results = config.run_results
         self._config = config
 
         self._data_platform = DataPlatform.UNKNOWN
@@ -50,14 +51,17 @@ class DbtExtractor(BaseExtractor):
         assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
         self._data_platform = DataPlatform[platform]
 
-        manifest_parser = ManifestParser(
+        with open(self._run_results) as file:
+            run_results_json = json.load(file)
+
+        artifact_parser = ArtifactParser(
             self._config,
             self._data_platform,
             self._datasets,
             self._virtual_views,
             self._metrics,
         )
-        manifest_parser.parse(manifest_json)
+        artifact_parser.parse(manifest_json, run_results_json)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
