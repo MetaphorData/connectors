@@ -1,0 +1,154 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/run-results/v4.json",
+    "dbt_version": "1.6.0",
+    "generated_at": "2023-11-07T07:03:13.670982Z",
+    "invocation_id": "1d19282a-01fa-41d4-b7cb-86b9ebbd0880",
+    "env": {}
+  },
+  "results": [
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-11-07T07:03:07.609201Z",
+          "completed_at": "2023-11-07T07:03:07.627841Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-11-07T07:03:07.628645Z",
+          "completed_at": "2023-11-07T07:03:08.815624Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 1.5771141052246094,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b02a27-0603-c3c5-0029-c00304fc7b0a"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.metaphor_subscriptions.not_null_subscriptions_sales_SALES_ID.84acc1c91e"
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-11-07T07:03:09.192188Z",
+          "completed_at": "2023-11-07T07:03:09.199657Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-11-07T07:03:09.200791Z",
+          "completed_at": "2023-11-07T07:03:10.324670Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 1.514768123626709,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b02a27-0603-c268-0029-c00304fc86fa"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.metaphor_subscriptions.not_null_subscriptions_v2_SUB_ID.f48cc087e7"
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-11-07T07:03:10.709606Z",
+          "completed_at": "2023-11-07T07:03:10.717978Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-11-07T07:03:10.718917Z",
+          "completed_at": "2023-11-07T07:03:11.779681Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 1.4547090530395508,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b02a27-0603-c3c5-0029-c00304fc7b0e"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.metaphor_subscriptions.unique_subscriptions_sales_SALES_ID.f83222e32c"
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-11-07T07:03:12.170262Z",
+          "completed_at": "2023-11-07T07:03:12.177308Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-11-07T07:03:12.178419Z",
+          "completed_at": "2023-11-07T07:03:13.292740Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 1.4948742389678955,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b02a27-0603-c268-0029-c00304fc86fe"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.metaphor_subscriptions.unique_subscriptions_v2_SUB_ID.f668493d85"
+    }
+  ],
+  "elapsed_time": 7.744279146194458,
+  "args": {
+    "cache_selected_only": false,
+    "warn_error_options": {
+      "include": [],
+      "exclude": []
+    },
+    "log_path": "/Users/andy/work/dbt/metaphor/logs",
+    "log_level_file": "debug",
+    "quiet": false,
+    "which": "test",
+    "partial_parse": true,
+    "use_colors": true,
+    "log_file_max_bytes": 10485760,
+    "favor_state": false,
+    "exclude": [],
+    "populate_cache": true,
+    "introspect": true,
+    "vars": {},
+    "project_dir": "/Users/andy/work/dbt/metaphor",
+    "log_format": "default",
+    "log_level": "info",
+    "enable_legacy_logger": false,
+    "use_colors_file": true,
+    "select": [],
+    "defer": false,
+    "invocation_command": "dbt test",
+    "static_parser": true,
+    "strict_mode": false,
+    "version_check": true,
+    "write_json": true,
+    "macro_debugging": false,
+    "send_anonymous_usage_stats": true,
+    "print": true,
+    "profiles_dir": "/Users/andy/.dbt",
+    "log_format_file": "debug",
+    "indirect_selection": "eager",
+    "printer_width": 80
+  }
+}
