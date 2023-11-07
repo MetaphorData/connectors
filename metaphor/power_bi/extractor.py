@@ -358,7 +358,6 @@ class PowerBIExtractor(BaseExtractor):
         if source_entity_ids or first_pipeline_entity_id:
             virtual_view.entity_upstream = EntityUpstream(
                 source_entities=source_entity_ids or None,
-                pipeline_entity_id=first_pipeline_entity_id,
             )
             virtual_view.power_bi_dataset.source_datasets = source_entity_ids or None
 

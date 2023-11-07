@@ -15,6 +15,7 @@ from metaphor.common.entity_id import (
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
+from metaphor.common.query_history import user_id_or_email
 from metaphor.common.utils import md5_digest, safe_float, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -291,10 +292,13 @@ class UnityCatalogExtractor(BaseExtractor):
                     query_info.query_start_time_ms / 1000, tz=datetime.timezone.utc
                 )
 
+            user_id, email = user_id_or_email(query_info.user_name)
+
             query_log = QueryLog(
                 id=f"{DataPlatform.UNITY_CATALOG.name}:{query_info.query_id}",
                 duration=safe_float(query_info.duration),
-                user_id=query_info.user_name,
+                user_id=user_id,
+                email=email,
                 platform=DataPlatform.UNITY_CATALOG,
                 query_id=query_info.query_id,
                 sql=query_info.query_text,
