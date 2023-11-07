@@ -220,7 +220,6 @@
   },
   {
     "entityUpstream": {
-      "pipelineEntityId": "PIPELINE~6B8372CAC4B45FCA1C413FEAD24B1E2C",
       "sourceEntities": [
         "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
       ]
