@@ -1,6 +1,8 @@
 from metaphor.common.base_config import OutputConfig
 from metaphor.dbt.config import MetaOwnership, MetaTag
 from metaphor.dbt.extractor import DbtRunConfig
+from metaphor.dbt.util import find_most_severe_status
+from metaphor.models.metadata_change_event import DataMonitorStatus
 
 
 def test_yaml_config(test_root_dir):
@@ -26,4 +28,38 @@ def test_yaml_config(test_root_dir):
             )
         ],
         output=OutputConfig(),
+    )
+
+
+def test_find_most_severe_status() -> None:
+    assert find_most_severe_status([]) == DataMonitorStatus.UNKNOWN
+    assert (
+        find_most_severe_status(
+            [
+                DataMonitorStatus.ERROR,
+                DataMonitorStatus.UNKNOWN,
+                DataMonitorStatus.PASSED,
+            ]
+        )
+        == DataMonitorStatus.ERROR
+    )
+    assert (
+        find_most_severe_status(
+            [
+                DataMonitorStatus.WARNING,
+                DataMonitorStatus.UNKNOWN,
+                DataMonitorStatus.PASSED,
+            ]
+        )
+        == DataMonitorStatus.WARNING
+    )
+    assert (
+        find_most_severe_status(
+            [
+                DataMonitorStatus.UNKNOWN,
+                DataMonitorStatus.UNKNOWN,
+                DataMonitorStatus.PASSED,
+            ]
+        )
+        == DataMonitorStatus.UNKNOWN
     )

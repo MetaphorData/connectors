@@ -236,6 +236,8 @@ def build_source_code_url(
 
 
 def find_most_severe_status(statuses: List[DataMonitorStatus]) -> DataMonitorStatus:
+    if not statuses:
+        return DataMonitorStatus.UNKNOWN
     for status in [
         DataMonitorStatus.ERROR,
         DataMonitorStatus.WARNING,
