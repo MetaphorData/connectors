@@ -1,6 +1,6 @@
 from typing import Callable, Dict, Iterable, List, Optional, TypeVar
 
-from pydantic import parse_obj_as
+from pydantic import TypeAdapter
 from sqllineage.core.models import Column
 from thoughtspot_rest_api_v1 import TSRestApiV2
 
@@ -129,7 +129,7 @@ class ThoughtSpot:
 
             batch_count += 1
 
-            connections = parse_obj_as(List[Connection], search_response)
+            connections = TypeAdapter(List[Connection]).validate_python(search_response)
 
             for connection in connections:
                 if connection.details.type in supported_platform:
@@ -164,7 +164,9 @@ class ThoughtSpot:
 
             batch_count += 1
 
-            for table in parse_obj_as(List[LogicalTableMetadata], response):
+            for table in TypeAdapter(List[LogicalTableMetadata]).validate_python(
+                response
+            ):
                 table_details.append(table.metadata_detail)
 
         logger.info(f"Extract #{len(table_details)} tables")
@@ -193,7 +195,7 @@ class ThoughtSpot:
 
             batch_count += 1
 
-            for answer in parse_obj_as(List[AnswerMetadata], response):
+            for answer in TypeAdapter(List[AnswerMetadata]).validate_python(response):
                 answer_details.append(answer.metadata_detail)
 
         logger.info(f"Extract #{len(answer_details)} liveboards")
@@ -222,7 +224,9 @@ class ThoughtSpot:
 
             batch_count += 1
 
-            for liveboard in parse_obj_as(List[LiveBoardMetadata], response):
+            for liveboard in TypeAdapter(List[LiveBoardMetadata]).validate_python(
+                response
+            ):
                 liveboard_details.append(liveboard.metadata_detail)
 
         logger.info(f"Extract #{len(liveboard_details)} liveboards")
@@ -242,7 +246,7 @@ class ThoughtSpot:
             response = client.metadata_tml_export(chunk_ids, export_fqn=True)
             json_dump_to_debug_file(response, f"tml_{chunk_ids[0]}.json")
 
-            result.extend(parse_obj_as(List[TMLResult], response))
+            result.extend(TypeAdapter(List[TMLResult]).validate_python(response))
 
         return result
 
