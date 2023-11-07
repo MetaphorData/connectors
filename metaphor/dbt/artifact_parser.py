@@ -280,7 +280,7 @@ class ArtifactParser:
 
         return manifest_json
 
-    def parse(self, manifest_json: Dict, run_results_json: Dict) -> None:
+    def parse(self, manifest_json: Dict, run_results_json: Optional[Dict]) -> None:
         manifest_metadata = manifest_json.get("metadata", {})
 
         schema_version = (
@@ -292,7 +292,10 @@ class ArtifactParser:
 
         manifest_json = ArtifactParser.sanitize_manifest(manifest_json, schema_version)
 
-        run_results = DbtRunResults.model_validate(run_results_json)
+        if run_results_json is not None:
+            run_results = DbtRunResults.model_validate(run_results_json)
+        else:
+            run_results = None
 
         dbt_manifest_class = dbt_version_manifest_class_map.get(schema_version)
         if dbt_manifest_class is None:
@@ -368,7 +371,7 @@ class ArtifactParser:
     def _parse_test(
         self,
         test: TEST_NODE_TYPE,
-        run_results: DbtRunResults,
+        run_results: Optional[DbtRunResults],
         models: Dict[str, MODEL_NODE_TYPE],
     ) -> None:
         # check test is referring a model
@@ -401,7 +404,8 @@ class ArtifactParser:
 
         init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
 
-        self._parse_test_run_result(test, model_unique_id, run_results, models)
+        if run_results is not None:
+            self._parse_test_run_result(test, model_unique_id, run_results, models)
 
     def _parse_test_run_result(
         self,

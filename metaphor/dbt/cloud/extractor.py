@@ -58,10 +58,14 @@ class DbtCloudExtractor(BaseExtractor):
         manifest_json = self._client.get_run_artifact(job_id, run_id, "manifest.json")
         logger.info(f"manifest.json saved to {manifest_json}")
 
-        run_results_json = self._client.get_run_artifact(
-            job_id, run_id, "run_results.json"
-        )
-        logger.info(f"run_results.json saved to {run_results_json}")
+        try:
+            run_results_json = self._client.get_run_artifact(
+                job_id, run_id, "run_results.json"
+            )
+            logger.info(f"run_results.json saved to {run_results_json}")
+        except Exception:
+            logger.warning("Cannot locate run_results.json")
+            run_results_json = None
 
         docs_base_url = (
             f"{self._base_url}/accounts/{self._account_id}/jobs/{job_id}/docs"

@@ -51,8 +51,10 @@ class DbtExtractor(BaseExtractor):
         assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
         self._data_platform = DataPlatform[platform]
 
-        with open(self._run_results) as file:
-            run_results_json = json.load(file)
+        run_results_json = None
+        if self._run_results is not None:
+            with open(self._run_results) as file:
+                run_results_json = json.load(file)
 
         artifact_parser = ArtifactParser(
             self._config,

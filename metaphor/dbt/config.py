@@ -41,7 +41,7 @@ class MetaTag:
 class DbtRunConfig(BaseConfig):
     manifest: str
 
-    run_results: str
+    run_results: Optional[str] = None
 
     # the database service account this DBT project is connected to
     account: Optional[str] = None
