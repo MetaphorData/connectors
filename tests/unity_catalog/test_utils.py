@@ -130,11 +130,13 @@ def test_parse_query_log_filter_by():
     assert sorted(query_filter.user_ids) == ["u0", "u3"]
     assert query_filter.query_start_time_range.start_time_ms is not None
     start_time = datetime.datetime.fromtimestamp(
-        query_filter.query_start_time_range.start_time_ms / 1000
+        timestamp=query_filter.query_start_time_range.start_time_ms / 1000,
+        tz=datetime.timezone.utc,
     )
     assert query_filter.query_start_time_range.end_time_ms is not None
     end_time = datetime.datetime.fromtimestamp(
-        query_filter.query_start_time_range.end_time_ms / 1000
+        timestamp=query_filter.query_start_time_range.end_time_ms / 1000,
+        tz=datetime.timezone.utc,
     )
     time_diff = end_time - start_time
     assert time_diff == datetime.timedelta(days=2)
