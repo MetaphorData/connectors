@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.36"
+version = "0.13.37"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
