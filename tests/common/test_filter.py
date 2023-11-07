@@ -151,6 +151,21 @@ def test_include_schema_excludes_overrides_includes():
     assert filter.include_schema("db1", "schema2")
 
 
+def test_include_schema_glob_patterns():
+    filter = DatasetFilter(
+        includes={"db": {"foo?": None, "ba*": None, "quax?": set(["a"])}},
+        excludes={"db": {"bar": None, "uh*": set(["x"])}},
+    )
+
+    assert filter.include_schema("db", "foo1")
+    assert filter.include_schema("db", "bar1")
+    assert filter.include_schema("db", "bazz")
+    assert filter.include_schema("db", "quax1")
+    assert not filter.include_schema("db", "foo")
+    assert not filter.include_schema("db", "bar")
+    assert not filter.include_schema("db", "uhoh")
+
+
 def test_merge():
     f1 = DatasetFilter()
     f2 = DatasetFilter()
