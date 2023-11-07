@@ -12,6 +12,8 @@ from metaphor.dbt.util import (
     build_model_docs_url,
     build_source_code_url,
     dataset_normalized_name,
+    find_run_result_ouptput_by_id,
+    find_target_dataset,
     get_ownerships_from_meta,
     get_tags_from_meta,
     get_virtual_view_id,
@@ -22,16 +24,14 @@ from metaphor.dbt.util import (
     init_field_doc,
     init_metric,
     init_virtual_view,
+    register_data_quality_monitor,
     to_dataset_entity_id,
 )
 from metaphor.models.metadata_change_event import (
     ColumnTagAssignment,
-    DataMonitor,
     DataMonitorStatus,
-    DataMonitorTarget,
     DataPlatform,
     Dataset,
-    DatasetDataQuality,
     DbtMacro,
     DbtMacroArgument,
     DbtMaterialization,
@@ -192,6 +192,17 @@ dbt_version_manifest_class_map: Dict[str, MANIFEST_CLASS_TYPE] = {
     "v9": DbtManifestV9,
     "v10": DbtManifestV10,
 }
+
+dbt_run_result_output_data_monitor_status_map: Dict[str, DataMonitorStatus] = {
+    "warn": DataMonitorStatus.WARNING,
+    "skipped": DataMonitorStatus.UNKNOWN,
+    "error": DataMonitorStatus.ERROR,
+    "fail": DataMonitorStatus.ERROR,
+    "runtime error": DataMonitorStatus.ERROR,
+    "pass": DataMonitorStatus.PASSED,
+    "success": DataMonitorStatus.PASSED,
+}
+"""Maps a `RunResultOutput.status` to `DataMonitorStatus`."""
 
 
 class ArtifactParser:
@@ -390,95 +401,44 @@ class ArtifactParser:
 
         init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
 
-        self._parse_test_result(test, model_unique_id, run_results, models)
+        self._parse_test_run_result(test, model_unique_id, run_results, models)
 
-    def _parse_test_result(
+    def _parse_test_run_result(
         self,
         test: TEST_NODE_TYPE,
         model_unique_id: str,
         run_results: DbtRunResults,
         models: Dict[str, MODEL_NODE_TYPE],
     ) -> None:
-        test_result = next(
-            (
-                result
-                for result in run_results.results
-                if result.unique_id == test.unique_id
-            ),
-            None,
-        )
-        if test_result is None:
+        run_result = find_run_result_ouptput_by_id(run_results, test.unique_id)
+        if run_result is None:
             logger.warn(f"Cannot find run result for test: {test.unique_id}")
             return
 
+        # These are guaranteed to work, since at this point virtual views and models are already pouplated
         dbt_model = self._virtual_views[model_unique_id].dbt_model
+        assert (
+            dbt_model is not None
+        )  # Won't happen, the virtual views we've parsed so far definitely have valid dbt_model
+
         model = models[model_unique_id]
 
-        if test_result.status == "warn":
-            status = DataMonitorStatus.WARNING
-        elif test_result.status == "skipped":
-            status = DataMonitorStatus.UNKNOWN
-        elif test_result.status in ["error", "fail", "runtime error"]:
-            status = DataMonitorStatus.ERROR
-        else:
-            status = DataMonitorStatus.PASSED
+        status = dbt_run_result_output_data_monitor_status_map[run_result.status]
 
-        def is_target_dataset(dataset: Dataset) -> bool:
-            name = dataset_normalized_name(
-                model.database, model.schema_, model.alias or model.name
-            ).lower()
-            # We found the dataset if the name matches or it's dbt model's materialized table
-            return dataset.logical_id and (
-                dataset.logical_id.name == name
-                or str(to_dataset_entity_id(name, self._platform, self._account))
-                == dbt_model.materialization.target_dataset
-            )
-
-        dataset = next(
-            (
-                dataset
-                for dataset in self._datasets.values()
-                if is_target_dataset(dataset)
-            ),
-            None,
+        dataset = find_target_dataset(
+            self._datasets.values(),
+            model.database,
+            model.schema_,
+            model.alias or model.name,
+            dbt_model,
+            self._platform,
+            self._account,
         )
-        if dataset:
-            if dataset.data_quality is None:
-                dataset.data_quality = DatasetDataQuality(monitors=[])  # TODO: provider
-
-            exisiting_monitor = next(
-                (
-                    monitor
-                    for monitor in dataset.data_quality.monitors
-                    if monitor.targets[0].column
-                    == test.column_name  # For dbt there is only one column per monitor
-                ),
-                None,
-            )
-            if exisiting_monitor is None:
-                monitor = DataMonitor(
-                    targets=[DataMonitorTarget(column=test.column_name)],
-                    status=status,
-                )
-                dataset.data_quality.monitors.append(monitor)
-            else:
-
-                def get_next_status(
-                    statuses: List[DataMonitorStatus],
-                ) -> DataMonitorStatus:
-                    for status in [
-                        DataMonitorStatus.ERROR,
-                        DataMonitorStatus.WARNING,
-                        DataMonitorStatus.UNKNOWN,
-                        DataMonitorStatus.PASSED,
-                    ]:
-                        if status in statuses:
-                            return status
-                    assert False  # Impossible!
-
-                exisiting_monitor.status = get_next_status(
-                    [exisiting_monitor.status, status]
-                )
+        if dataset is None:
+            logger.warn(f"Cannot find target dataset for test: {test.unique_id}")
+            return
+        assert test.column_name is not None
+        register_data_quality_monitor(dataset, test.column_name, status)
 
     def _parse_model(
         self,

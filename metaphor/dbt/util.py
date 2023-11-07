@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional
 
 from metaphor.common.entity_id import (
     EntityId,
@@ -11,12 +11,19 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.logger import get_logger
 from metaphor.dbt.config import MetaOwnership, MetaTag
+from metaphor.dbt.generated.dbt_run_results_v4 import DbtRunResults, RunResultOutput
 from metaphor.models.metadata_change_event import (
+    DataMonitor,
+    DataMonitorStatus,
+    DataMonitorTarget,
     DataPlatform,
+    DataQualityProvider,
     Dataset,
+    DatasetDataQuality,
     DatasetDocumentation,
     DatasetLogicalID,
     DatasetSchema,
+    DbtModel,
     DbtTest,
     FieldDocumentation,
     Metric,
@@ -226,3 +233,76 @@ def build_source_code_url(
     project_source_url: Optional[str], file_path: str
 ) -> Optional[str]:
     return f"{project_source_url}/{file_path}" if project_source_url else None
+
+
+def find_most_severe_status(statuses: List[DataMonitorStatus]) -> DataMonitorStatus:
+    for status in [
+        DataMonitorStatus.ERROR,
+        DataMonitorStatus.WARNING,
+        DataMonitorStatus.UNKNOWN,
+        DataMonitorStatus.PASSED,
+    ]:
+        if status in statuses:
+            return status
+    assert False  # Impossible!
+
+
+def find_run_result_ouptput_by_id(
+    run_results: DbtRunResults, unique_id: str
+) -> Optional[RunResultOutput]:
+    return next(
+        (
+            run_result
+            for run_result in run_results.results
+            if run_result.unique_id == unique_id
+        ),
+        None,
+    )
+
+
+def find_target_dataset(
+    datasets: Iterable[Dataset],
+    database: Optional[str],
+    schema: Optional[str],
+    table: Optional[str],
+    dbt_model: DbtModel,
+    platform: DataPlatform,
+    account: Optional[str],
+) -> Optional[Dataset]:
+    def is_target_dataset(dataset: Dataset) -> bool:
+        name = dataset_normalized_name(database, schema, table).lower()
+        # We want to find the dataset whose name matches or is dbt model's materialized table
+        return dataset.logical_id and (
+            dataset.logical_id.name == name
+            or str(to_dataset_entity_id(name, platform, account))
+            == dbt_model.materialization.target_dataset
+        )
+
+    return next((dataset for dataset in datasets if is_target_dataset(dataset)), None)
+
+
+def register_data_quality_monitor(
+    dataset: Dataset, column_name: str, status: DataMonitorStatus
+) -> None:
+    if dataset.data_quality is None:
+        dataset.data_quality = DatasetDataQuality(
+            monitors=[], provider=DataQualityProvider.DBT
+        )
+
+    exisiting_monitor = next(
+        (
+            mon
+            for mon in dataset.data_quality.monitors
+            if mon.targets[0].column == column_name
+        ),
+        None,
+    )
+    if exisiting_monitor is None:
+        monitor = DataMonitor(
+            targets=[DataMonitorTarget(column=column_name)], status=status
+        )
+        dataset.data_quality.monitors.append(monitor)
+    else:
+        exisiting_monitor.status = find_most_severe_status(
+            [exisiting_monitor.status, status]
+        )
