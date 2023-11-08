@@ -1,3 +1,5 @@
+import pytest
+
 from metaphor.common.base_config import OutputConfig
 from metaphor.custom.query_attributions.config import (
     CustomQueryAttributionsConfig,
@@ -26,3 +28,18 @@ def test_yaml_config(test_root_dir):
         ],
         output=OutputConfig(),
     )
+
+
+def test_invalid_config() -> None:
+    with pytest.raises(ValueError):
+        CustomQueryAttributionsConfig(
+            output=OutputConfig(),
+            attributions=[
+                PlatformQueryAttributions(
+                    platform=DataPlatform.BIGQUERY,
+                    queries={
+                        "query_id_1": "obviously this is not an email, so it make sense to fail instead of breaking silently",
+                    },
+                )
+            ],
+        )
