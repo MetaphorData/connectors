@@ -2,13 +2,11 @@ import re
 from typing import Collection
 
 import pymongo
-
-from llama_index import Document
-from llama_index import ServiceContext
+from llama_index import Document, ServiceContext
 from llama_index.embeddings import OpenAIEmbedding
+from llama_index.indices.vector_store.base import VectorStoreIndex
 from llama_index.node_parser import SimpleNodeParser
 from llama_index.storage.storage_context import StorageContext
-from llama_index.indices.vector_store.base import VectorStoreIndex
 from llama_index.vector_stores.mongodb import MongoDBAtlasVectorSearch
 
 
@@ -40,9 +38,9 @@ def embed_documents(
     mongo_collection_name: str,
     openAI_tok: str,
     logger,
-    chunk_size: int = 512,
-    chunk_overlap: int = 50):
-
+    chunk_size: int | None,
+    chunk_overlap: int | None,
+):
     """
     Generates embeddings for Documents and upserts them to a provided
     MongoDB instance. Has configurable chunk and overlap sizes for node
@@ -50,7 +48,7 @@ def embed_documents(
 
     Returns nothing currently (should it?)
     """
-    
+    logger.info("Initializing embedding contexts")
     embed_model = OpenAIEmbedding(api_key=openAI_tok)
     node_parser = SimpleNodeParser.from_defaults(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
@@ -64,12 +62,17 @@ def embed_documents(
     mongo_client = pymongo.MongoClient(mongo_URI)
 
     vector_store = MongoDBAtlasVectorSearch(
-        db_name=mongo_db_name, collection_name=mongo_collection_name
+        mongodb_client=mongo_client,
+        db_name=mongo_db_name,
+        collection_name=mongo_collection_name,
     )
 
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-    logger.info("Retrieving embeddings")
-    index = VectorStoreIndex.from_documents(
-        docs, storage_context=storage_context, service_context=service_context)
+
+    logger.info("Retrieving embeddings and upserting")
+
+    VectorStoreIndex.from_documents(
+        documents=docs, storage_context=storage_context, service_context=service_context
+    )
 
     logger.info(f"Successfully embedded {len(docs)} documents")

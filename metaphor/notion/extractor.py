@@ -1,22 +1,22 @@
-import json
-import requests
 import datetime
+import json
 import traceback
 from typing import Collection
+
+import requests
+from llama_index import Document, download_loader
 from requests.exceptions import HTTPError
 
-from llama_index import download_loader
-from llama_index import Document
-
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.embeddings import embed_documents
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.notion.config import NotionRunConfig
-from metaphor.common.embeddings import embed_documents
 
 logger = get_logger()
 
 baseurl = "https://api.notion.com/v1/"
+
 
 class NotionExtractor(BaseExtractor):
     """Notion Document extractor."""
@@ -36,7 +36,7 @@ class NotionExtractor(BaseExtractor):
         self.mongo_db_name = config.mongo_db_name
         self.mongo_collection_name = config.mongo_collection_name
 
-        self.notion_api_version = config.api_key_version
+        self.notion_api_version = config.notion_api_version
 
         self.embedding_chunk_size = config.embedding_chunk_size
         self.embedding_overlap_size = config.embedding_overlap_size
@@ -45,27 +45,29 @@ class NotionExtractor(BaseExtractor):
         npr = download_loader("NotionPageReader")
         self.NotionReader = npr(integration_token=self.notion_api_tok)
 
-    async def extract(self) -> Collection(Document):
+    async def extract(self) -> Collection[Document]:
         logger.info("Fetching documents from Notion")
 
         # this method should do all the things
-        dbs = self._get_databases()
+        self._get_databases()
         docs = self._get_all_documents()
 
         # call embedder function here
         logger.info("Starting embedding process")
-        embed_documents(docs, 
-                        self.mongo_uri, 
-                        self.mongo_db_name, 
-                        self.mongo_collection_name,
-                        self.openai_api_tok,
-                        logger,
-                        self.embedding_chunk_size,
-                        self.embedding_overlap_size)
+        embed_documents(
+            docs,
+            self.mongo_uri,
+            self.mongo_db_name,
+            self.mongo_collection_name,
+            self.openai_api_tok,
+            logger,
+            self.embedding_chunk_size,
+            self.embedding_overlap_size,
+        )
         logger.info("Embedding complete")
-        
+
         # what to return? documents are not supported?
-        return True
+        return docs
 
     def _get_databases(self) -> Collection[str]:
         """
@@ -77,13 +79,13 @@ class NotionExtractor(BaseExtractor):
             "Notion-Version": f"{self.notion_api_version}",
         }
 
-        payload = {"query": "", 
-                   "filter": {"value": "database", 
-                              "property": "object"}}
-        
+        payload = {"query": "", "filter": {"value": "database", "property": "object"}}
+
         try:
             # send request
-            r = requests.post(baseurl + "search", headers=headers, json=payload)
+            r = requests.post(
+                baseurl + "search", headers=headers, json=payload, timeout=15
+            )
 
             # throw error if 400
             r.raise_for_status()
