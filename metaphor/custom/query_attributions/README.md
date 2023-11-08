@@ -1,6 +1,6 @@
 # Custom Query Attribution Connector
 
-This connector attaches custom attributions to query logs.
+This connector attributes queries to specific users. This is particularly useful for queries executed by service accounts on behalf of real users, e.g., BI systems.
 
 ## Setup
 
@@ -34,8 +34,8 @@ Here's an example showing how to match user emails to Unity Catalog query logs:
 attributions:
   - platform: UNITY_CATALOG
     queries:
-      query_0: foo@bar.com
-      query_1: baz@bar.com
+      query_id_1: joe@test.com
+      query_id_2: jane@test.com
 output:
   file:
     directory: /output
