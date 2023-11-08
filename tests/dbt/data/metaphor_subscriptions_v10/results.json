@@ -250,7 +250,7 @@
         "VIRTUAL_VIEW~1BD666702EACA1E95384807DA0DC92C7"
       ],
       "tags": [],
-      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/metaphor/modular_campaigns.sql"
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/modular_campaigns.sql"
     },
     "logicalId": {
       "name": "metaphor_subscriptions.modular_campaigns",
@@ -314,7 +314,7 @@
         "subscription",
         "growth"
       ],
-      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/metaphor/subscriptions_growth.sql"
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_growth.sql"
     },
     "logicalId": {
       "name": "metaphor_subscriptions.subscriptions_growth",
@@ -386,7 +386,7 @@
         "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
       ],
       "tags": [],
-      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/metaphor/churn_region_agg.sql"
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/churn_region_agg.sql"
     },
     "logicalId": {
       "name": "metaphor_subscriptions.churn_region_agg",
@@ -506,7 +506,7 @@
           "uniqueId": "test.metaphor_subscriptions.not_null_subscriptions_v2_SUB_ID.f48cc087e7"
         }
       ],
-      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/metaphor/subscriptions_v2.sql"
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_v2.sql"
     },
     "logicalId": {
       "name": "metaphor_subscriptions.subscriptions_v2",
@@ -606,7 +606,7 @@
           "uniqueId": "test.metaphor_subscriptions.not_null_subscriptions_sales_SALES_ID.84acc1c91e"
         }
       ],
-      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/metaphor/subscriptions_sales.sql"
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_sales.sql"
     },
     "logicalId": {
       "name": "metaphor_subscriptions.subscriptions_sales",
@@ -654,7 +654,7 @@
       "tags": [
         "subscription"
       ],
-      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/metaphor/subscriptions_core.sql"
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_core.sql"
     },
     "logicalId": {
       "name": "metaphor_subscriptions.subscriptions_core",
