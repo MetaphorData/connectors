@@ -299,6 +299,9 @@ def register_data_quality_monitor(
         )
         dataset.data_quality.monitors.append(monitor)
     else:
+        # Since each monitor only oversees 1 column, we want
+        # to override the existing monitor's status if we find
+        # a more severe status in the newly parsed test result.
         exisiting_monitor.status = find_most_severe_status(
             [exisiting_monitor.status, status]
         )
