@@ -422,7 +422,8 @@ class ArtifactParser:
 
         # Get the materialized table's entity id...
         target_dataset_entity_id = self._get_model_entity_id(model)
-        # ... and use it to find the dataset we're looking for.
+        # ... and use it to find the dataset we're looking for. Note that
+        # at this point all datasets have been parsed.
         dataset = find_target_dataset(
             self._datasets.values(),
             target_dataset_entity_id,
