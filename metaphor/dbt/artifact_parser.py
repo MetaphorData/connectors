@@ -420,14 +420,17 @@ class ArtifactParser:
 
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
 
+        # Get the materialized table's entity id...
         target_dataset_entity_id = self._get_model_entity_id(model)
+        # ... and use it to find the dataset we're looking for.
         dataset = find_target_dataset(
             self._datasets.values(),
             target_dataset_entity_id,
         )
         if dataset is None:
             logger.warn(
-                f"Cannot find target dataset for test: test={test.unique_id}, dataset.name={target_dataset_entity_id.logicalId}"
+                "Cannot find target dataset for test: "
+                f"dataset.name = {target_dataset_entity_id.logicalId.name}"
             )
             return
         assert test.column_name is not None
