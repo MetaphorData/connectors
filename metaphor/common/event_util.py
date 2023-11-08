@@ -15,6 +15,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Metric,
     Pipeline,
+    QueryAttributions,
     QueryLogs,
     UserActivity,
     VirtualView,
@@ -30,6 +31,7 @@ ENTITY_TYPES = Union[
     KnowledgeCard,
     Metric,
     Pipeline,
+    QueryAttributions,
     QueryLogs,
     UserActivity,
     VirtualView,
@@ -67,6 +69,8 @@ class EventUtil:
             return EventUtil._build_event(knowledge_card=entity)
         elif type(entity) is VirtualView:
             return EventUtil._build_event(virtual_view=entity)
+        elif type(entity) is QueryAttributions:
+            return EventUtil._build_event(query_attributions=entity)
         elif type(entity) is QueryLogs:
             return EventUtil._build_event(query_logs=entity)
         elif type(entity) is Hierarchy:
