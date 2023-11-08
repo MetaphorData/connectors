@@ -8,6 +8,7 @@ from metaphor.models.metadata_change_event import (
     MetadataChangeEvent,
     Metric,
     Pipeline,
+    QueryAttributions,
     QueryLogs,
     UserActivity,
     VirtualView,
@@ -30,6 +31,9 @@ def test_build_event():
     assert event_utils.build_event(Metric()) == MetadataChangeEvent(metric=Metric())
     assert event_utils.build_event(Pipeline()) == MetadataChangeEvent(
         pipeline=Pipeline()
+    )
+    assert event_utils.build_event(QueryAttributions()) == MetadataChangeEvent(
+        query_attributions=QueryAttributions()
     )
     assert event_utils.build_event(QueryLogs()) == MetadataChangeEvent(
         query_logs=QueryLogs()
