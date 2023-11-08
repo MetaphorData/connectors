@@ -1,0 +1,6 @@
+notion_api_tok: notion_api_tok
+openai_api_tok: openai_api_tok
+mongo_uri: mongodb_uri
+mongo_db_name: mongo_db_name
+mongo_collection_name: mongo_collection_name
+output: {}

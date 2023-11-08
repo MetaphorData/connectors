@@ -9,6 +9,7 @@ from requests.exceptions import HTTPError
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents
+from metaphor.common.embeddings import map_metadata
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.notion.config import NotionRunConfig
@@ -45,7 +46,7 @@ class NotionExtractor(BaseExtractor):
         npr = download_loader("NotionPageReader")
         self.NotionReader = npr(integration_token=self.notion_api_tok)
 
-    async def extract(self) -> Collection[Document]:
+    async def extract(self) -> dict[dict]:
         logger.info("Fetching documents from Notion")
 
         # this method should do all the things
@@ -54,20 +55,29 @@ class NotionExtractor(BaseExtractor):
 
         # call embedder function here
         logger.info("Starting embedding process")
-        embed_documents(
+        VSI = embed_documents(
             docs,
-            self.mongo_uri,
-            self.mongo_db_name,
-            self.mongo_collection_name,
             self.openai_api_tok,
             logger,
             self.embedding_chunk_size,
             self.embedding_overlap_size,
         )
-        logger.info("Embedding complete")
 
-        # what to return? documents are not supported?
-        return docs
+        # get vector_store from VectorStoreIndex
+        vector_store = VSI.to_dict()["vector_store"]
+
+        # map metadata back to each node
+        embedded_nodes = map_metadata(
+            vector_store["embedding_dict"], vector_store["metadata_dict"]
+        )
+
+        # currently returns a dictionary with (node_id: value)
+        #   value dict contains embedding: vector and metadata: dict
+        # note that the node_id is not deterministic, but metadata contains
+        #   consistent information like platform: notion, etc
+
+        # should this be a new dataclass?
+        return embedded_nodes
 
     def _get_databases(self) -> Collection[str]:
         """

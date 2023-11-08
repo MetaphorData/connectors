@@ -14,11 +14,6 @@ class NotionRunConfig(BaseConfig):
     # openai token
     openai_api_tok: str
 
-    # Mongo URI for documents
-    mongo_uri: str
-    mongo_db_name: str
-    mongo_collection_name: str
-
     # Notion API version
     notion_api_version: Optional[str] = "2022-06-08"
 
