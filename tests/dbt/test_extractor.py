@@ -72,11 +72,11 @@ async def test_jaffle_v10(test_root_dir):
 
 
 @pytest.mark.asyncio
-async def test_metaphor_v10(test_root_dir):
+async def test_jaffle_valid_tests_v10(test_root_dir):
     await _test_project(
-        test_root_dir + "/dbt/data/metaphor_v10",
+        test_root_dir + "/dbt/data/jaffle_valid_tests_v10",
         "http://localhost:8080",
-        "https://github.com/MetaphorData/dbt/tree/main/metaphor",
+        "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template",
     )
 
 

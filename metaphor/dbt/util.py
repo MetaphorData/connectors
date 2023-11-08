@@ -6,6 +6,7 @@ from metaphor.common.entity_id import (
     EntityId,
     dataset_normalized_name,
     to_dataset_entity_id,
+    to_dataset_entity_id_from_logical_id,
     to_person_entity_id,
     to_virtual_view_entity_id,
 )
@@ -23,7 +24,6 @@ from metaphor.models.metadata_change_event import (
     DatasetDocumentation,
     DatasetLogicalID,
     DatasetSchema,
-    DbtModel,
     DbtTest,
     FieldDocumentation,
     Metric,
@@ -264,23 +264,17 @@ def find_run_result_ouptput_by_id(
 
 def find_target_dataset(
     datasets: Iterable[Dataset],
-    database: Optional[str],
-    schema: Optional[str],
-    table: Optional[str],
-    dbt_model: DbtModel,
-    platform: DataPlatform,
-    account: Optional[str],
+    entity_id: EntityId,
 ) -> Optional[Dataset]:
-    def is_target_dataset(dataset: Dataset) -> bool:
-        name = dataset_normalized_name(database, schema, table).lower()
-        # We want to find the dataset whose name matches or is dbt model's materialized table
-        return dataset.logical_id and (
-            dataset.logical_id.name == name
-            or str(to_dataset_entity_id(name, platform, account))
-            == dbt_model.materialization.target_dataset
-        )
-
-    return next((dataset for dataset in datasets if is_target_dataset(dataset)), None)
+    return next(
+        (
+            dataset
+            for dataset in datasets
+            if dataset.logical_id
+            and to_dataset_entity_id_from_logical_id(dataset.logical_id) == entity_id
+        ),
+        None,
+    )
 
 
 def register_data_quality_monitor(

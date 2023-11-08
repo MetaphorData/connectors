@@ -405,41 +405,30 @@ class ArtifactParser:
         init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
 
         if run_results is not None:
-            self._parse_test_run_result(test, model_unique_id, run_results, models)
+            self._parse_test_run_result(test, models[model_unique_id], run_results)
 
     def _parse_test_run_result(
         self,
         test: TEST_NODE_TYPE,
-        model_unique_id: str,
+        model: MODEL_NODE_TYPE,
         run_results: DbtRunResults,
-        models: Dict[str, MODEL_NODE_TYPE],
     ) -> None:
         run_result = find_run_result_ouptput_by_id(run_results, test.unique_id)
         if run_result is None:
             logger.warn(f"Cannot find run result for test: {test.unique_id}")
             return
 
-        # These are guaranteed to work, since at this point virtual views and models are already pouplated
-        dbt_model = self._virtual_views[model_unique_id].dbt_model
-        assert (
-            dbt_model is not None
-        )  # Won't happen, the virtual views we've parsed so far definitely have valid dbt_model
-
-        model = models[model_unique_id]
-
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
 
+        target_dataset_entity_id = self._get_model_entity_id(model)
         dataset = find_target_dataset(
             self._datasets.values(),
-            model.database,
-            model.schema_,
-            model.alias or model.name,
-            dbt_model,
-            self._platform,
-            self._account,
+            target_dataset_entity_id,
         )
         if dataset is None:
-            logger.warn(f"Cannot find target dataset for test: {test.unique_id}")
+            logger.warn(
+                f"Cannot find target dataset for test: test={test.unique_id}, dataset.name={target_dataset_entity_id.logicalId}"
+            )
             return
         assert test.column_name is not None
         register_data_quality_monitor(dataset, test.column_name, status)
@@ -586,14 +575,15 @@ class ArtifactParser:
 
         dbt_model.materialization = DbtMaterialization(
             type=materialization_type,
-            target_dataset=str(
-                self._get_dataset_str_entity_id(
-                    model.database, model.schema_, model.alias or model.name
-                )
-            ),
+            target_dataset=str(self._get_model_entity_id(model)),
         )
 
-    def _get_dataset_str_entity_id(
+    def _get_model_entity_id(self, model: MODEL_NODE_TYPE) -> EntityId:
+        return self._get_dataset_entity_id(
+            model.database, model.schema_, model.alias or model.name
+        )
+
+    def _get_dataset_entity_id(
         self, database: Optional[str], schema: str, table: str
     ) -> EntityId:
         return to_dataset_entity_id(
@@ -651,7 +641,7 @@ class ArtifactParser:
         source_map: Dict[str, EntityId] = {}
         for key, source in sources.items():
             assert source.database is not None
-            source_map[key] = self._get_dataset_str_entity_id(
+            source_map[key] = self._get_dataset_entity_id(
                 source.database, source.schema_, source.identifier
             )
 
