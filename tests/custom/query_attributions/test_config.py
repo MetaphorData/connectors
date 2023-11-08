@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.custom.query_attributions.config import (
@@ -31,7 +32,7 @@ def test_yaml_config(test_root_dir):
 
 
 def test_invalid_config() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         CustomQueryAttributionsConfig(
             output=OutputConfig(),
             attributions=[

@@ -1,7 +1,7 @@
 from dataclasses import field as dataclass_field
 from typing import Dict, List
 
-from pydantic import model_validator
+from pydantic import field_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_extractor import BaseConfig
@@ -19,12 +19,12 @@ class PlatformQueryAttributions:
     platform: DataPlatform = DataPlatform.UNKNOWN
     queries: Dict[str, str] = dataclass_field(default_factory=lambda: dict())
 
-    @model_validator(mode="after")
-    def _validate_user_emails(self):
-        for should_be_email in self.queries.values():
+    @field_validator("queries")
+    def _validate_user_emails(cls, queries_: Dict[str, str]):
+        for should_be_email in queries_.values():
             if not is_email(should_be_email):
                 raise ValueError(f"Found invalid user email: {should_be_email}")
-        return self
+        return queries_
 
     def to_mce_query_attributions(self) -> QueryAttributions:
         return QueryAttributions(
