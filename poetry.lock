@@ -2070,13 +2070,13 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.27.12"
+version = "0.28.0"
 description = ""
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "metaphor_models-0.27.12-py3-none-any.whl", hash = "sha256:a0071e4f5e9aa2ecd8688951861a0c5ed89960a79c977a36fe780445dcafa5aa"},
-    {file = "metaphor_models-0.27.12.tar.gz", hash = "sha256:afe119772d8d47a291d5f388171602accf669b6142a4b56bcb7d2e078f13bdde"},
+    {file = "metaphor_models-0.28.0-py3-none-any.whl", hash = "sha256:119b8bb2a753ea60524e3c07c6eab92036fc37b889693ecd5bb69b6f57319ada"},
+    {file = "metaphor_models-0.28.0.tar.gz", hash = "sha256:dcf4b105fc340c893daf36b0b1dcb88ff11272f1e58111e914fb6ed96fc66be0"},
 ]
 
 [[package]]
@@ -2558,6 +2558,21 @@ files = [
     {file = "pathspec-0.11.2-py3-none-any.whl", hash = "sha256:1d6ed233af05e679efb96b1851550ea95bbb64b7c490b0f5aa52996c11e92a20"},
     {file = "pathspec-0.11.2.tar.gz", hash = "sha256:e0d8d0ac2f12da61956eb2306b69f9469b42f4deb0f3cb6ed47b9cce9996ced3"},
 ]
+
+[[package]]
+name = "pathvalidate"
+version = "3.2.0"
+description = "pathvalidate is a Python library to sanitize/validate a string such as filenames/file-paths/etc."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pathvalidate-3.2.0-py3-none-any.whl", hash = "sha256:cc593caa6299b22b37f228148257997e2fa850eea2daf7e4cc9205cef6908dee"},
+    {file = "pathvalidate-3.2.0.tar.gz", hash = "sha256:5e8378cf6712bff67fbe7a8307d99fa8c1a0cb28aa477056f8fc374f0dff24ad"},
+]
+
+[package.extras]
+docs = ["Sphinx (>=2.4)", "sphinx-rtd-theme (>=1.2.2)", "urllib3 (<2)"]
+test = ["Faker (>=1.0.8)", "allpairspy (>=2)", "click (>=6.2)", "pytest (>=6.0.1)", "pytest-discord (>=0.1.4)", "pytest-md-report (>=0.4.1)"]
 
 [[package]]
 name = "pbr"
@@ -4273,4 +4288,4 @@ unity-catalog = ["databricks-sdk"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "62a782ca934d5f763226af3d640e6e06883ca7ee2ba56cb14e14554340463dff"
+content-hash = "f483c00f025b8289c07bcc9cb98737e9ce031d1894c3ccf26a9dbe72d284e6aa"

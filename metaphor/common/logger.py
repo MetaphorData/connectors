@@ -3,6 +3,8 @@ import logging
 import tempfile
 from typing import Any
 
+from pathvalidate import sanitize_filename
+
 _, LOG_FILE = tempfile.mkstemp(suffix=".log")
 
 formatter = logging.Formatter(
@@ -35,7 +37,9 @@ def add_debug_file(file: str) -> None:
 
 
 def json_dump_to_debug_file(value: Any, file_name: str) -> str:
-    out_file = f"{tempfile.mkdtemp()}/{file_name}"
+    sanitized_file_name = sanitize_filename(file_name)
+
+    out_file = f"{tempfile.mkdtemp()}/{sanitized_file_name}"
     with open(out_file, "w") as fp:
         fp.write(json.dumps(value, default=str))
 

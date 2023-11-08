@@ -4,7 +4,6 @@ import json
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.core import ApiClient
 from databricks.sdk.service.sql import QueryFilter, TimeRange
-from pydantic import parse_obj_as
 from requests import HTTPError
 
 from metaphor.common.logger import json_dump_to_debug_file
@@ -21,7 +20,7 @@ def list_table_lineage(client: ApiClient, table_name: str) -> TableLineage:
             "GET", "/api/2.0/lineage-tracking/table-lineage", data=json.dumps(_data)
         )
         json_dump_to_debug_file(resp, f"table-lineage-{table_name}.json")
-        return parse_obj_as(TableLineage, resp)
+        return TableLineage.model_validate(resp)
     except HTTPError as e:
         # Lineage API returns 503 on GCP as it's not yet available
         if e.response is not None and e.response.status_code == 503:
@@ -41,7 +40,7 @@ def list_column_lineage(
             "GET", "/api/2.0/lineage-tracking/column-lineage", data=json.dumps(_data)
         )
         json_dump_to_debug_file(resp, f"column-lineage-{table_name}-{column_name}.json")
-        return parse_obj_as(ColumnLineage, resp)
+        return ColumnLineage.model_validate(resp)
     except HTTPError as e:
         # Lineage API returns 503 on GCP as it's not yet available
         if e.response is not None and e.response.status_code == 503:
