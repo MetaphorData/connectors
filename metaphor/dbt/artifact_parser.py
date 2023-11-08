@@ -8,6 +8,7 @@ from metaphor.common.utils import filter_empty_strings, filter_none, unique_list
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.generated.dbt_run_results_v4 import DbtRunResults
 from metaphor.dbt.util import (
+    add_data_quality_monitor,
     build_metric_docs_url,
     build_model_docs_url,
     build_source_code_url,
@@ -24,7 +25,6 @@ from metaphor.dbt.util import (
     init_field_doc,
     init_metric,
     init_virtual_view,
-    register_data_quality_monitor,
     to_dataset_entity_id,
 )
 from metaphor.models.metadata_change_event import (
@@ -435,7 +435,7 @@ class ArtifactParser:
             )
             return
         assert test.column_name is not None
-        register_data_quality_monitor(dataset, test.column_name, status)
+        add_data_quality_monitor(dataset, test.name, test.column_name, status)
 
     def _parse_model(
         self,

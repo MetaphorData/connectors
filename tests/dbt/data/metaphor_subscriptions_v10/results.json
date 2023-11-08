@@ -171,7 +171,17 @@
             {
               "column": "SUB_ID"
             }
-          ]
+          ],
+          "title": "unique_subscriptions_v2_SUB_ID"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "SUB_ID"
+            }
+          ],
+          "title": "not_null_subscriptions_v2_SUB_ID"
         }
       ],
       "provider": "DBT"

@@ -235,20 +235,6 @@ def build_source_code_url(
     return f"{project_source_url}/{file_path}" if project_source_url else None
 
 
-def find_most_severe_status(statuses: List[DataMonitorStatus]) -> DataMonitorStatus:
-    if not statuses:
-        return DataMonitorStatus.UNKNOWN
-    for status in [
-        DataMonitorStatus.ERROR,
-        DataMonitorStatus.WARNING,
-        DataMonitorStatus.UNKNOWN,
-        DataMonitorStatus.PASSED,
-    ]:
-        if status in statuses:
-            return status
-    assert False  # Impossible!
-
-
 def find_run_result_ouptput_by_id(
     run_results: DbtRunResults, unique_id: str
 ) -> Optional[RunResultOutput]:
@@ -277,31 +263,17 @@ def find_target_dataset(
     )
 
 
-def register_data_quality_monitor(
-    dataset: Dataset, column_name: str, status: DataMonitorStatus
+def add_data_quality_monitor(
+    dataset: Dataset, name: str, column_name: str, status: DataMonitorStatus
 ) -> None:
     if dataset.data_quality is None:
         dataset.data_quality = DatasetDataQuality(
             monitors=[], provider=DataQualityProvider.DBT
         )
-
-    exisiting_monitor = next(
-        (
-            mon
-            for mon in dataset.data_quality.monitors
-            if mon.targets[0].column == column_name
-        ),
-        None,
+    dataset.data_quality.monitors.append(
+        DataMonitor(
+            title=name,
+            targets=[DataMonitorTarget(column=column_name)],
+            status=status,
+        )
     )
-    if exisiting_monitor is None:
-        monitor = DataMonitor(
-            targets=[DataMonitorTarget(column=column_name)], status=status
-        )
-        dataset.data_quality.monitors.append(monitor)
-    else:
-        # Since each monitor only oversees 1 column, we want
-        # to override the existing monitor's status if we find
-        # a more severe status in the newly parsed test result.
-        exisiting_monitor.status = find_most_severe_status(
-            [exisiting_monitor.status, status]
-        )
