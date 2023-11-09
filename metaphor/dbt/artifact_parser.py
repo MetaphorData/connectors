@@ -14,7 +14,6 @@ from metaphor.dbt.util import (
     build_source_code_url,
     dataset_normalized_name,
     find_run_result_ouptput_by_id,
-    find_target_dataset,
     get_ownerships_from_meta,
     get_tags_from_meta,
     get_virtual_view_id,
@@ -420,18 +419,11 @@ class ArtifactParser:
 
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
 
-        # Get the materialized table's entity id...
-        target_dataset_entity_id = self._get_model_entity_id(model)
-        # ... and use it to find the dataset we're looking for. Note that
-        # at this point all datasets have been parsed.
-        dataset = find_target_dataset(
-            self._datasets.values(),
-            target_dataset_entity_id,
-        )
+        dataset = self._datasets.get(model.unique_id)
         if dataset is None:
             logger.warn(
                 "Cannot find target dataset for test: "
-                f"dataset.name = {target_dataset_entity_id.logicalId.name}"
+                f"model unique id = {model.unique_id}"
             )
             return
         assert test.column_name is not None

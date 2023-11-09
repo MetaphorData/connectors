@@ -1,12 +1,11 @@
 import re
 from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, List, Optional
 
 from metaphor.common.entity_id import (
     EntityId,
     dataset_normalized_name,
     to_dataset_entity_id,
-    to_dataset_entity_id_from_logical_id,
     to_person_entity_id,
     to_virtual_view_entity_id,
 )
@@ -243,21 +242,6 @@ def find_run_result_ouptput_by_id(
             run_result
             for run_result in run_results.results
             if run_result.unique_id == unique_id
-        ),
-        None,
-    )
-
-
-def find_target_dataset(
-    datasets: Iterable[Dataset],
-    entity_id: EntityId,
-) -> Optional[Dataset]:
-    return next(
-        (
-            dataset
-            for dataset in datasets
-            if dataset.logical_id
-            and to_dataset_entity_id_from_logical_id(dataset.logical_id) == entity_id
         ),
         None,
     )
