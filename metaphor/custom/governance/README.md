@@ -50,7 +50,7 @@ output:
     directory: <output_directory>
 ```
 
-> Note: You only need to specify `account` if the platform is `SNOWFLAKE`.
+> Note: You only need to specify `account` if the platform is `SNOWFLAKE`. Do **NOT** specify `account` if the platform isn't `SNOWFLAKE`!
 
 See [Output Config](../../common/docs/output.md) for more information on `output`.
 

@@ -1,3 +1,6 @@
+import pytest
+from pydantic import ValidationError
+
 from metaphor.common.base_config import OutputConfig
 from metaphor.custom.governance.config import (
     ColumnDescriptions,
@@ -50,3 +53,19 @@ def test_yaml_config(test_root_dir):
         ],
         output=OutputConfig(),
     )
+
+
+def test_bad_config():
+    with pytest.raises(ValidationError):
+        CustomGovernanceConfig(
+            output=OutputConfig(),
+            datasets=[
+                DatasetGovernance(
+                    id=DeserializableDatasetLogicalID(
+                        name="qq",
+                        platform="BIGQUERY",
+                        account="bad!",
+                    )
+                )
+            ],
+        )
