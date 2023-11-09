@@ -2,9 +2,9 @@ import pytest
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.dbt.artifact_parser import ArtifactParser
 from metaphor.dbt.config import DbtRunConfig, MetaOwnership, MetaTag
 from metaphor.dbt.extractor import DbtExtractor
-from metaphor.dbt.manifest_parser import ManifestParser
 from tests.test_utils import load_json
 
 
@@ -71,16 +71,27 @@ async def test_jaffle_v10(test_root_dir):
     )
 
 
+@pytest.mark.asyncio
+async def test_metaphor_subscriptions_v10(test_root_dir):
+    await _test_project(
+        test_root_dir + "/dbt/data/metaphor_subscriptions_v10",
+        "http://localhost:8080",
+        "https://github.com/MetaphorData/dbt/tree/main/metaphor",
+    )
+
+
 async def _test_project(
     data_dir, docs_base_url=None, project_source_url=None, useCatalog=False
 ):
     manifest = data_dir + "/manifest.json"
+    run_results = data_dir + "/run_results.json"
     expected = data_dir + "/results.json"
 
     config = DbtRunConfig(
         output=OutputConfig(),
         account="metaphor",
         manifest=manifest,
+        run_results=run_results,
         docs_base_url=docs_base_url,
         project_source_url=project_source_url,
         meta_ownerships=[MetaOwnership(meta_key="owner", ownership_type="Maintainer")],
@@ -97,7 +108,7 @@ def test_sanitize_manifest_empty_docs(test_root_dir):
         "docs": {"foo": "bar"},
     }
 
-    assert ManifestParser.sanitize_manifest(manifest, "v10") == {
+    assert ArtifactParser.sanitize_manifest(manifest, "v10") == {
         "docs": {},
     }
 
@@ -114,7 +125,7 @@ def test_sanitize_manifest_strip_null_tests_depends_on(test_root_dir):
         }
     }
 
-    assert ManifestParser.sanitize_manifest(manifest, "v10") == {
+    assert ArtifactParser.sanitize_manifest(manifest, "v10") == {
         "nodes": {
             "test.example": {
                 "depends_on": {
@@ -153,7 +164,7 @@ def test_sanitize_manifest_strip_semantic_models_labels(test_root_dir):
         }
     }
 
-    assert ManifestParser.sanitize_manifest(manifest, "v10") == {
+    assert ArtifactParser.sanitize_manifest(manifest, "v10") == {
         "semantic_models": {
             "model1": {
                 "entities": [
@@ -198,7 +209,7 @@ def test_sanitize_manifest_strip_metric_type_params_extra_fields(test_root_dir):
         }
     }
 
-    assert ManifestParser.sanitize_manifest(manifest, "v10") == {
+    assert ArtifactParser.sanitize_manifest(manifest, "v10") == {
         "metrics": {
             "metric1": {
                 "type_params": {

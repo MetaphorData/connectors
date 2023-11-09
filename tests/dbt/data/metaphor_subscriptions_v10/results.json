@@ -1,0 +1,674 @@
+[
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset represents all the raw subscription changes info of our product. Each subscription is represented by unique subs_id and each change has a unique chng_id."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Primary Key",
+          "fieldPath": "chg_id"
+        },
+        {
+          "documentation": "Subscription ID",
+          "fieldPath": "sub_id"
+        },
+        {
+          "documentation": "Change type",
+          "fieldPath": "change_type"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "created_at"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.subscriptions_change_raw",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset contains all subscriptions info."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Primary Key",
+          "fieldPath": "sub_id"
+        },
+        {
+          "documentation": "Subscription short name",
+          "fieldPath": "short_name"
+        },
+        {
+          "documentation": "Subscription full display name",
+          "fieldPath": "long_name"
+        },
+        {
+          "documentation": "Subscription price in cents",
+          "fieldPath": "price"
+        },
+        {
+          "documentation": "Type of subscription renewal",
+          "fieldPath": "renew_type"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "created_at"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.subscriptions_base",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset contains profile info of each customer. E.g first name, last name, email, company name etc."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Auto-generated ID",
+          "fieldPath": "id"
+        },
+        {
+          "documentation": "Customer's first name",
+          "fieldPath": "first_name"
+        },
+        {
+          "documentation": "Customer's last name",
+          "fieldPath": "last_name"
+        },
+        {
+          "documentation": "Customer's email address",
+          "fieldPath": "email"
+        },
+        {
+          "documentation": "Customer's company",
+          "fieldPath": "company"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "date"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.customer_profile",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.modular_campaigns",
+      "platform": "SNOWFLAKE"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
+        }
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.subscriptions_growth",
+      "platform": "SNOWFLAKE"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
+        }
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.churn_region_agg",
+      "platform": "SNOWFLAKE"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
+        }
+      ]
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "SUB_ID"
+            }
+          ],
+          "title": "unique_subscriptions_v2_SUB_ID"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "SUB_ID"
+            }
+          ],
+          "title": "not_null_subscriptions_v2_SUB_ID"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.subscriptions_v2",
+      "platform": "SNOWFLAKE"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as id,\n  'name' as name,\n  'poc' as poc,\n  100 as budget,\n  churn_region_agg.sub_date as date\nfrom DEMO_DB.METAPHOR.churn_region_agg as churn_region_agg",
+      "description": "This dataset contains info about all modular campaigns. The id represents campaign id.",
+      "docsUrl": "http://localhost:8080/#!/model/model.metaphor_subscriptions.modular_campaigns",
+      "fields": [
+        {
+          "description": "Auto-generated ID",
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Campaign name",
+          "fieldName": "name",
+          "fieldPath": "name",
+          "nativeType": "Not Set",
+          "tags": [
+            "pii",
+            "name"
+          ]
+        },
+        {
+          "description": "Point of contact",
+          "fieldName": "poc",
+          "fieldPath": "poc",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Budget for the campaign in dollars",
+          "fieldName": "budget",
+          "fieldPath": "budget",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Creation timestamp",
+          "fieldName": "date",
+          "fieldPath": "date",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~E2152C038B6E1879D22B4024B81B00BA",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as id,\n  'name' as name,\n  'poc' as poc,\n  100 as budget,\n  churn_region_agg.sub_date as date\nfrom {{ ref('churn_region_agg') }} as churn_region_agg",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~1BD666702EACA1E95384807DA0DC92C7"
+      ],
+      "tags": [],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/modular_campaigns.sql"
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.modular_campaigns",
+      "type": "DBT_MODEL"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  change_raw.sub_id as sub_id,\n  1 as customer_id, \n  base.created_at as created_at\nfrom DEMO_DB.METAPHOR.SUBSCRIPTIONS_CHANGE_RAW as change_raw\ninner join DEMO_DB.METAPHOR.SUBSCRIPTIONS_BASE as base on base.sub_id = change_raw.sub_id\ninner join DEMO_DB.METAPHOR.subscriptions_v2 as v2 on v2.sub_id = change_raw.sub_id",
+      "description": "This dataset represents all the subscription info of our product. Each subscription is represented by unique subs_id.",
+      "docsUrl": "http://localhost:8080/#!/model/model.metaphor_subscriptions.subscriptions_growth",
+      "fields": [
+        {
+          "description": "Unique ID of the Subscription. This is generated at the time of creation of a new subscription.",
+          "fieldName": "sub_id",
+          "fieldPath": "sub_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Unique ID of the Customer. This is generated end of registration flow for a user.",
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Timestamp at which the subscription is created. Always represented in Pacific Time Zone irrespective of the location of the user.",
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~53FF0F6D85CD22FBFCCC6743ECCC2175",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  change_raw.sub_id as sub_id,\n  1 as customer_id, \n  base.created_at as created_at\nfrom {{ source('METAPHOR', 'SUBSCRIPTIONS_CHANGE_RAW') }} as change_raw\ninner join {{ source('METAPHOR', 'SUBSCRIPTIONS_BASE') }} as base on base.sub_id = change_raw.sub_id\ninner join {{ ref('subscriptions_v2') }} as v2 on v2.sub_id = change_raw.sub_id",
+      "sourceDatasets": [
+        "DATASET~83680E0286B0CF430192EFDE05B765F5",
+        "DATASET~239D4B030A506874ED0CB2C8FA1B1AB2"
+      ],
+      "sourceModels": [
+        "VIRTUAL_VIEW~40E84C63748265E978F781C89A23BE51"
+      ],
+      "tags": [
+        "subscription",
+        "growth"
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_growth.sql"
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_growth",
+      "type": "DBT_MODEL"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as id,\n  subscriptions_growth.customer_id as cus_id,\n  'no' as reason,\n  subscriptions_growth.created_at as sub_date,\n  '2014-01-01 16:00:00' as cancel_date\nfrom DEMO_DB.METAPHOR.subscriptions_growth as subscriptions_growth",
+      "description": "This dataset contains info about churn, all the accounts that have cancelled the subscriptions in the past.",
+      "docsUrl": "http://localhost:8080/#!/model/model.metaphor_subscriptions.churn_region_agg",
+      "fields": [
+        {
+          "description": "Auto-generated ID",
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Customer ID",
+          "fieldName": "cus_id",
+          "fieldPath": "cus_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The reason for churn",
+          "fieldName": "reason",
+          "fieldPath": "reason",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Timestamp at which the subscription is created.",
+          "fieldName": "sub_date",
+          "fieldPath": "sub_date",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Timestamp at which the subscription is cancelled.",
+          "fieldName": "cancel_date",
+          "fieldPath": "cancel_date",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~2304B26D6B4B9622DCFDED35C7A874AA",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as id,\n  subscriptions_growth.customer_id as cus_id,\n  'no' as reason,\n  subscriptions_growth.created_at as sub_date,\n  '2014-01-01 16:00:00' as cancel_date\nfrom {{ ref('subscriptions_growth') }} as subscriptions_growth",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ],
+      "tags": [],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/churn_region_agg.sql"
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.churn_region_agg",
+      "type": "DBT_MODEL"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sub_id,\n  'short name' as short_name,\n  'long name' as long_name,\n  'region' as region,\n  1 as price,\n  'type' as renew_type,\n  customer_profile.date as created_at\nfrom DEMO_DB.METAPHOR.CUSTOMER_PROFILE as customer_profile",
+      "description": "This dataset contains all newer subscriptions info.",
+      "docsUrl": "http://localhost:8080/#!/model/model.metaphor_subscriptions.subscriptions_v2",
+      "fields": [
+        {
+          "description": "Primary Key",
+          "fieldName": "sub_id",
+          "fieldPath": "sub_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Subscription short name",
+          "fieldName": "short_name",
+          "fieldPath": "short_name",
+          "nativeType": "Not Set",
+          "tags": [
+            "pii",
+            "name"
+          ]
+        },
+        {
+          "description": "Subscription full display name",
+          "fieldName": "long_name",
+          "fieldPath": "long_name",
+          "nativeType": "Not Set",
+          "tags": [
+            "pii",
+            "name"
+          ]
+        },
+        {
+          "description": "Available regions, comma separated",
+          "fieldName": "region",
+          "fieldPath": "region",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Subscription price in cents",
+          "fieldName": "price",
+          "fieldPath": "price",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Type of subscription renewal",
+          "fieldName": "renew_type",
+          "fieldPath": "renew_type",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Creation timestamp",
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~B96F49A73449ABCF98D1EEF65C267B0D",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sub_id,\n  'short name' as short_name,\n  'long name' as long_name,\n  'region' as region,\n  1 as price,\n  'type' as renew_type,\n  customer_profile.date as created_at\nfrom {{ source('METAPHOR', 'CUSTOMER_PROFILE') }} as customer_profile",
+      "sourceDatasets": [
+        "DATASET~3904FBD7A1828492FFD11604A2E73442"
+      ],
+      "sourceModels": [],
+      "tags": [
+        "subscription"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "SUB_ID"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_subscriptions_v2_SUB_ID",
+          "sql": "\n    \n    \n\nselect\n    SUB_ID as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.METAPHOR.subscriptions_v2\nwhere SUB_ID is not null\ngroup by SUB_ID\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.metaphor_subscriptions.unique_subscriptions_v2_SUB_ID.f668493d85"
+        },
+        {
+          "columns": [
+            "SUB_ID"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_subscriptions_v2_SUB_ID",
+          "sql": "\n    \n    \n\n\n\nselect SUB_ID\nfrom DEMO_DB.METAPHOR.subscriptions_v2\nwhere SUB_ID is null\n\n\n",
+          "uniqueId": "test.metaphor_subscriptions.not_null_subscriptions_v2_SUB_ID.f48cc087e7"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_v2.sql"
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_v2",
+      "type": "DBT_MODEL"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~27A91F4A8FCBDF2DE9821E377D845654"
+        },
+        {
+          "contactDesignationName": "Maintainer",
+          "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sales_id,\n  subscriptions_growth.sub_id as sub_id,\n  1 as sale_rep_id,\n  1 as deal_size,\n  '2014-01-01 16:00:00' as created_at\nfrom DEMO_DB.METAPHOR.subscriptions_growth as subscriptions_growth",
+      "description": "This dataset represents the sales info for each subscription.",
+      "docsUrl": "http://localhost:8080/#!/model/model.metaphor_subscriptions.subscriptions_sales",
+      "fields": [
+        {
+          "description": "Auto-generated ID",
+          "fieldName": "sales_id",
+          "fieldPath": "sales_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Subscription ID",
+          "fieldName": "sub_id",
+          "fieldPath": "sub_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Sales representative ID",
+          "fieldName": "sale_rep_id",
+          "fieldPath": "sale_rep_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Size of the deals in dollars",
+          "fieldName": "deal_size",
+          "fieldPath": "deal_size",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Creation timestamp",
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~485BECC5FB35FC6DC9F0A0288F8FB0C6",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sales_id,\n  subscriptions_growth.sub_id as sub_id,\n  1 as sale_rep_id,\n  1 as deal_size,\n  '2014-01-01 16:00:00' as created_at\nfrom {{ ref('subscriptions_growth') }} as subscriptions_growth",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ],
+      "tags": [
+        "subscription"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "SALES_ID"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_subscriptions_sales_SALES_ID",
+          "sql": "\n    \n    \n\nselect\n    SALES_ID as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.METAPHOR.subscriptions_sales\nwhere SALES_ID is not null\ngroup by SALES_ID\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.metaphor_subscriptions.unique_subscriptions_sales_SALES_ID.f83222e32c"
+        },
+        {
+          "columns": [
+            "SALES_ID"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_subscriptions_sales_SALES_ID",
+          "sql": "\n    \n    \n\n\n\nselect SALES_ID\nfrom DEMO_DB.METAPHOR.subscriptions_sales\nwhere SALES_ID is null\n\n\n",
+          "uniqueId": "test.metaphor_subscriptions.not_null_subscriptions_sales_SALES_ID.84acc1c91e"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_sales.sql"
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_sales",
+      "type": "DBT_MODEL"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sub_id,\n  'url' as url,\n  customer_profile.date as created_at\nfrom DEMO_DB.METAPHOR.CUSTOMER_PROFILE as customer_profile",
+      "description": "This dataset contains all subscriptions core info.",
+      "docsUrl": "http://localhost:8080/#!/model/model.metaphor_subscriptions.subscriptions_core",
+      "fields": [
+        {
+          "description": "Subscription ID",
+          "fieldName": "sub_id",
+          "fieldPath": "sub_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "URL for the subscription",
+          "fieldName": "url",
+          "fieldPath": "url",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Creation timestamp",
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~F542BAD7E8D654325900D16D49E1C681",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sub_id,\n  'url' as url,\n  customer_profile.date as created_at\nfrom {{ source('METAPHOR', 'CUSTOMER_PROFILE') }} as customer_profile",
+      "sourceDatasets": [
+        "DATASET~3904FBD7A1828492FFD11604A2E73442"
+      ],
+      "sourceModels": [],
+      "tags": [
+        "subscription"
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_core.sql"
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_core",
+      "type": "DBT_MODEL"
+    }
+  }
+]

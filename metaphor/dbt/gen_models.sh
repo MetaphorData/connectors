@@ -7,27 +7,31 @@ cd ${SCRIPT_DIR}
 # Generate various data models for dbt manifest & catalog using official JSON schemas
 
 if [ $# -ne 2 ]; then
-  echo "Usage: $0 <manifest or catalog> <version: v1, v2...>"
+  echo "Usage: $0 <manifest or run-results> <version: v1, v2...>"
   exit 1
 fi
 
 SCHEMA="$1"
 VERSION="$2"
 
-URL=https://schemas.getdbt.com/dbt/${SCHEMA}/${VERSION}.json
-
-OUTPUT=generated/dbt_${SCHEMA}_${VERSION}.py
-
+FILENAME=$SCHEMA
 CLASS_NAME=""
 if [[ "${SCHEMA}" == "manifest" ]]; then
   CLASS_NAME="DbtManifest"
-elif [[ "${SCHEMA}" == "catalog" ]]; then
-  CLASS_NAME="DbtCatalog"
+elif [[ "${SCHEMA}" == "run-results" ]]; then
+  FILENAME="${SCHEMA//-/_}"
+  CLASS_NAME="DbtRunResults"
 else
-  echo -e "Choose either 'manifest' or 'catalog'"
+  echo -e "Choose either 'manifest' or 'run-results'"
   exit  1
 fi
 
+URL=https://schemas.getdbt.com/dbt/${SCHEMA}/${VERSION}.json
+
+OUTPUT=generated/dbt_${FILENAME}_${VERSION}.py
+
+echo $URL
+echo $OUTPUT
 poetry run datamodel-codegen \
   --url ${URL} \
   --class-name ${CLASS_NAME} \
