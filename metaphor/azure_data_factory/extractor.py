@@ -602,6 +602,8 @@ class AzureDataFactoryExtractor(BaseExtractor):
             "data_flow"
         ] = {"key": "typeProperties.dataflow", "type": "DataFlowReference"}
 
+        factory_pipelines = []
+
         for pipeline in df_client.pipelines.list_by_factory(
             resource_group_name=factory.resource_group_name, factory_name=factory.name
         ):
@@ -662,3 +664,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 ),
             )
             self._pipelines[pipeline_id] = metaphor_pipeline
+            factory_pipelines.append(pipeline.as_dict())
+
+        json_dump_to_debug_file(factory_pipelines, f"{factory.name}_pipelines.json")
