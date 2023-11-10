@@ -426,13 +426,13 @@ class ArtifactParser:
                 f"model unique id = {model.unique_id}"
             )
             return
-        if not test.column_name:
-            logger.warn(
-                f"Test not associated with a column, unable to parse data quality: {test.name}"
-            )
-            return
 
-        add_data_quality_monitor(dataset, test.name, test.column_name, status)
+        dataset_name = dataset_normalized_name(
+            model.database, model.schema_, model.alias or model.name
+        )
+        add_data_quality_monitor(
+            dataset, test.name, dataset_name, test.column_name, status
+        )
 
     def _parse_model(
         self,
