@@ -260,7 +260,7 @@ def add_data_quality_monitor(
     dataset.data_quality.monitors.append(
         # For `DataMonitorTarget`:
         # column: Name of the target column. Not set if the monitor performs dataset-level tests, e.g. row count.
-        # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the da
+        # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the data quality metadata is attached to.
         DataMonitor(
             title=name,
             targets=[DataMonitorTarget(column=column_name)],
