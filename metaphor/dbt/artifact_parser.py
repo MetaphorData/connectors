@@ -426,8 +426,13 @@ class ArtifactParser:
                 f"model unique id = {model.unique_id}"
             )
             return
-        assert test.column_name is not None
-        add_data_quality_monitor(dataset, test.name, test.column_name, status)
+
+        dataset_name = dataset_normalized_name(
+            model.database, model.schema_, model.alias or model.name
+        )
+        add_data_quality_monitor(
+            dataset, test.name, dataset_name, test.column_name, status
+        )
 
     def _parse_model(
         self,
