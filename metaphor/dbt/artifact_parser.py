@@ -426,7 +426,12 @@ class ArtifactParser:
                 f"model unique id = {model.unique_id}"
             )
             return
-        assert test.column_name is not None
+        if not test.column_name:
+            logger.warn(
+                f"Test not associated with a column, unable to parse data quality: {test.name}"
+            )
+            return
+
         add_data_quality_monitor(dataset, test.name, test.column_name, status)
 
     def _parse_model(
