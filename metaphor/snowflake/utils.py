@@ -9,6 +9,8 @@ from typing import Callable, Dict, List, Optional, Set, Tuple
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
 
+from metaphor.models.metadata_change_event import MaterializationType
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -20,6 +22,15 @@ class SnowflakeTableType(Enum):
     BASE_TABLE = "BASE TABLE"
     VIEW = "VIEW"
     TEMPORARY_TABLE = "TEMPORARY TABLE"
+    STREAM = "STREAM"
+
+
+table_type_to_materialization_type: Dict[SnowflakeTableType, MaterializationType] = {
+    SnowflakeTableType.VIEW: MaterializationType.VIEW,
+    SnowflakeTableType.STREAM: MaterializationType.STREAM,
+    SnowflakeTableType.BASE_TABLE: MaterializationType.TABLE,
+    SnowflakeTableType.TEMPORARY_TABLE: MaterializationType.TABLE,
+}
 
 
 @dataclass

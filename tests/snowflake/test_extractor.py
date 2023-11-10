@@ -693,3 +693,47 @@ def test_parse_query_logs(mock_connect: MagicMock):
             table="rides_by_month_start_station_2017",
         )
     ]
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_schemas(mock_connect: MagicMock) -> None:
+    mock_cursor = MagicMock()
+    values = [("schema1"), ("schema2"), ("schema3")]
+    mock_cursor.__iter__.return_value = iter(values)
+    extractor = SnowflakeExtractor(make_snowflake_config())
+    schemas = extractor._fetch_schemas(mock_cursor)
+    assert schemas == [x[0] for x in values]
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_streams(mock_connect: MagicMock) -> None:
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            (
+                "dont care",
+                "STREAM",
+                "dont care",
+                "dont care",
+                "dont care",
+                "some comment",
+                "TABLE",
+                "Table",
+                "TABLE",
+                "dont care",
+                "dont care",
+                "Default",
+            )
+        ]
+    )
+    mock_cursor.fetchone = MagicMock()
+    mock_cursor.fetchone.return_value = 3
+    extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor._fetch_streams(mock_cursor, "DB", "SCHEMA")
+    normalized_name = dataset_normalized_name("DB", "SCHEMA", "STREAM")
+    assert normalized_name in extractor._datasets
+    assert (
+        extractor._datasets[normalized_name].schema.sql_schema.materialization
+        is MaterializationType.STREAM
+    )

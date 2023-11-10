@@ -12,7 +12,11 @@ except ImportError:
     raise
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
+from metaphor.common.entity_id import (
+    dataset_normalized_name,
+    normalize_full_dataset_name,
+    to_dataset_entity_id,
+)
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
@@ -28,14 +32,17 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
+    DatasetUpstream,
     EntityType,
     Hierarchy,
     HierarchyLogicalID,
-    MaterializationType,
     QueriedDataset,
     QueryLog,
     SchemaField,
     SchemaType,
+    SnowflakeStreamInfo,
+    SnowflakeStreamSourceType,
+    SnowflakeStreamType,
     SourceInfo,
     SQLSchema,
     SystemTag,
@@ -52,6 +59,7 @@ from metaphor.snowflake.utils import (
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
+    table_type_to_materialization_type,
     to_quoted_identifier,
 )
 
@@ -126,6 +134,9 @@ class SnowflakeExtractor(BaseExtractor):
                     logger.exception(
                         f"Failed to fetch table extra info for '{database}'\n{e}"
                     )
+
+                for schema in self._fetch_schemas(cursor):
+                    self._fetch_streams(cursor, database, schema)
 
             self._fetch_primary_keys(cursor)
             self._fetch_unique_keys(cursor)
@@ -489,6 +500,81 @@ class SnowflakeExtractor(BaseExtractor):
 
         logger.info(f"Fetched {len(self._logs)} query logs")
 
+    def _fetch_schemas(self, cursor: SnowflakeCursor) -> List[str]:
+        cursor.execute(
+            "SELECT schema_name FROM information_schema.schemata WHERE schema_name != 'INFORMATION_SCHEMA'"
+        )
+        return [schema[0] for schema in cursor]
+
+    def _fetch_streams(self, cursor: SnowflakeCursor, database: str, schema: str):
+        cursor.execute(f"SHOW STREAMS IN {schema}")
+        for entry in cursor:
+            (
+                stream_name,
+                comment,
+                source_name,
+                source_type_str,
+                base_tables,
+                stream_type_str,
+            ) = (
+                entry[1],
+                entry[5],
+                entry[6],
+                entry[7],
+                entry[8],
+                entry[11],
+            )
+            row_count = None
+            cursor.execute(f'SELECT COUNT("ID") FROM {database}.{schema}.{stream_name}')
+            result = cursor.fetchone()
+            if isinstance(result, tuple):
+                row_count = result[0]
+
+            normalized_name = dataset_normalized_name(database, schema, stream_name)
+            dataset = self._init_dataset(
+                database=database,
+                schema=schema,
+                table=stream_name,
+                table_type="STREAM",
+                comment=comment,
+                row_count=row_count,
+                table_bytes=None,  # Not applicable to streams
+            )
+            source_datasets = [
+                normalize_full_dataset_name(x.strip())
+                for x in str(base_tables).split(",")
+            ]
+            dataset.upstream = DatasetUpstream(
+                source_datasets=source_datasets,
+            )
+
+            if source_type_str.upper() == "TABLE":
+                source_type = SnowflakeStreamSourceType.TABLE
+            elif source_type_str.upper() == "VIEW":
+                source_type = SnowflakeStreamSourceType.VIEW
+            else:
+                logger.warning(f"Unknown source type: {source_type_str}")
+                continue
+
+            if stream_type_str.upper() == "DEFAULT":
+                stream_type = SnowflakeStreamType.STANDARD
+            elif stream_type_str.upper() == "APPEND_ONLY":
+                stream_type = SnowflakeStreamType.APPEND_ONLY
+            elif stream_type_str.upper() == "INSERT_ONLY":
+                stream_type = SnowflakeStreamType.INSERT_ONLY
+            else:
+                logger.warning(f"Unknown stream type: {stream_type_str}")
+                continue
+
+            dataset.snowflake_stream_info = SnowflakeStreamInfo(
+                base_tables=source_datasets,
+                source_name=normalize_full_dataset_name(source_name),
+                source_type=source_type,
+                stream_type=stream_type,
+            )
+
+            self._datasets[normalized_name] = dataset
+
     def _batch_query_for_access_logs(
         self, start_date: datetime, end_date: datetime, batches: int
     ):
@@ -638,11 +724,9 @@ class SnowflakeExtractor(BaseExtractor):
             description=comment,
             fields=[],
             sql_schema=SQLSchema(
-                materialization=(
-                    MaterializationType.VIEW
-                    if table_type == SnowflakeTableType.VIEW.value
-                    else MaterializationType.TABLE
-                )
+                materialization=table_type_to_materialization_type[
+                    SnowflakeTableType(table_type)
+                ],
             ),
         )
 
