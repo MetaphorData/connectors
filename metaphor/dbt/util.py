@@ -250,7 +250,6 @@ def find_run_result_ouptput_by_id(
 def add_data_quality_monitor(
     dataset: Dataset,
     name: str,
-    dataset_name: str,
     column_name: Optional[str],
     status: DataMonitorStatus,
 ) -> None:
@@ -259,9 +258,12 @@ def add_data_quality_monitor(
             monitors=[], provider=DataQualityProvider.DBT
         )
     dataset.data_quality.monitors.append(
+        # For `DataMonitorTarget`:
+        # column: Name of the target column. Not set if the monitor performs dataset-level tests, e.g. row count.
+        # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the da
         DataMonitor(
             title=name,
-            targets=[DataMonitorTarget(dataset=dataset_name, column=column_name)],
+            targets=[DataMonitorTarget(column=column_name)],
             status=status,
         )
     )
