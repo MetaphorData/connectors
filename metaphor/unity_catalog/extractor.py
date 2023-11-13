@@ -24,6 +24,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
+    DatasetUpstream,
     EntityUpstream,
     FieldMapping,
     KeyValuePair,
@@ -275,8 +276,12 @@ class UnityCatalogExtractor(BaseExtractor):
                 f"Unable to extract lineage for {table_name} due to permission issues"
             )
 
+        unique_datasets = unique_list(source_datasets)
         dataset.entity_upstream = EntityUpstream(
-            source_entities=unique_list(source_datasets), field_mappings=field_mappings
+            source_entities=unique_datasets, field_mappings=field_mappings
+        )
+        dataset.upstream = DatasetUpstream(
+            source_datasets=unique_datasets, field_mappings=field_mappings
         )
 
     def _get_query_logs(self) -> QueryLogs:

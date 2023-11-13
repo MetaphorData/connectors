@@ -9,6 +9,12 @@
         "DATASET~A6BA6F986B360A57CF65200F29F5B251"
       ],
       "transformation": "select * from `foo`"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~A6BA6F986B360A57CF65200F29F5B251"
+      ],
+      "transformation": "select * from `foo`"
     }
   },
   {
@@ -21,6 +27,12 @@
         "DATASET~A6BA6F986B360A57CF65200F29F5B251"
       ],
       "transformation": "select * from `Foo`"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~A6BA6F986B360A57CF65200F29F5B251"
+      ],
+      "transformation": "select * from `Foo`"
     }
   },
   {
@@ -30,6 +42,12 @@
     },
     "entityUpstream": {
       "sourceEntities": [
+        "DATASET~A6BA6F986B360A57CF65200F29F5B251"
+      ],
+      "transformation": "select * from foo"
+    },
+    "upstream": {
+      "sourceDatasets": [
         "DATASET~A6BA6F986B360A57CF65200F29F5B251"
       ],
       "transformation": "select * from foo"

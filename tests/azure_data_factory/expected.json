@@ -17,6 +17,11 @@
         "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
       ]
     },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
+      ]
+    },
     "pipelineInfo": {
       "pipelineMapping": [
         {
@@ -41,6 +46,11 @@
     },
     "entityUpstream": {
       "sourceEntities": [
+        "DATASET~3D47E66557297571AD3225FF197AE151"
+      ]
+    },
+    "upstream": {
+      "sourceDatasets": [
         "DATASET~3D47E66557297571AD3225FF197AE151"
       ]
     },

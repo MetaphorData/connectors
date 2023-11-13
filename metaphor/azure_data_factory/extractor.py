@@ -27,6 +27,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
+    DatasetUpstream,
     DependencyCondition,
     EntityUpstream,
     Pipeline,
@@ -78,7 +79,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
         for factory in self._get_factories(df_client):
             self.extract_for_factory(factory, df_client)
 
-        # Remove duplicate source_entity, and set None for empty upstream data
+        # Remove duplicate source_entity and source_dataset, and set None for empty upstream data
         for dataset in self._datasets.values():
             unique_source_entities = unique_list(
                 dataset.entity_upstream.source_entities
@@ -87,6 +88,12 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 dataset.entity_upstream = None
             else:
                 dataset.entity_upstream.source_entities = unique_source_entities
+
+            unique_source_dataset = unique_list(dataset.upstream.source_datasets)
+            if len(unique_source_dataset) == 0:
+                dataset.upstream = None
+            else:
+                dataset.upstream.source_datasets = unique_source_dataset
 
         return list(chain(self._datasets.values(), self._pipelines.values()))
 
@@ -191,6 +198,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     to_dataset_entity_id_from_logical_id(source.logical_id)
                 )
                 sink.entity_upstream.source_entities.append(source_entity_id)
+                sink.upstream.source_datasets.append(source_entity_id)
 
     def _get_data_flows(
         self, factory: Factory, client: DataFactoryManagementClient
@@ -269,6 +277,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         platform=DataPlatform.SNOWFLAKE,
                     ),
                     entity_upstream=EntityUpstream(source_entities=[]),
+                    upstream=DatasetUpstream(source_datasets=[]),
                 )
 
             if isinstance(dataset.properties, DfModels.AzureSqlTableDataset):
@@ -288,6 +297,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         platform=DataPlatform.MSSQL,
                     ),
                     entity_upstream=EntityUpstream(source_entities=[]),
+                    upstream=DatasetUpstream(source_datasets=[]),
                 )
 
             if isinstance(dataset.properties, DfModels.JsonDataset):
@@ -318,6 +328,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                             platform=DataPlatform.AZURE_BLOB_STORAGE,
                         ),
                         entity_upstream=EntityUpstream(source_entities=[]),
+                        upstream=DatasetUpstream(source_datasets=[]),
                     )
 
             if metaphor_dataset:
@@ -539,6 +550,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         # Copy activity table lineage
                         for source_id in copy_from:
                             dataset.entity_upstream.source_entities.append(source_id)
+                            dataset.upstream.source_datasets.append(source_id)
 
                         # Pipeline info for each copy activity output entity
                         dataset.pipeline_info = PipelineInfo(
