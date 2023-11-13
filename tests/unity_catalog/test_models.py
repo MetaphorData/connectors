@@ -2,7 +2,6 @@ import pytest
 from databricks.sdk.service.catalog import ColumnInfo
 
 from metaphor.unity_catalog.models import (
-    DataSourceFormat,
     NoPermission,
     extract_schema_field_from_column_info,
 )
@@ -18,8 +17,3 @@ def test_parse_schema_field_from_invalid_column_info() -> None:
         extract_schema_field_from_column_info(
             ColumnInfo(comment="does not have a type")
         )
-
-
-def test_stringify_data_source_format() -> None:
-    for fmt in DataSourceFormat:
-        assert str(fmt) == fmt.value

@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import List, Optional, Union
 
 from databricks.sdk.service.catalog import ColumnInfo
@@ -8,23 +7,6 @@ from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import SchemaField
 
 logger = get_logger()
-
-
-class DataSourceFormat(str, Enum):
-    DELTA = "DELTA"
-    CSV = "CSV"
-    JSON = "JSON"
-    AVRO = "AVRO"
-    PARQUET = "PARQUET"
-    ORC = "ORC"
-    TEXT = "TEXT"
-    UNITY_CATALOG = (
-        "UNITY_CATALOG"  # a Table within the Unity Catalog’s Information Schema
-    )
-    DELTASHARING = "DELTASHARING"  # a Table shared through the Delta Sharing protocol
-
-    def __str__(self):
-        return str(self.value)
 
 
 def extract_schema_field_from_column_info(column: ColumnInfo) -> SchemaField:
