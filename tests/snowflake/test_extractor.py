@@ -720,10 +720,11 @@ def test_fetch_streams(mock_connect: MagicMock) -> None:
                 "some comment",
                 "TABLE",
                 "Table",
-                "TABLE",
+                "dont cate",
                 "dont care",
-                "dont care",
+                "true",
                 "Default",
+                "2023-01-01 12:00:00.000000+00:00",
             )
         ]
     )

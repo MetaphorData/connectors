@@ -34,6 +34,7 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     DatasetUpstream,
     EntityType,
+    EntityUpstream,
     Hierarchy,
     HierarchyLogicalID,
     QueriedDataset,
@@ -514,15 +515,17 @@ class SnowflakeExtractor(BaseExtractor):
                 comment,
                 source_name,
                 source_type_str,
-                base_tables,
+                stale,
                 stream_type_str,
+                stale_after,
             ) = (
                 entry[1],
                 entry[5],
                 entry[6],
                 entry[7],
-                entry[8],
+                entry[10],
                 entry[11],
+                entry[12],
             )
             row_count = None
             cursor.execute(f'SELECT COUNT("ID") FROM {database}.{schema}.{stream_name}')
@@ -551,11 +554,12 @@ class SnowflakeExtractor(BaseExtractor):
                     )
                 )
 
-            source_datasets = [
-                _to_dataset_eid(x.strip()) for x in str(base_tables).split(",")
-            ]
+            source_entities = [_to_dataset_eid(source_name)]
             dataset.upstream = DatasetUpstream(
-                source_datasets=source_datasets,
+                source_datasets=source_entities,
+            )
+            dataset.entity_upstream = EntityUpstream(
+                source_entities=source_entities,
             )
 
             if source_type_str.upper() == "TABLE":
@@ -577,10 +581,10 @@ class SnowflakeExtractor(BaseExtractor):
                 continue
 
             dataset.snowflake_stream_info = SnowflakeStreamInfo(
-                base_tables=source_datasets,
-                source=_to_dataset_eid(source_name),
                 source_type=source_type,
                 stream_type=stream_type,
+                stale_after=datetime.strptime(stale_after, "%Y-%m-%d %H:%M:%S.%f%z"),
+                stale=(stale == "false"),
             )
 
             self._datasets[normalized_name] = dataset
