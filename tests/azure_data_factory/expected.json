@@ -12,6 +12,11 @@
       "name": "database.schema.table2",
       "platform": "SNOWFLAKE"
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
+      ]
+    },
     "upstream": {
       "sourceDatasets": [
         "DATASET~D0BB6D0EA7E559C7966357BE929E840B"
@@ -38,6 +43,11 @@
     "logicalId": {
       "name": "https://storage-account.blob.core.windows.net/test/foo/bar.json",
       "platform": "AZURE_BLOB_STORAGE"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~3D47E66557297571AD3225FF197AE151"
+      ]
     },
     "upstream": {
       "sourceDatasets": [
