@@ -21,3 +21,12 @@
 <!--
   Describe how the change was tested end-to-end.
 -->
+
+### ☑️ Checks
+
+<!--
+  Some sanity checks to make sure your PR is good to go. Make sure all checkboxes
+  are ticked!
+-->
+
+- [ ] My PR contains actual code changes, and I have updated the version number in `pyproject.toml`.
