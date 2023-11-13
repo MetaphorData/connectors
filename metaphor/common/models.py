@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Optional, Set, Union
+from typing import Optional, Union
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
@@ -34,20 +34,22 @@ class DeserializableDatasetLogicalID:
             self.account,
         )
 
-    def _platform_forbids_account_config(
-        self, allow_account: Set[DataPlatform]
-    ) -> bool:
+    @model_validator(mode="after")
+    def _platform_forbids_account_config(self) -> "DeserializableDatasetLogicalID":
         """
-        Returns `False` if the platform does not allow account to be set.
-
-        Parameters
-        ----------
-        allow_account : Set[DataPlatform]
-            The set of platforms that allow account to be set.
+        Throws if the platform does not allow account to be set.
         """
-        return (DataPlatform[self.platform] not in allow_account) and (
+        allow_account_be_set = {
+            DataPlatform.SNOWFLAKE,
+            DataPlatform.MSSQL,
+        }
+        if DataPlatform[self.platform] not in allow_account_be_set and (
             self.account is not None
-        )
+        ):
+            raise ValueError(
+                f"Field `account` only permitted for platforms: {[x.value for x in allow_account_be_set]}"
+            )
+        return self
 
 
 def to_dataset_statistics(

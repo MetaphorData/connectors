@@ -1,7 +1,6 @@
 from dataclasses import field as dataclass_field
 from typing import List, Optional
 
-from pydantic import field_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_extractor import BaseConfig
@@ -12,7 +11,6 @@ from metaphor.models.metadata_change_event import (
     AssetDescription,
     ColumnDescriptionAssignment,
     ColumnTagAssignment,
-    DataPlatform,
     DescriptionAssignment,
 )
 from metaphor.models.metadata_change_event import (
@@ -84,16 +82,6 @@ class DatasetGovernance:
     column_descriptions: List[ColumnDescriptions] = dataclass_field(
         default_factory=lambda: []
     )
-
-    @field_validator("id")
-    @classmethod
-    def _validate_platform(cls, id_: DeserializableDatasetLogicalID):
-        whitelist = {DataPlatform.SNOWFLAKE, DataPlatform.MSSQL}
-        if id_._platform_forbids_account_config(whitelist):
-            raise ValueError(
-                f"Field `account` only permitted for platforms: {[x.value for x in whitelist]}"
-            )
-        return id_
 
     def to_ownership_assignment(self) -> Optional[OwnershipAssignment]:
         if not self.ownerships:
