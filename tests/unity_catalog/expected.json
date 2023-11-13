@@ -37,7 +37,7 @@
       "schema": "schema",
       "table": "table"
     },
-    "upstream": {
+    "entityUpstream": {
       "fieldMappings": [
         {
           "destination": "col1",
@@ -53,7 +53,7 @@
           ]
         }
       ],
-      "sourceDatasets": [
+      "sourceEntities": [
         "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84",
         "DATASET~97D032124F4B526411F0D04797CEAC96"
       ]

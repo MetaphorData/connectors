@@ -5,8 +5,8 @@
       "name": "db2.schema1.table1",
       "platform": "SNOWFLAKE"
     },
-    "upstream": {
-      "sourceDatasets": [
+    "entityUpstream": {
+      "sourceEntities": [
         "DATASET~E6F80D26D79C59FEF0BA6B6DA45BC08F",
         "DATASET~C9DAA548172E27E915ED3A2AB81A56C4",
         "DATASET~81BBDE0AB867B318A1348E654DC7F426"
@@ -20,8 +20,8 @@
       "name": "db2.schema1.table2",
       "platform": "SNOWFLAKE"
     },
-    "upstream": {
-      "sourceDatasets": [
+    "entityUpstream": {
+      "sourceEntities": [
         "DATASET~E6F80D26D79C59FEF0BA6B6DA45BC08F",
         "DATASET~C9DAA548172E27E915ED3A2AB81A56C4",
         "DATASET~81BBDE0AB867B318A1348E654DC7F426"

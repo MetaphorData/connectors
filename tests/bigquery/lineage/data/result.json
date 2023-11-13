@@ -4,8 +4,8 @@
       "name": "metaphor-data.test.yi_tests2",
       "platform": "BIGQUERY"
     },
-    "upstream": {
-      "sourceDatasets": [
+    "entityUpstream": {
+      "sourceEntities": [
         "DATASET~930E4BD28074A60959C98F61289311E0"
       ]
     }
@@ -15,8 +15,8 @@
       "name": "metaphor-data.test.yi_tests",
       "platform": "BIGQUERY"
     },
-    "upstream": {
-      "sourceDatasets": [
+    "entityUpstream": {
+      "sourceEntities": [
         "DATASET~930E4BD28074A60959C98F61289311E0",
         "DATASET~E16CCC1A55EE3E61C1CE8B0C47F67998",
         "DATASET~55CAA090B9E8317AFC195CBD843D6665",

@@ -34,7 +34,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DatasetUpstream,
+    EntityUpstream,
     FieldMapping,
     FiveTranConnectorStatus,
     FivetranPipeline,
@@ -281,8 +281,8 @@ class FivetranExtractor(BaseExtractor):
                 platform=destination_platform,
                 account=self.get_snowflake_account_from_config(destination.config),
             ),
-            upstream=DatasetUpstream(
-                source_datasets=[],
+            entity_upstream=EntityUpstream(
+                source_entities=[],
                 field_mappings=[],
             ),
         )
@@ -309,7 +309,7 @@ class FivetranExtractor(BaseExtractor):
             pipeline_mapping.is_virtual = False
             pipeline_mapping.source_entity_id = source_entity_id
 
-            dataset.upstream.source_datasets = [source_entity_id]
+            dataset.entity_upstream.source_entities = [source_entity_id]
 
             pipeline.fivetran.sources = list(
                 set(pipeline.fivetran.sources + [source_entity_id])
@@ -326,7 +326,7 @@ class FivetranExtractor(BaseExtractor):
                         field=column.name_in_source,
                     )
                 )
-                dataset.upstream.field_mappings.append(field_mapping)
+                dataset.entity_upstream.field_mappings.append(field_mapping)
 
         dataset.pipeline_info = PipelineInfo(pipeline_mapping=[pipeline_mapping])
 

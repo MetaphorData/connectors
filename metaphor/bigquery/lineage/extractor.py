@@ -28,7 +28,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DatasetUpstream,
+    EntityUpstream,
 )
 
 logger = get_logger()
@@ -142,8 +142,8 @@ class BigQueryLineageExtractor(BaseExtractor):
 
         if dataset_ids:
             dataset = self._init_dataset(view_name)
-            dataset.upstream = DatasetUpstream(
-                source_datasets=list(dataset_ids), transformation=view_query
+            dataset.entity_upstream = EntityUpstream(
+                source_entities=list(dataset_ids), transformation=view_query
             )
 
     def _fetch_audit_log(self, logging_client: logging_v2.Client):
@@ -191,8 +191,8 @@ class BigQueryLineageExtractor(BaseExtractor):
 
         table_name = destination.table_name()
         dataset = self._init_dataset(table_name)
-        dataset.upstream = DatasetUpstream(
-            source_datasets=[
+        dataset.entity_upstream = EntityUpstream(
+            source_entities=[
                 str(to_dataset_entity_id(source.table_name(), DataPlatform.BIGQUERY))
                 for source in job_change.source_tables
             ],

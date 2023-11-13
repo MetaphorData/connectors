@@ -4,8 +4,8 @@
       "name": "project1.dataset1.table1",
       "platform": "BIGQUERY"
     },
-    "upstream": {
-      "sourceDatasets": [
+    "entityUpstream": {
+      "sourceEntities": [
         "DATASET~A6BA6F986B360A57CF65200F29F5B251"
       ],
       "transformation": "select * from `foo`"
@@ -16,8 +16,8 @@
       "name": "project1.dataset1.table2",
       "platform": "BIGQUERY"
     },
-    "upstream": {
-      "sourceDatasets": [
+    "entityUpstream": {
+      "sourceEntities": [
         "DATASET~A6BA6F986B360A57CF65200F29F5B251"
       ],
       "transformation": "select * from `Foo`"
@@ -28,8 +28,8 @@
       "name": "project1.dataset1.table3",
       "platform": "BIGQUERY"
     },
-    "upstream": {
-      "sourceDatasets": [
+    "entityUpstream": {
+      "sourceEntities": [
         "DATASET~A6BA6F986B360A57CF65200F29F5B251"
       ],
       "transformation": "select * from foo"
