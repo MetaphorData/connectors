@@ -540,9 +540,19 @@ class SnowflakeExtractor(BaseExtractor):
                 row_count=row_count,
                 table_bytes=None,  # Not applicable to streams
             )
+
+            def _to_dataset_eid(x: str) -> str:
+                """Lil helper function to save me some keystrokes"""
+                return str(
+                    to_dataset_entity_id(
+                        normalize_full_dataset_name(x),
+                        DataPlatform.SNOWFLAKE,
+                        self._account,
+                    )
+                )
+
             source_datasets = [
-                normalize_full_dataset_name(x.strip())
-                for x in str(base_tables).split(",")
+                _to_dataset_eid(x.strip()) for x in str(base_tables).split(",")
             ]
             dataset.upstream = DatasetUpstream(
                 source_datasets=source_datasets,
@@ -568,7 +578,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             dataset.snowflake_stream_info = SnowflakeStreamInfo(
                 base_tables=source_datasets,
-                source_name=normalize_full_dataset_name(source_name),
+                source=_to_dataset_eid(source_name),
                 source_type=source_type,
                 stream_type=stream_type,
             )
