@@ -87,9 +87,12 @@ class DatasetGovernance:
 
     @field_validator("id")
     @classmethod
-    def _only_snowflake_can_have_account(cls, id_: DeserializableDatasetLogicalID):
-        if DataPlatform[id_.platform] != DataPlatform.SNOWFLAKE and id_.account:
-            raise ValueError("Field `account` only permitted for snowflake platform")
+    def _validate_platform(cls, id_: DeserializableDatasetLogicalID):
+        whitelist = {DataPlatform.SNOWFLAKE, DataPlatform.MSSQL}
+        if id_._platform_forbids_account_config(whitelist):
+            raise ValueError(
+                f"Field `account` only permitted for platforms: {[x.value for x in whitelist]}"
+            )
         return id_
 
     def to_ownership_assignment(self) -> Optional[OwnershipAssignment]:

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional, Set, Union
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.dataclasses import dataclass
@@ -32,6 +32,21 @@ class DeserializableDatasetLogicalID:
             normalize_full_dataset_name(self.name),
             DataPlatform[self.platform],
             self.account,
+        )
+
+    def _platform_forbids_account_config(
+        self, allow_account: Set[DataPlatform]
+    ) -> bool:
+        """
+        Returns `False` if the platform does not allow account to be set.
+
+        Parameters
+        ----------
+        allow_account : Set[DataPlatform]
+            The set of platforms that allow account to be set.
+        """
+        return (DataPlatform[self.platform] not in allow_account) and (
+            self.account is not None
         )
 
 
