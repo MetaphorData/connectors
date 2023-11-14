@@ -2,6 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+from databricks.sdk.core import DatabricksError
 from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo, TableType
 
 from metaphor.common.base_config import OutputConfig
@@ -72,3 +73,23 @@ async def test_extractor(
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/unity_catalog/profile/expected.json")
+
+
+def test_bad_warehouse():
+    client = MagicMock()
+    client.warehouses = MagicMock()
+    client.warehouses.list = MagicMock()
+    client.warehouses.list.return_value = iter([])
+
+    with pytest.raises(ValueError):
+        UnityCatalogProfileExtractor.create_connection(client, "token", None)
+
+    client.warehouses.list.return_value = iter(["530e470a55aeb40d"])
+    client.warehouses.get = MagicMock(
+        side_effect=DatabricksError("SQL warehouse 530e470a55aeb40e does not exist.")
+    )
+
+    with pytest.raises(ValueError):
+        UnityCatalogProfileExtractor.create_connection(
+            client, "token", "530e470a55aeb40e"
+        )
