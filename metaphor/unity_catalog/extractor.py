@@ -5,7 +5,9 @@ import urllib.parse
 from typing import Collection, Dict, Generator, List
 
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.sql import EndpointInfo
 from databricks.sdk.service.catalog import TableInfo, TableType
+from databricks import sql
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -89,6 +91,13 @@ class UnityCatalogExtractor(BaseExtractor):
         logger.info("Fetching metadata from Unity Catalog")
 
         self._api = UnityCatalogExtractor.create_api(self._host, self._token)
+        endpoint_info: EndpointInfo = self._api.warehouses.list()[0]
+        self._connection = sql.connect(
+            server_hostname=endpoint_info.odbc_params.hostname,
+            http_path=endpoint_info.odbc_params.path,
+            access_token=self._token,
+        )
+        self._cursor = self._connection.cursor()
 
         catalogs = (
             self._get_catalogs()

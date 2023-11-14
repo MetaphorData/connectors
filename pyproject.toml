@@ -49,6 +49,7 @@ sqllineage = { version = "~=1.3.8", optional = true }
 tableauserverclient = { version = "^0.25", optional = true }
 thoughtspot_rest_api_v1 = { version = "1.5.3", optional = true }
 pathvalidate = "^3.2.0"
+databricks-sql-connector = { version = "^2.9.3", optional = true }
 
 [tool.poetry.extras]
 all = [
@@ -56,6 +57,7 @@ all = [
   "azure-identity",
   "azure-mgmt-datafactory",
   "databricks-sdk",
+  "databricks-sql-connector",
   "GitPython",
   "google-cloud-bigquery",
   "google-cloud-logging",
@@ -89,7 +91,7 @@ snowflake = ["snowflake-connector-python", "sql-metadata"]
 synapse = ["pymssql"]
 tableau = ["tableauserverclient", "sqllineage"]
 throughtspot = ["thoughtspot-rest-api-v1"]
-unity_catalog = ["databricks-sdk"]
+unity_catalog = ["databricks-sdk", "databricks-sql-connector"]
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.2"
