@@ -62,6 +62,9 @@ jobs:
           thresholdNew: 0.85
           thresholdModified: 0.0
 
+      - name: Check bumped version
+        run: bash .github/scripts/check_version.sh
+
   docker:
     name: Docker build
     runs-on: ubuntu-latest
