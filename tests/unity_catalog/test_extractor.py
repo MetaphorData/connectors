@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -36,6 +37,7 @@ def dummy_config():
     )
 
 
+@patch("metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_connection")
 @patch("metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api")
 @patch("metaphor.unity_catalog.extractor.list_table_lineage")
 @patch("metaphor.unity_catalog.extractor.list_column_lineage")
@@ -44,6 +46,7 @@ async def test_extractor(
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
     mock_create_api: MagicMock,
+    mock_create_connection: MagicMock,
     test_root_dir: str,
 ):
     def mock_list_catalogs():
@@ -183,6 +186,25 @@ async def test_extractor(
         )
     ]
     mock_create_api.return_value = mock_client
+
+    # Not a fan of all these mocks...
+    mock_rows = [
+        SimpleNamespace(col_name="Statistics", data_type="5566 bytes, 9487 rows")
+    ]
+
+    mock_cursor = MagicMock()
+    mock_cursor.fetchall = MagicMock()
+    mock_cursor.fetchall.return_value = mock_rows
+
+    mock_cursor_ctx = MagicMock()
+    mock_cursor_ctx.__enter__ = MagicMock()
+    mock_cursor_ctx.__enter__.return_value = mock_cursor
+
+    mock_connection = MagicMock()
+    mock_connection.cursor = MagicMock()
+    mock_connection.cursor.return_value = mock_cursor_ctx
+
+    mock_create_connection.return_value = mock_connection
 
     extractor = UnityCatalogExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
