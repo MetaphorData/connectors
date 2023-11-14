@@ -37,6 +37,27 @@
       "schema": "schema",
       "table": "table"
     },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "name": "db.schema.upstream",
+                "platform": "UNITY_CATALOG"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84",
+        "DATASET~97D032124F4B526411F0D04797CEAC96"
+      ]
+    },
     "upstream": {
       "fieldMappings": [
         {

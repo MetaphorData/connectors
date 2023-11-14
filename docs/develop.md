@@ -25,6 +25,14 @@ pyenv local 3.8
 
 > Note: We recommend using the latest 3.8 release to ensure maximum compatibility. However, if you're developing on an Apple Silicon Mac, please either run in a [Rosetta Terminal](https://www.courier.com/blog/tips-and-tricks-to-setup-your-apple-m1-for-development) or use the closest version that natively supports Apple Silicon (3.8.10 as of now).
 
+## (macOS only) Install External Dependencies
+
+Some Python packages require external dependencies to build on macOS, e.g. [pymssql](https://github.com/pymssql/pymssql). You can use [homebrew](https://brew.sh/) to install these:
+
+```shell
+brew install freetds
+```
+
 ## Install Poetry
 
 Install [poetry](https://python-poetry.org/) package manager

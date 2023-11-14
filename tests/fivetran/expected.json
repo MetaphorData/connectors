@@ -5,6 +5,10 @@
       "name": "fivetran.google_drive.dataset_foo_sheet_1",
       "platform": "SNOWFLAKE"
     },
+    "entityUpstream": {
+      "fieldMappings": [],
+      "sourceEntities": []
+    },
     "upstream": {
       "fieldMappings": [],
       "sourceDatasets": []
@@ -23,6 +27,41 @@
       "account": "dest_account",
       "name": "fivetran.snowflake_db_schema.table",
       "platform": "SNOWFLAKE"
+    },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "source_account",
+                "name": "source_db.schema.table",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
+            }
+          ]
+        },
+        {
+          "destination": "col2",
+          "sources": [
+            {
+              "dataset": {
+                "account": "source_account",
+                "name": "source_db.schema.table",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
+      ]
     },
     "upstream": {
       "fieldMappings": [
@@ -75,6 +114,27 @@
       "name": "fivetran.snowflake_db_schema.table2",
       "platform": "SNOWFLAKE"
     },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "source_account",
+                "name": "source_db.schema.table2",
+                "platform": "SNOWFLAKE"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
+      ]
+    },
     "upstream": {
       "fieldMappings": [
         {
@@ -111,6 +171,41 @@
       "account": "dest_account",
       "name": "fivetran.sqldb_foo.table",
       "platform": "SNOWFLAKE"
+    },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "sql-server.foo.bar",
+                "name": "source_db.schema.table",
+                "platform": "MSSQL"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~CA36B7F1E380295A5286B5E231A6A088"
+            }
+          ]
+        },
+        {
+          "destination": "col2",
+          "sources": [
+            {
+              "dataset": {
+                "account": "sql-server.foo.bar",
+                "name": "source_db.schema.table",
+                "platform": "MSSQL"
+              },
+              "field": "col2",
+              "sourceEntityId": "DATASET~CA36B7F1E380295A5286B5E231A6A088"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~CA36B7F1E380295A5286B5E231A6A088"
+      ]
     },
     "upstream": {
       "fieldMappings": [
@@ -163,6 +258,36 @@
       "name": "fivetran.sqldb_foo.table2",
       "platform": "SNOWFLAKE"
     },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "account": "sql-server.foo.bar",
+                "name": "source_db.schema.table2",
+                "platform": "MSSQL"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~640B6534F4B207F3A50447769DB47B38"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~640B6534F4B207F3A50447769DB47B38"
+      ]
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~A49A21FB45EC17B27B135D4905DFB0AA",
+          "sourceEntityId": "DATASET~640B6534F4B207F3A50447769DB47B38"
+        }
+      ]
+    },
     "upstream": {
       "fieldMappings": [
         {
@@ -182,15 +307,6 @@
       ],
       "sourceDatasets": [
         "DATASET~640B6534F4B207F3A50447769DB47B38"
-      ]
-    },
-    "pipelineInfo": {
-      "pipelineMapping": [
-        {
-          "isVirtual": false,
-          "pipelineEntityId": "PIPELINE~A49A21FB45EC17B27B135D4905DFB0AA",
-          "sourceEntityId": "DATASET~640B6534F4B207F3A50447769DB47B38"
-        }
       ]
     }
   },

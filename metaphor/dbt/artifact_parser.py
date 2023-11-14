@@ -421,18 +421,13 @@ class ArtifactParser:
 
         dataset = self._datasets.get(model.unique_id)
         if dataset is None:
-            logger.warn(
+            logger.warning(
                 "Cannot find target dataset for test: "
                 f"model unique id = {model.unique_id}"
             )
             return
 
-        dataset_name = dataset_normalized_name(
-            model.database, model.schema_, model.alias or model.name
-        )
-        add_data_quality_monitor(
-            dataset, test.name, dataset_name, test.column_name, status
-        )
+        add_data_quality_monitor(dataset, test.name, test.column_name, status)
 
     def _parse_model(
         self,

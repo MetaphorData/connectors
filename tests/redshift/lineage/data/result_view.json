@@ -4,6 +4,12 @@
       "name": "test.private.t1",
       "platform": "REDSHIFT"
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC",
+        "DATASET~B077275BCBF5E69AD0DBFCAE3F7E47E4"
+      ]
+    },
     "upstream": {
       "sourceDatasets": [
         "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC",
@@ -15,6 +21,11 @@
     "logicalId": {
       "name": "test.foo.t2",
       "platform": "REDSHIFT"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~CFCE7386EFABDA3E3ED4DCD5B69083FC"
+      ]
     },
     "upstream": {
       "sourceDatasets": [

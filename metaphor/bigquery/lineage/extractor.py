@@ -29,6 +29,7 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetUpstream,
+    EntityUpstream,
 )
 
 logger = get_logger()
@@ -142,6 +143,9 @@ class BigQueryLineageExtractor(BaseExtractor):
 
         if dataset_ids:
             dataset = self._init_dataset(view_name)
+            dataset.entity_upstream = EntityUpstream(
+                source_entities=list(dataset_ids), transformation=view_query
+            )
             dataset.upstream = DatasetUpstream(
                 source_datasets=list(dataset_ids), transformation=view_query
             )
@@ -191,11 +195,16 @@ class BigQueryLineageExtractor(BaseExtractor):
 
         table_name = destination.table_name()
         dataset = self._init_dataset(table_name)
+        source_entities = [
+            str(to_dataset_entity_id(source.table_name(), DataPlatform.BIGQUERY))
+            for source in job_change.source_tables
+        ]
+        dataset.entity_upstream = EntityUpstream(
+            source_entities=source_entities,
+            transformation=job_change.query,
+        )
         dataset.upstream = DatasetUpstream(
-            source_datasets=[
-                str(to_dataset_entity_id(source.table_name(), DataPlatform.BIGQUERY))
-                for source in job_change.source_tables
-            ],
+            source_datasets=source_entities,
             transformation=job_change.query,
         )
 
