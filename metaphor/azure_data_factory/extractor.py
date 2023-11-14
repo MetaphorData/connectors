@@ -317,33 +317,20 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 linked_service,
                 DfModels.AzureBlobStorageLinkedService,
             ):
-                blob_storage = linked_service_resource.properties
-                service_endpoint = blob_storage.service_endpoint
-
+                service_endpoint = linked_service.service_endpoint
                 result[linked_service_name] = LinkedService(account=service_endpoint)
 
-            if isinstance(
-                linked_service_resource.properties, DfModels.AzureBlobFSLinkedService
-            ):
-                blob_fs = linked_service_resource.properties
-                url = safe_get_from_json(blob_fs.url)
+            if isinstance(linked_service, DfModels.AzureBlobFSLinkedService):
+                url = safe_get_from_json(linked_service.url)
+                result[linked_service_name] = LinkedService(url=url)
+
+            if isinstance(linked_service, DfModels.HttpLinkedService):
+                url = safe_get_from_json(linked_service.url)
 
                 result[linked_service_name] = LinkedService(url=url)
 
-            if isinstance(
-                linked_service_resource.properties, DfModels.HttpLinkedService
-            ):
-                http_service = linked_service_resource.properties
-                url = safe_get_from_json(http_service.url)
-
-                result[linked_service_name] = LinkedService(url=url)
-
-            if isinstance(
-                linked_service_resource.properties, DfModels.RestServiceLinkedService
-            ):
-                rest_service = linked_service_resource.properties
-                url = rest_service.url
-
+            if isinstance(linked_service, DfModels.RestServiceLinkedService):
+                url = safe_get_from_json(linked_service.url)
                 result[linked_service_name] = LinkedService(url=url)
 
             # Dump linked service for debug-purpose
