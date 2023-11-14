@@ -1,6 +1,6 @@
-# Unity Catalog Connector
+# Unity Catalog Data Profiling Connector
 
-This connector extracts technical metadata from Unity Catalog using the [Unity Catalog API](https://api-docs.databricks.com/rest/latest/unity-catalog-api-specification-2-1.html).
+This connector extracts dataset-level data profiles from Unity Catalog using the [Unity Catalog API](https://api-docs.databricks.com/rest/latest/unity-catalog-api-specification-2-1.html).
 
 ## Setup
 
@@ -30,24 +30,15 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
-### Query Logs
+### Warehouse ID
 
-By default, the Unity Catalog connector will fetch a full day's query logs from yesterday, to be analyzed for additional metadata, such as dataset usage and lineage information. To backfill log data, one can set `lookback_days` to the desired value. To turn off query log fetching, set `lookback_days` to 0.  
+To run the connector with a specific warehouse, simply add its id in the configuration file:
 
 ```yaml
-
-query_log:
-  # (Optional) Number of days of query logs to fetch. Default to 1. If 0, the no query logs will be fetched.
-  lookback_days: <days>
-    
-  # (Optional) A list of users whose queries will be excluded from the log fetching.
-  excluded_usernames:
-    - <user_name1>
-    - <user_name2>
-
-  # (Optional) Limit the number of results returned in one page of query log history. The default is 100.
-  max_results: <count>
+warehouse_id: <warehouse_id>
 ```
+
+If no warehouse id is provided, the connector automatically uses the first discovered warehouse.
 
 ## Testing
 

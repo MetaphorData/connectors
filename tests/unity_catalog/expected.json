@@ -81,10 +81,6 @@
     },
     "sourceInfo": {
       "mainUrl": "http://dummy.host/explore/data/catalog/schema/table"
-    },
-    "statistics": {
-      "dataSizeBytes": 5566.0,
-      "recordCount": 9487.0
     }
   },
   {
@@ -181,8 +177,7 @@
     },
     "sourceInfo": {
       "mainUrl": "http://dummy.host/explore/data/catalog/schema/view"
-    },
-    "statistics": {}
+    }
   },
   {
     "logs": [

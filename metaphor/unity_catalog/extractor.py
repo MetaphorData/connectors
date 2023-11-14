@@ -1,15 +1,11 @@
 import datetime
 import json
 import logging
-import re
 import urllib.parse
 from typing import Collection, Dict, Generator, List
 
-from databricks import sql
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import TableInfo, TableType
-from databricks.sdk.service.sql import EndpointInfo
-from databricks.sql.client import Connection
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -27,7 +23,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
-    DatasetStatistics,
     DatasetStructure,
     DatasetUpstream,
     EntityUpstream,
@@ -94,9 +89,6 @@ class UnityCatalogExtractor(BaseExtractor):
         logger.info("Fetching metadata from Unity Catalog")
 
         self._api = UnityCatalogExtractor.create_api(self._host, self._token)
-        self._connection = UnityCatalogExtractor.create_connection(
-            self._api, self._token
-        )
 
         catalogs = (
             self._get_catalogs()
@@ -147,29 +139,6 @@ class UnityCatalogExtractor(BaseExtractor):
         json_dump_to_debug_file(tables, f"list-tables-{catalog}-{schema}.json")
         for table in tables:
             yield table
-
-    def _read_dataset_statistics(self, table_info: TableInfo) -> DatasetStatistics:
-        dataset_statistics = DatasetStatistics()
-        if table_info.table_type is not TableType.VIEW:
-            with self._connection.cursor() as cursor:
-                # FIXME this can take a while
-                cursor.execute(
-                    f"ANALYZE TABLE {table_info.full_name} COMPUTE STATISTICS"
-                )
-                cursor.execute(f"DESCRIBE TABLE EXTENDED {table_info.full_name}")
-                rows = cursor.fetchall()
-                statistics = next(
-                    (row for row in rows if row.col_name == "Statistics"), None
-                )
-                if statistics:
-                    # `statistics.data_type` looks like "X bytes, Y rows"
-                    bytes_count, row_count = [
-                        float(x) for x in re.findall(r"(\d+)", statistics.data_type)
-                    ]
-                    dataset_statistics.data_size_bytes = bytes_count
-                    dataset_statistics.record_count = row_count
-
-        return dataset_statistics
 
     def _init_dataset(self, table_info: TableInfo) -> Dataset:
         table_name = table_info.name
@@ -231,8 +200,6 @@ class UnityCatalogExtractor(BaseExtractor):
             if table_info.properties is not None
             else [],
         )
-
-        dataset.statistics = self._read_dataset_statistics(table_info)
 
         self._datasets[normalized_name] = dataset
 
@@ -362,12 +329,3 @@ class UnityCatalogExtractor(BaseExtractor):
     @staticmethod
     def create_api(host: str, token: str) -> WorkspaceClient:
         return WorkspaceClient(host=host, token=token)
-
-    @staticmethod
-    def create_connection(client: WorkspaceClient, token: str) -> Connection:
-        endpoint_info: EndpointInfo = client.warehouses.list()[0]
-        return sql.connect(
-            server_hostname=endpoint_info.odbc_params.hostname,
-            http_path=endpoint_info.odbc_params.path,
-            access_token=token,
-        )
