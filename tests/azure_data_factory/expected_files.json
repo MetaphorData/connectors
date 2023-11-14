@@ -1,0 +1,211 @@
+[
+  {
+    "logicalId": {
+      "name": "https://foo.bar/datasets",
+      "platform": "HTTP"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~FE5B57BF2D1F80FFB22E9CE67FBABE41"
+      ]
+    },
+    "logicalId": {
+      "name": "https://foo.com/FOO/datasets/landing",
+      "platform": "AZURE_BLOB_STORAGE"
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~439A2D0DC08500EFEECF3BCF081E6D9E",
+          "sourceEntityId": "DATASET~FE5B57BF2D1F80FFB22E9CE67FBABE41"
+        }
+      ]
+    },
+    "schema": {
+      "schemaType": "JSON"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~FE5B57BF2D1F80FFB22E9CE67FBABE41"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "http://data.foo.com",
+      "platform": "HTTP"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~BB872225C7263B5D3D0E18D416C8290F"
+      ]
+    },
+    "logicalId": {
+      "name": "https://foo.com/FOO/datasets/landing",
+      "platform": "AZURE_BLOB_STORAGE"
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~CC82A76204284B34C0CB3E68183E9ACA",
+          "sourceEntityId": "DATASET~BB872225C7263B5D3D0E18D416C8290F"
+        }
+      ]
+    },
+    "schema": {
+      "schemaType": "PARQUET"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~BB872225C7263B5D3D0E18D416C8290F"
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "name": "https://foo.com/sftptest.csv/landing",
+      "platform": "AZURE_BLOB_STORAGE"
+    },
+    "schema": {
+      "schemaType": "SCHEMALESS"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~B6473D47A944B36CBBB5601FD300ED0F"
+      ]
+    },
+    "logicalId": {
+      "name": "https://foo.com/BAR/bronze",
+      "platform": "AZURE_BLOB_STORAGE"
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~61259EFD4C1577F4AC58F4F1796FD03E",
+          "sourceEntityId": "DATASET~B6473D47A944B36CBBB5601FD300ED0F"
+        }
+      ]
+    },
+    "schema": {
+      "schemaType": "SCHEMALESS"
+    },
+    "upstream": {
+      "sourceDatasets": [
+        "DATASET~B6473D47A944B36CBBB5601FD300ED0F"
+      ]
+    }
+  },
+  {
+    "azureDataFactoryPipeline": {
+      "activities": [
+        {
+          "dependsOn": [],
+          "name": "Datainnlast",
+          "type": "Copy"
+        }
+      ],
+      "factory": "testADF",
+      "pipelineName": "foo",
+      "pipelineUrl": "https://adf.azure.com/authoring/pipeline/foo?factory=%28%27%2Fsubscriptions%2F%3Csub_id%3E%2FresourceGroups%2F%3Cresource_group%3E%2Fproviders%2FMicrosoft.DataFactory%2Ffactories%2FtestADF%27%2C%29",
+      "sinks": [
+        "DATASET~D30E9FC33C5C93BFE6A235E393AC6197"
+      ],
+      "sources": [
+        "DATASET~FE5B57BF2D1F80FFB22E9CE67FBABE41"
+      ]
+    },
+    "logicalId": {
+      "name": "pipeline1",
+      "type": "AZURE_DATA_FACTORY_PIPELINE"
+    }
+  },
+  {
+    "azureDataFactoryPipeline": {
+      "activities": [
+        {
+          "dependsOn": [],
+          "name": "getFromSource",
+          "type": "WebActivity"
+        },
+        {
+          "dependsOn": [
+            {
+              "dependencyConditions": [
+                "Succeeded"
+              ],
+              "name": "getFromSource"
+            }
+          ],
+          "name": "Get Metadata1",
+          "type": "GetMetadata"
+        }
+      ],
+      "factory": "testADF",
+      "pipelineName": "test_http",
+      "pipelineUrl": "https://adf.azure.com/authoring/pipeline/test_http?factory=%28%27%2Fsubscriptions%2F%3Csub_id%3E%2FresourceGroups%2F%3Cresource_group%3E%2Fproviders%2FMicrosoft.DataFactory%2Ffactories%2FtestADF%27%2C%29",
+      "sinks": [],
+      "sources": []
+    },
+    "logicalId": {
+      "name": "pipeline2",
+      "type": "AZURE_DATA_FACTORY_PIPELINE"
+    }
+  },
+  {
+    "azureDataFactoryPipeline": {
+      "activities": [
+        {
+          "dependsOn": [],
+          "name": "Copy data1",
+          "type": "Copy"
+        }
+      ],
+      "factory": "testADF",
+      "pipelineName": "rest_test",
+      "pipelineUrl": "https://adf.azure.com/authoring/pipeline/rest_test?factory=%28%27%2Fsubscriptions%2F%3Csub_id%3E%2FresourceGroups%2F%3Cresource_group%3E%2Fproviders%2FMicrosoft.DataFactory%2Ffactories%2FtestADF%27%2C%29",
+      "sinks": [
+        "DATASET~D30E9FC33C5C93BFE6A235E393AC6197"
+      ],
+      "sources": [
+        "DATASET~BB872225C7263B5D3D0E18D416C8290F"
+      ]
+    },
+    "logicalId": {
+      "name": "pipeline3",
+      "type": "AZURE_DATA_FACTORY_PIPELINE"
+    }
+  },
+  {
+    "azureDataFactoryPipeline": {
+      "activities": [
+        {
+          "dependsOn": [],
+          "name": "SFTP",
+          "type": "Copy"
+        }
+      ],
+      "factory": "testADF",
+      "pipelineName": "SFTP-test",
+      "pipelineUrl": "https://adf.azure.com/authoring/pipeline/SFTP-test?factory=%28%27%2Fsubscriptions%2F%3Csub_id%3E%2FresourceGroups%2F%3Cresource_group%3E%2Fproviders%2FMicrosoft.DataFactory%2Ffactories%2FtestADF%27%2C%29",
+      "sinks": [
+        "DATASET~4C409EB07B3ED02D3FF52D30C0CC00C6"
+      ],
+      "sources": [
+        "DATASET~B6473D47A944B36CBBB5601FD300ED0F"
+      ]
+    },
+    "logicalId": {
+      "name": "pipeline4",
+      "type": "AZURE_DATA_FACTORY_PIPELINE"
+    }
+  }
+]

@@ -62,6 +62,9 @@
           "sourceEntityId": "DATASET~3D47E66557297571AD3225FF197AE151"
         }
       ]
+    },
+    "schema": {
+      "schemaType": "JSON"
     }
   },
   {
