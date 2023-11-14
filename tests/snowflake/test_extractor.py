@@ -713,27 +713,58 @@ def test_fetch_streams(mock_connect: MagicMock) -> None:
         [
             (
                 "dont care",
-                "STREAM",
+                "STREAM",  # stream_name,
                 "dont care",
                 "dont care",
                 "dont care",
-                "some comment",
-                "TABLE",
-                "Table",
+                "some comment",  # comment
+                "TABLE",  # source_name
+                "Table",  # source_type_str
                 "dont cate",
                 "dont care",
-                "true",
-                "Default",
-                "2023-01-01 12:00:00.000000+00:00",
-            )
+                "true",  # stale
+                "Default",  # stream_type_str
+                "2023-01-01 12:00:00.000000+00:00",  # stale_after
+            ),
+            (
+                "dont care",
+                "BAD_STREAM_1",  # stream_name,
+                "dont care",
+                "dont care",
+                "dont care",
+                "some comment",  # comment
+                "TABLE",  # source_name
+                "Blah",  # bad source_type_str
+                "dont cate",
+                "dont care",
+                "true",  # stale
+                "Default",  # stream_type_str
+                "2023-01-01 12:00:00.000000+00:00",  # stale_after
+            ),
+            (
+                "dont care",
+                "BAD_STREAM_2",  # stream_name,
+                "dont care",
+                "dont care",
+                "dont care",
+                "some comment",  # comment
+                "TABLE",  # source_name
+                "Table",  # source_type_str
+                "dont cate",
+                "dont care",
+                "true",  # stale
+                "bleh",  # bad stream_type_str
+                "2023-01-01 12:00:00.000000+00:00",  # stale_after
+            ),
         ]
     )
     mock_cursor.fetchone = MagicMock()
-    mock_cursor.fetchone.return_value = 3
+    mock_cursor.fetchone.return_value = (3,)
     extractor = SnowflakeExtractor(make_snowflake_config())
     extractor._fetch_streams(mock_cursor, "DB", "SCHEMA")
     normalized_name = dataset_normalized_name("DB", "SCHEMA", "STREAM")
     assert normalized_name in extractor._datasets
+    assert len(extractor._datasets) == 1
     assert (
         extractor._datasets[normalized_name].schema.sql_schema.materialization
         is MaterializationType.STREAM
