@@ -515,7 +515,7 @@ class SnowflakeExtractor(BaseExtractor):
                 comment,
                 source_name,
                 source_type_str,
-                stale,
+                stale_,
                 stream_type_str,
                 stale_after,
             ) = (
@@ -528,10 +528,15 @@ class SnowflakeExtractor(BaseExtractor):
                 entry[12],
             )
             row_count = None
-            cursor.execute(f'SELECT COUNT("ID") FROM {database}.{schema}.{stream_name}')
-            result = cursor.fetchone()
-            if isinstance(result, tuple):
-                row_count = result[0]
+            stale = str(stale_) == "false"
+            if not stale:
+                with self._conn.cursor() as row_count_cursor:
+                    row_count_cursor.execute(
+                        f'SELECT COUNT("ID") FROM {database}.{schema}.{stream_name}'
+                    )
+                    result = row_count_cursor.fetchone()
+                    if isinstance(result, tuple):
+                        row_count = result[0]
 
             normalized_name = dataset_normalized_name(database, schema, stream_name)
             dataset = self._init_dataset(
@@ -576,7 +581,7 @@ class SnowflakeExtractor(BaseExtractor):
                 source_type=source_type,
                 stream_type=stream_type,
                 stale_after=stale_after,
-                stale=(stale != "false"),
+                stale=stale,
             )
 
             self._datasets[normalized_name] = dataset

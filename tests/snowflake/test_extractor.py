@@ -758,9 +758,13 @@ def test_fetch_streams(mock_connect: MagicMock) -> None:
             ),
         ]
     )
-    mock_cursor.fetchone = MagicMock()
-    mock_cursor.fetchone.return_value = (3,)
+    mock_row_count_cursor = MagicMock()
+    mock_row_count_cursor.fetchone = MagicMock()
+    mock_row_count_cursor.fetchone.return_value = (3,)
     extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor._conn = MagicMock()
+    extractor._conn.cursor = MagicMock()
+    extractor._conn.cursor.return_value = mock_row_count_cursor
     extractor._fetch_streams(mock_cursor, "DB", "SCHEMA")
     normalized_name = dataset_normalized_name("DB", "SCHEMA", "STREAM")
     assert normalized_name in extractor._datasets
