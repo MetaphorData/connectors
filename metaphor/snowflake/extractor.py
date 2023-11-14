@@ -42,8 +42,6 @@ from metaphor.models.metadata_change_event import (
     SchemaField,
     SchemaType,
     SnowflakeStreamInfo,
-    SnowflakeStreamSourceType,
-    SnowflakeStreamType,
     SourceInfo,
     SQLSchema,
     SystemTag,
@@ -60,6 +58,8 @@ from metaphor.snowflake.utils import (
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
+    str_to_source_type,
+    str_to_stream_type,
     table_type_to_materialization_type,
     to_quoted_identifier,
 )
@@ -562,29 +562,21 @@ class SnowflakeExtractor(BaseExtractor):
                 source_entities=source_entities,
             )
 
-            if source_type_str.upper() == "TABLE":
-                source_type = SnowflakeStreamSourceType.TABLE
-            elif source_type_str.upper() == "VIEW":
-                source_type = SnowflakeStreamSourceType.VIEW
-            else:
-                logger.warning(f"Unknown source type: {source_type_str}")
+            source_type = str_to_source_type.get(source_type_str.upper())
+            if not source_type:
+                logger.warning(f"Unknown source type: {source_type_str.upper()}")
                 continue
 
-            if stream_type_str.upper() == "DEFAULT":
-                stream_type = SnowflakeStreamType.STANDARD
-            elif stream_type_str.upper() == "APPEND_ONLY":
-                stream_type = SnowflakeStreamType.APPEND_ONLY
-            elif stream_type_str.upper() == "INSERT_ONLY":
-                stream_type = SnowflakeStreamType.INSERT_ONLY
-            else:
-                logger.warning(f"Unknown stream type: {stream_type_str}")
+            stream_type = str_to_stream_type.get(stream_type_str.upper())
+            if not stream_type:
+                logger.warning(f"Unknown stream type: {stream_type_str.upper()}")
                 continue
 
             dataset.snowflake_stream_info = SnowflakeStreamInfo(
                 source_type=source_type,
                 stream_type=stream_type,
-                stale_after=datetime.strptime(stale_after, "%Y-%m-%d %H:%M:%S.%f%z"),
-                stale=(stale == "false"),
+                stale_after=stale_after,
+                stale=(stale != "false"),
             )
 
             self._datasets[normalized_name] = dataset
