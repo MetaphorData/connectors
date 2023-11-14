@@ -20,6 +20,7 @@ from metaphor.azure_data_factory.utils import (
     init_snowflake_dataset,
     process_azure_sql_linked_service,
     process_snowflake_linked_service,
+    safe_get_from_json,
 )
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -303,7 +304,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 if snowflake_linked_service:
                     result[linked_service_name] = snowflake_linked_service
             if isinstance(
-                linked_service_resource.properties,
+                linked_service,
                 DfModels.AzureSqlDatabaseLinkedService,
             ):
                 azure_sql_linked_service = process_azure_sql_linked_service(
@@ -313,7 +314,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     result[linked_service_name] = azure_sql_linked_service
 
             if isinstance(
-                linked_service_resource.properties,
+                linked_service,
                 DfModels.AzureBlobStorageLinkedService,
             ):
                 blob_storage = linked_service_resource.properties
@@ -325,7 +326,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 linked_service_resource.properties, DfModels.AzureBlobFSLinkedService
             ):
                 blob_fs = linked_service_resource.properties
-                url = blob_fs.url
+                url = safe_get_from_json(blob_fs.url)
 
                 result[linked_service_name] = LinkedService(url=url)
 
@@ -333,7 +334,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 linked_service_resource.properties, DfModels.HttpLinkedService
             ):
                 http_service = linked_service_resource.properties
-                url = http_service.url
+                url = safe_get_from_json(http_service.url)
 
                 result[linked_service_name] = LinkedService(url=url)
 
