@@ -44,7 +44,6 @@ async def test_extractor(
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
     mock_create_api: MagicMock,
-    # mock_create_connection: MagicMock,
     test_root_dir: str,
 ):
     def mock_list_catalogs():
