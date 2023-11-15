@@ -1,0 +1,269 @@
+[
+  {
+    "id": "pipeline1",
+    "name": "foo",
+    "type": "Microsoft.DataFactory/factories/pipelines",
+    "activities": [
+      {
+        "name": "Datainnlast",
+        "type": "Copy",
+        "dependsOn": [],
+        "userProperties": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "inputs": [
+          {
+            "type": "DatasetReference",
+            "referenceName": "http_dataset_json",
+            "parameters": {}
+          }
+        ],
+        "outputs": [
+          {
+            "type": "DatasetReference",
+            "referenceName": "http_sink_dataset",
+            "parameters": {}
+          }
+        ],
+        "source": {
+          "type": "JsonSource",
+          "storeSettings": {
+            "type": "HttpReadSettings",
+            "requestMethod": "POST",
+            "requestBody": {
+              "value": "...",
+              "type": "Expression"
+            },
+            "requestTimeout": ""
+          },
+          "formatSettings": {
+            "type": "JsonReadSettings"
+          }
+        },
+        "sink": {
+          "type": "JsonSink",
+          "storeSettings": {
+            "type": "AzureBlobFSWriteSettings"
+          },
+          "formatSettings": {
+            "type": "JsonWriteSettings"
+          }
+        },
+        "enableStaging": false
+      }
+    ],
+    "annotations": [],
+    "policy": {
+      "elapsedTimeMetric": {}
+    }
+  },
+  {
+    "id": "pipeline2",
+    "name": "test_http",
+    "type": "Microsoft.DataFactory/factories/pipelines",
+    "activities": [
+      {
+        "name": "getFromSource",
+        "type": "WebActivity",
+        "dependsOn": [],
+        "userProperties": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "method": "POST",
+        "url": "http://data.foo.com",
+        "headers": {},
+        "body": {
+          "value": "...",
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "Get Metadata1",
+        "type": "GetMetadata",
+        "dependsOn": [
+          {
+            "activity": "getFromSource",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "userProperties": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "dataset": {
+          "type": "DatasetReference",
+          "referenceName": "ds3",
+          "parameters": {}
+        },
+        "fieldList": [
+          "contentMD5"
+        ],
+        "storeSettings": {
+          "type": "AzureBlobFSReadSettings",
+          "enablePartitionDiscovery": false,
+          "modifiedDatetimeStart": {
+            "value": "utcNow()",
+            "type": "Expression"
+          },
+          "modifiedDatetimeEnd": {
+            "value": "utcNow()",
+            "type": "Expression"
+          }
+        },
+        "formatSettings": {
+          "type": "JsonReadSettings"
+        }
+      }
+    ],
+    "annotations": [],
+    "policy": {
+      "elapsedTimeMetric": {}
+    }
+  },
+  {
+    "id": "pipeline3",
+    "name": "rest_test",
+    "type": "Microsoft.DataFactory/factories/pipelines",
+    "activities": [
+      {
+        "name": "Copy data1",
+        "type": "Copy",
+        "dependsOn": [],
+        "userProperties": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "inputs": [
+          {
+            "type": "DatasetReference",
+            "referenceName": "rest",
+            "parameters": {}
+          }
+        ],
+        "outputs": [
+          {
+            "type": "DatasetReference",
+            "referenceName": "Parquet1",
+            "parameters": {}
+          }
+        ],
+        "source": {
+          "type": "RestSource",
+          "requestMethod": "POST",
+          "requestBody": "...",
+          "paginationRules": {
+            "supportRFC5988": "true"
+          },
+          "httpRequestTimeout": "00:01:40",
+          "requestInterval": "00.00:00:00.010"
+        },
+        "sink": {
+          "type": "ParquetSink",
+          "storeSettings": {
+            "type": "AzureBlobFSWriteSettings"
+          },
+          "formatSettings": {
+            "type": "ParquetWriteSettings"
+          }
+        },
+        "enableStaging": false
+      }
+    ],
+    "annotations": [],
+    "policy": {
+      "elapsed_time_metric": {}
+    }
+  },
+  {
+    "id": "pipeline4",
+    "name": "SFTP-test",
+    "type": "Microsoft.DataFactory/factories/pipelines",
+    "description": "...",
+    "activities": [
+      {
+        "name": "SFTP",
+        "type": "Copy",
+        "description": "...",
+        "dependsOn": [],
+        "userProperties": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "inputs": [
+          {
+            "type": "DatasetReference",
+            "referenceName": "sftp_source",
+            "parameters": {}
+          }
+        ],
+        "outputs": [
+          {
+            "type": "DatasetReference",
+            "referenceName": "sftp_sink",
+            "parameters": {}
+          }
+        ],
+        "source": {
+          "type": "DelimitedTextSource",
+          "storeSettings": {
+            "type": "AzureBlobFSReadSettings",
+            "recursive": true,
+            "enablePartitionDiscovery": false
+          },
+          "formatSettings": {
+            "type": "DelimitedTextReadSettings"
+          }
+        },
+        "sink": {
+          "type": "DelimitedTextSink",
+          "storeSettings": {
+            "type": "AzureBlobFSWriteSettings",
+            "copyBehavior": "PreserveHierarchy"
+          },
+          "formatSettings": {
+            "type": "DelimitedTextWriteSettings",
+            "quoteAllText": true,
+            "fileExtension": ".csv"
+          }
+        },
+        "translator": {
+          "type": "TabularTranslator",
+          "typeConversion": true,
+          "typeConversionSettings": {
+            "allowDataTruncation": true,
+            "treatBooleanAsNumber": false
+          }
+        },
+        "enableStaging": false
+      }
+    ],
+    "annotations": [],
+    "policy": {
+      "elapsedTimeMetric": {}
+    }
+  }
+]
