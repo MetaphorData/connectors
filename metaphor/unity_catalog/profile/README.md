@@ -32,7 +32,7 @@ See [Filter Configurations](../common/docs/filter.md) for more information on th
 
 #### Warehouse ID
 
-To run the queries using a specific warehouse, simply add its ID in the configuration file:
+To run the queries using a specific warehouse, simply add its IDt  in the configuration file:
 
 ```yaml
 warehouse_id: <warehouse_id>
