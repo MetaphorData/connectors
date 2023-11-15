@@ -1,0 +1,12 @@
+[
+  {
+    "logicalId": {
+      "name": "catalog.schema.table",
+      "platform": "UNITY_CATALOG"
+    },
+    "statistics": {
+      "dataSizeBytes": 5566.0,
+      "recordCount": 9487.0
+    }
+  }
+]
