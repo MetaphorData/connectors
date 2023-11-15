@@ -3,6 +3,7 @@ import re
 from typing import Collection, List, Optional
 
 from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
+from metaphor.unity_catalog.profile.utils import escape_special_characters
 
 try:
     from databricks import sql
@@ -93,11 +94,10 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         dataset_statistics = DatasetStatistics()
         if table_info.table_type is not TableType.VIEW:
             with self._connection.cursor() as cursor:
+                escaped_name = escape_special_characters(table_info.full_name)
                 # This can take a while
-                cursor.execute(
-                    f"ANALYZE TABLE {table_info.full_name} COMPUTE STATISTICS"
-                )
-                cursor.execute(f"DESCRIBE TABLE EXTENDED {table_info.full_name}")
+                cursor.execute(f"ANALYZE TABLE {escaped_name} COMPUTE STATISTICS")
+                cursor.execute(f"DESCRIBE TABLE EXTENDED {escaped_name}")
                 rows = cursor.fetchall()
                 statistics = next(
                     (row for row in rows if row.col_name == "Statistics"), None
