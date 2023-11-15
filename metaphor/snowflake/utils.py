@@ -23,9 +23,18 @@ DEFAULT_SLEEP_TIME = 0.1  # 0.1 s
 
 
 class SnowflakeTableType(Enum):
+    """
+    All except for `STREAM` are table types returned by the information schema.
+
+    `STREAM` is there because information schema doesn't know about this type.
+    """
+
     BASE_TABLE = "BASE TABLE"
     VIEW = "VIEW"
     TEMPORARY_TABLE = "TEMPORARY TABLE"
+    EXTERNAL_TABLE = "EXTERNAL TABLE"
+    EVENT_TABLE = "EVENT TABLE"
+    MATERIALIZED_VIEW = "MATERIALIZED_VIEW"
     STREAM = "STREAM"
 
 
@@ -34,6 +43,9 @@ table_type_to_materialization_type: Dict[SnowflakeTableType, MaterializationType
     SnowflakeTableType.STREAM: MaterializationType.STREAM,
     SnowflakeTableType.BASE_TABLE: MaterializationType.TABLE,
     SnowflakeTableType.TEMPORARY_TABLE: MaterializationType.TABLE,
+    SnowflakeTableType.EVENT_TABLE: MaterializationType.TABLE,
+    SnowflakeTableType.EXTERNAL_TABLE: MaterializationType.TABLE,
+    SnowflakeTableType.MATERIALIZED_VIEW: MaterializationType.MATERIALIZED_VIEW,
 }
 
 str_to_source_type: Dict[str, SnowflakeStreamSourceType] = {
