@@ -1,0 +1,150 @@
+[
+  {
+    "id": "dataset1",
+    "name": "http_dataset_json",
+    "type": "Microsoft.DataFactory/factories/datasets",
+    "properties": {
+      "type": "Json",
+      "schema": {},
+      "linkedServiceName": {
+        "type": "LinkedServiceReference",
+        "referenceName": "ls_http"
+      },
+      "annotations": [],
+      "location": {
+        "type": "HttpServerLocation"
+      }
+    }
+  },
+  {
+    "id": "dataset2",
+    "name": "http_sink_dataset",
+    "type": "Microsoft.DataFactory/factories/datasets",
+    "properties": {
+      "type": "Json",
+      "schema": {},
+      "linkedServiceName": {
+        "type": "LinkedServiceReference",
+        "referenceName": "ls_2"
+      },
+      "annotations": [],
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "folderPath": "FOO/datasets",
+        "fileName": {
+          "value": "@concat('bar', utcNow(),'.json')",
+          "type": "Expression"
+        },
+        "fileSystem": "landing"
+      }
+    }
+  },
+  {
+    "id": "dataset3",
+    "name": "ds3",
+    "type": "Microsoft.DataFactory/factories/datasets",
+    "properties": {
+      "type": "Json",
+      "schema": {},
+      "linkedServiceName": {
+        "type": "LinkedServiceReference",
+        "referenceName": "http_dataset_json"
+      },
+      "annotations": [],
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "folderPath": "FOO/datasets",
+        "fileName": {
+          "value": "@concat('test', utcNow())",
+          "type": "Expression"
+        },
+        "fileSystem": "landing"
+      }
+    }
+  },
+  {
+    "id": "dataset4",
+    "name": "rest",
+    "type": "Microsoft.DataFactory/factories/datasets",
+    "properties": {
+      "type": "RestResource",
+      "schema": [],
+      "linkedServiceName": {
+        "type": "LinkedServiceReference",
+        "referenceName": "ls_3"
+      },
+      "annotations": []
+    }
+  },
+  {
+    "id": "dataset5",
+    "name": "Parquet1",
+    "type": "Microsoft.DataFactory/factories/datasets",
+    "properties": {
+      "type": "Parquet",
+      "schema": [],
+      "linkedServiceName": {
+        "type": "LinkedServiceReference",
+        "referenceName": "ls_4"
+      },
+      "annotations": [],
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "folderPath": "FOO/datasets",
+        "fileSystem": "landing"
+      },
+      "compressionCodec": "snappy"
+    }
+  },
+  {
+    "id": "dataset6",
+    "name": "sftp_source",
+    "type": "Microsoft.DataFactory/factories/datasets",
+    "properties": {
+      "type": "DelimitedText",
+      "schema": [
+        {
+          "name": "col1;col2;col3",
+          "type": "String"
+        }
+      ],
+      "linkedServiceName": {
+        "type": "LinkedServiceReference",
+        "referenceName": "ls_5"
+      },
+      "annotations": [],
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "fileName": "sftptest.csv",
+        "fileSystem": "landing"
+      },
+      "columnDelimiter": ";",
+      "quoteChar": "\"",
+      "escapeChar": "\\",
+      "firstRowAsHeader": true
+    }
+  },
+  {
+    "id": "dataset7",
+    "name": "sftp_sink",
+    "type": "Microsoft.DataFactory/factories/datasets",
+    "properties": {
+      "type": "DelimitedText",
+      "schema": [],
+      "linkedServiceName": {
+        "type": "LinkedServiceReference",
+        "referenceName": "ls_6"
+      },
+      "annotations": [],
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "folderPath": "BAR",
+        "fileSystem": "bronze"
+      },
+      "columnDelimiter": ",",
+      "quoteChar": "\"",
+      "escapeChar": "\\",
+      "firstRowAsHeader": true
+    }
+  }
+]

@@ -25,6 +25,7 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     DatasetStructure,
     DatasetUpstream,
+    EntityUpstream,
     FieldMapping,
     KeyValuePair,
     MaterializationType,
@@ -139,10 +140,10 @@ class UnityCatalogExtractor(BaseExtractor):
         for table in tables:
             yield table
 
-    def _init_dataset(self, table: TableInfo) -> Dataset:
-        table_name = table.name
-        schema_name = table.schema_name
-        database = table.catalog_name
+    def _init_dataset(self, table_info: TableInfo) -> Dataset:
+        table_name = table_info.name
+        schema_name = table_info.schema_name
+        database = table_info.catalog_name
 
         normalized_name = dataset_normalized_name(database, schema_name, table_name)
 
@@ -156,25 +157,27 @@ class UnityCatalogExtractor(BaseExtractor):
             database=database, schema=schema_name, table=table_name
         )
 
-        if table.table_type is None:
-            raise ValueError(f"Invalid table {table.name}, no table_type found")
+        if table_info.table_type is None:
+            raise ValueError(f"Invalid table {table_info.name}, no table_type found")
 
         fields = []
-        if table.columns is not None:
+        if table_info.columns is not None:
             fields = [
                 extract_schema_field_from_column_info(column_info)
-                for column_info in table.columns
+                for column_info in table_info.columns
             ]
 
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
-            description=table.comment,
+            description=table_info.comment,
             fields=fields,
             sql_schema=SQLSchema(
                 materialization=TABLE_TYPE_MATERIALIZATION_TYPE_MAP.get(
-                    table.table_type, MaterializationType.TABLE
+                    table_info.table_type, MaterializationType.TABLE
                 ),
-                table_schema=table.view_definition if table.view_definition else None,
+                table_schema=table_info.view_definition
+                if table_info.view_definition
+                else None,
             ),
         )
 
@@ -184,17 +187,17 @@ class UnityCatalogExtractor(BaseExtractor):
         dataset.source_info = SourceInfo(main_url=f"{self._host}{path}")
 
         dataset.unity_catalog = UnityCatalog(
-            table_type=UnityCatalogTableType[table.table_type.value],
-            data_source_format=table.data_source_format.value
-            if table.data_source_format is not None
+            table_type=UnityCatalogTableType[table_info.table_type.value],
+            data_source_format=table_info.data_source_format.value
+            if table_info.data_source_format is not None
             else None,
-            storage_location=table.storage_location,
-            owner=table.owner,
+            storage_location=table_info.storage_location,
+            owner=table_info.owner,
             properties=[
                 KeyValuePair(key=k, value=json.dumps(v))
-                for k, v in table.properties.items()
+                for k, v in table_info.properties.items()
             ]
-            if table.properties is not None
+            if table_info.properties is not None
             else [],
         )
 
@@ -275,8 +278,12 @@ class UnityCatalogExtractor(BaseExtractor):
                 f"Unable to extract lineage for {table_name} due to permission issues"
             )
 
+        unique_datasets = unique_list(source_datasets)
+        dataset.entity_upstream = EntityUpstream(
+            source_entities=unique_datasets, field_mappings=field_mappings
+        )
         dataset.upstream = DatasetUpstream(
-            source_datasets=unique_list(source_datasets), field_mappings=field_mappings
+            source_datasets=unique_datasets, field_mappings=field_mappings
         )
 
     def _get_query_logs(self) -> QueryLogs:

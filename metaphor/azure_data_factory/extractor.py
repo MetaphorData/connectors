@@ -3,31 +3,39 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from itertools import chain
 from typing import IO, Any, Collection, Dict, List, Optional, Tuple
-from urllib.parse import ParseResult, parse_qs, urlencode, urljoin, urlparse
+from urllib.parse import urlencode
 
 import azure.mgmt.datafactory.models as DfModels
 from azure.identity import ClientSecretCredential
 from azure.mgmt.datafactory import DataFactoryManagementClient
 
 from metaphor.azure_data_factory.config import AzureDataFactoryRunConfig
+from metaphor.azure_data_factory.utils import (
+    LinkedService,
+    init_azure_sql_table_dataset,
+    init_delimited_text_dataset,
+    init_json_dataset,
+    init_parquet_dataset,
+    init_rest_dataset,
+    init_snowflake_dataset,
+    process_azure_sql_linked_service,
+    process_snowflake_linked_service,
+    safe_get_from_json,
+)
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
-    dataset_normalized_name,
     to_dataset_entity_id_from_logical_id,
     to_pipeline_entity_id_from_logical_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.common.utils import removesuffix, unique_list
+from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     ActivityDependency,
     AzureDataFactoryActivity,
     AzureDataFactoryPipeline,
-    DataPlatform,
     Dataset,
-    DatasetLogicalID,
-    DatasetUpstream,
     DependencyCondition,
     Pipeline,
     PipelineInfo,
@@ -44,13 +52,6 @@ class Factory:
     name: str
     id: str
     resource_group_name: str
-
-
-@dataclass
-class LinkedService:
-    database: Optional[str] = None
-    account: Optional[str] = None
-    project: Optional[str] = None
 
 
 class AzureDataFactoryExtractor(BaseExtractor):
@@ -78,8 +79,16 @@ class AzureDataFactoryExtractor(BaseExtractor):
         for factory in self._get_factories(df_client):
             self.extract_for_factory(factory, df_client)
 
-        # Remove duplicate source_dataset, and set None for empty upstream data
+        # Remove duplicate source_entity and source_dataset, and set None for empty upstream data
         for dataset in self._datasets.values():
+            unique_source_entities = unique_list(
+                dataset.entity_upstream.source_entities
+            )
+            if len(unique_source_entities) == 0:
+                dataset.entity_upstream = None
+            else:
+                dataset.entity_upstream.source_entities = unique_source_entities
+
             unique_source_dataset = unique_list(dataset.upstream.source_datasets)
             if len(unique_source_dataset) == 0:
                 dataset.upstream = None
@@ -188,6 +197,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 source_entity_id = str(
                     to_dataset_entity_id_from_logical_id(source.logical_id)
                 )
+                sink.entity_upstream.source_entities.append(source_entity_id)
                 sink.upstream.source_datasets.append(source_entity_id)
 
     def _get_data_flows(
@@ -212,14 +222,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
 
         return factory_data_flows
 
-    @staticmethod
-    def _safe_get_from_json(prop: Any) -> Optional[str]:
-        if isinstance(prop, str):
-            return prop
-        else:
-            logger.warning(f"Unable to get value from {prop}")
-            return None
-
     def _get_datasets(
         self, factory: Factory, client: DataFactoryManagementClient
     ) -> Dict[str, DfModels.Dataset]:
@@ -235,88 +237,41 @@ class AzureDataFactoryExtractor(BaseExtractor):
         # Capture all dataset for debug purpose
         factory_datasets_list: List[Any] = []
 
-        for dataset in datasets:
-            # Dump dataset for debug-purpose
-            factory_datasets_list.append(dataset.as_dict())
+        for dataset_resource in datasets:
+            dataset = dataset_resource.properties
 
-            linked_service_name = dataset.properties.linked_service_name.reference_name
+            # Dump dataset for debug-purpose
+            factory_datasets_list.append(dataset_resource.as_dict())
+
+            linked_service_name = dataset.linked_service_name.reference_name
             linked_service = linked_services.get(linked_service_name)
             if linked_service is None:
                 logger.warning(
-                    f"Can not found the linked service for dataset: {dataset.name}, linked_service_name: {linked_service_name}"
+                    f"Can not found the linked service for dataset: {dataset_resource.name}, linked_service_name: {linked_service_name}"
                 )
                 continue
 
-            dataset_name: str = dataset.name  # type: ignore
-            dataset_id: str = dataset.id  # type: ignore
+            dataset_name: str = dataset_resource.name  # type: ignore
+            dataset_id: str = dataset_resource.id  # type: ignore
             metaphor_dataset: Optional[Dataset] = None
 
-            if isinstance(dataset.properties, DfModels.SnowflakeDataset):
-                snowflake_dataset: DfModels.SnowflakeDataset = dataset.properties
+            if isinstance(dataset, DfModels.SnowflakeDataset):
+                metaphor_dataset = init_snowflake_dataset(dataset, linked_service)
 
-                schema = self._safe_get_from_json(
-                    snowflake_dataset.schema_type_properties_schema
-                )
-                table = self._safe_get_from_json(snowflake_dataset.table)
-                database = linked_service.database
+            if isinstance(dataset, DfModels.AzureSqlTableDataset):
+                metaphor_dataset = init_azure_sql_table_dataset(dataset, linked_service)
 
-                metaphor_dataset = Dataset(
-                    logical_id=DatasetLogicalID(
-                        account=linked_service.account,
-                        name=dataset_normalized_name(database, schema, table),
-                        platform=DataPlatform.SNOWFLAKE,
-                    ),
-                    upstream=DatasetUpstream(source_datasets=[]),
-                )
+            if isinstance(dataset, DfModels.JsonDataset):
+                metaphor_dataset = init_json_dataset(dataset, linked_service)
 
-            if isinstance(dataset.properties, DfModels.AzureSqlTableDataset):
-                sql_table_dataset = dataset.properties
+            if isinstance(dataset, DfModels.RestResourceDataset):
+                metaphor_dataset = init_rest_dataset(dataset, linked_service)
 
-                schema = self._safe_get_from_json(
-                    sql_table_dataset.schema_type_properties_schema
-                )
-                table = self._safe_get_from_json(sql_table_dataset.table)
+            if isinstance(dataset, DfModels.ParquetDataset):
+                metaphor_dataset = init_parquet_dataset(dataset, linked_service)
 
-                metaphor_dataset = Dataset(
-                    logical_id=DatasetLogicalID(
-                        account=linked_service.account,
-                        name=dataset_normalized_name(
-                            linked_service.database, schema, table
-                        ),
-                        platform=DataPlatform.MSSQL,
-                    ),
-                    upstream=DatasetUpstream(source_datasets=[]),
-                )
-
-            if isinstance(dataset.properties, DfModels.JsonDataset):
-                json_dataset = dataset.properties
-
-                if (
-                    isinstance(json_dataset.location, DfModels.AzureBlobStorageLocation)
-                    and linked_service.account
-                ):
-                    storage_account = linked_service.account
-                    abs_location = json_dataset.location
-
-                    parts: List[str] = [
-                        part  # type: ignore
-                        for part in [
-                            abs_location.container,
-                            abs_location.folder_path,
-                            abs_location.file_name,
-                        ]
-                        if part is not None and isinstance(part, str)
-                    ]
-
-                    full_path = urljoin(storage_account, "/".join(parts))
-
-                    metaphor_dataset = Dataset(
-                        logical_id=DatasetLogicalID(
-                            name=full_path,
-                            platform=DataPlatform.AZURE_BLOB_STORAGE,
-                        ),
-                        upstream=DatasetUpstream(source_datasets=[]),
-                    )
+            if isinstance(dataset, DfModels.DelimitedTextDataset):
+                metaphor_dataset = init_delimited_text_dataset(dataset, linked_service)
 
             if metaphor_dataset:
                 factory_datasets[dataset_name] = metaphor_dataset
@@ -338,80 +293,48 @@ class AzureDataFactoryExtractor(BaseExtractor):
 
         result: Dict[str, LinkedService] = {}
         factory_linked_services = []
-        for linked_service in linked_services:
-            linked_service_name: str = linked_service.name  # type: ignore
+        for linked_service_resource in linked_services:
+            linked_service_name: str = linked_service_resource.name  # type: ignore
+            linked_service = linked_service_resource.properties
 
-            if isinstance(linked_service.properties, DfModels.SnowflakeLinkedService):
-                snowflake_connection: DfModels.SnowflakeLinkedService = (
-                    linked_service.properties
+            if isinstance(linked_service, DfModels.SnowflakeLinkedService):
+                snowflake_linked_service = process_snowflake_linked_service(
+                    linked_service, linked_service_name
                 )
-                connection_string = self._safe_get_from_json(
-                    snowflake_connection.connection_string
-                )
-
-                if connection_string is None:
-                    logger.warning(
-                        f"unknown connection string for {linked_service.name}, connection string: {connection_string}"
-                    )
-                    continue
-
-                url: ParseResult = urlparse(connection_string)
-                query_db = parse_qs(url.query or "").get("db")
-                database = query_db[0] if query_db else None
-
-                # extract snowflake account name from jdbc format, 'snowflake://<account>.snowflakecomputing.com/'
-                hostname = urlparse(url.path).hostname
-                snowflake_account = (
-                    removesuffix(hostname, ".snowflakecomputing.com")
-                    if hostname
-                    else None
-                )
-
-                result[linked_service_name] = LinkedService(
-                    database=database, account=snowflake_account
-                )
+                if snowflake_linked_service:
+                    result[linked_service_name] = snowflake_linked_service
             if isinstance(
-                linked_service.properties, DfModels.AzureSqlDatabaseLinkedService
+                linked_service,
+                DfModels.AzureSqlDatabaseLinkedService,
             ):
-                sql_database = linked_service.properties
-
-                # format: <key>=<value>;<key>=<value>
-                connection_string = self._safe_get_from_json(
-                    sql_database.connection_string
+                azure_sql_linked_service = process_azure_sql_linked_service(
+                    linked_service, linked_service_name
                 )
-
-                if connection_string is None:
-                    logger.warning(
-                        f"unknown connection string for {linked_service.name}, connection string: {connection_string}"
-                    )
-                    continue
-
-                server_host, database = None, None
-                for kv_pair in connection_string.split(";"):
-                    [key, value] = kv_pair.split("=") if "=" else ["", ""]
-                    if key == "Data Source":
-                        server_host = (
-                            removesuffix(str(value), ".database.windows.net")
-                            if value
-                            else None
-                        )
-                    if key == "Initial Catalog":
-                        database = value
-
-                result[linked_service_name] = LinkedService(
-                    database=database, account=server_host
-                )
+                if azure_sql_linked_service:
+                    result[linked_service_name] = azure_sql_linked_service
 
             if isinstance(
-                linked_service.properties, DfModels.AzureBlobStorageLinkedService
+                linked_service,
+                DfModels.AzureBlobStorageLinkedService,
             ):
-                blob_storage = linked_service.properties
-                service_endpoint = blob_storage.service_endpoint
-
+                service_endpoint = linked_service.service_endpoint
                 result[linked_service_name] = LinkedService(account=service_endpoint)
 
+            if isinstance(linked_service, DfModels.AzureBlobFSLinkedService):
+                url = safe_get_from_json(linked_service.url)
+                result[linked_service_name] = LinkedService(url=url)
+
+            if isinstance(linked_service, DfModels.HttpLinkedService):
+                url = safe_get_from_json(linked_service.url)
+
+                result[linked_service_name] = LinkedService(url=url)
+
+            if isinstance(linked_service, DfModels.RestServiceLinkedService):
+                url = safe_get_from_json(linked_service.url)
+                result[linked_service_name] = LinkedService(url=url)
+
             # Dump linked service for debug-purpose
-            factory_linked_services.append(linked_service.as_dict())
+            factory_linked_services.append(linked_service_resource.as_dict())
 
         json_dump_to_debug_file(
             factory_linked_services, f"{factory.name}_linked_services.json"
@@ -536,6 +459,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
 
                         # Copy activity table lineage
                         for source_id in copy_from:
+                            dataset.entity_upstream.source_entities.append(source_id)
                             dataset.upstream.source_datasets.append(source_id)
 
                         # Pipeline info for each copy activity output entity
@@ -602,6 +526,8 @@ class AzureDataFactoryExtractor(BaseExtractor):
             "data_flow"
         ] = {"key": "typeProperties.dataflow", "type": "DataFlowReference"}
 
+        factory_pipelines = []
+
         for pipeline in df_client.pipelines.list_by_factory(
             resource_group_name=factory.resource_group_name, factory_name=factory.name
         ):
@@ -662,3 +588,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 ),
             )
             self._pipelines[pipeline_id] = metaphor_pipeline
+            factory_pipelines.append(pipeline.as_dict())
+
+        json_dump_to_debug_file(factory_pipelines, f"{factory.name}_pipelines.json")

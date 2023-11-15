@@ -11,9 +11,15 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.logger import get_logger
 from metaphor.dbt.config import MetaOwnership, MetaTag
+from metaphor.dbt.generated.dbt_run_results_v4 import DbtRunResults, RunResultOutput
 from metaphor.models.metadata_change_event import (
+    DataMonitor,
+    DataMonitorStatus,
+    DataMonitorTarget,
     DataPlatform,
+    DataQualityProvider,
     Dataset,
+    DatasetDataQuality,
     DatasetDocumentation,
     DatasetLogicalID,
     DatasetSchema,
@@ -226,3 +232,38 @@ def build_source_code_url(
     project_source_url: Optional[str], file_path: str
 ) -> Optional[str]:
     return f"{project_source_url}/{file_path}" if project_source_url else None
+
+
+def find_run_result_ouptput_by_id(
+    run_results: DbtRunResults, unique_id: str
+) -> Optional[RunResultOutput]:
+    return next(
+        (
+            run_result
+            for run_result in run_results.results
+            if run_result.unique_id == unique_id
+        ),
+        None,
+    )
+
+
+def add_data_quality_monitor(
+    dataset: Dataset,
+    name: str,
+    column_name: Optional[str],
+    status: DataMonitorStatus,
+) -> None:
+    if dataset.data_quality is None:
+        dataset.data_quality = DatasetDataQuality(
+            monitors=[], provider=DataQualityProvider.DBT
+        )
+    dataset.data_quality.monitors.append(
+        # For `DataMonitorTarget`:
+        # column: Name of the target column. Not set if the monitor performs dataset-level tests, e.g. row count.
+        # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the data quality metadata is attached to.
+        DataMonitor(
+            title=name,
+            targets=[DataMonitorTarget(column=column_name)],
+            status=status,
+        )
+    )

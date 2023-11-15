@@ -9,6 +9,7 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetUpstream,
     EntityType,
+    EntityUpstream,
     MetadataChangeEvent,
 )
 
@@ -41,12 +42,12 @@ class CustomLineageExtractor(BaseExtractor):
                     logical_id=id.to_logical_id()
                 )
 
+            unique_datasets = unique_list(source_datasets)
             datasets.append(
                 Dataset(
                     logical_id=lineage.dataset.to_logical_id(),
-                    upstream=DatasetUpstream(
-                        source_datasets=unique_list(source_datasets)
-                    ),
+                    entity_upstream=EntityUpstream(source_entities=unique_datasets),
+                    upstream=DatasetUpstream(source_datasets=unique_datasets),
                 )
             )
 

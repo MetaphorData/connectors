@@ -1,0 +1,62 @@
+[
+  {
+    "id": "link1",
+    "name": "ls_http",
+    "type": "Microsoft.DataFactory/factories/linkedservices",
+    "properties": {
+      "type": "HttpServer",
+      "annotations": [],
+      "url": "https://foo.bar/datasets"
+    }
+  },
+  {
+    "id": "link2",
+    "name": "ls_2",
+    "type": "Microsoft.DataFactory/factories/linkedservices",
+    "properties": {
+      "type": "AzureBlobFS",
+      "annotations": [],
+      "url": "https://foo.com/"
+    }
+  },
+  {
+    "id": "link3",
+    "name": "ls_3",
+    "type": "Microsoft.DataFactory/factories/linkedservices",
+    "properties": {
+      "type": "RestService",
+      "annotations": [],
+      "url": "http://data.foo.com"
+    }
+  },
+  {
+    "id": "link4",
+    "name": "ls_4",
+    "type": "Microsoft.DataFactory/factories/linkedservices",
+    "properties": {
+      "type": "AzureBlobFS",
+      "annotations": [],
+      "url": "https://foo.com/"
+    }
+  },
+  {
+    "id": "link5",
+    "name": "ls_5",
+    "type": "Microsoft.DataFactory/factories/linkedservices",
+    "properties": {
+      "type": "AzureBlobFS",
+      "annotations": [],
+      "url": "https://foo.com/"
+    }
+  },
+  {
+    "id": "link6",
+    "name": "ls_6",
+    "type": "Microsoft.DataFactory/factories/linkedservices",
+    "properties": {
+      "type": "AzureBlobFS",
+      "annotations": [],
+      "url": "https://foo.com/"
+    }
+  }
+]

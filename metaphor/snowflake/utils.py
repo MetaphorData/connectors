@@ -9,6 +9,12 @@ from typing import Callable, Dict, List, Optional, Set, Tuple
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
 
+from metaphor.models.metadata_change_event import (
+    MaterializationType,
+    SnowflakeStreamSourceType,
+    SnowflakeStreamType,
+)
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -17,9 +23,41 @@ DEFAULT_SLEEP_TIME = 0.1  # 0.1 s
 
 
 class SnowflakeTableType(Enum):
+    """
+    All except for `STREAM` are table types returned by the information schema.
+
+    `STREAM` is there because information schema doesn't know about this type.
+    """
+
     BASE_TABLE = "BASE TABLE"
     VIEW = "VIEW"
     TEMPORARY_TABLE = "TEMPORARY TABLE"
+    EXTERNAL_TABLE = "EXTERNAL TABLE"
+    EVENT_TABLE = "EVENT TABLE"
+    MATERIALIZED_VIEW = "MATERIALIZED_VIEW"
+    STREAM = "STREAM"
+
+
+table_type_to_materialization_type: Dict[SnowflakeTableType, MaterializationType] = {
+    SnowflakeTableType.VIEW: MaterializationType.VIEW,
+    SnowflakeTableType.STREAM: MaterializationType.STREAM,
+    SnowflakeTableType.BASE_TABLE: MaterializationType.TABLE,
+    SnowflakeTableType.TEMPORARY_TABLE: MaterializationType.TABLE,
+    SnowflakeTableType.EVENT_TABLE: MaterializationType.TABLE,
+    SnowflakeTableType.EXTERNAL_TABLE: MaterializationType.TABLE,
+    SnowflakeTableType.MATERIALIZED_VIEW: MaterializationType.MATERIALIZED_VIEW,
+}
+
+str_to_source_type: Dict[str, SnowflakeStreamSourceType] = {
+    "TABLE": SnowflakeStreamSourceType.TABLE,
+    "VIEW": SnowflakeStreamSourceType.VIEW,
+}
+
+str_to_stream_type: Dict[str, SnowflakeStreamType] = {
+    "DEFAULT": SnowflakeStreamType.STANDARD,
+    "APPEND_ONLY": SnowflakeStreamType.APPEND_ONLY,
+    "INSERT_ONLY": SnowflakeStreamType.INSERT_ONLY,
+}
 
 
 @dataclass
