@@ -34,8 +34,8 @@ def embed_documents(
     docs: Collection[Document],
     openAI_tok: str,
     logger,
-    chunk_size: int,
-    chunk_overlap: int,
+    chunk_size: int = 512,
+    chunk_overlap: int = 50,
 ) -> VectorStoreIndex:
     """
     Generates embeddings for Documents and upserts them to a provided
@@ -56,9 +56,9 @@ def embed_documents(
         embed_model=embed_model, node_parser=node_parser
     )
 
-    storage_context = StorageContext.from_defaults(
-        vector_store=SimpleVectorStore()
-    )
+    vector_store = SimpleVectorStore()
+
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
     VSI = VectorStoreIndex.from_documents(
         docs,
@@ -71,13 +71,24 @@ def embed_documents(
 
     return VSI
 
-def map_metadata(
-    embedding_dict: dict,
-    metadata_dict: dict) -> dict:
+
+def map_metadata(embedding_dict: dict, metadata_dict: dict) -> Collection[dict]:
+    """
+    Takes the embedding_dict from VSI.storage_context.to_dict() and
+    maps the correct metadata to each entry in the dictionary, then
+    flattens each entry into its own dictionary.
+
+    Returns a list of nodes.
+    """
+    out = []
 
     for nodeid in embedding_dict:
         embedding_dict[nodeid] = {
-            'embedding': embedding_dict[nodeid],
-            'metadata': metadata_dict[nodeid]}
+            "nodeId": nodeid,
+            "embedding": embedding_dict[nodeid],
+            "metadata": metadata_dict[nodeid],
+        }
 
-    return embedding_dict
+        out.append(embedding_dict[nodeid])
+
+    return out

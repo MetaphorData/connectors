@@ -8,8 +8,7 @@ from llama_index import Document, download_loader
 from requests.exceptions import HTTPError
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.embeddings import embed_documents
-from metaphor.common.embeddings import map_metadata
+from metaphor.common.embeddings import embed_documents, map_metadata
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.notion.config import NotionRunConfig
@@ -33,20 +32,16 @@ class NotionExtractor(BaseExtractor):
         self.notion_api_tok = config.notion_api_tok
         self.openai_api_tok = config.openai_api_tok
 
-        self.mongo_uri = config.mongo_uri
-        self.mongo_db_name = config.mongo_db_name
-        self.mongo_collection_name = config.mongo_collection_name
-
         self.notion_api_version = config.notion_api_version
 
-        self.embedding_chunk_size = config.embedding_chunk_size
-        self.embedding_overlap_size = config.embedding_overlap_size
+        self.embedding_chunk_size = 512
+        self.embedding_overlap_size = 50
 
         # Set up LlamaIndex Notion integration
         npr = download_loader("NotionPageReader")
         self.NotionReader = npr(integration_token=self.notion_api_tok)
 
-    async def extract(self) -> dict[dict]:
+    async def extract(self) -> Collection[dict]:
         logger.info("Fetching documents from Notion")
 
         # this method should do all the things
@@ -71,12 +66,8 @@ class NotionExtractor(BaseExtractor):
             vector_store["embedding_dict"], vector_store["metadata_dict"]
         )
 
-        # currently returns a dictionary with (node_id: value)
-        #   value dict contains embedding: vector and metadata: dict
-        # note that the node_id is not deterministic, but metadata contains
-        #   consistent information like platform: notion, etc
-
-        # should this be a new dataclass?
+        # currently returns a list of document dicts
+        # each document dict has nodeId, embedding, metadata
         return embedded_nodes
 
     def _get_databases(self) -> Collection[str]:
@@ -121,7 +112,7 @@ class NotionExtractor(BaseExtractor):
         The Document metadata will contain 'platform':'notion' and
         the Document's URL.
 
-        get_databases has to have been called previously.
+        _get_databases has to have been called previously.
         """
 
         self.docs = list()

@@ -16,7 +16,3 @@ class NotionRunConfig(BaseConfig):
 
     # Notion API version
     notion_api_version: Optional[str] = "2022-06-08"
-
-    # embedding node size configuration
-    embedding_chunk_size: Optional[int] = 512
-    embedding_overlap_size: Optional[int] = 50
