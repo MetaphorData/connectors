@@ -46,9 +46,7 @@ def get_abs_full_path(
     return full_path
 
 
-def get_blob_fs_full_path(
-    url: str, blob_fs_location: DfModels.AzureBlobFSLocation
-) -> str:
+def get_adls_path(url: str, blob_fs_location: DfModels.AzureBlobFSLocation) -> str:
     parts: List[str] = [
         part  # type: ignore
         for part in [
@@ -64,15 +62,21 @@ def get_blob_fs_full_path(
     return full_path
 
 
-def init_abs_dataset(full_path: str, type: SchemaType) -> Dataset:
+def init_dataset(
+    name: Optional[str],
+    platform: DataPlatform,
+    schema_type: Optional[SchemaType] = None,
+    account: Optional[str] = None,
+) -> Dataset:
     return Dataset(
         logical_id=DatasetLogicalID(
-            name=full_path,
-            platform=DataPlatform.AZURE_BLOB_STORAGE,
+            name=name,
+            platform=platform,
+            account=account,
         ),
         entity_upstream=EntityUpstream(source_entities=[]),
         upstream=DatasetUpstream(source_datasets=[]),
-        schema=DatasetSchema(schema_type=type),
+        schema=DatasetSchema(schema_type=schema_type) if schema_type else None,
     )
 
 
@@ -83,14 +87,10 @@ def init_snowflake_dataset(
     table = safe_get_from_json(snowflake_dataset.table)
     database = linked_service.database
 
-    return Dataset(
-        logical_id=DatasetLogicalID(
-            account=linked_service.account,
-            name=dataset_normalized_name(database, schema, table),
-            platform=DataPlatform.SNOWFLAKE,
-        ),
-        entity_upstream=EntityUpstream(source_entities=[]),
-        upstream=DatasetUpstream(source_datasets=[]),
+    return init_dataset(
+        dataset_normalized_name(database, schema, table),
+        DataPlatform.SNOWFLAKE,
+        account=linked_service.account,
     )
 
 
@@ -100,14 +100,10 @@ def init_azure_sql_table_dataset(
     schema = safe_get_from_json(sql_table_dataset.schema_type_properties_schema)
     table = safe_get_from_json(sql_table_dataset.table)
 
-    return Dataset(
-        logical_id=DatasetLogicalID(
-            account=linked_service.account,
-            name=dataset_normalized_name(linked_service.database, schema, table),
-            platform=DataPlatform.MSSQL,
-        ),
-        entity_upstream=EntityUpstream(source_entities=[]),
-        upstream=DatasetUpstream(source_datasets=[]),
+    return init_dataset(
+        name=dataset_normalized_name(linked_service.database, schema, table),
+        platform=DataPlatform.MSSQL,
+        account=linked_service.account,
     )
 
 
@@ -118,13 +114,10 @@ def init_json_dataset(
         isinstance(json_dataset.location, DfModels.HttpServerLocation)
         and linked_service.url
     ):
-        return Dataset(
-            logical_id=DatasetLogicalID(
-                name=linked_service.url, platform=DataPlatform.HTTP
-            ),
-            entity_upstream=EntityUpstream(source_entities=[]),
-            upstream=DatasetUpstream(source_datasets=[])
-            # Schema type, source_info
+        return init_dataset(
+            name=linked_service.url,
+            platform=DataPlatform.HTTP,
+            schema_type=SchemaType.JSON,
         )
 
     if (
@@ -133,17 +126,27 @@ def init_json_dataset(
     ):
         blob_fs_location = json_dataset.location
 
-        abs_full_path = get_blob_fs_full_path(linked_service.url, blob_fs_location)
+        adls_path = get_adls_path(linked_service.url, blob_fs_location)
 
-        return init_abs_dataset(abs_full_path, SchemaType.JSON)
+        return init_dataset(
+            name=adls_path,
+            platform=DataPlatform.AZURE_DATA_LAKE_STORAGE,
+            schema_type=SchemaType.JSON,
+        )
 
     if (
         isinstance(json_dataset.location, DfModels.AzureBlobStorageLocation)
         and linked_service.account
     ):
-        abs_full_path = get_abs_full_path(linked_service.account, json_dataset.location)
+        abs_location = json_dataset.location
 
-        return init_abs_dataset(abs_full_path, SchemaType.JSON)
+        abs_full_path = get_abs_full_path(linked_service.account, abs_location)
+
+        return init_dataset(
+            name=abs_full_path,
+            platform=DataPlatform.AZURE_BLOB_STORAGE,
+            schema_type=SchemaType.JSON,
+        )
     return None
 
 
@@ -156,9 +159,13 @@ def init_parquet_dataset(
     ):
         blob_fs_location = parquet_dataset.location
 
-        abs_full_path = get_blob_fs_full_path(linked_service.url, blob_fs_location)
+        adls_path = get_adls_path(linked_service.url, blob_fs_location)
 
-        return init_abs_dataset(abs_full_path, SchemaType.PARQUET)
+        return init_dataset(
+            name=adls_path,
+            platform=DataPlatform.AZURE_DATA_LAKE_STORAGE,
+            schema_type=SchemaType.PARQUET,
+        )
 
     if (
         isinstance(parquet_dataset.location, DfModels.AzureBlobStorageLocation)
@@ -168,7 +175,11 @@ def init_parquet_dataset(
             linked_service.account, parquet_dataset.location
         )
 
-        return init_abs_dataset(abs_full_path, SchemaType.PARQUET)
+        return init_dataset(
+            name=abs_full_path,
+            platform=DataPlatform.AZURE_BLOB_STORAGE,
+            schema_type=SchemaType.PARQUET,
+        )
     return None
 
 
@@ -176,13 +187,10 @@ def init_rest_dataset(
     rest_dataset: DfModels.RestResourceDataset, linked_service: LinkedService
 ) -> Dataset:
     http_endpoint = linked_service.url
-    return Dataset(
-        logical_id=DatasetLogicalID(
-            name=http_endpoint,
-            platform=DataPlatform.HTTP,
-        ),
-        entity_upstream=EntityUpstream(source_entities=[]),
-        upstream=DatasetUpstream(source_datasets=[]),
+
+    return init_dataset(
+        name=http_endpoint,
+        platform=DataPlatform.HTTP,
     )
 
 
@@ -195,9 +203,13 @@ def init_delimited_text_dataset(
     ):
         blob_fs_location = delimited_text_dataset.location
 
-        abs_full_path = get_blob_fs_full_path(linked_service.url, blob_fs_location)
+        adls_path = get_adls_path(linked_service.url, blob_fs_location)
 
-        return init_abs_dataset(abs_full_path, SchemaType.SCHEMALESS)
+        return init_dataset(
+            name=adls_path,
+            platform=DataPlatform.AZURE_DATA_LAKE_STORAGE,
+            schema_type=SchemaType.SCHEMALESS,
+        )
 
     if (
         isinstance(delimited_text_dataset.location, DfModels.AzureBlobStorageLocation)
@@ -207,7 +219,11 @@ def init_delimited_text_dataset(
             linked_service.account, delimited_text_dataset.location
         )
 
-        return init_abs_dataset(abs_full_path, SchemaType.SCHEMALESS)
+        return init_dataset(
+            name=abs_full_path,
+            platform=DataPlatform.AZURE_BLOB_STORAGE,
+            schema_type=SchemaType.SCHEMALESS,
+        )
     return None
 
 
