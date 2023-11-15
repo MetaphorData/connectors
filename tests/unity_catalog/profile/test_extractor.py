@@ -50,7 +50,6 @@ async def test_extractor(
     ]
     mock_create_api.return_value = mock_client
 
-    # Not a fan of all these mocks...
     mock_rows = [
         SimpleNamespace(col_name="Statistics", data_type="5566 bytes, 9487 rows")
     ]

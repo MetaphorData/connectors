@@ -4,11 +4,11 @@ This connector extracts dataset-level data profiles from Unity Catalog using the
 
 ## Setup
 
-Create an access token in the Databrick workspace > `User setting` > `Access tokens`.
+Create a dedicated access token based on the [Setup](../README.md#Setup) guide for the general Unity Catalog connector. You'll need to ensure the owner of the access token has `SELECT` privilege for the tables in order to analyze the table statistics:
 
-Data lineage should be anbled by default for all workspaces that reference Unity Catalog. You can manually enable it by following [these instructions](https://docs.databricks.com/data-governance/unity-catalog/enable-workspaces.html)
-
-> Refer to [this document](https://docs.databricks.com/data-governance/unity-catalog/data-lineage.html#limitations) to understand the limtations of Unity Catalog's data lineage.
+```sql
+GRANT SELECT ON TABLE * TO <user_role>
+```
 
 ## Config File
 

@@ -8,7 +8,7 @@ Create an access token in the Databrick workspace > `User setting` > `Access tok
 
 Data lineage should be anbled by default for all workspaces that reference Unity Catalog. You can manually enable it by following [these instructions](https://docs.databricks.com/data-governance/unity-catalog/enable-workspaces.html)
 
-> Refer to [this document](https://docs.databricks.com/data-governance/unity-catalog/data-lineage.html#limitations) to understand the limtations of Unity Catalog's data lineage.
+> Refer to [this document](https://docs.databricks.com/data-governance/unity-catalog/data-lineage.html#limitations) to understand the limitations of Unity Catalog's data lineage.
 
 ## Config File
 
