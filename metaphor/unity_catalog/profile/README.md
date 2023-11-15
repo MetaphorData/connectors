@@ -30,9 +30,9 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
-### Warehouse ID
+#### Warehouse ID
 
-To run the connector with a specific warehouse, simply add its id in the configuration file:
+To run the queries using a specific warehouse, simply add its ID in the configuration file:
 
 ```yaml
 warehouse_id: <warehouse_id>
