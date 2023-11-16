@@ -45,6 +45,7 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     SQLSchema,
     SystemTag,
+    SystemTags,
     SystemTagSource,
 )
 from metaphor.snowflake import auth
@@ -409,8 +410,11 @@ class SnowflakeExtractor(BaseExtractor):
         logical_id = HierarchyLogicalID(path=path)
 
         self._hierarchies.setdefault(
-            hierarchy_key, Hierarchy(logical_id=logical_id, system_tags=[])
-        ).system_tags.append(
+            hierarchy_key,
+            Hierarchy(
+                logical_id=logical_id, system_tags=SystemTags(tags=[])
+            ),  # SystemTags.tags should never be empty
+        ).system_tags.tags.append(
             SystemTag(
                 key=tag_key,
                 system_tag_source=SystemTagSource.SNOWFLAKE,
