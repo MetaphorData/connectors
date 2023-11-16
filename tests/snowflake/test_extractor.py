@@ -14,6 +14,7 @@ from metaphor.models.metadata_change_event import (
     QueriedDataset,
     SchemaField,
     SystemTag,
+    SystemTags,
     SystemTagSource,
 )
 from metaphor.snowflake.config import SnowflakeQueryLogConfig, SnowflakeRunConfig
@@ -271,12 +272,18 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
         path=[DataPlatform.SNOWFLAKE.value, table_name]
     )
     assert db_hierarchy.system_tags is not None
-    assert db_hierarchy.system_tags == [
-        SystemTag(key="foo", system_tag_source=SystemTagSource.SNOWFLAKE, value="bar"),
-        SystemTag(
-            key="grault", system_tag_source=SystemTagSource.SNOWFLAKE, value="garply"
-        ),
-    ]
+    assert db_hierarchy.system_tags == SystemTags(
+        tags=[
+            SystemTag(
+                key="foo", system_tag_source=SystemTagSource.SNOWFLAKE, value="bar"
+            ),
+            SystemTag(
+                key="grault",
+                system_tag_source=SystemTagSource.SNOWFLAKE,
+                value="garply",
+            ),
+        ]
+    )
     schema_hierarchy = extractor._hierarchies[
         dataset_normalized_name(database, table_name)
     ]
@@ -284,12 +291,16 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
         path=[DataPlatform.SNOWFLAKE.value, database, table_name]
     )
     assert schema_hierarchy.system_tags is not None
-    assert schema_hierarchy.system_tags == [
-        SystemTag(key="baz", system_tag_source=SystemTagSource.SNOWFLAKE, value="qux"),
-        SystemTag(
-            key="quux", system_tag_source=SystemTagSource.SNOWFLAKE, value="corge"
-        ),
-    ]
+    assert schema_hierarchy.system_tags == SystemTags(
+        tags=[
+            SystemTag(
+                key="baz", system_tag_source=SystemTagSource.SNOWFLAKE, value="qux"
+            ),
+            SystemTag(
+                key="quux", system_tag_source=SystemTagSource.SNOWFLAKE, value="corge"
+            ),
+        ]
+    )
 
 
 @patch("metaphor.snowflake.auth.connect")
