@@ -67,7 +67,7 @@ class NotionExtractor(BaseExtractor):
         )
 
         # currently returns a list of document dicts
-        # each document dict has nodeId, embedding, metadata
+        # each document dict has nodeId, embedding, lastRefreshed, metadata
         return embedded_nodes
 
     def _get_databases(self) -> Collection[str]:

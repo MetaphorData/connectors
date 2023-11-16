@@ -86,6 +86,7 @@ def map_metadata(embedding_dict: dict, metadata_dict: dict) -> Collection[dict]:
         embedding_dict[nodeid] = {
             "nodeId": nodeid,
             "embedding": embedding_dict[nodeid],
+            "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
             "metadata": metadata_dict[nodeid],
         }
 
