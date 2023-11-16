@@ -399,13 +399,17 @@ class SnowflakeExtractor(BaseExtractor):
         # Set hierarchy key and logical_id
         path = [DataPlatform.SNOWFLAKE.value]
         if object_type == "DATABASE":
-            path.extend([object_name])
+            path.extend(
+                [object_name.lower()]
+            )  # path should be normalized, i.e. should be lowercase
             hierarchy_key = dataset_normalized_name(object_name)
         else:
             if not database:
                 logger.error("Cannot extract schema level tag without database name")
                 return
-            path.extend([database, object_name])
+            path.extend(
+                [database.lower(), object_name.lower()]
+            )  # path should be normalized, i.e. should be lowercase
             hierarchy_key = dataset_normalized_name(database, object_name)
         logical_id = HierarchyLogicalID(path=path)
 
