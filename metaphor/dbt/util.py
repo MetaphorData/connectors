@@ -10,6 +10,7 @@ from metaphor.common.entity_id import (
     to_virtual_view_entity_id,
 )
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import is_email
 from metaphor.dbt.config import MetaOwnership, MetaTag
 from metaphor.dbt.generated.dbt_run_results_v4 import DbtRunResults, RunResultOutput
 from metaphor.models.metadata_change_event import (
@@ -37,9 +38,6 @@ from metaphor.models.metadata_change_event import (
 )
 
 logger = get_logger()
-
-# Source: https://emailregex.com/
-EMAIL_REGEX = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
 
 def get_dataset_entity_id(self, db: str, schema: str, table: str) -> EntityId:
@@ -78,7 +76,7 @@ def get_ownerships_from_meta(
         if "@" not in email_or_username and email_domain is not None:
             email = f"{email_or_username}@{email_domain}"
 
-        if EMAIL_REGEX.match(email) is None:
+        if not is_email(email):
             logger.warning(f"Skipping invalid email address: {email}")
             return None
 
