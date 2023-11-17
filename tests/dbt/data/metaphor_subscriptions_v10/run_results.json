@@ -33,6 +33,27 @@
       "adapter_response": {},
       "message": null,
       "failures": null,
+      "unique_id": "model.metaphor_subscriptions.with_database"
+    },
+    {
+      "status": "success",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-11-08T05:01:07.774581Z",
+          "completed_at": "2023-11-08T05:01:07.781526Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-11-08T05:01:07.786036Z",
+          "completed_at": "2023-11-08T05:01:07.786059Z"
+        }
+      ],
+      "thread_id": "Thread-2",
+      "execution_time": 0.026020526885986328,
+      "adapter_response": {},
+      "message": null,
+      "failures": null,
       "unique_id": "model.metaphor_subscriptions.subscriptions_v2"
     },
     {
