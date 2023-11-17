@@ -39,6 +39,8 @@ class DbtExtractor(BaseExtractor):
         self._metrics: Dict[str, Metric] = {}
 
         add_debug_file(config.manifest)
+        if config.run_results:
+            add_debug_file(config.run_results)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from DBT repo")
