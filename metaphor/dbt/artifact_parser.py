@@ -521,10 +521,7 @@ class ArtifactParser:
     def _parse_model_meta(
         self, model: MODEL_NODE_TYPE, virtual_view: VirtualView
     ) -> None:
-        if model.config is None or model.database is None:
-            logger.warning(
-                f"Skipping model without config or database, {model.unique_id}"
-            )
+        if model.config is None:
             return
 
         if (
