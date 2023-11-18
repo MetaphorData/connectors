@@ -413,7 +413,9 @@ class ArtifactParser:
         run_results: DbtRunResults,
     ) -> None:
         if model.config is None or model.database is None:
-            logger.warning("Skipping model without config or database")
+            logger.warning(
+                f"Skipping model without config or database, {model.unique_id}"
+            )
             return
 
         run_result = find_run_result_ouptput_by_id(run_results, test.unique_id)
@@ -441,7 +443,9 @@ class ArtifactParser:
         macro_map: Dict[str, DbtMacro],
     ):
         if model.config is None or model.database is None:
-            logger.warning("Skipping model without config or database")
+            logger.warning(
+                f"Skipping model without config or database, {model.unique_id}"
+            )
             return
 
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
@@ -518,7 +522,9 @@ class ArtifactParser:
         self, model: MODEL_NODE_TYPE, virtual_view: VirtualView
     ) -> None:
         if model.config is None or model.database is None:
-            logger.warning("Skipping model without config or database")
+            logger.warning(
+                f"Skipping model without config or database, {model.unique_id}"
+            )
             return
 
         if (
@@ -562,7 +568,10 @@ class ArtifactParser:
     def _parse_model_materialization(
         self, model: MODEL_NODE_TYPE, dbt_model: DbtModel
     ) -> None:
-        if model.config is None:
+        if model.config is None or model.database is None:
+            logger.warning(
+                f"Skipping model without config or database, {model.unique_id}"
+            )
             return
 
         materialized = model.config.materialized
@@ -609,7 +618,9 @@ class ArtifactParser:
         self, model: MODEL_NODE_TYPE, column_name: str, meta: Dict
     ) -> None:
         if model.config is None or model.database is None:
-            logger.warning("Skipping model without config or database")
+            logger.warning(
+                f"Skipping model without config or database, {model.unique_id}"
+            )
             return
 
         tag_names = get_tags_from_meta(meta, self._meta_tags)

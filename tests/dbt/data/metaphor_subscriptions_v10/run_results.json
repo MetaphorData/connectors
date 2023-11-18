@@ -33,7 +33,7 @@
       "adapter_response": {},
       "message": null,
       "failures": null,
-      "unique_id": "model.metaphor_subscriptions.with_database"
+      "unique_id": "model.metaphor_subscriptions.without_database"
     },
     {
       "status": "success",

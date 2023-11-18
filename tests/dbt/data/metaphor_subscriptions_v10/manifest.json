@@ -1008,20 +1008,20 @@
       "latest_version": null,
       "deprecation_date": null
     },
-    "model.metaphor_subscriptions.with_database": {
+    "model.metaphor_subscriptions.without_database": {
       "schema": "METAPHOR",
-      "name": "without_config",
+      "name": "without_database",
       "resource_type": "model",
       "package_name": "metaphor_subscriptions",
       "path": "metaphor/subscriptions_core.sql",
       "original_file_path": "models/metaphor/subscriptions_core.sql",
-      "unique_id": "model.metaphor_subscriptions.subscriptions_core",
+      "unique_id": "model.metaphor_subscriptions.without_database",
       "fqn": [
         "metaphor_subscriptions",
         "metaphor",
-        "without_config"
+        "without_database"
       ],
-      "alias": "without_config",
+      "alias": "without_database",
       "checksum": {
         "name": "sha256",
         "checksum": "f01b3169daa1932f90b6caa90b8e16a796b57dc001e29568a2efad581ac7179d"

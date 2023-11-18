@@ -700,5 +700,11 @@
       "name": "metaphor_subscriptions.subscriptions_core",
       "type": "DBT_MODEL"
     }
+  },
+  {
+    "logicalId": {
+      "name": "metaphor_subscriptions.without_database",
+      "type": "DBT_MODEL"
+    }
   }
 ]
