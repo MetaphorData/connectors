@@ -28,7 +28,6 @@ grant role identifier($role) to user identifier($user);
 grant usage on warehouse identifier($warehouse) to role identifier($role);  
 
 -- Grant usage & references privileges to query information_schema
-create role identifier($role) comment = 'Limited access role for Metaphor connector';
 grant usage on warehouse identifier($warehouse) to role identifier($role);
 grant usage on database identifier($db) to role identifier($role);
 grant usage on all schemas in database identifier($db) to role identifier($role);
