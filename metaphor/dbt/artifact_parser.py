@@ -568,10 +568,7 @@ class ArtifactParser:
     def _parse_model_materialization(
         self, model: MODEL_NODE_TYPE, dbt_model: DbtModel
     ) -> None:
-        if model.config is None or model.database is None:
-            logger.warning(
-                f"Skipping model without config or database, {model.unique_id}"
-            )
+        if model.config is None:
             return
 
         materialized = model.config.materialized
