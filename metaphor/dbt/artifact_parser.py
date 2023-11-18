@@ -420,7 +420,7 @@ class ArtifactParser:
 
         run_result = find_run_result_ouptput_by_id(run_results, test.unique_id)
         if run_result is None:
-            logger.warn(f"Cannot find run result for test: {test.unique_id}")
+            logger.warning(f"Cannot find run result for test: {test.unique_id}")
             return
 
         dataset = init_dataset(

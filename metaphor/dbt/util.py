@@ -157,6 +157,9 @@ def init_dbt_tests(
     assert dbt_model_unique_id in virtual_views
 
     dbt_model = virtual_views[dbt_model_unique_id].dbt_model
+    if dbt_model is None:
+        return []
+
     if dbt_model.tests is None:
         dbt_model.tests = []
     return dbt_model.tests
