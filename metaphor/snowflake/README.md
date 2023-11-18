@@ -10,7 +10,6 @@ We recommend creating a dedicated Snowflake user with limited permissions for th
 use role ACCOUNTADMIN;
 
 set warehouse = '<warehouse>';
-set db = '<database>';
 set role = 'metaphor_role';
 set user = 'metaphor_user';
 set password = '<password>';
@@ -27,6 +26,18 @@ create role identifier($role) comment ='Limited access role for Metaphor connect
 grant role identifier($role) to user identifier($user);
 grant usage on warehouse identifier($warehouse) to role identifier($role);  
 
+-- Grant privilege to access Snowflake Account Usage views:
+grant imported privileges on database snowflake to role identifier($role);
+
+-- (Optional) Grant privilege to "show shares" for inbound shared databases
+grant import share on account to identifier($role);
+```
+
+For each database, run the following statements to grant the required privileges:
+
+```sql
+set db = '<database>';
+
 -- Grant usage & references privileges to query information_schema
 grant usage on warehouse identifier($warehouse) to role identifier($role);
 grant usage on database identifier($db) to role identifier($role);
@@ -39,15 +50,9 @@ grant references on future views in database identifier($db) to role identifier(
 grant references on all materialized views in database identifier($db) to role identifier($role);
 grant references on future materialized views in database identifier($db) to role identifier($role);
 
--- Grant privilege to access Snowflake Account Usage views:
-grant imported privileges on database snowflake to role identifier($role);
-
 -- (Optional) Grant privilege to "show streams"
 grant select on all streams in database identifier($db) to role identifier($role);
 grant select on future streams in database identifier($db) to role identifier($role);
-
--- (Optional) Grant privilege to "show shares" for inbound shared databases
-grant import share on account to identifier($role);
 ```
 
 ### Key Pair Authentication (Optional)
