@@ -15,7 +15,7 @@ set role = 'metaphor_role';
 set user = 'metaphor_user';
 set password = '<password>';
 
--- Create metaphor_role
+-- Create usage & references privileges to metaphor_role
 create role identifier($role) comment = 'Limited access role for Metaphor connector';
 grant usage on warehouse identifier($warehouse) to role identifier($role);
 grant usage on database identifier($db) to role identifier($role);
@@ -27,9 +27,15 @@ grant references on all views in database identifier($db) to role identifier($ro
 grant references on future views in database identifier($db) to role identifier($role);
 grant references on all materialized views in database identifier($db) to role identifier($role);
 grant references on future materialized views in database identifier($db) to role identifier($role);
--- Grant permissions to access the snowflake "Account Usage" views:
+
+-- Grant privilege to access the snowflake "Account Usage" views:
 grant imported privileges on database snowflake to role identifier($role);
--- If there are inbound shared databases, grant permissions to "show shares"
+
+-- (Optional) Grant privilege to "show streams"
+grant select on all streams in database identifier($db) to role identifier($role);
+grant select on future streams in database identifier($db) to role identifier($role);
+
+-- (Optional) Grant privilege to "show shares" for inbound shared databases
 grant import share on account to identifier($role);
 
 -- Create metaphor_user

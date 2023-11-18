@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.51"
+version = "0.13.52"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -33,6 +33,7 @@ looker-sdk = { version = "^23.6.0", optional = true }
 metaphor-models = "0.30.5"
 msal = { version = "^1.20.0", optional = true }
 msgraph-beta-sdk = { version = "1.0.0", optional = true }
+pyarrow = { version = "^10.0.1", extras = ["pandas"]}
 pycarlo = { version = "^0.8.1", optional = true }
 pydantic = { version = "^2.4.2", extras = ["email"]}
 pymssql = { version = "^2.2.9", optional = true }
@@ -43,7 +44,7 @@ PyYAML = "^6.0"
 requests = "^2.28.1"
 setuptools = "^68.0.0"
 smart-open = "^6.3.0"
-snowflake-connector-python = { version = "~=3.4.0", optional = true }
+snowflake-connector-python = { version = "^3.5.0", optional = true }
 SQLAlchemy = { version = "^1.4.46", optional = true}
 sql-metadata = { version = "^2.8.0", optional = true }
 sqllineage = { version = "~=1.3.8", optional = true }
