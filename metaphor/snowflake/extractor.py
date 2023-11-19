@@ -516,6 +516,7 @@ class SnowflakeExtractor(BaseExtractor):
         return [schema[0] for schema in cursor]
 
     def _fetch_streams(self, cursor: SnowflakeCursor, database: str, schema: str):
+        count = 0
         cursor.execute(f"SHOW STREAMS IN {schema}")
         for entry in cursor:
             (
@@ -593,6 +594,9 @@ class SnowflakeExtractor(BaseExtractor):
             )
 
             self._datasets[normalized_name] = dataset
+            count += 1
+
+        logger.info(f"Found {count} stream tables in {database}.{schema}")
 
     def _batch_query_for_access_logs(
         self, start_date: datetime, end_date: datetime, batches: int
