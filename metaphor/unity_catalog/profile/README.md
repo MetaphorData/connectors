@@ -47,7 +47,7 @@ Follow the [Installation](../../README.md) instructions to install `metaphor-con
 To test the connector locally, change the config file to output to a local path and run the following command
 
 ```shell
-metaphor unity_catalog <config_file>
+metaphor unity_catalog.profile <config_file>
 ```
 
 Manually verify the output after the command finishes.
