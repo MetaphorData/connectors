@@ -132,6 +132,10 @@ def test_safe_parse_ISO8061():
         safe_parse_ISO8601("2023-09-20T08:10:15").isoformat()
         == "2023-09-20T08:10:15+00:00"
     )
+    assert (
+        safe_parse_ISO8601("2023-12-03 14:43:06.870000+00:00").isoformat()
+        == "2023-12-03T14:43:06.870000+00:00"
+    )
     assert safe_parse_ISO8601("isvalid") is None
 
 

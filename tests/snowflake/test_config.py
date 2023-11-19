@@ -4,13 +4,13 @@ from pydantic import ValidationError
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.snowflake.auth import SnowflakeKeyPairAuthConfig
-from metaphor.snowflake.config import SnowflakeQueryLogConfig, SnowflakeRunConfig
+from metaphor.snowflake.config import SnowflakeConfig, SnowflakeQueryLogConfig
 
 
 def test_yaml_config(test_root_dir):
-    config = SnowflakeRunConfig.from_yaml_file(f"{test_root_dir}/snowflake/config.yml")
+    config = SnowflakeConfig.from_yaml_file(f"{test_root_dir}/snowflake/config.yml")
 
-    assert config == SnowflakeRunConfig(
+    assert config == SnowflakeConfig(
         account="account",
         user="user",
         password="password",
@@ -43,11 +43,11 @@ def test_yaml_config(test_root_dir):
 
 
 def test_yaml_config_with_private_key(test_root_dir):
-    config = SnowflakeRunConfig.from_yaml_file(
+    config = SnowflakeConfig.from_yaml_file(
         f"{test_root_dir}/snowflake/config_with_key.yml"
     )
 
-    assert config == SnowflakeRunConfig(
+    assert config == SnowflakeConfig(
         output=OutputConfig(file=None),
         account="account",
         user="user",
@@ -63,6 +63,6 @@ def test_yaml_config_with_private_key(test_root_dir):
 
 def test_yaml_config_with_missing_credential(test_root_dir):
     with pytest.raises(ValidationError):
-        SnowflakeRunConfig.from_yaml_file(
+        SnowflakeConfig.from_yaml_file(
             f"{test_root_dir}/snowflake/config_missing_credentials.yml"
         )
