@@ -378,6 +378,8 @@ class ArtifactParser:
             return
 
         model_unique_id = test.depends_on.nodes[0]
+        if hasattr(test, "attached_node") and test.attached_node:
+            model_unique_id = test.attached_node
         if not model_unique_id.startswith("model."):
             return
 
@@ -434,6 +436,7 @@ class ArtifactParser:
         )
 
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
+        print(test.name, test.column_name)
         add_data_quality_monitor(dataset, test.name, test.column_name, status)
 
     def _parse_model(

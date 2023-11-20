@@ -98,18 +98,6 @@
           "name": "unique_stg_customers_customer_id",
           "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_stg_customers_customer_id.c7614daada"
-        },
-        {
-          "columns": [
-            "customer_id"
-          ],
-          "dependsOnMacros": [
-            "macro.dbt.test_relationships",
-            "macro.dbt.get_where_subquery"
-          ],
-          "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
-          "sql": "\n    \n    \n\nwith child as (\n    select customer_id as from_field\n    from DEV_DB.DBT_DEV.orders\n    where customer_id is not null\n),\n\nparent as (\n    select customer_id as to_field\n    from DEV_DB.DBT_DEV.stg_customers\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
-          "uniqueId": "test.jaffle_shop.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16"
         }
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/staging/stg_customers.sql"
@@ -652,6 +640,18 @@
           "name": "unique_orders_order_id",
           "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_orders_order_id.fed79b3a6e"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_relationships",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
+          "sql": "\n    \n    \n\nwith child as (\n    select customer_id as from_field\n    from DEV_DB.DBT_DEV.orders\n    where customer_id is not null\n),\n\nparent as (\n    select customer_id as to_field\n    from DEV_DB.DBT_DEV.stg_customers\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16"
         }
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/orders.sql"

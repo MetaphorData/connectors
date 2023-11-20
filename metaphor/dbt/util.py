@@ -6,6 +6,7 @@ from metaphor.common.entity_id import (
     EntityId,
     dataset_normalized_name,
     to_dataset_entity_id,
+    to_dataset_entity_id_from_logical_id,
     to_person_entity_id,
     to_virtual_view_entity_id,
 )
@@ -264,7 +265,14 @@ def add_data_quality_monitor(
         # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the data quality metadata is attached to.
         DataMonitor(
             title=name,
-            targets=[DataMonitorTarget(column=column_name)],
+            targets=[
+                DataMonitorTarget(
+                    dataset=str(
+                        to_dataset_entity_id_from_logical_id(dataset.logical_id)
+                    ),
+                    column=column_name,
+                )
+            ],
             status=status,
         )
     )

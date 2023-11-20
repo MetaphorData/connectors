@@ -1568,6 +1568,111 @@
       "column_name": "SUB_ID",
       "file_key_name": "models.subscriptions_v2",
       "attached_node": "model.metaphor_subscriptions.subscriptions_v2"
+    },
+    "test.metaphor_subscriptions.dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_.45812af2e2": {
+      "test_metadata": {
+        "name": "fewer_rows_than",
+        "kwargs": {
+          "compare_model": "ref('subscriptions_core')",
+          "model": "{{ get_where_subquery(ref('subscriptions_v2')) }}"
+        },
+        "namespace": "dbt_utils"
+      },
+      "database": "DEMO_DB",
+      "schema": "metaphor_dbt_test__audit",
+      "name": "dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_",
+      "resource_type": "test",
+      "package_name": "metaphor_subscriptions",
+      "path": "dbt_utils_fewer_rows_than_subs_701221a117d749745d5bc2b978b5d4e0.sql",
+      "original_file_path": "models/metaphor/schema.yml",
+      "unique_id": "test.metaphor_subscriptions.dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_.45812af2e2",
+      "fqn": [
+        "metaphor_subscriptions",
+        "metaphor",
+        "dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_"
+      ],
+      "alias": "dbt_utils_fewer_rows_than_subs_701221a117d749745d5bc2b978b5d4e0",
+      "checksum": {
+        "name": "none",
+        "checksum": ""
+      },
+      "config": {
+        "enabled": true,
+        "alias": "dbt_utils_fewer_rows_than_subs_701221a117d749745d5bc2b978b5d4e0",
+        "schema": "dbt_test__audit",
+        "database": null,
+        "tags": [],
+        "meta": {},
+        "group": null,
+        "materialized": "test",
+        "severity": "warn",
+        "store_failures": null,
+        "where": null,
+        "limit": null,
+        "fail_calc": "sum(coalesce(row_count_delta, 0))",
+        "warn_if": "!= 0",
+        "error_if": "!= 0"
+      },
+      "tags": [],
+      "description": "",
+      "columns": {},
+      "meta": {},
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": null,
+      "build_path": "target/run/metaphor_subscriptions/models/metaphor/schema.yml/dbt_utils_fewer_rows_than_subs_701221a117d749745d5bc2b978b5d4e0.sql",
+      "deferred": false,
+      "unrendered_config": {
+        "fail_calc": "sum(coalesce(row_count_delta, 0))",
+        "severity": "warn",
+        "alias": "dbt_utils_fewer_rows_than_subs_701221a117d749745d5bc2b978b5d4e0"
+      },
+      "created_at": 1700503084.3096142,
+      "relation_name": null,
+      "raw_code": "{{ dbt_utils.test_fewer_rows_than(**_dbt_generic_test_kwargs) }}{{ config(severity=\"warn\",alias=\"dbt_utils_fewer_rows_than_subs_701221a117d749745d5bc2b978b5d4e0\") }}",
+      "language": "sql",
+      "refs": [
+        {
+          "name": "subscriptions_core",
+          "package": null,
+          "version": null
+        },
+        {
+          "name": "subscriptions_v2",
+          "package": null,
+          "version": null
+        }
+      ],
+      "sources": [],
+      "metrics": [],
+      "depends_on": {
+        "macros": [
+          "macro.dbt_utils.test_fewer_rows_than",
+          "macro.dbt.get_where_subquery",
+          "macro.dbt_snowflake.set_query_tag",
+          "macro.dbt.materialization_test_default",
+          "macro.dbt_snowflake.unset_query_tag"
+        ],
+        "nodes": [
+          "model.metaphor_subscriptions.subscriptions_core",
+          "model.metaphor_subscriptions.subscriptions_v2"
+        ]
+      },
+      "compiled_path": "target/compiled/metaphor_subscriptions/models/metaphor/schema.yml/dbt_utils_fewer_rows_than_subs_701221a117d749745d5bc2b978b5d4e0.sql",
+      "compiled": true,
+      "compiled_code": "\n\n\n\n\n\n\n\nwith a as (\n\n    select \n      \n      1 as id_dbtutils_test_fewer_rows_than,\n      count(*) as count_our_model \n    from DEMO_DB.metaphor.subscriptions_v2\n    group by id_dbtutils_test_fewer_rows_than\n\n),\nb as (\n\n    select \n      \n      1 as id_dbtutils_test_fewer_rows_than,\n      count(*) as count_comparison_model \n    from DEMO_DB.metaphor.subscriptions_core\n    group by id_dbtutils_test_fewer_rows_than\n\n),\ncounts as (\n\n    select\n\n        a.id_dbtutils_test_fewer_rows_than as id_dbtutils_test_fewer_rows_than_a,\n          b.id_dbtutils_test_fewer_rows_than as id_dbtutils_test_fewer_rows_than_b,\n        \n\n        count_our_model,\n        count_comparison_model\n    from a\n    full join b on \n    a.id_dbtutils_test_fewer_rows_than = b.id_dbtutils_test_fewer_rows_than\n    \n\n),\nfinal as (\n\n    select *,\n        case\n            -- fail the test if we have more rows than the reference model and return the row count delta\n            when count_our_model > count_comparison_model then (count_our_model - count_comparison_model)\n            -- fail the test if they are the same number\n            when count_our_model = count_comparison_model then 1\n            -- pass the test if the delta is positive (i.e. return the number 0)\n            else 0\n    end as row_count_delta\n    from counts\n\n)\n\nselect * from final\n\n",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
+      "contract": {
+        "enforced": false,
+        "checksum": null
+      },
+      "column_name": null,
+      "file_key_name": "models.subscriptions_v2",
+      "attached_node": "model.metaphor_subscriptions.subscriptions_v2"
     }
   },
   "sources": {
@@ -10915,6 +11020,7 @@
     ],
     "model.metaphor_subscriptions.subscriptions_v2": [
       "model.metaphor_subscriptions.subscriptions_growth",
+      "test.metaphor_subscriptions.dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_.45812af2e2",
       "test.metaphor_subscriptions.not_null_subscriptions_v2_SUB_ID.f48cc087e7",
       "test.metaphor_subscriptions.unique_subscriptions_v2_SUB_ID.f668493d85"
     ],
