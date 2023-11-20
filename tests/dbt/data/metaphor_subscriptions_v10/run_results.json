@@ -244,6 +244,16 @@
       "message": null,
       "failures": null,
       "unique_id": "test.metaphor_subscriptions.unique_subscriptions_sales_SALES_ID.f83222e32c"
+    },
+    {
+      "status": "error",
+      "timing": [],
+      "thread_id": "Thread-1 (worker)",
+      "execution_time": 1.4239399433135986,
+      "adapter_response": {},
+      "message": "Got 5063 results, configured to warn if != 0",
+      "failures": 5063,
+      "unique_id": "test.metaphor_subscriptions.dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_.45812af2e2"
     }
   ],
   "elapsed_time": 4.670084476470947,

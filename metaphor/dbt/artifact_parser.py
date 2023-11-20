@@ -378,6 +378,8 @@ class ArtifactParser:
             return
 
         model_unique_id = test.depends_on.nodes[0]
+        if hasattr(test, "attached_node") and test.attached_node:
+            model_unique_id = test.attached_node
         if not model_unique_id.startswith("model."):
             return
 

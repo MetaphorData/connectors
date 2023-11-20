@@ -169,7 +169,8 @@
           "status": "PASSED",
           "targets": [
             {
-              "column": "SUB_ID"
+              "column": "SUB_ID",
+              "dataset": "DATASET~B96F49A73449ABCF98D1EEF65C267B0D"
             }
           ],
           "title": "unique_subscriptions_v2_SUB_ID"
@@ -178,10 +179,20 @@
           "status": "PASSED",
           "targets": [
             {
-              "column": "SUB_ID"
+              "column": "SUB_ID",
+              "dataset": "DATASET~B96F49A73449ABCF98D1EEF65C267B0D"
             }
           ],
           "title": "not_null_subscriptions_v2_SUB_ID"
+        },
+        {
+          "status": "ERROR",
+          "targets": [
+            {
+              "dataset": "DATASET~B96F49A73449ABCF98D1EEF65C267B0D"
+            }
+          ],
+          "title": "dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_"
         }
       ],
       "provider": "DBT"
@@ -205,18 +216,14 @@
     }
   },
   {
-    "logicalId": {
-      "account": "metaphor",
-      "name": "demo_db.metaphor.subscriptions_sales",
-      "platform": "SNOWFLAKE"
-    },
     "dataQuality": {
       "monitors": [
         {
           "status": "PASSED",
           "targets": [
             {
-              "column": "SALES_ID"
+              "column": "SALES_ID",
+              "dataset": "DATASET~485BECC5FB35FC6DC9F0A0288F8FB0C6"
             }
           ],
           "title": "unique_subscriptions_sales_SALES_ID"
@@ -225,13 +232,29 @@
           "status": "PASSED",
           "targets": [
             {
-              "column": "SALES_ID"
+              "column": "SALES_ID",
+              "dataset": "DATASET~485BECC5FB35FC6DC9F0A0288F8FB0C6"
+            }
+          ],
+          "title": "unique_subscriptions_sales_SALES_ID"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "SALES_ID",
+              "dataset": "DATASET~485BECC5FB35FC6DC9F0A0288F8FB0C6"
             }
           ],
           "title": "not_null_subscriptions_sales_SALES_ID"
         }
       ],
       "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.subscriptions_sales",
+      "platform": "SNOWFLAKE"
     }
   },
   {
@@ -544,6 +567,19 @@
           "name": "not_null_subscriptions_v2_SUB_ID",
           "sql": "\n    \n    \n\n\n\nselect SUB_ID\nfrom DEMO_DB.METAPHOR.subscriptions_v2\nwhere SUB_ID is null\n\n\n",
           "uniqueId": "test.metaphor_subscriptions.not_null_subscriptions_v2_SUB_ID.f48cc087e7"
+        },
+        {
+          "columns": [],
+          "dependsOnMacros": [
+            "macro.dbt_utils.test_fewer_rows_than",
+            "macro.dbt.get_where_subquery",
+            "macro.dbt_snowflake.set_query_tag",
+            "macro.dbt.materialization_test_default",
+            "macro.dbt_snowflake.unset_query_tag"
+          ],
+          "name": "dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_",
+          "sql": "\n\n\n\n\n\n\n\nwith a as (\n\n    select \n      \n      1 as id_dbtutils_test_fewer_rows_than,\n      count(*) as count_our_model \n    from DEMO_DB.metaphor.subscriptions_v2\n    group by id_dbtutils_test_fewer_rows_than\n\n),\nb as (\n\n    select \n      \n      1 as id_dbtutils_test_fewer_rows_than,\n      count(*) as count_comparison_model \n    from DEMO_DB.metaphor.subscriptions_core\n    group by id_dbtutils_test_fewer_rows_than\n\n),\ncounts as (\n\n    select\n\n        a.id_dbtutils_test_fewer_rows_than as id_dbtutils_test_fewer_rows_than_a,\n          b.id_dbtutils_test_fewer_rows_than as id_dbtutils_test_fewer_rows_than_b,\n        \n\n        count_our_model,\n        count_comparison_model\n    from a\n    full join b on \n    a.id_dbtutils_test_fewer_rows_than = b.id_dbtutils_test_fewer_rows_than\n    \n\n),\nfinal as (\n\n    select *,\n        case\n            -- fail the test if we have more rows than the reference model and return the row count delta\n            when count_our_model > count_comparison_model then (count_our_model - count_comparison_model)\n            -- fail the test if they are the same number\n            when count_our_model = count_comparison_model then 1\n            -- pass the test if the delta is positive (i.e. return the number 0)\n            else 0\n    end as row_count_delta\n    from counts\n\n)\n\nselect * from final\n\n",
+          "uniqueId": "test.metaphor_subscriptions.dbt_utils_fewer_rows_than_subscriptions_v2_ref_subscriptions_core_.45812af2e2"
         }
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_v2.sql"
@@ -621,6 +657,18 @@
         "subscription"
       ],
       "tests": [
+        {
+          "columns": [
+            "SALES_ID"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_subscriptions_sales_SALES_ID",
+          "sql": "\n    \n    \n\nselect\n    SALES_ID as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.METAPHOR.subscriptions_sales\nwhere SALES_ID is not null\ngroup by SALES_ID\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.metaphor_subscriptions.unique_subscriptions_sales_SALES_ID.f83222e32c"
+        },
         {
           "columns": [
             "SALES_ID"
