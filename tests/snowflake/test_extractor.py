@@ -13,17 +13,20 @@ from metaphor.models.metadata_change_event import (
     MaterializationType,
     QueriedDataset,
     SchemaField,
+    SnowflakeStreamInfo,
+    SnowflakeStreamSourceType,
+    SnowflakeStreamType,
     SystemTag,
     SystemTags,
     SystemTagSource,
 )
-from metaphor.snowflake.config import SnowflakeQueryLogConfig, SnowflakeRunConfig
+from metaphor.snowflake.config import SnowflakeConfig, SnowflakeQueryLogConfig
 from metaphor.snowflake.extractor import SnowflakeExtractor
 from metaphor.snowflake.utils import DatasetInfo, SnowflakeTableType
 
 
 def make_snowflake_config(filter: Optional[DatasetFilter] = None):
-    config = SnowflakeRunConfig(
+    config = SnowflakeConfig(
         account="snowflake_account",
         user="user",
         password="password",
@@ -734,8 +737,8 @@ def test_fetch_streams(mock_connect: MagicMock) -> None:
                 "dont cate",
                 "dont care",
                 "true",  # stale
-                "Default",  # stream_type_str
-                "2023-01-01 12:00:00.000000+00:00",  # stale_after
+                "DEFAULT",  # stream_type_str
+                datetime.fromisoformat("2023-01-01 12:00:00+00:00"),  # stale_after
             ),
             (
                 "dont care",
@@ -749,8 +752,8 @@ def test_fetch_streams(mock_connect: MagicMock) -> None:
                 "dont cate",
                 "dont care",
                 "true",  # stale
-                "Default",  # stream_type_str
-                "2023-01-01 12:00:00.000000+00:00",  # stale_after
+                "DEFAULT",  # stream_type_str
+                datetime.fromisoformat("2023-01-01 12:00:00+00:00"),  # stale_after
             ),
             (
                 "dont care",
@@ -765,22 +768,32 @@ def test_fetch_streams(mock_connect: MagicMock) -> None:
                 "dont care",
                 "true",  # stale
                 "bleh",  # bad stream_type_str
-                "2023-01-01 12:00:00.000000+00:00",  # stale_after
+                datetime.fromisoformat("2023-01-01 12:00:00+00:00"),  # stale_after
             ),
         ]
     )
     mock_row_count_cursor = MagicMock()
     mock_row_count_cursor.fetchone = MagicMock()
     mock_row_count_cursor.fetchone.return_value = (3,)
+
     extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor._streams_count_rows = True
     extractor._conn = MagicMock()
     extractor._conn.cursor = MagicMock()
-    extractor._conn.cursor.return_value = mock_row_count_cursor
+    extractor._conn.cursor.return_value.__enter__.return_value = mock_row_count_cursor
+
     extractor._fetch_streams(mock_cursor, "DB", "SCHEMA")
+
     normalized_name = dataset_normalized_name("DB", "SCHEMA", "STREAM")
     assert normalized_name in extractor._datasets
     assert len(extractor._datasets) == 1
-    assert (
-        extractor._datasets[normalized_name].schema.sql_schema.materialization
-        is MaterializationType.STREAM
+
+    dataset = extractor._datasets[normalized_name]
+    assert dataset.schema.sql_schema.materialization is MaterializationType.STREAM
+    assert dataset.statistics.record_count == 3
+    assert dataset.snowflake_stream_info == SnowflakeStreamInfo(
+        stream_type=SnowflakeStreamType.STANDARD,
+        source_type=SnowflakeStreamSourceType.TABLE,
+        stale=True,
+        stale_after=datetime.fromisoformat("2023-01-01 12:00:00+00:00"),
     )

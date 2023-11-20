@@ -6,7 +6,7 @@ from pydantic import TypeAdapter
 from metaphor.models.metadata_change_event import QueriedDataset
 from metaphor.snowflake import SnowflakeExtractor
 from metaphor.snowflake.accessed_object import AccessedObject
-from metaphor.snowflake.config import SnowflakeRunConfig
+from metaphor.snowflake.config import SnowflakeConfig
 
 
 def test_pydantic_dataclass():
@@ -50,7 +50,7 @@ def test_parse_access_logs(test_root_dir):
         },
     ]
 
-    config = SnowflakeRunConfig.from_yaml_file(f"{test_root_dir}/snowflake/config.yml")
+    config = SnowflakeConfig.from_yaml_file(f"{test_root_dir}/snowflake/config.yml")
     extractor = SnowflakeExtractor(config)
     result = extractor._parse_accessed_objects(json.dumps(data))
     assert result == [
