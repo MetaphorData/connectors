@@ -59,7 +59,7 @@ class NotionExtractor(BaseExtractor):
         )
 
         # get vector_store from VectorStoreIndex
-        vector_store = VSI.to_dict()["vector_store"]
+        vector_store = VSI.storage_context.to_dict()["vector_store"]
 
         # map metadata back to each node
         embedded_nodes = map_metadata(

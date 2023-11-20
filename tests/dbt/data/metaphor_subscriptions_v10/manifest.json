@@ -1008,6 +1008,199 @@
       "latest_version": null,
       "deprecation_date": null
     },
+    "model.metaphor_subscriptions.without_database": {
+      "schema": "METAPHOR",
+      "name": "without_database",
+      "resource_type": "model",
+      "package_name": "metaphor_subscriptions",
+      "path": "metaphor/subscriptions_core.sql",
+      "original_file_path": "models/metaphor/subscriptions_core.sql",
+      "unique_id": "model.metaphor_subscriptions.without_database",
+      "fqn": [
+        "metaphor_subscriptions",
+        "metaphor",
+        "without_database"
+      ],
+      "alias": "without_database",
+      "checksum": {
+        "name": "sha256",
+        "checksum": "f01b3169daa1932f90b6caa90b8e16a796b57dc001e29568a2efad581ac7179d"
+      },
+      "tags": [
+        "subscription"
+      ],
+      "description": "This dataset contains all subscriptions core info.",
+      "columns": {
+        "SUB_ID": {
+          "name": "SUB_ID",
+          "description": "Subscription ID",
+          "meta": {},
+          "data_type": null,
+          "constraints": [],
+          "quote": null,
+          "tags": []
+        },
+        "URL": {
+          "name": "URL",
+          "description": "URL for the subscription",
+          "meta": {},
+          "data_type": null,
+          "constraints": [],
+          "quote": null,
+          "tags": []
+        },
+        "CREATED_AT": {
+          "name": "CREATED_AT",
+          "description": "Creation timestamp",
+          "meta": {},
+          "data_type": null,
+          "constraints": [],
+          "quote": null,
+          "tags": []
+        }
+      },
+      "meta": {},
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": "metaphor_subscriptions://models/metaphor/schema.yml",
+      "build_path": null,
+      "deferred": false,
+      "unrendered_config": {
+        "persist_docs": {
+          "columns": true,
+          "relation": true
+        },
+        "materialized": "table",
+        "tags": "subscription"
+      },
+      "created_at": 1699419642.1884277,
+      "relation_name": "DEMO_DB.METAPHOR.subscriptions_core",
+      "raw_code": "select \n  1 as sub_id,\n  'url' as url,\n  customer_profile.date as created_at\nfrom {{ source('METAPHOR', 'CUSTOMER_PROFILE') }} as customer_profile",
+      "language": "sql",
+      "refs": [],
+      "sources": [
+        [
+          "METAPHOR",
+          "CUSTOMER_PROFILE"
+        ]
+      ],
+      "metrics": [],
+      "depends_on": {
+        "macros": [],
+        "nodes": [
+          "source.metaphor_subscriptions.METAPHOR.CUSTOMER_PROFILE"
+        ]
+      },
+      "compiled_path": "target/compiled/metaphor_subscriptions/models/metaphor/subscriptions_core.sql",
+      "compiled": true,
+      "compiled_code": "select \n  1 as sub_id,\n  'url' as url,\n  customer_profile.date as created_at\nfrom DEMO_DB.METAPHOR.CUSTOMER_PROFILE as customer_profile",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
+      "contract": {
+        "enforced": false,
+        "checksum": null
+      },
+      "access": "protected",
+      "constraints": [],
+      "version": null,
+      "latest_version": null,
+      "deprecation_date": null
+    },
+    "test.metaphor_subscriptions.without_database.col.f83222e32c": {
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "SALES_ID",
+          "model": "{{ get_where_subquery(ref('subscriptions_sales')) }}"
+        },
+        "namespace": null
+      },
+      "database": "DEMO_DB",
+      "schema": "METAPHOR_dbt_test__audit",
+      "name": "unique_subscriptions_sales_SALES_ID",
+      "resource_type": "test",
+      "package_name": "metaphor_subscriptions",
+      "path": "unique_subscriptions_sales_SALES_ID.sql",
+      "original_file_path": "models/metaphor/schema.yml",
+      "unique_id": "test.metaphor_subscriptions.unique_subscriptions_sales_SALES_ID.f83222e32c",
+      "fqn": [
+        "metaphor_subscriptions",
+        "metaphor",
+        "unique_subscriptions_sales_SALES_ID"
+      ],
+      "alias": "unique_subscriptions_sales_SALES_ID",
+      "checksum": {
+        "name": "none",
+        "checksum": ""
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": "dbt_test__audit",
+        "database": null,
+        "tags": [],
+        "meta": {},
+        "group": null,
+        "materialized": "test",
+        "severity": "ERROR",
+        "store_failures": null,
+        "where": null,
+        "limit": null,
+        "fail_calc": "count(*)",
+        "warn_if": "!= 0",
+        "error_if": "!= 0"
+      },
+      "tags": [],
+      "description": "",
+      "columns": {},
+      "meta": {},
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": null,
+      "build_path": null,
+      "deferred": false,
+      "unrendered_config": {},
+      "created_at": 1699419642.2248719,
+      "relation_name": null,
+      "raw_code": "{{ test_unique(**_dbt_generic_test_kwargs) }}",
+      "language": "sql",
+      "refs": [
+        {
+          "name": "subscriptions_sales",
+          "package": null,
+          "version": null
+        }
+      ],
+      "sources": [],
+      "metrics": [],
+      "depends_on": {
+        "macros": [
+          "macro.dbt.test_unique",
+          "macro.dbt.get_where_subquery"
+        ],
+        "nodes": [
+          "model.metaphor_subscriptions.without_database"
+        ]
+      },
+      "compiled_path": "target/compiled/metaphor_subscriptions/models/metaphor/schema.yml/unique_subscriptions_sales_SALES_ID.sql",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    SALES_ID as unique_field,\n    count(*) as n_records\n\nfrom DEMO_DB.METAPHOR.subscriptions_sales\nwhere SALES_ID is not null\ngroup by SALES_ID\nhaving count(*) > 1\n\n\n",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
+      "contract": {
+        "enforced": false,
+        "checksum": null
+      },
+      "column_name": "SALES_ID",
+      "file_key_name": "models.subscriptions_sales",
+      "attached_node": "model.metaphor_subscriptions.subscriptions_sales"
+    },
     "test.metaphor_subscriptions.unique_subscriptions_sales_SALES_ID.f83222e32c": {
       "test_metadata": {
         "name": "unique",

@@ -412,21 +412,28 @@ class ArtifactParser:
         model: MODEL_NODE_TYPE,
         run_results: DbtRunResults,
     ) -> None:
-        run_result = find_run_result_ouptput_by_id(run_results, test.unique_id)
-        if run_result is None:
-            logger.warn(f"Cannot find run result for test: {test.unique_id}")
-            return
-
-        status = dbt_run_result_output_data_monitor_status_map[run_result.status]
-
-        dataset = self._datasets.get(model.unique_id)
-        if dataset is None:
+        if model.config is None or model.database is None:
             logger.warning(
-                "Cannot find target dataset for test: "
-                f"model unique id = {model.unique_id}"
+                f"Skipping model without config or database, {model.unique_id}"
             )
             return
 
+        run_result = find_run_result_ouptput_by_id(run_results, test.unique_id)
+        if run_result is None:
+            logger.warning(f"Cannot find run result for test: {test.unique_id}")
+            return
+
+        dataset = init_dataset(
+            self._datasets,
+            model.database,
+            model.schema_,
+            model.alias or model.name,
+            self._platform,
+            self._account,
+            model.unique_id,
+        )
+
+        status = dbt_run_result_output_data_monitor_status_map[run_result.status]
         add_data_quality_monitor(dataset, test.name, test.column_name, status)
 
     def _parse_model(
@@ -436,7 +443,9 @@ class ArtifactParser:
         macro_map: Dict[str, DbtMacro],
     ):
         if model.config is None or model.database is None:
-            logger.warning("Skipping model without config or database")
+            logger.warning(
+                f"Skipping model without config or database, {model.unique_id}"
+            )
             return
 
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
@@ -512,8 +521,7 @@ class ArtifactParser:
     def _parse_model_meta(
         self, model: MODEL_NODE_TYPE, virtual_view: VirtualView
     ) -> None:
-        if model.config is None or model.database is None:
-            logger.warning("Skipping model without config or database")
+        if model.config is None:
             return
 
         if (
@@ -604,7 +612,9 @@ class ArtifactParser:
         self, model: MODEL_NODE_TYPE, column_name: str, meta: Dict
     ) -> None:
         if model.config is None or model.database is None:
-            logger.warning("Skipping model without config or database")
+            logger.warning(
+                f"Skipping model without config or database, {model.unique_id}"
+            )
             return
 
         tag_names = get_tags_from_meta(meta, self._meta_tags)

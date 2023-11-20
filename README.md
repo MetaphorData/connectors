@@ -46,41 +46,42 @@ You can also run the connectors in your CI/CD pipeline using the [Metaphor Conne
 
 Each connector is placed under its own directory under [metaphor](./metaphor) and extends the `metaphor.common.BaseExtractor` class.
 
-| Connector Name                                                  | Metadata                                 |
-|-----------------------------------------------------------------|------------------------------------------|  
-| [azure_data_factory](metaphor/azure_data_factory/README.md)     | Lineage, Pipeline                        |
-| [bigquery](metaphor/bigquery/README.md)                         | Schema, description, statistics, queries |
-| [bigquery.lineage](metaphor/bigquery/lineage/README.md)         | Lineage                                  |
-| [bigquery.profile](metaphor/bigquery/profile/README.md)         | Data profile                             |
-| [dbt](metaphor/dbt/README.md)                                   | dbt model, test, lineage                 |
-| [dbt.cloud](metaphor/dbt/cloud/README.md)                       | dbt model, test, lineage                 |
-| [fivetran](metaphor/fivetran/README.md)                         | Lineage, Pipeline                        |
-| [glue](metaphor/glue/README.md)                                 | Schema, description                      |
-| [looker](metaphor/looker/README.md)                             | Looker view, explore, dashboard, lineage |
-| [custom.data_quality](metaphor/custom/data_quality/README.md)   | Data quality                             |
-| [custom.governance](metaphor/custom/governance/README.md)       | Ownership, tags, description             |
-| [custom.lineage](metaphor/custom/lineage/README.md)             | Lineage                                  |
-| [custom.metadata](metaphor/custom/metadata/README.md)           | Custom metadata                          |
-| [custom.query_attributions](metaphor/custom/metadata/README.md) | Query attritutions                       |
-| [metabase](metaphor/metabase/README.md)                         | Dashboard, lineage                       |
-| [monte_carlo](metaphor/monte_carlo/README.md)                   | Data monitor                             |
-| [mssql](metaphor/mssql/README.md)                               | Schema                                   |
-| [mysql](metaphor/mysql/README.md)                               | Schema, description                      |
+| Connector Name                                                    | Metadata                                 |
+|-------------------------------------------------------------------|------------------------------------------|  
+| [azure_data_factory](metaphor/azure_data_factory/README.md)       | Lineage, Pipeline                        |
+| [bigquery](metaphor/bigquery/README.md)                           | Schema, description, statistics, queries |
+| [bigquery.lineage](metaphor/bigquery/lineage/README.md)           | Lineage                                  |
+| [bigquery.profile](metaphor/bigquery/profile/README.md)           | Data profile                             |
+| [dbt](metaphor/dbt/README.md)                                     | dbt model, test, lineage                 |
+| [dbt.cloud](metaphor/dbt/cloud/README.md)                         | dbt model, test, lineage                 |
+| [fivetran](metaphor/fivetran/README.md)                           | Lineage, Pipeline                        |
+| [glue](metaphor/glue/README.md)                                   | Schema, description                      |
+| [looker](metaphor/looker/README.md)                               | Looker view, explore, dashboard, lineage |
+| [custom.data_quality](metaphor/custom/data_quality/README.md)     | Data quality                             |
+| [custom.governance](metaphor/custom/governance/README.md)         | Ownership, tags, description             |
+| [custom.lineage](metaphor/custom/lineage/README.md)               | Lineage                                  |
+| [custom.metadata](metaphor/custom/metadata/README.md)             | Custom metadata                          |
+| [custom.query_attributions](metaphor/custom/metadata/README.md)   | Query attritutions                       |
+| [metabase](metaphor/metabase/README.md)                           | Dashboard, lineage                       |
+| [monte_carlo](metaphor/monte_carlo/README.md)                     | Data monitor                             |
+| [mssql](metaphor/mssql/README.md)                                 | Schema                                   |
+| [mysql](metaphor/mysql/README.md)                                 | Schema, description                      |
 | [notion](metaphor/notion/README.md)                             | Documents, vector embeddings             |
-| [postgresql](metaphor/postgresql/README.md)                     | Schema, description, statistics          |
-| [postgresql.profile](metaphor/postgresql/profile/README.md)     | Data profile                             |
-| [postgresql.usage](metaphor/postgresql/usage/README.md)         | Usage                                    |
-| [power_bi](metaphor/power_bi/README.md)                         | Dashboard, lineage                       |
-| [redshift](metaphor/redshift/README.md)                         | Schema, description, statistics, queries |
-| [redshift.lineage](metaphor/redshift/lineage/README.md)         | Lineage                                  |
-| [redshift.profile](metaphor/redshift/profile/README.md)         | Data profile                             |
-| [snowflake](metaphor/snowflake/README.md)                       | Schema, description, statistics, queries |
-| [snowflake.lineage](metaphor/snowflake/lineage/README.md)       | Lineage                                  |
-| [snowflake.profile](metaphor/snowflake/profile/README.md)       | Data profile                             |
-| [synapse](metaphor/synapse//README.md)                          | Schema, queries                          |
-| [tableau](metaphor/tableau/README.md)                           | Dashboard, lineage                       |
-| [thought_spot](metaphor/thought_spot/README.md)                 | Dashboard, lineage                       |
-| [unity_catalog](metaphor/unity_catalog/README.md)               | Schema, description                      |
+| [postgresql](metaphor/postgresql/README.md)                       | Schema, description, statistics          |
+| [postgresql.profile](metaphor/postgresql/profile/README.md)       | Data profile                             |
+| [postgresql.usage](metaphor/postgresql/usage/README.md)           | Usage                                    |
+| [power_bi](metaphor/power_bi/README.md)                           | Dashboard, lineage                       |
+| [redshift](metaphor/redshift/README.md)                           | Schema, description, statistics, queries |
+| [redshift.lineage](metaphor/redshift/lineage/README.md)           | Lineage                                  |
+| [redshift.profile](metaphor/redshift/profile/README.md)           | Data profile                             |
+| [snowflake](metaphor/snowflake/README.md)                         | Schema, description, statistics, queries |
+| [snowflake.lineage](metaphor/snowflake/lineage/README.md)         | Lineage                                  |
+| [snowflake.profile](metaphor/snowflake/profile/README.md)         | Data profile                             |
+| [synapse](metaphor/synapse//README.md)                            | Schema, queries                          |
+| [tableau](metaphor/tableau/README.md)                             | Dashboard, lineage                       |
+| [thought_spot](metaphor/thought_spot/README.md)                   | Dashboard, lineage                       |
+| [unity_catalog](metaphor/unity_catalog/README.md)                 | Schema, description                      |
+| [unity_catalog.profile](metaphor/unity_catalog/profile/README.md) | Statistics                               |
 
 ## Development
 

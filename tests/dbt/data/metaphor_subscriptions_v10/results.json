@@ -205,6 +205,36 @@
     }
   },
   {
+    "logicalId": {
+      "account": "metaphor",
+      "name": "demo_db.metaphor.subscriptions_sales",
+      "platform": "SNOWFLAKE"
+    },
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "SALES_ID"
+            }
+          ],
+          "title": "unique_subscriptions_sales_SALES_ID"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "SALES_ID"
+            }
+          ],
+          "title": "not_null_subscriptions_sales_SALES_ID"
+        }
+      ],
+      "provider": "DBT"
+    }
+  },
+  {
     "dbtModel": {
       "compiledSql": "select \n  1 as id,\n  'name' as name,\n  'poc' as poc,\n  100 as budget,\n  churn_region_agg.sub_date as date\nfrom DEMO_DB.METAPHOR.churn_region_agg as churn_region_agg",
       "description": "This dataset contains info about all modular campaigns. The id represents campaign id.",
@@ -668,6 +698,12 @@
     },
     "logicalId": {
       "name": "metaphor_subscriptions.subscriptions_core",
+      "type": "DBT_MODEL"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "metaphor_subscriptions.without_database",
       "type": "DBT_MODEL"
     }
   }

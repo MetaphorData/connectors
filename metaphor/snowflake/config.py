@@ -32,15 +32,30 @@ class SnowflakeQueryLogConfig:
 
 
 @dataclass(config=ConnectorConfig)
-class SnowflakeRunConfig(SnowflakeAuthConfig):
+class SnowflakeStreamsConfig:
+    # Enable fetching Snowflake Streams metadata
+    enabled: bool = True
+
+    # Count rows in stream - disabled by default as it can be expensive to count
+    count_rows: bool = False
+
+
+@dataclass(config=ConnectorConfig)
+class SnowflakeBaseConfig(SnowflakeAuthConfig):
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
 
     # Max number of concurrent queries to database
     max_concurrency: int = DEFAULT_THREAD_POOL_SIZE
 
+
+@dataclass(config=ConnectorConfig)
+class SnowflakeConfig(SnowflakeBaseConfig):
     # How tags should be assigned to datasets
     tag_matchers: List[TagMatcher] = field(default_factory=lambda: [])
 
     # configs for fetching query logs
     query_log: SnowflakeQueryLogConfig = SnowflakeQueryLogConfig()
+
+    # configs for fetching Snowflake streams
+    streams: SnowflakeStreamsConfig = SnowflakeStreamsConfig()

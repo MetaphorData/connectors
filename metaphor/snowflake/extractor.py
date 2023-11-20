@@ -45,11 +45,12 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     SQLSchema,
     SystemTag,
+    SystemTags,
     SystemTagSource,
 )
 from metaphor.snowflake import auth
 from metaphor.snowflake.accessed_object import AccessedObject
-from metaphor.snowflake.config import SnowflakeRunConfig
+from metaphor.snowflake.config import SnowflakeConfig
 from metaphor.snowflake.utils import (
     DatasetInfo,
     QueryWithParam,
@@ -83,9 +84,9 @@ class SnowflakeExtractor(BaseExtractor):
 
     @staticmethod
     def from_config_file(config_file: str) -> "SnowflakeExtractor":
-        return SnowflakeExtractor(SnowflakeRunConfig.from_yaml_file(config_file))
+        return SnowflakeExtractor(SnowflakeConfig.from_yaml_file(config_file))
 
-    def __init__(self, config: SnowflakeRunConfig):
+    def __init__(self, config: SnowflakeConfig):
         super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
         self._account = normalize_snowflake_account(config.account)
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
@@ -95,6 +96,8 @@ class SnowflakeExtractor(BaseExtractor):
         self._query_log_fetch_size = config.query_log.fetch_size
         self._query_log_max_query_size = config.query_log.max_query_size
         self._max_concurrency = config.max_concurrency
+        self._streams_enabled = config.streams.enabled
+        self._streams_count_rows = config.streams.count_rows
         self._config = config
 
         self._datasets: Dict[str, Dataset] = {}
@@ -136,8 +139,9 @@ class SnowflakeExtractor(BaseExtractor):
                         f"Failed to fetch table extra info for '{database}'\n{e}"
                     )
 
-                for schema in self._fetch_schemas(cursor):
-                    self._fetch_streams(cursor, database, schema)
+                if self._streams_enabled:
+                    for schema in self._fetch_schemas(cursor):
+                        self._fetch_streams(cursor, database, schema)
 
             self._fetch_primary_keys(cursor)
             self._fetch_unique_keys(cursor)
@@ -398,19 +402,26 @@ class SnowflakeExtractor(BaseExtractor):
         # Set hierarchy key and logical_id
         path = [DataPlatform.SNOWFLAKE.value]
         if object_type == "DATABASE":
-            path.extend([object_name])
+            path.extend(
+                [object_name.lower()]
+            )  # path should be normalized, i.e. should be lowercase
             hierarchy_key = dataset_normalized_name(object_name)
         else:
             if not database:
                 logger.error("Cannot extract schema level tag without database name")
                 return
-            path.extend([database, object_name])
+            path.extend(
+                [database.lower(), object_name.lower()]
+            )  # path should be normalized, i.e. should be lowercase
             hierarchy_key = dataset_normalized_name(database, object_name)
         logical_id = HierarchyLogicalID(path=path)
 
         self._hierarchies.setdefault(
-            hierarchy_key, Hierarchy(logical_id=logical_id, system_tags=[])
-        ).system_tags.append(
+            hierarchy_key,
+            Hierarchy(
+                logical_id=logical_id, system_tags=SystemTags(tags=[])
+            ),  # SystemTags.tags should never be empty
+        ).system_tags.tags.append(
             SystemTag(
                 key=tag_key,
                 system_tag_source=SystemTagSource.SNOWFLAKE,
@@ -508,6 +519,7 @@ class SnowflakeExtractor(BaseExtractor):
         return [schema[0] for schema in cursor]
 
     def _fetch_streams(self, cursor: SnowflakeCursor, database: str, schema: str):
+        count = 0
         cursor.execute(f"SHOW STREAMS IN {schema}")
         for entry in cursor:
             (
@@ -527,16 +539,14 @@ class SnowflakeExtractor(BaseExtractor):
                 entry[11],
                 entry[12],
             )
-            row_count = None
-            stale = str(stale_) == "false"
-            if not stale:
-                with self._conn.cursor() as row_count_cursor:
-                    row_count_cursor.execute(
-                        f'SELECT COUNT("ID") FROM {database}.{schema}.{stream_name}'
-                    )
-                    result = row_count_cursor.fetchone()
-                    if isinstance(result, tuple):
-                        row_count = result[0]
+
+            row_count = (
+                self._fetch_stream_row_count(f"{database}.{schema}.{stream_name}")
+                if self._streams_count_rows
+                else None
+            )
+
+            stale = str(stale_) == "true"
 
             normalized_name = dataset_normalized_name(database, schema, stream_name)
             dataset = self._init_dataset(
@@ -585,6 +595,24 @@ class SnowflakeExtractor(BaseExtractor):
             )
 
             self._datasets[normalized_name] = dataset
+            count += 1
+
+        logger.info(f"Found {count} stream tables in {database}.{schema}")
+
+    def _fetch_stream_row_count(self, stream_name) -> Optional[int]:
+        with self._conn.cursor() as cursor:
+            try:
+                cursor.execute(f"SELECT COUNT(1) FROM {stream_name}")
+            except Exception:
+                # Many reasons can cause row counting to fail, e.g.
+                # stream staleness or dropped base table
+                return None
+
+            result = cursor.fetchone()
+            if isinstance(result, tuple):
+                return result[0]
+
+        return None
 
     def _batch_query_for_access_logs(
         self, start_date: datetime, end_date: datetime, batches: int
