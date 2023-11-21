@@ -778,11 +778,18 @@ class SnowflakeExtractor(BaseExtractor):
         return dataset
 
     @staticmethod
-    def build_table_url(account: str, full_name: str) -> str:
+    def build_table_url(account: str, full_name: str) -> Optional[str]:
+        tokens = account.split("-")
+        if len(tokens) != 2:
+            logger.warning(
+                f"Cannot deduce orgname and account name from identifier: {account}"
+            )
+            return None
+        org_name, account_name = tokens
         db, schema, table = full_name.upper().split(".")
         return (
-            f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
-            f"databaseName={db}&schemaName={schema}&tableName={table}"
+            f"https://app.snowflake.com/{org_name}/{account_name}/#/data/"
+            f"databases/{db}/schemas/{schema}/table/{table}"
         )
 
     def _parse_accessed_objects(self, raw_objects: str) -> List[QueriedDataset]:

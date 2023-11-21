@@ -39,12 +39,14 @@ def make_snowflake_config(filter: Optional[DatasetFilter] = None):
 
 
 def test_table_url():
-    account = "foo"
+    account = "foo-bar"
     full_name = "this.is.TesT"
     assert (
         SnowflakeExtractor.build_table_url(account, full_name)
-        == "https://foo.snowflakecomputing.com/console#/data/tables/detail?databaseName=THIS&schemaName=IS&tableName=TEST"
+        == "https://app.snowflake.com/foo/bar/#/data/databases/THIS/schemas/IS/table/TEST"
     )
+
+    assert SnowflakeExtractor.build_table_url("badaccount", "I.Dont.caRE") is None
 
 
 @patch("metaphor.snowflake.auth.connect")
