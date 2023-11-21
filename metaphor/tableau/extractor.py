@@ -180,7 +180,7 @@ class TableauExtractor(BaseExtractor):
         # mapping of datasource to (query, list of upstream dataset IDs)
         datasource_upstream_datasets = {}
         for item in custom_sql_tables:
-            custom_sql_table = CustomSqlTable.parse_obj(item)
+            custom_sql_table = CustomSqlTable.model_validate(item)
             datasource_upstream_datasets.update(
                 self._parse_custom_sql_table(custom_sql_table)
             )
@@ -194,7 +194,7 @@ class TableauExtractor(BaseExtractor):
 
         for item in workbooks:
             try:
-                workbook = WorkbookQueryResponse.parse_obj(item)
+                workbook = WorkbookQueryResponse.model_validate(item)
                 self._parse_workbook_query_response(
                     workbook, datasource_upstream_datasets
                 )
@@ -431,6 +431,10 @@ class TableauExtractor(BaseExtractor):
                 custom_sql_source.sources if custom_sql_source else None
             ) or self._parse_upstream_datasets(embedded_source.upstreamTables)
 
+            url = None
+            if len(embedded_source.upstreamDatasources) == 1:
+                url = f"{self._base_url}/datasources/{embedded_source.upstreamDatasources[0].vizportalUrlId}"
+
             self._virtual_views[embedded_source.id] = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=embedded_source.id
@@ -454,6 +458,7 @@ class TableauExtractor(BaseExtractor):
                     if custom_sql_source
                     else None,
                     source_datasets=source_datasets or None,
+                    url=url,
                 ),
             )
             source_virtual_views.append(virtual_view_id)

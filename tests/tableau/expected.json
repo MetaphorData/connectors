@@ -73,7 +73,8 @@
       "name": "default.source2",
       "sourceDatasets": [
         "DATASET~F9D8E5963019975462CB6CB2002D247B"
-      ]
+      ],
+      "url": "https://10ax.online.tableau.com/#/site/abc/datasources/888"
     }
   },
   {

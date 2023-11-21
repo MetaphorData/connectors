@@ -353,12 +353,35 @@ async def test_extractor(
                             },
                         }
                     ],
+                    "upstreamDatasources": [
+                        {
+                            "id": "sourceId2",
+                            "luid": "sourceId2",
+                            "name": "source2",
+                            "vizportalUrlId": "888",
+                            "fields": [],
+                            "upstreamTables": [
+                                {
+                                    "luid": "5dca51d8",
+                                    "name": "CYCLE_HIRE",
+                                    "fullName": "[BERLIN_BICYCLES].[CYCLE_HIRE]",
+                                    "schema": "BERLIN_BICYCLES",
+                                    "description": "",
+                                    "database": {
+                                        "name": "ACME",
+                                        "connectionType": "redshift",
+                                    },
+                                }
+                            ],
+                        }
+                    ],
                 },
                 {
                     "id": "sourceId3",
                     "name": "source3",
                     "fields": [],
                     "upstreamTables": [],
+                    "upstreamDatasources": [],
                 },
             ],
         }

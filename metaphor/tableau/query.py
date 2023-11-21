@@ -60,6 +60,27 @@ query($first: Int, $offset: Int) {
             connectionType
           }
         }
+        upstreamDatasources {
+          id
+          luid
+          vizportalUrlId
+          name
+          description
+          fields {
+            name
+            description
+          }
+          upstreamTables {
+            luid
+            name
+            fullName
+            schema
+            database {
+              name
+              connectionType
+            }
+          }
+        }
       }
     }
   }
@@ -102,6 +123,7 @@ class EmbeddedDatasource(BaseModel):
     name: str
     fields: List[DatasourceField]
     upstreamTables: List[DatabaseTable]
+    upstreamDatasources: List[PublishedDatasource]
 
 
 class WorkbookQueryResponse(BaseModel):
