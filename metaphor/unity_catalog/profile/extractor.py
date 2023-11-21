@@ -109,12 +109,15 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                     ]
                     dataset_statistics.data_size_bytes = bytes_count
                     dataset_statistics.record_count = row_count
-                cursor.execute(f"DESCRIBE HISTORY {escaped_name} LIMIT 1")
-                latest_history = cursor.fetchone()
-                if latest_history:
-                    dataset_statistics.last_updated = latest_history.asDict().get(
-                        "timestamp"
-                    )
+                cursor.execute(f"DESCRIBE HISTORY {escaped_name}")
+                excluded_operations = {
+                    "SET TBLPROPERTIES",
+                    "ADD CONSTRAINT",
+                }
+                for history in cursor.fetchall():
+                    if history["operation"] not in excluded_operations:
+                        dataset_statistics.last_updated = history["timestamp"]
+                        break
 
         return dataset_statistics
 
