@@ -32,6 +32,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
+    EntityUpstream,
     SourceInfo,
     TableauDatasource,
     TableauField,
@@ -461,6 +462,7 @@ class TableauExtractor(BaseExtractor):
         dashboard.upstream = DashboardUpstream(
             source_virtual_views=source_virtual_views
         )
+        dashboard.entity_upstream = EntityUpstream(source_entities=source_virtual_views)
 
     def _parse_upstream_datasets(
         self, upstreamTables: List[DatabaseTable]
