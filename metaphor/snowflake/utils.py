@@ -51,6 +51,8 @@ table_type_to_materialization_type: Dict[SnowflakeTableType, MaterializationType
 str_to_source_type: Dict[str, SnowflakeStreamSourceType] = {
     "TABLE": SnowflakeStreamSourceType.TABLE,
     "VIEW": SnowflakeStreamSourceType.VIEW,
+    "EXTERNAL_TABLE": SnowflakeStreamSourceType.TABLE,
+    "DIRECTORY_TABLE": SnowflakeStreamSourceType.TABLE,
 }
 
 str_to_stream_type: Dict[str, SnowflakeStreamType] = {
