@@ -109,6 +109,12 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                     ]
                     dataset_statistics.data_size_bytes = bytes_count
                     dataset_statistics.record_count = row_count
+                cursor.execute(f"DESCRIBE HISTORY {escaped_name} LIMIT 1")
+                latest_history = cursor.fetchone()
+                if latest_history:
+                    dataset_statistics.last_updated = latest_history.asDict().get(
+                        "timestamp"
+                    )
 
         return dataset_statistics
 
