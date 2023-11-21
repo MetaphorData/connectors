@@ -320,6 +320,11 @@
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6"
       ]
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6"
+      ]
     }
   },
   {
@@ -362,6 +367,11 @@
     },
     "upstream": {
       "sourceVirtualViews": [
+        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
+      ]
+    },
+    "entityUpstream": {
+      "sourceEntities": [
         "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
       ]
     }
@@ -434,6 +444,12 @@
         "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
         "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
       ]
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
+        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
+      ]
     }
   },
   {
@@ -472,6 +488,12 @@
     },
     "upstream": {
       "sourceVirtualViews": [
+        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
+        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
+      ]
+    },
+    "entityUpstream": {
+      "sourceEntities": [
         "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
         "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
       ]
