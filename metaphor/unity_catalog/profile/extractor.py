@@ -37,9 +37,7 @@ NON_MODIFICATION_OPERATIONS = {
     "SET TBLPROPERTIES",
     "ADD CONSTRAINT",
 }
-"""
-These are the operations that do not count as modifications.
-"""
+"""These are the operations that do not count as modifications."""
 
 
 class UnityCatalogProfileExtractor(BaseExtractor):
