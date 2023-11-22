@@ -67,7 +67,7 @@ class ConnectorStatus(V1CompatBaseModel):
     setup_state: str
     update_state: str
     sync_state: str
-    is_historical_sync: str
+    is_historical_sync: bool
 
 
 class ConnectorPayload(V1CompatBaseModel):

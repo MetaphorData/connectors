@@ -33,6 +33,12 @@ logger = get_logger()
 
 logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
+NON_MODIFICATION_OPERATIONS = {
+    "SET TBLPROPERTIES",
+    "ADD CONSTRAINT",
+}
+"""These are the operations that do not count as modifications."""
+
 
 class UnityCatalogProfileExtractor(BaseExtractor):
     """Unity Catalog data profile extractor"""
@@ -109,6 +115,11 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                     ]
                     dataset_statistics.data_size_bytes = bytes_count
                     dataset_statistics.record_count = row_count
+                cursor.execute(f"DESCRIBE HISTORY {escaped_name}")
+                for history in cursor.fetchall():
+                    if history["operation"] not in NON_MODIFICATION_OPERATIONS:
+                        dataset_statistics.last_updated = history["timestamp"]
+                        break
 
         return dataset_statistics
 

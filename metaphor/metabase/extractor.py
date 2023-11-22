@@ -21,6 +21,7 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DashboardUpstream,
     DataPlatform,
+    EntityUpstream,
     SourceInfo,
 )
 
@@ -212,6 +213,11 @@ class MetabaseExtractor(BaseExtractor):
             if upstream_datasets
             else None
         )
+        entity_upstream = (
+            EntityUpstream(source_entities=list(upstream_datasets))
+            if upstream_datasets
+            else None
+        )
 
         dashboard = Dashboard(
             logical_id=DashboardLogicalID(
@@ -221,6 +227,7 @@ class MetabaseExtractor(BaseExtractor):
             dashboard_info=dashboard_info,
             source_info=source_info,
             upstream=dashboard_upstream,
+            entity_upstream=entity_upstream,
         )
 
         self._dashboards[dashboard_id] = dashboard

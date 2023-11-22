@@ -25,6 +25,7 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardUpstream,
+    EntityUpstream,
     SourceInfo,
     VirtualViewType,
 )
@@ -129,9 +130,13 @@ class LookerExtractor(BaseExtractor):
                 dashboard_info.view_count = float(dashboard.view_count)
 
             upstream = None
+            entity_upstream = None
             if dashboard.dashboard_elements is not None:
                 (dashboard_info.charts, upstream) = self._extract_charts(
                     dashboard.dashboard_elements, model_map
+                )
+                entity_upstream = EntityUpstream(
+                    source_entities=upstream.source_virtual_views,  # `upstream` doesn't have any dataset
                 )
 
             dashboards.append(
@@ -141,6 +146,7 @@ class LookerExtractor(BaseExtractor):
                     ),
                     dashboard_info=dashboard_info,
                     source_info=source_info,
+                    entity_upstream=entity_upstream,
                     upstream=upstream,
                 )
             )
