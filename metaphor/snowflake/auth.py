@@ -43,10 +43,8 @@ class SnowflakeKeyPairAuthConfig:
 @dataclass(config=ConnectorConfig)
 class SnowflakeAuthConfig(BaseConfig):
     account: str
-    """
-    This is the account identifier, which is defined as `{ORG_NAME}-{ACCOUNT_NAME}`.
-    See https://docs.snowflake.com/en/user-guide/admin-account-identifier for more info.
-    """
+    """This is the account identifier. See https://docs.snowflake.com/en/user-guide/admin-account-identifier for more info."""
+
     user: str
 
     # if using default authenticator
