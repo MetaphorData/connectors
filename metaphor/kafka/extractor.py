@@ -47,6 +47,8 @@ class KafkaExtractor(BaseExtractor):
 
         cluster_metadata = self._admin_client.list_topics()
         subjects = self._schema_registry_client.get_subjects()
+        if cluster_metadata.topics is None:
+            raise ValueError("Cannot find any topic")
         for topic in cluster_metadata.topics.keys():
             if topic not in SYSTEM_GENERATED_TOPICS:
                 logger.info(f"Topic: {topic}")
