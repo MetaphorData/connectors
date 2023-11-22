@@ -25,14 +25,14 @@ METAPHOR_DATA_SNOWFLAKE_CONNECTOR = "MetaphorData_SnowflakeConnector"
 class SnowflakeKeyPairAuthConfig:
     """Config for key pair authentication"""
 
-    # path to the PEM key file
     key_file: Optional[str] = None
+    """path to the PEM key file"""
 
-    # raw content of the PEM key file
     key_data: Optional[str] = None
+    """raw content of the PEM key file"""
 
-    # provide decryption passphrase if private key is encrypted
     passphrase: Optional[str] = None
+    """provide decryption passphrase if private key is encrypted"""
 
     @model_validator(mode="after")
     def have_key_file_or_key_content(self):
@@ -43,25 +43,27 @@ class SnowflakeKeyPairAuthConfig:
 @dataclass(config=ConnectorConfig)
 class SnowflakeAuthConfig(BaseConfig):
     account: str
+    """This is the account identifier. See https://docs.snowflake.com/en/user-guide/admin-account-identifier for more info."""
+
     user: str
 
-    # if using default authenticator
     password: Optional[str] = None
+    """if using default authenticator"""
 
-    # if using key pair authentication
     private_key: Optional[SnowflakeKeyPairAuthConfig] = None
+    """if using key pair authentication"""
 
-    # role to use when opening a connection
     role: Optional[str] = None
+    """role to use when opening a connection"""
 
-    # warehouse to use when opening a connection
     warehouse: Optional[str] = None
+    """warehouse to use when opening a connection"""
 
-    # database context when opening a connection
     default_database: Optional[str] = None
+    """database context when opening a connection"""
 
-    # the query tags for each snowflake query the connector issues
     query_tag: Optional[str] = METAPHOR_DATA
+    """the query tags for each snowflake query the connector issues"""
 
     @model_validator(mode="after")
     def have_password_or_private_key(self):
