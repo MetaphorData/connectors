@@ -44,9 +44,9 @@ async def test_extractor(
 
     def mock_get_latest_version(topic: str):
         if topic == "foo":
-            return RegisteredSchema("0000", Schema('"string"', "AVRO"), "foo", 1)
+            return RegisteredSchema(0, Schema('"string"', "AVRO"), "foo", 1)
         elif topic == "bar":
-            return RegisteredSchema("0001", Schema('"double"', "AVRO"), "bar", 1)
+            return RegisteredSchema(1, Schema('"double"', "AVRO"), "bar", 1)
         assert False
 
     mock_schema_registry_client.get_latest_version = mock_get_latest_version
