@@ -4334,7 +4334,7 @@ files = [
 name = "types-confluent-kafka"
 version = "1.0.1"
 description = ""
-optional = false
+optional = true
 python-versions = ">=3.8,<4.0"
 files = [
     {file = "types_confluent_kafka-1.0.1-py3-none-any.whl", hash = "sha256:175ee7a18ba74cedfdc0f7bedb7e12d45f3f38160b4e355e7218bf46395cc8cb"},
@@ -4661,11 +4661,11 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "databricks-sdk", "databricks-sql-connector", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "msal", "msgraph-beta-sdk", "pycarlo", "pymssql", "pymysql", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "azure-identity", "azure-mgmt-datafactory", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "google-cloud-bigquery", "google-cloud-logging", "lkml", "looker-sdk", "msal", "msgraph-beta-sdk", "pycarlo", "pymssql", "pymysql", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "types-confluent-kafka"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 dbt = []
-kafka = ["avro", "confluent-kafka"]
+kafka = ["confluent-kafka", "types-confluent-kafka"]
 looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
 metabase = ["sql-metadata"]
 monte-carlo = ["pycarlo"]
@@ -4683,4 +4683,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "f1460986bfc332125b8637286f8e866868e8e0f4e8a64edeec3daae62e7f1c65"
+content-hash = "f1a3d77ba3d142609d1cff8986bcc88e09a1219cf11bef02950b527f96e8cb3a"
