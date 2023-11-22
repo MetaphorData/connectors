@@ -46,7 +46,10 @@ def test_table_url():
         == "https://app.snowflake.com/foo/bar/#/data/databases/THIS/schemas/IS/table/TEST"
     )
 
-    assert SnowflakeExtractor.build_table_url("badaccount", "I.Dont.caRE") is None
+    assert (
+        SnowflakeExtractor.build_table_url("legacy_account", "Its.Another.Test")
+        == "https://legacy_account.snowflakecomputing.com/console#/data/tables/detail?databaseName=ITS&schemaName=ANOTHER&tableName=TEST"
+    )
 
 
 @patch("metaphor.snowflake.auth.connect")

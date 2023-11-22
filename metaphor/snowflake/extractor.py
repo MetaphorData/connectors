@@ -778,18 +778,27 @@ class SnowflakeExtractor(BaseExtractor):
         return dataset
 
     @staticmethod
-    def build_table_url(account: str, full_name: str) -> Optional[str]:
-        tokens = account.split("-")
-        if len(tokens) != 2:
-            logger.warning(
-                f"Cannot deduce orgname and account name from identifier: {account}"
-            )
-            return None
-        org_name, account_name = tokens
+    def build_table_url(account: str, full_name: str) -> str:
         db, schema, table = full_name.upper().split(".")
+        if "-" in account:
+            # New account identifier with org name and account name.
+            # org name can't have dash in it; as for account name while it
+            # is not supposed to have dash inside, Snowflake docs says
+            # they allow substituting underscores with dashes, so let's
+            # allow that here.
+
+            org_name, account_name = account.split(
+                "-", 1
+            )  # split into org_name, account_name
+            return (
+                f"https://app.snowflake.com/{org_name}/{account_name}/#/data/"
+                f"databases/{db}/schemas/{schema}/table/{table}"
+            )
+
+        # Legacy account identifier. Just use it.
         return (
-            f"https://app.snowflake.com/{org_name}/{account_name}/#/data/"
-            f"databases/{db}/schemas/{schema}/table/{table}"
+            f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
+            f"databaseName={db}&schemaName={schema}&tableName={table}"
         )
 
     def _parse_accessed_objects(self, raw_objects: str) -> List[QueriedDataset]:
