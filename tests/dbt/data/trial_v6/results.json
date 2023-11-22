@@ -277,6 +277,11 @@
     "logicalId": {
       "name": "trial.my_second_dbt_model",
       "type": "DBT_MODEL"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
+      ]
     }
   },
   {
@@ -392,6 +397,11 @@
     "logicalId": {
       "name": "trial.trial_model_1",
       "type": "DBT_MODEL"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~0A27263039022A2F145CAB8A63CB2D58"
+      ]
     }
   },
   {
@@ -516,6 +526,11 @@
     "logicalId": {
       "name": "trial.trial_model_2",
       "type": "DBT_MODEL"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~C931554DBA0604DA498A2E772F3D6FEF"
+      ]
     }
   },
   {
