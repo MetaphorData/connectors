@@ -51,6 +51,7 @@ sql-metadata = { version = "^2.8.0", optional = true }
 sqllineage = { version = "~=1.3.8", optional = true }
 tableauserverclient = { version = "^0.25", optional = true }
 thoughtspot_rest_api_v1 = { version = "1.5.3", optional = true }
+types-confluent-kafka = { version = "^1.0.1", optional = true } # Stubs for confluent kafka
 pathvalidate = "^3.2.0"
 
 [tool.poetry.extras]
@@ -76,12 +77,13 @@ all = [
   "sql-metadata",
   "sqllineage",
   "tableauserverclient",
+  "types-confluent-kafka",
   "thoughtspot-rest-api-v1",
 ]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 dbt = []
-kafka = ["confluent-kafka"]
+kafka = ["confluent-kafka", "types-confluent-kafka"]
 looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
 metabase = ["sql-metadata"]
 monte_carlo = ["pycarlo"]
