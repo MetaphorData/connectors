@@ -1,0 +1,31 @@
+[
+  {
+    "logicalId": {
+      "name": "foo_1",
+      "platform": "KAFKA"
+    },
+    "schema": {
+      "rawSchema": "\"string\"",
+      "schemaType": "AVRO"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "bar_1",
+      "platform": "KAFKA"
+    },
+    "schema": {
+      "rawSchema": "\"double\"",
+      "schemaType": "AVRO"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "no_schema",
+      "platform": "KAFKA"
+    },
+    "schema": {
+      "schemaType": "SCHEMALESS"
+    }
+  }
+]
