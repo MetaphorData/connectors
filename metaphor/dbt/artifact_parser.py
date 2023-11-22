@@ -38,6 +38,7 @@ from metaphor.models.metadata_change_event import (
     DbtMetric,
     DbtModel,
     DbtTest,
+    EntityUpstream,
     Metric,
     MetricFilter,
     OwnershipAssignment,
@@ -491,6 +492,16 @@ class ArtifactParser:
             dbt_model.source_models,
             dbt_model.macros,
         ) = self._parse_depends_on(model.depends_on, source_map, macro_map)
+
+        source_entities = []
+        if dbt_model.source_datasets is not None:
+            source_entities.extend(dbt_model.source_datasets)
+        if dbt_model.source_models is not None:
+            source_entities.extend(dbt_model.source_models)
+        if len(source_entities) > 0:
+            virtual_view.entity_upstream = EntityUpstream(
+                source_entities=source_entities,
+            )
 
     def _parse_macros(self, macros: MACRO_MAP) -> Dict[str, DbtMacro]:
         macro_map: Dict[str, DbtMacro] = {}

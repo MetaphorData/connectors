@@ -5,6 +5,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     DatasetLogicalID,
     EntityType,
+    EntityUpstream,
     LookerExplore,
     LookerExploreJoin,
     LookerView,
@@ -83,6 +84,7 @@ def test_basic(test_root_dir):
                 source_datasets=[str(dataset_id)],
                 url="http://foo/files/view1.view.lkml",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -159,6 +161,7 @@ def test_join(test_root_dir):
                     ],
                     source_datasets=[str(dataset_id1)],
                 ),
+                entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -173,6 +176,7 @@ def test_join(test_root_dir):
                     ],
                     source_datasets=[str(dataset_id2)],
                 ),
+                entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -249,6 +253,7 @@ def test_explore_in_view(test_root_dir):
                     ],
                     source_datasets=[str(dataset_id)],
                 ),
+                entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -313,6 +318,7 @@ def test_derived_table(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -321,6 +327,7 @@ def test_derived_table(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -329,6 +336,7 @@ def test_derived_table(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -396,6 +404,7 @@ def test_sql_table_name(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id1)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -438,6 +447,7 @@ def test_include_relative_to_model(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id1)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -446,6 +456,7 @@ def test_include_relative_to_model(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id2)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
         ),
     ]
 
@@ -510,6 +521,7 @@ def test_complex_includes(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id1)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -518,6 +530,7 @@ def test_complex_includes(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id2)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -526,6 +539,7 @@ def test_complex_includes(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id3)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id3)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -534,6 +548,7 @@ def test_complex_includes(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_id4)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_id4)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -605,6 +620,7 @@ def test_view_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_table1)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_table1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -613,6 +629,7 @@ def test_view_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_table2)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -621,6 +638,7 @@ def test_view_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_table2)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -629,6 +647,7 @@ def test_view_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_table3)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_table3)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -637,6 +656,7 @@ def test_view_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_table2)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -645,6 +665,7 @@ def test_view_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_base_view3)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_base_view3)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -724,6 +745,7 @@ def test_explore_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_view1)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_view1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -732,6 +754,7 @@ def test_explore_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_view2)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_view2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -740,6 +763,7 @@ def test_explore_extension(test_root_dir):
             looker_view=LookerView(
                 source_datasets=[str(dataset_view3)],
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_view3)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
