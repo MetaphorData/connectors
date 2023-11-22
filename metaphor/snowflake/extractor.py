@@ -780,25 +780,29 @@ class SnowflakeExtractor(BaseExtractor):
     @staticmethod
     def build_table_url(account: str, full_name: str) -> str:
         db, schema, table = full_name.upper().split(".")
-        if "-" in account:
-            # New account identifier with org name and account name.
-            # org name can't have dash in it; as for account name while it
-            # is not supposed to have dash inside, Snowflake docs says
-            # they allow substituting underscores with dashes, so let's
-            # allow that here.
 
-            org_name, account_name = account.split(
-                "-", 1
-            )  # split into org_name, account_name
+        if "." in account or "-" not in account:
+            # Definitely legacy account identifier:
+            # - If identifier contains ".", it contains a region part
+            # - If it doesn't have a "-", means it's the default region
+            # Ref: https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-2-legacy-account-locator-in-a-region
             return (
-                f"https://app.snowflake.com/{org_name}/{account_name}/#/data/"
-                f"databases/{db}/schemas/{schema}/table/{table}"
+                f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
+                f"databaseName={db}&schemaName={schema}&tableName={table}"
             )
 
-        # Legacy account identifier. Just use it.
+        # New account identifier with org name and account name.
+        # org name can't have dash in it; as for account name while it
+        # is not supposed to have dash inside, Snowflake docs says
+        # they allow substituting underscores with dashes, so let's
+        # allow that here.
+        # Ref: https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-1-preferred-account-name-in-your-organization
+        org_name, account_name = account.split(
+            "-", 1
+        )  # split into org_name, account_name
         return (
-            f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
-            f"databaseName={db}&schemaName={schema}&tableName={table}"
+            f"https://app.snowflake.com/{org_name}/{account_name}/#/data/"
+            f"databases/{db}/schemas/{schema}/table/{table}"
         )
 
     def _parse_accessed_objects(self, raw_objects: str) -> List[QueriedDataset]:
