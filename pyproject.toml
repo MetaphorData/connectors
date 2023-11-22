@@ -59,6 +59,7 @@ all = [
   "asyncpg",
   "azure-identity",
   "azure-mgmt-datafactory",
+  "confluent-kafka",
   "databricks-sdk",
   "databricks-sql-connector",
   "GitPython",
