@@ -23,6 +23,7 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import (
+    EntityUpstream,
     LookerExplore,
     LookerExploreJoin,
     LookerView,
@@ -229,6 +230,7 @@ def _build_looker_view(
             name=fullname(model, name), type=VirtualViewType.LOOKER_VIEW
         ),
         looker_view=view,
+        entity_upstream=EntityUpstream(source_entities=view.source_datasets),
     )
 
 

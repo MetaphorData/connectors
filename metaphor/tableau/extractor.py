@@ -408,6 +408,7 @@ class TableauExtractor(BaseExtractor):
                     url=f"{self._base_url}/datasources/{published_source.vizportalUrlId}",
                     source_datasets=source_datasets or None,
                 ),
+                entity_upstream=EntityUpstream(source_entities=source_datasets or None),
             )
             source_virtual_views.append(virtual_view_id)
             published_datasources.append(published_source.name)
@@ -456,6 +457,7 @@ class TableauExtractor(BaseExtractor):
                     else None,
                     source_datasets=source_datasets or None,
                 ),
+                entity_upstream=EntityUpstream(source_entities=source_datasets or None),
             )
             source_virtual_views.append(virtual_view_id)
 

@@ -481,6 +481,13 @@
     "logicalId": {
       "name": "jaffle_shop.customers",
       "type": "DBT_MODEL"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~F3CAA2D12722D7A5CB634D3277D91846",
+        "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
+        "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3"
+      ]
     }
   },
   {
@@ -659,6 +666,14 @@
     "logicalId": {
       "name": "jaffle_shop.orders",
       "type": "DBT_MODEL"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
+        "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
+      ]
     }
   },
   {
@@ -716,6 +731,13 @@
     "logicalId": {
       "name": "jaffle_shop.order_items",
       "type": "DBT_MODEL"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
+      ]
     }
   }
 ]

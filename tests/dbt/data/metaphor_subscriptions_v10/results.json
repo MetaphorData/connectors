@@ -330,6 +330,11 @@
           "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
         }
       ]
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~1BD666702EACA1E95384807DA0DC92C7"
+      ]
     }
   },
   {
@@ -394,6 +399,13 @@
           "person": "PERSON~B39948BEACEF16E5E6F3D53BDB9BCD38"
         }
       ]
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~83680E0286B0CF430192EFDE05B765F5",
+        "DATASET~239D4B030A506874ED0CB2C8FA1B1AB2",
+        "VIRTUAL_VIEW~40E84C63748265E978F781C89A23BE51"
+      ]
     }
   },
   {
@@ -454,6 +466,11 @@
     "logicalId": {
       "name": "metaphor_subscriptions.churn_region_agg",
       "type": "DBT_MODEL"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ]
     },
     "ownershipAssignment": {
       "ownerships": [
@@ -584,6 +601,11 @@
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_v2.sql"
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~3904FBD7A1828492FFD11604A2E73442"
+      ]
+    },
     "logicalId": {
       "name": "metaphor_subscriptions.subscriptions_v2",
       "type": "DBT_MODEL"
@@ -699,6 +721,11 @@
     "logicalId": {
       "name": "metaphor_subscriptions.subscriptions_sales",
       "type": "DBT_MODEL"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ]
     }
   },
   {
@@ -743,6 +770,11 @@
         "subscription"
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/metaphor/models/metaphor/subscriptions_core.sql"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~3904FBD7A1828492FFD11604A2E73442"
+      ]
     },
     "logicalId": {
       "name": "metaphor_subscriptions.subscriptions_core",
