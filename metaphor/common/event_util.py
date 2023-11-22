@@ -1,7 +1,7 @@
 import json
 import logging
 from importlib import resources
-from typing import Union
+from typing import Optional, Union
 
 from jsonschema import ValidationError
 from jsonschema.validators import validator_for
@@ -80,14 +80,14 @@ class EventUtil:
         else:
             raise TypeError(f"invalid entity type {type(entity)}")
 
-    def validate_message(self, message: dict) -> bool:
+    def validate_message(self, message: dict) -> Optional[dict]:
         """Validate message against json schema"""
         try:
             self._validator.validate(message)
         except ValidationError as e:
             logger.error(f"MCE validation error: {e}. Message: {message}")
-            return False
-        return True
+            return None
+        return message
 
     @staticmethod
     def clean_nones(value):
