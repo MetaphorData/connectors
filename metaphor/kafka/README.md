@@ -42,7 +42,7 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ## Testing
 
-Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv).
+Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `kafka` extra.
 
 To test the connector locally, change the config file to output to a local path and run the following command
 

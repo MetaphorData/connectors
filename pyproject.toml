@@ -78,13 +78,12 @@ all = [
   "sql-metadata",
   "sqllineage",
   "tableauserverclient",
-  "types-confluent-kafka",
   "thoughtspot-rest-api-v1",
 ]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 dbt = []
-kafka = ["confluent-kafka", "types-confluent-kafka"]
+kafka = ["confluent-kafka"]
 looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
 metabase = ["sql-metadata"]
 monte_carlo = ["pycarlo"]
@@ -112,6 +111,7 @@ pytest = "^7.2.1"
 pytest-asyncio = "^0.21.0"
 pytest-cov = "^4.0.0"
 types-attrs = "^19.1.0"
+types-confluent-kafka = "^1.0.1"
 types-freezegun = "^1.1.10"
 types-python-dateutil = "^2.8.19.12"
 types-pytz = "^2023.3.0.0"
