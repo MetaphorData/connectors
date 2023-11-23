@@ -10,6 +10,14 @@ from metaphor.kafka.extractor import KafkaExtractor
 from metaphor.models.metadata_change_event import DatasetSchema, SchemaType
 from tests.test_utils import load_json
 
+dummy_config = KafkaConfig(
+    output=OutputConfig(),
+    schema_registry_url="http://localhost:5566",
+    bootstrap_servers=[
+        KafkaBootstrapServer(host="localhost", port=9487),
+    ],
+)
+
 
 @patch("metaphor.kafka.schema_resolver.SchemaResolver.build_resolver")
 @patch("metaphor.kafka.extractor.KafkaExtractor.init_admin_client")
@@ -19,14 +27,6 @@ async def test_extractor(
     mock_build_schema_resolver: MagicMock,
     test_root_dir: str,
 ) -> None:
-    config = KafkaConfig(
-        output=OutputConfig(),
-        schema_registry_url="http://localhost:5566",
-        bootstrap_servers=[
-            KafkaBootstrapServer(host="localhost", port=9487),
-        ],
-    )
-
     def mock_get_dataset_schemas(topic: str, all_versions: bool):
         if topic == "foo":
             return {
@@ -59,6 +59,6 @@ async def test_extractor(
     )
     mock_init_admin_client.side_effect = [mock_admin_client]
 
-    extractor = KafkaExtractor(config=config)
+    extractor = KafkaExtractor(config=dummy_config)
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{test_root_dir}/kafka/expected.json")

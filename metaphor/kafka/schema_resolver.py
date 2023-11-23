@@ -3,7 +3,7 @@ from typing import Dict, List
 from confluent_kafka.schema_registry import RegisteredSchema, SchemaRegistryClient
 
 from metaphor.common.logger import get_logger
-from metaphor.kafka.config import KafkaConfig
+from metaphor.kafka.config import KafkaConfig, KafkaSubjectNameStrategy
 from metaphor.models.metadata_change_event import DatasetSchema, SchemaType
 
 logger = get_logger()
@@ -12,36 +12,43 @@ logger = get_logger()
 class SchemaResolver:
     def __init__(self, config: KafkaConfig) -> None:
         self._schema_registry_client = self.init_schema_registry_client(config)
-        self._topic_records_map = config.topic_records_map
-        self._subject_name_strategy = config.subject_name_strategy
+        self._topic_naming_strategies = config.topic_naming_strategies
+        self._default_subject_name_strategy = config.default_subject_name_strategy
         self._known_subjects = self._schema_registry_client.get_subjects()
 
     def _resolve_topic_to_subjects(self, topic: str, is_key_schema: bool) -> List[str]:
         """
         Returns the list of subjects that relates to the topic.
         """
-        subject_key_suffix: str = "-key" if is_key_schema else "-value"
+        subject_key_suffix: str = "key" if is_key_schema else "value"
         key = topic + subject_key_suffix
-        if self._subject_name_strategy == "RECORD_NAME_STRATEGY":
-            if topic in self._topic_records_map:
-                return [
-                    record + subject_key_suffix
-                    for record in self._topic_records_map[topic]
-                ]
-            logger.warning(f"Cannot resolve subject from topic {topic}!")
-            logger.warning(
-                "Consider specifying the correct subject naming strategy, or providing a valid `topic_records_map` in the configs."
-            )
-            return []
+
+        records, subject_name_strategy = self._resolve_topic_naming_strategy(topic)
+        if subject_name_strategy is KafkaSubjectNameStrategy.RECORD_NAME_STRATEGY:
+            if not records:
+                logger.warning(
+                    f"Cannot find record for topic {topic} with name strategy = RECORD_NAME_STRATEGY"
+                )
+                return []
+            return [f"{record}-{subject_key_suffix}" for record in records]
+        if subject_name_strategy is KafkaSubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY:
+            if records:
+                return [f"{topic}-{record}-{subject_key_suffix}" for record in records]
+            # If no record is found, just gotta take whatever subject that starts with
+            # `topic` and ends with `subject_key_suffix`.
 
         subjects = []
         for subject in self._known_subjects:
-            if self._subject_name_strategy == "TOPIC_NAME_STRATEGY" and key == subject:
+            if (
+                subject_name_strategy is KafkaSubjectNameStrategy.TOPIC_NAME_STRATEGY
+                and key == subject
+            ):
                 subjects.append(subject)
             if (
-                self._subject_name_strategy == "TOPIC_RECORD_NAME_STRATEGY"
-                and subject.startswith(topic)
-                and subject.endswith(subject_key_suffix)
+                subject_name_strategy
+                is KafkaSubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY
+                and subject.startswith(topic + "-")
+                and subject.endswith("-" + subject_key_suffix)
             ):
                 subjects.append(subject)
         return subjects
@@ -91,3 +98,16 @@ class SchemaResolver:
     @staticmethod
     def build_resolver(config: KafkaConfig) -> "SchemaResolver":
         return SchemaResolver(config)
+
+    def _resolve_topic_naming_strategy(self, topic: str):
+        """
+        Resolves the topic to a tuple of records and SubjectNameStrategy.
+        If the topic isn't in `self._topic_naming_strategies`, returns an empty list and the default SubjectNameStrategy.
+        """
+        strat = self._topic_naming_strategies.get(topic)
+        records = []
+        if strat is not None:
+            records = strat.records
+            if strat.override_subject_name_strategy is not None:
+                return records, strat.override_subject_name_strategy
+        return records, self._default_subject_name_strategy
