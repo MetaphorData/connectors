@@ -758,15 +758,20 @@ class SnowflakeExtractor(BaseExtractor):
             main_url=SnowflakeExtractor.build_table_url(self._account, normalized_name)
         )
 
+        sql_schema = None
+        if table_type in [item.value for item in SnowflakeTableType]:
+            sql_schema = SQLSchema(
+                materialization=table_type_to_materialization_type[
+                    SnowflakeTableType(table_type)
+                ]
+            )
+        else:
+            logger.warning(f"Unknown table type: {table_type}")
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
             description=comment,
             fields=[],
-            sql_schema=SQLSchema(
-                materialization=table_type_to_materialization_type[
-                    SnowflakeTableType(table_type)
-                ],
-            ),
+            sql_schema=sql_schema,
         )
 
         dataset.statistics = to_dataset_statistics(row_count, table_bytes)
