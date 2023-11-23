@@ -22,7 +22,7 @@ async def test_extractor(
     config = KafkaConfig(
         output=OutputConfig(),
         schema_registry_url="http://localhost:5566",
-        servers=[
+        bootstrap_servers=[
             KafkaBootstrapServer(host="localhost", port=9487),
         ],
     )

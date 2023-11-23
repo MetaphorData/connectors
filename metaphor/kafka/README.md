@@ -1,6 +1,6 @@
 # Kafka Connector
 
-This connector extracts technical metadata from Kafka. Right now only locally created Kafka cluster has been tested.
+This connector extracts technical metadata from Kafka using [Confluent's Python Client](https://github.com/confluentinc/confluent-kafka-python).
 
 ## Setup
 

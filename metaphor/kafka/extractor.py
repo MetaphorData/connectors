@@ -5,6 +5,7 @@ from confluent_kafka.schema_registry import SchemaRegistryClient
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.filter import TopicFilter
 from metaphor.common.logger import get_logger
 from metaphor.kafka.config import KafkaConfig
 from metaphor.models.crawler_run_metadata import Platform
@@ -19,10 +20,12 @@ from metaphor.models.metadata_change_event import (
 logger = get_logger()
 
 
-SYSTEM_GENERATED_TOPICS = {
-    "_schemas",
-    "__consumer_offsets",
-}
+DEFAULT_FILTER: TopicFilter = TopicFilter(
+    excludes={
+        "_schemas",
+        "__consumer_offsets",
+    }
+)
 
 
 class KafkaExtractor(BaseExtractor):
@@ -36,6 +39,7 @@ class KafkaExtractor(BaseExtractor):
         super().__init__(config, "Kafka metadata crawler", Platform.KAFKA)
 
         self._config = config
+        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._admin_client = KafkaExtractor.init_admin_client(self._config)
         self._schema_registry_client = KafkaExtractor.init_schema_registry_client(
             self._config
@@ -50,7 +54,7 @@ class KafkaExtractor(BaseExtractor):
         if cluster_metadata.topics is None:
             raise ValueError("Cannot find any topic")
         for topic in cluster_metadata.topics.keys():
-            if topic not in SYSTEM_GENERATED_TOPICS:
+            if self._filter.include_topic(topic):
                 logger.info(f"Topic: {topic}")
                 name = topic
                 schema_type = SchemaType.SCHEMALESS
@@ -84,8 +88,8 @@ class KafkaExtractor(BaseExtractor):
     @staticmethod
     def init_admin_client(config: KafkaConfig) -> AdminClient:
         # FIXME how do we get this to break & exit if we cannot connect?
-        return AdminClient(config.as_config_dict())
+        return AdminClient(config.admin_conf)
 
     @staticmethod
     def init_schema_registry_client(config: KafkaConfig) -> SchemaRegistryClient:
-        return SchemaRegistryClient({"url": config.schema_registry_url})
+        return SchemaRegistryClient(config.schema_registry_conf)
