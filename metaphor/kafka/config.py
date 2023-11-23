@@ -1,7 +1,7 @@
 from dataclasses import field as dataclass_field
-from typing import Dict, List
+from typing import Dict, List, Literal
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -24,14 +24,33 @@ class KafkaConfig(BaseConfig):
 
     filter: TopicFilter = dataclass_field(default_factory=lambda: TopicFilter())
 
+    topic_records_map: Dict[str, List[str]] = dataclass_field(default_factory=dict)
+
+    subject_name_strategy: Literal[
+        "TOPIC_NAME_STRATEGY", "RECORD_NAME_STRATEGY", "TOPIC_RECORD_NAME_STRATEGY"
+    ] = "TOPIC_NAME_STRATEGY"
+
     @field_validator("bootstrap_servers")
     @classmethod
-    def _must_have_at_least_one_server(
+    def _must_have_at_least_one_bootstrap_server(
         cls, bootstrap_servers: List[KafkaBootstrapServer]
     ):
         if len(bootstrap_servers) < 1:
             raise ValueError("Must specify at least one Kafka server")
         return bootstrap_servers
+
+    @model_validator(mode="after")
+    def _record_name_strategy_must_have_topic_records_map(self) -> "KafkaConfig":
+        if self.subject_name_strategy == "RECORD_NAME_STRATEGY":
+            if not self.topic_records_map:
+                raise ValueError(
+                    "Cannot have empty topic_records_map when subject name strategy is RECORD_NAME_STRATEGY"
+                )
+            if all(len(x) == 0 for x in self.topic_records_map.values()):
+                raise ValueError(
+                    "No topic have record specified. Please fix the topic_records_map value."
+                )
+        return self
 
     @property
     def _bootstrap_servers_str(self) -> str:
