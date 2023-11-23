@@ -21,7 +21,7 @@ class SchemaResolver:
         Returns the list of subjects that relates to the topic.
         """
         subject_key_suffix: str = "key" if is_key_schema else "value"
-        key = topic + subject_key_suffix
+        key = f"{topic}-{subject_key_suffix}"
 
         records, subject_name_strategy = self._resolve_topic_naming_strategy(topic)
         if subject_name_strategy is KafkaSubjectNameStrategy.RECORD_NAME_STRATEGY:
