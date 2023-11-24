@@ -44,7 +44,9 @@ class SchemaResolver:
         if subject_name_strategy is KafkaSubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY:
             if records:
                 resolved_subject_names = [
-                    f"{topic}-{record}-{subject_key_suffix}" for record in records
+                    f"{topic}-{record}-{subject_key_suffix}"
+                    for record in records
+                    if f"{topic}-{record}-{subject_key_suffix}" in self._known_subjects
                 ]
                 if not resolved_subject_names:
                     logger.warning(

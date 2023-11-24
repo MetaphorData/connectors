@@ -148,3 +148,77 @@ def test_record_name_strategy_as_default(
     assert resolver._resolve_topic_to_subjects("foo", is_key_schema=False) == [
         "foo-really.awesome.fully.quantified.record-value"
     ]
+
+
+@patch("metaphor.kafka.schema_resolver.SchemaResolver.init_schema_registry_client")
+def test_schema_resolver_ignore_missing_subject_record_name_strategy(
+    mock_init_schema_registry_client: MagicMock,
+) -> None:
+    mock_schema_registry_client = MagicMock()
+    mock_schema_registry_client.get_subjects = MagicMock()
+    mock_schema_registry_client.get_subjects.return_value = [
+        "baz-value",
+        "bar-value",
+    ]
+    mock_init_schema_registry_client.side_effect = [mock_schema_registry_client]
+    config = KafkaConfig(
+        output=dummy_config.output,
+        schema_registry_url=dummy_config.schema_registry_url,
+        bootstrap_servers=dummy_config.bootstrap_servers,
+        topic_naming_strategies={
+            "foo": KafkaTopicNamingStrategy(records=["bar"]),
+        },
+        default_subject_name_strategy=KafkaSubjectNameStrategy.RECORD_NAME_STRATEGY,
+    )
+    resolver = SchemaResolver(config)
+    assert resolver._resolve_topic_to_subjects("foo", False) == ["bar-value"]
+
+    mock_init_schema_registry_client.side_effect = [mock_schema_registry_client]
+    config = KafkaConfig(
+        output=dummy_config.output,
+        schema_registry_url=dummy_config.schema_registry_url,
+        bootstrap_servers=dummy_config.bootstrap_servers,
+        topic_naming_strategies={
+            "foo": KafkaTopicNamingStrategy(records=["quax"]),
+        },
+        default_subject_name_strategy=KafkaSubjectNameStrategy.RECORD_NAME_STRATEGY,
+    )
+    resolver = SchemaResolver(config)
+    assert len(resolver._resolve_topic_to_subjects("foo", False)) == 0
+
+
+@patch("metaphor.kafka.schema_resolver.SchemaResolver.init_schema_registry_client")
+def test_schema_resolver_ignore_missing_subject_topic_record_name_strategy(
+    mock_init_schema_registry_client: MagicMock,
+) -> None:
+    mock_schema_registry_client = MagicMock()
+    mock_schema_registry_client.get_subjects = MagicMock()
+    mock_schema_registry_client.get_subjects.return_value = [
+        "foo-baz-value",
+        "foo-bar-value",
+    ]
+    mock_init_schema_registry_client.side_effect = [mock_schema_registry_client]
+    config = KafkaConfig(
+        output=dummy_config.output,
+        schema_registry_url=dummy_config.schema_registry_url,
+        bootstrap_servers=dummy_config.bootstrap_servers,
+        topic_naming_strategies={
+            "foo": KafkaTopicNamingStrategy(records=["bar"]),
+        },
+        default_subject_name_strategy=KafkaSubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY,
+    )
+    resolver = SchemaResolver(config)
+    assert resolver._resolve_topic_to_subjects("foo", False) == ["foo-bar-value"]
+
+    mock_init_schema_registry_client.side_effect = [mock_schema_registry_client]
+    config = KafkaConfig(
+        output=dummy_config.output,
+        schema_registry_url=dummy_config.schema_registry_url,
+        bootstrap_servers=dummy_config.bootstrap_servers,
+        topic_naming_strategies={
+            "foo": KafkaTopicNamingStrategy(records=["quax"]),
+        },
+        default_subject_name_strategy=KafkaSubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY,
+    )
+    resolver = SchemaResolver(config)
+    assert len(resolver._resolve_topic_to_subjects("foo", False)) == 0
