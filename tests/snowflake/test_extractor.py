@@ -178,7 +178,7 @@ def test_fetch_table_info_with_unknown_type(mock_connect: MagicMock):
     dataset = extractor._init_dataset(
         "db", "schema", "table", "BAD_TYPE", "comment", None, None
     )
-    assert dataset.schema.sql_schema is None
+    assert dataset.schema.sql_schema.materialization is None
 
 
 @patch("metaphor.snowflake.auth.connect")
