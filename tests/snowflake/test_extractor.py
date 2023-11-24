@@ -171,6 +171,17 @@ def test_fetch_table_info(mock_connect: MagicMock):
 
 
 @patch("metaphor.snowflake.auth.connect")
+def test_fetch_table_info_with_unknown_type(mock_connect: MagicMock):
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    extractor._conn = mock_connect
+    dataset = extractor._init_dataset(
+        "db", "schema", "table", "BAD_TYPE", "comment", None, None
+    )
+    assert dataset.schema.sql_schema.materialization is None
+
+
+@patch("metaphor.snowflake.auth.connect")
 def test_fetch_unique_keys(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 

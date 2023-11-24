@@ -24,7 +24,7 @@ DEFAULT_SLEEP_TIME = 0.1  # 0.1 s
 
 class SnowflakeTableType(Enum):
     """
-    All except for `STREAM` are table types returned by the information schema.
+    All except for `STREAM` are table types returned by the information schema. See `Columns` section in https://docs.snowflake.com/en/sql-reference/info-schema/tables for all possible table types in infomation schema.
 
     `STREAM` is there because information schema doesn't know about this type.
     """
