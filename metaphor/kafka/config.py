@@ -1,6 +1,6 @@
 from dataclasses import field as dataclass_field
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, field_validator, model_validator
 from pydantic.dataclasses import dataclass
@@ -86,9 +86,59 @@ class KafkaTopicNamingStrategy:
         return self
 
 
+@dataclass
+class KafkaSASLConfig:
+    """
+    The most commonly used SASL configuration values. For other configurations, please use `extra_admin_client_config` field.
+    """
+
+    username: str
+    """
+    SASL username for use with the `PLAIN` and `SASL-SCRAM-..` mechanisms.
+
+    Config key: "sasl.username".
+    """
+
+    password: str
+    """
+    SASL password for use with the `PLAIN` and `SASL-SCRAM-..` mechanisms.
+
+    Config key: "sasl.password".
+    """
+
+    mechanism: str = "GSSAPI"
+    """
+    SASL mechanism to use for authentication. Supported: `GSSAPI`, `PLAIN`, `SCRAM-SHA-256`, `SCRAM-SHA-512`, `OAUTHBEARER`.
+
+    Config key: "sasl.mechanism".
+    """
+
+    @property
+    def as_dict(self) -> Dict[str, str]:
+        return {
+            "sasl.username": self.username,
+            "sasl.password": self.password,
+            "sasl.mechanism": self.mechanism,
+        }
+
+
 @dataclass(config=ConnectorConfig)
 class KafkaConfig(BaseConfig):
     schema_registry_url: str
+    """
+    Schema registry URL.
+
+    Can contain basic HTTP auth username and password, e.g.
+    ```
+    http://username:password@host:port
+    ```
+    """
+
+    extra_admin_client_conf: Dict[str, Any] = dataclass_field(default_factory=dict)
+    """
+    Extra configuration values for the Kafka admin client. See https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md
+    for all available configurations.
+    """
 
     bootstrap_servers: List[KafkaBootstrapServer] = dataclass_field(
         default_factory=lambda: []
@@ -105,6 +155,8 @@ class KafkaConfig(BaseConfig):
     """
     Mapping from topic name to corresponding naming strategy.
     """
+
+    sasl_config: Optional[KafkaSASLConfig] = None
 
     default_subject_name_strategy: KafkaSubjectNameStrategy = (
         KafkaSubjectNameStrategy.TOPIC_NAME_STRATEGY
@@ -141,6 +193,8 @@ class KafkaConfig(BaseConfig):
     def admin_conf(self) -> Dict:
         return {
             "bootstrap.servers": self._bootstrap_servers_str,
+            **(self.sasl_config.as_dict if self.sasl_config is not None else {}),
+            **(self.extra_admin_client_conf),
         }
 
     @property

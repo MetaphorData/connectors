@@ -6,7 +6,7 @@ This connector extracts technical metadata from Kafka using [Confluent's Python 
 
 To run a Kafka cluster locally, follow the instructions below:
 1. Install [kcat](https://github.com/edenhill/kcat) to interact with the kafka broker.
-2. Start a kafka cluster locally via docker-compose:
+2. Start a kafka cluster (broker + zookeeper + schema registry) locally via docker-compose:
 ```shell
 docker-compose --file metaphor/kafka/docker-compose.yml up -d
 ```
@@ -17,7 +17,7 @@ kcat -b localhost:9092 -t {TOPIC} -P
 ```
 4. Create a schema for the topic:
 ```shell
-curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" --data {SCHEMA_STR} http://localhost:8081/subjects/{TOPIC}/versions
+curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" --data {SCHEMA_STR} http://localhost:8081/subjects/{TOPIC}-value/versions
 ```
 
 ## Config File
@@ -29,16 +29,135 @@ Create a YAML config file based on the following template.
 You must specify at least one bootstrap server, i.e. a pair of host and port pointing to the Kafka broker instance. You must also specify a URL for the schema registry.
 
 ```yaml
-servers:
+bootstrap_servers:
   - host: <host>
     port: <port>
-schema_registry_url: <schema_registry_url>
+schema_registry_url: <schema_registry_url> # Schema Registry URL. Schema registry client supports URL with basic HTTP authentication values, i.e. `http://username:password@host:port`.
 output:
   file:
     directory: <output_directory>
 ```
 
 See [Output Config](../common/docs/output.md) for more information on `output`.
+
+### Optional Configurations
+
+#### Kafka Admin Client
+
+##### Common SASL Authentication Configurations
+
+Some most commonly used SASL authentication configurations have their own section:
+
+```yaml
+sasl_config:
+  username: <username> # SASL username for use with the `PLAIN` and `SASL-SCRAM-..` mechanisms.
+  password: <password> # SASL password for use with the `PLAIN` and `SASL-SCRAM-..` mechanisms.
+  mechanism: <mechanism> # SASL mechanism to use for authentication. Supported: `GSSAPI`, `PLAIN`, `SCRAM-SHA-256`, `SCRAM-SHA-512`, `OAUTHBEARER`. Default: `GSSAPI`.
+```
+
+##### Other Configurations
+
+For other configurable values, please use `extra_admin_client_config` field:
+
+```yaml
+extra_admin_client_config:
+  sasl.kerberos.service.name: "kafka"
+  sasl.kerberos.principal: "kafkaclient"
+  ...
+```
+
+Visit [https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md) for full list of available Kafka client configurations.
+
+#### Filtering
+
+You can filter the topics you want to include in the ingested result:
+
+```yaml
+filter:
+  includes: <set of patterns to include>
+  excludes: <set of patterns to exclude>
+```
+
+By default the following topics are excluded:
+
+- `_schema`
+- `__consumer_offsets`
+
+#### Topic <-> Schema Subject Mapping
+
+Kafka messages are sent as key / value pairs, and both can have their schemas defined in the schema registry. There are three strategies to map topic to schema subjects:
+
+##### Strategies
+
+###### Topic Name Strategy (Default)
+
+For a topic `foo`, the subjects for the schemas for the messages sent through this topic would be `foo-key` (the key schema subject) and `foo-value` (the value schema subject).
+
+###### Record Name Strategy
+
+It is possible for a topic to have more than one schema. In that case this strartegy can be useful. To enable this as default, add the following in the configuration file:
+
+```yaml
+default_subject_name_strategy: RECORD_NAME_STRATEGY
+topic_naming_strategies:
+  foo:
+    records:
+      - bar
+      - baz
+```
+
+This means topic `foo` can transmit the following schemas:
+
+- `bar-key`
+- `bar-value`
+- `baz-key`
+- `baz-value`
+
+###### Topic Record Name Strategy
+
+This strategy is best demonstrated through an example:
+
+```yaml
+default_subject_name_strategy: TOPIC_RECORD_NAME_STRATEGY
+topic_naming_strategies:
+  foo:
+    records:
+      - bar
+      - baz
+  quax:
+    records: [] # If list of record names is empty, we take all subjects that starts with "<topic>-" and ends with "-<key|value>" as topic subjects.
+```
+
+- For topic `foo`, the subjects it transmits are
+  - `foo-bar-key`
+  - `foo-bar-value`
+  - `foo-baz-key`
+  - `foo-baz-value`
+- For topic `quax`, all subject that starts with `quax-` and ends with either `-key` or `-value` is considered a subject on topic `quax`.
+
+##### Overriding Subject Name Strategy for Specific Topics
+
+It is possible to override subject name strategy for specific topics:
+
+```yaml
+default_subject_name_strategy: RECORD_NAME_STRATEGY
+topic_naming_strategies:
+  foo:
+    records:
+      - bar
+      - baz
+  quax:
+    override_subject_name_strategy: TOPIC_NAME_STRATEGY
+```
+
+- The following subjects are transmitted through topic `foo`:
+  - `bar-key`
+  - `bar-value`
+  - `baz-key`
+  - `baz-value`
+- For topic `quax`, since it uses `TOPIC_NAME_STRATEGY`, connector will look for the following 2 subjects:
+  - `quax-key`
+  - `quax-value`
 
 ## Testing
 

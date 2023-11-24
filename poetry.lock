@@ -4683,4 +4683,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "08441a05cd35c0dc9a33ebc116277a9ca9727b99d61543426c6386b06f3ceb42"
+content-hash = "b2580bdfcc6f830b92be06e83fd691e3c503e3f2adb62dd32f8bc126a6c22f91"

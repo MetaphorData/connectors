@@ -30,10 +30,27 @@ class SchemaResolver:
                     f"Cannot find record for topic {topic} with name strategy = RECORD_NAME_STRATEGY"
                 )
                 return []
-            return [f"{record}-{subject_key_suffix}" for record in records]
+            resolved_subject_names = [
+                f"{record}-{subject_key_suffix}"
+                for record in records
+                if f"{record}-{subject_key_suffix}" in self._known_subjects
+            ]
+            if not resolved_subject_names:
+                logger.warning(
+                    f"No schema subject exist for topic {topic} with name strategy = RECORD_NAME_STRATEGY, records = {records}"
+                )
+            return resolved_subject_names
+
         if subject_name_strategy is KafkaSubjectNameStrategy.TOPIC_RECORD_NAME_STRATEGY:
             if records:
-                return [f"{topic}-{record}-{subject_key_suffix}" for record in records]
+                resolved_subject_names = [
+                    f"{topic}-{record}-{subject_key_suffix}" for record in records
+                ]
+                if not resolved_subject_names:
+                    logger.warning(
+                        f"No schema subject exist for topic {topic} with name strategy = TOPIC_RECORD_NAME_STRATEGY, records = {records}"
+                    )
+                return resolved_subject_names
             # If no record is found, just gotta take whatever subject that starts with
             # `topic` and ends with `subject_key_suffix`.
 
