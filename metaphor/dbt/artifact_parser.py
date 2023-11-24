@@ -14,6 +14,7 @@ from metaphor.dbt.util import (
     build_source_code_url,
     dataset_normalized_name,
     find_run_result_ouptput_by_id,
+    get_model_name_from_unique_id,
     get_ownerships_from_meta,
     get_tags_from_meta,
     get_virtual_view_id,
@@ -455,7 +456,7 @@ class ArtifactParser:
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
 
         virtual_view.structure = AssetStructure(
-            directories=model.original_file_path.split("/")[:-1],
+            directories=[get_model_name_from_unique_id(model.unique_id)],
             name=model.name,
         )
 

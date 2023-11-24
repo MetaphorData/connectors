@@ -54,8 +54,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "staging"
+        "jaffle_shop.stg_products"
       ],
       "name": "stg_products"
     }
@@ -115,8 +114,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "staging"
+        "jaffle_shop.stg_customers"
       ],
       "name": "stg_customers"
     }
@@ -189,8 +187,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "staging"
+        "jaffle_shop.stg_supplies"
       ],
       "name": "stg_supplies"
     }
@@ -263,8 +260,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "staging"
+        "jaffle_shop.stg_orders"
       ],
       "name": "stg_orders"
     }
@@ -324,8 +320,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "staging"
+        "jaffle_shop.stg_order_items"
       ],
       "name": "stg_order_items"
     }
@@ -398,8 +393,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "staging"
+        "jaffle_shop.stg_locations"
       ],
       "name": "stg_locations"
     }
@@ -533,8 +527,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "marts"
+        "jaffle_shop.customers"
       ],
       "name": "customers"
     }
@@ -726,8 +719,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "marts"
+        "jaffle_shop.orders"
       ],
       "name": "orders"
     }
@@ -765,8 +757,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "marts"
+        "jaffle_shop.metricflow_time_spine"
       ],
       "name": "metricflow_time_spine"
     }
@@ -804,8 +795,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "marts"
+        "jaffle_shop.order_items"
       ],
       "name": "order_items"
     }

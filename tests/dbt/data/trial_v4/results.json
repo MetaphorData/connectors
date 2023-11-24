@@ -222,8 +222,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "example"
+        "trial.my_first_dbt_model"
       ],
       "name": "my_first_dbt_model"
     }
@@ -292,8 +291,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "example"
+        "trial.my_second_dbt_model"
       ],
       "name": "my_second_dbt_model"
     }
@@ -419,8 +417,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "example"
+        "trial.trial_model_1"
       ],
       "name": "trial_model_1"
     }
@@ -555,8 +552,7 @@
     },
     "structure": {
       "directories": [
-        "models",
-        "example"
+        "trial.trial_model_2"
       ],
       "name": "trial_model_2"
     }
