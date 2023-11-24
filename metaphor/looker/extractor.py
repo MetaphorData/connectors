@@ -18,6 +18,7 @@ from metaphor.common.logger import get_logger
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 from metaphor.looker.lookml_parser import Model, fullname, parse_project
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     ChartType,
     Dashboard,
@@ -148,6 +149,24 @@ class LookerExtractor(BaseExtractor):
                     source_info=source_info,
                     entity_upstream=entity_upstream,
                     upstream=upstream,
+                    structure=AssetStructure(
+                        directories=(
+                            [
+                                ancestor.name
+                                for ancestor in self._sdk.folder_ancestors(
+                                    dashboard.folder_id
+                                )
+                            ]
+                            if dashboard.folder_id is not None
+                            else []
+                        )
+                        + (
+                            [dashboard.folder.name]
+                            if dashboard.folder is not None
+                            else []
+                        ),
+                        name=dashboard.id,
+                    ),
                 )
             )
 

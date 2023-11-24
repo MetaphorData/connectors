@@ -23,6 +23,7 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     EntityUpstream,
     LookerExplore,
     LookerExploreJoin,
@@ -187,6 +188,14 @@ def fullname(model: str, name: str) -> str:
     return f"{model}.{name}"
 
 
+def _get_model_asset_structure(model: str) -> AssetStructure:
+    tokens = model.split("/")
+    return AssetStructure(
+        directories=tokens[:-1],
+        name=tokens[-1],
+    )
+
+
 def _build_looker_view(
     model: str,
     raw_view: Dict,
@@ -231,6 +240,7 @@ def _build_looker_view(
         ),
         looker_view=view,
         entity_upstream=EntityUpstream(source_entities=view.source_datasets),
+        structure=_get_model_asset_structure(model),
     )
 
 
@@ -302,6 +312,7 @@ def _build_looker_explore(
             name=fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
         ),
         looker_explore=explore,
+        structure=_get_model_asset_structure(model),
     )
 
 
