@@ -222,7 +222,7 @@
     },
     "structure": {
       "directories": [
-        "trial.my_first_dbt_model"
+        "trial"
       ],
       "name": "my_first_dbt_model"
     }
@@ -291,7 +291,7 @@
     },
     "structure": {
       "directories": [
-        "trial.my_second_dbt_model"
+        "trial"
       ],
       "name": "my_second_dbt_model"
     }
@@ -417,7 +417,7 @@
     },
     "structure": {
       "directories": [
-        "trial.trial_model_1"
+        "trial"
       ],
       "name": "trial_model_1"
     }
@@ -552,7 +552,7 @@
     },
     "structure": {
       "directories": [
-        "trial.trial_model_2"
+        "trial"
       ],
       "name": "trial_model_2"
     }

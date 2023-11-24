@@ -338,7 +338,7 @@
     },
     "structure": {
       "directories": [
-        "metaphor_subscriptions.modular_campaigns"
+        "metaphor_subscriptions"
       ],
       "name": "modular_campaigns"
     }
@@ -415,7 +415,7 @@
     },
     "structure": {
       "directories": [
-        "metaphor_subscriptions.subscriptions_growth"
+        "metaphor_subscriptions"
       ],
       "name": "subscriptions_growth"
     }
@@ -498,7 +498,7 @@
     },
     "structure": {
       "directories": [
-        "metaphor_subscriptions.churn_region_agg"
+        "metaphor_subscriptions"
       ],
       "name": "churn_region_agg"
     }
@@ -642,7 +642,7 @@
     },
     "structure": {
       "directories": [
-        "metaphor_subscriptions.subscriptions_v2"
+        "metaphor_subscriptions"
       ],
       "name": "subscriptions_v2"
     }
@@ -753,7 +753,7 @@
     },
     "structure": {
       "directories": [
-        "metaphor_subscriptions.subscriptions_sales"
+        "metaphor_subscriptions"
       ],
       "name": "subscriptions_sales"
     }
@@ -812,7 +812,7 @@
     },
     "structure": {
       "directories": [
-        "metaphor_subscriptions.subscriptions_core"
+        "metaphor_subscriptions"
       ],
       "name": "subscriptions_core"
     }
