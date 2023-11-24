@@ -27,6 +27,7 @@ from metaphor.dbt.util import (
     to_dataset_entity_id,
 )
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     ColumnTagAssignment,
     DataMonitorStatus,
     DataPlatform,
@@ -452,6 +453,12 @@ class ArtifactParser:
             return
 
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
+
+        virtual_view.structure = AssetStructure(
+            directories=model.original_file_path.split("/")[:-1],
+            name=model.name,
+        )
+
         virtual_view.dbt_model = DbtModel(
             package_name=model.package_name,
             description=model.description or None,

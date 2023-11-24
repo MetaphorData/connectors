@@ -146,9 +146,6 @@
       ]
     },
     "tagAssignment": {
-      "tagNames": [
-        "PII"
-      ],
       "columnTagAssignments": [
         {
           "columnName": "id",
@@ -156,6 +153,9 @@
             "PII"
           ]
         }
+      ],
+      "tagNames": [
+        "PII"
       ]
     }
   },
@@ -190,8 +190,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "unique_my_first_dbt_model_id",
-          "uniqueId": "test.trial.unique_my_first_dbt_model_id.16e066b321",
-          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n"
+          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.trial.unique_my_first_dbt_model_id.16e066b321"
         },
         {
           "columns": [
@@ -202,8 +202,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_my_first_dbt_model_id",
-          "uniqueId": "test.trial.not_null_my_first_dbt_model_id.5fb22c2710",
-          "sql": "\n    \n    \n\n\n\nselect id\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect id\nfrom DEV_DB.DBT_DEV.my_first_dbt_model\nwhere id is null\n\n\n",
+          "uniqueId": "test.trial.not_null_my_first_dbt_model_id.5fb22c2710"
         }
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_first_dbt_model.sql"
@@ -219,6 +219,13 @@
           "person": "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
         }
       ]
+    },
+    "structure": {
+      "directories": [
+        "models",
+        "example"
+      ],
+      "name": "my_first_dbt_model"
     }
   },
   {
@@ -256,8 +263,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "unique_my_second_dbt_model_id",
-          "uniqueId": "test.trial.unique_my_second_dbt_model_id.57a0f8c493",
-          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n"
+          "sql": "\n    \n    \n\nselect\n    id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is not null\ngroup by id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.trial.unique_my_second_dbt_model_id.57a0f8c493"
         },
         {
           "columns": [
@@ -268,20 +275,27 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_my_second_dbt_model_id",
-          "uniqueId": "test.trial.not_null_my_second_dbt_model_id.151b76d778",
-          "sql": "\n    \n    \n\n\n\nselect id\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect id\nfrom DEV_DB.DBT_DEV.my_second_dbt_model\nwhere id is null\n\n\n",
+          "uniqueId": "test.trial.not_null_my_second_dbt_model_id.151b76d778"
         }
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
-    },
-    "logicalId": {
-      "name": "trial.my_second_dbt_model",
-      "type": "DBT_MODEL"
     },
     "entityUpstream": {
       "sourceEntities": [
         "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
       ]
+    },
+    "logicalId": {
+      "name": "trial.my_second_dbt_model",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "models",
+        "example"
+      ],
+      "name": "my_second_dbt_model"
     }
   },
   {
@@ -352,8 +366,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "unique_trial_model_1_show_id",
-          "uniqueId": "test.trial.unique_trial_model_1_show_id.6e142709e3",
-          "sql": "\n    \n    \n\nselect\n    show_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere show_id is not null\ngroup by show_id\nhaving count(*) > 1\n\n\n"
+          "sql": "\n    \n    \n\nselect\n    show_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere show_id is not null\ngroup by show_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.trial.unique_trial_model_1_show_id.6e142709e3"
         },
         {
           "columns": [
@@ -364,8 +378,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_1_show_id",
-          "uniqueId": "test.trial.not_null_trial_model_1_show_id.210878cb19",
-          "sql": "\n    \n    \n\n\n\nselect show_id\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect show_id\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere show_id is null\n\n\n",
+          "uniqueId": "test.trial.not_null_trial_model_1_show_id.210878cb19"
         },
         {
           "columns": [
@@ -376,8 +390,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_1_type",
-          "uniqueId": "test.trial.not_null_trial_model_1_type.051dc613aa",
-          "sql": "\n    \n    \n\n\n\nselect type\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect type\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere type is null\n\n\n",
+          "uniqueId": "test.trial.not_null_trial_model_1_type.051dc613aa"
         },
         {
           "columns": [
@@ -388,20 +402,27 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_1_title",
-          "uniqueId": "test.trial.not_null_trial_model_1_title.b49e531d6d",
-          "sql": "\n    \n    \n\n\n\nselect title\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect title\nfrom DEV_DB.DBT_DEV.trial_model_1\nwhere title is null\n\n\n",
+          "uniqueId": "test.trial.not_null_trial_model_1_title.b49e531d6d"
         }
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_1.sql"
-    },
-    "logicalId": {
-      "name": "trial.trial_model_1",
-      "type": "DBT_MODEL"
     },
     "entityUpstream": {
       "sourceEntities": [
         "DATASET~0A27263039022A2F145CAB8A63CB2D58"
       ]
+    },
+    "logicalId": {
+      "name": "trial.trial_model_1",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "models",
+        "example"
+      ],
+      "name": "trial_model_1"
     }
   },
   {
@@ -469,8 +490,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_country",
-          "uniqueId": "test.trial.not_null_trial_model_2_country.8170348e7c",
-          "sql": "\n    \n    \n\n\n\nselect country\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere country is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect country\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere country is null\n\n\n",
+          "uniqueId": "test.trial.not_null_trial_model_2_country.8170348e7c"
         },
         {
           "columns": [
@@ -481,8 +502,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_item_type",
-          "uniqueId": "test.trial.not_null_trial_model_2_item_type.1e87bba840",
-          "sql": "\n    \n    \n\n\n\nselect item_type\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere item_type is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect item_type\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere item_type is null\n\n\n",
+          "uniqueId": "test.trial.not_null_trial_model_2_item_type.1e87bba840"
         },
         {
           "columns": [
@@ -493,8 +514,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_year",
-          "uniqueId": "test.trial.not_null_trial_model_2_year.eb13ae8f8b",
-          "sql": "\n    \n    \n\n\n\nselect year\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere year is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect year\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere year is null\n\n\n",
+          "uniqueId": "test.trial.not_null_trial_model_2_year.eb13ae8f8b"
         },
         {
           "columns": [
@@ -505,8 +526,8 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_revenue",
-          "uniqueId": "test.trial.not_null_trial_model_2_revenue.c697e41758",
-          "sql": "\n    \n    \n\n\n\nselect revenue\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere revenue is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect revenue\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere revenue is null\n\n\n",
+          "uniqueId": "test.trial.not_null_trial_model_2_revenue.c697e41758"
         },
         {
           "columns": [
@@ -517,20 +538,27 @@
             "macro.dbt.get_where_subquery"
           ],
           "name": "not_null_trial_model_2_profit",
-          "uniqueId": "test.trial.not_null_trial_model_2_profit.faa538228c",
-          "sql": "\n    \n    \n\n\n\nselect profit\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere profit is null\n\n\n"
+          "sql": "\n    \n    \n\n\n\nselect profit\nfrom DEV_DB.DBT_DEV.sales_summary\nwhere profit is null\n\n\n",
+          "uniqueId": "test.trial.not_null_trial_model_2_profit.faa538228c"
         }
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_2.sql"
-    },
-    "logicalId": {
-      "name": "trial.trial_model_2",
-      "type": "DBT_MODEL"
     },
     "entityUpstream": {
       "sourceEntities": [
         "DATASET~C931554DBA0604DA498A2E772F3D6FEF"
       ]
+    },
+    "logicalId": {
+      "name": "trial.trial_model_2",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "models",
+        "example"
+      ],
+      "name": "trial_model_2"
     }
   },
   {
