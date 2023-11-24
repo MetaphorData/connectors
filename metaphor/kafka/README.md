@@ -5,20 +5,27 @@ This connector extracts technical metadata from Kafka using [Confluent's Python 
 ## Setup
 
 To run a Kafka cluster locally, follow the instructions below:
-1. Install [kcat](https://github.com/edenhill/kcat) to interact with the kafka broker.
-2. Start a kafka cluster (broker + zookeeper + schema registry) locally via docker-compose:
+
+1. Start a Kafka cluster (broker + schema registry + REST proxy) locally via docker-compose:
 ```shell
-docker-compose --file metaphor/kafka/docker-compose.yml up -d
+$ docker-compose --file metaphor/kafka/docker-compose.yml up -d
 ```
-3. Create a topic with `kcat`:
+  - Broker is on port 9092.
+  - Schema registry is on port 8081.
+  - REST proxy is on port 8082.
+2. Find the cluster ID:  
 ```shell
-kcat -b localhost:9092 -t {TOPIC} -P
-<ctrl-d>
+$ curl -X GET --silent http://localhost:8082/v3/clusters/ | jq '.data[].cluster_id'
 ```
-4. Create a schema for the topic:
+3. Register a new topic via the REST proxy:
 ```shell
-curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" --data {SCHEMA_STR} http://localhost:8081/subjects/{TOPIC}-value/versions
+curl -X POST -H "Content-Type: application/json" http://localhost:8082/v3/clusters/<YOUR CLUSTER ID>/topics -d '{"topic_name": "<YOUR TOPIC NAME>"}'| jq .
 ```
+4. Register a schema to the registry:
+```shell
+curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" --data '{"schema": <SCHEMA AS STRING>}' http://localhost:8081/subjects/<YOUR TOPIC NAME>-<key|value>/version
+```
+  - It is possible to have schema with name different to the topic. See `Topic <-> Schema Subject Mapping` section below for more info.
 
 ## Config File
 
