@@ -765,6 +765,7 @@ class SnowflakeExtractor(BaseExtractor):
             ]
         else:
             logger.warning(f"Unknown table type: {table_type}")
+
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
             description=comment,
