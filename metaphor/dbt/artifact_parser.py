@@ -456,9 +456,8 @@ class ArtifactParser:
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
 
         # Extract project directory from the model's unique id
-        directory = get_model_name_from_unique_id(model.unique_id)[
-            : -len(model.name) - 1
-        ]
+        # Split by ".", and ditch the model name
+        directory = get_model_name_from_unique_id(model.unique_id).rsplit(".")[0]
         virtual_view.structure = AssetStructure(
             directories=[directory],
             name=model.name,
