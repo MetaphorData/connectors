@@ -55,6 +55,7 @@ class TableauRunConfig(BaseConfig):
 
     @property
     def excluded_projects(self) -> Set[str]:
-        if self.include_personal_space:
-            return set(self.extra_excluded_projects)
-        return set(self.extra_excluded_projects + ["Personal Space"])
+        return set(
+            self.extra_excluded_projects
+            + ([] if self.include_personal_space else ["Personal Space"])
+        )
