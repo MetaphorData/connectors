@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Dict, Optional
+from typing import Dict, List, Optional, Set
 
 from pydantic import model_validator
 from pydantic.dataclasses import dataclass
@@ -42,6 +42,9 @@ class TableauRunConfig(BaseConfig):
         default_factory=dict
     )
 
+    extra_excluded_projects: List[str] = dataclasses.field(default_factory=list)
+    include_personal_space: bool = False
+
     # whether to disable Chart preview image
     disable_preview_image: bool = False
 
@@ -49,3 +52,9 @@ class TableauRunConfig(BaseConfig):
     def have_access_token_or_user_password(self):
         must_set_exactly_one(self.__dict__, ["access_token", "user_password"])
         return self
+
+    @property
+    def excluded_projects(self) -> Set[str]:
+        if self.include_personal_space:
+            return set(self.extra_excluded_projects)
+        return set(self.extra_excluded_projects + ["Personal Space"])

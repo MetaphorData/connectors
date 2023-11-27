@@ -1,0 +1,15 @@
+---
+server_url: https://10ay.online.tableau.com
+site_name: abc
+alternative_base_url: https://tableau.my_company.com
+access_token:
+  token_name: foo
+  token_value: bar
+snowflake_account: snow
+bigquery_project_name_to_id_map:
+  bq_name: bq_id
+disable_preview_image: true
+output: {}
+extra_excluded_projects:
+  - foo
+  - bar
