@@ -72,7 +72,12 @@ def embed_documents(
     return VSI
 
 
-def map_metadata(embedding_dict: dict, metadata_dict: dict) -> Collection[dict]:
+def map_metadata(
+    embedding_dict: dict,
+    metadata_dict: dict,
+    include_text: bool,
+    doc_store: dict,
+) -> Collection[dict]:
     """
     Takes the embedding_dict from VSI.storage_context.to_dict() and
     maps the correct metadata to each entry in the dictionary, then
@@ -82,14 +87,28 @@ def map_metadata(embedding_dict: dict, metadata_dict: dict) -> Collection[dict]:
     """
     out = []
 
-    for nodeid in embedding_dict:
-        embedding_dict[nodeid] = {
-            "nodeId": nodeid,
-            "embedding": embedding_dict[nodeid],
-            "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
-            "metadata": metadata_dict[nodeid],
-        }
+    if include_text:
+        for nodeid in embedding_dict:
+            embedding_dict[nodeid] = {
+                "nodeId": nodeid,
+                "embedding": embedding_dict[nodeid],
+                # add the embedded text here
+                "embeddingString": doc_store[nodeid]["__data__"]["text"],
+                "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
+                "metadata": metadata_dict[nodeid],
+            }
 
-        out.append(embedding_dict[nodeid])
+            out.append({"externalSearchDocument": embedding_dict[nodeid]})
+
+    else:
+        for nodeid in embedding_dict:
+            embedding_dict[nodeid] = {
+                "nodeId": nodeid,
+                "embedding": embedding_dict[nodeid],
+                "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
+                "metadata": metadata_dict[nodeid],
+            }
+
+            out.append({"externalSearchDocument": embedding_dict[nodeid]})
 
     return out

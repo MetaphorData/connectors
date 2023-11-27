@@ -60,10 +60,14 @@ class NotionExtractor(BaseExtractor):
 
         # get vector_store from VectorStoreIndex
         vector_store = VSI.storage_context.to_dict()["vector_store"]
+        doc_store = VSI.storage_context.to_dict()["doc_store"]
 
         # map metadata back to each node
         embedded_nodes = map_metadata(
-            vector_store["embedding_dict"], vector_store["metadata_dict"]
+            embedding_dict=vector_store["embedding_dict"],
+            metadata_dict=vector_store["metadata_dict"],
+            include_text=False,
+            doc_store=doc_store["docstore/data"],
         )
 
         # currently returns a list of document dicts
@@ -131,6 +135,9 @@ class NotionExtractor(BaseExtractor):
             # regex patterns, url-exclusion, etc.
 
             # update queried document metadata with db_id, platform info, link
+
+            # forcing lastRefreshed to be constant for all documents in this crawler run
+            current_time = str(datetime.datetime.utcnow())
             for q in queried:
                 # update db_id and platform
                 q.metadata["dbId"] = db_id.replace("-", "")  # remove hyphens
@@ -144,7 +151,7 @@ class NotionExtractor(BaseExtractor):
                 q.metadata["link"] = link
 
                 # add timestamp (UTC) for crawl-time
-                q.metadata["lastRefreshed"] = str(datetime.datetime.utcnow())
+                q.metadata["lastRefreshed"] = current_time
 
             # extend documents
             logger.info(f"Successfully retrieved {len(queried)} documents")

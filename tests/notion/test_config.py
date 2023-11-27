@@ -1,16 +1,12 @@
 from metaphor.common.base_config import OutputConfig
 from metaphor.notion.config import NotionRunConfig
 
+
 def test_config(test_root_dir):
-    config = NotionRunConfig.from_yaml_file(
-        f"{test_root_dir}/notion/config.yml"
-    )
+    config = NotionRunConfig.from_yaml_file(f"{test_root_dir}/notion/config.yml")
 
     assert config == NotionRunConfig(
         notion_api_tok="notion_api_tok",
         openai_api_tok="openai_api_tok",
-        mongo_uri = "mongodb_uri",
-        mongo_db_name = "mongo_db_name",
-        mongo_collection_name = "mongo_collection_name=",
-        output = OutputConfig()
+        output=OutputConfig(),
     )
