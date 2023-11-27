@@ -272,20 +272,18 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
             ("bad", "bad", "DATABASE", None, None, None, None),
             ("not", "good", "SCHEMA", None, None, None, None),
             ("no", "db", "SCHEMA", None, None, table_name, None),
-            ("bad", "db", "DATABASE", "bad_db", None, "foo", None),
-            ("bad", "schema", "SCHEMA", database, "bad_schema", "foo", None),
+            ("bad", "db", "DATABASE", None, None, "bad_db", None),
+            ("bad", "schema", "SCHEMA", database, None, "bad_schema", None),
         ]
     )
 
     extractor = SnowflakeExtractor(make_snowflake_config())
     extractor._filter = DatasetFilter(
         excludes={
-            "*": {
-                "bad_schema": {"*"},
+            database: {
+                "bad_schema": None,
             },
-            "bad_db": {
-                "*": {"*"},
-            },
+            "bad_db": None,
         }
     )
 
