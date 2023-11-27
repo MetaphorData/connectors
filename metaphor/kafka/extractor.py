@@ -14,6 +14,8 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
+    DatasetStructure,
+    EntityType,
     SchemaType,
 )
 
@@ -80,12 +82,16 @@ class KafkaExtractor(BaseExtractor):
         dataset_schema: DatasetSchema,
     ) -> Dataset:
         return Dataset(
+            entity_type=EntityType.DATASET,
             logical_id=DatasetLogicalID(
                 platform=DataPlatform.KAFKA,
                 name=topic
                 + ("" if dataset_schema_key is None else f"_{dataset_schema_key}"),
             ),
             schema=dataset_schema,
+            structure=DatasetStructure(
+                table=topic,
+            ),
         )
 
     @staticmethod
