@@ -14,6 +14,7 @@ from metaphor.dbt.util import (
     build_source_code_url,
     dataset_normalized_name,
     find_run_result_ouptput_by_id,
+    get_model_name_from_unique_id,
     get_ownerships_from_meta,
     get_tags_from_meta,
     get_virtual_view_id,
@@ -27,6 +28,7 @@ from metaphor.dbt.util import (
     to_dataset_entity_id,
 )
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     ColumnTagAssignment,
     DataMonitorStatus,
     DataPlatform,
@@ -452,6 +454,15 @@ class ArtifactParser:
             return
 
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
+
+        # Extract project directory from the model's unique id
+        # Split by ".", and ditch the model name
+        directory = get_model_name_from_unique_id(model.unique_id).rsplit(".")[0]
+        virtual_view.structure = AssetStructure(
+            directories=[directory],
+            name=model.name,
+        )
+
         virtual_view.dbt_model = DbtModel(
             package_name=model.package_name,
             description=model.description or None,

@@ -146,9 +146,6 @@
       ]
     },
     "tagAssignment": {
-      "tagNames": [
-        "PII"
-      ],
       "columnTagAssignments": [
         {
           "columnName": "id",
@@ -156,6 +153,9 @@
             "PII"
           ]
         }
+      ],
+      "tagNames": [
+        "PII"
       ]
     }
   },
@@ -219,6 +219,12 @@
           "person": "PERSON~8B6974C32BFCBBF6AB3930E1B7A17846"
         }
       ]
+    },
+    "structure": {
+      "directories": [
+        "trial"
+      ],
+      "name": "my_first_dbt_model"
     }
   },
   {
@@ -274,14 +280,20 @@
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/my_second_dbt_model.sql"
     },
-    "logicalId": {
-      "name": "trial.my_second_dbt_model",
-      "type": "DBT_MODEL"
-    },
     "entityUpstream": {
       "sourceEntities": [
         "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
       ]
+    },
+    "logicalId": {
+      "name": "trial.my_second_dbt_model",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "trial"
+      ],
+      "name": "my_second_dbt_model"
     }
   },
   {
@@ -394,14 +406,20 @@
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_1.sql"
     },
-    "logicalId": {
-      "name": "trial.trial_model_1",
-      "type": "DBT_MODEL"
-    },
     "entityUpstream": {
       "sourceEntities": [
         "DATASET~0A27263039022A2F145CAB8A63CB2D58"
       ]
+    },
+    "logicalId": {
+      "name": "trial.trial_model_1",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "trial"
+      ],
+      "name": "trial_model_1"
     }
   },
   {
@@ -523,14 +541,20 @@
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/trial/models/example/trial_model_2.sql"
     },
-    "logicalId": {
-      "name": "trial.trial_model_2",
-      "type": "DBT_MODEL"
-    },
     "entityUpstream": {
       "sourceEntities": [
         "DATASET~C931554DBA0604DA498A2E772F3D6FEF"
       ]
+    },
+    "logicalId": {
+      "name": "trial.trial_model_2",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "trial"
+      ],
+      "name": "trial_model_2"
     }
   },
   {
