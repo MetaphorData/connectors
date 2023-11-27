@@ -402,6 +402,8 @@ class SnowflakeExtractor(BaseExtractor):
         # Set hierarchy key and logical_id
         path = [DataPlatform.SNOWFLAKE.value]
         if object_type == "DATABASE":
+            if not self._filter.include_database(object_name):
+                return
             path.extend(
                 [object_name.lower()]
             )  # path should be normalized, i.e. should be lowercase
@@ -409,6 +411,8 @@ class SnowflakeExtractor(BaseExtractor):
         else:
             if not database:
                 logger.error("Cannot extract schema level tag without database name")
+                return
+            if not self._filter.include_schema(database, object_name):
                 return
             path.extend(
                 [database.lower(), object_name.lower()]
