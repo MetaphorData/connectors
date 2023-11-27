@@ -33,7 +33,11 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     EntityUpstream,
+    Hierarchy,
+    HierarchyLogicalID,
     SourceInfo,
+    SystemTag,
+    SystemTags,
     TableauDatasource,
     TableauField,
     VirtualView,
@@ -92,6 +96,7 @@ class TableauExtractor(BaseExtractor):
         self._datasets: Dict[EntityId, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
+        self._hierarchies: List[Hierarchy] = []
 
         # The base URL for dashboards, data sources, etc.
         # Use alternative_base_url if provided, otherwise, use server_url as the base
@@ -129,6 +134,7 @@ class TableauExtractor(BaseExtractor):
             *self._dashboards.values(),
             *self._virtual_views.values(),
             *self._datasets.values(),
+            *self._hierarchies,
         ]
 
     def _extract_dashboards(self, server: tableau.Server) -> None:
@@ -281,6 +287,18 @@ class TableauExtractor(BaseExtractor):
         )
 
         self._dashboards[workbook_id] = dashboard
+
+        if workbook.tags:
+            hierarchy = Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[DashboardPlatform.TABLEAU.value, workbook_id],
+                ),
+                system_tags=SystemTags(
+                    tags=[SystemTag(value=tag) for tag in sorted(workbook.tags)]
+                ),
+            )
+
+            self._hierarchies.append(hierarchy)
 
     def _parse_custom_sql_table(
         self, custom_sql_table: CustomSqlTable

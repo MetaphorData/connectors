@@ -264,7 +264,7 @@ async def test_extractor(
         project_id="child_project_id",
         project_name="project1",
         owner_id=None,
-        tags=None,
+        tags={"tag1", "tag2"},
         views=[],
         data_acceleration_config=None,
     )
@@ -382,6 +382,8 @@ async def test_extractor(
         graphql_custom_sql_tables_response,
         graphql_workbooks_response,
     ]
+
+    extractor._hierarchies = []  # Reset this!
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 

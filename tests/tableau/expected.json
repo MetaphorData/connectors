@@ -1,16 +1,5 @@
 [
   {
-    "logicalId": {
-      "dashboardId": "123",
-      "platform": "TABLEAU"
-    },
-    "structure": {
-      "directories": [
-        "parent",
-        "child"
-      ],
-      "name": "wb"
-    },
     "dashboardInfo": {
       "charts": [
         {
@@ -23,8 +12,26 @@
       "title": "parent.child.wb",
       "viewCount": 100.0
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~B5446C160574546FB913DB1D78989BAE",
+        "VIRTUAL_VIEW~3ADEC7EE47E751141F716D29158E63A3",
+        "VIRTUAL_VIEW~0EA6A23C11D3E0F478F760380DDABAE8"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "123",
+      "platform": "TABLEAU"
+    },
     "sourceInfo": {
       "mainUrl": "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
+    },
+    "structure": {
+      "directories": [
+        "parent",
+        "child"
+      ],
+      "name": "wb"
     },
     "upstream": {
       "sourceVirtualViews": [
@@ -32,16 +39,14 @@
         "VIRTUAL_VIEW~3ADEC7EE47E751141F716D29158E63A3",
         "VIRTUAL_VIEW~0EA6A23C11D3E0F478F760380DDABAE8"
       ]
-    },
-    "entityUpstream": {
-      "sourceEntities": [
-        "VIRTUAL_VIEW~B5446C160574546FB913DB1D78989BAE",
-        "VIRTUAL_VIEW~3ADEC7EE47E751141F716D29158E63A3",
-        "VIRTUAL_VIEW~0EA6A23C11D3E0F478F760380DDABAE8"
-      ]
     }
   },
   {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~44EFB0A109CA87DB8792256D25D030C9"
+      ]
+    },
     "logicalId": {
       "name": "sourceId1",
       "type": "TABLEAU_DATASOURCE"
@@ -61,14 +66,14 @@
         "DATASET~44EFB0A109CA87DB8792256D25D030C9"
       ],
       "url": "https://10ax.online.tableau.com/#/site/abc/datasources/777"
-    },
-    "entityUpstream": {
-      "sourceEntities": [
-        "DATASET~44EFB0A109CA87DB8792256D25D030C9"
-      ]
     }
   },
   {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~F9D8E5963019975462CB6CB2002D247B"
+      ]
+    },
     "logicalId": {
       "name": "sourceId2",
       "type": "TABLEAU_DATASOURCE"
@@ -86,14 +91,14 @@
       "sourceDatasets": [
         "DATASET~F9D8E5963019975462CB6CB2002D247B"
       ]
-    },
-    "entityUpstream": {
-      "sourceEntities": [
-        "DATASET~F9D8E5963019975462CB6CB2002D247B"
-      ]
     }
   },
   {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~5375BC53A82C65FD48653B9418094BB0"
+      ]
+    },
     "logicalId": {
       "name": "sourceId3",
       "type": "TABLEAU_DATASOURCE"
@@ -111,11 +116,6 @@
       "query": "select * from db.schema.table",
       "source_platform": "BIGQUERY",
       "sourceDatasets": [
-        "DATASET~5375BC53A82C65FD48653B9418094BB0"
-      ]
-    },
-    "entityUpstream": {
-      "sourceEntities": [
         "DATASET~5375BC53A82C65FD48653B9418094BB0"
       ]
     }
@@ -137,6 +137,24 @@
     "logicalId": {
       "name": "acme.berlin_bicycles.cycle_hire",
       "platform": "REDSHIFT"
+    }
+  },
+  {
+    "logicalId": {
+      "path": [
+        "TABLEAU",
+        "123"
+      ]
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "value": "tag1"
+        },
+        {
+          "value": "tag2"
+        }
+      ]
     }
   }
 ]
