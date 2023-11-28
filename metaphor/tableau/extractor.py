@@ -86,6 +86,7 @@ class TableauExtractor(BaseExtractor):
         self._snowflake_account = config.snowflake_account
         self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
         self._disable_preview_image = config.disable_preview_image
+        self._excluded_projects = config.excluded_projects
 
         self._views: Dict[str, tableau.ViewItem] = {}
         self._projects: Dict[str, List[str]] = {}  # project id -> project hierarchy
@@ -181,7 +182,7 @@ class TableauExtractor(BaseExtractor):
         # mapping of datasource to (query, list of upstream dataset IDs)
         datasource_upstream_datasets = {}
         for item in custom_sql_tables:
-            custom_sql_table = CustomSqlTable.parse_obj(item)
+            custom_sql_table = CustomSqlTable.model_validate(item)
             datasource_upstream_datasets.update(
                 self._parse_custom_sql_table(custom_sql_table)
             )
@@ -195,7 +196,11 @@ class TableauExtractor(BaseExtractor):
 
         for item in workbooks:
             try:
-                workbook = WorkbookQueryResponse.parse_obj(item)
+                workbook = WorkbookQueryResponse.model_validate(item)
+                if workbook.projectName in self._excluded_projects:
+                    logger.info(
+                        f"Ignoring datasources from workbook in excluded project: {workbook.projectName}"
+                    )
                 self._parse_workbook_query_response(
                     workbook, datasource_upstream_datasets
                 )
@@ -248,6 +253,12 @@ class TableauExtractor(BaseExtractor):
     def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
         if not workbook.webpage_url:
             logger.exception(f"workbook {workbook.name} missing webpage_url")
+            return
+
+        if workbook.project_name in self._excluded_projects:
+            logger.info(
+                f"Ignoring dashboard from workbook in excluded project: {workbook.project_name}"
+            )
             return
 
         workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)

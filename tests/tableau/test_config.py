@@ -39,3 +39,18 @@ def test_yaml_config_no_optional(test_root_dir):
         disable_preview_image=False,
         output=OutputConfig(),
     )
+
+
+def test_excluded_projects(test_root_dir) -> None:
+    config = TableauRunConfig.from_yaml_file(
+        f"{test_root_dir}/tableau/config_extra_excluded_projects.yml"
+    )
+    assert config.excluded_projects == {"foo", "bar", "Personal Space"}
+
+    config = TableauRunConfig.from_yaml_file(
+        f"{test_root_dir}/tableau/config_include_personal_space.yml"
+    )
+    assert config.excluded_projects == set()
+
+    config = TableauRunConfig.from_yaml_file(f"{test_root_dir}/tableau/config.yml")
+    assert config.excluded_projects == {"Personal Space"}
