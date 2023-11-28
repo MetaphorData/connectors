@@ -171,6 +171,17 @@ def test_fetch_table_info(mock_connect: MagicMock):
 
 
 @patch("metaphor.snowflake.auth.connect")
+def test_fetch_table_info_with_unknown_type(mock_connect: MagicMock):
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    extractor._conn = mock_connect
+    dataset = extractor._init_dataset(
+        "db", "schema", "table", "BAD_TYPE", "comment", None, None
+    )
+    assert dataset.schema.sql_schema.materialization is None
+
+
+@patch("metaphor.snowflake.auth.connect")
 def test_fetch_unique_keys(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
@@ -261,10 +272,20 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
             ("bad", "bad", "DATABASE", None, None, None, None),
             ("not", "good", "SCHEMA", None, None, None, None),
             ("no", "db", "SCHEMA", None, None, table_name, None),
+            ("bad", "db", "DATABASE", None, None, "bad_db", None),
+            ("bad", "schema", "SCHEMA", database, None, "bad_schema", None),
         ]
     )
 
     extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor._filter = DatasetFilter(
+        excludes={
+            database: {
+                "bad_schema": None,
+            },
+            "bad_db": None,
+        }
+    )
 
     dataset = extractor._init_dataset(
         database, schema, table_name, table_type, "", None, None

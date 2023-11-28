@@ -402,6 +402,8 @@ class SnowflakeExtractor(BaseExtractor):
         # Set hierarchy key and logical_id
         path = [DataPlatform.SNOWFLAKE.value]
         if object_type == "DATABASE":
+            if not self._filter.include_database(object_name):
+                return
             path.extend(
                 [object_name.lower()]
             )  # path should be normalized, i.e. should be lowercase
@@ -409,6 +411,8 @@ class SnowflakeExtractor(BaseExtractor):
         else:
             if not database:
                 logger.error("Cannot extract schema level tag without database name")
+                return
+            if not self._filter.include_schema(database, object_name):
                 return
             path.extend(
                 [database.lower(), object_name.lower()]
@@ -758,15 +762,19 @@ class SnowflakeExtractor(BaseExtractor):
             main_url=SnowflakeExtractor.build_table_url(self._account, normalized_name)
         )
 
+        sql_schema = SQLSchema()
+        if table_type in [item.value for item in SnowflakeTableType]:
+            sql_schema.materialization = table_type_to_materialization_type[
+                SnowflakeTableType(table_type)
+            ]
+        else:
+            logger.warning(f"Unknown table type: {table_type}")
+
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
             description=comment,
             fields=[],
-            sql_schema=SQLSchema(
-                materialization=table_type_to_materialization_type[
-                    SnowflakeTableType(table_type)
-                ],
-            ),
+            sql_schema=sql_schema,
         )
 
         dataset.statistics = to_dataset_statistics(row_count, table_bytes)
