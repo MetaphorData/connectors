@@ -42,7 +42,7 @@ class TableauRunConfig(BaseConfig):
         default_factory=dict
     )
 
-    extra_excluded_projects: List[str] = dataclasses.field(default_factory=list)
+    exclude_extra_projects: List[str] = dataclasses.field(default_factory=list)
     include_personal_space: bool = False
 
     # whether to disable Chart preview image
@@ -56,6 +56,6 @@ class TableauRunConfig(BaseConfig):
     @property
     def excluded_projects(self) -> Set[str]:
         return set(
-            self.extra_excluded_projects
+            self.exclude_extra_projects
             + ([] if self.include_personal_space else ["Personal Space"])
         )

@@ -100,7 +100,7 @@ disable_preview_image: true
 You can specify the project to be ignored by the connector. By default the project `Personal Space` is ignored. To specify more ignored projects, add the following configuration:
 
 ```yaml
-extra_excluded_projects:
+exclude_extra_projects:
   - <excluded project 1>
   - <excluded project 2>
 ```
