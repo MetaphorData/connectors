@@ -271,6 +271,20 @@ tests = ["attrs[tests-no-zope]", "zope-interface"]
 tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "avro"
+version = "1.11.3"
+description = "Avro is a serialization and RPC framework."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "avro-1.11.3.tar.gz", hash = "sha256:3393bb5139f9cf0791d205756ce1e39a5b58586af5b153d6a3b5a199610e9d17"},
+]
+
+[package.extras]
+snappy = ["python-snappy"]
+zstandard = ["zstandard"]
+
+[[package]]
 name = "aws-assume-role-lib"
 version = "2.10.0"
 description = "Assumed role session chaining (with credential refreshing) for boto3"
@@ -4683,4 +4697,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "b2580bdfcc6f830b92be06e83fd691e3c503e3f2adb62dd32f8bc126a6c22f91"
+content-hash = "afa7d53327409a0a02ddc2bd8b013b77735216b1781a299762c9206803c61d6a"

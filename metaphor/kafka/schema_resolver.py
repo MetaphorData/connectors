@@ -97,12 +97,26 @@ class SchemaResolver:
                 ]
 
             for registered_schema in registered_schemas:
-                dataset_schemas[
-                    SchemaResolver.to_dataset_schema_key(registered_schema)
-                ] = DatasetSchema(
+                dataset_schema = DatasetSchema(
                     schema_type=SchemaType(registered_schema.schema.schema_type),
                     raw_schema=registered_schema.schema.schema_str,
+                    fields=[],
                 )
+
+                assert dataset_schema.raw_schema is not None
+                if dataset_schema.schema_type is SchemaType.AVRO:
+                    pass
+                elif dataset_schema.schema_type is SchemaType.PROTOBUF:
+                    pass
+                elif dataset_schema.schema_type is SchemaType.JSON:
+                    import json
+
+                    json_schema = json.loads(dataset_schema.raw_schema)
+                    pass
+
+                dataset_schemas[
+                    SchemaResolver.to_dataset_schema_key(registered_schema)
+                ] = dataset_schema
 
         return dataset_schemas
 

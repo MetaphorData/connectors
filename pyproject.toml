@@ -52,6 +52,7 @@ sqllineage = { version = "~=1.3.8", optional = true }
 tableauserverclient = { version = "^0.25", optional = true }
 thoughtspot_rest_api_v1 = { version = "1.5.3", optional = true }
 pathvalidate = "^3.2.0"
+avro = "^1.11.3"
 
 [tool.poetry.extras]
 all = [
