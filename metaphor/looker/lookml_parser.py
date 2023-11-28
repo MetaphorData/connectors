@@ -188,11 +188,10 @@ def fullname(model: str, name: str) -> str:
     return f"{model}.{name}"
 
 
-def _get_model_asset_structure(model: str) -> AssetStructure:
-    tokens = model.split("/")
+def _get_model_asset_structure(model: str, name: str) -> AssetStructure:
     return AssetStructure(
-        directories=tokens[:-1],
-        name=tokens[-1],
+        directories=[model],
+        name=name,
     )
 
 
@@ -240,7 +239,7 @@ def _build_looker_view(
         ),
         looker_view=view,
         entity_upstream=EntityUpstream(source_entities=view.source_datasets),
-        structure=_get_model_asset_structure(model),
+        structure=_get_model_asset_structure(model, name),
     )
 
 
@@ -312,7 +311,7 @@ def _build_looker_explore(
             name=fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
         ),
         looker_explore=explore,
-        structure=_get_model_asset_structure(model),
+        structure=_get_model_asset_structure(model, name),
     )
 
 

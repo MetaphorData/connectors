@@ -87,8 +87,8 @@ def test_basic(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
             structure=AssetStructure(
-                directories=[],
-                name="model1",
+                directories=["model1"],
+                name="view1",
             ),
         ),
         VirtualView(
@@ -103,8 +103,8 @@ def test_basic(test_root_dir):
                 url="http://foo/files/model1.model.lkml",
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model1",
+                directories=["model1"],
+                name="explore1",
             ),
         ),
     ]
@@ -172,8 +172,8 @@ def test_join(test_root_dir):
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
                 structure=AssetStructure(
-                    directories=[],
-                    name="model1",
+                    directories=["model1"],
+                    name="view1",
                 ),
             ),
             VirtualView(
@@ -191,8 +191,8 @@ def test_join(test_root_dir):
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
                 structure=AssetStructure(
-                    directories=[],
-                    name="model1",
+                    directories=["model1"],
+                    name="view2",
                 ),
             ),
             VirtualView(
@@ -220,8 +220,8 @@ def test_join(test_root_dir):
                     label="label",
                 ),
                 structure=AssetStructure(
-                    directories=[],
-                    name="model1",
+                    directories=["model1"],
+                    name="explore1",
                 ),
             ),
         ],
@@ -276,8 +276,8 @@ def test_explore_in_view(test_root_dir):
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
                 structure=AssetStructure(
-                    directories=[],
-                    name="model1",
+                    directories=["model1"],
+                    name="view1",
                 ),
             ),
             VirtualView(
@@ -291,8 +291,8 @@ def test_explore_in_view(test_root_dir):
                     label="label",
                 ),
                 structure=AssetStructure(
-                    directories=[],
-                    name="model1",
+                    directories=["model1"],
+                    name="explore1",
                 ),
             ),
         ],
@@ -349,8 +349,8 @@ def test_derived_table(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view1",
             ),
         ),
         VirtualView(
@@ -362,8 +362,8 @@ def test_derived_table(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view2",
             ),
         ),
         VirtualView(
@@ -375,8 +375,8 @@ def test_derived_table(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view3",
             ),
         ),
         VirtualView(
@@ -388,8 +388,8 @@ def test_derived_table(test_root_dir):
                 base_view=str(virtual_view_id1),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore1",
             ),
         ),
         VirtualView(
@@ -401,8 +401,8 @@ def test_derived_table(test_root_dir):
                 base_view=str(virtual_view_id2),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore2",
             ),
         ),
         VirtualView(
@@ -414,8 +414,8 @@ def test_derived_table(test_root_dir):
                 base_view=str(virtual_view_id3),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore3",
             ),
         ),
     ]
@@ -459,8 +459,8 @@ def test_sql_table_name(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view1",
             ),
         ),
         VirtualView(
@@ -472,8 +472,8 @@ def test_sql_table_name(test_root_dir):
                 base_view=str(virtual_view_id1),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore1",
             ),
         ),
     ]
@@ -510,8 +510,8 @@ def test_include_relative_to_model(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view1",
             ),
         ),
         VirtualView(
@@ -523,8 +523,8 @@ def test_include_relative_to_model(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view2",
             ),
         ),
     ]
@@ -592,8 +592,8 @@ def test_complex_includes(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view1",
             ),
         ),
         VirtualView(
@@ -605,8 +605,8 @@ def test_complex_includes(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view2",
             ),
         ),
         VirtualView(
@@ -618,8 +618,8 @@ def test_complex_includes(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id3)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view3",
             ),
         ),
         VirtualView(
@@ -631,8 +631,8 @@ def test_complex_includes(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id4)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view4",
             ),
         ),
         VirtualView(
@@ -644,8 +644,8 @@ def test_complex_includes(test_root_dir):
                 base_view=str(virtual_view_id1),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore1",
             ),
         ),
     ]
@@ -711,8 +711,8 @@ def test_view_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table1)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view1",
             ),
         ),
         VirtualView(
@@ -724,8 +724,8 @@ def test_view_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view2",
             ),
         ),
         VirtualView(
@@ -737,8 +737,8 @@ def test_view_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view3",
             ),
         ),
         VirtualView(
@@ -750,8 +750,8 @@ def test_view_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table3)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view4",
             ),
         ),
         VirtualView(
@@ -763,8 +763,8 @@ def test_view_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="base_view2",
             ),
         ),
         VirtualView(
@@ -776,8 +776,8 @@ def test_view_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_base_view3)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="base_view3",
             ),
         ),
         VirtualView(
@@ -789,8 +789,8 @@ def test_view_extension(test_root_dir):
                 base_view=str(virtual_view_id1),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore1",
             ),
         ),
     ]
@@ -864,8 +864,8 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_view1)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view1",
             ),
         ),
         VirtualView(
@@ -877,8 +877,8 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_view2)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view2",
             ),
         ),
         VirtualView(
@@ -890,8 +890,8 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_view3)]),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view3",
             ),
         ),
         VirtualView(
@@ -903,8 +903,8 @@ def test_explore_extension(test_root_dir):
                 base_view=str(virtual_view1),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore1",
             ),
         ),
         VirtualView(
@@ -916,8 +916,8 @@ def test_explore_extension(test_root_dir):
                 base_view=str(virtual_view2),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore2",
             ),
         ),
         VirtualView(
@@ -929,8 +929,8 @@ def test_explore_extension(test_root_dir):
                 base_view=str(virtual_view1),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore3",
             ),
         ),
         VirtualView(
@@ -942,8 +942,8 @@ def test_explore_extension(test_root_dir):
                 base_view=str(virtual_view3),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="explore4",
             ),
         ),
         VirtualView(
@@ -955,8 +955,8 @@ def test_explore_extension(test_root_dir):
                 base_view=str(virtual_view2),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="base_explore2",
             ),
         ),
         VirtualView(
@@ -968,8 +968,8 @@ def test_explore_extension(test_root_dir):
                 base_view=str(virtual_view3),
             ),
             structure=AssetStructure(
-                directories=[],
-                name="model",
+                directories=["model"],
+                name="view3",
             ),
         ),
     ]
