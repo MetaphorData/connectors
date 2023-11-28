@@ -8,6 +8,8 @@ from metaphor.common.base_config import BaseConfig
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.utils import must_set_exactly_one
 
+PERSONAL_SPACE_PROJECT_NAME = "Personal Space"
+
 
 @dataclass(config=ConnectorConfig)
 class TableauTokenAuthConfig:
@@ -57,5 +59,5 @@ class TableauRunConfig(BaseConfig):
     def excluded_projects(self) -> Set[str]:
         return set(
             self.exclude_extra_projects
-            + ([] if self.include_personal_space else ["Personal Space"])
+            + ([] if self.include_personal_space else [PERSONAL_SPACE_PROJECT_NAME])
         )

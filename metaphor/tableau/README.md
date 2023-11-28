@@ -101,8 +101,8 @@ You can specify the project to be ignored by the connector. By default the proje
 
 ```yaml
 exclude_extra_projects:
-  - <excluded project 1>
-  - <excluded project 2>
+  - <excluded_project_name_1>
+  - <excluded_project_name_2>
 ```
 
 To override the default behavior and include `Personal Space` in the connector, use the following configuration:
