@@ -1,0 +1,43 @@
+[
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "foo_1_1",
+      "platform": "KAFKA"
+    },
+    "schema": {
+      "rawSchema": "\"string\"",
+      "schemaType": "AVRO"
+    },
+    "structure": {
+      "table": "foo"
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "bar_2_1",
+      "platform": "KAFKA"
+    },
+    "schema": {
+      "rawSchema": "\"double\"",
+      "schemaType": "AVRO"
+    },
+    "structure": {
+      "table": "bar"
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "no_schema",
+      "platform": "KAFKA"
+    },
+    "schema": {
+      "schemaType": "SCHEMALESS"
+    },
+    "structure": {
+      "table": "no_schema"
+    }
+  }
+]
