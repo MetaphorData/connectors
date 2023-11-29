@@ -18,6 +18,7 @@ from metaphor.common.logger import get_logger
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 from metaphor.looker.lookml_parser import Model, fullname, parse_project
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     Chart,
     ChartType,
     Dashboard,
@@ -139,6 +140,12 @@ class LookerExtractor(BaseExtractor):
                     source_entities=upstream.source_virtual_views,  # `upstream` doesn't have any dataset
                 )
 
+            assert dashboard.id is not None
+
+            # Dashboard id is guranteed to look like `model_name::dashboard_name`
+            # Ref: https://www.googlecloudcommunity.com/gc/Technical-Tips-Tricks/How-can-I-find-the-id-of-a-LookML-dashboard/ta-p/592288
+            directory, name = dashboard.id.rsplit("::", 1)
+
             dashboards.append(
                 Dashboard(
                     logical_id=DashboardLogicalID(
@@ -148,6 +155,10 @@ class LookerExtractor(BaseExtractor):
                     source_info=source_info,
                     entity_upstream=entity_upstream,
                     upstream=upstream,
+                    structure=AssetStructure(
+                        directories=[directory],
+                        name=name,
+                    ),
                 )
             )
 
