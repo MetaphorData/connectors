@@ -140,6 +140,9 @@ class LookerExtractor(BaseExtractor):
                     source_entities=upstream.source_virtual_views,  # `upstream` doesn't have any dataset
                 )
 
+            directory, name = dashboard.id.rsplit(
+                "::", 1
+            )  # Dashboard id is guranteed to look like `model_name::dashboard_name`: https://www.googlecloudcommunity.com/gc/Technical-Tips-Tricks/How-can-I-find-the-id-of-a-LookML-dashboard/ta-p/592288
             dashboards.append(
                 Dashboard(
                     logical_id=DashboardLogicalID(
@@ -150,22 +153,8 @@ class LookerExtractor(BaseExtractor):
                     entity_upstream=entity_upstream,
                     upstream=upstream,
                     structure=AssetStructure(
-                        directories=(
-                            [
-                                ancestor.name
-                                for ancestor in self._sdk.folder_ancestors(
-                                    dashboard.folder_id
-                                )
-                            ]
-                            if dashboard.folder_id is not None
-                            else []
-                        )
-                        + (
-                            [dashboard.folder.name]
-                            if dashboard.folder is not None
-                            else []
-                        ),
-                        name=dashboard.id,
+                        directories=[directory],
+                        name=name,
                     ),
                 )
             )
