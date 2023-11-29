@@ -141,9 +141,11 @@ class LookerExtractor(BaseExtractor):
                 )
 
             assert dashboard.id is not None
-            directory, name = dashboard.id.rsplit(
-                "::", 1
-            )  # Dashboard id is guranteed to look like `model_name::dashboard_name`: https://www.googlecloudcommunity.com/gc/Technical-Tips-Tricks/How-can-I-find-the-id-of-a-LookML-dashboard/ta-p/592288
+
+            # Dashboard id is guranteed to look like `model_name::dashboard_name`
+            # Ref: https://www.googlecloudcommunity.com/gc/Technical-Tips-Tricks/How-can-I-find-the-id-of-a-LookML-dashboard/ta-p/592288
+            directory, name = dashboard.id.rsplit("::", 1)
+
             dashboards.append(
                 Dashboard(
                     logical_id=DashboardLogicalID(
