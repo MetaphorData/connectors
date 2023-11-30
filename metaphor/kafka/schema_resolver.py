@@ -6,6 +6,8 @@ from metaphor.common.logger import get_logger
 from metaphor.kafka.config import KafkaConfig, KafkaSubjectNameStrategy
 from metaphor.models.metadata_change_event import DatasetSchema, SchemaType
 
+from metaphor.kafka.schema_parsers.protobuf_parser import ProtobufParser
+
 logger = get_logger()
 
 
@@ -105,14 +107,12 @@ class SchemaResolver:
 
                 assert dataset_schema.raw_schema is not None
                 if dataset_schema.schema_type is SchemaType.AVRO:
+                    logger.warning("AVRO not supported yet")
                     pass
                 elif dataset_schema.schema_type is SchemaType.PROTOBUF:
-                    pass
+                    dataset_schema.fields = ProtobufParser.parse(dataset_schema.raw_schema, subject_name)
                 elif dataset_schema.schema_type is SchemaType.JSON:
-                    import json
-
-                    json_schema = json.loads(dataset_schema.raw_schema)
-                    pass
+                    logger.warning("Json not supported yet")
 
                 dataset_schemas[
                     SchemaResolver.to_dataset_schema_key(registered_schema)
