@@ -58,7 +58,7 @@ def test_parse_schema() -> None:
                 SchemaField(
                     field_name="accountList",
                     field_path="AccountEvent.accountList",
-                    native_type="ARRAY",
+                    native_type="ARRAY<record>",
                     subfields=[
                         SchemaField(
                             field_name="Account",
@@ -78,6 +78,40 @@ def test_parse_schema() -> None:
                             ],
                         )
                     ],
+                ),
+            ],
+        )
+    ]
+
+
+def test_parse_union_schema() -> None:
+    raw_schema = """
+    {
+        "type": "record",
+        "namespace": "com.example",
+        "name": "FullName",
+        "fields": [
+          { "name": "first", "type": ["string", "null"] },
+          { "name": "last", "type": "string", "default" : "Doe" }
+        ]
+    }
+    """
+    schema = AvroParser.parse(raw_schema, "FullName")
+    assert schema == [
+        SchemaField(
+            field_name="FullName",
+            field_path="FullName",
+            native_type="RECORD",
+            subfields=[
+                SchemaField(
+                    field_name="first",
+                    field_path="FullName.first",
+                    native_type="UNION<string,null>",
+                ),
+                SchemaField(
+                    field_name="last",
+                    field_path="FullName.last",
+                    native_type="STRING",
                 ),
             ],
         )

@@ -106,11 +106,12 @@ class AvroParser:
             description=AvroParser._safe_get_doc(field),
         )
 
-        _, subfields = self._parse_array_children(
+        array_type, subfields = self._parse_array_children(
             arr_item=field.type.items,  # type: ignore # avro types are broken, field.type is actually a schema
             cur_path=AvroParser._get_field_path(cur_path, field_name),
         )
 
+        schema_field.native_type = f"{schema_field.native_type}<{array_type}>"
         if subfields:
             schema_field.subfields = [subfields]
         return schema_field
@@ -225,11 +226,12 @@ class AvroParser:
             native_type=str(field_type.type).upper(),
             description=AvroParser._safe_get_doc(union_field),
         )
-        _, children = self._parse_union_children(
+        union_types, children = self._parse_union_children(
             parent,
             field_type,
             field_path,
         )
+        schema_field.native_type = f"{schema_field.native_type}<{union_types}>"
         if children:
             schema_field.subfields = [children]
         return schema_field
