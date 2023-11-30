@@ -30,6 +30,23 @@ def test_parse_schema() -> None:
                         },
                         {   "name": "id",
                             "type": "string"
+                        },
+                        {
+                            "name": "accountOwner",
+                            "type": {
+                                "name": "OwnerRecord",
+                                "type": "record",
+                                "fields": [
+                                    {
+                                        "type": "string",
+                                        "name": "name"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "name": "email"
+                                    }
+                                ]
+                            }
                         }
                     ]
                 }
@@ -74,6 +91,30 @@ def test_parse_schema() -> None:
                                     field_name="id",
                                     field_path="AccountEvent.accountList.Account.id",
                                     native_type="STRING",
+                                ),
+                                SchemaField(
+                                    field_name="accountOwner",
+                                    field_path="AccountEvent.accountList.Account.accountOwner",
+                                    native_type="RECORD",
+                                    subfields=[
+                                        SchemaField(
+                                            field_name="OwnerRecord",
+                                            field_path="AccountEvent.accountList.Account.accountOwner.OwnerRecord",
+                                            native_type="RECORD",
+                                            subfields=[
+                                                SchemaField(
+                                                    field_name="name",
+                                                    field_path="AccountEvent.accountList.Account.accountOwner.OwnerRecord.name",
+                                                    native_type="STRING",
+                                                ),
+                                                SchemaField(
+                                                    field_name="email",
+                                                    field_path="AccountEvent.accountList.Account.accountOwner.OwnerRecord.email",
+                                                    native_type="STRING",
+                                                ),
+                                            ],
+                                        )
+                                    ],
                                 ),
                             ],
                         )
