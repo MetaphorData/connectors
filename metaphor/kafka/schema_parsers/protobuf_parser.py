@@ -107,7 +107,7 @@ class ProtobufParser:
         top_level_message = self._find_top_level_message(message)
         if not top_level_message:
             raise ValueError("Cannot determine top level message")
-        class_ = getattr(message, top_level_message)  # FIXME no
+        class_ = getattr(message, top_level_message)
         instance = class_()
         return instance
 
