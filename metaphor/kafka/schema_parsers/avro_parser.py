@@ -53,14 +53,15 @@ class AvroParser:
             return f"UNION<{display_type}>", children
 
         if isinstance(arr_item, RecordSchema):
-            child_obj = SchemaField(
+            field_path = AvroParser._get_field_path(cur_path, arr_item.name)
+            child_field = SchemaField(
                 field_name=arr_item.name,
-                field_path=AvroParser._get_field_path(cur_path, arr_item.name),
+                field_path=field_path,
                 native_type=str(arr_item.type).upper(),
-                subfields=self.get_avro_fields(arr_item, cur_path),
+                subfields=self.get_avro_fields(arr_item, field_path),
                 description=arr_item.doc,
             )
-            return str(arr_item.type), child_obj
+            return str(arr_item.type), child_field
 
         return str(arr_item.type), None
 
@@ -122,6 +123,7 @@ class AvroParser:
         union_field: UnionSchema,
         cur_path: str,
     ) -> Tuple[str, Optional[SchemaField]]:
+        # FIXME the logic here is incorrect
         non_null_schema = [
             (i, schema)
             for i, schema in enumerate(union_field.schemas)

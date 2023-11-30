@@ -38,8 +38,8 @@ def test_parse_schema() -> None:
     ]
 }
     """
-    schema_fields = AvroParser.parse(raw_schema, "account-event")
-    assert schema_fields == [
+    schema = AvroParser.parse(raw_schema, "account-event")
+    assert schema == [
         SchemaField(
             field_name="AccountEvent",
             field_path="AccountEvent",
@@ -67,12 +67,12 @@ def test_parse_schema() -> None:
                             subfields=[
                                 SchemaField(
                                     field_name="accountNumber",
-                                    field_path="AccountEvent.accountList.accountNumber",
+                                    field_path="AccountEvent.accountList.Account.accountNumber",
                                     native_type="STRING",
                                 ),
                                 SchemaField(
                                     field_name="id",
-                                    field_path="AccountEvent.accountList.id",
+                                    field_path="AccountEvent.accountList.Account.id",
                                     native_type="STRING",
                                 ),
                             ],
@@ -91,8 +91,8 @@ def test_parse_union_schema() -> None:
         "namespace": "com.example",
         "name": "FullName",
         "fields": [
-          { "name": "first", "type": ["string", "null"] },
-          { "name": "last", "type": "string", "default" : "Doe" }
+            { "name": "first", "type": ["string", "null"] },
+            { "name": "last", "type": "string", "default" : "Doe" }
         ]
     }
     """
@@ -113,6 +113,164 @@ def test_parse_union_schema() -> None:
                     field_path="FullName.last",
                     native_type="STRING",
                 ),
+            ],
+        )
+    ]
+
+
+def test_parse_nested_array_schema() -> None:
+    # Nested arrays go brrrrr
+    raw_schema = """
+    {
+        "name": "Top",
+        "type": "record",
+        "fields": [
+            {
+                "name": "FirstLayer",
+                "type": {
+                    "type": "array",
+                    "items": {
+                        "name": "SecondLayer",
+                        "type": "array",
+                        "items": {
+                            "name": "ThirdLayer",
+                            "type": "array",
+                            "items": {
+                                "type": "record",
+                                "name": "Leaf",
+                                "fields": [
+                                    {
+                                        "name": "id",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "LeafArray",
+                                        "type": {
+                                            "type": "array",
+                                            "items": {
+                                                "name": "LeafNested",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+    """
+    schema = AvroParser.parse(raw_schema, "bunch-of-arrays")
+    assert schema == [
+        SchemaField(
+            field_name="Top",
+            field_path="Top",
+            native_type="RECORD",
+            subfields=[
+                SchemaField(
+                    field_name="FirstLayer",
+                    field_path="Top.FirstLayer",
+                    native_type="ARRAY<ARRAY<ARRAY<record>>>",
+                    subfields=[
+                        SchemaField(
+                            field_name="Leaf",
+                            field_path="Top.FirstLayer.Leaf",
+                            native_type="RECORD",
+                            subfields=[
+                                SchemaField(
+                                    field_name="id",
+                                    field_path="Top.FirstLayer.Leaf.id",
+                                    native_type="STRING",
+                                ),
+                                SchemaField(
+                                    field_name="LeafArray",
+                                    field_path="Top.FirstLayer.Leaf.LeafArray",
+                                    native_type="ARRAY<ARRAY<string>>",
+                                ),
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+    ]
+
+
+def test_complex_schema() -> None:
+    raw_schema = """
+    {
+        "namespace": "proj.avro",
+        "protocol": "app_messages",
+        "doc" : "application messages",
+        "name": "myRecord",
+        "type" : "record",
+        "fields": [
+            {
+                "name": "requestResponse",
+                "type": [
+                    {
+                        "name": "record_request",
+                        "type" : "record",
+                        "fields": [
+                            {
+                                "name" : "request_id",
+                                "type" : "int"
+                            },
+                            {
+                                "name" : "message_type",
+                                "type" : "int"
+                            },
+                            {
+                                "name" : "users",
+                                "type" : "string"
+                            }
+                        ]
+                    },
+                    {
+                        "name" : "request_response",
+                        "type" : "record",
+                        "fields": [
+                            {
+                                "name" : "request_id",
+                                "type" : "int"
+                            },
+                            {
+                                "name" : "response_code",
+                                "type" : "string"
+                            },
+                            {
+                                "name" : "response_count",
+                                "type" : "int"
+                            },
+                            {
+                                "name" : "reason_code",
+                                "type" : "string"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+    """
+    schema = AvroParser.parse(raw_schema, "complex")
+    assert schema == [
+        SchemaField(
+            description="application messages",
+            field_name="myRecord",
+            field_path="myRecord",
+            native_type="RECORD",
+            subfields=[
+                SchemaField(
+                    field_name="requestResponse",
+                    field_path="myRecord.requestResponse",
+                    native_type="UNION<record,record>",  # FIXME Where are the subfields?
+                )
             ],
         )
     ]
