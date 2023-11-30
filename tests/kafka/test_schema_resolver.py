@@ -65,11 +65,15 @@ def test_schema_resolver(
     foo_schemas = resolver.get_dataset_schemas("foo")
     assert foo_schemas.get("1_1") is not None
     assert foo_schemas.get("1_1") == DatasetSchema(
-        schema_type=SchemaType.AVRO, raw_schema='"string"'
+        schema_type=SchemaType.AVRO,
+        raw_schema='"string"',
+        fields=[],
     )
     assert foo_schemas.get("2_2") is not None
     assert foo_schemas.get("2_2") == DatasetSchema(
-        schema_type=SchemaType.AVRO, raw_schema='"double"'
+        schema_type=SchemaType.AVRO,
+        raw_schema='"double"',
+        fields=[],
     )
     assert "2_1" not in foo_schemas
     assert "3_1" not in foo_schemas
@@ -77,7 +81,9 @@ def test_schema_resolver(
     foo_schemas = resolver.get_dataset_schemas("foo", all_versions=True)
     assert "2_1" in foo_schemas
     assert foo_schemas.get("2_1") == DatasetSchema(
-        schema_type=SchemaType.AVRO, raw_schema='"string"'
+        schema_type=SchemaType.AVRO,
+        raw_schema='"string"',
+        fields=[],
     )
 
 
