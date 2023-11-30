@@ -173,6 +173,7 @@ async def test_get_activities(
 
 @patch("requests.get")
 @patch("msal.ConfidentialClientApplication")
+@pytest.mark.asyncio
 async def test_get_refresh_schedule(
     mock_msal_app: MagicMock, mock_get_method: MagicMock, test_root_dir: str
 ):

@@ -16,11 +16,17 @@
       ]
     },
     "logicalId": {
-      "dashboardId": "1",
+      "dashboardId": "model1::1",
       "platform": "LOOKER"
     },
     "sourceInfo": {
-      "mainUrl": "http://test/me/1"
+      "mainUrl": "http://test/me/model1::1"
+    },
+    "structure": {
+      "directories": [
+        "model1"
+      ],
+      "name": "1"
     },
     "upstream": {
       "sourceVirtualViews": [

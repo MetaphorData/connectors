@@ -39,7 +39,7 @@ def test_fetch_dashboards(test_root_dir) -> None:
 
     def mock_dashboard(dashboard_id: str):
         return Dashboard(
-            id="1",
+            id="model1::1",
             title="first",
             description="first dashboard",
             preferred_viewer="me",
