@@ -102,12 +102,12 @@ class AvroParser:
         schema_field = SchemaField(
             field_name=field_name,
             field_path=field_path,
-            native_type=str(field.type.type).upper(),
+            native_type=str(field.type.type).upper(),  # type: ignore # avro types are broken, field.type is actually a schema
             description=AvroParser._safe_get_doc(field),
         )
 
         _, subfields = self._parse_array_children(
-            arr_item=field.type.items,
+            arr_item=field.type.items,  # type: ignore # avro types are broken, field.type is actually a schema
             cur_path=AvroParser._get_field_path(cur_path, field_name),
         )
 
@@ -160,18 +160,19 @@ class AvroParser:
         Parse the nested record fields for avro
         """
         field_path = AvroParser._get_field_path(cur_path, field.name)
-        child_path = AvroParser._get_field_path(field_path, field.type.name)
+        child_schema: RecordSchema = field.type  # type: ignore # avro types are broken, field.type is actually a record schema
+        child_path = AvroParser._get_field_path(field_path, child_schema.name)
         schema_field = SchemaField(
             field_name=field.name,
             field_path=field_path,
             native_type="RECORD",
             subfields=[
                 SchemaField(
-                    field_name=field.type.name,
+                    field_name=child_schema.name,
                     field_path=child_path,
                     native_type="RECORD",
-                    subfields=self.get_avro_fields(field.type, child_path),
-                    description=field.type.doc,
+                    subfields=self.get_avro_fields(child_schema, child_path),
+                    description=child_schema.doc,
                 )
             ],
             description=field.doc,
@@ -215,7 +216,7 @@ class AvroParser:
         and the display type would be: UNION<null,array,record>
         """
 
-        field_type = union_field.type
+        field_type: UnionSchema = union_field.type  # type: ignore # avro types are broken, field.type is actually a union schema
         field_name = AvroParser._safe_get_name(union_field)
         field_path = AvroParser._get_field_path(cur_path, field_name)
         schema_field = SchemaField(
@@ -245,7 +246,7 @@ class AvroParser:
         return SchemaField(
             field_name=field_name,
             field_path=AvroParser._get_field_path(cur_path, field_name),
-            native_type=str(field.type.type).upper(),
+            native_type=str(field.type.type).upper(),  # type: ignore # avro types are broken, field.type is actually a schema
             description=AvroParser._safe_get_doc(field),
         )
 
@@ -280,7 +281,7 @@ class AvroParser:
 
         field_models = []
 
-        for field in parsed_schema.fields:
+        for field in parsed_schema.fields:  # type: ignore # if field is a valid prop then it will be a list of schemas
             if isinstance(field.type, ArraySchema):
                 field_models.append(self.parse_array_fields(field, cur_path))
             elif isinstance(field.type, UnionSchema):
