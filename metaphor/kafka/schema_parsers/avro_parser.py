@@ -92,9 +92,9 @@ class AvroParser:
         subfields = []
         for field in union_schema.schemas:
             if isinstance(field, ArraySchema):
-                _, arr_child = self._parse_array_child(field.items, cur_path)
-                if arr_child is not None:
-                    subfields.append(arr_child)
+                _, arr_children = self._parse_array_child(field.items, cur_path)
+                if arr_children:
+                    subfields.extend(arr_children)
             if isinstance(field, RecordSchema):
                 record_child = self._parse_record_child(field, cur_path)
                 subfields.append(record_child)

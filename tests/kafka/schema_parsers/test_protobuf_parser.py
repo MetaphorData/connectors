@@ -5,8 +5,8 @@ from metaphor.models.metadata_change_event import SchemaField
 def test_protobuf_parser(test_root_dir) -> None:
     proto_file = f"{test_root_dir}/kafka/schema_parsers/address_book.proto"
     with open(proto_file) as f:
-        schema_fields = ProtobufParser.parse(f.read(), "address_book")
-    assert schema_fields == [
+        schema = ProtobufParser.parse(f.read(), "address_book")
+    assert schema == [
         SchemaField(
             field_name="people",
             field_path="people",
@@ -64,3 +64,11 @@ def test_protobuf_parser(test_root_dir) -> None:
             ],
         )
     ]
+
+
+def test_parse_bad_proto() -> None:
+    raw_schema = """
+syntax = "proto3";
+    """
+    schema = ProtobufParser.parse(raw_schema, "bad")
+    assert schema is None
