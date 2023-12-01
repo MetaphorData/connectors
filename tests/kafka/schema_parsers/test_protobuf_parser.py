@@ -16,6 +16,10 @@ def test_address_book(test_root_dir) -> None:
     run_test(test_root_dir, "address_book")
 
 
+def test_simple_proto(test_root_dir) -> None:
+    run_test(test_root_dir, "simple_proto")
+
+
 def test_parse_bad_proto() -> None:
     raw_schema = """
 syntax = "proto3";
