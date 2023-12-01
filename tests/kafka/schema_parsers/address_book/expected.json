@@ -1,0 +1,58 @@
+[
+  {
+    "fieldName": "people",
+    "fieldPath": "people",
+    "nativeType": "TYPE_MESSAGE",
+    "subfields": [
+      {
+        "fieldName": "name",
+        "fieldPath": "people.name",
+        "nativeType": "TYPE_STRING"
+      },
+      {
+        "fieldName": "id",
+        "fieldPath": "people.id",
+        "nativeType": "TYPE_INT32"
+      },
+      {
+        "fieldName": "email",
+        "fieldPath": "people.email",
+        "nativeType": "TYPE_STRING"
+      },
+      {
+        "fieldName": "phones",
+        "fieldPath": "people.phones",
+        "nativeType": "TYPE_MESSAGE",
+        "subfields": [
+          {
+            "fieldName": "number",
+            "fieldPath": "people.phones.number",
+            "nativeType": "TYPE_STRING"
+          },
+          {
+            "fieldName": "type",
+            "fieldPath": "people.phones.type",
+            "nativeType": "TYPE_ENUM"
+          }
+        ]
+      },
+      {
+        "fieldName": "last_updated",
+        "fieldPath": "people.last_updated",
+        "nativeType": "TYPE_MESSAGE",
+        "subfields": [
+          {
+            "fieldName": "seconds",
+            "fieldPath": "people.last_updated.seconds",
+            "nativeType": "TYPE_INT64"
+          },
+          {
+            "fieldName": "nanos",
+            "fieldPath": "people.last_updated.nanos",
+            "nativeType": "TYPE_INT32"
+          }
+        ]
+      }
+    ]
+  }
+]
