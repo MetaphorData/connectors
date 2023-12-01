@@ -118,9 +118,7 @@ class ProtobufParser:
     def _parse_protobuf_fields(self, fields, cur_path: str) -> List[SchemaField]:
         schema_fields = []
         for field in fields:
-            field_path = ".".join([cur_path, field.name])
-            if cur_path == "":
-                field_path = field_path[1:]
+            field_path = ".".join([cur_path, field.name]) if cur_path else field.name
 
             schema_field = SchemaField(
                 field_name=field.name,
