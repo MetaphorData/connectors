@@ -106,6 +106,9 @@ def test_basic(test_root_dir):
                 directories=["model1"],
                 name="explore1",
             ),
+            entity_upstream=EntityUpstream(
+                source_entities=[str(virtual_view_id)],
+            ),
         ),
     ]
 
@@ -223,6 +226,9 @@ def test_join(test_root_dir):
                     directories=["model1"],
                     name="explore1",
                 ),
+                entity_upstream=EntityUpstream(
+                    source_entities=[str(virtual_view_id1), str(virtual_view_id2)]
+                ),
             ),
         ],
     )
@@ -294,6 +300,7 @@ def test_explore_in_view(test_root_dir):
                     directories=["model1"],
                     name="explore1",
                 ),
+                entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id)]),
             ),
         ],
     )
@@ -391,6 +398,7 @@ def test_derived_table(test_root_dir):
                 directories=["model"],
                 name="explore1",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -404,6 +412,7 @@ def test_derived_table(test_root_dir):
                 directories=["model"],
                 name="explore2",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -417,6 +426,7 @@ def test_derived_table(test_root_dir):
                 directories=["model"],
                 name="explore3",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id3)]),
         ),
     ]
 
@@ -475,6 +485,7 @@ def test_sql_table_name(test_root_dir):
                 directories=["model"],
                 name="explore1",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
     ]
 
@@ -647,6 +658,7 @@ def test_complex_includes(test_root_dir):
                 directories=["model"],
                 name="explore1",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
     ]
 
@@ -792,6 +804,7 @@ def test_view_extension(test_root_dir):
                 directories=["model"],
                 name="explore1",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
     ]
 
@@ -906,6 +919,7 @@ def test_explore_extension(test_root_dir):
                 directories=["model"],
                 name="explore1",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -919,6 +933,7 @@ def test_explore_extension(test_root_dir):
                 directories=["model"],
                 name="explore2",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -932,6 +947,7 @@ def test_explore_extension(test_root_dir):
                 directories=["model"],
                 name="explore3",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -945,6 +961,7 @@ def test_explore_extension(test_root_dir):
                 directories=["model"],
                 name="explore4",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -958,6 +975,7 @@ def test_explore_extension(test_root_dir):
                 directories=["model"],
                 name="base_explore2",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -971,5 +989,6 @@ def test_explore_extension(test_root_dir):
                 directories=["model"],
                 name="view3",
             ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
         ),
     ]
