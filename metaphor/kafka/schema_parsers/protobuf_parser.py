@@ -43,25 +43,6 @@ class ProtobufDataTypes(Enum):
     TYPE_SINT64 = 18
     MAX_TYPE = 18
 
-    def __new__(cls, *values):
-        obj = object.__new__(cls)
-        # first value is canonical value
-        obj._value_ = values[0]
-        for other_value in values[1:]:
-            cls._value2member_map_[other_value] = obj
-        obj._all_values = values
-        return obj
-
-    def __repr__(self):
-        value = ", ".join([repr(v) for v in self._all_values])
-        return (
-            f"<"  # pylint: disable=no-member
-            f"{self.__class__.__name__,}"
-            f"{self._name_}"
-            f"{value}"
-            f">"
-        )
-
 
 class ProtobufParser:
     def __init__(self) -> None:
