@@ -1,0 +1,50 @@
+{
+    "type": "record",
+    "namespace": "com.mypackage",
+    "name": "AccountEvent",
+    "fields": [
+        {
+            "name": "accountNumber",
+            "type": "string"
+        },
+        {
+            "name": "address",
+            "type": "string"
+        },
+        {
+            "name": "accountList",
+            "type": {
+                "type": "array",
+                "items":{
+                    "name": "Account",
+                    "type": "record",
+                    "fields":[
+                        {   "name": "accountNumber",
+                            "type": "string"
+                        },
+                        {   "name": "id",
+                            "type": "string"
+                        },
+                        {
+                            "name": "accountOwner",
+                            "type": {
+                                "name": "OwnerRecord",
+                                "type": "record",
+                                "fields": [
+                                    {
+                                        "type": "string",
+                                        "name": "name"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "name": "email"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

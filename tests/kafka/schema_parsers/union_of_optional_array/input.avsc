@@ -1,0 +1,53 @@
+{
+  "type": "record",
+  "namespace": "example.avro",
+  "name": "array_union",
+  "fields": [
+    {
+      "name": "body",
+      "type": {
+        "name": "body",
+        "type": "record",
+        "fields": [
+          {
+            "name": "abc",
+            "type": [
+              "null",
+              {
+                "type": "array",
+                "name": "abc_name_0",
+                "items": {
+                  "name": "_name_0",
+                  "type": "record",
+                  "fields": [
+                    {
+                      "name": "app_id",
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    {
+                      "name": "app_name",
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    {
+                      "name": "app_key",
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

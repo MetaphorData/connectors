@@ -1,0 +1,43 @@
+{
+    "name": "Top",
+    "type": "record",
+    "fields": [
+        {
+            "name": "FirstLayer",
+            "type": {
+                "type": "array",
+                "items": {
+                    "name": "SecondLayer",
+                    "type": "array",
+                    "items": {
+                        "name": "ThirdLayer",
+                        "type": "array",
+                        "items": {
+                            "type": "record",
+                            "name": "Leaf",
+                            "fields": [
+                                {
+                                    "name": "id",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "LeafArray",
+                                    "type": {
+                                        "type": "array",
+                                        "items": {
+                                            "name": "LeafNested",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

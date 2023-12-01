@@ -1,0 +1,21 @@
+[
+  {
+    "fieldName": "bar",
+    "fieldPath": "bar",
+    "nativeType": "TYPE_MESSAGE",
+    "subfields": [
+      {
+        "fieldName": "foo",
+        "fieldPath": "bar.foo",
+        "nativeType": "TYPE_MESSAGE",
+        "subfields": [
+          {
+            "fieldName": "name",
+            "fieldPath": "bar.foo.name",
+            "nativeType": "TYPE_STRING"
+          }
+        ]
+      }
+    ]
+  }
+]
