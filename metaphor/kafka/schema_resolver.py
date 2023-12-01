@@ -114,7 +114,7 @@ class SchemaResolver:
                         dataset_schema.raw_schema, subject_name
                     )
                 elif dataset_schema.schema_type is SchemaType.JSON:
-                    logger.warning("Json not supported yet")
+                    logger.warning("Parsing JSON schema is not supported yet")
 
                 dataset_schemas[
                     SchemaResolver.to_dataset_schema_key(registered_schema)

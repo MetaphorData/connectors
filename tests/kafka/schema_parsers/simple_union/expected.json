@@ -1,0 +1,19 @@
+[
+  {
+    "fieldName": "FullName",
+    "fieldPath": "FullName",
+    "nativeType": "RECORD",
+    "subfields": [
+      {
+        "fieldName": "first",
+        "fieldPath": "FullName.first",
+        "nativeType": "UNION<string,null>"
+      },
+      {
+        "fieldName": "last",
+        "fieldPath": "FullName.last",
+        "nativeType": "STRING"
+      }
+    ]
+  }
+]

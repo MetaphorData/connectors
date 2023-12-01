@@ -1,322 +1,36 @@
 from metaphor.kafka.schema_parsers.avro_parser import AvroParser
-from metaphor.models.metadata_change_event import SchemaField
+from tests.test_utils import load_json
+
+
+def run_test(test_root_dir: str, path: str) -> None:
+    with open(f"{test_root_dir}/kafka/schema_parsers/{path}/input.avsc") as f:
+        raw_schema = f.read()
+    schema = AvroParser.parse(raw_schema, path)
+    assert schema is not None
+    assert [field.to_dict() for field in schema] == load_json(
+        f"{test_root_dir}/kafka/schema_parsers/{path}/expected.json"
+    )
 
 
 def test_parse_schema(test_root_dir) -> None:
-    with open(
-        f"{test_root_dir}/kafka/schema_parsers/avro_schemas/account_event.avsc"
-    ) as f:
-        raw_schema = f.read()
-    schema = AvroParser.parse(raw_schema, "account-event")
-    assert schema == [
-        SchemaField(
-            field_name="AccountEvent",
-            field_path="AccountEvent",
-            native_type="RECORD",
-            subfields=[
-                SchemaField(
-                    field_name="accountNumber",
-                    field_path="AccountEvent.accountNumber",
-                    native_type="STRING",
-                ),
-                SchemaField(
-                    field_name="address",
-                    field_path="AccountEvent.address",
-                    native_type="STRING",
-                ),
-                SchemaField(
-                    field_name="accountList",
-                    field_path="AccountEvent.accountList",
-                    native_type="ARRAY<record>",
-                    subfields=[
-                        SchemaField(
-                            field_name="Account",
-                            field_path="AccountEvent.accountList.Account",
-                            native_type="RECORD",
-                            subfields=[
-                                SchemaField(
-                                    field_name="accountNumber",
-                                    field_path="AccountEvent.accountList.Account.accountNumber",
-                                    native_type="STRING",
-                                ),
-                                SchemaField(
-                                    field_name="id",
-                                    field_path="AccountEvent.accountList.Account.id",
-                                    native_type="STRING",
-                                ),
-                                SchemaField(
-                                    field_name="accountOwner",
-                                    field_path="AccountEvent.accountList.Account.accountOwner",
-                                    native_type="RECORD",
-                                    subfields=[
-                                        SchemaField(
-                                            field_name="OwnerRecord",
-                                            field_path="AccountEvent.accountList.Account.accountOwner.OwnerRecord",
-                                            native_type="RECORD",
-                                            subfields=[
-                                                SchemaField(
-                                                    field_name="name",
-                                                    field_path="AccountEvent.accountList.Account.accountOwner.OwnerRecord.name",
-                                                    native_type="STRING",
-                                                ),
-                                                SchemaField(
-                                                    field_name="email",
-                                                    field_path="AccountEvent.accountList.Account.accountOwner.OwnerRecord.email",
-                                                    native_type="STRING",
-                                                ),
-                                            ],
-                                        )
-                                    ],
-                                ),
-                            ],
-                        )
-                    ],
-                ),
-            ],
-        )
-    ]
+    run_test(test_root_dir, "account_event")
 
 
-def test_parse_union_schema(test_root_dir) -> None:
-    raw_schema = """
-    {
-        "type": "record",
-        "namespace": "com.example",
-        "name": "FullName",
-        "fields": [
-            { "name": "first", "type": ["string", "null"] },
-            { "name": "last", "type": "string", "default" : "Doe" }
-        ]
-    }
-    """
-    schema = AvroParser.parse(raw_schema, "FullName")
-    assert schema == [
-        SchemaField(
-            field_name="FullName",
-            field_path="FullName",
-            native_type="RECORD",
-            subfields=[
-                SchemaField(
-                    field_name="first",
-                    field_path="FullName.first",
-                    native_type="UNION<string,null>",
-                ),
-                SchemaField(
-                    field_name="last",
-                    field_path="FullName.last",
-                    native_type="STRING",
-                ),
-            ],
-        )
-    ]
-
-    with open(f"{test_root_dir}/kafka/schema_parsers/avro_schemas/union.avsc") as f:
-        raw_schema = f.read()
-    schema = AvroParser.parse(raw_schema, "UnionRecord")
-    assert schema == [
-        SchemaField(
-            field_name="UnionRecord",
-            field_path="UnionRecord",
-            native_type="RECORD",
-            subfields=[
-                SchemaField(
-                    field_name="field",
-                    field_path="UnionRecord.field",
-                    native_type="UNION<record,int,string,null>",
-                    subfields=[
-                        SchemaField(
-                            field_name="Record",
-                            field_path="UnionRecord.field.Record",
-                            native_type="RECORD",
-                            subfields=[
-                                SchemaField(
-                                    field_name="ID",
-                                    field_path="UnionRecord.field.Record.ID",
-                                    native_type="STRING",
-                                ),
-                                SchemaField(
-                                    field_name="name",
-                                    field_path="UnionRecord.field.Record.name",
-                                    native_type="STRING",
-                                ),
-                            ],
-                        )
-                    ],
-                )
-            ],
-        )
-    ]
+def test_simple_union(test_root_dir) -> None:
+    run_test(test_root_dir, "simple_union")
 
 
-def test_parse_nested_array_schema(test_root_dir) -> None:
-    with open(
-        f"{test_root_dir}/kafka/schema_parsers/avro_schemas/nested_arrays.avsc"
-    ) as f:
-        raw_schema = f.read()
-    # Nested arrays go brrrrr
-    schema = AvroParser.parse(raw_schema, "bunch-of-arrays")
-    assert schema == [
-        SchemaField(
-            field_name="Top",
-            field_path="Top",
-            native_type="RECORD",
-            subfields=[
-                SchemaField(
-                    field_name="FirstLayer",
-                    field_path="Top.FirstLayer",
-                    native_type="ARRAY<ARRAY<ARRAY<record>>>",
-                    subfields=[
-                        SchemaField(
-                            field_name="Leaf",
-                            field_path="Top.FirstLayer.Leaf",
-                            native_type="RECORD",
-                            subfields=[
-                                SchemaField(
-                                    field_name="id",
-                                    field_path="Top.FirstLayer.Leaf.id",
-                                    native_type="STRING",
-                                ),
-                                SchemaField(
-                                    field_name="LeafArray",
-                                    field_path="Top.FirstLayer.Leaf.LeafArray",
-                                    native_type="ARRAY<ARRAY<string>>",
-                                ),
-                            ],
-                        )
-                    ],
-                )
-            ],
-        )
-    ]
+def test_union(test_root_dir) -> None:
+    run_test(test_root_dir, "union")
 
 
-def test_array_of_unions_schema(test_root_dir) -> None:
-    with open(
-        f"{test_root_dir}/kafka/schema_parsers/avro_schemas/array_of_unions.avsc"
-    ) as f:
-        raw_schema = f.read()
-    schema = AvroParser.parse(raw_schema, "complex")
-    assert schema == [
-        SchemaField(
-            field_name="array_union",
-            field_path="array_union",
-            native_type="RECORD",
-            subfields=[
-                SchemaField(
-                    field_name="body",
-                    field_path="array_union.body",
-                    native_type="RECORD",
-                    subfields=[
-                        SchemaField(
-                            field_name="body",
-                            field_path="array_union.body.body",
-                            native_type="RECORD",
-                            subfields=[
-                                SchemaField(
-                                    field_name="abc",
-                                    field_path="array_union.body.body.abc",
-                                    native_type="UNION<null,array>",
-                                    subfields=[
-                                        SchemaField(
-                                            field_name="_name_0",
-                                            field_path="array_union.body.body.abc._name_0",
-                                            native_type="RECORD",
-                                            subfields=[
-                                                SchemaField(
-                                                    field_name="app_id",
-                                                    field_path="array_union.body.body.abc._name_0.app_id",
-                                                    native_type="UNION<null,string>",
-                                                ),
-                                                SchemaField(
-                                                    field_name="app_name",
-                                                    field_path="array_union.body.body.abc._name_0.app_name",
-                                                    native_type="UNION<null,string>",
-                                                ),
-                                                SchemaField(
-                                                    field_name="app_key",
-                                                    field_path="array_union.body.body.abc._name_0.app_key",
-                                                    native_type="UNION<null,string>",
-                                                ),
-                                            ],
-                                        )
-                                    ],
-                                )
-                            ],
-                        )
-                    ],
-                )
-            ],
-        )
-    ]
+def test_nested_arrays(test_root_dir) -> None:
+    run_test(test_root_dir, "nested_arrays")
 
 
-def test_complex_schema(test_root_dir) -> None:
-    with open(f"{test_root_dir}/kafka/schema_parsers/avro_schemas/complex.avsc") as f:
-        raw_schema = f.read()
-    schema = AvroParser.parse(raw_schema, "complex")
-    assert schema == [
-        SchemaField(
-            description="application messages",
-            field_name="myRecord",
-            field_path="myRecord",
-            native_type="RECORD",
-            subfields=[
-                SchemaField(
-                    field_name="requestResponse",
-                    field_path="myRecord.requestResponse",
-                    native_type="UNION<record,record>",
-                    subfields=[
-                        SchemaField(
-                            field_name="record_request",
-                            field_path="myRecord.requestResponse.record_request",
-                            native_type="RECORD",
-                            subfields=[
-                                SchemaField(
-                                    field_name="request_id",
-                                    field_path="myRecord.requestResponse.record_request.request_id",
-                                    native_type="INT",
-                                ),
-                                SchemaField(
-                                    field_name="message_type",
-                                    field_path="myRecord.requestResponse.record_request.message_type",
-                                    native_type="INT",
-                                ),
-                                SchemaField(
-                                    field_name="users",
-                                    field_path="myRecord.requestResponse.record_request.users",
-                                    native_type="STRING",
-                                ),
-                            ],
-                        ),
-                        SchemaField(
-                            field_name="request_response",
-                            field_path="myRecord.requestResponse.request_response",
-                            native_type="RECORD",
-                            subfields=[
-                                SchemaField(
-                                    field_name="request_id",
-                                    field_path="myRecord.requestResponse.request_response.request_id",
-                                    native_type="INT",
-                                ),
-                                SchemaField(
-                                    field_name="response_code",
-                                    field_path="myRecord.requestResponse.request_response.response_code",
-                                    native_type="STRING",
-                                ),
-                                SchemaField(
-                                    field_name="response_count",
-                                    field_path="myRecord.requestResponse.request_response.response_count",
-                                    native_type="INT",
-                                ),
-                                SchemaField(
-                                    field_name="reason_code",
-                                    field_path="myRecord.requestResponse.request_response.reason_code",
-                                    native_type="STRING",
-                                ),
-                            ],
-                        ),
-                    ],
-                )
-            ],
-        )
-    ]
+def test_array_of_unions(test_root_dir) -> None:
+    run_test(test_root_dir, "array_of_unions")
+
+
+def test_complex(test_root_dir) -> None:
+    run_test(test_root_dir, "complex")
