@@ -7,8 +7,6 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
 
-from metaphor.looker.config import LookerConnectionConfig
-
 try:
     import lkml
     import sql_metadata
@@ -22,7 +20,10 @@ from metaphor.common.entity_id import (
     to_virtual_view_entity_id,
 )
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import unique_list
+from metaphor.looker.config import LookerConnectionConfig
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     EntityUpstream,
     LookerExplore,
     LookerExploreJoin,
@@ -187,6 +188,13 @@ def fullname(model: str, name: str) -> str:
     return f"{model}.{name}"
 
 
+def _get_model_asset_structure(model: str, name: str) -> AssetStructure:
+    return AssetStructure(
+        directories=[model],
+        name=name,
+    )
+
+
 def _build_looker_view(
     model: str,
     raw_view: Dict,
@@ -230,7 +238,10 @@ def _build_looker_view(
             name=fullname(model, name), type=VirtualViewType.LOOKER_VIEW
         ),
         looker_view=view,
-        entity_upstream=EntityUpstream(source_entities=view.source_datasets),
+        structure=_get_model_asset_structure(model, name),
+        entity_upstream=EntityUpstream(source_entities=view.source_datasets)
+        if view.source_datasets
+        else None,
     )
 
 
@@ -297,11 +308,18 @@ def _build_looker_explore(
 
     # TODO: combine access_filters, always_filters and conditional_filters into explore.filters
 
+    # combine base view and joined view into source entities
+    source_entities = unique_list(
+        [explore.base_view] + [join.view for join in explore.joins or []]
+    )
+
     return VirtualView(
         logical_id=VirtualViewLogicalID(
             name=fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
         ),
         looker_explore=explore,
+        structure=_get_model_asset_structure(model, name),
+        entity_upstream=EntityUpstream(source_entities=source_entities),
     )
 
 

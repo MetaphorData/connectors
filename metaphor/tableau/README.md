@@ -81,8 +81,8 @@ If one of the data sources is using BigQuery dataset, please provide the BigQuer
 
 ```yaml
 bigquery_project_name_to_id_map:
-  project_name1: prject_id1
-  project_name2: prject_id2
+  project_name1: project_id1
+  project_name2: project_id2
 ```
 
 More information about BigQuery project name and project ID can be found [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects#before_you_begin) 
@@ -93,6 +93,22 @@ By default, the connector will request the server to generate a preview image fo
 
 ```yaml
 disable_preview_image: true
+```
+
+#### Excluding Projects
+
+You can specify the project to be ignored by the connector. By default the project `Personal Space` is ignored. To specify more ignored projects, add the following configuration:
+
+```yaml
+exclude_extra_projects:
+  - <excluded_project_name_1>
+  - <excluded_project_name_2>
+```
+
+To override the default behavior and include `Personal Space` in the connector, use the following configuration:
+
+```yaml
+include_personal_space: True
 ```
 
 ## Testing

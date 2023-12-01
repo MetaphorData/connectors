@@ -273,6 +273,26 @@ async def test_extractor(
     extractor._views = {"vid": view}
     extractor._parse_dashboard(workbook)
 
+    ignored_workbook = WorkbookItem("Personal Space")
+    ignored_workbook._set_values(
+        id="dont_care",
+        name="wb",
+        content_url="wb",
+        webpage_url="https://hostname/#/site/dont_care/workbooks/123",
+        created_at=None,
+        description="d",
+        updated_at=None,
+        size=1,
+        show_tabs=True,
+        project_id="child_project_id",
+        project_name="Personal Space",
+        owner_id=None,
+        tags=None,
+        views=[],
+        data_acceleration_config=None,
+    )
+    extractor._parse_dashboard(ignored_workbook)
+
     assert len(extractor._dashboards) == 1
     assert extractor._dashboards["123"] == Dashboard(
         logical_id=DashboardLogicalID(
@@ -361,7 +381,36 @@ async def test_extractor(
                     "upstreamTables": [],
                 },
             ],
-        }
+        },
+        {
+            "luid": "dont_care",
+            "name": "we dont care",
+            "projectLuid": "child_project_id",
+            "projectName": "Personal Space",
+            "vizportalUrlId": "5566",
+            "upstreamDatasources": [
+                {
+                    "id": "sourceId1",
+                    "luid": "sourceId1",
+                    "name": "source1",
+                    "vizportalUrlId": "777",
+                    "fields": [],
+                    "upstreamTables": [
+                        {
+                            "luid": "4ba4462e",
+                            "name": "CYCLE",
+                            "fullName": "[LONDON].[CYCLE]",
+                            "schema": "LONDON",
+                            "database": {
+                                "name": "DEV_DB",
+                                "connectionType": "snowflake",
+                            },
+                        }
+                    ],
+                }
+            ],
+            "embeddedDatasources": [],
+        },
     ]
 
     extractor._snowflake_account = "snow"

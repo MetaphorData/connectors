@@ -2,6 +2,7 @@ from metaphor.common.entity_id import EntityId
 from metaphor.looker.config import LookerConnectionConfig
 from metaphor.looker.lookml_parser import Explore, Model, parse_project
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     DataPlatform,
     DatasetLogicalID,
     EntityType,
@@ -85,6 +86,10 @@ def test_basic(test_root_dir):
                 url="http://foo/files/view1.view.lkml",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
+            structure=AssetStructure(
+                directories=["model1"],
+                name="view1",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -96,6 +101,13 @@ def test_basic(test_root_dir):
                 description="description",
                 label="label",
                 url="http://foo/files/model1.model.lkml",
+            ),
+            structure=AssetStructure(
+                directories=["model1"],
+                name="explore1",
+            ),
+            entity_upstream=EntityUpstream(
+                source_entities=[str(virtual_view_id)],
             ),
         ),
     ]
@@ -162,6 +174,10 @@ def test_join(test_root_dir):
                     source_datasets=[str(dataset_id1)],
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
+                structure=AssetStructure(
+                    directories=["model1"],
+                    name="view1",
+                ),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -177,6 +193,10 @@ def test_join(test_root_dir):
                     source_datasets=[str(dataset_id2)],
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
+                structure=AssetStructure(
+                    directories=["model1"],
+                    name="view2",
+                ),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -201,6 +221,13 @@ def test_join(test_root_dir):
                         ),
                     ],
                     label="label",
+                ),
+                structure=AssetStructure(
+                    directories=["model1"],
+                    name="explore1",
+                ),
+                entity_upstream=EntityUpstream(
+                    source_entities=[str(virtual_view_id1), str(virtual_view_id2)]
                 ),
             ),
         ],
@@ -254,6 +281,10 @@ def test_explore_in_view(test_root_dir):
                     source_datasets=[str(dataset_id)],
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
+                structure=AssetStructure(
+                    directories=["model1"],
+                    name="view1",
+                ),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -265,6 +296,11 @@ def test_explore_in_view(test_root_dir):
                     description="description",
                     label="label",
                 ),
+                structure=AssetStructure(
+                    directories=["model1"],
+                    name="explore1",
+                ),
+                entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id)]),
             ),
         ],
     )
@@ -319,6 +355,10 @@ def test_derived_table(test_root_dir):
                 source_datasets=[str(dataset_id)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view1",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -328,6 +368,10 @@ def test_derived_table(test_root_dir):
                 source_datasets=[str(dataset_id)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view2",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -337,6 +381,10 @@ def test_derived_table(test_root_dir):
                 source_datasets=[str(dataset_id)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view3",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -346,6 +394,11 @@ def test_derived_table(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view_id1),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore1",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -355,6 +408,11 @@ def test_derived_table(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view_id2),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore2",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -364,6 +422,11 @@ def test_derived_table(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view_id3),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore3",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id3)]),
         ),
     ]
 
@@ -405,6 +468,10 @@ def test_sql_table_name(test_root_dir):
                 source_datasets=[str(dataset_id1)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view1",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -414,12 +481,17 @@ def test_sql_table_name(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view_id1),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore1",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
     ]
 
 
 def test_include_relative_to_model(test_root_dir):
-    models_map, virtual_views = parse_project(
+    _, virtual_views = parse_project(
         f"{test_root_dir}/looker/include_relative_to_model", connection_map
     )
 
@@ -448,6 +520,10 @@ def test_include_relative_to_model(test_root_dir):
                 source_datasets=[str(dataset_id1)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view1",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -457,6 +533,10 @@ def test_include_relative_to_model(test_root_dir):
                 source_datasets=[str(dataset_id2)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view2",
+            ),
         ),
     ]
 
@@ -522,6 +602,10 @@ def test_complex_includes(test_root_dir):
                 source_datasets=[str(dataset_id1)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id1)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view1",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -531,6 +615,10 @@ def test_complex_includes(test_root_dir):
                 source_datasets=[str(dataset_id2)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id2)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view2",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -540,6 +628,10 @@ def test_complex_includes(test_root_dir):
                 source_datasets=[str(dataset_id3)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id3)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view3",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -549,6 +641,10 @@ def test_complex_includes(test_root_dir):
                 source_datasets=[str(dataset_id4)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_id4)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view4",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -558,6 +654,11 @@ def test_complex_includes(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view_id1),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore1",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
     ]
 
@@ -621,6 +722,10 @@ def test_view_extension(test_root_dir):
                 source_datasets=[str(dataset_table1)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table1)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view1",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -630,6 +735,10 @@ def test_view_extension(test_root_dir):
                 source_datasets=[str(dataset_table2)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view2",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -639,6 +748,10 @@ def test_view_extension(test_root_dir):
                 source_datasets=[str(dataset_table2)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view3",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -648,6 +761,10 @@ def test_view_extension(test_root_dir):
                 source_datasets=[str(dataset_table3)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table3)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view4",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -657,6 +774,10 @@ def test_view_extension(test_root_dir):
                 source_datasets=[str(dataset_table2)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="base_view2",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -666,6 +787,10 @@ def test_view_extension(test_root_dir):
                 source_datasets=[str(dataset_base_view3)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_base_view3)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="base_view3",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -675,6 +800,11 @@ def test_view_extension(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view_id1),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore1",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
     ]
 
@@ -746,6 +876,10 @@ def test_explore_extension(test_root_dir):
                 source_datasets=[str(dataset_view1)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_view1)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view1",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -755,6 +889,10 @@ def test_explore_extension(test_root_dir):
                 source_datasets=[str(dataset_view2)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_view2)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view2",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -764,6 +902,10 @@ def test_explore_extension(test_root_dir):
                 source_datasets=[str(dataset_view3)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_view3)]),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view3",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -773,6 +915,11 @@ def test_explore_extension(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view1),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore1",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -782,6 +929,11 @@ def test_explore_extension(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view2),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore2",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -791,6 +943,11 @@ def test_explore_extension(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view1),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore3",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -800,6 +957,11 @@ def test_explore_extension(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view3),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="explore4",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -809,6 +971,11 @@ def test_explore_extension(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view2),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="base_explore2",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -818,5 +985,10 @@ def test_explore_extension(test_root_dir):
                 model_name="model",
                 base_view=str(virtual_view3),
             ),
+            structure=AssetStructure(
+                directories=["model"],
+                name="view3",
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
         ),
     ]
