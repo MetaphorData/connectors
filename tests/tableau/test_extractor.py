@@ -345,7 +345,11 @@ async def test_extractor(
                 "nodes": [
                     {
                         "referencedByFields": [{"datasource": {"id": "sourceId3"}}],
-                        "tags": [],
+                        "tags": [
+                            {
+                                "name": "baz",
+                            }
+                        ],
                     }
                 ]
             },
@@ -406,7 +410,14 @@ async def test_extractor(
                     "upstreamTables": [],
                 },
             ],
-            "tags": [],
+            "tags": [
+                {
+                    "name": "foo",
+                },
+                {
+                    "name": "bar",
+                },
+            ],
         },
         {
             "luid": "dont_care",
