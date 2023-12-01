@@ -16,6 +16,9 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DataPlatform,
     SourceInfo,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
 )
 from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 from metaphor.tableau.extractor import TableauExtractor
@@ -165,7 +168,8 @@ def test_parse_database_table():
                 fullName=None,
                 database=None,
                 schema=None,
-            )
+            ),
+            system_tags=None,
         )
         is None
     )
@@ -178,7 +182,8 @@ def test_parse_database_table():
                 fullName="fullname",
                 database=Database(name="db", connectionType="invalid_type"),
                 schema=None,
-            )
+            ),
+            system_tags=None,
         )
         is None
     )
@@ -191,7 +196,8 @@ def test_parse_database_table():
             fullName="db.schema.table",
             database=Database(name="db", connectionType="redshift"),
             schema="foo",
-        )
+        ),
+        system_tags=None,
     ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
 
     # Full back to two-segment "name"
@@ -202,7 +208,8 @@ def test_parse_database_table():
             fullName="random_name",
             database=Database(name="db", connectionType="redshift"),
             schema="foo",
-        )
+        ),
+        system_tags=None,
     ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
 
     # Test BigQuery project name => ID mapping
@@ -222,7 +229,8 @@ def test_parse_database_table():
             fullName="random_name",
             database=Database(name="bq_name", connectionType="bigquery"),
             schema="foo",
-        )
+        ),
+        system_tags=None,
     ) == to_dataset_entity_id("bq_id.schema.table", DataPlatform.BIGQUERY)
 
 
@@ -314,6 +322,18 @@ async def test_extractor(
         source_info=SourceInfo(
             main_url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
         ),
+        system_tags=SystemTags(
+            tags=[
+                SystemTag(
+                    value="tag1",
+                    system_tag_source=SystemTagSource.TABLEAU,
+                ),
+                SystemTag(
+                    value="tag2",
+                    system_tag_source=SystemTagSource.TABLEAU,
+                ),
+            ]
+        ),
     )
 
     graphql_custom_sql_tables_response = [
@@ -322,7 +342,12 @@ async def test_extractor(
             "connectionType": "bigquery",
             "query": "select * from db.schema.table",
             "columnsConnection": {
-                "nodes": [{"referencedByFields": [{"datasource": {"id": "sourceId3"}}]}]
+                "nodes": [
+                    {
+                        "referencedByFields": [{"datasource": {"id": "sourceId3"}}],
+                        "tags": [],
+                    }
+                ]
             },
         }
     ]
@@ -381,6 +406,7 @@ async def test_extractor(
                     "upstreamTables": [],
                 },
             ],
+            "tags": [],
         },
         {
             "luid": "dont_care",
@@ -410,6 +436,11 @@ async def test_extractor(
                 }
             ],
             "embeddedDatasources": [],
+            "tags": [
+                {
+                    "name": "foo",
+                }
+            ],
         },
     ]
 
@@ -431,8 +462,6 @@ async def test_extractor(
         graphql_custom_sql_tables_response,
         graphql_workbooks_response,
     ]
-
-    extractor._hierarchies = []  # Reset this!
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 

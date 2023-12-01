@@ -33,6 +33,18 @@
       ],
       "name": "wb"
     },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "TABLEAU",
+          "value": "tag1"
+        },
+        {
+          "systemTagSource": "TABLEAU",
+          "value": "tag2"
+        }
+      ]
+    },
     "upstream": {
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~B5446C160574546FB913DB1D78989BAE",
@@ -137,24 +149,6 @@
     "logicalId": {
       "name": "acme.berlin_bicycles.cycle_hire",
       "platform": "REDSHIFT"
-    }
-  },
-  {
-    "logicalId": {
-      "path": [
-        "TABLEAU",
-        "123"
-      ]
-    },
-    "systemTags": {
-      "tags": [
-        {
-          "value": "tag1"
-        },
-        {
-          "value": "tag2"
-        }
-      ]
     }
   }
 ]

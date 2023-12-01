@@ -61,6 +61,9 @@ query($first: Int, $offset: Int) {
           }
         }
       }
+      tags {
+        name
+      }
     }
   }
 }
@@ -104,6 +107,10 @@ class EmbeddedDatasource(BaseModel):
     upstreamTables: List[DatabaseTable]
 
 
+class Tag(BaseModel):
+    name: str
+
+
 class WorkbookQueryResponse(BaseModel):
     """Modeling Metadata Graphql API response for a workbook"""
 
@@ -114,6 +121,7 @@ class WorkbookQueryResponse(BaseModel):
     vizportalUrlId: str
     upstreamDatasources: List[PublishedDatasource]
     embeddedDatasources: List[EmbeddedDatasource]
+    tags: List[Tag]
 
 
 # GraphQL that lists all custom SQL queries used in datasources.
@@ -135,6 +143,9 @@ query($first: Int, $offset: Int) {
                 id
               }
             }
+            tags {
+              name
+            }
           }
         }
       }
@@ -154,6 +165,7 @@ class ReferencedByField(BaseModel):
 
 class TableColumn(BaseModel):
     referencedByFields: List[ReferencedByField]
+    tags: List[Tag]
 
 
 class ColumnConnection(BaseModel):
@@ -167,3 +179,9 @@ class CustomSqlTable(BaseModel):
     query: str
     connectionType: str
     columnsConnection: ColumnConnection
+
+    @property
+    def column_tags(self) -> List[str]:
+        return sorted(
+            {tag.name for column in self.columnsConnection.nodes for tag in column.tags}
+        )
