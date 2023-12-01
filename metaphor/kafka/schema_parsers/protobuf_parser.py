@@ -10,6 +10,7 @@ from typing import List, Optional
 from google.protobuf.descriptor import FileDescriptor  # type: ignore
 
 from metaphor.common.logger import get_logger
+from metaphor.kafka.schema_parsers.utils import get_field_path
 from metaphor.models.metadata_change_event import SchemaField
 
 logger = get_logger()
@@ -102,7 +103,7 @@ class ProtobufParser:
         for message in file_desc.message_types_by_name.values():
             for field in message.fields:
                 if (
-                    field.type == 11
+                    ProtobufDataTypes(field.type) is ProtobufDataTypes.TYPE_MESSAGE
                     and field.message_type is not None
                     and str(field.message_type.full_name).startswith(file_desc.package)
                 ):
@@ -118,15 +119,16 @@ class ProtobufParser:
     def _parse_protobuf_fields(self, fields, cur_path: str) -> List[SchemaField]:
         schema_fields = []
         for field in fields:
-            field_path = ".".join([cur_path, field.name]) if cur_path else field.name
+            field_path = get_field_path(cur_path, field.name)
 
+            field_type = ProtobufDataTypes(field.type)
             schema_field = SchemaField(
                 field_name=field.name,
                 field_path=field_path,
-                native_type=ProtobufDataTypes(field.type).name,
+                native_type=field_type.name,
                 subfields=(
                     self._parse_protobuf_fields(field.message_type.fields, field_path)
-                    if field.type == 11
+                    if field_type is ProtobufDataTypes.TYPE_MESSAGE
                     else None
                 ),
             )

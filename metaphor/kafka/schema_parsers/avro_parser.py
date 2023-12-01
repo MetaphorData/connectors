@@ -4,6 +4,7 @@ import avro.schema as avroschema
 from avro.schema import ArraySchema, RecordSchema, UnionSchema
 
 from metaphor.common.logger import get_logger
+from metaphor.kafka.schema_parsers.utils import get_field_path
 from metaphor.models.metadata_change_event import SchemaField
 
 logger = get_logger()
@@ -25,12 +26,6 @@ class AvroParser:
         return (
             str(schema.get_prop("doc")) if schema.get_prop("doc") is not None else None
         )
-
-    @staticmethod
-    def _get_field_path(cur_path: str, field_name: str) -> str:
-        # In our case here `cur_path` will never be empty, so no need for
-        # edge condition handling.
-        return ".".join([cur_path, field_name])
 
     def _parse_array_child(
         self,
@@ -66,7 +61,7 @@ class AvroParser:
         """
         Parses the record schema into a schema field.
         """
-        field_path = AvroParser._get_field_path(cur_path, record_schema.name)
+        field_path = get_field_path(cur_path, record_schema.name)
         child_field = SchemaField(
             field_name=record_schema.name,
             field_path=field_path,
@@ -133,7 +128,7 @@ class AvroParser:
         the display type would be `ARRAY<ARRAY<record>>`
         """
         field_name = AvroParser._safe_get_name(field)
-        field_path = AvroParser._get_field_path(cur_path, field_name)
+        field_path = get_field_path(cur_path, field_name)
         schema_field = SchemaField(
             field_name=field_name,
             field_path=field_path,
@@ -143,7 +138,7 @@ class AvroParser:
 
         array_type, subfields = self._parse_array_child(
             arr_item=field.type.items,  # type: ignore # avro types are broken, field.type is actually a schema
-            cur_path=AvroParser._get_field_path(cur_path, field_name),
+            cur_path=get_field_path(cur_path, field_name),
         )
 
         schema_field.native_type = f"{schema_field.native_type}<{array_type}>"
@@ -155,7 +150,7 @@ class AvroParser:
         """
         Parse the nested record fields for avro
         """
-        field_path = AvroParser._get_field_path(cur_path, field.name)
+        field_path = get_field_path(cur_path, field.name)
         child_schema: RecordSchema = field.type  # type: ignore # avro types are broken, field.type is actually a record schema
         schema_field = SchemaField(
             field_name=field.name,
@@ -180,7 +175,7 @@ class AvroParser:
 
         field_type: UnionSchema = union_field.type  # type: ignore # avro types are broken, field.type is actually a union schema
         field_name = AvroParser._safe_get_name(union_field)
-        field_path = AvroParser._get_field_path(cur_path, field_name)
+        field_path = get_field_path(cur_path, field_name)
         schema_field = SchemaField(
             field_name=field_name,
             field_path=field_path,
@@ -207,7 +202,7 @@ class AvroParser:
         field_name = AvroParser._safe_get_name(field)
         return SchemaField(
             field_name=field_name,
-            field_path=AvroParser._get_field_path(cur_path, field_name),
+            field_path=get_field_path(cur_path, field_name),
             native_type=str(field.type.type).upper(),  # type: ignore # avro types are broken, field.type is actually a schema
             description=AvroParser._safe_get_doc(field),
         )
