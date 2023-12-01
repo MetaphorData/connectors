@@ -28,8 +28,8 @@ def test_nested_arrays(test_root_dir) -> None:
     run_test(test_root_dir, "nested_arrays")
 
 
-def test_array_of_unions(test_root_dir) -> None:
-    run_test(test_root_dir, "array_of_unions")
+def test_union_of_optional_array(test_root_dir) -> None:
+    run_test(test_root_dir, "union_of_optional_array")
 
 
 def test_complex(test_root_dir) -> None:
