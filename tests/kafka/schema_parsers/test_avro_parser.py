@@ -2,59 +2,11 @@ from metaphor.kafka.schema_parsers.avro_parser import AvroParser
 from metaphor.models.metadata_change_event import SchemaField
 
 
-def test_parse_schema() -> None:
-    raw_schema = """
-{
-    "type": "record",
-    "namespace": "com.mypackage",
-    "name": "AccountEvent",
-    "fields": [
-        {
-            "name": "accountNumber",
-            "type": "string"
-        },
-        {
-            "name": "address",
-            "type": "string"
-        },
-        {
-            "name": "accountList",
-            "type": {
-                "type": "array",
-                "items":{
-                    "name": "Account",
-                    "type": "record",
-                    "fields":[
-                        {   "name": "accountNumber",
-                            "type": "string"
-                        },
-                        {   "name": "id",
-                            "type": "string"
-                        },
-                        {
-                            "name": "accountOwner",
-                            "type": {
-                                "name": "OwnerRecord",
-                                "type": "record",
-                                "fields": [
-                                    {
-                                        "type": "string",
-                                        "name": "name"
-                                    },
-                                    {
-                                        "type": "string",
-                                        "name": "email"
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    ]
-}
-    """
+def test_parse_schema(test_root_dir) -> None:
+    with open(
+        f"{test_root_dir}/kafka/schema_parsers/avro_schemas/account_event.avsc"
+    ) as f:
+        raw_schema = f.read()
     schema = AvroParser.parse(raw_schema, "account-event")
     assert schema == [
         SchemaField(
@@ -159,53 +111,12 @@ def test_parse_union_schema() -> None:
     ]
 
 
-def test_parse_nested_array_schema() -> None:
+def test_parse_nested_array_schema(test_root_dir) -> None:
+    with open(
+        f"{test_root_dir}/kafka/schema_parsers/avro_schemas/nested_arrays.avsc"
+    ) as f:
+        raw_schema = f.read()
     # Nested arrays go brrrrr
-    raw_schema = """
-    {
-        "name": "Top",
-        "type": "record",
-        "fields": [
-            {
-                "name": "FirstLayer",
-                "type": {
-                    "type": "array",
-                    "items": {
-                        "name": "SecondLayer",
-                        "type": "array",
-                        "items": {
-                            "name": "ThirdLayer",
-                            "type": "array",
-                            "items": {
-                                "type": "record",
-                                "name": "Leaf",
-                                "fields": [
-                                    {
-                                        "name": "id",
-                                        "type": "string"
-                                    },
-                                    {
-                                        "name": "LeafArray",
-                                        "type": {
-                                            "type": "array",
-                                            "items": {
-                                                "name": "LeafNested",
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
-        ]
-    }
-    """
     schema = AvroParser.parse(raw_schema, "bunch-of-arrays")
     assert schema == [
         SchemaField(
@@ -242,63 +153,9 @@ def test_parse_nested_array_schema() -> None:
     ]
 
 
-def test_complex_schema() -> None:
-    raw_schema = """
-    {
-        "namespace": "proj.avro",
-        "protocol": "app_messages",
-        "doc" : "application messages",
-        "name": "myRecord",
-        "type" : "record",
-        "fields": [
-            {
-                "name": "requestResponse",
-                "type": [
-                    {
-                        "name": "record_request",
-                        "type" : "record",
-                        "fields": [
-                            {
-                                "name" : "request_id",
-                                "type" : "int"
-                            },
-                            {
-                                "name" : "message_type",
-                                "type" : "int"
-                            },
-                            {
-                                "name" : "users",
-                                "type" : "string"
-                            }
-                        ]
-                    },
-                    {
-                        "name" : "request_response",
-                        "type" : "record",
-                        "fields": [
-                            {
-                                "name" : "request_id",
-                                "type" : "int"
-                            },
-                            {
-                                "name" : "response_code",
-                                "type" : "string"
-                            },
-                            {
-                                "name" : "response_count",
-                                "type" : "int"
-                            },
-                            {
-                                "name" : "reason_code",
-                                "type" : "string"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-    """
+def test_complex_schema(test_root_dir) -> None:
+    with open(f"{test_root_dir}/kafka/schema_parsers/avro_schemas/complex.avsc") as f:
+        raw_schema = f.read()
     schema = AvroParser.parse(raw_schema, "complex")
     assert schema == [
         SchemaField(
