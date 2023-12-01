@@ -94,7 +94,11 @@ class ProtobufParser:
         return instance
 
     def _find_top_level_message(self, message) -> Optional[str]:
-        # Phew that's a lot of reflection
+        """
+        Go through the entire generated module, and see if we can find a message
+        type that isn't referenced by any other message type. If there is such a
+        message, we use it as our top level message type.
+        """
 
         file_desc: FileDescriptor = message.DESCRIPTOR
 
