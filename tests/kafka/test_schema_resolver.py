@@ -8,17 +8,35 @@ from metaphor.kafka.config import (
     KafkaTopicNamingStrategy,
 )
 from metaphor.kafka.schema_resolver import SchemaResolver
-from metaphor.models.metadata_change_event import DatasetSchema, SchemaType
+from metaphor.models.metadata_change_event import DatasetSchema, SchemaField, SchemaType
 from tests.kafka.test_extractor import dummy_config
 
 
 def mock_get_latest_version(subject: str):
     if subject == "foo-key":
-        return RegisteredSchema(1, Schema('"string"', "AVRO"), subject, 1)
+        schema = """
+        {
+            "name": "FooKey",
+            "type": "string"
+        }
+        """
+        return RegisteredSchema(1, Schema(schema, "AVRO"), subject, 1)
     if subject == "foo-value":
-        return RegisteredSchema(2, Schema('"double"', "AVRO"), subject, 2)
+        schema = """
+        {
+            "name": "FooValue",
+            "type": "double"
+        }
+        """
+        return RegisteredSchema(2, Schema(schema, "AVRO"), subject, 2)
     if subject == "bar-value":
-        return RegisteredSchema(3, Schema('"double"', "AVRO"), subject, 1)
+        schema = """
+        {
+            "name": "BarValue",
+            "type": "double"
+        }
+        """
+        return RegisteredSchema(3, Schema(schema, "AVRO"), subject, 1)
     assert False
 
 
@@ -34,13 +52,19 @@ def mock_get_versions(subject: str):
 
 def mock_get_version(subject: str, version: int):
     if subject == "foo-key":
-        return RegisteredSchema(1, Schema('"string"', "AVRO"), subject, 1)
+        return mock_get_latest_version(subject)
     if subject == "foo-value":
         if version == 1:
-            return RegisteredSchema(2, Schema('"string"', "AVRO"), subject, 1)
-        return RegisteredSchema(2, Schema('"double"', "AVRO"), subject, 2)
+            schema = """
+            {
+                "name": "FooValue",
+                "type": "string"
+            }
+            """
+            return RegisteredSchema(2, Schema(schema, "AVRO"), subject, 1)
+        return mock_get_latest_version(subject)
     if subject == "bar-value":
-        return RegisteredSchema(3, Schema('"double"', "AVRO"), subject, 1)
+        return mock_get_latest_version(subject)
     assert False
 
 
@@ -65,11 +89,29 @@ def test_schema_resolver(
     foo_schemas = resolver.get_dataset_schemas("foo")
     assert foo_schemas.get("1_1") is not None
     assert foo_schemas.get("1_1") == DatasetSchema(
-        schema_type=SchemaType.AVRO, raw_schema='"string"'
+        fields=[
+            SchemaField(
+                field_name="<NA>",
+                field_path="<NA>",
+                native_type="STRING",
+                subfields=[],
+            )
+        ],
+        raw_schema='\n        {\n            "name": "FooKey",\n            "type": "string"\n        }\n        ',
+        schema_type=SchemaType.AVRO,
     )
     assert foo_schemas.get("2_2") is not None
     assert foo_schemas.get("2_2") == DatasetSchema(
-        schema_type=SchemaType.AVRO, raw_schema='"double"'
+        fields=[
+            SchemaField(
+                field_name="<NA>",
+                field_path="<NA>",
+                native_type="DOUBLE",
+                subfields=[],
+            )
+        ],
+        raw_schema='\n        {\n            "name": "FooValue",\n            "type": "double"\n        }\n        ',
+        schema_type=SchemaType.AVRO,
     )
     assert "2_1" not in foo_schemas
     assert "3_1" not in foo_schemas
@@ -77,7 +119,16 @@ def test_schema_resolver(
     foo_schemas = resolver.get_dataset_schemas("foo", all_versions=True)
     assert "2_1" in foo_schemas
     assert foo_schemas.get("2_1") == DatasetSchema(
-        schema_type=SchemaType.AVRO, raw_schema='"string"'
+        fields=[
+            SchemaField(
+                field_name="<NA>",
+                field_path="<NA>",
+                native_type="STRING",
+                subfields=[],
+            )
+        ],
+        raw_schema='\n            {\n                "name": "FooValue",\n                "type": "string"\n            }\n            ',
+        schema_type=SchemaType.AVRO,
     )
 
 

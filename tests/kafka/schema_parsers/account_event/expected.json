@@ -1,0 +1,67 @@
+[
+  {
+    "fieldName": "AccountEvent",
+    "fieldPath": "AccountEvent",
+    "nativeType": "RECORD",
+    "subfields": [
+      {
+        "fieldName": "accountNumber",
+        "fieldPath": "AccountEvent.accountNumber",
+        "nativeType": "STRING"
+      },
+      {
+        "fieldName": "address",
+        "fieldPath": "AccountEvent.address",
+        "nativeType": "STRING"
+      },
+      {
+        "fieldName": "accountList",
+        "fieldPath": "AccountEvent.accountList",
+        "nativeType": "ARRAY<record>",
+        "subfields": [
+          {
+            "fieldName": "Account",
+            "fieldPath": "AccountEvent.accountList.Account",
+            "nativeType": "RECORD",
+            "subfields": [
+              {
+                "fieldName": "accountNumber",
+                "fieldPath": "AccountEvent.accountList.Account.accountNumber",
+                "nativeType": "STRING"
+              },
+              {
+                "fieldName": "id",
+                "fieldPath": "AccountEvent.accountList.Account.id",
+                "nativeType": "STRING"
+              },
+              {
+                "fieldName": "accountOwner",
+                "fieldPath": "AccountEvent.accountList.Account.accountOwner",
+                "nativeType": "RECORD",
+                "subfields": [
+                  {
+                    "fieldName": "OwnerRecord",
+                    "fieldPath": "AccountEvent.accountList.Account.accountOwner.OwnerRecord",
+                    "nativeType": "RECORD",
+                    "subfields": [
+                      {
+                        "fieldName": "name",
+                        "fieldPath": "AccountEvent.accountList.Account.accountOwner.OwnerRecord.name",
+                        "nativeType": "STRING"
+                      },
+                      {
+                        "fieldName": "email",
+                        "fieldPath": "AccountEvent.accountList.Account.accountOwner.OwnerRecord.email",
+                        "nativeType": "STRING"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

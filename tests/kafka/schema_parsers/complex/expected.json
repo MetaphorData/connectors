@@ -1,0 +1,66 @@
+[
+  {
+    "description": "application messages",
+    "fieldName": "myRecord",
+    "fieldPath": "myRecord",
+    "nativeType": "RECORD",
+    "subfields": [
+      {
+        "fieldName": "requestResponse",
+        "fieldPath": "myRecord.requestResponse",
+        "nativeType": "UNION<record,record>",
+        "subfields": [
+          {
+            "fieldName": "record_request",
+            "fieldPath": "myRecord.requestResponse.record_request",
+            "nativeType": "RECORD",
+            "subfields": [
+              {
+                "fieldName": "request_id",
+                "fieldPath": "myRecord.requestResponse.record_request.request_id",
+                "nativeType": "INT"
+              },
+              {
+                "fieldName": "message_type",
+                "fieldPath": "myRecord.requestResponse.record_request.message_type",
+                "nativeType": "INT"
+              },
+              {
+                "fieldName": "users",
+                "fieldPath": "myRecord.requestResponse.record_request.users",
+                "nativeType": "STRING"
+              }
+            ]
+          },
+          {
+            "fieldName": "request_response",
+            "fieldPath": "myRecord.requestResponse.request_response",
+            "nativeType": "RECORD",
+            "subfields": [
+              {
+                "fieldName": "request_id",
+                "fieldPath": "myRecord.requestResponse.request_response.request_id",
+                "nativeType": "INT"
+              },
+              {
+                "fieldName": "response_code",
+                "fieldPath": "myRecord.requestResponse.request_response.response_code",
+                "nativeType": "STRING"
+              },
+              {
+                "fieldName": "response_count",
+                "fieldPath": "myRecord.requestResponse.request_response.response_count",
+                "nativeType": "INT"
+              },
+              {
+                "fieldName": "reason_code",
+                "fieldPath": "myRecord.requestResponse.request_response.reason_code",
+                "nativeType": "STRING"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
