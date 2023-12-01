@@ -77,7 +77,7 @@ def test_parse_schema(test_root_dir) -> None:
     ]
 
 
-def test_parse_union_schema() -> None:
+def test_parse_union_schema(test_root_dir) -> None:
     raw_schema = """
     {
         "type": "record",
@@ -107,6 +107,75 @@ def test_parse_union_schema() -> None:
                     native_type="STRING",
                 ),
             ],
+        )
+    ]
+
+    with open(f"{test_root_dir}/kafka/schema_parsers/avro_schemas/union.avsc") as f:
+        raw_schema = f.read()
+    schema = AvroParser.parse(raw_schema, "UnionRecord")
+    assert schema == [
+        SchemaField(
+            description=None,
+            field_name="UnionRecord",
+            field_path="UnionRecord",
+            is_unique=None,
+            max_length=None,
+            native_type="RECORD",
+            nullable=None,
+            precision=None,
+            subfields=[
+                SchemaField(
+                    description=None,
+                    field_name="field",
+                    field_path="UnionRecord.field",
+                    is_unique=None,
+                    max_length=None,
+                    native_type="UNION<record,int,string,null>",
+                    nullable=None,
+                    precision=None,
+                    subfields=[
+                        SchemaField(
+                            description=None,
+                            field_name="Record",
+                            field_path="UnionRecord.field.Record",
+                            is_unique=None,
+                            max_length=None,
+                            native_type="RECORD",
+                            nullable=None,
+                            precision=None,
+                            subfields=[
+                                SchemaField(
+                                    description=None,
+                                    field_name="ID",
+                                    field_path="UnionRecord.field.Record.ID",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="STRING",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                                SchemaField(
+                                    description=None,
+                                    field_name="name",
+                                    field_path="UnionRecord.field.Record.name",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="STRING",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                            ],
+                            tags=None,
+                        )
+                    ],
+                    tags=None,
+                )
+            ],
+            tags=None,
         )
     ]
 
@@ -162,13 +231,136 @@ def test_complex_schema(test_root_dir) -> None:
             description="application messages",
             field_name="myRecord",
             field_path="myRecord",
+            is_unique=None,
+            max_length=None,
             native_type="RECORD",
+            nullable=None,
+            precision=None,
             subfields=[
                 SchemaField(
+                    description=None,
                     field_name="requestResponse",
                     field_path="myRecord.requestResponse",
-                    native_type="UNION<record,record>",  # FIXME Where are the subfields?
+                    is_unique=None,
+                    max_length=None,
+                    native_type="UNION<record,record>",
+                    nullable=None,
+                    precision=None,
+                    subfields=[
+                        SchemaField(
+                            description=None,
+                            field_name="record_request",
+                            field_path="myRecord.requestResponse.record_request",
+                            is_unique=None,
+                            max_length=None,
+                            native_type="RECORD",
+                            nullable=None,
+                            precision=None,
+                            subfields=[
+                                SchemaField(
+                                    description=None,
+                                    field_name="request_id",
+                                    field_path="myRecord.requestResponse.record_request.request_id",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="INT",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                                SchemaField(
+                                    description=None,
+                                    field_name="message_type",
+                                    field_path="myRecord.requestResponse.record_request.message_type",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="INT",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                                SchemaField(
+                                    description=None,
+                                    field_name="users",
+                                    field_path="myRecord.requestResponse.record_request.users",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="STRING",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                            ],
+                            tags=None,
+                        ),
+                        SchemaField(
+                            description=None,
+                            field_name="request_response",
+                            field_path="myRecord.requestResponse.request_response",
+                            is_unique=None,
+                            max_length=None,
+                            native_type="RECORD",
+                            nullable=None,
+                            precision=None,
+                            subfields=[
+                                SchemaField(
+                                    description=None,
+                                    field_name="request_id",
+                                    field_path="myRecord.requestResponse.request_response.request_id",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="INT",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                                SchemaField(
+                                    description=None,
+                                    field_name="response_code",
+                                    field_path="myRecord.requestResponse.request_response.response_code",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="STRING",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                                SchemaField(
+                                    description=None,
+                                    field_name="response_count",
+                                    field_path="myRecord.requestResponse.request_response.response_count",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="INT",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                                SchemaField(
+                                    description=None,
+                                    field_name="reason_code",
+                                    field_path="myRecord.requestResponse.request_response.reason_code",
+                                    is_unique=None,
+                                    max_length=None,
+                                    native_type="STRING",
+                                    nullable=None,
+                                    precision=None,
+                                    subfields=None,
+                                    tags=None,
+                                ),
+                            ],
+                            tags=None,
+                        ),
+                    ],
+                    tags=None,
                 )
             ],
+            tags=None,
         )
     ]
