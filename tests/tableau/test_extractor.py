@@ -345,11 +345,6 @@ async def test_extractor(
                 "nodes": [
                     {
                         "referencedByFields": [{"datasource": {"id": "sourceId3"}}],
-                        "tags": [
-                            {
-                                "name": "baz",
-                            }
-                        ],
                     }
                 ]
             },

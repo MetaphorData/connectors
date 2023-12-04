@@ -143,9 +143,6 @@ query($first: Int, $offset: Int) {
                 id
               }
             }
-            tags {
-              name
-            }
           }
         }
       }
@@ -165,7 +162,6 @@ class ReferencedByField(BaseModel):
 
 class TableColumn(BaseModel):
     referencedByFields: List[ReferencedByField]
-    tags: List[Tag]
 
 
 class ColumnConnection(BaseModel):
@@ -179,9 +175,3 @@ class CustomSqlTable(BaseModel):
     query: str
     connectionType: str
     columnsConnection: ColumnConnection
-
-    @property
-    def column_tags(self) -> List[str]:
-        return sorted(
-            {tag.name for column in self.columnsConnection.nodes for tag in column.tags}
-        )

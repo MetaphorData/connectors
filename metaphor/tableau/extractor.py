@@ -343,22 +343,13 @@ class TableauExtractor(BaseExtractor):
         except Exception as e:
             logger.error(f"Unable to parse custom query for {custom_sql_table.id}: {e}")
 
-        system_tags = None
-        if custom_sql_table.column_tags:
-            system_tags = SystemTags(
-                tags=[
-                    SystemTag(value=tag, system_tag_source=SystemTagSource.TABLEAU)
-                    for tag in custom_sql_table.column_tags
-                ]
-            )
-
         for source_table in source_tables:
             fullname = str(source_table).lower()
             if fullname.count(".") != 2:
                 logger.warning(f"Ignore non-fully qualified source table {fullname}")
                 continue
 
-            self._init_dataset(fullname, platform, account, system_tags)
+            self._init_dataset(fullname, platform, account, None)
             upstream_datasets.append(
                 str(to_dataset_entity_id(fullname, platform, account))
             )
