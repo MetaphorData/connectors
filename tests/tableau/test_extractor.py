@@ -2,7 +2,7 @@ from typing import List
 from unittest.mock import MagicMock, patch
 
 import pytest
-from tableauserverclient import ProjectItem, ViewItem, WorkbookItem
+from tableauserverclient import ProjectItem, UserItem, ViewItem, WorkbookItem
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import to_dataset_entity_id
@@ -16,6 +16,9 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DataPlatform,
     SourceInfo,
+    SystemContact,
+    SystemContacts,
+    SystemContactSource,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -278,8 +281,18 @@ async def test_extractor(
     )
     workbook._set_views(lambda: [view])
 
+    system_contact = SystemContact(
+        domain="domain",
+        email="user1@test.io",
+        role=UserItem.Roles.SiteAdministratorCreator,
+        id="12345678",
+        name="user1",
+        full_name="John Doe",
+        system_contact_source=SystemContactSource.TABLEAU,
+    )
+
     extractor._views = {"vid": view}
-    extractor._parse_dashboard(workbook)
+    extractor._parse_dashboard(workbook, system_contact)
 
     ignored_workbook = WorkbookItem("Personal Space")
     ignored_workbook._set_values(
@@ -299,7 +312,7 @@ async def test_extractor(
         views=[],
         data_acceleration_config=None,
     )
-    extractor._parse_dashboard(ignored_workbook)
+    extractor._parse_dashboard(ignored_workbook, None)
 
     assert len(extractor._dashboards) == 1
     assert extractor._dashboards["123"] == Dashboard(
@@ -332,6 +345,19 @@ async def test_extractor(
                     value="tag2",
                     system_tag_source=SystemTagSource.TABLEAU,
                 ),
+            ]
+        ),
+        system_contacts=SystemContacts(
+            contacts=[
+                SystemContact(
+                    id="12345678",
+                    email="user1@test.io",
+                    full_name="John Doe",
+                    name="user1",
+                    role=UserItem.Roles.SiteAdministratorCreator,
+                    system_contact_source=SystemContactSource.TABLEAU,
+                    domain="domain",
+                )
             ]
         ),
     )
@@ -377,6 +403,9 @@ async def test_extractor(
                             },
                         }
                     ],
+                    "owner": {
+                        "luid": "12345678",
+                    },
                 }
             ],
             "embeddedDatasources": [
@@ -452,6 +481,19 @@ async def test_extractor(
 
     extractor._snowflake_account = "snow"
 
+    user = UserItem("user1")
+    user._set_values(
+        id="12345678",
+        name="user1",
+        site_role="SiteSystemAdministrator",
+        last_login=None,
+        external_auth_user_id=None,
+        fullname="John Doe",
+        email="user1@test.io",
+        auth_setting=None,
+        domain_name=None,
+    )
+
     mock_auth = MagicMock()
     mock_auth.sign_in = MagicMock()
 
@@ -460,6 +502,8 @@ async def test_extractor(
     mock_server.projects = ProjectsWrapper([project1, project2])
     mock_server.views = ViewsWrapper([view])
     mock_server.workbooks = WorkbooksWrapper([workbook])
+    mock_server.users = MagicMock()
+    mock_server.users.get_by_id = lambda _: user
     mock_server_cls.return_value = mock_server
 
     mock_pager_cls.side_effect = MockPager

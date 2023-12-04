@@ -34,6 +34,9 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     EntityUpstream,
     SourceInfo,
+    SystemContact,
+    SystemContacts,
+    SystemContactSource,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -168,7 +171,9 @@ class TableauExtractor(BaseExtractor):
             server.workbooks.populate_views(workbook, usage=True)
 
             try:
-                self._parse_dashboard(workbook)
+                self._parse_dashboard(
+                    workbook, self._parse_system_contact(server, workbook.owner_id)
+                )
             except Exception as error:
                 traceback.print_exc()
                 logger.error(f"failed to parse workbook {workbook.name}, error {error}")
@@ -205,12 +210,28 @@ class TableauExtractor(BaseExtractor):
                         f"Ignoring datasources from workbook in excluded project: {workbook.projectName}"
                     )
                 self._parse_workbook_query_response(
-                    workbook, datasource_upstream_datasets
+                    server, workbook, datasource_upstream_datasets
                 )
             except Exception as error:
                 logger.exception(
                     f"failed to parse workbook {item['vizportalUrlId']}, error {error}"
                 )
+
+    def _parse_system_contact(
+        self, server: tableau.Server, user_id: Optional[str]
+    ) -> Optional[SystemContact]:
+        if not user_id:
+            return None
+        user = server.users.get_by_id(user_id)
+        system_contact = SystemContact(
+            domain=user.domain_name,
+            email=user.email,
+            full_name=user.fullname,
+            role=user.site_role,
+            system_contact_source=SystemContactSource.TABLEAU,
+            id=user.id,
+        )
+        return system_contact
 
     def _parse_project_names(self, projects: List[tableau.ProjectItem]) -> None:
         for project in projects:
@@ -253,7 +274,9 @@ class TableauExtractor(BaseExtractor):
         )
         return full_name, structure
 
-    def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
+    def _parse_dashboard(
+        self, workbook: tableau.WorkbookItem, system_contact: Optional[SystemContact]
+    ) -> None:
         if not workbook.webpage_url:
             logger.exception(f"workbook {workbook.name} missing webpage_url")
             return
@@ -292,6 +315,9 @@ class TableauExtractor(BaseExtractor):
             structure=structure,
             dashboard_info=dashboard_info,
             source_info=source_info,
+            system_contacts=None
+            if system_contact is None
+            else SystemContacts(contacts=[system_contact]),
         )
 
         self._dashboards[workbook_id] = dashboard
@@ -375,6 +401,7 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_workbook_query_response(
         self,
+        server: tableau.Server,
         workbook: WorkbookQueryResponse,
         datasource_upstream_datasets: Dict[str, CustomSqlSource],
     ) -> None:
@@ -418,6 +445,10 @@ class TableauExtractor(BaseExtractor):
                 workbook.projectName,
             )
 
+            system_contact = self._parse_system_contact(
+                server, published_source.owner.luid
+            )
+
             self._virtual_views[published_source.luid] = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=published_source.luid
@@ -445,6 +476,9 @@ class TableauExtractor(BaseExtractor):
                 if source_datasets
                 else None,
                 system_tags=system_tags,
+                system_contacts=None
+                if system_contact is None
+                else SystemContacts(contacts=[system_contact]),
             )
             source_virtual_views.append(virtual_view_id)
             published_datasources.append(published_source.name)

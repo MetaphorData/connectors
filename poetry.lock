@@ -2287,14 +2287,17 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.30.7"
+version = "0.30.9"
 description = ""
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "metaphor_models-0.30.7-py3-none-any.whl", hash = "sha256:3c9b9c84d54f8d3b8d0f8d6d7c2c01c3524c14d40d91aa1d338c425d4fdb721c"},
-    {file = "metaphor_models-0.30.7.tar.gz", hash = "sha256:c75cba786658fb6d6ae8cd0cf601bc896900e20906fab2616803ec9314ae22f9"},
+    {file = "metaphor_models-0.30.9-py3-none-any.whl", hash = "sha256:d4b28b35cae87725566a7e590f01cf7854e1d91e177b1adab7845732c0d62a47"},
 ]
+
+[package.source]
+type = "file"
+url = "../app/@models/dist/metaphor_models-0.30.9-py3-none-any.whl"
 
 [[package]]
 name = "microsoft-kiota-abstractions"
@@ -4747,4 +4750,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "930a04c5b2b6500ae19210bbed1819dbf8e3b6ac4df68312c2fe80495a8aab8d"
+content-hash = "9d4ba7ec690b957bf88d0f49cf8a63eec2c1244bf5226164b1dcf5e641da3ec1"
