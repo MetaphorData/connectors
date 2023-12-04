@@ -61,6 +61,9 @@ query($first: Int, $offset: Int) {
           }
         }
       }
+      tags {
+        name
+      }
     }
   }
 }
@@ -104,6 +107,10 @@ class EmbeddedDatasource(BaseModel):
     upstreamTables: List[DatabaseTable]
 
 
+class Tag(BaseModel):
+    name: str
+
+
 class WorkbookQueryResponse(BaseModel):
     """Modeling Metadata Graphql API response for a workbook"""
 
@@ -114,6 +121,7 @@ class WorkbookQueryResponse(BaseModel):
     vizportalUrlId: str
     upstreamDatasources: List[PublishedDatasource]
     embeddedDatasources: List[EmbeddedDatasource]
+    tags: List[Tag]
 
 
 # GraphQL that lists all custom SQL queries used in datasources.
