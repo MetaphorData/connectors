@@ -1,38 +1,5 @@
 [
   {
-    "entityUpstream": {
-      "fieldMappings": [
-        {
-          "destination": "table1.col1",
-          "sources": [
-            {
-              "dataset": {
-                "name": "db.public.table",
-                "platform": "REDSHIFT"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
-            }
-          ]
-        },
-        {
-          "destination": "table1.col2",
-          "sources": [
-            {
-              "dataset": {
-                "name": "db.public.table",
-                "platform": "REDSHIFT"
-              },
-              "field": "col2",
-              "sourceEntityId": "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
-            }
-          ]
-        }
-      ],
-      "sourceEntities": [
-        "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
-      ]
-    },
     "logicalId": {
       "name": "00000000-0000-0000-0000-000000000002",
       "type": "POWER_BI_DATASET"
@@ -41,9 +8,6 @@
       "description": "This is a dataset",
       "lastRefreshed": "2022-01-01T01:02:03.456000+00:00",
       "name": "Foo Dataset",
-      "sourceDatasets": [
-        "DATASET~C640B5FA073F8E7910DDF6C8DCB2BB85"
-      ],
       "tables": [
         {
           "columns": [
@@ -93,68 +57,6 @@
     }
   },
   {
-    "entityUpstream": {
-      "fieldMappings": [
-        {
-          "destination": "table2.col1",
-          "sources": [
-            {
-              "dataset": {
-                "account": "some-account",
-                "name": "db.public.test",
-                "platform": "SNOWFLAKE"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~6D79656CAC3AB97C1FC567A817F7D611"
-            }
-          ]
-        },
-        {
-          "destination": "table2.col2",
-          "sources": [
-            {
-              "dataset": {
-                "account": "some-account",
-                "name": "db.public.test",
-                "platform": "SNOWFLAKE"
-              },
-              "field": "col2",
-              "sourceEntityId": "DATASET~6D79656CAC3AB97C1FC567A817F7D611"
-            }
-          ]
-        },
-        {
-          "destination": "table2.col1",
-          "sources": [
-            {
-              "dataset": {
-                "name": "test-project.test.example",
-                "platform": "BIGQUERY"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
-            }
-          ]
-        },
-        {
-          "destination": "table2.col2",
-          "sources": [
-            {
-              "dataset": {
-                "name": "test-project.test.example",
-                "platform": "BIGQUERY"
-              },
-              "field": "col2",
-              "sourceEntityId": "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
-            }
-          ]
-        }
-      ],
-      "sourceEntities": [
-        "DATASET~6D79656CAC3AB97C1FC567A817F7D611",
-        "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
-      ]
-    },
     "logicalId": {
       "name": "00000000-0000-0000-0000-000000000003",
       "type": "POWER_BI_DATASET"
@@ -162,10 +64,6 @@
     "powerBIDataset": {
       "description": "This is another dataset",
       "name": "Bar Dataset",
-      "sourceDatasets": [
-        "DATASET~6D79656CAC3AB97C1FC567A817F7D611",
-        "DATASET~16C07C11C73EF917CC2C728B240ABDDA"
-      ],
       "tables": [
         {
           "columns": [
@@ -219,11 +117,7 @@
     }
   },
   {
-    "entityUpstream": {
-      "sourceEntities": [
-        "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
-      ]
-    },
+    "entityUpstream": {},
     "logicalId": {
       "name": "00000000-0000-0000-0001-000000000003",
       "type": "POWER_BI_DATASET"
@@ -231,9 +125,8 @@
     "pipelineInfo": {
       "pipelineMapping": [
         {
-          "isVirtual": false,
-          "pipelineEntityId": "PIPELINE~6B8372CAC4B45FCA1C413FEAD24B1E2C",
-          "sourceEntityId": "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
+          "isVirtual": true,
+          "pipelineEntityId": "PIPELINE~6B8372CAC4B45FCA1C413FEAD24B1E2C"
         },
         {
           "isVirtual": true,
@@ -244,9 +137,6 @@
     "powerBIDataset": {
       "description": "Dataset from dataflow",
       "name": "Dataflow dataset",
-      "sourceDatasets": [
-        "DATASET~87DC5FFDFBCBA955B4EB5D897FE9B2B2"
-      ],
       "tables": [
         {
           "columns": [
