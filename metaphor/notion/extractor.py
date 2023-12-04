@@ -34,6 +34,7 @@ class NotionExtractor(BaseExtractor):
 
         self.notion_api_version = config.notion_api_version
 
+        self.include_text = config.include_text
         self.embedding_chunk_size = 512
         self.embedding_overlap_size = 50
 
@@ -66,7 +67,7 @@ class NotionExtractor(BaseExtractor):
         embedded_nodes = map_metadata(
             embedding_dict=vector_store["embedding_dict"],
             metadata_dict=vector_store["metadata_dict"],
-            include_text=False,
+            include_text=self.include_text,
             doc_store=doc_store["docstore/data"],
         )
 
@@ -120,6 +121,8 @@ class NotionExtractor(BaseExtractor):
         """
 
         self.docs = list()
+        # forcing lastRefreshed to be constant for all documents in this crawler run
+        current_time = str(datetime.datetime.utcnow())
 
         # add all documents
         for db_id in self.db_ids:
@@ -136,15 +139,13 @@ class NotionExtractor(BaseExtractor):
 
             # update queried document metadata with db_id, platform info, link
 
-            # forcing lastRefreshed to be constant for all documents in this crawler run
-            current_time = str(datetime.datetime.utcnow())
             for q in queried:
                 # update db_id and platform
                 q.metadata["dbId"] = db_id.replace("-", "")  # remove hyphens
                 q.metadata["platform"] = "notion"
 
                 # reset page-id, remove hyphens
-                q.metadata["pageId"] = q.metadata.pop("page_id").replace("-", "")
+                q["pageId"] = q.metadata.pop("page_id").replace("-", "")
 
                 # construct link
                 link = f'https://notion.so/{q.metadata["pageId"]}'

@@ -38,9 +38,9 @@ def embed_documents(
     chunk_overlap: int = 50,
 ) -> VectorStoreIndex:
     """
-    Generates embeddings for Documents and upserts them to a provided
-    MongoDB instance. Has configurable chunk and overlap sizes for node
-    generation from Documents.
+    Generates embeddings for Documents and returns them as stored in a
+    VectorStoreIndex object. Has configurable chunk
+    and overlap sizes for node generation from Documents.
 
     Returns a VectorStoreIndex (in-memory VectorStore)
     """
@@ -79,9 +79,9 @@ def map_metadata(
     doc_store: dict,
 ) -> Collection[dict]:
     """
-    Takes the embedding_dict from VSI.storage_context.to_dict() and
-    maps the correct metadata to each entry in the dictionary, then
-    flattens each entry into its own dictionary.
+    Takes the embedding_dict, metadata_dict, and doc_store from
+    a VectorStoreIndex's to_dict() method. Outputs a list of
+    externalSearchDocuments that matches the document ingestion schema.
 
     Returns a list of nodes.
     """

@@ -14,5 +14,8 @@ class NotionRunConfig(BaseConfig):
     # openai token
     openai_api_tok: str
 
+    # Include embeddingString in nodes stored to db
+    include_text: bool
+
     # Notion API version
     notion_api_version: Optional[str] = "2022-06-08"
