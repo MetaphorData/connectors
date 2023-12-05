@@ -224,12 +224,8 @@ class TableauExtractor(BaseExtractor):
             return None
         user = server.users.get_by_id(user_id)
         system_contact = SystemContact(
-            domain=user.domain_name,
             email=user.email,
-            full_name=user.fullname,
-            role=user.site_role,
             system_contact_source=SystemContactSource.TABLEAU,
-            id=user.id,
         )
         return system_contact
 

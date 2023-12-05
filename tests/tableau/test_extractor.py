@@ -282,12 +282,7 @@ async def test_extractor(
     workbook._set_views(lambda: [view])
 
     system_contact = SystemContact(
-        domain="domain",
         email="user1@test.io",
-        role=UserItem.Roles.SiteAdministratorCreator,
-        id="12345678",
-        name="user1",
-        full_name="John Doe",
         system_contact_source=SystemContactSource.TABLEAU,
     )
 
@@ -350,13 +345,8 @@ async def test_extractor(
         system_contacts=SystemContacts(
             contacts=[
                 SystemContact(
-                    id="12345678",
                     email="user1@test.io",
-                    full_name="John Doe",
-                    name="user1",
-                    role=UserItem.Roles.SiteAdministratorCreator,
                     system_contact_source=SystemContactSource.TABLEAU,
-                    domain="domain",
                 )
             ]
         ),

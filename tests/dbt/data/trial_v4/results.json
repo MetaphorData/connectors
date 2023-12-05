@@ -586,6 +586,11 @@
       "type": "count",
       "url": "http://localhost:8080/#!/metric/metric.trial.trial_metric_1"
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~B2A1F1A79091280F72E9B65C53786E52"
+      ]
+    },
     "logicalId": {
       "name": "trial.trial_metric_1",
       "type": "DBT_METRIC"

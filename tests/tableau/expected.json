@@ -74,9 +74,6 @@
       "contacts": [
         {
           "email": "user1@test.io",
-          "fullName": "John Doe",
-          "id": "12345678",
-          "role": "SiteSystemAdministrator",
           "systemContactSource": "TABLEAU"
         }
       ]
