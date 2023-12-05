@@ -72,11 +72,11 @@ async def test_jaffle_v10(test_root_dir):
 
 
 @pytest.mark.asyncio
-async def test_metaphor_subscriptions_v10(test_root_dir):
+async def test_jaffle_v11(test_root_dir):
     await _test_project(
-        test_root_dir + "/dbt/data/metaphor_subscriptions_v10",
+        test_root_dir + "/dbt/data/jaffle_v11",
         "http://localhost:8080",
-        "https://github.com/MetaphorData/dbt/tree/main/metaphor",
+        "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template",
     )
 
 
@@ -85,7 +85,7 @@ async def _test_project(
 ):
     manifest = data_dir + "/manifest.json"
     run_results = data_dir + "/run_results.json"
-    expected = data_dir + "/results.json"
+    expected = data_dir + "/expected.json"
 
     config = DbtRunConfig(
         output=OutputConfig(),
