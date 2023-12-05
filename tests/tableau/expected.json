@@ -70,6 +70,14 @@
       ],
       "name": "source1"
     },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "user1@test.io",
+          "systemContactSource": "TABLEAU"
+        }
+      ]
+    },
     "systemTags": {
       "tags": [
         {
