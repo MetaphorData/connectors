@@ -42,6 +42,9 @@ query($first: Int, $offset: Int) {
             connectionType
           }
         }
+        owner {
+          luid
+        }
       }
       embeddedDatasources {
         id
@@ -90,6 +93,10 @@ class DatasourceField(BaseModel):
     description: Optional[str] = None
 
 
+class Owner(BaseModel):
+    luid: str
+
+
 class PublishedDatasource(BaseModel):
     id: str
     luid: str
@@ -98,6 +105,7 @@ class PublishedDatasource(BaseModel):
     description: Optional[str] = None
     fields: List[DatasourceField]
     upstreamTables: List[DatabaseTable]
+    owner: Owner
 
 
 class EmbeddedDatasource(BaseModel):
