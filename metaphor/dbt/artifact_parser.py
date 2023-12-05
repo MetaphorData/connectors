@@ -746,7 +746,7 @@ class ArtifactParser:
             return
 
         metric_entity = init_metric(self._metrics, metric.unique_id)
-        metric_entity.dbt_metric = DbtMetric(
+        dbt_metric = DbtMetric(
             package_name=metric.package_name,
             description=metric.description or None,
             label=metric.label,
@@ -760,6 +760,7 @@ class ArtifactParser:
             ],
             url=build_metric_docs_url(self._docs_base_url, metric.unique_id),
         )
+        metric_entity.dbt_metric = dbt_metric
 
         # V7 renamed sql & type to expression & calculation_method
         if hasattr(metric, "sql"):
@@ -774,9 +775,12 @@ class ArtifactParser:
         if hasattr(metric, "calculation_method"):
             metric_entity.dbt_metric.type = getattr(metric, "calculation_method")
 
-        dbt_metric = metric_entity.dbt_metric
         (
             dbt_metric.source_datasets,
             dbt_metric.source_models,
             _,
         ) = self._parse_depends_on(metric.depends_on, source_map, macro_map)
+
+        metric_entity.entity_upstream = EntityUpstream(
+            source_entities=dbt_metric.source_models,
+        )
