@@ -249,37 +249,6 @@ class ArtifactParser:
                 depends_on["macros"] = filter_none(depends_on.get("macros", []))
                 depends_on["nodes"] = filter_none(depends_on.get("nodes", []))
 
-        # Temporarily strip off all the extra "labels" in "semantic_models" until
-        # https://github.com/dbt-labs/dbt-core/issues/8763 is fixed
-        for _, semantic_model in manifest_json.get("semantic_models", {}).items():
-            semantic_model.pop("label", None)
-
-            for entity in semantic_model.get("entities", []):
-                entity.pop("label", None)
-
-            for dimension in semantic_model.get("dimensions", []):
-                dimension.pop("label", None)
-
-            for measure in semantic_model.get("measures", []):
-                measure.pop("label", None)
-
-        # Temporarily strip off all the extra "fill_nulls_with" &
-        # "join_to_teimspine" fields in metrics' "type_params" until
-        # https://github.com/dbt-labs/dbt-core/issues/8851 is fixed
-        for _, metric in manifest_json.get("metrics", {}).items():
-            type_params = metric.get("type_params", {})
-
-            measure = type_params.get("measure", {})
-            if measure is not None:
-                measure.pop("fill_nulls_with", None)
-                measure.pop("join_to_timespine", None)
-
-            input_measures = type_params.get("input_measures", [])
-            if input_measures is not None:
-                for input_measure in input_measures:
-                    input_measure.pop("fill_nulls_with", None)
-                    input_measure.pop("join_to_timespine", None)
-
         return manifest_json
 
     def parse(self, manifest_json: Dict, run_results_json: Optional[Dict]) -> None:

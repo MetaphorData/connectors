@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.74"
+version = "0.13.75"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -105,7 +105,7 @@ unity_catalog = ["databricks-sdk", "databricks-sql-connector"]
 bandit = "^1.7.2"
 black = "^23.3.0"
 coverage = "^7.1.0"
-datamodel-code-generator = { extras = ["http"], version = "^0.22.0" }
+datamodel-code-generator = { extras = ["http"], version = "^0.25.1" }
 flake8 = "^6.0.0"
 freezegun = "^1.2.2"
 isort = "^5.11.4"
