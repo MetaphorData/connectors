@@ -287,7 +287,7 @@ async def test_extractor(
     )
 
     extractor._views = {"vid": view}
-    extractor._parse_dashboard(workbook, system_contact)
+    extractor._parse_dashboard(workbook, SystemContacts(contacts=[system_contact]))
 
     ignored_workbook = WorkbookItem("Personal Space")
     ignored_workbook._set_values(
