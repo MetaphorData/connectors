@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Collection, List, Optional
+from typing import Collection, List, Optional, Tuple
 
 from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
 from metaphor.unity_catalog.profile.utils import escape_special_characters
@@ -94,22 +94,28 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 ]
                 for table_info in table_infos:
                     dataset = self._init_dataset(table_info)
+                    if table_info.table_type is not TableType.VIEW:
+                        dataset_statistics, field_statistics = self._get_statistics(
+                            table_info
+                        )
+                        dataset.statistics = dataset_statistics
+                        dataset.field_statistics = field_statistics
                     entities.append(dataset)
                     logger.info(f"Fetched: {table_info.full_name}")
         return entities
 
     def _init_dataset(self, table_info: TableInfo) -> Dataset:
-        dataset = Dataset(
+        return Dataset(
             logical_id=DatasetLogicalID(
                 name=normalize_full_dataset_name(table_info.full_name),
                 platform=DataPlatform.UNITY_CATALOG,
             ),
         )
 
-        if table_info.table_type is TableType.VIEW:
-            return dataset
-
-        dataset.statistics = DatasetStatistics()
+    def _get_statistics(
+        self, table_info: TableInfo
+    ) -> Tuple[DatasetStatistics, Optional[DatasetFieldStatistics]]:
+        dataset_statistics = DatasetStatistics()
 
         # Gather this first, if this is nonempty in the end then we actually save
         # this to `Dataset`.
@@ -141,8 +147,8 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 bytes_count, row_count = [
                     float(x) for x in re.findall(r"(\d+)", statistics.data_type)
                 ]
-                dataset.statistics.data_size_bytes = bytes_count
-                dataset.statistics.record_count = row_count
+                dataset_statistics.data_size_bytes = bytes_count
+                dataset_statistics.record_count = row_count
 
             for numeric_column in numeric_columns:
                 # Parse numeric column stats
@@ -176,13 +182,13 @@ class UnityCatalogProfileExtractor(BaseExtractor):
             cursor.execute(f"DESCRIBE HISTORY {escaped_name}")
             for history in cursor.fetchall():
                 if history["operation"] not in NON_MODIFICATION_OPERATIONS:
-                    dataset.statistics.last_updated = history["timestamp"]
+                    dataset_statistics.last_updated = history["timestamp"]
                     break
 
-        if field_statistics.field_statistics:
-            dataset.field_statistics = field_statistics
-
-        return dataset
+        return (
+            dataset_statistics,
+            None if not field_statistics.field_statistics else field_statistics,
+        )
 
     @staticmethod
     def create_connection(
