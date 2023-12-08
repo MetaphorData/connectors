@@ -105,9 +105,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 platform=DataPlatform.UNITY_CATALOG,
             ),
         )
-        return self._get_statistics(dataset, table_info)
 
-    def _get_statistics(self, dataset: Dataset, table_info: TableInfo) -> Dataset:
         if table_info.table_type is TableType.VIEW:
             return dataset
 
