@@ -60,7 +60,7 @@ class TrinoExtractor(BaseExtractor):
         return TrinoExtractor(TrinoRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: TrinoRunConfig) -> None:
-        super().__init__(config, "Trino metadata crawler", Platform.UNKNOWN)
+        super().__init__(config, "Trino metadata crawler", Platform.TRINO)
         self._config = config
         if config.password:
             auth = BasicAuthentication(config.username, config.password)
@@ -127,11 +127,11 @@ class TrinoExtractor(BaseExtractor):
             normalized_name = dataset_normalized_name(catalog, schema, name)
             materialized_view = Dataset(
                 logical_id=DatasetLogicalID(
-                    name=normalized_name, platform=DataPlatform.UNKNOWN
+                    name=normalized_name, platform=DataPlatform.TRINO
                 ),
                 entity_type=EntityType.DATASET,
                 dataset_id=str(
-                    to_dataset_entity_id(normalized_name, DataPlatform.UNKNOWN)
+                    to_dataset_entity_id(normalized_name, DataPlatform.TRINO)
                 ),
                 entity_upstream=EntityUpstream(
                     source_entities=[
@@ -140,7 +140,7 @@ class TrinoExtractor(BaseExtractor):
                                 dataset_normalized_name(
                                     table_catalog, table_schema, table_name
                                 ),
-                                DataPlatform.UNKNOWN,
+                                DataPlatform.TRINO,
                             )
                         )
                     ]
@@ -186,12 +186,12 @@ class TrinoExtractor(BaseExtractor):
                 datasets.append(
                     Dataset(
                         logical_id=DatasetLogicalID(
-                            name=table.normalized_name, platform=DataPlatform.UNKNOWN
+                            name=table.normalized_name, platform=DataPlatform.TRINO
                         ),
                         entity_type=EntityType.DATASET,
                         dataset_id=str(
                             to_dataset_entity_id(
-                                table.normalized_name, DataPlatform.UNKNOWN
+                                table.normalized_name, DataPlatform.TRINO
                             )
                         ),
                         schema=DatasetSchema(fields=fields),
