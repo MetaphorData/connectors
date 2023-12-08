@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Collection, List, Optional
+from typing import Collection, List, Optional, Tuple
 
 from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
 from metaphor.unity_catalog.profile.utils import escape_special_characters
@@ -8,7 +8,7 @@ from metaphor.unity_catalog.profile.utils import escape_special_characters
 try:
     from databricks import sql
     from databricks.sdk import WorkspaceClient
-    from databricks.sdk.service.catalog import TableInfo, TableType
+    from databricks.sdk.service.catalog import ColumnTypeName, TableInfo, TableType
     from databricks.sdk.service.sql import EndpointInfo
     from databricks.sql.client import Connection
 except ImportError:
@@ -24,8 +24,10 @@ from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
+    DatasetFieldStatistics,
     DatasetLogicalID,
     DatasetStatistics,
+    FieldStatistics,
 )
 from metaphor.unity_catalog.extractor import DEFAULT_FILTER, UnityCatalogExtractor
 
@@ -38,6 +40,15 @@ NON_MODIFICATION_OPERATIONS = {
     "ADD CONSTRAINT",
 }
 """These are the operations that do not count as modifications."""
+
+NUMERIC_TYPES = {
+    ColumnTypeName.DECIMAL,
+    ColumnTypeName.DOUBLE,
+    ColumnTypeName.FLOAT,
+    ColumnTypeName.INT,
+    ColumnTypeName.LONG,
+    ColumnTypeName.SHORT,
+}
 
 
 class UnityCatalogProfileExtractor(BaseExtractor):
@@ -83,6 +94,12 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 ]
                 for table_info in table_infos:
                     dataset = self._init_dataset(table_info)
+                    if table_info.table_type is not TableType.VIEW:
+                        dataset_statistics, field_statistics = self._get_statistics(
+                            table_info
+                        )
+                        dataset.statistics = dataset_statistics
+                        dataset.field_statistics = field_statistics
                     entities.append(dataset)
                     logger.info(f"Fetched: {table_info.full_name}")
         return entities
@@ -93,35 +110,85 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 name=normalize_full_dataset_name(table_info.full_name),
                 platform=DataPlatform.UNITY_CATALOG,
             ),
-            statistics=self._get_dataset_statistics(table_info=table_info),
         )
 
-    def _get_dataset_statistics(self, table_info: TableInfo) -> DatasetStatistics:
+    def _get_statistics(
+        self, table_info: TableInfo
+    ) -> Tuple[DatasetStatistics, Optional[DatasetFieldStatistics]]:
         dataset_statistics = DatasetStatistics()
-        if table_info.table_type is not TableType.VIEW:
-            with self._connection.cursor() as cursor:
-                escaped_name = escape_special_characters(table_info.full_name)
-                # This can take a while
-                cursor.execute(f"ANALYZE TABLE {escaped_name} COMPUTE STATISTICS")
-                cursor.execute(f"DESCRIBE TABLE EXTENDED {escaped_name}")
-                rows = cursor.fetchall()
-                statistics = next(
-                    (row for row in rows if row.col_name == "Statistics"), None
-                )
-                if statistics:
-                    # `statistics.data_type` looks like "X bytes, Y rows"
-                    bytes_count, row_count = [
-                        float(x) for x in re.findall(r"(\d+)", statistics.data_type)
-                    ]
-                    dataset_statistics.data_size_bytes = bytes_count
-                    dataset_statistics.record_count = row_count
-                cursor.execute(f"DESCRIBE HISTORY {escaped_name}")
-                for history in cursor.fetchall():
-                    if history["operation"] not in NON_MODIFICATION_OPERATIONS:
-                        dataset_statistics.last_updated = history["timestamp"]
-                        break
 
-        return dataset_statistics
+        # Gather this first, if this is nonempty in the end then we actually save
+        # this to `Dataset`.
+        field_statistics = DatasetFieldStatistics(field_statistics=[])
+        assert field_statistics.field_statistics is not None
+
+        with self._connection.cursor() as cursor:
+            escaped_name = escape_special_characters(table_info.full_name)
+            # Gather numeric columns
+            numeric_columns = [
+                column.name
+                for column in (table_info.columns or [])
+                if column.type_name in NUMERIC_TYPES and column.name
+            ]
+
+            analyze_query = f"ANALYZE TABLE {escaped_name} COMPUTE STATISTICS"
+            if numeric_columns:
+                analyze_query += f" FOR COLUMNS {', '.join(numeric_columns)}"
+
+            # This can take a while
+            cursor.execute(analyze_query)
+            cursor.execute(f"DESCRIBE TABLE EXTENDED {escaped_name}")
+            rows = cursor.fetchall()
+            statistics = next(
+                (row for row in rows if row.col_name == "Statistics"), None
+            )
+            if statistics:
+                # `statistics.data_type` looks like "X bytes, Y rows"
+                bytes_count, row_count = [
+                    float(x) for x in re.findall(r"(\d+)", statistics.data_type)
+                ]
+                dataset_statistics.data_size_bytes = bytes_count
+                dataset_statistics.record_count = row_count
+
+            for numeric_column in numeric_columns:
+                # Parse numeric column stats
+                cursor.execute(f"DESCRIBE EXTENDED {escaped_name} {numeric_column}")
+                column_details = cursor.fetchall()
+
+                def get_value_from_row(key: str) -> Optional[float]:
+                    value = next(
+                        (
+                            row.info_value
+                            for row in column_details
+                            if row.info_name == key
+                        ),
+                        None,
+                    )
+                    if value:
+                        if value == "NULL":
+                            return None
+                        return float(value)
+                    return value
+
+                stats = FieldStatistics(
+                    distinct_value_count=get_value_from_row("distinct_count"),
+                    field_path=numeric_column,
+                    max_value=get_value_from_row("max"),
+                    min_value=get_value_from_row("min"),
+                    null_value_count=get_value_from_row("num_nulls"),
+                )
+                field_statistics.field_statistics.append(stats)
+
+            cursor.execute(f"DESCRIBE HISTORY {escaped_name}")
+            for history in cursor.fetchall():
+                if history["operation"] not in NON_MODIFICATION_OPERATIONS:
+                    dataset_statistics.last_updated = history["timestamp"]
+                    break
+
+        return (
+            dataset_statistics,
+            None if not field_statistics.field_statistics else field_statistics,
+        )
 
     @staticmethod
     def create_connection(
