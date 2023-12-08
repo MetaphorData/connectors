@@ -91,7 +91,6 @@ class TrinoExtractor(BaseExtractor):
     def _extract_query_logs(self) -> List[QueryLog]:
         logs: List[QueryLog] = []
         cursor = self._conn.cursor()
-        # cursor.execute("SELECT * FROM system.runtime.queries")
         cursor.execute(
             'SELECT query_id, user, query, started, "end" FROM system.runtime.queries'
         )
