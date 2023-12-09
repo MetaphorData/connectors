@@ -19,7 +19,6 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DatasetUpstream,
     EntityUpstream,
 )
 from metaphor.snowflake import auth
@@ -219,14 +218,10 @@ class SnowflakeLineageExtractor(BaseExtractor):
             entity_upstream = EntityUpstream(
                 source_entities=filtered_source_datasets, transformation=query
             )
-            upstream = DatasetUpstream(
-                source_datasets=filtered_source_datasets, transformation=query
-            )
 
             self._datasets[normalized_name] = Dataset(
                 logical_id=logical_id,
                 entity_upstream=entity_upstream,
-                upstream=upstream,
             )
 
     def _parse_object_dependencies(
@@ -278,14 +273,10 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 source_entities = dataset.entity_upstream.source_entities
                 if source_entity_id_str not in source_entities:
                     source_entities.append(source_entity_id_str)
-                source_datasets = dataset.upstream.source_datasets
-                if source_entity_id_str not in source_datasets:
-                    source_datasets.append(source_entity_id_str)
             else:
                 self._datasets[target_normalized_name] = Dataset(
                     logical_id=target_logical_id,
                     entity_upstream=EntityUpstream(
                         source_entities=[source_entity_id_str]
                     ),
-                    upstream=DatasetUpstream(source_datasets=[source_entity_id_str]),
                 )

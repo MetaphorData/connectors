@@ -12,7 +12,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
-    DatasetUpstream,
     EntityUpstream,
     SchemaType,
 )
@@ -75,7 +74,6 @@ def init_dataset(
             account=account,
         ),
         entity_upstream=EntityUpstream(source_entities=[]),
-        upstream=DatasetUpstream(source_datasets=[]),
         schema=DatasetSchema(schema_type=schema_type) if schema_type else None,
     )
 

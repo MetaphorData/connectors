@@ -29,11 +29,6 @@
     },
     "schema": {
       "schemaType": "JSON"
-    },
-    "upstream": {
-      "sourceDatasets": [
-        "DATASET~FE5B57BF2D1F80FFB22E9CE67FBABE41"
-      ]
     }
   },
   {
@@ -63,11 +58,6 @@
     },
     "schema": {
       "schemaType": "PARQUET"
-    },
-    "upstream": {
-      "sourceDatasets": [
-        "DATASET~BB872225C7263B5D3D0E18D416C8290F"
-      ]
     }
   },
   {
@@ -100,11 +90,6 @@
     },
     "schema": {
       "schemaType": "SCHEMALESS"
-    },
-    "upstream": {
-      "sourceDatasets": [
-        "DATASET~5CEB09336270D3F7F992B65EF0914DAA"
-      ]
     }
   },
   {

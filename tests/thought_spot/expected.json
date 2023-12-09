@@ -282,11 +282,6 @@
         "ANSWER"
       ],
       "name": "Answer 1"
-    },
-    "upstream": {
-      "sourceVirtualViews": [
-        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
-      ]
     }
   },
   {
@@ -338,11 +333,6 @@
         "LIVEBOARD"
       ],
       "name": "Board 1"
-    },
-    "upstream": {
-      "sourceVirtualViews": [
-        "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
-      ]
     }
   }
 ]

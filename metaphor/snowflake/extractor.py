@@ -32,7 +32,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
-    DatasetUpstream,
     EntityType,
     EntityUpstream,
     Hierarchy,
@@ -574,9 +573,6 @@ class SnowflakeExtractor(BaseExtractor):
                 )
 
             source_entities = [_to_dataset_eid(source_name)]
-            dataset.upstream = DatasetUpstream(
-                source_datasets=source_entities,
-            )
             dataset.entity_upstream = EntityUpstream(
                 source_entities=source_entities,
             )
