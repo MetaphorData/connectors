@@ -36,10 +36,15 @@ def dummy_config():
     )
 
 
-def mock_api(
+@patch("metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api")
+@patch("metaphor.unity_catalog.extractor.list_table_lineage")
+@patch("metaphor.unity_catalog.extractor.list_column_lineage")
+@pytest.mark.asyncio
+async def test_extractor(
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
     mock_create_api: MagicMock,
+    test_root_dir: str,
 ):
     def mock_list_catalogs():
         return [CatalogInfo(name="catalog")]
@@ -179,43 +184,28 @@ def mock_api(
     ]
     mock_create_api.return_value = mock_client
 
-
-@patch("metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api")
-@patch("metaphor.unity_catalog.extractor.list_table_lineage")
-@patch("metaphor.unity_catalog.extractor.list_column_lineage")
-@pytest.mark.asyncio
-async def test_extractor(
-    mock_list_column_lineage: MagicMock,
-    mock_list_table_lineage: MagicMock,
-    mock_create_api: MagicMock,
-    test_root_dir: str,
-):
-    mock_api(mock_list_column_lineage, mock_list_table_lineage, mock_create_api)
-
     extractor = UnityCatalogExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
-    assert events == load_json(f"{test_root_dir}/unity_catalog/data/expected.json")
+    assert events == load_json(f"{test_root_dir}/unity_catalog/expected.json")
 
 
-@patch("metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api")
-@patch("metaphor.unity_catalog.extractor.list_table_lineage")
-@patch("metaphor.unity_catalog.extractor.list_column_lineage")
-@pytest.mark.asyncio
-async def test_override_url(
-    mock_list_column_lineage: MagicMock,
-    mock_list_table_lineage: MagicMock,
-    mock_create_api: MagicMock,
-    test_root_dir: str,
-):
-    mock_api(mock_list_column_lineage, mock_list_table_lineage, mock_create_api)
-
+def test_source_url():
+    # Default pattern
     config = dummy_config()
-    config.source_url = "https://metaphor.io"
     extractor = UnityCatalogExtractor(config)
-    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    assert (
+        extractor._get_source_url("db", "schema", "table")
+        == "http://dummy.host/explore/data/db/schema/table"
+    )
 
-    assert events == load_json(f"{test_root_dir}/unity_catalog/data/override_url.json")
+    # Manual override with escaped characters
+    config.source_url = "http://metaphor.io/{catalog}/{schema}/{table}"
+    extractor = UnityCatalogExtractor(config)
+    assert (
+        extractor._get_source_url("d b", "<schema>", "{table}")
+        == "http://metaphor.io/d%20b/%3Cschema%3E/%7Btable%7D"
+    )
 
 
 def test_init_invalid_dataset(
