@@ -10,5 +10,6 @@ def test_yaml_config_password(test_root_dir):
     assert config == UnityCatalogRunConfig(
         host="host",
         token="token",
+        source_url="http://foo.bar/{catalog}/{schema}/{table}",
         output=OutputConfig(),
     )

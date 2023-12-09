@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import re
 import urllib.parse
 from typing import Collection, Dict, Generator, List
 
@@ -65,6 +66,11 @@ TABLE_TYPE_MATERIALIZATION_TYPE_MAP = {
     TableType.MATERIALIZED_VIEW: MaterializationType.MATERIALIZED_VIEW,
 }
 
+# For variable substitution in source URLs
+URL_DATABASE_RE = re.compile(r"{catalog}")
+URL_SCHEMA_RE = re.compile(r"{schema}")
+URL_TABLE_RE = re.compile(r"{table}")
+
 
 class UnityCatalogExtractor(BaseExtractor):
     """Unity Catalog metadata extractor"""
@@ -79,6 +85,7 @@ class UnityCatalogExtractor(BaseExtractor):
         )
         self._host = config.host
         self._token = config.token
+        self._source_url = config.source_url
 
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
@@ -139,6 +146,18 @@ class UnityCatalogExtractor(BaseExtractor):
         for table in tables:
             yield table
 
+    def _get_source_url(self, database: str, schema_name: str, table_name: str):
+        url = (
+            f"{self._host}/explore/data/{{catalog}}/{{schema}}/{{table}}"
+            if self._source_url is None
+            else self._source_url
+        )
+
+        url = URL_DATABASE_RE.sub(urllib.parse.quote(database), url)
+        url = URL_SCHEMA_RE.sub(urllib.parse.quote(schema_name), url)
+        url = URL_TABLE_RE.sub(urllib.parse.quote(table_name), url)
+        return url
+
     def _init_dataset(self, table_info: TableInfo) -> Dataset:
         table_name = table_info.name
         schema_name = table_info.schema_name
@@ -180,10 +199,8 @@ class UnityCatalogExtractor(BaseExtractor):
             ),
         )
 
-        path = urllib.parse.quote(
-            f"/explore/data/{database}/{schema_name}/{table_name}"
-        )
-        dataset.source_info = SourceInfo(main_url=f"{self._host}{path}")
+        main_url = self._get_source_url(database, schema_name, table_name)
+        dataset.source_info = SourceInfo(main_url=main_url)
 
         dataset.unity_catalog = UnityCatalog(
             table_type=UnityCatalogTableType[table_info.table_type.value],
