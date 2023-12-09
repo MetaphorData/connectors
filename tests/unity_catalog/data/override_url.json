@@ -1,0 +1,179 @@
+[
+  {
+    "unityCatalog": {
+      "tableType": "MANAGED",
+      "dataSourceFormat": "CSV",
+      "owner": "foo@bar.com",
+      "storageLocation": "s3://path",
+      "properties": [
+        {
+          "key": "delta.lastCommitTimestamp",
+          "value": "\"1664444422000\""
+        }
+      ]
+    },
+    "logicalId": {
+      "name": "catalog.schema.table",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "description": "example",
+      "fields": [
+        {
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int",
+          "precision": 32.0,
+          "description": "some description"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
+      }
+    },
+    "structure": {
+      "database": "catalog",
+      "schema": "schema",
+      "table": "table"
+    },
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": [
+            {
+              "dataset": {
+                "name": "db.schema.upstream",
+                "platform": "UNITY_CATALOG"
+              },
+              "field": "col1",
+              "sourceEntityId": "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84",
+        "DATASET~97D032124F4B526411F0D04797CEAC96"
+      ]
+    },
+    "sourceInfo": {
+      "mainUrl": "https://metaphor.io"
+    }
+  },
+  {
+    "unityCatalog": {
+      "tableType": "VIEW",
+      "owner": "foo@bar.com",
+      "properties": [
+        {
+          "key": "view.catalogAndNamespace.numParts",
+          "value": "\"2\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.hive.convertCTAS",
+          "value": "\"true\""
+        },
+        {
+          "key": "view.query.out.col.0",
+          "value": "\"key\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.parquet.compression.codec",
+          "value": "\"snappy\""
+        },
+        {
+          "key": "view.query.out.numCols",
+          "value": "\"3\""
+        },
+        {
+          "key": "view.referredTempViewNames",
+          "value": "\"[]\""
+        },
+        {
+          "key": "view.query.out.col.1",
+          "value": "\"values\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.streaming.stopTimeout",
+          "value": "\"15s\""
+        },
+        {
+          "key": "view.catalogAndNamespace.part.0",
+          "value": "\"catalog\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.sources.commitProtocolClass",
+          "value": "\"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.sources.default",
+          "value": "\"delta\""
+        },
+        {
+          "key": "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault",
+          "value": "\"false\""
+        },
+        {
+          "key": "view.query.out.col.2",
+          "value": "\"nested_values\""
+        },
+        {
+          "key": "view.referredTempFunctionsNames",
+          "value": "\"[]\""
+        },
+        {
+          "key": "view.catalogAndNamespace.part.1",
+          "value": "\"default\""
+        }
+      ]
+    },
+    "logicalId": {
+      "name": "catalog.schema.view",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "description": "example",
+      "fields": [
+        {
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int",
+          "precision": 32.0
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "SELECT ..."
+      }
+    },
+    "structure": {
+      "database": "catalog",
+      "schema": "schema",
+      "table": "view"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://metaphor.io"
+    }
+  },
+  {
+    "logs": [
+      {
+        "_id": "UNITY_CATALOG:foo",
+        "bytesRead": 1234.0,
+        "bytesWritten": 5678.0,
+        "duration": 1234.0,
+        "platform": "UNITY_CATALOG",
+        "queryId": "foo",
+        "rowsRead": 9487.0,
+        "rowsWritten": 5566.0,
+        "sql": "bogus query",
+        "sqlHash": "4d562df2c6dc30bee38ccfac33bc47d7",
+        "startTime": "1970-01-01T15:27:47.788000+00:00",
+        "userId": "uwu"
+      }
+    ]
+  }
+]

@@ -79,6 +79,7 @@ class UnityCatalogExtractor(BaseExtractor):
         )
         self._host = config.host
         self._token = config.token
+        self._source_url = config.source_url
 
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
@@ -183,7 +184,10 @@ class UnityCatalogExtractor(BaseExtractor):
         path = urllib.parse.quote(
             f"/explore/data/{database}/{schema_name}/{table_name}"
         )
-        dataset.source_info = SourceInfo(main_url=f"{self._host}{path}")
+        main_url = (
+            f"{self._host}{path}" if self._source_url is None else self._source_url
+        )
+        dataset.source_info = SourceInfo(main_url=main_url)
 
         dataset.unity_catalog = UnityCatalog(
             table_type=UnityCatalogTableType[table_info.table_type.value],

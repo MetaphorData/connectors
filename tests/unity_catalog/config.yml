@@ -1,4 +1,5 @@
 ---
 host: host
 token: token
+source_url: http://foo.bar
 output: {}
