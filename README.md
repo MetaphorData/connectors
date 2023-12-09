@@ -62,6 +62,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [custom.lineage](metaphor/custom/lineage/README.md)               | Lineage                                  |
 | [custom.metadata](metaphor/custom/metadata/README.md)             | Custom metadata                          |
 | [custom.query_attributions](metaphor/custom/metadata/README.md)   | Query attritutions                       |
+| [kafka](metaphor/kafka/README.md)                                 | Schema, description                      |
 | [metabase](metaphor/metabase/README.md)                           | Dashboard, lineage                       |
 | [monte_carlo](metaphor/monte_carlo/README.md)                     | Data monitor                             |
 | [mssql](metaphor/mssql/README.md)                                 | Schema                                   |
