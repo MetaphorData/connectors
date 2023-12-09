@@ -34,7 +34,6 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DatasetUpstream,
     EntityUpstream,
     FieldMapping,
     FiveTranConnectorStatus,
@@ -286,10 +285,6 @@ class FivetranExtractor(BaseExtractor):
                 source_entities=[],
                 field_mappings=[],
             ),
-            upstream=DatasetUpstream(
-                source_datasets=[],
-                field_mappings=[],
-            ),
         )
         dataset_id = str(to_dataset_entity_id_from_logical_id(dataset.logical_id))
 
@@ -315,7 +310,6 @@ class FivetranExtractor(BaseExtractor):
             pipeline_mapping.source_entity_id = source_entity_id
 
             dataset.entity_upstream.source_entities = [source_entity_id]
-            dataset.upstream.source_datasets = [source_entity_id]
 
             pipeline.fivetran.sources = list(
                 set(pipeline.fivetran.sources + [source_entity_id])
@@ -333,7 +327,6 @@ class FivetranExtractor(BaseExtractor):
                     )
                 )
                 dataset.entity_upstream.field_mappings.append(field_mapping)
-                dataset.upstream.field_mappings.append(field_mapping)
 
         dataset.pipeline_info = PipelineInfo(pipeline_mapping=[pipeline_mapping])
 

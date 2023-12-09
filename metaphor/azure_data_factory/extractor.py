@@ -89,12 +89,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
             else:
                 dataset.entity_upstream.source_entities = unique_source_entities
 
-            unique_source_dataset = unique_list(dataset.upstream.source_datasets)
-            if len(unique_source_dataset) == 0:
-                dataset.upstream = None
-            else:
-                dataset.upstream.source_datasets = unique_source_dataset
-
         return list(chain(self._datasets.values(), self._pipelines.values()))
 
     def extract_for_factory(
@@ -198,7 +192,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
                     to_dataset_entity_id_from_logical_id(source.logical_id)
                 )
                 sink.entity_upstream.source_entities.append(source_entity_id)
-                sink.upstream.source_datasets.append(source_entity_id)
 
     def _get_data_flows(
         self, factory: Factory, client: DataFactoryManagementClient
@@ -460,7 +453,6 @@ class AzureDataFactoryExtractor(BaseExtractor):
                         # Copy activity table lineage
                         for source_id in copy_from:
                             dataset.entity_upstream.source_entities.append(source_id)
-                            dataset.upstream.source_datasets.append(source_id)
 
                         # Pipeline info for each copy activity output entity
                         dataset.pipeline_info = PipelineInfo(

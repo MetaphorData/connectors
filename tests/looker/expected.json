@@ -27,11 +27,6 @@
         "model1"
       ],
       "name": "1"
-    },
-    "upstream": {
-      "sourceVirtualViews": [
-        "VIRTUAL_VIEW~BCFF7FBF29617570C10466C0CA541AE4"
-      ]
     }
   }
 ]

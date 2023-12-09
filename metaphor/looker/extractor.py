@@ -25,7 +25,6 @@ from metaphor.models.metadata_change_event import (
     DashboardInfo,
     DashboardLogicalID,
     DashboardPlatform,
-    DashboardUpstream,
     EntityUpstream,
     SourceInfo,
     VirtualViewType,
@@ -130,19 +129,15 @@ class LookerExtractor(BaseExtractor):
             if dashboard.view_count is not None:
                 dashboard_info.view_count = float(dashboard.view_count)
 
-            upstream = None
             entity_upstream = None
             if dashboard.dashboard_elements is not None:
-                (dashboard_info.charts, upstream) = self._extract_charts(
+                (dashboard_info.charts, entity_upstream) = self._extract_charts(
                     dashboard.dashboard_elements, model_map
-                )
-                entity_upstream = EntityUpstream(
-                    source_entities=upstream.source_virtual_views,  # `upstream` doesn't have any dataset
                 )
 
             assert dashboard.id is not None
 
-            # Dashboard id is guranteed to look like `model_name::dashboard_name`
+            # Dashboard id is guaranteed to look like `model_name::dashboard_name`
             # Ref: https://www.googlecloudcommunity.com/gc/Technical-Tips-Tricks/How-can-I-find-the-id-of-a-LookML-dashboard/ta-p/592288
             directory, name = dashboard.id.rsplit("::", 1)
 
@@ -154,7 +149,6 @@ class LookerExtractor(BaseExtractor):
                     dashboard_info=dashboard_info,
                     source_info=source_info,
                     entity_upstream=entity_upstream,
-                    upstream=upstream,
                     structure=AssetStructure(
                         directories=[directory],
                         name=name,
@@ -168,7 +162,7 @@ class LookerExtractor(BaseExtractor):
         self,
         dashboard_elements: Sequence[DashboardElement],
         model_map: Dict[str, Model],
-    ) -> Tuple[List[Chart], DashboardUpstream]:
+    ) -> Tuple[List[Chart], EntityUpstream]:
         charts = []
         explore_ids: Set[str] = set()
 
@@ -222,7 +216,7 @@ class LookerExtractor(BaseExtractor):
 
         return (
             charts,
-            DashboardUpstream(
-                source_virtual_views=list(explore_ids),
+            EntityUpstream(
+                source_entities=list(explore_ids),
             ),
         )

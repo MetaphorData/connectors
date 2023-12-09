@@ -7,7 +7,6 @@ from metaphor.common.utils import unique_list
 from metaphor.custom.lineage.config import CustomLineageConfig
 from metaphor.models.metadata_change_event import (
     Dataset,
-    DatasetUpstream,
     EntityType,
     EntityUpstream,
     MetadataChangeEvent,
@@ -47,7 +46,6 @@ class CustomLineageExtractor(BaseExtractor):
                 Dataset(
                     logical_id=lineage.dataset.to_logical_id(),
                     entity_upstream=EntityUpstream(source_entities=unique_datasets),
-                    upstream=DatasetUpstream(source_datasets=unique_datasets),
                 )
             )
 

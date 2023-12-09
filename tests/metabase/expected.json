@@ -23,11 +23,6 @@
       "directories": [],
       "name": "Clean rides"
     },
-    "upstream": {
-      "sourceDatasets": [
-        "DATASET~8CDF81FE6B8050607E78C53E8B704B05"
-      ]
-    },
     "entityUpstream": {
       "sourceEntities": [
         "DATASET~8CDF81FE6B8050607E78C53E8B704B05"
