@@ -26,7 +26,7 @@ class NotionExtractor(BaseExtractor):
         return NotionExtractor(NotionRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: NotionRunConfig):
-        super().__init__(config, "Notion document crawler", Platform.NOTION)
+        super().__init__(config, "Notion document crawler", Platform.UNKNOWN)
 
         self.notion_api_tok = config.notion_api_tok
         self.notion_api_version = config.notion_api_version

@@ -1,8 +1,10 @@
 ---
 notion_api_tok: notion_api_tok
-azure_openAI_key: openai_api_tok
+azure_openAI_key: azure_openAI_key
 azure_openAI_ver: azure_openAI_ver
 azure_openAI_endpoint: azure_openAI_endpoint
 azure_openAI_model: text-embedding-ada-002
 azure_openAI_model_name: EmbeddingModel
+include_text: true
+notion_api_version: '2022-06-08'
 output: {}

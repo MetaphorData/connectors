@@ -12,5 +12,7 @@ def test_config(test_root_dir):
         azure_openAI_endpoint="azure_openAI_endpoint",
         azure_openAI_model="text-embedding-ada-002",
         azure_openAI_model_name="EmbeddingModel",
+        include_text=True,
+        notion_api_version="2022-06-08",
         output=OutputConfig(),
     )

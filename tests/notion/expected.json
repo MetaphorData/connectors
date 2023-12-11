@@ -1,0 +1,23 @@
+[
+  {
+    "externalSearchDocument": {
+      "nodeId": "abcd1234",
+      "embedding": [
+        0.1,
+        0.2,
+        0.3,
+        0.4
+      ],
+      "pageId": "efgh5678",
+      "embeddingString": "Hello World!",
+      "lastRefreshed": "2023-12-11 00:00:00.000000",
+      "metadata": {
+        "dbId": "database1",
+        "platform": "notion",
+        "pageId": "efgh5678",
+        "link": "https://metaphor.io",
+        "lastRefreshed": "2023-12-11 00:00:00.000000"
+      }
+    }
+  }
+]
