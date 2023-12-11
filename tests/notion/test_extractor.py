@@ -49,9 +49,9 @@ async def test_extractor(
     # mock doc retrieve
     mock_get_docs.return_value = [
         Document(
-            id_="abcd1234",
+            doc_id="abcd1234",
             embedding=None,
-            metadata={
+            extra_info={
                 "dbId": "database1",
                 "platform": "notion",
                 "pageId": "efgh5678",

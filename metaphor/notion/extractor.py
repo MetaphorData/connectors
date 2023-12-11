@@ -1,7 +1,7 @@
 import datetime
 import json
 import traceback
-from typing import Collection
+from typing import Collection, Sequence
 
 import requests
 from llama_index import Document, download_loader
@@ -43,7 +43,7 @@ class NotionExtractor(BaseExtractor):
 
         # Set up LlamaIndex Notion integration
         npr = download_loader("NotionPageReader")
-        self.NotionReader = npr(integration_token=self.notion_api_tok)
+        self.NotionReader = npr(self.notion_api_tok)
 
     async def extract(self) -> Collection[dict]:
         logger.info("Fetching documents from Notion")
@@ -115,7 +115,7 @@ class NotionExtractor(BaseExtractor):
 
         return self.db_ids
 
-    def _get_all_documents(self) -> Collection[Document]:
+    def _get_all_documents(self) -> Sequence[Document]:
         """
         Returns a list of Documents
         retrieved from a Notion space.

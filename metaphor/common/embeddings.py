@@ -1,5 +1,5 @@
 import re
-from typing import Collection
+from typing import Collection, Sequence
 
 from llama_index import Document, ServiceContext
 from llama_index.embeddings import AzureOpenAIEmbedding
@@ -28,7 +28,7 @@ def clean_text(input_string: str) -> str:
 
 
 def embed_documents(
-    docs: Collection[Document],
+    docs: Sequence[Document],
     azure_openAI_key: str,
     azure_openAI_ver: str,
     azure_openAI_endpoint: str,
