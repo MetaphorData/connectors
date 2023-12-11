@@ -1,11 +1,574 @@
 {
   "metadata": {
-    "dbt_schema_version": "https://schemas.getdbt.com/dbt/run-results/v4.json",
-    "dbt_version": "1.6.0",
-    "generated_at": "2023-11-06T08:14:33.314124Z",
-    "invocation_id": "4608fb03-ed99-4fcf-9408-cb71b627cc1b",
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/run-results/v5.json",
+    "dbt_version": "1.7.3",
+    "generated_at": "2023-12-05T18:19:58.390276Z",
+    "invocation_id": "410ff6fb-de82-4443-99ab-d7da3a314f41",
     "env": {}
   },
-  "results": [],
-  "elapsed_time": 0.0
+  "results": [
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:48.272378Z",
+          "completed_at": "2023-12-05T18:19:48.292437Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:48.293216Z",
+          "completed_at": "2023-12-05T18:19:48.771121Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.6071381568908691,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346c2"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.accepted_values_customers_customer_type__new__returning.d12f0947c8",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nwith all_values as (\n\n    select\n        customer_type as value_field,\n        count(*) as n_records\n\n    from DEV_DB.DBT_DEV.customers\n    group by customer_type\n\n)\n\nselect *\nfrom all_values\nwhere value_field not in (\n    'new','returning'\n)\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:48.884575Z",
+          "completed_at": "2023-12-05T18:19:48.897196Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:48.898300Z",
+          "completed_at": "2023-12-05T18:19:49.323400Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5612359046936035,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da87-0029-c0030533383a"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.not_null_customers_customer_id.5c9bf9911d",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\n\n\nselect customer_id\nfrom DEV_DB.DBT_DEV.customers\nwhere customer_id is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:49.450326Z",
+          "completed_at": "2023-12-05T18:19:49.459591Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:49.460674Z",
+          "completed_at": "2023-12-05T18:19:49.847577Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5081028938293457,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da87-0029-c0030533383e"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.not_null_orders_order_id.cf6c17daed",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\n\n\nselect order_id\nfrom DEV_DB.DBT_DEV.orders\nwhere order_id is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:49.963421Z",
+          "completed_at": "2023-12-05T18:19:49.972501Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:49.973628Z",
+          "completed_at": "2023-12-05T18:19:50.344816Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5008339881896973,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da87-0029-c00305333842"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.not_null_stg_customers_customer_id.e2cfb1f9aa",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\n\n\nselect customer_id\nfrom DEV_DB.DBT_DEV.stg_customers\nwhere customer_id is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:50.469172Z",
+          "completed_at": "2023-12-05T18:19:50.477157Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:50.478270Z",
+          "completed_at": "2023-12-05T18:19:50.880371Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5226869583129883,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346c6"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.not_null_stg_locations_location_id.3d237927d2",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\n\n\nselect location_id\nfrom DEV_DB.DBT_DEV.stg_locations\nwhere location_id is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:50.995183Z",
+          "completed_at": "2023-12-05T18:19:51.002373Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:51.003472Z",
+          "completed_at": "2023-12-05T18:19:51.461357Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.6269247531890869,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346ca"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.not_null_stg_order_items_order_item_id.26a7e2bc35",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\n\n\nselect order_item_id\nfrom DEV_DB.DBT_DEV.stg_order_items\nwhere order_item_id is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:51.624864Z",
+          "completed_at": "2023-12-05T18:19:51.630470Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:51.631248Z",
+          "completed_at": "2023-12-05T18:19:52.039473Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5305132865905762,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346ce"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.not_null_stg_orders_order_id.81cfe2fe64",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\n\n\nselect order_id\nfrom DEV_DB.DBT_DEV.stg_orders\nwhere order_id is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:52.160582Z",
+          "completed_at": "2023-12-05T18:19:52.168109Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:52.169182Z",
+          "completed_at": "2023-12-05T18:19:52.546459Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.4926438331604004,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346d2"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.not_null_stg_products_product_id.6373b0acf3",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\n\n\nselect product_id\nfrom DEV_DB.DBT_DEV.stg_products\nwhere product_id is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:52.656925Z",
+          "completed_at": "2023-12-05T18:19:52.665122Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:52.665771Z",
+          "completed_at": "2023-12-05T18:19:53.077576Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.53432297706604,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346d6"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.not_null_stg_supplies_supply_uuid.515c6eda6d",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\n\n\nselect supply_uuid\nfrom DEV_DB.DBT_DEV.stg_supplies\nwhere supply_uuid is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:53.199291Z",
+          "completed_at": "2023-12-05T18:19:53.212275Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:53.212935Z",
+          "completed_at": "2023-12-05T18:19:53.619277Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.532646894454956,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346da"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nwith child as (\n    select customer_id as from_field\n    from DEV_DB.DBT_DEV.orders\n    where customer_id is not null\n),\n\nparent as (\n    select customer_id as to_field\n    from DEV_DB.DBT_DEV.stg_customers\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:53.732652Z",
+          "completed_at": "2023-12-05T18:19:53.740248Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:53.740853Z",
+          "completed_at": "2023-12-05T18:19:54.125427Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5197470188140869,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346de"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.unique_customers_customer_id.c5af1ff4b1",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:54.257032Z",
+          "completed_at": "2023-12-05T18:19:54.271838Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:54.273592Z",
+          "completed_at": "2023-12-05T18:19:54.751772Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.6112072467803955,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346e2"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.unique_orders_order_id.fed79b3a6e",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:54.873692Z",
+          "completed_at": "2023-12-05T18:19:54.884982Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:54.886694Z",
+          "completed_at": "2023-12-05T18:19:55.314215Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.6513447761535645,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da87-0029-c00305333846"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.unique_stg_customers_customer_id.c7614daada",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:55.531156Z",
+          "completed_at": "2023-12-05T18:19:55.544410Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:55.546131Z",
+          "completed_at": "2023-12-05T18:19:55.961367Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5850529670715332,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346e6"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.unique_stg_locations_location_id.2e2fc58ecc",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    location_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_locations\nwhere location_id is not null\ngroup by location_id\nhaving count(*) > 1\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:56.122579Z",
+          "completed_at": "2023-12-05T18:19:56.134284Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:56.136005Z",
+          "completed_at": "2023-12-05T18:19:56.540172Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5278887748718262,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da87-0029-c0030533384a"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.unique_stg_order_items_order_item_id.90e333a108",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    order_item_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_order_items\nwhere order_item_id is not null\ngroup by order_item_id\nhaving count(*) > 1\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:56.655451Z",
+          "completed_at": "2023-12-05T18:19:56.666979Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:56.668562Z",
+          "completed_at": "2023-12-05T18:19:57.098718Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5636649131774902,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346ea"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.unique_stg_orders_order_id.e3b841c71a",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:57.224485Z",
+          "completed_at": "2023-12-05T18:19:57.238285Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:57.239884Z",
+          "completed_at": "2023-12-05T18:19:57.712740Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.6020300388336182,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346ee"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.unique_stg_products_product_id.7d950a1467",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    product_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_products\nwhere product_id is not null\ngroup by product_id\nhaving count(*) > 1\n\n\n",
+      "relation_name": null
+    },
+    {
+      "status": "pass",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2023-12-05T18:19:57.832380Z",
+          "completed_at": "2023-12-05T18:19:57.843258Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2023-12-05T18:19:57.844592Z",
+          "completed_at": "2023-12-05T18:19:58.246760Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 0.5499238967895508,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b0ca4b-0603-da88-0029-c003053346f2"
+      },
+      "message": null,
+      "failures": 0,
+      "unique_id": "test.jaffle_shop.unique_stg_supplies_supply_uuid.c9e3edcfed",
+      "compiled": true,
+      "compiled_code": "\n    \n    \n\nselect\n    supply_uuid as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_supplies\nwhere supply_uuid is not null\ngroup by supply_uuid\nhaving count(*) > 1\n\n\n",
+      "relation_name": null
+    }
+  ],
+  "elapsed_time": 11.03291392326355,
+  "args": {
+    "select": [],
+    "partial_parse": true,
+    "favor_state": false,
+    "defer": false,
+    "indirect_selection": "eager",
+    "partial_parse_file_diff": true,
+    "printer_width": 80,
+    "invocation_command": "dbt test",
+    "send_anonymous_usage_stats": true,
+    "log_level_file": "debug",
+    "warn_error_options": {
+      "include": [],
+      "exclude": []
+    },
+    "strict_mode": false,
+    "write_json": true,
+    "static_parser": true,
+    "version_check": true,
+    "print": true,
+    "exclude": [],
+    "cache_selected_only": false,
+    "which": "test",
+    "show_resource_report": false,
+    "use_colors_file": true,
+    "log_file_max_bytes": 10485760,
+    "macro_debugging": false,
+    "use_colors": true,
+    "log_format_file": "debug",
+    "vars": {},
+    "populate_cache": true,
+    "project_dir": "/Users/marslan/Metaphor/dbt/jaffle-sl-template",
+    "quiet": false,
+    "enable_legacy_logger": false,
+    "log_path": "/Users/marslan/Metaphor/dbt/jaffle-sl-template/logs",
+    "introspect": true,
+    "profiles_dir": "/Users/marslan/.dbt",
+    "log_format": "default",
+    "log_level": "info"
+  }
 }

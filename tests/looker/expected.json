@@ -1,0 +1,32 @@
+[
+  {
+    "dashboardInfo": {
+      "charts": [
+        {
+          "chartType": "MAP"
+        }
+      ],
+      "description": "first dashboard",
+      "title": "first",
+      "viewCount": 123.0
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~BCFF7FBF29617570C10466C0CA541AE4"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "model1::1",
+      "platform": "LOOKER"
+    },
+    "sourceInfo": {
+      "mainUrl": "http://test/me/model1::1"
+    },
+    "structure": {
+      "directories": [
+        "model1"
+      ],
+      "name": "1"
+    }
+  }
+]

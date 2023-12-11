@@ -1,11 +1,22 @@
 [
   {
+    "fieldStatistics": {
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 1234.0,
+          "fieldPath": "col2",
+          "maxValue": 9999.0,
+          "minValue": -9999.0
+        }
+      ]
+    },
     "logicalId": {
       "name": "catalog.schema.table",
       "platform": "UNITY_CATALOG"
     },
     "statistics": {
       "dataSizeBytes": 5566.0,
+      "lastUpdated": "2023-10-30T12:06:19+00:00",
       "recordCount": 9487.0
     }
   }

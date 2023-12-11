@@ -1,0 +1,52 @@
+[
+  {
+    "fieldName": "array_union",
+    "fieldPath": "array_union",
+    "nativeType": "RECORD",
+    "subfields": [
+      {
+        "fieldName": "body",
+        "fieldPath": "array_union.body",
+        "nativeType": "RECORD",
+        "subfields": [
+          {
+            "fieldName": "body",
+            "fieldPath": "array_union.body.body",
+            "nativeType": "RECORD",
+            "subfields": [
+              {
+                "fieldName": "abc",
+                "fieldPath": "array_union.body.body.abc",
+                "nativeType": "UNION<null,array>",
+                "subfields": [
+                  {
+                    "fieldName": "_name_0",
+                    "fieldPath": "array_union.body.body.abc._name_0",
+                    "nativeType": "RECORD",
+                    "subfields": [
+                      {
+                        "fieldName": "app_id",
+                        "fieldPath": "array_union.body.body.abc._name_0.app_id",
+                        "nativeType": "UNION<null,string>"
+                      },
+                      {
+                        "fieldName": "app_name",
+                        "fieldPath": "array_union.body.body.abc._name_0.app_name",
+                        "nativeType": "UNION<null,string>"
+                      },
+                      {
+                        "fieldName": "app_key",
+                        "fieldPath": "array_union.body.body.abc._name_0.app_key",
+                        "nativeType": "UNION<null,string>"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

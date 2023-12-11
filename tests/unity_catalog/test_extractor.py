@@ -190,6 +190,24 @@ async def test_extractor(
     assert events == load_json(f"{test_root_dir}/unity_catalog/expected.json")
 
 
+def test_source_url():
+    # Default pattern
+    config = dummy_config()
+    extractor = UnityCatalogExtractor(config)
+    assert (
+        extractor._get_source_url("db", "schema", "table")
+        == "http://dummy.host/explore/data/db/schema/table"
+    )
+
+    # Manual override with escaped characters
+    config.source_url = "http://metaphor.io/{catalog}/{schema}/{table}"
+    extractor = UnityCatalogExtractor(config)
+    assert (
+        extractor._get_source_url("d b", "<schema>", "{table}")
+        == "http://metaphor.io/d%20b/%3Cschema%3E/%7Btable%7D"
+    )
+
+
 def test_init_invalid_dataset(
     test_root_dir: str,
 ) -> None:

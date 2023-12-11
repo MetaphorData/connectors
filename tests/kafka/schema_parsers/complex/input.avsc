@@ -1,0 +1,54 @@
+{
+    "namespace": "proj.avro",
+    "protocol": "app_messages",
+    "doc" : "application messages",
+    "name": "myRecord",
+    "type" : "record",
+    "fields": [
+        {
+            "name": "requestResponse",
+            "type": [
+                {
+                    "name": "record_request",
+                    "type" : "record",
+                    "fields": [
+                        {
+                            "name" : "request_id",
+                            "type" : "int"
+                        },
+                        {
+                            "name" : "message_type",
+                            "type" : "int"
+                        },
+                        {
+                            "name" : "users",
+                            "type" : "string"
+                        }
+                    ]
+                },
+                {
+                    "name" : "request_response",
+                    "type" : "record",
+                    "fields": [
+                        {
+                            "name" : "request_id",
+                            "type" : "int"
+                        },
+                        {
+                            "name" : "response_code",
+                            "type" : "string"
+                        },
+                        {
+                            "name" : "response_count",
+                            "type" : "int"
+                        },
+                        {
+                            "name" : "reason_code",
+                            "type" : "string"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

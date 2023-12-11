@@ -27,7 +27,6 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardType,
-    DashboardUpstream,
     EntityType,
     EntityUpstream,
     FieldMapping,
@@ -541,7 +540,6 @@ class ThoughtSpotExtractor(BaseExtractor):
             dashboard.entity_upstream = EntityUpstream(
                 source_entities=source_entities, field_mappings=field_mappings
             )
-            dashboard.upstream = DashboardUpstream(source_virtual_views=source_entities)
 
     def get_field_mappings_from_answer_sql(
         self, answer_id, source_id, target_columns: Optional[List[str]]
@@ -631,7 +629,6 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/pinboard/{board_id}",
                 ),
-                upstream=DashboardUpstream(source_virtual_views=source_entities),
                 entity_upstream=EntityUpstream(
                     source_entities=source_entities,
                     field_mappings=self._get_field_mapping_from_visualizations(

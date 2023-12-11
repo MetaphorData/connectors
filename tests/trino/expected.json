@@ -1,0 +1,3678 @@
+[
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~87B1EB9DD975AA1537C40824E981EF2F",
+    "logicalId": {
+      "name": "tpch.sf1000.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~3A4246454B01FD5821F04C0BA66BC54D",
+    "logicalId": {
+      "name": "tpch.sf300.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~F739F154369CCBB3B019ED6755C1557A",
+    "logicalId": {
+      "name": "tpch.sf1000.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~9AEAB49102574E3C04809B4B7E5906B2",
+    "logicalId": {
+      "name": "tpch.sf10000.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~90EC9A4C8CA557A6D2FC5EF034C1A9D6",
+    "logicalId": {
+      "name": "tpch.sf300.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~5B4D6705E9514AA5E58022535D1885AA",
+    "logicalId": {
+      "name": "tpch.sf3000.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~22ECF0E0D75A7E7D058F592085AD35AB",
+    "logicalId": {
+      "name": "tpch.sf100.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~936374E205B6DBADF81F91226A8BB046",
+    "logicalId": {
+      "name": "tpch.sf1.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~4C3F4F3AB163A7BC24AF5C687E59E156",
+    "logicalId": {
+      "name": "tpch.sf30000.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~0E02F9ECEA5FC824DF7F593A91F17997",
+    "logicalId": {
+      "name": "tpch.sf100.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~A5CEFA8826C5E46C74ADBB62DB587C3A",
+    "logicalId": {
+      "name": "tpch.sf1000.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~9C961625B236C98B56E1FC1729261968",
+    "logicalId": {
+      "name": "tpch.sf1000.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~F99B4A0B356005BBBD7CBFDF6B0B7A16",
+    "logicalId": {
+      "name": "tpch.sf10000.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~86243D791AA5F8556A92B37E1237DBED",
+    "logicalId": {
+      "name": "tpch.sf30000.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~4E9DC2DA71319C27A723B8E95FA6573A",
+    "logicalId": {
+      "name": "tpch.sf30000.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~BE72C6C5620F7D6534EE501385D980EA",
+    "logicalId": {
+      "name": "tpch.sf3000.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~1D2D5582231405DF535D5476B6A4961B",
+    "logicalId": {
+      "name": "tpch.sf100000.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~B0D530DBE065F490FF1C1D2DF0D42BEC",
+    "logicalId": {
+      "name": "tpch.sf100000.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~398784C47E0449E09FFF53A28501EE3D",
+    "logicalId": {
+      "name": "tpch.sf1.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~9911BDE99EA0EAAD065F49A5CAD97485",
+    "logicalId": {
+      "name": "tpch.sf100.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~0CC9B0B659A1AA9C4D8FB71277AF1DE2",
+    "logicalId": {
+      "name": "tpch.sf3000.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~C2288B85DDC831599A65F2849E802AFA",
+    "logicalId": {
+      "name": "tpch.tiny.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~297D9862EFBC1B8CBF8B117A60660DCD",
+    "logicalId": {
+      "name": "tpch.sf30000.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~9C989BA5EF22C0C897E82F05976F6E7E",
+    "logicalId": {
+      "name": "tpch.sf3000.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~C6D4F30C5D8561AA3EF36D8118F53D01",
+    "logicalId": {
+      "name": "tpch.sf30000.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~E0E387A5A95E1E9285DA7796E405379B",
+    "logicalId": {
+      "name": "tpch.sf100000.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~219F8D1E6843C02474DF8014E3C083CC",
+    "logicalId": {
+      "name": "tpch.sf100000.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~6D8C9F0F76897C43E849D4500F84A793",
+    "logicalId": {
+      "name": "tpch.sf100.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~DB13E232F64D3CF6CBE9F01C5924E6E5",
+    "logicalId": {
+      "name": "tpch.sf10000.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~D989A2C2B9C966B1B2F8C65D7FB46A35",
+    "logicalId": {
+      "name": "tpch.sf10000.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~84FFB72D7BF8DF41B4EFEF4A1E48B2E0",
+    "logicalId": {
+      "name": "tpch.sf300.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~1CEDFA15A3961297545C9D3045E5B80A",
+    "logicalId": {
+      "name": "tpch.sf1000.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~C90CDA9CBE7E5EE64A5825B367ABE1F3",
+    "logicalId": {
+      "name": "tpch.sf3000.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~DA25DEDC3AE4E4F4D703AF935D787576",
+    "logicalId": {
+      "name": "tpch.sf1.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~8D9CB80E9C1258B75E3136FD9FDD0796",
+    "logicalId": {
+      "name": "tpch.sf100.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~C26EAC461E3948CD80116193BD0A0FDD",
+    "logicalId": {
+      "name": "tpch.sf100000.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~4E2FFECDE7EBFF89384524E63B92FFB3",
+    "logicalId": {
+      "name": "tpch.tiny.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~FC6A7E8A34BB9DD1B6D6F3943F3AAC00",
+    "logicalId": {
+      "name": "tpch.sf100.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~9EAB98AB81D5BDE24C4B5BC0191724B6",
+    "logicalId": {
+      "name": "tpch.sf1000.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~A49C7C62544F0CDC7056C23CEC7767EC",
+    "logicalId": {
+      "name": "tpch.sf1.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~841E13352E2C0A957610A037A2C49623",
+    "logicalId": {
+      "name": "tpch.sf100.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~08F4EEA17DA2F63A99EB8E6E636EF7CA",
+    "logicalId": {
+      "name": "tpch.sf300.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~27A8FDD15518665E869B8330F6D88BB7",
+    "logicalId": {
+      "name": "tpch.sf30000.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~EE1C581C51E600B9B42C6F114D6DAC23",
+    "logicalId": {
+      "name": "tpch.sf300.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~A8C0E858AFBDFAD589DE80AD4DC40545",
+    "logicalId": {
+      "name": "tpch.sf1000.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~430318242885B5CC653C0294651C0F00",
+    "logicalId": {
+      "name": "tpch.sf3000.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~D58250D7DCEF6C92AEDB8CD0293B3260",
+    "logicalId": {
+      "name": "tpch.sf30000.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~D88B507C4FCE8BC676C0ED8166BB169A",
+    "logicalId": {
+      "name": "tpch.sf1.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~3060F03CA835723C4B695ECF53348436",
+    "logicalId": {
+      "name": "tpch.sf300.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~CA69520F3AA2FD292D6C640C75133471",
+    "logicalId": {
+      "name": "tpch.sf10000.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~21264DF2FDC9F847EAA3965D519E0568",
+    "logicalId": {
+      "name": "tpch.tiny.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~7AE22EE67FD07E0DC9912CD3F0C04B31",
+    "logicalId": {
+      "name": "tpch.sf10000.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~50240789D26559E8AE9E2AE7AE4066CE",
+    "logicalId": {
+      "name": "tpch.sf100000.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~C04039E0552F707A99FA7CB4C9B07D2C",
+    "logicalId": {
+      "name": "tpch.sf1.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~9E0B75B9A8BD8731B15426F13E3B5E15",
+    "logicalId": {
+      "name": "tpch.sf300.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~A13AE179EB8DD85E78D65E4DA6F5DE05",
+    "logicalId": {
+      "name": "tpch.tiny.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~83EB06A2572D199BCAC7FBEAEF648529",
+    "logicalId": {
+      "name": "tpch.sf100000.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~AFC8DD66900FA1244D2EA11EECA13309",
+    "logicalId": {
+      "name": "tpch.sf30000.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~99C75CB99930403F2028D162D3D1C12F",
+    "logicalId": {
+      "name": "tpch.tiny.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~F6B44990A3E3E2BADD7555378E1652AE",
+    "logicalId": {
+      "name": "tpch.sf3000.partsupp",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "availqty",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "supplycost",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(199)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~BC5DE51BC0F1A1898276EB1D39D909DA",
+    "logicalId": {
+      "name": "tpch.tiny.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~6B8398F06999861DF89F1D62F4B4FCE0",
+    "logicalId": {
+      "name": "tpch.sf3000.region",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~677656EE9A36F7D2F1F73697E0CF2F5A",
+    "logicalId": {
+      "name": "tpch.sf1000.lineitem",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linenumber",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "quantity",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "extendedprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "discount",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "tax",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "returnflag",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "linestatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "commitdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "receiptdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipinstruct",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shipmode",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(44)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~791A4728B08FED1C77235B283F26DE16",
+    "logicalId": {
+      "name": "tpch.sf1.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~F085395AD262AAD881E9B0685B419892",
+    "logicalId": {
+      "name": "tpch.sf1.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~9CE3E5240B0398C6B193046142180894",
+    "logicalId": {
+      "name": "tpch.sf10000.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~1D820AA4A1DB6605C3F6E10F11475FBA",
+    "logicalId": {
+      "name": "tpch.sf100.orders",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "orderkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderstatus",
+          "nativeType": "varchar(1)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "totalprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderdate",
+          "nativeType": "date",
+          "nullable": false
+        },
+        {
+          "fieldPath": "orderpriority",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "clerk",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "shippriority",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(79)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~7E2AA344255F267BDE3252DE538B72A8",
+    "logicalId": {
+      "name": "tpch.sf100000.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~281DE319466200FE86B32AFB9FC24B5D",
+    "logicalId": {
+      "name": "tpch.tiny.part",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "partkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(55)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mfgr",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "brand",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "type",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "size",
+          "nativeType": "integer",
+          "nullable": false
+        },
+        {
+          "fieldPath": "container",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "retailprice",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(23)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~1C103A5BDF9ED2B6DFCD3271CACD6E0B",
+    "logicalId": {
+      "name": "tpch.sf300.nation",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "regionkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(152)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~83BFBC7F7A27101AE914E2C9D83CA788",
+    "logicalId": {
+      "name": "tpch.tiny.supplier",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "suppkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(101)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~FE30B96DAC04ACC965E296A47A01B815",
+    "logicalId": {
+      "name": "tpch.sf10000.customer",
+      "platform": "TRINO"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "custkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "address",
+          "nativeType": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "nationkey",
+          "nativeType": "bigint",
+          "nullable": false
+        },
+        {
+          "fieldPath": "phone",
+          "nativeType": "varchar(15)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "acctbal",
+          "nativeType": "double",
+          "nullable": false
+        },
+        {
+          "fieldPath": "mktsegment",
+          "nativeType": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "fieldPath": "comment",
+          "nativeType": "varchar(117)",
+          "nullable": false
+        }
+      ]
+    }
+  },
+  {
+    "logs": [
+      {
+        "duration": 0.238,
+        "queryId": "20231208_100253_00000_7xzd9",
+        "sql": "SELECT catalog_name FROM system.metadata.catalogs",
+        "sqlHash": "d23c386aa4bbe876636af83276701e37",
+        "startTime": "2023-12-08T10:02:53.982000+00:00",
+        "userId": "metaphor-dev"
+      },
+      {
+        "duration": 0.035,
+        "queryId": "20231208_100254_00003_7xzd9",
+        "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM memory.information_schema.columns",
+        "sqlHash": "ae7d12bf39b231f81f872d80fc0c8dd7",
+        "startTime": "2023-12-08T10:02:54.427000+00:00",
+        "userId": "metaphor-dev"
+      },
+      {
+        "duration": 0.032,
+        "queryId": "20231208_100254_00005_7xzd9",
+        "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM tpch.information_schema.columns",
+        "sqlHash": "554f835ce092eece32ec858a372fd615",
+        "startTime": "2023-12-08T10:02:54.976000+00:00",
+        "userId": "metaphor-dev"
+      },
+      {
+        "duration": 0.082,
+        "queryId": "20231208_100254_00001_7xzd9",
+        "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM tpcds.information_schema.columns",
+        "sqlHash": "b73fcc198246299405db1c89c4c972bf",
+        "startTime": "2023-12-08T10:02:54.251000+00:00",
+        "userId": "metaphor-dev"
+      },
+      {
+        "queryId": "20231208_100255_00007_7xzd9",
+        "sql": "SELECT query_id, user, query, started, \"end\" FROM system.runtime.queries",
+        "sqlHash": "535f03cb16cd576769393dce38b792af",
+        "startTime": "2023-12-08T10:02:55.105000+00:00",
+        "userId": "metaphor-dev"
+      },
+      {
+        "duration": 0.302,
+        "queryId": "20231208_100254_00004_7xzd9",
+        "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM jmx.information_schema.columns",
+        "sqlHash": "54e9f12c7f8b8dd9bca537526ce90047",
+        "startTime": "2023-12-08T10:02:54.487000+00:00",
+        "userId": "metaphor-dev"
+      },
+      {
+        "duration": 0.033,
+        "queryId": "20231208_100255_00006_7xzd9",
+        "sql": "SELECT catalog_name, schema_name, name, storage_catalog, storage_schema, storage_table, definition FROM system.metadata.materialized_views",
+        "sqlHash": "559bd3f28aae4390d8e1a73f4c758766",
+        "startTime": "2023-12-08T10:02:55.053000+00:00",
+        "userId": "metaphor-dev"
+      },
+      {
+        "duration": 0.033,
+        "queryId": "20231208_100254_00002_7xzd9",
+        "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM system.information_schema.columns",
+        "sqlHash": "7acb73546d2fccad16ed84b98b15a90a",
+        "startTime": "2023-12-08T10:02:54.367000+00:00",
+        "userId": "metaphor-dev"
+      }
+    ]
+  }
+]

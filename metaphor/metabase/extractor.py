@@ -19,8 +19,8 @@ from metaphor.models.metadata_change_event import (
     DashboardInfo,
     DashboardLogicalID,
     DashboardPlatform,
-    DashboardUpstream,
     DataPlatform,
+    EntityUpstream,
     SourceInfo,
 )
 
@@ -207,8 +207,8 @@ class MetabaseExtractor(BaseExtractor):
             main_url=f"{self._server_url}/dashboard/{dashboard_id}",
         )
 
-        dashboard_upstream = (
-            DashboardUpstream(source_datasets=list(upstream_datasets))
+        entity_upstream = (
+            EntityUpstream(source_entities=list(upstream_datasets))
             if upstream_datasets
             else None
         )
@@ -220,7 +220,7 @@ class MetabaseExtractor(BaseExtractor):
             structure=AssetStructure(directories=[], name=name),
             dashboard_info=dashboard_info,
             source_info=source_info,
-            upstream=dashboard_upstream,
+            entity_upstream=entity_upstream,
         )
 
         self._dashboards[dashboard_id] = dashboard

@@ -28,11 +28,17 @@ from metaphor.models.metadata_change_event import (
     DashboardInfo,
     DashboardLogicalID,
     DashboardPlatform,
-    DashboardUpstream,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
+    EntityUpstream,
     SourceInfo,
+    SystemContact,
+    SystemContacts,
+    SystemContactSource,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     TableauDatasource,
     TableauField,
     VirtualView,
@@ -85,12 +91,15 @@ class TableauExtractor(BaseExtractor):
         self._snowflake_account = config.snowflake_account
         self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
         self._disable_preview_image = config.disable_preview_image
+        self._excluded_projects = config.excluded_projects
 
         self._views: Dict[str, tableau.ViewItem] = {}
         self._projects: Dict[str, List[str]] = {}  # project id -> project hierarchy
         self._datasets: Dict[EntityId, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
+
+        self._users: Dict[str, tableau.UserItem] = {}
 
         # The base URL for dashboards, data sources, etc.
         # Use alternative_base_url if provided, otherwise, use server_url as the base
@@ -163,7 +172,9 @@ class TableauExtractor(BaseExtractor):
             server.workbooks.populate_views(workbook, usage=True)
 
             try:
-                self._parse_dashboard(workbook)
+                self._parse_dashboard(
+                    workbook, self._get_system_contacts(server, workbook.owner_id)
+                )
             except Exception as error:
                 traceback.print_exc()
                 logger.error(f"failed to parse workbook {workbook.name}, error {error}")
@@ -180,7 +191,7 @@ class TableauExtractor(BaseExtractor):
         # mapping of datasource to (query, list of upstream dataset IDs)
         datasource_upstream_datasets = {}
         for item in custom_sql_tables:
-            custom_sql_table = CustomSqlTable.parse_obj(item)
+            custom_sql_table = CustomSqlTable.model_validate(item)
             datasource_upstream_datasets.update(
                 self._parse_custom_sql_table(custom_sql_table)
             )
@@ -194,14 +205,34 @@ class TableauExtractor(BaseExtractor):
 
         for item in workbooks:
             try:
-                workbook = WorkbookQueryResponse.parse_obj(item)
+                workbook = WorkbookQueryResponse.model_validate(item)
+                if workbook.projectName in self._excluded_projects:
+                    logger.info(
+                        f"Ignoring datasources from workbook in excluded project: {workbook.projectName}"
+                    )
                 self._parse_workbook_query_response(
-                    workbook, datasource_upstream_datasets
+                    server, workbook, datasource_upstream_datasets
                 )
             except Exception as error:
                 logger.exception(
                     f"failed to parse workbook {item['vizportalUrlId']}, error {error}"
                 )
+
+    def _get_system_contacts(
+        self, server: tableau.Server, user_id: Optional[str]
+    ) -> Optional[SystemContacts]:
+        if not user_id:
+            return None
+
+        if user_id not in self._users:
+            # Cache this to avoid querying the same user
+            self._users[user_id] = server.users.get_by_id(user_id)
+
+        system_contact = SystemContact(
+            email=self._users[user_id].email,
+            system_contact_source=SystemContactSource.TABLEAU,
+        )
+        return SystemContacts(contacts=[system_contact])
 
     def _parse_project_names(self, projects: List[tableau.ProjectItem]) -> None:
         for project in projects:
@@ -244,9 +275,17 @@ class TableauExtractor(BaseExtractor):
         )
         return full_name, structure
 
-    def _parse_dashboard(self, workbook: tableau.WorkbookItem) -> None:
+    def _parse_dashboard(
+        self, workbook: tableau.WorkbookItem, system_contacts: Optional[SystemContacts]
+    ) -> None:
         if not workbook.webpage_url:
             logger.exception(f"workbook {workbook.name} missing webpage_url")
+            return
+
+        if workbook.project_name in self._excluded_projects:
+            logger.info(
+                f"Ignoring dashboard from workbook in excluded project: {workbook.project_name}"
+            )
             return
 
         workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)
@@ -277,9 +316,18 @@ class TableauExtractor(BaseExtractor):
             structure=structure,
             dashboard_info=dashboard_info,
             source_info=source_info,
+            system_contacts=system_contacts,
         )
 
         self._dashboards[workbook_id] = dashboard
+
+        if workbook.tags:
+            dashboard.system_tags = SystemTags(
+                tags=[
+                    SystemTag(value=tag, system_tag_source=SystemTagSource.TABLEAU)
+                    for tag in sorted(workbook.tags)
+                ]
+            )
 
     def _parse_custom_sql_table(
         self, custom_sql_table: CustomSqlTable
@@ -326,7 +374,7 @@ class TableauExtractor(BaseExtractor):
                 logger.warning(f"Ignore non-fully qualified source table {fullname}")
                 continue
 
-            self._init_dataset(fullname, platform, account)
+            self._init_dataset(fullname, platform, account, None)
             upstream_datasets.append(
                 str(to_dataset_entity_id(fullname, platform, account))
             )
@@ -352,12 +400,22 @@ class TableauExtractor(BaseExtractor):
 
     def _parse_workbook_query_response(
         self,
+        server: tableau.Server,
         workbook: WorkbookQueryResponse,
         datasource_upstream_datasets: Dict[str, CustomSqlSource],
     ) -> None:
         dashboard = self._dashboards[workbook.vizportalUrlId]
         source_virtual_views: List[str] = []
         published_datasources: List[str] = []
+
+        system_tags = None
+        if workbook.tags:
+            system_tags = SystemTags(
+                tags=[
+                    SystemTag(value=tag, system_tag_source=SystemTagSource.TABLEAU)
+                    for tag in sorted(tag.name for tag in workbook.tags)
+                ]
+            )
 
         for published_source in workbook.upstreamDatasources:
             virtual_view_id = str(
@@ -376,12 +434,18 @@ class TableauExtractor(BaseExtractor):
             # if source_datasets is None or empty from custom SQL, use the upstreamTables of the datasource
             source_datasets = (
                 custom_sql_source.sources if custom_sql_source else None
-            ) or self._parse_upstream_datasets(published_source.upstreamTables)
+            ) or self._parse_upstream_datasets(
+                published_source.upstreamTables, system_tags
+            )
 
             full_name, structure = self._build_asset_full_name_and_structure(
                 published_source.name,
                 workbook.projectLuid,
                 workbook.projectName,
+            )
+
+            system_contacts = self._get_system_contacts(
+                server, published_source.owner.luid
             )
 
             self._virtual_views[published_source.luid] = VirtualView(
@@ -407,6 +471,11 @@ class TableauExtractor(BaseExtractor):
                     url=f"{self._base_url}/datasources/{published_source.vizportalUrlId}",
                     source_datasets=source_datasets or None,
                 ),
+                entity_upstream=EntityUpstream(source_entities=source_datasets)
+                if source_datasets
+                else None,
+                system_tags=system_tags,
+                system_contacts=system_contacts,
             )
             source_virtual_views.append(virtual_view_id)
             published_datasources.append(published_source.name)
@@ -429,7 +498,9 @@ class TableauExtractor(BaseExtractor):
             # if source_datasets is None or empty from custom SQL, use the upstreamTables of the datasource
             source_datasets = (
                 custom_sql_source.sources if custom_sql_source else None
-            ) or self._parse_upstream_datasets(embedded_source.upstreamTables)
+            ) or self._parse_upstream_datasets(
+                embedded_source.upstreamTables, system_tags
+            )
 
             self._virtual_views[embedded_source.id] = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -455,17 +526,23 @@ class TableauExtractor(BaseExtractor):
                     else None,
                     source_datasets=source_datasets or None,
                 ),
+                entity_upstream=EntityUpstream(source_entities=source_datasets)
+                if source_datasets
+                else None,
+                system_tags=system_tags,
             )
             source_virtual_views.append(virtual_view_id)
 
-        dashboard.upstream = DashboardUpstream(
-            source_virtual_views=source_virtual_views
-        )
+        dashboard.entity_upstream = EntityUpstream(source_entities=source_virtual_views)
 
     def _parse_upstream_datasets(
-        self, upstreamTables: List[DatabaseTable]
+        self,
+        upstreamTables: List[DatabaseTable],
+        system_tags: Optional[SystemTags],
     ) -> List[str]:
-        upstream_datasets = [self._parse_dataset_id(table) for table in upstreamTables]
+        upstream_datasets = [
+            self._parse_dataset_id(table, system_tags) for table in upstreamTables
+        ]
         return list(
             set(
                 [
@@ -476,7 +553,9 @@ class TableauExtractor(BaseExtractor):
             )
         )
 
-    def _parse_dataset_id(self, table: DatabaseTable) -> Optional[EntityId]:
+    def _parse_dataset_id(
+        self, table: DatabaseTable, system_tags: Optional[SystemTags]
+    ) -> Optional[EntityId]:
         if (
             not table.name
             or not table.schema_
@@ -527,7 +606,7 @@ class TableauExtractor(BaseExtractor):
         )
 
         logger.debug(f"dataset id: {fullname} {connection_type} {account}")
-        self._init_dataset(fullname, platform, account)
+        self._init_dataset(fullname, platform, account, system_tags)
         return to_dataset_entity_id(fullname, platform, account)
 
     def _parse_chart(self, view: tableau.ViewItem) -> Chart:
@@ -555,11 +634,13 @@ class TableauExtractor(BaseExtractor):
         normalized_name: str,
         platform: DataPlatform,
         account: Optional[str],
+        system_tags: Optional[SystemTags],
     ) -> Dataset:
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID(
             name=normalized_name, account=account, platform=platform
         )
+        dataset.system_tags = system_tags
         entity_id = to_dataset_entity_id_from_logical_id(dataset.logical_id)
         return self._datasets.setdefault(entity_id, dataset)
 

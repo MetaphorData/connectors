@@ -220,3 +220,53 @@ class DatasetFilter:
             return False
 
         return True
+
+
+@dataclass
+class TopicFilter:
+    includes: Optional[TableFilter] = None
+    excludes: Optional[TableFilter] = None
+
+    def merge(self, filter: "TopicFilter") -> "TopicFilter":
+        """Merge with another filter and return a shallow copy"""
+
+        def merge_filters(f1: Optional[TableFilter], f2: Optional[TableFilter]):
+            return f1 if f2 is None else f2 if f1 is None else {*f1, *f2}
+
+        return TopicFilter(
+            includes=merge_filters(self.includes, filter.includes),
+            excludes=merge_filters(self.excludes, filter.excludes),
+        )
+
+    def normalize(self) -> "TopicFilter":
+        def normalize_table_filter(
+            table_filter: Optional[TableFilter],
+        ) -> Optional[TableFilter]:
+            if table_filter is None:
+                return None
+            else:
+                return set([v.lower() for v in table_filter])
+
+        includes = (
+            normalize_table_filter(self.includes) if self.includes is not None else None
+        )
+        excludes = (
+            normalize_table_filter(self.excludes) if self.excludes is not None else None
+        )
+
+        return TopicFilter(includes=includes, excludes=excludes)
+
+    def _accepted_by_filter(self, topic: str, table_filter: TableFilter):
+        for pattern in table_filter:
+            if fnmatch(topic, pattern):
+                return True
+        return False
+
+    def include_topic(self, topic: str) -> bool:
+        if self.includes is not None and not self._accepted_by_filter(
+            topic, self.includes
+        ):
+            return False
+        if self.excludes is not None and self._accepted_by_filter(topic, self.excludes):
+            return False
+        return True

@@ -2,7 +2,7 @@ from typing import List
 from unittest.mock import MagicMock, patch
 
 import pytest
-from tableauserverclient import ProjectItem, ViewItem, WorkbookItem
+from tableauserverclient import ProjectItem, UserItem, ViewItem, WorkbookItem
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import to_dataset_entity_id
@@ -16,6 +16,12 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DataPlatform,
     SourceInfo,
+    SystemContact,
+    SystemContacts,
+    SystemContactSource,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
 )
 from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 from metaphor.tableau.extractor import TableauExtractor
@@ -165,7 +171,8 @@ def test_parse_database_table():
                 fullName=None,
                 database=None,
                 schema=None,
-            )
+            ),
+            system_tags=None,
         )
         is None
     )
@@ -178,7 +185,8 @@ def test_parse_database_table():
                 fullName="fullname",
                 database=Database(name="db", connectionType="invalid_type"),
                 schema=None,
-            )
+            ),
+            system_tags=None,
         )
         is None
     )
@@ -191,7 +199,8 @@ def test_parse_database_table():
             fullName="db.schema.table",
             database=Database(name="db", connectionType="redshift"),
             schema="foo",
-        )
+        ),
+        system_tags=None,
     ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
 
     # Full back to two-segment "name"
@@ -202,7 +211,8 @@ def test_parse_database_table():
             fullName="random_name",
             database=Database(name="db", connectionType="redshift"),
             schema="foo",
-        )
+        ),
+        system_tags=None,
     ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
 
     # Test BigQuery project name => ID mapping
@@ -222,7 +232,8 @@ def test_parse_database_table():
             fullName="random_name",
             database=Database(name="bq_name", connectionType="bigquery"),
             schema="foo",
-        )
+        ),
+        system_tags=None,
     ) == to_dataset_entity_id("bq_id.schema.table", DataPlatform.BIGQUERY)
 
 
@@ -264,14 +275,39 @@ async def test_extractor(
         project_id="child_project_id",
         project_name="project1",
         owner_id=None,
-        tags=None,
+        tags={"tag1", "tag2"},
         views=[],
         data_acceleration_config=None,
     )
     workbook._set_views(lambda: [view])
 
+    system_contact = SystemContact(
+        email="user1@test.io",
+        system_contact_source=SystemContactSource.TABLEAU,
+    )
+
     extractor._views = {"vid": view}
-    extractor._parse_dashboard(workbook)
+    extractor._parse_dashboard(workbook, SystemContacts(contacts=[system_contact]))
+
+    ignored_workbook = WorkbookItem("Personal Space")
+    ignored_workbook._set_values(
+        id="dont_care",
+        name="wb",
+        content_url="wb",
+        webpage_url="https://hostname/#/site/dont_care/workbooks/123",
+        created_at=None,
+        description="d",
+        updated_at=None,
+        size=1,
+        show_tabs=True,
+        project_id="child_project_id",
+        project_name="Personal Space",
+        owner_id=None,
+        tags=None,
+        views=[],
+        data_acceleration_config=None,
+    )
+    extractor._parse_dashboard(ignored_workbook, None)
 
     assert len(extractor._dashboards) == 1
     assert extractor._dashboards["123"] == Dashboard(
@@ -294,6 +330,26 @@ async def test_extractor(
         source_info=SourceInfo(
             main_url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
         ),
+        system_tags=SystemTags(
+            tags=[
+                SystemTag(
+                    value="tag1",
+                    system_tag_source=SystemTagSource.TABLEAU,
+                ),
+                SystemTag(
+                    value="tag2",
+                    system_tag_source=SystemTagSource.TABLEAU,
+                ),
+            ]
+        ),
+        system_contacts=SystemContacts(
+            contacts=[
+                SystemContact(
+                    email="user1@test.io",
+                    system_contact_source=SystemContactSource.TABLEAU,
+                )
+            ]
+        ),
     )
 
     graphql_custom_sql_tables_response = [
@@ -302,7 +358,11 @@ async def test_extractor(
             "connectionType": "bigquery",
             "query": "select * from db.schema.table",
             "columnsConnection": {
-                "nodes": [{"referencedByFields": [{"datasource": {"id": "sourceId3"}}]}]
+                "nodes": [
+                    {
+                        "referencedByFields": [{"datasource": {"id": "sourceId3"}}],
+                    }
+                ]
             },
         }
     ]
@@ -333,6 +393,9 @@ async def test_extractor(
                             },
                         }
                     ],
+                    "owner": {
+                        "luid": "12345678",
+                    },
                 }
             ],
             "embeddedDatasources": [
@@ -361,10 +424,65 @@ async def test_extractor(
                     "upstreamTables": [],
                 },
             ],
-        }
+            "tags": [
+                {
+                    "name": "foo",
+                },
+                {
+                    "name": "bar",
+                },
+            ],
+        },
+        {
+            "luid": "dont_care",
+            "name": "we dont care",
+            "projectLuid": "child_project_id",
+            "projectName": "Personal Space",
+            "vizportalUrlId": "5566",
+            "upstreamDatasources": [
+                {
+                    "id": "sourceId1",
+                    "luid": "sourceId1",
+                    "name": "source1",
+                    "vizportalUrlId": "777",
+                    "fields": [],
+                    "upstreamTables": [
+                        {
+                            "luid": "4ba4462e",
+                            "name": "CYCLE",
+                            "fullName": "[LONDON].[CYCLE]",
+                            "schema": "LONDON",
+                            "database": {
+                                "name": "DEV_DB",
+                                "connectionType": "snowflake",
+                            },
+                        }
+                    ],
+                }
+            ],
+            "embeddedDatasources": [],
+            "tags": [
+                {
+                    "name": "foo",
+                }
+            ],
+        },
     ]
 
     extractor._snowflake_account = "snow"
+
+    user = UserItem("user1")
+    user._set_values(
+        id="12345678",
+        name="user1",
+        site_role="SiteSystemAdministrator",
+        last_login=None,
+        external_auth_user_id=None,
+        fullname="John Doe",
+        email="user1@test.io",
+        auth_setting=None,
+        domain_name=None,
+    )
 
     mock_auth = MagicMock()
     mock_auth.sign_in = MagicMock()
@@ -374,6 +492,8 @@ async def test_extractor(
     mock_server.projects = ProjectsWrapper([project1, project2])
     mock_server.views = ViewsWrapper([view])
     mock_server.workbooks = WorkbooksWrapper([workbook])
+    mock_server.users = MagicMock()
+    mock_server.users.get_by_id = lambda _: user
     mock_server_cls.return_value = mock_server
 
     mock_pager_cls.side_effect = MockPager

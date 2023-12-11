@@ -1,0 +1,28 @@
+{
+    "type": "record",
+    "name": "UnionRecord",
+    "fields": [
+        {
+            "name": "field",
+            "type": [
+                {
+                    "type": "record",
+                    "name": "Record",
+                    "fields": [
+                        {
+                            "type": "string",
+                            "name": "ID"
+                        },
+                        {
+                            "type": "string",
+                            "name": "name"
+                        }
+                    ]
+                },
+                "int",
+                "string",
+                "null"
+            ]
+        }
+    ]
+}

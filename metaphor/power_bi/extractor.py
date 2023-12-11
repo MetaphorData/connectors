@@ -20,7 +20,6 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardType,
-    DashboardUpstream,
     EntityType,
     EntityUpstream,
     GroupUserAccessRight,
@@ -77,7 +76,6 @@ from metaphor.power_bi.power_bi_utils import (
     transform_pages_to_charts,
     transform_tiles_to_charts,
 )
-from metaphor.power_bi.power_query_parser import PowerQueryParser
 
 logger = get_logger()
 
@@ -217,24 +215,8 @@ class PowerBIExtractor(BaseExtractor):
             )
 
             document_str: Optional[str] = None
-            if (
-                dataflow
-                and "pbi:mashup" in dataflow
-                and "document" in dataflow["pbi:mashup"]
-            ):
-                document_str = dataflow["pbi:mashup"]["document"]
-                try:
-                    sources, _ = PowerQueryParser.parse_query_expression(
-                        "",
-                        [],
-                        document_str or "",
-                        self._snowflake_account,
-                    )
-                    self._dataflow_sources[data_flow_id] = sources
-                except Exception as e:
-                    logger.error(
-                        f"Failed to parse expression for dataflow {data_flow_id}: {e}"
-                    )
+            if dataflow is not None:
+                document_str = dataflow.get("pbi:mashup", {}).get("document")
 
             transactions = self._client.get_dataflow_transactions(
                 workspace.id, data_flow_id
@@ -269,37 +251,6 @@ class PowerBIExtractor(BaseExtractor):
             )
 
             self._pipelines[data_flow_id] = pipeline
-
-    def _extract_column_level_lineage(
-        self,
-        wds: WorkspaceInfoDataset,
-        virtual_view: VirtualView,
-    ) -> None:
-        source_datasets = []
-        field_mappings = []
-
-        for datasetTable in virtual_view.power_bi_dataset.tables or []:
-            try:
-                if datasetTable.expression:
-                    sources, fields = PowerQueryParser.parse_query_expression(
-                        datasetTable.name,
-                        [c.field for c in datasetTable.columns],
-                        datasetTable.expression,
-                        self._snowflake_account,
-                    )
-                    source_datasets.extend(sources)
-                    field_mappings.extend(fields)
-            except Exception as e:
-                logger.error(f"Failed to parse expression for dataset {wds.id}: {e}")
-
-        source_entity_ids = unique_list([str(d) for d in source_datasets])
-
-        if source_entity_ids or field_mappings:
-            virtual_view.entity_upstream = EntityUpstream(
-                source_entities=source_entity_ids or None,
-                field_mappings=field_mappings or None,
-            )
-            virtual_view.power_bi_dataset.source_datasets = source_entity_ids or None
 
     def _extract_pipeline_info(
         self, wds: WorkspaceInfoDataset, virtual_view: VirtualView
@@ -407,7 +358,6 @@ class PowerBIExtractor(BaseExtractor):
                 ),
             )
 
-            self._extract_column_level_lineage(wds, virtual_view)
             self._extract_pipeline_info(wds, virtual_view)
 
             self._virtual_views[wds.id] = virtual_view
@@ -471,7 +421,7 @@ class PowerBIExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=report.webUrl,
                 ),
-                upstream=DashboardUpstream(source_virtual_views=[upstream_id]),
+                entity_upstream=EntityUpstream(source_entities=[upstream_id]),
             )
             self._dashboards[wi_report.id] = dashboard
 
@@ -532,7 +482,7 @@ class PowerBIExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=pbi_dashboard.webUrl,
                 ),
-                upstream=DashboardUpstream(source_virtual_views=unique_list(upstream)),
+                entity_upstream=EntityUpstream(source_entities=unique_list(upstream)),
             )
             self._dashboards[wi_dashboard.id] = dashboard
 

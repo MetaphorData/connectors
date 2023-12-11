@@ -72,11 +72,11 @@ async def test_jaffle_v10(test_root_dir):
 
 
 @pytest.mark.asyncio
-async def test_metaphor_subscriptions_v10(test_root_dir):
+async def test_jaffle_v11(test_root_dir):
     await _test_project(
-        test_root_dir + "/dbt/data/metaphor_subscriptions_v10",
+        test_root_dir + "/dbt/data/jaffle_v11",
         "http://localhost:8080",
-        "https://github.com/MetaphorData/dbt/tree/main/metaphor",
+        "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template",
     )
 
 
@@ -85,7 +85,7 @@ async def _test_project(
 ):
     manifest = data_dir + "/manifest.json"
     run_results = data_dir + "/run_results.json"
-    expected = data_dir + "/results.json"
+    expected = data_dir + "/expected.json"
 
     config = DbtRunConfig(
         output=OutputConfig(),
@@ -131,96 +131,6 @@ def test_sanitize_manifest_strip_null_tests_depends_on(test_root_dir):
                 "depends_on": {
                     "macros": ["macro1"],
                     "nodes": ["node1", "node2"],
-                }
-            }
-        }
-    }
-
-
-def test_sanitize_manifest_strip_semantic_models_labels(test_root_dir):
-    manifest = {
-        "semantic_models": {
-            "model1": {
-                "label": "foo",
-                "entities": [
-                    {
-                        "name": "entity1",
-                        "label": "bar",
-                    }
-                ],
-                "dimensions": [
-                    {
-                        "name": "dim1",
-                        "label": "baz",
-                    }
-                ],
-                "measures": [
-                    {
-                        "name": "measure1",
-                        "label": "qux",
-                    }
-                ],
-            }
-        }
-    }
-
-    assert ArtifactParser.sanitize_manifest(manifest, "v10") == {
-        "semantic_models": {
-            "model1": {
-                "entities": [
-                    {
-                        "name": "entity1",
-                    }
-                ],
-                "dimensions": [
-                    {
-                        "name": "dim1",
-                    }
-                ],
-                "measures": [
-                    {
-                        "name": "measure1",
-                    }
-                ],
-            }
-        }
-    }
-
-
-def test_sanitize_manifest_strip_metric_type_params_extra_fields(test_root_dir):
-    manifest = {
-        "metrics": {
-            "metric1": {
-                "type_params": {
-                    "measure": {
-                        "name": "measure1",
-                        "fill_nulls_with": "foo",
-                        "join_to_timespine": "bar",
-                    },
-                    "input_measures": [
-                        {
-                            "name": "measure2",
-                            "fill_nulls_with": "foo",
-                            "join_to_timespine": "bar",
-                        }
-                    ],
-                }
-            }
-        }
-    }
-
-    assert ArtifactParser.sanitize_manifest(manifest, "v10") == {
-        "metrics": {
-            "metric1": {
-                "type_params": {
-                    "measure": {
-                        "name": "measure1",
-                    },
-                    "input_measures": [
-                        {
-                            "name": "measure2",
-                        }
-                    ],
                 }
             }
         }

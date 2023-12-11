@@ -32,7 +32,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
-    DatasetUpstream,
     EntityType,
     EntityUpstream,
     Hierarchy,
@@ -402,6 +401,8 @@ class SnowflakeExtractor(BaseExtractor):
         # Set hierarchy key and logical_id
         path = [DataPlatform.SNOWFLAKE.value]
         if object_type == "DATABASE":
+            if not self._filter.include_database(object_name):
+                return
             path.extend(
                 [object_name.lower()]
             )  # path should be normalized, i.e. should be lowercase
@@ -409,6 +410,8 @@ class SnowflakeExtractor(BaseExtractor):
         else:
             if not database:
                 logger.error("Cannot extract schema level tag without database name")
+                return
+            if not self._filter.include_schema(database, object_name):
                 return
             path.extend(
                 [database.lower(), object_name.lower()]
@@ -570,9 +573,6 @@ class SnowflakeExtractor(BaseExtractor):
                 )
 
             source_entities = [_to_dataset_eid(source_name)]
-            dataset.upstream = DatasetUpstream(
-                source_datasets=source_entities,
-            )
             dataset.entity_upstream = EntityUpstream(
                 source_entities=source_entities,
             )
@@ -758,15 +758,19 @@ class SnowflakeExtractor(BaseExtractor):
             main_url=SnowflakeExtractor.build_table_url(self._account, normalized_name)
         )
 
+        sql_schema = SQLSchema()
+        if table_type in [item.value for item in SnowflakeTableType]:
+            sql_schema.materialization = table_type_to_materialization_type[
+                SnowflakeTableType(table_type)
+            ]
+        else:
+            logger.warning(f"Unknown table type: {table_type}")
+
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
             description=comment,
             fields=[],
-            sql_schema=SQLSchema(
-                materialization=table_type_to_materialization_type[
-                    SnowflakeTableType(table_type)
-                ],
-            ),
+            sql_schema=sql_schema,
         )
 
         dataset.statistics = to_dataset_statistics(row_count, table_bytes)
@@ -780,9 +784,29 @@ class SnowflakeExtractor(BaseExtractor):
     @staticmethod
     def build_table_url(account: str, full_name: str) -> str:
         db, schema, table = full_name.upper().split(".")
+
+        if "." in account or "-" not in account:
+            # Definitely legacy account identifier:
+            # - If identifier contains ".", it contains a region part
+            # - If it doesn't have a "-", means it's the default region
+            # Ref: https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-2-legacy-account-locator-in-a-region
+            return (
+                f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
+                f"databaseName={db}&schemaName={schema}&tableName={table}"
+            )
+
+        # New account identifier with org name and account name.
+        # org name can't have dash in it; as for account name while it
+        # is not supposed to have dash inside, Snowflake docs says
+        # they allow substituting underscores with dashes, so let's
+        # allow that here.
+        # Ref: https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-1-preferred-account-name-in-your-organization
+        org_name, account_name = account.split(
+            "-", 1
+        )  # split into org_name, account_name
         return (
-            f"https://{account}.snowflakecomputing.com/console#/data/tables/detail?"
-            f"databaseName={db}&schemaName={schema}&tableName={table}"
+            f"https://app.snowflake.com/{org_name}/{account_name}/#/data/"
+            f"databases/{db}/schemas/{schema}/table/{table}"
         )
 
     def _parse_accessed_objects(self, raw_objects: str) -> List[QueriedDataset]:

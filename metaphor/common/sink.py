@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor
 from typing import Generator, List
 
 from metaphor.models.metadata_change_event import MetadataChangeEvent
@@ -19,7 +20,12 @@ class Sink(ABC):
         records = [event_util.trim_event(e) for e in events]
 
         logger.info("validating MCE records")
-        valid_records = [r for r in records if event_util.validate_message(r)]
+        with ThreadPoolExecutor() as tpe:
+            valid_records = [
+                r
+                for r in tpe.map(event_util.validate_message, records)
+                if r is not None
+            ]
 
         if len(valid_records) == 0:
             return False

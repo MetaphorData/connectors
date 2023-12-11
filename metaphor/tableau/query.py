@@ -42,6 +42,9 @@ query($first: Int, $offset: Int) {
             connectionType
           }
         }
+        owner {
+          luid
+        }
       }
       embeddedDatasources {
         id
@@ -60,6 +63,9 @@ query($first: Int, $offset: Int) {
             connectionType
           }
         }
+      }
+      tags {
+        name
       }
     }
   }
@@ -87,6 +93,10 @@ class DatasourceField(BaseModel):
     description: Optional[str] = None
 
 
+class Owner(BaseModel):
+    luid: str
+
+
 class PublishedDatasource(BaseModel):
     id: str
     luid: str
@@ -95,6 +105,7 @@ class PublishedDatasource(BaseModel):
     description: Optional[str] = None
     fields: List[DatasourceField]
     upstreamTables: List[DatabaseTable]
+    owner: Owner
 
 
 class EmbeddedDatasource(BaseModel):
@@ -102,6 +113,10 @@ class EmbeddedDatasource(BaseModel):
     name: str
     fields: List[DatasourceField]
     upstreamTables: List[DatabaseTable]
+
+
+class Tag(BaseModel):
+    name: str
 
 
 class WorkbookQueryResponse(BaseModel):
@@ -114,6 +129,7 @@ class WorkbookQueryResponse(BaseModel):
     vizportalUrlId: str
     upstreamDatasources: List[PublishedDatasource]
     embeddedDatasources: List[EmbeddedDatasource]
+    tags: List[Tag]
 
 
 # GraphQL that lists all custom SQL queries used in datasources.

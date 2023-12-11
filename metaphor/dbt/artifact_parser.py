@@ -6,7 +6,6 @@ from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.utils import filter_empty_strings, filter_none, unique_list
 from metaphor.dbt.config import DbtRunConfig
-from metaphor.dbt.generated.dbt_run_results_v4 import DbtRunResults
 from metaphor.dbt.util import (
     add_data_quality_monitor,
     build_metric_docs_url,
@@ -14,6 +13,7 @@ from metaphor.dbt.util import (
     build_source_code_url,
     dataset_normalized_name,
     find_run_result_ouptput_by_id,
+    get_model_name_from_unique_id,
     get_ownerships_from_meta,
     get_tags_from_meta,
     get_virtual_view_id,
@@ -27,6 +27,7 @@ from metaphor.dbt.util import (
     to_dataset_entity_id,
 )
 from metaphor.models.metadata_change_event import (
+    AssetStructure,
     ColumnTagAssignment,
     DataMonitorStatus,
     DataPlatform,
@@ -38,6 +39,7 @@ from metaphor.models.metadata_change_event import (
     DbtMetric,
     DbtModel,
     DbtTest,
+    EntityUpstream,
     Metric,
     MetricFilter,
     OwnershipAssignment,
@@ -99,6 +101,15 @@ from .generated.dbt_manifest_v10 import Macro as MacroV10
 from .generated.dbt_manifest_v10 import Metric as MetricV10
 from .generated.dbt_manifest_v10 import ModelNode as ModelNodeV10
 from .generated.dbt_manifest_v10 import SourceDefinition as SourceDefinitionV10
+from .generated.dbt_manifest_v11 import DependsOn as DependsOnV11
+from .generated.dbt_manifest_v11 import GenericTestNode as GenericTestNodeV11
+from .generated.dbt_manifest_v11 import Macro as MacroV11
+from .generated.dbt_manifest_v11 import Metric as MetricV11
+from .generated.dbt_manifest_v11 import ModelNode as ModelNodeV11
+from .generated.dbt_manifest_v11 import SourceDefinition as SourceDefinitionV11
+from .generated.dbt_manifest_v11 import WritableManifest as DbtManifestV11
+from .generated.dbt_run_results_v4 import DbtRunResults as DbtRunResultsV4
+from .generated.dbt_run_results_v4 import DbtRunResults as DbtRunResultsV5
 
 logger = get_logger()
 
@@ -113,6 +124,7 @@ MODEL_NODE_TYPE = Union[
     ModelNodeV8,
     ModelNodeV9,
     ModelNodeV10,
+    ModelNodeV11,
 ]
 
 TEST_NODE_TYPE = Union[
@@ -122,6 +134,7 @@ TEST_NODE_TYPE = Union[
     GenericTestNodeV8,
     GenericTestNodeV9,
     GenericTestNodeV10,
+    GenericTestNodeV11,
     ParsedTestNodeV5,
     ParsedTestNodeV6,
     ParsedTestNodeV7,
@@ -134,6 +147,7 @@ SOURCE_DEFINITION_TYPE = Union[
     SourceDefinitionV8,
     SourceDefinitionV9,
     SourceDefinitionV10,
+    SourceDefinitionV11,
 ]
 
 SOURCE_DEFINITION_MAP = Union[
@@ -143,6 +157,7 @@ SOURCE_DEFINITION_MAP = Union[
     Dict[str, SourceDefinitionV8],
     Dict[str, SourceDefinitionV9],
     Dict[str, SourceDefinitionV10],
+    Dict[str, SourceDefinitionV11],
 ]
 
 METRIC_TYPE = Union[
@@ -152,6 +167,7 @@ METRIC_TYPE = Union[
     MetricV8,
     MetricV9,
     MetricV10,
+    MetricV11,
 ]
 
 DEPENDS_ON_TYPE = Union[
@@ -161,6 +177,7 @@ DEPENDS_ON_TYPE = Union[
     DependsOnV8,
     DependsOnV9,
     DependsOnV10,
+    DependsOnV11,
 ]
 
 MACRO_MAP = Union[
@@ -170,6 +187,7 @@ MACRO_MAP = Union[
     Dict[str, MacroV8],
     Dict[str, MacroV9],
     Dict[str, MacroV10],
+    Dict[str, MacroV11],
 ]
 
 MANIFEST_CLASS_TYPE = Union[
@@ -179,6 +197,7 @@ MANIFEST_CLASS_TYPE = Union[
     Type[DbtManifestV8],
     Type[DbtManifestV9],
     Type[DbtManifestV10],
+    Type[DbtManifestV11],
 ]
 
 # Maps dbt schema version to manifest class
@@ -190,6 +209,23 @@ dbt_version_manifest_class_map: Dict[str, MANIFEST_CLASS_TYPE] = {
     "v8": DbtManifestV8,
     "v9": DbtManifestV9,
     "v10": DbtManifestV10,
+    "v11": DbtManifestV11,
+}
+
+RUN_RESULTS_TYPE = Union[
+    DbtRunResultsV4,
+    DbtRunResultsV5,
+]
+
+RUN_RESULTS_CLASS_TYPE = Union[
+    Type[DbtRunResultsV4],
+    Type[DbtRunResultsV5],
+]
+
+# Maps dbt schema version to run_results class
+dbt_version_run_results_class_map: Dict[str, RUN_RESULTS_CLASS_TYPE] = {
+    "v4": DbtRunResultsV4,
+    "v5": DbtRunResultsV5,
 }
 
 dbt_run_result_output_data_monitor_status_map: Dict[str, DataMonitorStatus] = {
@@ -246,40 +282,51 @@ class ArtifactParser:
                 depends_on["macros"] = filter_none(depends_on.get("macros", []))
                 depends_on["nodes"] = filter_none(depends_on.get("nodes", []))
 
-        # Temporarily strip off all the extra "labels" in "semantic_models" until
-        # https://github.com/dbt-labs/dbt-core/issues/8763 is fixed
-        for _, semantic_model in manifest_json.get("semantic_models", {}).items():
-            semantic_model.pop("label", None)
-
-            for entity in semantic_model.get("entities", []):
-                entity.pop("label", None)
-
-            for dimension in semantic_model.get("dimensions", []):
-                dimension.pop("label", None)
-
-            for measure in semantic_model.get("measures", []):
-                measure.pop("label", None)
-
-        # Temporarily strip off all the extra "fill_nulls_with" &
-        # "join_to_teimspine" fields in metrics' "type_params" until
-        # https://github.com/dbt-labs/dbt-core/issues/8851 is fixed
-        for _, metric in manifest_json.get("metrics", {}).items():
-            type_params = metric.get("type_params", {})
-
-            measure = type_params.get("measure", {})
-            if measure is not None:
-                measure.pop("fill_nulls_with", None)
-                measure.pop("join_to_timespine", None)
-
-            input_measures = type_params.get("input_measures", [])
-            if input_measures is not None:
-                for input_measure in input_measures:
-                    input_measure.pop("fill_nulls_with", None)
-                    input_measure.pop("join_to_timespine", None)
-
         return manifest_json
 
+    @staticmethod
+    def sanitize_run_results(run_results: Dict, schema_version: str) -> Dict:
+        run_results = deepcopy(run_results)
+
+        # Temporarily strip off all the extra "compiled", "compiled_code",
+        # and "relation_name" fields in results until
+        # https://github.com/dbt-labs/dbt-core/issues/8851 is fixed
+        for result in run_results.get("results", []):
+            result.pop("compiled", None)
+            result.pop("compiled_code", None)
+            result.pop("relation_name", None)
+
+        return run_results
+
     def parse(self, manifest_json: Dict, run_results_json: Optional[Dict]) -> None:
+        run_results = (
+            None
+            if run_results_json is None
+            else self.parse_run_results(run_results_json)
+        )
+        self.parse_manifest(manifest_json, run_results)
+
+    def parse_run_results(self, run_results_json: Dict) -> RUN_RESULTS_TYPE:
+        metadata = run_results_json.get("metadata", {})
+
+        schema_version = (
+            metadata.get("dbt_schema_version", "").rsplit("/", 1)[-1].split(".")[0]
+        )
+        logger.info(f"parsing run_results.json {schema_version} ...")
+
+        run_results_json = ArtifactParser.sanitize_run_results(
+            run_results_json, schema_version
+        )
+
+        dbt_run_results_class = dbt_version_run_results_class_map.get(schema_version)
+        if dbt_run_results_class is None:
+            raise ValueError(f"unsupported run-results schema '{schema_version}'")
+
+        return dbt_run_results_class.model_validate(run_results_json)
+
+    def parse_manifest(
+        self, manifest_json: Dict, run_results: Optional[RUN_RESULTS_TYPE]
+    ):
         manifest_metadata = manifest_json.get("metadata", {})
 
         schema_version = (
@@ -290,11 +337,6 @@ class ArtifactParser:
         logger.info(f"parsing manifest.json {schema_version} ...")
 
         manifest_json = ArtifactParser.sanitize_manifest(manifest_json, schema_version)
-
-        if run_results_json is not None:
-            run_results = DbtRunResults.model_validate(run_results_json)
-        else:
-            run_results = None
 
         dbt_manifest_class = dbt_version_manifest_class_map.get(schema_version)
         if dbt_manifest_class is None:
@@ -326,6 +368,7 @@ class ArtifactParser:
                     ModelNodeV8,
                     ModelNodeV9,
                     ModelNodeV10,
+                    ModelNodeV11,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(MODEL_NODE_TYPE)
@@ -345,6 +388,7 @@ class ArtifactParser:
                     GenericTestNodeV8,
                     GenericTestNodeV9,
                     GenericTestNodeV10,
+                    GenericTestNodeV11,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(TEST_NODE_TYPE)
@@ -370,7 +414,7 @@ class ArtifactParser:
     def _parse_test(
         self,
         test: TEST_NODE_TYPE,
-        run_results: Optional[DbtRunResults],
+        run_results: Optional[RUN_RESULTS_TYPE],
         models: Dict[str, MODEL_NODE_TYPE],
     ) -> None:
         # check test is referring a model
@@ -412,7 +456,7 @@ class ArtifactParser:
         self,
         test: TEST_NODE_TYPE,
         model: MODEL_NODE_TYPE,
-        run_results: DbtRunResults,
+        run_results: RUN_RESULTS_TYPE,
     ) -> None:
         if model.config is None or model.database is None:
             logger.warning(
@@ -451,6 +495,15 @@ class ArtifactParser:
             return
 
         virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
+
+        # Extract project directory from the model's unique id
+        # Split by ".", and ditch the model name
+        directory = get_model_name_from_unique_id(model.unique_id).rsplit(".")[0]
+        virtual_view.structure = AssetStructure(
+            directories=[directory],
+            name=model.name,
+        )
+
         virtual_view.dbt_model = DbtModel(
             package_name=model.package_name,
             description=model.description or None,
@@ -491,6 +544,16 @@ class ArtifactParser:
             dbt_model.source_models,
             dbt_model.macros,
         ) = self._parse_depends_on(model.depends_on, source_map, macro_map)
+
+        source_entities = []
+        if dbt_model.source_datasets is not None:
+            source_entities.extend(dbt_model.source_datasets)
+        if dbt_model.source_models is not None:
+            source_entities.extend(dbt_model.source_models)
+        if len(source_entities) > 0:
+            virtual_view.entity_upstream = EntityUpstream(
+                source_entities=source_entities,
+            )
 
     def _parse_macros(self, macros: MACRO_MAP) -> Dict[str, DbtMacro]:
         macro_map: Dict[str, DbtMacro] = {}
@@ -719,12 +782,12 @@ class ArtifactParser:
         source_map: Dict[str, EntityId],
         macro_map: Dict[str, DbtMacro],
     ) -> None:
-        # TODO: Add support for v10 Metric
-        if isinstance(metric, MetricV10):
+        # TODO: Add support for v10+ Metric
+        if isinstance(metric, (MetricV10, MetricV11)):
             return
 
         metric_entity = init_metric(self._metrics, metric.unique_id)
-        metric_entity.dbt_metric = DbtMetric(
+        dbt_metric = DbtMetric(
             package_name=metric.package_name,
             description=metric.description or None,
             label=metric.label,
@@ -738,6 +801,7 @@ class ArtifactParser:
             ],
             url=build_metric_docs_url(self._docs_base_url, metric.unique_id),
         )
+        metric_entity.dbt_metric = dbt_metric
 
         # V7 renamed sql & type to expression & calculation_method
         if hasattr(metric, "sql"):
@@ -752,9 +816,12 @@ class ArtifactParser:
         if hasattr(metric, "calculation_method"):
             metric_entity.dbt_metric.type = getattr(metric, "calculation_method")
 
-        dbt_metric = metric_entity.dbt_metric
         (
             dbt_metric.source_datasets,
             dbt_metric.source_models,
             _,
         ) = self._parse_depends_on(metric.depends_on, source_map, macro_map)
+
+        metric_entity.entity_upstream = EntityUpstream(
+            source_entities=dbt_metric.source_models,
+        )

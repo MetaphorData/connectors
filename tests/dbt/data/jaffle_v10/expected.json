@@ -1,5 +1,281 @@
 [
   {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~3D44F77933D66A9899B09FD9F69288C7"
+            }
+          ],
+          "title": "not_null_stg_customers_customer_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~3D44F77933D66A9899B09FD9F69288C7"
+            }
+          ],
+          "title": "unique_stg_customers_customer_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "location_id",
+              "dataset": "DATASET~0C87812C070E8F24832122F91B33973A"
+            }
+          ],
+          "title": "not_null_stg_locations_location_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "location_id",
+              "dataset": "DATASET~0C87812C070E8F24832122F91B33973A"
+            }
+          ],
+          "title": "unique_stg_locations_location_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_locations",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_item_id",
+              "dataset": "DATASET~4078A2BB213110BA4676D3DDD0570785"
+            }
+          ],
+          "title": "not_null_stg_order_items_order_item_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_item_id",
+              "dataset": "DATASET~4078A2BB213110BA4676D3DDD0570785"
+            }
+          ],
+          "title": "unique_stg_order_items_order_item_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_order_items",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~F920F1D5CD99C02F5736012A6525C1C7"
+            }
+          ],
+          "title": "not_null_stg_orders_order_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~F920F1D5CD99C02F5736012A6525C1C7"
+            }
+          ],
+          "title": "unique_stg_orders_order_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_orders",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "product_id",
+              "dataset": "DATASET~4859DF95A843307D9024D6BD1FC7A6C2"
+            }
+          ],
+          "title": "not_null_stg_products_product_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "product_id",
+              "dataset": "DATASET~4859DF95A843307D9024D6BD1FC7A6C2"
+            }
+          ],
+          "title": "unique_stg_products_product_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_products",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "supply_uuid",
+              "dataset": "DATASET~D9A64FC8FAAF471F555387204C357B71"
+            }
+          ],
+          "title": "not_null_stg_supplies_supply_uuid"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "supply_uuid",
+              "dataset": "DATASET~D9A64FC8FAAF471F555387204C357B71"
+            }
+          ],
+          "title": "unique_stg_supplies_supply_uuid"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_supplies",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~38A45C65369F8DD4B9BFC79001060257"
+            }
+          ],
+          "title": "not_null_customers_customer_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~38A45C65369F8DD4B9BFC79001060257"
+            }
+          ],
+          "title": "unique_customers_customer_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_type",
+              "dataset": "DATASET~38A45C65369F8DD4B9BFC79001060257"
+            }
+          ],
+          "title": "accepted_values_customers_customer_type__new__returning"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~3BDE29A8EF7A35DF649798D1C09EF61B"
+            }
+          ],
+          "title": "not_null_orders_order_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~3BDE29A8EF7A35DF649798D1C09EF61B"
+            }
+          ],
+          "title": "unique_orders_order_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~3BDE29A8EF7A35DF649798D1C09EF61B"
+            }
+          ],
+          "title": "relationships_orders_customer_id__customer_id__ref_stg_customers_"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.orders",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
     "dbtModel": {
       "compiledSql": "with\n\nsource as (\n\n    select * from raw_products\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- properties\n        name as product_name,\n        type as product_type,\n        description as product_description,\n        (price / 100.0) as product_price,\n\n\n        ---------- derived\n        case\n            when type = 'jaffle' then 1\n            else 0\n        end as is_food_item,\n\n        case\n            when type = 'beverage' then 1\n            else 0\n        end as is_drink_item\n\n    from source\n\n)\n\nselect * from renamed",
       "description": "Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product.",
@@ -51,6 +327,12 @@
     "logicalId": {
       "name": "jaffle_shop.stg_products",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_products"
     }
   },
   {
@@ -105,6 +387,12 @@
     "logicalId": {
       "name": "jaffle_shop.stg_customers",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_customers"
     }
   },
   {
@@ -172,6 +460,12 @@
     "logicalId": {
       "name": "jaffle_shop.stg_supplies",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_supplies"
     }
   },
   {
@@ -239,6 +533,12 @@
     "logicalId": {
       "name": "jaffle_shop.stg_orders",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_orders"
     }
   },
   {
@@ -293,6 +593,12 @@
     "logicalId": {
       "name": "jaffle_shop.stg_order_items",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_order_items"
     }
   },
   {
@@ -360,6 +666,12 @@
     "logicalId": {
       "name": "jaffle_shop.stg_locations",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_locations"
     }
   },
   {
@@ -478,9 +790,22 @@
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/customers.sql"
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~F3CAA2D12722D7A5CB634D3277D91846",
+        "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
+        "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3"
+      ]
+    },
     "logicalId": {
       "name": "jaffle_shop.customers",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "customers"
     }
   },
   {
@@ -656,9 +981,23 @@
       ],
       "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/orders.sql"
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
+        "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
+      ]
+    },
     "logicalId": {
       "name": "jaffle_shop.orders",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "orders"
     }
   },
   {
@@ -691,6 +1030,12 @@
     "logicalId": {
       "name": "jaffle_shop.metricflow_time_spine",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "metricflow_time_spine"
     }
   },
   {
@@ -713,9 +1058,22 @@
       "tags": [],
       "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/order_items.sql"
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
+      ]
+    },
     "logicalId": {
       "name": "jaffle_shop.order_items",
       "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "order_items"
     }
   }
 ]

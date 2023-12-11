@@ -24,7 +24,7 @@ DEFAULT_SLEEP_TIME = 0.1  # 0.1 s
 
 class SnowflakeTableType(Enum):
     """
-    All except for `STREAM` are table types returned by the information schema.
+    All except for `STREAM` are table types returned by the information schema. See `Columns` section in https://docs.snowflake.com/en/sql-reference/info-schema/tables for all possible table types in infomation schema.
 
     `STREAM` is there because information schema doesn't know about this type.
     """
@@ -34,7 +34,7 @@ class SnowflakeTableType(Enum):
     TEMPORARY_TABLE = "TEMPORARY TABLE"
     EXTERNAL_TABLE = "EXTERNAL TABLE"
     EVENT_TABLE = "EVENT TABLE"
-    MATERIALIZED_VIEW = "MATERIALIZED_VIEW"
+    MATERIALIZED_VIEW = "MATERIALIZED VIEW"
     STREAM = "STREAM"
 
 
@@ -51,6 +51,8 @@ table_type_to_materialization_type: Dict[SnowflakeTableType, MaterializationType
 str_to_source_type: Dict[str, SnowflakeStreamSourceType] = {
     "TABLE": SnowflakeStreamSourceType.TABLE,
     "VIEW": SnowflakeStreamSourceType.VIEW,
+    "EXTERNAL_TABLE": SnowflakeStreamSourceType.TABLE,
+    "DIRECTORY_TABLE": SnowflakeStreamSourceType.TABLE,
 }
 
 str_to_stream_type: Dict[str, SnowflakeStreamType] = {
