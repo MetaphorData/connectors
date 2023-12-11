@@ -2,38 +2,39 @@ import re
 from typing import Collection
 
 from llama_index import Document, ServiceContext
-from llama_index.embeddings import OpenAIEmbedding
+from llama_index.embeddings import AzureOpenAIEmbedding
 from llama_index.indices.vector_store.base import VectorStoreIndex
 from llama_index.node_parser import SimpleNodeParser
 from llama_index.storage.storage_context import StorageContext
 from llama_index.vector_stores import SimpleVectorStore
 
 
-def clean_documents_text(docs: Collection[Document]) -> Collection[Document]:
+def clean_text(input_string: str) -> str:
     """
-    Takes a list of Documents, processes their text attribute and
-    returns the Documents. The following changes are made:
+    Takes an input string and applies the following manipulations:
     * leading / trailing whitespace removed
     * newline characters replaced with a single space
     * tab characters replaced with a single space
     * multiple spaces replaced with a single space
 
-    Returns a list of docs
+    Returns a string.
     """
 
-    for d in docs:
-        d.text = d.text.strip()
-        d.text = d.text.replace("\n", " ")
-        d.text = d.text.replace("\t", " ")
-        d.text = re.sub("[ ]+", " ", d.text)
+    input_string = input_string.strip()
+    input_string = input_string.replace("\n", " ")
+    input_string = input_string.replace("\t", " ")
+    input_string = re.sub("[ ]+", " ", input_string)
 
-    return docs
+    return input_string
 
 
 def embed_documents(
     docs: Collection[Document],
-    openAI_tok: str,
-    logger,
+    azure_openAI_key: str,
+    azure_openAI_ver: str,
+    azure_openAI_endpoint: str,
+    azure_openAI_model: str,
+    azure_openAI_model_name: str,
     chunk_size: int = 512,
     chunk_overlap: int = 50,
 ) -> VectorStoreIndex:
@@ -44,9 +45,14 @@ def embed_documents(
 
     Returns a VectorStoreIndex (in-memory VectorStore)
     """
-    logger.info("Initializing embedding contexts")
 
-    embed_model = OpenAIEmbedding(api_key=openAI_tok)
+    embed_model = AzureOpenAIEmbedding(
+        model=azure_openAI_model,
+        deployment_name=azure_openAI_model_name,
+        api_key=azure_openAI_key,
+        azure_endpoint=azure_openAI_endpoint,
+        api_version=azure_openAI_ver,
+    )
 
     node_parser = SimpleNodeParser.from_defaults(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
@@ -66,8 +72,6 @@ def embed_documents(
         storage_context=storage_context,
         show_progress=True,
     )
-
-    logger.info(f"Successfully embedded {len(docs)} documents")
 
     return VSI
 
@@ -92,8 +96,8 @@ def map_metadata(
             embedding_dict[nodeid] = {
                 "nodeId": nodeid,
                 "embedding": embedding_dict[nodeid],
-                # add the embedded text here
-                "embeddingString": doc_store[nodeid]["__data__"]["text"],
+                "pageId": metadata_dict[nodeid]["pageId"],
+                "embeddingString": clean_text(doc_store[nodeid]["__data__"]["text"]),
                 "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
                 "metadata": metadata_dict[nodeid],
             }
@@ -105,6 +109,7 @@ def map_metadata(
             embedding_dict[nodeid] = {
                 "nodeId": nodeid,
                 "embedding": embedding_dict[nodeid],
+                "pageId": metadata_dict[nodeid]["pageId"],
                 "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
                 "metadata": metadata_dict[nodeid],
             }

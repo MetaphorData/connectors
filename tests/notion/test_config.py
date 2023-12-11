@@ -7,6 +7,10 @@ def test_config(test_root_dir):
 
     assert config == NotionRunConfig(
         notion_api_tok="notion_api_tok",
-        openai_api_tok="openai_api_tok",
+        azure_openAI_key="azure_openAI_key",
+        azure_openAI_ver="azure_openAI_ver",
+        azure_openAI_endpoint="azure_openAI_endpoint",
+        azure_openAI_model="text-embedding-ada-002",
+        azure_openAI_model_name="EmbeddingModel",
         output=OutputConfig(),
     )

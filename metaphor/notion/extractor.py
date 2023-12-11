@@ -28,11 +28,14 @@ class NotionExtractor(BaseExtractor):
     def __init__(self, config: NotionRunConfig):
         super().__init__(config, "Notion document crawler", Platform.NOTION)
 
-        # set up various configurations
         self.notion_api_tok = config.notion_api_tok
-        self.openai_api_tok = config.openai_api_tok
-
         self.notion_api_version = config.notion_api_version
+
+        self.azure_openAI_key = config.azure_openAI_key
+        self.azure_openAI_ver = config.azure_openAI_ver
+        self.azure_openAI_endpoint = config.azure_openAI_endpoint
+        self.azure_openAI_model = config.azure_openAI_model
+        self.azure_openAI_model_name = config.azure_openAI_model_name
 
         self.include_text = config.include_text
         self.embedding_chunk_size = 512
@@ -53,14 +56,17 @@ class NotionExtractor(BaseExtractor):
         logger.info("Starting embedding process")
         VSI = embed_documents(
             docs,
-            self.openai_api_tok,
-            logger,
+            self.azure_openAI_key,
+            self.azure_openAI_ver,
+            self.azure_openAI_endpoint,
+            self.azure_openAI_model,
+            self.azure_openAI_model_name,
             self.embedding_chunk_size,
             self.embedding_overlap_size,
         )
 
         # get vector_store from VectorStoreIndex
-        vector_store = VSI.storage_context.to_dict()["vector_store"]
+        vector_store = VSI.storage_context.to_dict()["vector_store"]["default"]
         doc_store = VSI.storage_context.to_dict()["doc_store"]
 
         # map metadata back to each node
@@ -121,6 +127,7 @@ class NotionExtractor(BaseExtractor):
         """
 
         self.docs = list()
+
         # forcing lastRefreshed to be constant for all documents in this crawler run
         current_time = str(datetime.datetime.utcnow())
 
@@ -145,7 +152,7 @@ class NotionExtractor(BaseExtractor):
                 q.metadata["platform"] = "notion"
 
                 # reset page-id, remove hyphens
-                q["pageId"] = q.metadata.pop("page_id").replace("-", "")
+                q.metadata["pageId"] = q.metadata.pop("page_id").replace("-", "")
 
                 # construct link
                 link = f'https://notion.so/{q.metadata["pageId"]}'

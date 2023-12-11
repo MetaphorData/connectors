@@ -1,22 +1,19 @@
-import json
-from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from metaphor.common.base_config import OutputConfig
-from metaphor.common.embeddings import embed_documents
 from metaphor.notion.config import NotionRunConfig
-from metaphor.notion.extractor import NotionExtractor
-
-# what things should be tested here?
 
 
 def dummy_config():
     return NotionRunConfig(
-        notion_api_tok="notion_tok",
-        openai_api_tok="openai_tok",
-        notion_api_version="2022-06-08",
+        notion_api_tok="notion_api_tok",
+        azure_openAI_key="azure_openAI_key",
+        azure_openAI_ver="azure_openAI_ver",
+        azure_openAI_endpoint="azure_openAI_endpoint",
+        azure_openAI_model="text-embedding-ada-002",
+        azure_openAI_model_name="EmbeddingModel",
         output=OutputConfig(),
     )
 
