@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import Literal, Optional
+from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -16,7 +16,7 @@ class TrinoRunConfig(BaseConfig):
     password: Optional[str] = None
     token: Optional[str] = None
 
-    http_scheme: Optional[Literal["https"]] = None
+    enable_tls: bool = False
 
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())

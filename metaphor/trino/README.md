@@ -11,6 +11,12 @@ docker run --name trino -d -p 8080:8080 trinodb/trino
 
 It comes with pre-populated data by default. To populate it with your own data, see [this guide](https://trino.io/docs/current/installation/containers.html#configuring-trino).
 
+You must run the connector using a user with `SELECT` privilege to the catalogs:
+
+```sql
+GRANT SELECT ON [catalogs] TO [User]
+```
+
 ## Config File
 
 Create a YAML config file based on the following template.
@@ -58,13 +64,7 @@ See [Trino doc](https://trino.io/docs/current/security/tls.html) for more inform
 
 #### Filtering
 
-You can filter the topics you want to include in the ingested result:
-
-```yaml
-filter:
-  includes: <set of patterns to include>
-  excludes: <set of patterns to exclude>
-```
+See [Filter Config](../common/docs/filter.md) for more information on the optional `filter` config.
 
 By default the following are excluded:
 

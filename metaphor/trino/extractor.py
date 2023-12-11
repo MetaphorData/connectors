@@ -73,7 +73,7 @@ class TrinoExtractor(BaseExtractor):
             port=config.port,
             user=config.username,
             auth=auth,
-            http_scheme=config.http_scheme,
+            http_scheme="https" if config.enable_tls else "http",
         )
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
