@@ -55,12 +55,17 @@ class _Table:
 
 
 class TrinoExtractor(BaseExtractor):
+    """Trino metadata crawler"""
+
+    _description = "Trino metadata crawler"
+    _platform = Platform.TRINO
+
     @staticmethod
     def from_config_file(config_file: str) -> "TrinoExtractor":
         return TrinoExtractor(TrinoRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: TrinoRunConfig) -> None:
-        super().__init__(config, "Trino metadata crawler", Platform.TRINO)
+        super().__init__(config)
         self._config = config
         if config.password:
             auth = BasicAuthentication(config.username, config.password)
