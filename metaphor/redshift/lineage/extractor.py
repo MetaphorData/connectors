@@ -14,7 +14,6 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DatasetUpstream,
     EntityUpstream,
 )
 from metaphor.postgresql.extractor import PostgreSQLExtractor
@@ -192,9 +191,7 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
         ]
 
         self._init_dataset_with_entity_upstream(
-            target,
-            EntityUpstream(source_entities=source_ids, transformation=query),
-            DatasetUpstream(source_datasets=source_ids, transformation=query),
+            target, EntityUpstream(source_entities=source_ids, transformation=query)
         )
 
     async def _fetch_lineage(self, sql, conn, db) -> None:
@@ -231,17 +228,12 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                     source_entities=unique_sources,
                     transformation=query,
                 ),
-                DatasetUpstream(
-                    source_datasets=unique_sources,
-                    transformation=query,
-                ),
             )
 
     def _init_dataset_with_entity_upstream(
         self,
         table_name: str,
         entity_upstream: EntityUpstream,
-        upstream: DatasetUpstream,
     ) -> Dataset:
         if table_name not in self._datasets:
             self._datasets[table_name] = Dataset(
@@ -249,6 +241,5 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
                     name=table_name, platform=DataPlatform.REDSHIFT
                 ),
                 entity_upstream=entity_upstream,
-                upstream=upstream,
             )
         return self._datasets[table_name]

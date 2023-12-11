@@ -25,6 +25,9 @@ class UnityCatalogRunConfig(BaseConfig):
     host: str
     token: str
 
+    # Override the URL for each dataset
+    source_url: Optional[str] = None
+
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
 

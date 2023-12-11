@@ -20,7 +20,6 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DashboardType,
-    DashboardUpstream,
     EntityType,
     EntityUpstream,
     GroupUserAccessRight,
@@ -422,7 +421,6 @@ class PowerBIExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=report.webUrl,
                 ),
-                upstream=DashboardUpstream(source_virtual_views=[upstream_id]),
                 entity_upstream=EntityUpstream(source_entities=[upstream_id]),
             )
             self._dashboards[wi_report.id] = dashboard
@@ -484,7 +482,6 @@ class PowerBIExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=pbi_dashboard.webUrl,
                 ),
-                upstream=DashboardUpstream(source_virtual_views=unique_list(upstream)),
                 entity_upstream=EntityUpstream(source_entities=unique_list(upstream)),
             )
             self._dashboards[wi_dashboard.id] = dashboard

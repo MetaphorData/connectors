@@ -9,10 +9,6 @@
       "fieldMappings": [],
       "sourceEntities": []
     },
-    "upstream": {
-      "fieldMappings": [],
-      "sourceDatasets": []
-    },
     "pipelineInfo": {
       "pipelineMapping": [
         {
@@ -63,41 +59,6 @@
         "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
       ]
     },
-    "upstream": {
-      "fieldMappings": [
-        {
-          "destination": "col1",
-          "sources": [
-            {
-              "dataset": {
-                "account": "source_account",
-                "name": "source_db.schema.table",
-                "platform": "SNOWFLAKE"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
-            }
-          ]
-        },
-        {
-          "destination": "col2",
-          "sources": [
-            {
-              "dataset": {
-                "account": "source_account",
-                "name": "source_db.schema.table",
-                "platform": "SNOWFLAKE"
-              },
-              "field": "col2",
-              "sourceEntityId": "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
-            }
-          ]
-        }
-      ],
-      "sourceDatasets": [
-        "DATASET~E71466A1A1CE8D63F92424B3CF3F3F4E"
-      ]
-    },
     "pipelineInfo": {
       "pipelineMapping": [
         {
@@ -132,27 +93,6 @@
         }
       ],
       "sourceEntities": [
-        "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
-      ]
-    },
-    "upstream": {
-      "fieldMappings": [
-        {
-          "destination": "col1",
-          "sources": [
-            {
-              "dataset": {
-                "account": "source_account",
-                "name": "source_db.schema.table2",
-                "platform": "SNOWFLAKE"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
-            }
-          ]
-        }
-      ],
-      "sourceDatasets": [
         "DATASET~F31B21D3EDB9FF855528E9D6679840C7"
       ]
     },
@@ -207,41 +147,6 @@
         "DATASET~CA36B7F1E380295A5286B5E231A6A088"
       ]
     },
-    "upstream": {
-      "fieldMappings": [
-        {
-          "destination": "col1",
-          "sources": [
-            {
-              "dataset": {
-                "account": "sql-server.foo.bar",
-                "name": "source_db.schema.table",
-                "platform": "MSSQL"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~CA36B7F1E380295A5286B5E231A6A088"
-            }
-          ]
-        },
-        {
-          "destination": "col2",
-          "sources": [
-            {
-              "dataset": {
-                "account": "sql-server.foo.bar",
-                "name": "source_db.schema.table",
-                "platform": "MSSQL"
-              },
-              "field": "col2",
-              "sourceEntityId": "DATASET~CA36B7F1E380295A5286B5E231A6A088"
-            }
-          ]
-        }
-      ],
-      "sourceDatasets": [
-        "DATASET~CA36B7F1E380295A5286B5E231A6A088"
-      ]
-    },
     "pipelineInfo": {
       "pipelineMapping": [
         {
@@ -286,27 +191,6 @@
           "pipelineEntityId": "PIPELINE~A49A21FB45EC17B27B135D4905DFB0AA",
           "sourceEntityId": "DATASET~640B6534F4B207F3A50447769DB47B38"
         }
-      ]
-    },
-    "upstream": {
-      "fieldMappings": [
-        {
-          "destination": "col1",
-          "sources": [
-            {
-              "dataset": {
-                "account": "sql-server.foo.bar",
-                "name": "source_db.schema.table2",
-                "platform": "MSSQL"
-              },
-              "field": "col1",
-              "sourceEntityId": "DATASET~640B6534F4B207F3A50447769DB47B38"
-            }
-          ]
-        }
-      ],
-      "sourceDatasets": [
-        "DATASET~640B6534F4B207F3A50447769DB47B38"
       ]
     }
   },

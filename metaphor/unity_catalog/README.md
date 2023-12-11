@@ -28,9 +28,20 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
+#### Filtering
+
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
-### Query Logs
+#### Source URL
+
+By default, each table is associated with a Unity Catalog URL derived from the `host` config.
+You can override this by specifying your own URL built from the catalog, schema, and table names:
+
+```yaml
+source_url: https://example.com/view/{catalog}/{schema}/{table}
+```
+
+#### Query Logs
 
 By default, the Unity Catalog connector will fetch a full day's query logs from yesterday, to be analyzed for additional metadata, such as dataset usage and lineage information. To backfill log data, one can set `lookback_days` to the desired value. To turn off query log fetching, set `lookback_days` to 0.  
 
