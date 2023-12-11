@@ -7,7 +7,7 @@ This connector extracts technical metadata from a MySQL database using [PyMySQL]
 You must run the connector using a user with `SELECT` privilege to the databases
 
 ```sql
-GRANT SELECT ON [databases] TO [User]
+GRANT SELECT ON <databases> TO <user>
 ```
 
 ## Config File
