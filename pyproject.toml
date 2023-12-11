@@ -74,7 +74,7 @@ all = [
   "looker-sdk",
   "msal",
   "msgraph-beta-sdk",
-  "notion",
+  "llama-index",
   "pycarlo",
   "pymssql",
   "pymysql",

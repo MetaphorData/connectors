@@ -20,12 +20,11 @@ def clean_text(input_string: str) -> str:
     Returns a string.
     """
 
-    input_string = input_string.strip()
-    input_string = input_string.replace("\n", " ")
-    input_string = input_string.replace("\t", " ")
-    input_string = re.sub("[ ]+", " ", input_string)
+    input_string = input_string.strip().replace("\n", " ").replace("\t", " ")
 
-    return input_string
+    output = re.sub("[ ]+", " ", input_string)
+
+    return output
 
 
 def embed_documents(
