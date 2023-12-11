@@ -33,13 +33,15 @@ DEFAULT_FILTER: TopicFilter = TopicFilter(
 class KafkaExtractor(BaseExtractor):
     """Kafka metadata extractor"""
 
+    _description = "Kafka metadata crawler"
+    _platform = Platform.KAFKA
+
     @staticmethod
     def from_config_file(config_file: str) -> "KafkaExtractor":
         return KafkaExtractor(KafkaConfig.from_yaml_file(config_file))
 
     def __init__(self, config: KafkaConfig) -> None:
-        super().__init__(config, "Kafka metadata crawler", Platform.KAFKA)
-
+        super().__init__(config)
         self._config = config
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._admin_client = KafkaExtractor.init_admin_client(self._config)

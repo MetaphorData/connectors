@@ -74,12 +74,15 @@ class ColumnReference:
 class ThoughtSpotExtractor(BaseExtractor):
     """ThoughtSpot metadata extractor"""
 
+    _description = "ThoughtSpot metadata crawler"
+    _platform = Platform.THOUGHT_SPOT
+
     @staticmethod
     def from_config_file(config_file: str) -> "ThoughtSpotExtractor":
         return ThoughtSpotExtractor(ThoughtSpotRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: ThoughtSpotRunConfig):
-        super().__init__(config, "ThoughtSpot metadata crawler", Platform.THOUGHT_SPOT)
+        super().__init__(config)
         self._base_url = config.base_url
         self._config = config
 

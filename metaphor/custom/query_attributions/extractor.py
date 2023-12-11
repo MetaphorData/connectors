@@ -9,6 +9,9 @@ logger = get_logger()
 
 
 class CustomQueryAttributionsExtractor(BaseExtractor):
+    _description = "Custom query attribution connector"
+    _platform = None
+
     @staticmethod
     def from_config_file(config_file: str) -> "CustomQueryAttributionsExtractor":
         return CustomQueryAttributionsExtractor(
@@ -16,7 +19,7 @@ class CustomQueryAttributionsExtractor(BaseExtractor):
         )
 
     def __init__(self, config: CustomQueryAttributionsConfig) -> None:
-        super().__init__(config, "Custom query attribution connector", None)
+        super().__init__(config)
         self._config = config
 
     async def extract(self) -> List[MetadataChangeEvent]:

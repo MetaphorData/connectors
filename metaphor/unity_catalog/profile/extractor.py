@@ -54,6 +54,9 @@ NUMERIC_TYPES = {
 class UnityCatalogProfileExtractor(BaseExtractor):
     """Unity Catalog data profile extractor"""
 
+    _description = "Unity Catalog data profile crawler"
+    _platform = Platform.UNITY_CATALOG
+
     @staticmethod
     def from_config_file(config_file: str) -> "UnityCatalogProfileExtractor":
         return UnityCatalogProfileExtractor(
@@ -61,9 +64,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         )
 
     def __init__(self, config: UnityCatalogProfileRunConfig):
-        super().__init__(
-            config, "Unity Catalog data profile crawler", Platform.UNITY_CATALOG
-        )
+        super().__init__(config)
         self._token = config.token
         self._host = config.host
         self._api = UnityCatalogExtractor.create_api(config.host, config.token)

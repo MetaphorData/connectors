@@ -29,23 +29,19 @@ logger = get_logger()
 class MssqlExtractor(BaseExtractor):
     """Mssql metadata extractor"""
 
+    _description = "Mssql metadata crawler"
+    _platform = Platform.MSSQL
+    _dataset_platform = DataPlatform.MSSQL
+
     @staticmethod
     def from_config_file(config_file: str) -> "MssqlExtractor":
         return MssqlExtractor(MssqlConfig.from_yaml_file(config_file))
 
-    def __init__(
-        self,
-        config: MssqlConfig,
-        description="Mssql metadata crawler",
-        platform=Platform.MSSQL,
-        dataset_platform=DataPlatform.MSSQL,
-    ):
-        super().__init__(config, description, platform)
+    def __init__(self, config: MssqlConfig):
+        super().__init__(config)
         self._config = config
         self._config.server_name = self._config.server_name or self._config.endpoint
         self._filter = config.filter.normalize()
-        self._platform = platform
-        self._dataset_platform = dataset_platform
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Mssql server: {self._config.server_name}")

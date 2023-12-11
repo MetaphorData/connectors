@@ -17,12 +17,15 @@ logger = get_logger()
 class CustomMetadataExtractor(BaseExtractor):
     """Custom metadata extractor"""
 
+    _description = "Custom metadata connector"
+    _platform = None
+
     @staticmethod
     def from_config_file(config_file: str) -> "CustomMetadataExtractor":
         return CustomMetadataExtractor(CustomMetadataConfig.from_yaml_file(config_file))
 
     def __init__(self, config: CustomMetadataConfig) -> None:
-        super().__init__(config, "Custom metadata connector", None)
+        super().__init__(config)
         self._datasets = config.datasets
 
     async def extract(self) -> List[MetadataChangeEvent]:

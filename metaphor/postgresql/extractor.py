@@ -40,25 +40,22 @@ _ignored_schemas = [
 class PostgreSQLExtractor(BaseExtractor):
     """PostgreSQL metadata extractor"""
 
+    _description = "PostgreSQL metadata crawler"
+    _platform = Platform.POSTGRESQL
+    _dataset_platform = DataPlatform.POSTGRESQL
+
     @staticmethod
     def from_config_file(config_file: str) -> "PostgreSQLExtractor":
         return PostgreSQLExtractor(PostgreSQLRunConfig.from_yaml_file(config_file))
 
-    def __init__(
-        self,
-        config: PostgreSQLRunConfig,
-        description="PostgreSQL metadata crawler",
-        platform=Platform.POSTGRESQL,
-        dataset_platform=DataPlatform.POSTGRESQL,
-    ):
-        super().__init__(config, description, platform)
+    def __init__(self, config: PostgreSQLRunConfig):
+        super().__init__(config)
         self._host = config.host
         self._database = config.database
         self._user = config.user
         self._password = config.password
         self._filter = config.filter.normalize()
         self._port = config.port
-        self._dataset_platform = dataset_platform
 
         self._datasets: Dict[str, Dataset] = {}
 

@@ -36,6 +36,9 @@ logger = get_logger()
 class LookerExtractor(BaseExtractor):
     """Looker metadata extractor"""
 
+    _description = "Looker metadata crawler"
+    _platform = Platform.LOOKER
+
     vis_type_map = {
         "looker_area": ChartType.AREA,
         "looker_bar": ChartType.BAR,
@@ -60,7 +63,7 @@ class LookerExtractor(BaseExtractor):
         return LookerExtractor(LookerRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: LookerRunConfig) -> None:
-        super().__init__(config, "Looker metadata crawler", Platform.LOOKER)
+        super().__init__(config)
         self._base_url = config.base_url
         self._connections = config.connections
         self._lookml_dir = config.lookml_dir

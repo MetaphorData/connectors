@@ -29,12 +29,15 @@ logger = get_logger()
 class MySQLExtractor(BaseExtractor):
     """MySQL metadata extractor"""
 
+    _description = "MySQL metadata crawler"
+    _platform = Platform.MYSQL
+
     @staticmethod
     def from_config_file(config_file: str) -> "MySQLExtractor":
         return MySQLExtractor(MySQLRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: MySQLRunConfig):
-        super().__init__(config, "MySQL metadata crawler", Platform.MYSQL)
+        super().__init__(config)
         self._config = config
         self._filter = DatasetFilter.from_two_level_dataset_filter(
             config.filter

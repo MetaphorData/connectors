@@ -74,6 +74,9 @@ class CustomSqlSource:
 class TableauExtractor(BaseExtractor):
     """Tableau metadata extractor"""
 
+    _description = "Tableau metadata crawler"
+    _platform = Platform.TABLEAU
+
     @staticmethod
     def from_config_file(config_file: str) -> "TableauExtractor":
         return TableauExtractor(TableauRunConfig.from_yaml_file(config_file))
@@ -83,7 +86,7 @@ class TableauExtractor(BaseExtractor):
         return f"{server_url}/#/site/{site_name}" if site_name else f"{server_url}/#"
 
     def __init__(self, config: TableauRunConfig):
-        super().__init__(config, "Tableau metadata crawler", Platform.TABLEAU)
+        super().__init__(config)
         self._server_url = config.server_url
         self._site_name = config.site_name
         self._access_token = config.access_token

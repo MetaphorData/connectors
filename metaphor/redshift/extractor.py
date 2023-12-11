@@ -21,17 +21,16 @@ logger = get_logger()
 class RedshiftExtractor(PostgreSQLExtractor):
     """Redshift metadata extractor"""
 
+    _description = "Redshift metadata crawler"
+    _platform = Platform.REDSHIFT
+    _data_platform = DataPlatform.REDSHIFT
+
     @staticmethod
     def from_config_file(config_file: str) -> "RedshiftExtractor":
         return RedshiftExtractor(RedshiftRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: RedshiftRunConfig):
-        super().__init__(
-            config,
-            "Redshift metadata crawler",
-            Platform.REDSHIFT,
-            DataPlatform.REDSHIFT,
-        )
+        super().__init__(config)
         self._tag_matchers = config.tag_matchers
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_excluded_usernames = config.query_log.excluded_usernames

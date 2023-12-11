@@ -14,8 +14,8 @@ logger = get_logger()
 def run_connector(
     connector_func: Callable[[], Collection[ENTITY_TYPES]],
     name: str,
-    platform: Platform,
     description: str,
+    platform: Optional[Platform] = None,
     file_sink_config: Optional[FileSinkConfig] = None,
 ) -> List[MetadataChangeEvent]:
     """Run a connector and write the resulting events to files and/or API.
@@ -26,10 +26,10 @@ def run_connector(
         The connector function to run
     name : str
         Name of the connector
-    platform : Platform
-        Platform of the connector
     description : str
         Textual description of the connector
+    platform : Optional[Platform]
+        Platform of the connector
     file_sink_config : Optional[FileSinkConfig]
         Optional configuration for outputting events to files or cloud storage
 

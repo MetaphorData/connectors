@@ -57,17 +57,17 @@ class Factory:
 class AzureDataFactoryExtractor(BaseExtractor):
     """Azure Data Factory metadata extractor"""
 
+    _description = "Azure Data Factory metadata crawler"
+    _platform = Platform.GLUE
+
     @staticmethod
     def from_config_file(config_file: str) -> "AzureDataFactoryExtractor":
         return AzureDataFactoryExtractor(
             AzureDataFactoryRunConfig.from_yaml_file(config_file)
         )
 
-    def __init__(
-        self,
-        config: AzureDataFactoryRunConfig,
-    ):
-        super().__init__(config, "Azure Data Factory metadata crawler", Platform.GLUE)
+    def __init__(self, config: AzureDataFactoryRunConfig):
+        super().__init__(config)
         self._config = config
 
         self._datasets: Dict[str, Dataset] = {}
