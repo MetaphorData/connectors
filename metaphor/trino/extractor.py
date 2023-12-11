@@ -11,6 +11,7 @@ from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
+from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.utils import md5_digest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -22,7 +23,6 @@ from metaphor.models.metadata_change_event import (
     EntityUpstream,
     MaterializationType,
     QueryLog,
-    QueryLogs,
     SchemaField,
     SchemaType,
     SQLSchema,
@@ -83,9 +83,7 @@ class TrinoExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._extract_datasets())
         entities.extend(self._extract_materialized_views())
-        logs = self._extract_query_logs()
-        if logs:
-            entities.append(QueryLogs(logs=logs))
+        entities.extend(chunk_query_logs(self._extract_query_logs()))
         return entities
 
     def _extract_query_logs(self) -> List[QueryLog]:
