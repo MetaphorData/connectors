@@ -14,7 +14,7 @@ It comes with pre-populated data by default. To populate it with your own data, 
 You must run the connector using a user with `SELECT` privilege to the catalogs:
 
 ```sql
-GRANT SELECT ON [catalogs] TO [User]
+GRANT SELECT ON <catalogs> TO <user>
 ```
 
 ## Config File
