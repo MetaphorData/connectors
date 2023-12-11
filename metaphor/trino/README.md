@@ -50,15 +50,15 @@ token: <token> # For JWT token
 
 See [Trino doc](https://trino.io/docs/current/security/authentication-types.html) for more information on authentication methods.
 
-#### HTTP scheme
+#### Enable TLS
 
-If your Trino instance has TLS enabled, set `http_scheme` in the configuration file:
+If your Trino instance has TLS enabled, set `enable_tls` in the configuration file:
 
 ```yaml
-http_scheme: <http_scheme>
+enable_tls: <enable_tls>
 ```
 
-Either leave as blank for HTTP, or specify `https`. Other values are not permitted.
+By default this value is set to `False`.
 
 See [Trino doc](https://trino.io/docs/current/security/tls.html) for more information.
 
