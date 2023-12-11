@@ -1,5 +1,6 @@
 from typing import Collection
 
+import pytest
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig, OutputConfig
@@ -45,3 +46,17 @@ def test_dummy_extractor():
         MetadataChangeEvent(dataset=Dataset()),
         MetadataChangeEvent(virtual_view=VirtualView()),
     ]
+
+
+class InvalidExtractor(BaseExtractor):
+    @staticmethod
+    def from_config_file(config_file: str) -> "InvalidExtractor":
+        return InvalidExtractor(BaseConfig(output=OutputConfig()))
+
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        return []
+
+
+def test_invalid_extractor():
+    with pytest.raises(AttributeError):
+        InvalidExtractor(BaseConfig(output=OutputConfig())).run()
