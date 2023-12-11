@@ -41,9 +41,9 @@ class NotionExtractor(BaseExtractor):
         self.embedding_chunk_size = 512
         self.embedding_overlap_size = 50
 
-        # Set up LlamaIndex Notion integration
+        # Set up LlamaIndex Notion integration, ignore error
         npr = download_loader("NotionPageReader")
-        self.NotionReader = npr(self.notion_api_tok)
+        self.NotionReader = npr(self.notion_api_tok)  # type: ignore[call-arg]
 
     async def extract(self) -> Collection[dict]:
         logger.info("Fetching documents from Notion")
