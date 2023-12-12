@@ -33,10 +33,11 @@ class BaseExtractor(ABC):
     def run(self) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
 
-        return run_connector(
+        (events, _) = run_connector(
             connector_func=self.run_async,
             name=EventUtil.class_fqcn(self.__class__),
             platform=self._platform,
             description=self._description,
             file_sink_config=self._output.file,
         )
+        return events
