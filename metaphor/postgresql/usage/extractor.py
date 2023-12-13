@@ -19,14 +19,13 @@ SELECT schemaname, relname, seq_scan FROM pg_stat_user_tables
 class PostgreSQLUsageExtractor(PostgreSQLExtractor):
     """PostgreSQL usage metadata extractor"""
 
+    _description = "PostgreSQL usage statistics crawler"
+
     @staticmethod
     def from_config_file(config_file: str) -> "PostgreSQLUsageExtractor":
         return PostgreSQLUsageExtractor(
             PostgreSQLUsageRunConfig.from_yaml_file(config_file)
         )
-
-    def __init__(self, config: PostgreSQLUsageRunConfig):
-        super().__init__(config, "PostgreSQL usage statistics crawler")
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching usage metadata from PostgreSQL host {self._host}")

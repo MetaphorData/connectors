@@ -23,12 +23,15 @@ class DbtExtractor(BaseExtractor):
     Using manifest v3 and catalog v1 schema, but backward-compatible with older schema versions
     """
 
+    _description = "dbt metadata crawler"
+    _platform = Platform.DBT_MODEL
+
     @staticmethod
     def from_config_file(config_file: str) -> "DbtExtractor":
         return DbtExtractor(DbtRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: DbtRunConfig):
-        super().__init__(config, "dbt metadata crawler", Platform.DBT_MODEL)
+        super().__init__(config)
         self._manifest = config.manifest
         self._run_results = config.run_results
         self._config = config

@@ -21,6 +21,9 @@ logger = get_logger()
 class CustomDataQualityExtractor(BaseExtractor):
     """Custom data quality extractor"""
 
+    _description = "Custom data quality connector"
+    _platform = None
+
     @staticmethod
     def from_config_file(config_file: str) -> "CustomDataQualityExtractor":
         return CustomDataQualityExtractor(
@@ -28,7 +31,7 @@ class CustomDataQualityExtractor(BaseExtractor):
         )
 
     def __init__(self, config: CustomDataQualityConfig) -> None:
-        super().__init__(config, "Custom data quality connector", None)
+        super().__init__(config)
         self._datasets = config.datasets
 
     async def extract(self) -> List[MetadataChangeEvent]:

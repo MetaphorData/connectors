@@ -75,14 +75,15 @@ URL_TABLE_RE = re.compile(r"{table}")
 class UnityCatalogExtractor(BaseExtractor):
     """Unity Catalog metadata extractor"""
 
+    _description = "Unity Catalog metadata crawler"
+    _platform = Platform.UNITY_CATALOG
+
     @staticmethod
     def from_config_file(config_file: str) -> "UnityCatalogExtractor":
         return UnityCatalogExtractor(UnityCatalogRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: UnityCatalogRunConfig):
-        super().__init__(
-            config, "Unity Catalog metadata crawler", Platform.UNITY_CATALOG
-        )
+        super().__init__(config)
         self._host = config.host
         self._token = config.token
         self._source_url = config.source_url

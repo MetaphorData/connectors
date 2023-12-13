@@ -83,12 +83,15 @@ logger = get_logger()
 class PowerBIExtractor(BaseExtractor):
     """Power BI metadata extractor"""
 
+    _description = "Power BI metadata crawler"
+    _platform = Platform.POWER_BI
+
     @staticmethod
     def from_config_file(config_file: str) -> "PowerBIExtractor":
         return PowerBIExtractor(PowerBIRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: PowerBIRunConfig):
-        super().__init__(config, "Power BI metadata crawler", Platform.POWER_BI)
+        super().__init__(config)
         self._config = config
         self._tenant_id = config.tenant_id
         self._workspaces = config.workspaces

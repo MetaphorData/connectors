@@ -11,6 +11,9 @@ logger = get_logger()
 class CustomGovernanceExtractor(BaseExtractor):
     """Custom governance extractor"""
 
+    _description = "Custom governance connector"
+    _platform = None
+
     @staticmethod
     def from_config_file(config_file: str) -> "CustomGovernanceExtractor":
         return CustomGovernanceExtractor(
@@ -18,7 +21,7 @@ class CustomGovernanceExtractor(BaseExtractor):
         )
 
     def __init__(self, config: CustomGovernanceConfig) -> None:
-        super().__init__(config, "Custom governance connector", None)
+        super().__init__(config)
         self._datasets = config.datasets
 
     async def extract(self) -> List[MetadataChangeEvent]:

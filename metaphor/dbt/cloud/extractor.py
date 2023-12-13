@@ -17,12 +17,15 @@ class DbtCloudExtractor(BaseExtractor):
     dbt cloud metadata extractor
     """
 
+    _description = "dbt cloud metadata crawler"
+    _platform = Platform.DBT_MODEL
+
     @staticmethod
     def from_config_file(config_file: str) -> "DbtCloudExtractor":
         return DbtCloudExtractor(DbtCloudConfig.from_yaml_file(config_file))
 
     def __init__(self, config: DbtCloudConfig):
-        super().__init__(config, "dbt cloud metadata crawler", Platform.DBT_MODEL)
+        super().__init__(config)
         self._account_id = config.account_id
         self._job_ids = config.job_ids
         self._service_token = config.service_token

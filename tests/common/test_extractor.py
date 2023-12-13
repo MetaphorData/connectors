@@ -1,12 +1,12 @@
-from typing import Collection, Optional
+from typing import Collection
 
+import pytest
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig, OutputConfig
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
@@ -21,18 +21,15 @@ class DummyRunConfig(BaseConfig):
 
 
 class DummyExtractor(BaseExtractor):
-    def platform(self) -> Optional[Platform]:
-        return None
-
-    def description(self) -> str:
-        return "dummy crawler"
+    _platform = None
+    _description = "dummy crawler"
 
     @staticmethod
     def from_config_file(config_file: str) -> "DummyExtractor":
         return DummyExtractor(DummyRunConfig(dummy_attr=1, output=OutputConfig()), [])
 
     def __init__(self, config: DummyRunConfig, dummy_entities):
-        super().__init__(config, "description", None)
+        super().__init__(config)
         self._dummy_entities = dummy_entities
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -49,3 +46,17 @@ def test_dummy_extractor():
         MetadataChangeEvent(dataset=Dataset()),
         MetadataChangeEvent(virtual_view=VirtualView()),
     ]
+
+
+class InvalidExtractor(BaseExtractor):
+    @staticmethod
+    def from_config_file(config_file: str) -> "InvalidExtractor":
+        return InvalidExtractor(BaseConfig(output=OutputConfig()))
+
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        return []
+
+
+def test_invalid_extractor():
+    with pytest.raises(AttributeError):
+        InvalidExtractor(BaseConfig(output=OutputConfig())).run()

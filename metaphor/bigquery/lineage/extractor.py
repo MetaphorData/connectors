@@ -37,6 +37,9 @@ logger = get_logger()
 class BigQueryLineageExtractor(BaseExtractor):
     """BigQuery lineage metadata extractor"""
 
+    _description = "BigQuery data lineage crawler"
+    _platform = Platform.BIGQUERY
+
     @staticmethod
     def from_config_file(config_file: str) -> "BigQueryLineageExtractor":
         return BigQueryLineageExtractor(
@@ -44,7 +47,7 @@ class BigQueryLineageExtractor(BaseExtractor):
         )
 
     def __init__(self, config: BigQueryLineageRunConfig):
-        super().__init__(config, "BigQuery data lineage crawler", Platform.BIGQUERY)
+        super().__init__(config)
         self._config = config
         self._credentials = get_credentials(config)
         self._project_ids = config.project_ids

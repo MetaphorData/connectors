@@ -44,6 +44,9 @@ class DatabaseInfo:
 class MetabaseExtractor(BaseExtractor):
     """Tableau metadata extractor"""
 
+    _description = "Metabase metadata crawler"
+    _platform = Platform.METABASE
+
     _chart_type_mapping = dict(
         table=ChartType.TABLE,
         bar=ChartType.BAR,
@@ -75,7 +78,7 @@ class MetabaseExtractor(BaseExtractor):
         return MetabaseExtractor(MetabaseRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: MetabaseRunConfig):
-        super().__init__(config, "Metabase metadata crawler", Platform.METABASE)
+        super().__init__(config)
         self._server_url = config.server_url.rstrip("/")
         self._username = config.username
         self._password = config.password

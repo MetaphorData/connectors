@@ -60,12 +60,15 @@ logger = get_logger()
 class BigQueryExtractor(BaseExtractor):
     """BigQuery metadata extractor"""
 
+    _description = "BigQuery metadata crawler"
+    _platform = Platform.BIGQUERY
+
     @staticmethod
     def from_config_file(config_file: str) -> "BigQueryExtractor":
         return BigQueryExtractor(BigQueryRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: BigQueryRunConfig) -> None:
-        super().__init__(config, "BigQuery metadata crawler", Platform.BIGQUERY)
+        super().__init__(config)
         self._config = config
         self._credentials = get_credentials(config)
         self._project_ids = config.project_ids
@@ -92,7 +95,7 @@ class BigQueryExtractor(BaseExtractor):
 
         return [*self._datasets, *self._query_logs]
 
-    def _extract_project(self, project_id):
+    def _extract_project(self, project_id) -> None:
         logger.info(f"Fetching metadata from BigQuery project {project_id}")
 
         client = build_client(project_id, self._credentials)
