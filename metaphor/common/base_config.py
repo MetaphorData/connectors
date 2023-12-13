@@ -20,7 +20,7 @@ class OutputConfig:
     file: Optional[FileSinkConfig] = None
 
 
-@dataclass(config=ConnectorConfig)
+@dataclass()
 class BaseConfig:
     """Base class for runtime parameters
 

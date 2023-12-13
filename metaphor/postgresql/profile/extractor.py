@@ -13,9 +13,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
 from metaphor.common.utils import safe_float
-from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
-    DataPlatform,
     Dataset,
     DatasetFieldStatistics,
     FieldStatistics,
@@ -30,25 +28,16 @@ logger = get_logger()
 class PostgreSQLProfileExtractor(PostgreSQLExtractor):
     """PostgreSQL data profile extractor"""
 
+    _description = "PostgreSQL data profile crawler"
+
     @staticmethod
     def from_config_file(config_file: str) -> "PostgreSQLProfileExtractor":
         return PostgreSQLProfileExtractor(
             PostgreSQLProfileRunConfig.from_yaml_file(config_file)
         )
 
-    def __init__(
-        self,
-        config: PostgreSQLProfileRunConfig,
-        description="PostgreSQL data profile crawler",
-        platform=Platform.POSTGRESQL,
-        dataset_platform=DataPlatform.POSTGRESQL,
-    ):
-        super().__init__(
-            config,
-            description,
-            platform,
-            dataset_platform,
-        )
+    def __init__(self, config: PostgreSQLProfileRunConfig):
+        super().__init__(config)
         self._max_concurrency = config.max_concurrency
         self._include_views = config.include_views
         self._sampling = config.sampling

@@ -57,12 +57,15 @@ connection_type_platform_map = {
 class MonteCarloExtractor(BaseExtractor):
     """MonteCarlo metadata extractor"""
 
+    _description = "Monte Carlo metadata crawler"
+    _platform = Platform.MONTE_CARLO
+
     @staticmethod
     def from_config_file(config_file: str) -> "MonteCarloExtractor":
         return MonteCarloExtractor(MonteCarloRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: MonteCarloRunConfig):
-        super().__init__(config, "Monte Carlo metadata crawler", Platform.TABLEAU)
+        super().__init__(config)
         self._account = (
             normalize_snowflake_account(config.snowflake_account)
             if config.snowflake_account

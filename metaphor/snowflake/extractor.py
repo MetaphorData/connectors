@@ -81,12 +81,15 @@ TABLE_INFO_FETCH_SIZE = 100
 class SnowflakeExtractor(BaseExtractor):
     """Snowflake metadata extractor"""
 
+    _description = "Snowflake metadata crawler"
+    _platform = Platform.REDSHIFT
+
     @staticmethod
     def from_config_file(config_file: str) -> "SnowflakeExtractor":
         return SnowflakeExtractor(SnowflakeConfig.from_yaml_file(config_file))
 
     def __init__(self, config: SnowflakeConfig):
-        super().__init__(config, "Snowflake metadata crawler", Platform.SNOWFLAKE)
+        super().__init__(config)
         self._account = normalize_snowflake_account(config.account)
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._tag_matchers = config.tag_matchers

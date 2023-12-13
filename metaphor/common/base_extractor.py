@@ -12,6 +12,9 @@ from metaphor.models.metadata_change_event import MetadataChangeEvent
 class BaseExtractor(ABC):
     """Base class for metadata extractors"""
 
+    _platform: Optional[Platform]
+    _description: str
+
     @staticmethod
     @abstractmethod
     def from_config_file(config_file: str) -> "BaseExtractor":
@@ -21,12 +24,8 @@ class BaseExtractor(ABC):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         """Extract metadata and build messages, should be overridden"""
 
-    def __init__(
-        self, config: BaseConfig, description: str, platform: Optional[Platform]
-    ) -> None:
+    def __init__(self, config: BaseConfig) -> None:
         self._output = config.output
-        self._description = description
-        self._platform = platform
 
     def run_async(self) -> Collection[ENTITY_TYPES]:
         return asyncio.run(self.extract())
@@ -34,10 +33,11 @@ class BaseExtractor(ABC):
     def run(self) -> List[MetadataChangeEvent]:
         """Callable function to extract metadata and send/post messages"""
 
-        return run_connector(
+        (events, _) = run_connector(
             connector_func=self.run_async,
             name=EventUtil.class_fqcn(self.__class__),
             platform=self._platform,
             description=self._description,
             file_sink_config=self._output.file,
         )
+        return events

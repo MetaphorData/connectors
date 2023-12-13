@@ -46,13 +46,15 @@ class GlueExtractor(BaseExtractor):
     """Glue metadata extractor"""
 
     BYTES_PER_MEGABYTES = 1024 * 1024
+    _description = "Glue metadata crawler"
+    _platform = Platform.GLUE
 
     @staticmethod
     def from_config_file(config_file: str) -> "GlueExtractor":
         return GlueExtractor(GlueRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: GlueRunConfig) -> None:
-        super().__init__(config, "Glue metadata crawler", Platform.GLUE)
+        super().__init__(config)
         self._datasets: Dict[str, Dataset] = {}
         self._aws_config = config.aws
 

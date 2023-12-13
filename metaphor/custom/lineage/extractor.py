@@ -18,12 +18,15 @@ logger = get_logger()
 class CustomLineageExtractor(BaseExtractor):
     """Custom lineage extractor"""
 
+    _description = "Custom data lineage connector"
+    _platform = None
+
     @staticmethod
     def from_config_file(config_file: str) -> "CustomLineageExtractor":
         return CustomLineageExtractor(CustomLineageConfig.from_yaml_file(config_file))
 
     def __init__(self, config: CustomLineageConfig) -> None:
-        super().__init__(config, "Custom data lineage connector", None)
+        super().__init__(config)
         self._lineages = config.lineages
 
     async def extract(self) -> List[MetadataChangeEvent]:

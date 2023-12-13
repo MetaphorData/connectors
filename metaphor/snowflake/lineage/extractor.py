@@ -43,6 +43,9 @@ SUPPORTED_OBJECT_DOMAIN_TYPES = (
 class SnowflakeLineageExtractor(BaseExtractor):
     """Snowflake lineage extractor"""
 
+    _description = "Snowflake data lineage crawler"
+    _platform = Platform.SNOWFLAKE
+
     @staticmethod
     def from_config_file(config_file: str) -> "SnowflakeLineageExtractor":
         return SnowflakeLineageExtractor(
@@ -50,7 +53,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
         )
 
     def __init__(self, config: SnowflakeLineageRunConfig):
-        super().__init__(config, "Snowflake data lineage crawler", Platform.SNOWFLAKE)
+        super().__init__(config)
         self._account = normalize_snowflake_account(config.account)
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency

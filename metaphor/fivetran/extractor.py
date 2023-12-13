@@ -118,13 +118,15 @@ class SchemaMetadata:
 class FivetranExtractor(BaseExtractor):
     """Fivetran metadata extractor"""
 
+    _description = "Fivetran metadata crawler"
+    _platform = Platform.FIVETRAN
+
     @staticmethod
     def from_config_file(config_file: str) -> "FivetranExtractor":
         return FivetranExtractor(FivetranRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: FivetranRunConfig) -> None:
-        super().__init__(config, "Fivetran metadata crawler", Platform.GLUE)
-
+        super().__init__(config)
         self._auth = HTTPBasicAuth(username=config.api_key, password=config.api_secret)
         self._datasets: Dict[str, Dataset] = {}
         self._source_datasets: Dict[str, Dataset] = {}
@@ -536,6 +538,8 @@ class FivetranExtractor(BaseExtractor):
                     params=query,
                 )
             except ApiError as error:
+                if error.status_code == 401:
+                    raise error
                 logger.error(error)
                 return result
 

@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, patch
+
 from google.cloud.bigquery import DatasetReference, TableReference
 
 from metaphor.bigquery.profile.extractor import BigQueryProfileExtractor
@@ -226,3 +228,15 @@ def test_parse_profiling_result_default():
         ),
         logical_id=DatasetLogicalID(name="foo", platform=DataPlatform.BIGQUERY),
     )
+
+
+@patch("metaphor.bigquery.profile.extractor.get_credentials")
+def test_extractor_class(mock_get_credentials: MagicMock, test_root_dir):
+    fake_credential = MagicMock()
+    fake_credential.project_id = "fake_project_id"
+    mock_get_credentials.return_value = fake_credential
+
+    extractor = BigQueryProfileExtractor.from_config_file(
+        f"{test_root_dir}/bigquery/profile/config.yml"
+    )
+    assert extractor is not None

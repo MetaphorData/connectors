@@ -44,6 +44,9 @@ logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 class SnowflakeProfileExtractor(BaseExtractor):
     """Snowflake data profile extractor"""
 
+    _description = "Snowflake data profile crawler"
+    _platform = Platform.SNOWFLAKE
+
     @staticmethod
     def from_config_file(config_file: str) -> "SnowflakeProfileExtractor":
         return SnowflakeProfileExtractor(
@@ -51,7 +54,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
         )
 
     def __init__(self, config: SnowflakeProfileRunConfig):
-        super().__init__(config, "Snowflake data profile crawler", Platform.SNOWFLAKE)
+        super().__init__(config)
         self._account = normalize_snowflake_account(config.account)
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._max_concurrency = config.max_concurrency

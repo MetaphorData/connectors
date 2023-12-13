@@ -23,14 +23,16 @@ logger = get_logger()
 class SynapseExtractor(MssqlExtractor):
     """Synapse metadata extractor"""
 
+    _description = "Synapse metadata crawler"
+    _platform = Platform.SYNAPSE
+    _dataset_platform = DataPlatform.SYNAPSE
+
     @staticmethod
     def from_config_file(config_file: str) -> "SynapseExtractor":
         return SynapseExtractor(SynapseConfig.from_yaml_file(config_file))
 
     def __init__(self, config: SynapseConfig):
-        super().__init__(
-            config, "Synapse metadata crawler", Platform.SYNAPSE, DataPlatform.SYNAPSE
-        )
+        super().__init__(config)
         self._config = config
         self._filter = config.filter.normalize()
         self._lookback_days = config.query_log.lookback_days if config.query_log else 0

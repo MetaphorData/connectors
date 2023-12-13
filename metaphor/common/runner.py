@@ -1,6 +1,6 @@
 import traceback
 from datetime import datetime
-from typing import Callable, Collection, List, Optional
+from typing import Callable, Collection, List, Optional, Tuple
 
 from metaphor.common.event_util import ENTITY_TYPES, EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig, S3StorageConfig
@@ -14,10 +14,10 @@ logger = get_logger()
 def run_connector(
     connector_func: Callable[[], Collection[ENTITY_TYPES]],
     name: str,
-    platform: Platform,
     description: str,
+    platform: Optional[Platform] = None,
     file_sink_config: Optional[FileSinkConfig] = None,
-) -> List[MetadataChangeEvent]:
+) -> Tuple[List[MetadataChangeEvent], CrawlerRunMetadata]:
     """Run a connector and write the resulting events to files and/or API.
 
     Parameters
@@ -26,10 +26,10 @@ def run_connector(
         The connector function to run
     name : str
         Name of the connector
-    platform : Platform
-        Platform of the connector
     description : str
         Textual description of the connector
+    platform : Optional[Platform]
+        Platform of the connector
     file_sink_config : Optional[FileSinkConfig]
         Optional configuration for outputting events to files or cloud storage
 
@@ -80,7 +80,7 @@ def run_connector(
         file_sink.sink_metadata(run_metadata)
         file_sink.sink_logs()
 
-    return events
+    return events, run_metadata
 
 
 def metaphor_file_sink_config(
