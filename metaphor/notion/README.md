@@ -16,10 +16,12 @@ Create a YAML config file based on the following template.
 
 ```yaml
 notion_api_tok: <notion_api_tok>
-openai_api_tok: <openai_api_tok>
-mongo_uri: <mongo_uri>
-mongo_db_name: <mongo_db_name>
-mongo_collection_name: <mongo_collection_name>
+azure_openAI_key: <azure_openAI_key>
+azure_openAI_ver: <azure_openAI_ver>
+azure_openAI_endpoint: <azure_openAI_endpoint>
+azure_openAI_model: <azure_openAI_model>
+azure_openAI_model_name: <azure_openAI_model_name>
+include_text: <include_text> # True or False; if you want to include the original document text in the vector database or not
 output:
   file:
     directory: <output_directory> 
@@ -30,7 +32,5 @@ output:
 These defaults are provided; you don't have to manually configure them.
 
 ```yaml
-api_key_version: <api_key_version> # "2022-06-08" by default
-embedding_chunk_size: <embedding_chunk_size> # 512 by default
-embedding_overlap_size: <embedding_overlap_size> # 50 by default
+notion_api_version: <api_key_version> # "2022-06-08" by default
 ```

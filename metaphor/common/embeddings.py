@@ -86,7 +86,7 @@ def map_metadata(
     a VectorStoreIndex's to_dict() method. Outputs a list of
     externalSearchDocuments that matches the document ingestion schema.
 
-    Returns a list of nodes.
+    Returns a list of nodes, represented as dictionaries.
     """
     out = []
 
