@@ -1,3 +1,4 @@
+import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -31,6 +32,32 @@ class MockResponse:
 
     def raise_for_status(self):
         return
+
+
+@patch("requests.post")
+@pytest.mark.asyncio
+async def test_get_databases(
+    mock_post: MagicMock,
+    test_root_dir: str,
+) -> None:
+    mock_post_val = MagicMock()
+
+    mock_post_val.content = json.dumps(
+        {
+            "results": [
+                {"id": 12345},
+                {"id": 56789},
+            ]
+        }
+    )
+
+    mock_post.return_value = mock_post_val
+
+    extractor = NotionExtractor(config=dummy_config)
+
+    dbs = extractor._get_databases()
+
+    assert dbs == [12345, 56789]
 
 
 @patch("metaphor.notion.extractor.embed_documents")
