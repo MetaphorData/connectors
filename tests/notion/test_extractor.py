@@ -24,7 +24,7 @@ dummy_config = NotionRunConfig(
 
 @pytest.fixture
 def notion_extractor():
-    extractor = NotionExtractor(dummy_config)
+    extractor = NotionExtractor(config=dummy_config)
     return extractor
 
 
