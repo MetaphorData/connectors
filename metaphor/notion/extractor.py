@@ -26,7 +26,7 @@ class NotionExtractor(BaseExtractor):
         return NotionExtractor(NotionRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: NotionRunConfig):
-        super().__init__(config, "Notion document crawler", Platform.UNKNOWN)
+        super().__init__(config, "Notion document crawler", Platform.UNKNOWN)  # type: ignore[call-arg]
 
         self.notion_api_tok = config.notion_api_tok
         self.notion_api_version = config.notion_api_version
@@ -41,7 +41,7 @@ class NotionExtractor(BaseExtractor):
         self.embedding_chunk_size = 512
         self.embedding_overlap_size = 50
 
-        # Set up LlamaIndex Notion integration, ignore error
+        # Set up LlamaIndex Notion integration
         npr = download_loader("NotionPageReader")
         self.NotionReader = npr(self.notion_api_tok)  # type: ignore[call-arg]
 
