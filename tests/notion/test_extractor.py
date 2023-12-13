@@ -111,7 +111,7 @@ async def test_get_databases(
 
     mock_post.return_value = mock_post_val
 
-    extractor = NotionExtractor(config=dummy_config)
+    extractor = notion_extractor()
 
     dbs = extractor._get_databases()
 

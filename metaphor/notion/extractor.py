@@ -10,7 +10,6 @@ from requests.exceptions import HTTPError
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata
 from metaphor.common.logger import get_logger
-from metaphor.models.crawler_run_metadata import Platform
 from metaphor.notion.config import NotionRunConfig
 
 logger = get_logger()
@@ -26,7 +25,7 @@ class NotionExtractor(BaseExtractor):
         return NotionExtractor(NotionRunConfig.from_yaml_file(config_file))
 
     def __init__(self, config: NotionRunConfig):
-        super().__init__(config, "Notion document crawler", Platform.UNKNOWN)  # type: ignore[call-arg]
+        super().__init__(config=config)  # type: ignore[call-arg]
 
         self.notion_api_tok = config.notion_api_tok
         self.notion_api_version = config.notion_api_version
