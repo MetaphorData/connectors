@@ -92,7 +92,7 @@ def test_map_metadata_no_string(test_root_dir: str) -> None:
     }
 
     results_without_string = map_metadata(
-        embedding_dict_example, metadata_dict_example, True, doc_store_example
+        embedding_dict_example, metadata_dict_example, False, doc_store_example
     )
 
     # Check type
