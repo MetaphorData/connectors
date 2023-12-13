@@ -17,6 +17,7 @@ from metaphor.common.entity_id import (
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.snowflake import normalize_snowflake_account
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataMonitor,
     DataMonitorSeverity,
@@ -57,7 +58,7 @@ class MonteCarloExtractor(BaseExtractor):
     """MonteCarlo metadata extractor"""
 
     _description = "Monte Carlo metadata crawler"
-    _platform = None
+    _platform = Platform.MONTE_CARLO
 
     @staticmethod
     def from_config_file(config_file: str) -> "MonteCarloExtractor":

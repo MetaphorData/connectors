@@ -119,7 +119,7 @@ class FivetranExtractor(BaseExtractor):
     """Fivetran metadata extractor"""
 
     _description = "Fivetran metadata crawler"
-    _platform = Platform.UNKNOWN
+    _platform = Platform.FIVETRAN
 
     @staticmethod
     def from_config_file(config_file: str) -> "FivetranExtractor":
