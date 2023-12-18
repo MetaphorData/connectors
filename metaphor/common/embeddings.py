@@ -105,6 +105,7 @@ def map_metadata(
 
             embedding_dict[nodeid] = {
                 "entityId": nodeid_format,
+                "documentId": nodeid_format,
                 "embedding_1": embedding_dict[nodeid],
                 "pageId": metadata_dict[nodeid]["pageId"],
                 "embeddedString_1": clean_text(doc_store[nodeid]["__data__"]["text"]),
@@ -122,6 +123,7 @@ def map_metadata(
 
             embedding_dict[nodeid] = {
                 "entityId": nodeid_format,
+                "documentId": nodeid_format,
                 "embedding_1": embedding_dict[nodeid],
                 "pageId": metadata_dict[nodeid]["pageId"],
                 "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],

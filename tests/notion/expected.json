@@ -2,6 +2,7 @@
   {
     "externalSearchDocument": {
       "entityId": "EXTERNAL_DOCUMENT~abcd1234",
+      "documentId": "EXTERNAL_DOCUMENT~abcd1234",
       "embedding_1": [
         0.1,
         0.2,
