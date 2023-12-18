@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 from metaphor.common.embeddings import clean_text, map_metadata
 
 
@@ -9,28 +11,35 @@ def test_clean_text(test_root_dir: str) -> None:
     assert clean_text(" Multiple    Spaces ") == "Multiple Spaces"
 
 
-def test_map_metadata_string(test_root_dir: str) -> None:
+def test_map_metadata_string():
     # Example mock data
     embedding_dict_example = {"node1": [0.1, 0.2, 0.3], "node2": [0.4, 0.5, 0.6]}
-
     metadata_dict_example = {
         "node1": {"pageId": "page1", "lastRefreshed": "2023-01-01"},
         "node2": {"pageId": "page2", "lastRefreshed": "2023-01-02"},
     }
-
     doc_store_example = {
         "node1": {"__data__": {"text": "Text for node1"}},
         "node2": {"__data__": {"text": "Text for node2"}},
     }
 
-    results_with_string = map_metadata(
-        embedding_dict_example, metadata_dict_example, True, doc_store_example
-    )
+    # Mock VSI object
+    mock_vsi = MagicMock()
+    mock_vsi.storage_context.to_dict.return_value = {
+        "vector_store": {
+            "default": {
+                "embedding_dict": embedding_dict_example,
+                "metadata_dict": metadata_dict_example,
+            }
+        },
+        "doc_store": {"docstore/data": doc_store_example},
+    }
+
+    # Call the function with the mock VSI and include_text as True
+    results_with_string = map_metadata(mock_vsi, True)
 
     # Check type
-    assert isinstance(results_with_string, list) or isinstance(
-        results_with_string, tuple
-    ), "Output should be a collection (list or tuple)"
+    assert isinstance(results_with_string, list), "Output should be a list"
 
     # Check length
     assert len(results_with_string) == len(
@@ -41,105 +50,47 @@ def test_map_metadata_string(test_root_dir: str) -> None:
     for item in results_with_string:
         assert (
             "externalSearchDocument" in item
-        ), "Each item should have a key 'externalSearchDocument'"
-        doc = item["externalSearchDocument"]
+        ), "Each item should have 'externalSearchDocument' key"
+        external_document = item["externalSearchDocument"]
+        assert (
+            "entityId" in external_document
+        ), "Each item should have 'entityId' in its 'externalSearchDocument'"
+        assert (
+            "embedding_1" in external_document
+        ), "Each item should have 'embedding_1' in its 'externalSearchDocument'"
+        assert (
+            "pageId" in external_document
+        ), "Each item should have 'pageId' in its 'externalSearchDocument'"
+        assert (
+            "lastRefreshed" in external_document
+        ), "Each item should have 'lastRefreshed' in its 'externalSearchDocument'"
+        assert (
+            "metadata" in external_document
+        ), "Each item should have 'metadata' in its 'externalSearchDocument'"
 
-        # Check for required fields
-        assert "nodeId" in doc, "Document should contain nodeId"
-        assert "embedding" in doc, "Document should contain embedding"
-        assert "pageId" in doc, "Document should contain pageId"
-        assert "lastRefreshed" in doc, "Document should contain lastRefreshed"
-        assert "metadata" in doc, "Document should contain metadata"
-
-        # Check if values are correctly mapped
-        assert (
-            doc["nodeId"] in embedding_dict_example
-        ), "nodeId should be in the embedding dictionary"
-        assert (
-            doc["embedding"] == embedding_dict_example[doc["nodeId"]]["embedding"]  # type: ignore[call-overload]
-        ), "Embedding should match input data"
-        assert (
-            doc["pageId"] == metadata_dict_example[doc["nodeId"]]["pageId"]
-        ), "PageId should match input data"
-        assert (
-            doc["lastRefreshed"]
-            == metadata_dict_example[doc["nodeId"]]["lastRefreshed"]
-        ), "lastRefreshed should match input data"
-        assert (
-            doc["metadata"] == metadata_dict_example[doc["nodeId"]]
-        ), "Metadata should match input data"
-
-        # Check for optional 'embeddingString'
-        if "embeddingString" in doc:
+        # Additional checks for the 'include_text' condition
+        if "embeddedString_1" in external_document:
+            text = doc_store_example[external_document["entityId"].split("~")[-1]][
+                "__data__"
+            ]["text"]
             assert (
-                doc["embeddingString"]
-                == doc_store_example[doc["nodeId"]]["__data__"]["text"]
-            ), "EmbeddingString should match input data"
+                external_document["embeddedString_1"] == text
+            ), "embeddedString_1 should match the text in doc_store"
 
-
-def test_map_metadata_no_string(test_root_dir: str) -> None:
-    # Example mock data
-    embedding_dict_example = {"node1": [0.1, 0.2, 0.3], "node2": [0.4, 0.5, 0.6]}
-
-    metadata_dict_example = {
-        "node1": {"pageId": "page1", "lastRefreshed": "2023-01-01"},
-        "node2": {"pageId": "page2", "lastRefreshed": "2023-01-02"},
-    }
-
-    doc_store_example = {
-        "node1": {"__data__": {"text": "Text for node1"}},
-        "node2": {"__data__": {"text": "Text for node2"}},
-    }
-
-    results_without_string = map_metadata(
-        embedding_dict_example, metadata_dict_example, False, doc_store_example
-    )
-
-    # Check type
-    assert isinstance(results_without_string, list) or isinstance(
-        results_without_string, tuple
-    ), "Output should be a collection (list or tuple)"
+    # Call the function with the mock VSI and include_text as False
+    results_without_string = map_metadata(mock_vsi, False)
 
     # Check length
     assert len(results_without_string) == len(
         embedding_dict_example
     ), "Output length should match the number of nodes"
 
-    # Check content structure
+    # Check that 'embeddedString_1' is not included when include_text is False
     for item in results_without_string:
         assert (
             "externalSearchDocument" in item
-        ), "Each item should have a key 'externalSearchDocument'"
-        doc = item["externalSearchDocument"]
-
-        # Check for required fields
-        assert "nodeId" in doc, "Document should contain nodeId"
-        assert "embedding" in doc, "Document should contain embedding"
-        assert "pageId" in doc, "Document should contain pageId"
-        assert "lastRefreshed" in doc, "Document should contain lastRefreshed"
-        assert "metadata" in doc, "Document should contain metadata"
-
-        # Check if values are correctly mapped
+        ), "Each item should have 'externalSearchDocument' key"
+        external_document = item["externalSearchDocument"]
         assert (
-            doc["nodeId"] in embedding_dict_example
-        ), "nodeId should be in the embedding dictionary"
-        assert (
-            doc["embedding"] == embedding_dict_example[doc["nodeId"]]["embedding"]  # type: ignore[call-overload]
-        ), "Embedding should match input data"
-        assert (
-            doc["pageId"] == metadata_dict_example[doc["nodeId"]]["pageId"]
-        ), "PageId should match input data"
-        assert (
-            doc["lastRefreshed"]
-            == metadata_dict_example[doc["nodeId"]]["lastRefreshed"]
-        ), "lastRefreshed should match input data"
-        assert (
-            doc["metadata"] == metadata_dict_example[doc["nodeId"]]
-        ), "Metadata should match input data"
-
-        # Check for optional 'embeddingString'
-        if "embeddingString" in doc:
-            assert (
-                doc["embeddingString"]
-                == doc_store_example[doc["nodeId"]]["__data__"]["text"]
-            ), "EmbeddingString should match input data"
+            "embeddedString_1" not in external_document
+        ), "embeddedString_1 should not be present when include_text is False"

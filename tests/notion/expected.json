@@ -1,15 +1,15 @@
 [
   {
     "externalSearchDocument": {
-      "nodeId": "abcd1234",
-      "embedding": [
+      "entityId": "EXTERNAL_DOCUMENT~abcd1234",
+      "embedding_1": [
         0.1,
         0.2,
         0.3,
         0.4
       ],
       "pageId": "efgh5678",
-      "embeddingString": "Hello World!",
+      "embeddedString_1": "Hello World!",
       "lastRefreshed": "2023-12-11 00:00:00.000000",
       "metadata": {
         "dbId": "database1",
