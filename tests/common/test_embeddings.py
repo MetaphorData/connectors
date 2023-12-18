@@ -70,9 +70,9 @@ def test_map_metadata_string():
 
         # Additional checks for the 'include_text' condition
         if "embeddedString_1" in external_document:
-            text = doc_store_example[external_document["entityId"].split("~")[-1]][
-                "__data__"
-            ]["text"]
+            text = doc_store_example[
+                external_document["entityId"].lower().split("~")[-1]
+            ]["__data__"]["text"]
             assert (
                 external_document["embeddedString_1"] == text
             ), "embeddedString_1 should match the text in doc_store"

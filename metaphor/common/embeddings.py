@@ -101,7 +101,7 @@ def map_metadata(
         for nodeid in embedding_dict:
             # alter nodeid to match our input schema
             # this should already be 32 characters
-            nodeid_format = f"EXTERNAL_DOCUMENT~{nodeid.replace('-', '')}"
+            nodeid_format = f"EXTERNAL_DOCUMENT~{nodeid.replace('-', '').upper()}"
 
             embedding_dict[nodeid] = {
                 "entityId": nodeid_format,
