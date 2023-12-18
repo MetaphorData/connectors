@@ -64,17 +64,19 @@ class NotionExtractor(BaseExtractor):
             self.embedding_overlap_size,
         )
 
-        # get vector_store from VectorStoreIndex
-        vector_store = VSI.storage_context.to_dict()["vector_store"]["default"]
-        doc_store = VSI.storage_context.to_dict()["doc_store"]
+        # # get vector_store from VectorStoreIndex
+        # vector_store = VSI.storage_context.to_dict()["vector_store"]["default"]
+        # doc_store = VSI.storage_context.to_dict()["doc_store"]
 
-        # map metadata back to each node
-        embedded_nodes = map_metadata(
-            embedding_dict=vector_store["embedding_dict"],
-            metadata_dict=vector_store["metadata_dict"],
-            include_text=self.include_text,
-            doc_store=doc_store["docstore/data"],
-        )
+        # # map metadata back to each node
+        # embedded_nodes = map_metadata(
+        #     embedding_dict=vector_store["embedding_dict"],
+        #     metadata_dict=vector_store["metadata_dict"],
+        #     doc_store=doc_store["docstore/data"],
+        #     include_text=self.include_text,
+        # )
+
+        embedded_nodes = map_metadata(VSI, include_text=self.include_text)
 
         # currently returns a list of document dicts
         # each document dict has nodeId, embedding, lastRefreshed, metadata

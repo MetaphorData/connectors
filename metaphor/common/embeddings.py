@@ -76,10 +76,8 @@ def embed_documents(
 
 
 def map_metadata(
-    embedding_dict: dict,
-    metadata_dict: dict,
+    VSI: VectorStoreIndex,
     include_text: bool,
-    doc_store: dict,
 ) -> Collection[dict]:
     """
     Takes the embedding_dict, metadata_dict, and doc_store from
@@ -88,15 +86,28 @@ def map_metadata(
 
     Returns a list of nodes, represented as dictionaries.
     """
+    # retrieve appropriate dictionaries
+
+    vector_store = VSI.storage_context.to_dict()["vector_store"]["default"]
+    doc_store = VSI.storage_context.to_dict()["doc_store"]
+
+    embedding_dict = vector_store["embedding_dict"]
+    metadata_dict = vector_store["metadata_dict"]
+    doc_store = doc_store["docstore/data"]
+
     out = []
 
     if include_text:
         for nodeid in embedding_dict:
+            # alter nodeid to match our input schema
+            # this should already be 32 characters
+            nodeid_format = f"EXTERNAL_DOCUMENT~{nodeid.replace('-', '')}"
+
             embedding_dict[nodeid] = {
-                "nodeId": nodeid,
-                "embedding": embedding_dict[nodeid],
+                "entityId": nodeid_format,
+                "embedding_1": embedding_dict[nodeid],
                 "pageId": metadata_dict[nodeid]["pageId"],
-                "embeddingString": clean_text(doc_store[nodeid]["__data__"]["text"]),
+                "embeddedString_1": clean_text(doc_store[nodeid]["__data__"]["text"]),
                 "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
                 "metadata": metadata_dict[nodeid],
             }
@@ -105,9 +116,13 @@ def map_metadata(
 
     else:
         for nodeid in embedding_dict:
+            # alter nodeid to match our input schema
+            # this should already be 32 characters
+            nodeid_format = f"EXTERNAL_DOCUMENT~{nodeid.replace('-', '')}"
+
             embedding_dict[nodeid] = {
-                "nodeId": nodeid,
-                "embedding": embedding_dict[nodeid],
+                "entityId": nodeid_format,
+                "embedding_1": embedding_dict[nodeid],
                 "pageId": metadata_dict[nodeid]["pageId"],
                 "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
                 "metadata": metadata_dict[nodeid],
