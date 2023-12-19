@@ -33,6 +33,18 @@ output:
 
 See [Output Config](../common/docs/output.md) for more information on `output`.
 
+### Optional Configurations
+
+#### Snowflake, MSSQL and Synapse Account
+
+If there are data sources from Snowflake, MSSQL or Synapse, please provide their accounts as follows,
+
+```yaml
+snowflake_account: <snowflake_account_name>
+mssql_account: <mssql_account_name>
+synapse_account: <synapse_account_name>
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `datahub` extra.

@@ -9,6 +9,7 @@ from metaphor.common.entity_id import (
     to_person_entity_id,
 )
 from metaphor.common.logger import get_logger
+from metaphor.datahub.config import DatahubConfig
 from metaphor.models.metadata_change_event import (
     AssetDescription,
     ColumnDescriptionAssignment,
@@ -211,7 +212,7 @@ class Dataset(BaseModel):
     ownership: Optional[Ownership]
     schemaMetadata: Optional[SchemaMetadata]
 
-    def get_logical_id(self) -> DatasetLogicalID:
+    def get_logical_id(self, config: DatahubConfig) -> DatasetLogicalID:
         # It's possible that we want to split the name by the platform delimiters to get part names.
         name = normalize_full_dataset_name(self.name)
 
@@ -224,7 +225,7 @@ class Dataset(BaseModel):
             )
 
         return DatasetLogicalID(
-            account=None,  # FIXME This is not stored in datahub, have to find another way to get this
+            account=config.get_account(meta_platform),
             name=name,
             platform=meta_platform,
         )
@@ -277,8 +278,8 @@ class Dataset(BaseModel):
             or self.system_tags is not None
         )
 
-    def as_meta_dataset(self) -> MetaDataset:
-        logical_id = self.get_logical_id()
+    def as_meta_dataset(self, config: DatahubConfig) -> MetaDataset:
+        logical_id = self.get_logical_id(config)
         return MetaDataset(
             entity_type=EntityType.DATASET,
             dataset_id=str(to_dataset_entity_id_from_logical_id(logical_id)),

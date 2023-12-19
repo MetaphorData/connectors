@@ -26,8 +26,9 @@
       ]
     },
     "entityType": "DATASET",
-    "id": "DATASET~D82F3DD8F80A5A0BA7851E26F9211B2C",
+    "id": "DATASET~B27DE13B5A63211C79DE153FB999AB0F",
     "logicalId": {
+      "account": "test-dev",
       "name": "acme.berlin_bicycles.cycle_hire",
       "platform": "SNOWFLAKE"
     },

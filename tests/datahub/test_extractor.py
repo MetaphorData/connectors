@@ -93,7 +93,11 @@ async def test_extractor(
     ]
 
     dummy_config = DatahubConfig(
-        output=OutputConfig(), host="localhost", port=9002, token="notatoken"
+        output=OutputConfig(),
+        host="localhost",
+        port=9002,
+        token="notatoken",
+        snowflake_account="test-dev",
     )
     extractor = DatahubExtractor(dummy_config)
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
