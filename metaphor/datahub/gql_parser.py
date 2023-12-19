@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from gql import Client, gql
 from pydantic import BaseModel
@@ -29,6 +29,73 @@ from metaphor.models.metadata_change_event import (
 )
 
 logger = get_logger()
+
+
+DATAHUB_PLATFORM_MAPPING: Dict[str, MetaDataPlatform] = {
+    "adlsGen1": MetaDataPlatform.AZURE_DATA_LAKE_STORAGE,
+    "adlsGen2": MetaDataPlatform.AZURE_DATA_LAKE_STORAGE,
+    "external": MetaDataPlatform.EXTERNAL,
+    "hive": MetaDataPlatform.HIVE,
+    "s3": MetaDataPlatform.S3,
+    "kafka": MetaDataPlatform.KAFKA,
+    "kafka-connect": MetaDataPlatform.KAFKA,
+    "mariadb": MetaDataPlatform.MYSQL,
+    "mongodb": MetaDataPlatform.DOCUMENTDB,
+    "mysql": MetaDataPlatform.MYSQL,
+    "postgres": MetaDataPlatform.POSTGRESQL,
+    "snowflake": MetaDataPlatform.SNOWFLAKE,
+    "redshift": MetaDataPlatform.REDSHIFT,
+    "mssql": MetaDataPlatform.MSSQL,
+    "bigquery": MetaDataPlatform.BIGQUERY,
+    "glue": MetaDataPlatform.GLUE,
+    "elasticsearch": MetaDataPlatform.ELASTICSEARCH,
+    "trino": MetaDataPlatform.TRINO,
+    "databricks": MetaDataPlatform.UNITY_CATALOG,
+    "gcs": MetaDataPlatform.GCS,
+    "dynamodb": MetaDataPlatform.DYNAMODB,
+    "delta-lake": MetaDataPlatform.UNITY_CATALOG,
+}
+"""
+Source: https://raw.githubusercontent.com/datahub-project/datahub/master/metadata-service/war/src/main/resources/boot/data_platforms.json
+
+Currently unsupported datahub platforms:
+- airflow
+- ambry
+- clickhouse
+- couchbase
+- hdfs
+- hana
+- iceberg
+- kusto
+- mode
+- openapi
+- oracle
+- pinot
+- presto
+- tableau
+- teradata
+- voldemort
+- druid
+- looker
+- feast
+- sagemaker
+- mlflow
+- redash
+- athena
+- spark
+- dbt
+- Great Expectations
+- powerbi
+- presto-on-hive
+- metabase
+- nifi
+- superset
+- pulsar
+- salesforce
+- vertica
+- fivetran
+- csv
+"""
 
 
 class DatasetProperties(BaseModel):
@@ -145,25 +212,19 @@ class Dataset(BaseModel):
     schemaMetadata: Optional[SchemaMetadata]
 
     def get_logical_id(self) -> DatasetLogicalID:
-        # FIXME proper mapping instead of matching uppercase names
-        meta_platform = next(
-            (
-                value
-                for value in MetaDataPlatform
-                if value.name == self.platform.name.upper()
-            ),
-            MetaDataPlatform.UNKNOWN,
-        )
-        # TODO: is it possible that we need to split the name by the platform delimiters?
+        # It's possible that we want to split the name by the platform delimiters to get part names.
         name = normalize_full_dataset_name(self.name)
 
+        meta_platform = DATAHUB_PLATFORM_MAPPING.get(
+            self.platform.name, MetaDataPlatform.UNKNOWN
+        )
         if meta_platform is MetaDataPlatform.UNKNOWN:
             logger.warning(
                 f"Found unknown data platform for dataset {name}: {self.platform.name}"
             )
 
         return DatasetLogicalID(
-            account=None,  # FIXME Where is this store in datahub?
+            account=None,  # FIXME This is not stored in datahub, have to find another way to get this
             name=name,
             platform=meta_platform,
         )
@@ -174,6 +235,7 @@ class Dataset(BaseModel):
         if self.properties and self.properties.description:
             asset_descriptions = [AssetDescription(self.properties.description)]
 
+        # XXX: Datahub bug, graphql api does not return any column description.
         column_description_assignments = None
         if self.schemaMetadata:
             raw_column_descs = [
@@ -207,6 +269,13 @@ class Dataset(BaseModel):
         if not self.tags:
             return None
         return self.tags.system_tags
+
+    def has_additional_information(self) -> bool:
+        return (
+            self.ownership_assignment is not None
+            or self.description_assignment is not None
+            or self.system_tags is not None
+        )
 
     def as_meta_dataset(self) -> MetaDataset:
         logical_id = self.get_logical_id()
