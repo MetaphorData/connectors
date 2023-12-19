@@ -1,0 +1,55 @@
+[
+  {
+    "descriptionAssignment": {
+      "assetDescriptions": [
+        {
+          "author": "Just a simple dataset"
+        }
+      ],
+      "columnDescriptionAssignments": [
+        {
+          "assetDescriptions": [
+            {
+              "description": "Rental ID"
+            }
+          ],
+          "columnName": "rental_id"
+        },
+        {
+          "assetDescriptions": [
+            {
+              "description": "Duuuuuuuuuuu"
+            }
+          ],
+          "columnName": "duration"
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "id": "DATASET~D82F3DD8F80A5A0BA7851E26F9211B2C",
+    "logicalId": {
+      "name": "acme.berlin_bicycles.cycle_hire",
+      "platform": "SNOWFLAKE"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Technical Owner",
+          "person": "PERSON~F7D5A003324B483C59324700B72D1DDB"
+        }
+      ]
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DATAHUB",
+          "value": "foo_Tag"
+        },
+        {
+          "systemTagSource": "DATAHUB",
+          "value": "barrrrrr"
+        }
+      ]
+    }
+  }
+]
