@@ -88,22 +88,7 @@
     "entityType": "DATASET",
     "logicalId": {
       "name": "foo",
-      "platform": "UNKNOWN"
-    }
-  },
-  {
-    "entityType": "DATASET",
-    "logicalId": {
-      "name": "bar",
-      "platform": "MSSQL"
-    },
-    "ownershipAssignment": {
-      "ownerships": [
-        {
-          "contactDesignationName": "Technical Owner",
-          "person": "PERSON~F7D5A003324B483C59324700B72D1DDB"
-        }
-      ]
+      "platform": "EXTERNAL"
     }
   }
 ]

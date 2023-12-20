@@ -214,18 +214,19 @@ class Dataset(BaseModel):
         # It's possible that we want to split the name by the platform delimiters to get part names.
         name = normalize_full_dataset_name(self.name)
 
-        meta_platform = DATAHUB_PLATFORM_MAPPING.get(
+        metaphor_platform = DATAHUB_PLATFORM_MAPPING.get(
             self.platform.name, MetaphorDataPlatform.UNKNOWN
         )
-        if meta_platform is MetaphorDataPlatform.UNKNOWN:
+        if metaphor_platform is MetaphorDataPlatform.UNKNOWN:
             logger.warning(
-                f"Found unknown data platform {self.platform.name}, will not ingest dataset {name}"
+                f"Found unknown data platform {self.platform.name}, ingesting it as EXTERNAL"
             )
+            metaphor_platform = MetaphorDataPlatform.EXTERNAL
 
         return DatasetLogicalID(
-            account=config.get_account(meta_platform),
+            account=config.get_account(metaphor_platform),
             name=name,
-            platform=meta_platform,
+            platform=metaphor_platform,
         )
 
     def get_schema_fields(self) -> Optional[List[SchemaField]]:

@@ -36,6 +36,9 @@ async def test_extractor(
             {
                 "urn": "urn:li:dataset:(urn:li:dataPlatform:mssql,bar,PROD)",
             },
+            {
+                "urn": "urn:li:dataset:(urn:li:dataPlatform:hdfs,baz,PROD)",
+            },
         ]
     )
 
@@ -176,24 +179,43 @@ async def test_extractor(
                     "editableSchemaMetadata": None,
                 }
             }
+        if (
+            variable_values["urn"]
+            == "urn:li:dataset:(urn:li:dataPlatform:synapse,foo,PROD)"
+        ):
+            return {
+                "dataset": {
+                    "editableProperties": None,
+                    "properties": None,
+                    "name": "bar",
+                    "platform": {
+                        "name": "mssql",
+                        "properties": None,
+                    },
+                    "tags": None,
+                    "ownership": {
+                        "owners": [
+                            {
+                                "owner": {"properties": {"email": "jdoe@test.io"}},
+                                "ownershipType": {"info": {"name": "Technical Owner"}},
+                            }
+                        ]
+                    },
+                    "editableSchemaMetadata": None,
+                    "schemaMetadata": None,
+                }
+            }
         return {
             "dataset": {
                 "editableProperties": None,
                 "properties": None,
-                "name": "bar",
+                "name": "baz",
                 "platform": {
-                    "name": "mssql",
+                    "name": "hdfs",
                     "properties": None,
                 },
                 "tags": None,
-                "ownership": {
-                    "owners": [
-                        {
-                            "owner": {"properties": {"email": "jdoe@test.io"}},
-                            "ownershipType": {"info": {"name": "Technical Owner"}},
-                        }
-                    ]
-                },
+                "ownership": None,
                 "editableSchemaMetadata": None,
                 "schemaMetadata": None,
             }
