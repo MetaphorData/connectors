@@ -3,31 +3,21 @@ from typing import Dict, List, Optional
 from gql import Client, gql
 from pydantic import BaseModel
 
-from metaphor.common.entity_id import (
-    normalize_full_dataset_name,
-    to_dataset_entity_id_from_logical_id,
-    to_person_entity_id,
-)
+from metaphor.common.entity_id import normalize_full_dataset_name, to_person_entity_id
 from metaphor.common.logger import get_logger
 from metaphor.datahub.config import DatahubConfig
-from metaphor.models.metadata_change_event import (
-    AssetDescription,
-    ColumnDescriptionAssignment,
-)
 from metaphor.models.metadata_change_event import DataPlatform as MetaDataPlatform
 from metaphor.models.metadata_change_event import Dataset as MetaDataset
 from metaphor.models.metadata_change_event import (
+    DatasetDocumentation,
     DatasetLogicalID,
-    DescriptionAssignment,
+    DatasetSchema,
     EntityType,
+    FieldDocumentation,
 )
 from metaphor.models.metadata_change_event import Ownership as MetaOwnership
-from metaphor.models.metadata_change_event import (
-    OwnershipAssignment,
-    SystemTag,
-    SystemTags,
-    SystemTagSource,
-)
+from metaphor.models.metadata_change_event import OwnershipAssignment
+from metaphor.models.metadata_change_event import SchemaField as MetaSchemaField
 
 logger = get_logger()
 
@@ -172,31 +162,30 @@ class GlobalTags(BaseModel):
     tags: List[TagAssociation]
 
     @property
-    def system_tags(self) -> Optional[SystemTags]:
-        if not self.tags:
-            return None
-        return SystemTags(
-            tags=[
-                SystemTag(
-                    system_tag_source=SystemTagSource.DATAHUB,
-                    value=tag.tag.properties.name,
-                )
-                for tag in self.tags
-                if tag.tag.properties
-            ]
-        )
+    def schema_tags(self) -> List[str]:
+        return [tag.tag.properties.name for tag in self.tags if tag.tag.properties]
 
 
 class SchemaField(BaseModel):
     fieldPath: str
     description: Optional[str]
+    tags: Optional[GlobalTags]
 
-    def column_description_assignment(self):
+    @property
+    def field_documentation(self):
         if not self.description:
             return None
-        return ColumnDescriptionAssignment(
-            asset_descriptions=[AssetDescription(description=self.description)],
-            column_name=self.fieldPath,
+        return FieldDocumentation(
+            field_path=self.fieldPath,
+            documentation=self.description,
+        )
+
+    def as_field(self) -> Optional[MetaSchemaField]:
+        if not self.tags and not self.description:
+            return None
+        return MetaSchemaField(
+            description=self.description,
+            tags=None if not self.tags else self.tags.schema_tags,
         )
 
 
@@ -221,7 +210,7 @@ class Dataset(BaseModel):
         )
         if meta_platform is MetaDataPlatform.UNKNOWN:
             logger.warning(
-                f"Found unknown data platform for dataset {name}: {self.platform.name}"
+                f"Found unknown data platform {self.platform.name}, will not ingest dataset {name}"
             )
 
         return DatasetLogicalID(
@@ -231,26 +220,24 @@ class Dataset(BaseModel):
         )
 
     @property
-    def description_assignment(self) -> Optional[DescriptionAssignment]:
-        asset_descriptions = None
+    def dataset_documentation(self) -> Optional[DatasetDocumentation]:
+        dataset_documentations = None
         if self.properties and self.properties.description:
-            asset_descriptions = [AssetDescription(self.properties.description)]
+            dataset_documentations = [self.properties.description]
 
         # XXX: Datahub bug, graphql api does not return any column description.
-        column_description_assignments = None
+        field_documentations = None
         if self.schemaMetadata:
-            raw_column_descs = [
-                f.column_description_assignment() for f in self.schemaMetadata.fields
-            ]
-            filtered_column_descs = [x for x in raw_column_descs if x]
-            if len(filtered_column_descs):
-                column_description_assignments = filtered_column_descs
+            raw_field_docs = [f.field_documentation for f in self.schemaMetadata.fields]
+            filtered_field_docs = [x for x in raw_field_docs if x]
+            if len(filtered_field_docs):
+                field_documentations = filtered_field_docs
 
-        if not asset_descriptions and not column_description_assignments:
+        if not dataset_documentations and not field_documentations:
             return None
-        return DescriptionAssignment(
-            asset_descriptions=asset_descriptions,
-            column_description_assignments=column_description_assignments,
+        return DatasetDocumentation(
+            dataset_documentations=dataset_documentations,
+            field_documentations=field_documentations,
         )
 
     @property
@@ -266,27 +253,41 @@ class Dataset(BaseModel):
         )
 
     @property
-    def system_tags(self) -> Optional[SystemTags]:
-        if not self.tags:
+    def dataset_schema(self) -> Optional[DatasetSchema]:
+        tags = None
+        if self.tags:
+            tags = self.tags.schema_tags
+
+        fields = None
+        if self.schemaMetadata:
+            raw_fields = [field.as_field() for field in self.schemaMetadata.fields]
+            filtered_fields = [field for field in raw_fields if field]
+            if filtered_fields:
+                fields = filtered_fields
+
+        if not tags and not fields:
             return None
-        return self.tags.system_tags
+
+        return DatasetSchema(
+            fields=fields,
+            tags=tags,
+        )
 
     def has_additional_information(self) -> bool:
         return (
             self.ownership_assignment is not None
-            or self.description_assignment is not None
-            or self.system_tags is not None
+            or self.dataset_documentation is not None
+            or self.dataset_schema is not None
         )
 
     def as_meta_dataset(self, config: DatahubConfig) -> MetaDataset:
         logical_id = self.get_logical_id(config)
         return MetaDataset(
             entity_type=EntityType.DATASET,
-            dataset_id=str(to_dataset_entity_id_from_logical_id(logical_id)),
             logical_id=logical_id,
             ownership_assignment=self.ownership_assignment,
-            description_assignment=self.description_assignment,
-            system_tags=self.system_tags,
+            documentation=self.dataset_documentation,
+            schema=self.dataset_schema,
         )
 
 
@@ -340,6 +341,16 @@ def get_dataset(client: Client, urn: str) -> Dataset:
                     fields {
                         fieldPath
                         description
+                        tags {
+                            tags {
+                                tag {
+                                    properties {
+                                        name
+                                        description
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

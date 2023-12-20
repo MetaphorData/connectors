@@ -87,13 +87,57 @@ async def test_extractor(
                             {
                                 "fieldPath": "rental_id",
                                 "description": "Rental ID",
+                                "tags": {
+                                    "tags": [
+                                        {
+                                            "tag": {
+                                                "properties": {
+                                                    "name": "column_tag1",
+                                                    "description": "first column_tag",
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "tag": {
+                                                "properties": {
+                                                    "name": "column_tag2",
+                                                    "description": "second column_tag",
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "tag": {
+                                                "properties": {
+                                                    "name": "column_tag3",
+                                                    "description": "third column_tag",
+                                                }
+                                            }
+                                        },
+                                    ],
+                                },
                             },
                             {
                                 "fieldPath": "duration",
                                 "description": "Duuuuuuuuuuu",
+                                "tags": {
+                                    "tags": [
+                                        {
+                                            "tag": {
+                                                "properties": {
+                                                    "name": "column_tag1",
+                                                    "description": "first column_tag",
+                                                }
+                                            }
+                                        }
+                                    ],
+                                },
                             },
-                            {"fieldPath": "bike_id", "description": None},
-                            {"fieldPath": "end_date", "description": None},
+                            {"fieldPath": "bike_id", "description": None, "tags": None},
+                            {
+                                "fieldPath": "end_date",
+                                "description": None,
+                                "tags": None,
+                            },
                         ]
                     },
                 }

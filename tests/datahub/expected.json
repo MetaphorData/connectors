@@ -1,32 +1,21 @@
 [
   {
-    "descriptionAssignment": {
-      "assetDescriptions": [
-        {
-          "author": "Just a simple dataset"
-        }
+    "documentation": {
+      "datasetDocumentations": [
+        "Just a simple dataset"
       ],
-      "columnDescriptionAssignments": [
+      "fieldDocumentations": [
         {
-          "assetDescriptions": [
-            {
-              "description": "Rental ID"
-            }
-          ],
-          "columnName": "rental_id"
+          "documentation": "Rental ID",
+          "fieldPath": "rental_id"
         },
         {
-          "assetDescriptions": [
-            {
-              "description": "Duuuuuuuuuuu"
-            }
-          ],
-          "columnName": "duration"
+          "documentation": "Duuuuuuuuuuu",
+          "fieldPath": "duration"
         }
       ]
     },
     "entityType": "DATASET",
-    "id": "DATASET~B27DE13B5A63211C79DE153FB999AB0F",
     "logicalId": {
       "account": "test-dev",
       "name": "acme.berlin_bicycles.cycle_hire",
@@ -40,29 +29,36 @@
         }
       ]
     },
-    "systemTags": {
-      "tags": [
+    "schema": {
+      "fields": [
         {
-          "systemTagSource": "DATAHUB",
-          "value": "foo_Tag"
+          "description": "Rental ID",
+          "tags": [
+            "column_tag1",
+            "column_tag2",
+            "column_tag3"
+          ]
         },
         {
-          "systemTagSource": "DATAHUB",
-          "value": "barrrrrr"
+          "description": "Duuuuuuuuuuu",
+          "tags": [
+            "column_tag1"
+          ]
         }
+      ],
+      "tags": [
+        "foo_Tag",
+        "barrrrrr"
       ]
     }
   },
   {
-    "descriptionAssignment": {
-      "assetDescriptions": [
-        {
-          "author": "foo"
-        }
+    "documentation": {
+      "datasetDocumentations": [
+        "foo"
       ]
     },
     "entityType": "DATASET",
-    "id": "DATASET~FFA98013B128FA92A6E2965D8E632EFB",
     "logicalId": {
       "name": "foo",
       "platform": "UNKNOWN"
@@ -70,7 +66,6 @@
   },
   {
     "entityType": "DATASET",
-    "id": "DATASET~D1F237ADAD342AB5C243C9934716F1E0",
     "logicalId": {
       "name": "bar",
       "platform": "MSSQL"
