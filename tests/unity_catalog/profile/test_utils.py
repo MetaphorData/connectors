@@ -1,4 +1,4 @@
-from metaphor.unity_catalog.profile.utils import escape_special_characters
+from metaphor.unity_catalog.utils import escape_special_characters
 
 
 def test_escape_special_characters():

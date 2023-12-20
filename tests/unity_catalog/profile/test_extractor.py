@@ -15,13 +15,14 @@ from databricks.sdk.service.catalog import (
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
+from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.profile.extractor import UnityCatalogProfileExtractor
+from metaphor.unity_catalog.utils import create_connection
 from tests.test_utils import load_json
 
 
 def dummy_config():
-    return UnityCatalogProfileRunConfig(
+    return UnityCatalogRunConfig(
         host="http://dummy.host",
         token="",
         output=OutputConfig(),
@@ -29,10 +30,8 @@ def dummy_config():
     )
 
 
-@patch(
-    "metaphor.unity_catalog.profile.extractor.UnityCatalogProfileExtractor.create_connection"
-)
-@patch("metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api")
+@patch("metaphor.unity_catalog.profile.extractor.create_connection")
+@patch("metaphor.unity_catalog.profile.extractor.create_api")
 @pytest.mark.asyncio
 async def test_extractor(
     mock_create_api: MagicMock,
@@ -113,7 +112,7 @@ def test_bad_warehouse():
     client.warehouses.list.return_value = iter([])
 
     with pytest.raises(ValueError):
-        UnityCatalogProfileExtractor.create_connection(client, "token", None)
+        create_connection(client, "token", None)
 
     client.warehouses.list.return_value = iter(["530e470a55aeb40d"])
     client.warehouses.get = MagicMock(
@@ -121,6 +120,4 @@ def test_bad_warehouse():
     )
 
     with pytest.raises(ValueError):
-        UnityCatalogProfileExtractor.create_connection(
-            client, "token", "530e470a55aeb40e"
-        )
+        create_connection(client, "token", "530e470a55aeb40e")

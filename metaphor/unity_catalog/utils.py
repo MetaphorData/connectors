@@ -1,10 +1,18 @@
 import datetime
 import json
+from typing import Optional
 
-from databricks.sdk import WorkspaceClient
-from databricks.sdk.core import ApiClient
-from databricks.sdk.service.sql import QueryFilter, TimeRange
 from requests import HTTPError
+
+try:
+    from databricks import sql
+    from databricks.sdk import WorkspaceClient
+    from databricks.sdk.core import ApiClient
+    from databricks.sdk.service.sql import EndpointInfo, QueryFilter, TimeRange
+    from databricks.sql.client import Connection
+except ImportError:
+    print("Please install metaphor[unity_catalog] extra\n")
+    raise
 
 from metaphor.common.logger import json_dump_to_debug_file
 from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
@@ -70,3 +78,51 @@ def build_query_log_filter_by(
         ]
 
     return query_filter
+
+
+SPECIAL_CHARACTERS = "&*{}[],=-()+;'\"`"
+"""
+The special characters mentioned in Databricks documentation are:
+- `
+- `-`
+
+The following characters are not allowed:
+- `.`
+- ` `
+- `/`
+
+See https://docs.databricks.com/en/sql/language-manual/sql-ref-names.html for reference.
+"""
+
+
+def escape_special_characters(name: str) -> str:
+    """
+    When referencing UC names in SQL, you must use backticks to escape
+    names that contain special characters such as hyphens (-).
+    """
+    if any(c in name for c in SPECIAL_CHARACTERS):
+        return f"`{name}`"
+    return name
+
+
+def create_connection(
+    client: WorkspaceClient, token: str, warehouse_id: Optional[str] = None
+) -> Connection:
+    endpoints = list(client.warehouses.list())
+    if not endpoints:
+        raise ValueError("No valid warehouse found")
+    endpoint_info: EndpointInfo = endpoints[0]
+    if warehouse_id:
+        try:
+            endpoint_info = client.warehouses.get(warehouse_id)
+        except Exception:
+            raise ValueError(f"Invalid warehouse id: {warehouse_id}")
+    return sql.connect(
+        server_hostname=endpoint_info.odbc_params.hostname,
+        http_path=endpoint_info.odbc_params.path,
+        access_token=token,
+    )
+
+
+def create_api(host: str, token: str) -> WorkspaceClient:
+    return WorkspaceClient(host=host, token=token)

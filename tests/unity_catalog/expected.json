@@ -30,7 +30,11 @@
       "schemaType": "SQL",
       "sqlSchema": {
         "materialization": "TABLE"
-      }
+      },
+      "tags": [
+        "tag=value",
+        "tag2"
+      ]
     },
     "structure": {
       "database": "catalog",
