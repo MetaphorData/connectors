@@ -19157,7 +19157,8 @@
         "expr": null,
         "window": null,
         "grain_to_date": null,
-        "metrics": []
+        "metrics": [],
+        "conversion_type_params": null
       },
       "filter": null,
       "metadata": null,
@@ -19217,7 +19218,8 @@
         "expr": null,
         "window": null,
         "grain_to_date": null,
-        "metrics": []
+        "metrics": [],
+        "conversion_type_params": null
       },
       "filter": null,
       "metadata": null,
