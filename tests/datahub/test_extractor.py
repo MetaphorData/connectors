@@ -46,6 +46,7 @@ async def test_extractor(
         ):
             return {
                 "dataset": {
+                    "editableProperties": None,
                     "properties": {
                         "description": "Just a simple dataset",
                     },
@@ -82,8 +83,9 @@ async def test_extractor(
                             }
                         ]
                     },
-                    "schemaMetadata": {
-                        "fields": [
+                    "schemaMetadata": None,
+                    "editableSchemaMetadata": {
+                        "editableSchemaFieldInfo": [
                             {
                                 "fieldPath": "rental_id",
                                 "description": "Rental ID",
@@ -148,8 +150,11 @@ async def test_extractor(
         ):
             return {
                 "dataset": {
-                    "properties": {
+                    "editableProperties": {
                         "description": "foo",
+                    },
+                    "properties": {
+                        "description": "bar",
                     },
                     "name": "foo",
                     "platform": {
@@ -158,11 +163,22 @@ async def test_extractor(
                     },
                     "tags": None,
                     "ownership": None,
-                    "schemaMetadata": None,
+                    "editableSchemaMetadata": None,
+                    "schemaMetadata": {
+                        "fields": [
+                            {
+                                "fieldPath": "foo",
+                                "description": "Foo",
+                                "tags": None,
+                            }
+                        ]
+                    },
+                    "editableSchemaMetadata": None,
                 }
             }
         return {
             "dataset": {
+                "editableProperties": None,
                 "properties": None,
                 "name": "bar",
                 "platform": {
@@ -178,6 +194,7 @@ async def test_extractor(
                         }
                     ]
                 },
+                "editableSchemaMetadata": None,
                 "schemaMetadata": None,
             }
         }

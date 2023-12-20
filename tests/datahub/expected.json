@@ -1,17 +1,30 @@
 [
   {
-    "documentation": {
-      "datasetDocumentations": [
-        "Just a simple dataset"
-      ],
-      "fieldDocumentations": [
+    "descriptionAssignment": {
+      "assetDescriptions": [
         {
-          "documentation": "Rental ID",
-          "fieldPath": "rental_id"
+          "author": "PERSON~F7D5A003324B483C59324700B72D1DDB",
+          "description": "Just a simple dataset"
+        }
+      ],
+      "columnDescriptionAssignments": [
+        {
+          "assetDescriptions": [
+            {
+              "author": "PERSON~F7D5A003324B483C59324700B72D1DDB",
+              "description": "Rental ID"
+            }
+          ],
+          "columnName": "rental_id"
         },
         {
-          "documentation": "Duuuuuuuuuuu",
-          "fieldPath": "duration"
+          "assetDescriptions": [
+            {
+              "author": "PERSON~F7D5A003324B483C59324700B72D1DDB",
+              "description": "Duuuuuuuuuuu"
+            }
+          ],
+          "columnName": "duration"
         }
       ]
     },
@@ -29,43 +42,53 @@
         }
       ]
     },
-    "schema": {
-      "description": "Just a simple dataset",
-      "fields": [
+    "tagAssignment": {
+      "columnTagAssignments": [
         {
-          "description": "Rental ID",
-          "tags": [
+          "columnName": "rental_id",
+          "tagNames": [
             "column_tag1",
             "column_tag2",
             "column_tag3"
           ]
         },
         {
-          "description": "Duuuuuuuuuuu",
-          "tags": [
+          "columnName": "duration",
+          "tagNames": [
             "column_tag1"
           ]
         }
       ],
-      "tags": [
+      "tagNames": [
         "foo_Tag",
         "barrrrrr"
       ]
     }
   },
   {
-    "documentation": {
-      "datasetDocumentations": [
-        "foo"
+    "descriptionAssignment": {
+      "assetDescriptions": [
+        {
+          "author": "PERSON~5215EA306B22129038E1E76570944F28",
+          "description": "foo"
+        }
+      ],
+      "columnDescriptionAssignments": [
+        {
+          "assetDescriptions": [
+            {
+              "author": "PERSON~5215EA306B22129038E1E76570944F28",
+              "description": "Foo"
+            }
+          ],
+          "columnName": "foo"
+        }
       ]
     },
     "entityType": "DATASET",
     "logicalId": {
       "name": "foo",
       "platform": "UNKNOWN"
-    },
-    "schema": {
-      "description": "foo"
     }
   },
   {

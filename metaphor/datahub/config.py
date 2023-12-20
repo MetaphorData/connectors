@@ -12,6 +12,8 @@ class DatahubConfig(BaseConfig):
     host: str
     port: int
     token: str
+
+    description_author_email: Optional[str] = None
     snowflake_account: Optional[str] = None
     mssql_account: Optional[str] = None
     synapse_account: Optional[str] = None

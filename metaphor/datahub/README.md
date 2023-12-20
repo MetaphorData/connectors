@@ -45,6 +45,16 @@ mssql_account: <mssql_account_name>
 synapse_account: <synapse_account_name>
 ```
 
+#### Description Author Email
+
+DataHub does not keep track of the description authors. You can specify the description author email in the configuration file:
+
+```yaml
+description_author_email: <email>
+```
+
+If not provided, each dataset's first owner will be considered as the author. If no owner exists for a dataset, the placeholder email `admin@metaphor.io` will be used.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `datahub` extra.

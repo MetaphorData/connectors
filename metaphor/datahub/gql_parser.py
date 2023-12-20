@@ -6,18 +6,20 @@ from pydantic import BaseModel
 from metaphor.common.entity_id import normalize_full_dataset_name, to_person_entity_id
 from metaphor.common.logger import get_logger
 from metaphor.datahub.config import DatahubConfig
+from metaphor.models.metadata_change_event import (
+    AssetDescription,
+    ColumnDescriptionAssignment,
+    ColumnTagAssignment,
+)
 from metaphor.models.metadata_change_event import DataPlatform as MetaphorDataPlatform
 from metaphor.models.metadata_change_event import Dataset as MetaphorDataset
 from metaphor.models.metadata_change_event import (
-    DatasetDocumentation,
     DatasetLogicalID,
-    DatasetSchema,
+    DescriptionAssignment,
     EntityType,
-    FieldDocumentation,
 )
 from metaphor.models.metadata_change_event import Ownership as MetaphorOwnership
-from metaphor.models.metadata_change_event import OwnershipAssignment
-from metaphor.models.metadata_change_event import SchemaField as MetaphorSchemaField
+from metaphor.models.metadata_change_event import OwnershipAssignment, TagAssignment
 
 logger = get_logger()
 
@@ -123,7 +125,7 @@ class Owner(BaseModel):
     ownershipType: Optional[OwnershipTypeEntity]
 
     @property
-    def meta_ownership(self) -> Optional[MetaphorOwnership]:
+    def metaphor_ownership(self) -> Optional[MetaphorOwnership]:
         contact_designation_name = None
         if self.ownershipType and self.ownershipType.info:
             contact_designation_name = self.ownershipType.info.name
@@ -162,7 +164,7 @@ class GlobalTags(BaseModel):
     tags: List[TagAssociation]
 
     @property
-    def schema_tags(self) -> List[str]:
+    def tag_names(self) -> List[str]:
         return [tag.tag.properties.name for tag in self.tags if tag.tag.properties]
 
 
@@ -171,21 +173,22 @@ class SchemaField(BaseModel):
     description: Optional[str]
     tags: Optional[GlobalTags]
 
-    @property
-    def field_documentation(self):
+    def column_description_assignment(self, author: str):
         if not self.description:
             return None
-        return FieldDocumentation(
-            field_path=self.fieldPath,
-            documentation=self.description,
+        return ColumnDescriptionAssignment(
+            column_name=self.fieldPath,
+            asset_descriptions=[
+                AssetDescription(author=author, description=self.description)
+            ],
         )
 
-    def as_field(self) -> Optional[MetaphorSchemaField]:
-        if not self.tags and not self.description:
+    def column_tag_assignment(self):
+        if not self.tags:
             return None
-        return MetaphorSchemaField(
-            description=self.description,
-            tags=None if not self.tags else self.tags.schema_tags,
+        return ColumnTagAssignment(
+            column_name=self.fieldPath,
+            tag_names=self.tags.tag_names,
         )
 
 
@@ -193,13 +196,19 @@ class SchemaMetadata(BaseModel):
     fields: List[SchemaField]
 
 
+class EditableSchemaMetadata(BaseModel):
+    editableSchemaFieldInfo: List[SchemaField]
+
+
 class Dataset(BaseModel):
     properties: Optional[DatasetProperties]
+    editableProperties: Optional[DatasetProperties]
     platform: DataPlatform
     name: str
     tags: Optional[GlobalTags]
     ownership: Optional[Ownership]
     schemaMetadata: Optional[SchemaMetadata]
+    editableSchemaMetadata: Optional[EditableSchemaMetadata]
 
     def get_logical_id(self, config: DatahubConfig) -> DatasetLogicalID:
         # It's possible that we want to split the name by the platform delimiters to get part names.
@@ -219,32 +228,47 @@ class Dataset(BaseModel):
             platform=meta_platform,
         )
 
-    @property
-    def dataset_documentation(self) -> Optional[DatasetDocumentation]:
-        dataset_documentations = None
-        if self.properties and self.properties.description:
-            dataset_documentations = [self.properties.description]
-
-        # XXX: Datahub bug, graphql api does not return any column description.
-        field_documentations = None
+    def get_schema_fields(self) -> Optional[List[SchemaField]]:
+        if self.editableSchemaMetadata:
+            return self.editableSchemaMetadata.editableSchemaFieldInfo
         if self.schemaMetadata:
-            raw_field_docs = [f.field_documentation for f in self.schemaMetadata.fields]
-            filtered_field_docs = [x for x in raw_field_docs if x]
-            if len(filtered_field_docs):
-                field_documentations = filtered_field_docs
+            return self.schemaMetadata.fields
+        return None
 
-        if not dataset_documentations and not field_documentations:
+    def description_assignment(self, author: str) -> Optional[DescriptionAssignment]:
+        asset_descriptions = None
+        if self.editableProperties and self.editableProperties.description:
+            asset_descriptions = [
+                AssetDescription(
+                    author=author, description=self.editableProperties.description
+                )
+            ]
+        elif self.properties and self.properties.description:
+            asset_descriptions = [
+                AssetDescription(author=author, description=self.properties.description)
+            ]
+
+        column_descriptions = None
+        schema_fields = self.get_schema_fields()
+        if schema_fields:
+            raw_col_descriptions = [
+                f.column_description_assignment(author) for f in schema_fields
+            ]
+            filtered_col_descriptions = [x for x in raw_col_descriptions if x]
+            if len(filtered_col_descriptions):
+                column_descriptions = filtered_col_descriptions
+
+        if not asset_descriptions and not column_descriptions:
             return None
-        return DatasetDocumentation(
-            dataset_documentations=dataset_documentations,
-            field_documentations=field_documentations,
+        return DescriptionAssignment(
+            asset_descriptions=asset_descriptions,
+            column_description_assignments=column_descriptions,
         )
 
-    @property
     def ownership_assignment(self) -> Optional[OwnershipAssignment]:
         if not self.ownership or not self.ownership.owners:
             return None
-        raw_owners = [owner.meta_ownership for owner in self.ownership.owners]
+        raw_owners = [owner.metaphor_ownership for owner in self.ownership.owners]
         filtered_owners = [x for x in raw_owners if x]
         if not filtered_owners:
             return None
@@ -252,47 +276,49 @@ class Dataset(BaseModel):
             ownerships=filtered_owners,
         )
 
-    @property
-    def dataset_schema(self) -> Optional[DatasetSchema]:
-        tags = None
+    def tag_assignment(self) -> Optional[TagAssignment]:
+        tag_names = None
         if self.tags:
-            tags = self.tags.schema_tags
-
-        fields = None
-        if self.schemaMetadata:
-            raw_fields = [field.as_field() for field in self.schemaMetadata.fields]
-            filtered_fields = [field for field in raw_fields if field]
-            if filtered_fields:
-                fields = filtered_fields
-
-        description = None
-        if self.properties and self.properties.description:
-            description = self.properties.description
-
-        if not tags and not fields and not description:
+            tag_names = self.tags.tag_names
+        column_tag_assignments = None
+        schema_fields = self.get_schema_fields()
+        if schema_fields:
+            raw_column_tag_assignments = [
+                field.column_tag_assignment() for field in schema_fields
+            ]
+            filtered_column_tag_assignments = [
+                x for x in raw_column_tag_assignments if x
+            ]
+            if filtered_column_tag_assignments:
+                column_tag_assignments = filtered_column_tag_assignments
+        if not tag_names and not column_tag_assignments:
             return None
-
-        return DatasetSchema(
-            fields=fields,
-            tags=tags,
-            description=description,
-        )
-
-    def has_additional_information(self) -> bool:
-        return (
-            self.ownership_assignment is not None
-            or self.dataset_documentation is not None
-            or self.dataset_schema is not None
+        return TagAssignment(
+            tag_names=tag_names, column_tag_assignments=column_tag_assignments
         )
 
     def as_metaphor_dataset(self, config: DatahubConfig) -> MetaphorDataset:
         logical_id = self.get_logical_id(config)
+        ownership_assignment = self.ownership_assignment()
+        if config.description_author_email:
+            author = str(to_person_entity_id(config.description_author_email))
+        elif (
+            ownership_assignment
+            and ownership_assignment.ownerships
+            and ownership_assignment.ownerships[0].person
+        ):
+            # Use the first owner as our author, datahub does not keep track of description authors
+            author = ownership_assignment.ownerships[0].person
+        else:
+            # Have to use a placeholder email
+            author = str(to_person_entity_id("admin@metaphor.io"))
+
         return MetaphorDataset(
             entity_type=EntityType.DATASET,
             logical_id=logical_id,
-            ownership_assignment=self.ownership_assignment,
-            documentation=self.dataset_documentation,
-            schema=self.dataset_schema,
+            ownership_assignment=self.ownership_assignment(),
+            description_assignment=self.description_assignment(author),
+            tag_assignment=self.tag_assignment(),
         )
 
 
@@ -302,6 +328,9 @@ def get_dataset(client: Client, urn: str) -> Dataset:
         query getDatasetInfo ($urn: String!) {
             dataset (urn: $urn) {
                 properties {
+                    description
+                }
+                editableProperties {
                     description
                 }
                 name
@@ -344,6 +373,22 @@ def get_dataset(client: Client, urn: str) -> Dataset:
                 }
                 schemaMetadata {
                     fields {
+                        fieldPath
+                        description
+                        tags {
+                            tags {
+                                tag {
+                                    properties {
+                                        name
+                                        description
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                editableSchemaMetadata {
+                    editableSchemaFieldInfo {
                         fieldPath
                         description
                         tags {
