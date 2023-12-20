@@ -92,8 +92,10 @@ async def test_extractor(
         },
         {
             "dataset": {
-                "properties": None,
-                "name": "will.be.ignored",
+                "properties": {
+                    "description": "foo",
+                },
+                "name": "foo",
                 "platform": {
                     "name": "synapse",
                     "properties": None,
@@ -106,13 +108,20 @@ async def test_extractor(
         {
             "dataset": {
                 "properties": None,
-                "name": "will.also.be.ignored",
+                "name": "bar",
                 "platform": {
                     "name": "mssql",
                     "properties": None,
                 },
                 "tags": None,
-                "ownership": None,
+                "ownership": {
+                    "owners": [
+                        {
+                            "owner": {"properties": {"email": "jdoe@test.io"}},
+                            "ownershipType": {"info": {"name": "Technical Owner"}},
+                        }
+                    ]
+                },
                 "schemaMetadata": None,
             }
         },
