@@ -43,7 +43,7 @@ class DatahubExtractor(BaseExtractor):
     def _init_dataset(self, urn: str) -> None:
         dataset_info = get_dataset(self._gql_client, urn)
         if dataset_info.has_additional_information():
-            self._entities.append(dataset_info.as_meta_dataset(self._config))
+            self._entities.append(dataset_info.as_metaphor_dataset(self._config))
 
     def _get_dataset_page(self, scroll_id: Optional[str]) -> Dict[str, Any]:
         params = {}

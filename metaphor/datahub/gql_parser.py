@@ -6,8 +6,8 @@ from pydantic import BaseModel
 from metaphor.common.entity_id import normalize_full_dataset_name, to_person_entity_id
 from metaphor.common.logger import get_logger
 from metaphor.datahub.config import DatahubConfig
-from metaphor.models.metadata_change_event import DataPlatform as MetaDataPlatform
-from metaphor.models.metadata_change_event import Dataset as MetaDataset
+from metaphor.models.metadata_change_event import DataPlatform as MetaphorDataPlatform
+from metaphor.models.metadata_change_event import Dataset as MetaphorDataset
 from metaphor.models.metadata_change_event import (
     DatasetDocumentation,
     DatasetLogicalID,
@@ -15,36 +15,36 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     FieldDocumentation,
 )
-from metaphor.models.metadata_change_event import Ownership as MetaOwnership
+from metaphor.models.metadata_change_event import Ownership as MetaphorOwnership
 from metaphor.models.metadata_change_event import OwnershipAssignment
-from metaphor.models.metadata_change_event import SchemaField as MetaSchemaField
+from metaphor.models.metadata_change_event import SchemaField as MetaphorSchemaField
 
 logger = get_logger()
 
 
-DATAHUB_PLATFORM_MAPPING: Dict[str, MetaDataPlatform] = {
-    "adlsGen1": MetaDataPlatform.AZURE_DATA_LAKE_STORAGE,
-    "adlsGen2": MetaDataPlatform.AZURE_DATA_LAKE_STORAGE,
-    "external": MetaDataPlatform.EXTERNAL,
-    "hive": MetaDataPlatform.HIVE,
-    "s3": MetaDataPlatform.S3,
-    "kafka": MetaDataPlatform.KAFKA,
-    "kafka-connect": MetaDataPlatform.KAFKA,
-    "mariadb": MetaDataPlatform.MYSQL,
-    "mongodb": MetaDataPlatform.DOCUMENTDB,
-    "mysql": MetaDataPlatform.MYSQL,
-    "postgres": MetaDataPlatform.POSTGRESQL,
-    "snowflake": MetaDataPlatform.SNOWFLAKE,
-    "redshift": MetaDataPlatform.REDSHIFT,
-    "mssql": MetaDataPlatform.MSSQL,
-    "bigquery": MetaDataPlatform.BIGQUERY,
-    "glue": MetaDataPlatform.GLUE,
-    "elasticsearch": MetaDataPlatform.ELASTICSEARCH,
-    "trino": MetaDataPlatform.TRINO,
-    "databricks": MetaDataPlatform.UNITY_CATALOG,
-    "gcs": MetaDataPlatform.GCS,
-    "dynamodb": MetaDataPlatform.DYNAMODB,
-    "delta-lake": MetaDataPlatform.UNITY_CATALOG,
+DATAHUB_PLATFORM_MAPPING: Dict[str, MetaphorDataPlatform] = {
+    "adlsGen1": MetaphorDataPlatform.AZURE_DATA_LAKE_STORAGE,
+    "adlsGen2": MetaphorDataPlatform.AZURE_DATA_LAKE_STORAGE,
+    "external": MetaphorDataPlatform.EXTERNAL,
+    "hive": MetaphorDataPlatform.HIVE,
+    "s3": MetaphorDataPlatform.S3,
+    "kafka": MetaphorDataPlatform.KAFKA,
+    "kafka-connect": MetaphorDataPlatform.KAFKA,
+    "mariadb": MetaphorDataPlatform.MYSQL,
+    "mongodb": MetaphorDataPlatform.DOCUMENTDB,
+    "mysql": MetaphorDataPlatform.MYSQL,
+    "postgres": MetaphorDataPlatform.POSTGRESQL,
+    "snowflake": MetaphorDataPlatform.SNOWFLAKE,
+    "redshift": MetaphorDataPlatform.REDSHIFT,
+    "mssql": MetaphorDataPlatform.MSSQL,
+    "bigquery": MetaphorDataPlatform.BIGQUERY,
+    "glue": MetaphorDataPlatform.GLUE,
+    "elasticsearch": MetaphorDataPlatform.ELASTICSEARCH,
+    "trino": MetaphorDataPlatform.TRINO,
+    "databricks": MetaphorDataPlatform.UNITY_CATALOG,
+    "gcs": MetaphorDataPlatform.GCS,
+    "dynamodb": MetaphorDataPlatform.DYNAMODB,
+    "delta-lake": MetaphorDataPlatform.UNITY_CATALOG,
 }
 """
 Source: https://raw.githubusercontent.com/datahub-project/datahub/master/metadata-service/war/src/main/resources/boot/data_platforms.json
@@ -123,7 +123,7 @@ class Owner(BaseModel):
     ownershipType: Optional[OwnershipTypeEntity]
 
     @property
-    def meta_ownership(self) -> Optional[MetaOwnership]:
+    def meta_ownership(self) -> Optional[MetaphorOwnership]:
         contact_designation_name = None
         if self.ownershipType and self.ownershipType.info:
             contact_designation_name = self.ownershipType.info.name
@@ -135,7 +135,7 @@ class Owner(BaseModel):
         if not person and not contact_designation_name:
             return None
 
-        return MetaOwnership(
+        return MetaphorOwnership(
             contact_designation_name=contact_designation_name,
             person=person,
         )
@@ -180,10 +180,10 @@ class SchemaField(BaseModel):
             documentation=self.description,
         )
 
-    def as_field(self) -> Optional[MetaSchemaField]:
+    def as_field(self) -> Optional[MetaphorSchemaField]:
         if not self.tags and not self.description:
             return None
-        return MetaSchemaField(
+        return MetaphorSchemaField(
             description=self.description,
             tags=None if not self.tags else self.tags.schema_tags,
         )
@@ -206,9 +206,9 @@ class Dataset(BaseModel):
         name = normalize_full_dataset_name(self.name)
 
         meta_platform = DATAHUB_PLATFORM_MAPPING.get(
-            self.platform.name, MetaDataPlatform.UNKNOWN
+            self.platform.name, MetaphorDataPlatform.UNKNOWN
         )
-        if meta_platform is MetaDataPlatform.UNKNOWN:
+        if meta_platform is MetaphorDataPlatform.UNKNOWN:
             logger.warning(
                 f"Found unknown data platform {self.platform.name}, will not ingest dataset {name}"
             )
@@ -280,9 +280,9 @@ class Dataset(BaseModel):
             or self.dataset_schema is not None
         )
 
-    def as_meta_dataset(self, config: DatahubConfig) -> MetaDataset:
+    def as_metaphor_dataset(self, config: DatahubConfig) -> MetaphorDataset:
         logical_id = self.get_logical_id(config)
-        return MetaDataset(
+        return MetaphorDataset(
             entity_type=EntityType.DATASET,
             logical_id=logical_id,
             ownership_assignment=self.ownership_assignment,
