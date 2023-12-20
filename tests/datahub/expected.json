@@ -52,5 +52,36 @@
         }
       ]
     }
+  },
+  {
+    "descriptionAssignment": {
+      "assetDescriptions": [
+        {
+          "author": "foo"
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "id": "DATASET~FFA98013B128FA92A6E2965D8E632EFB",
+    "logicalId": {
+      "name": "foo",
+      "platform": "UNKNOWN"
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "id": "DATASET~D1F237ADAD342AB5C243C9934716F1E0",
+    "logicalId": {
+      "name": "bar",
+      "platform": "MSSQL"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Technical Owner",
+          "person": "PERSON~F7D5A003324B483C59324700B72D1DDB"
+        }
+      ]
+    }
   }
 ]

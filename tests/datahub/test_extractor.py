@@ -25,87 +25,99 @@ async def test_extractor(
         def json(self):
             return self.model_dump()
 
-    mock_requests_get.side_effect = [
-        MockGetResponse(
-            entities=[
-                {
-                    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,acme.berlin_bicycles.cycle_hire,PROD)"
-                },
-            ]
-        )
-    ]
+    mock_requests_get.return_value = MockGetResponse(
+        entities=[
+            {
+                "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,acme.berlin_bicycles.cycle_hire,PROD)",
+            },
+            {
+                "urn": "urn:li:dataset:(urn:li:dataPlatform:synapse,foo,PROD)",
+            },
+            {
+                "urn": "urn:li:dataset:(urn:li:dataPlatform:mssql,bar,PROD)",
+            },
+        ]
+    )
 
-    mock_gql_client_execute.side_effect = [
-        {
-            "dataset": {
-                "properties": {
-                    "description": "Just a simple dataset",
-                },
-                "name": "acme.berlin_bicycles.cycle_hire",
-                "platform": {
-                    "name": "snowflake",
-                    "properties": {"datasetNameDelimiter": "."},
-                },
-                "tags": {
-                    "tags": [
-                        {
-                            "tag": {
-                                "properties": {
-                                    "name": "foo_Tag",
-                                    "description": "Foo!!!",
+    def mock_execute(_query, variable_values):
+        if (
+            variable_values["urn"]
+            == "urn:li:dataset:(urn:li:dataPlatform:snowflake,acme.berlin_bicycles.cycle_hire,PROD)"
+        ):
+            return {
+                "dataset": {
+                    "properties": {
+                        "description": "Just a simple dataset",
+                    },
+                    "name": "acme.berlin_bicycles.cycle_hire",
+                    "platform": {
+                        "name": "snowflake",
+                        "properties": {"datasetNameDelimiter": "."},
+                    },
+                    "tags": {
+                        "tags": [
+                            {
+                                "tag": {
+                                    "properties": {
+                                        "name": "foo_Tag",
+                                        "description": "Foo!!!",
+                                    }
                                 }
-                            }
-                        },
-                        {
-                            "tag": {
-                                "properties": {
-                                    "name": "barrrrrr",
-                                    "description": "bar",
+                            },
+                            {
+                                "tag": {
+                                    "properties": {
+                                        "name": "barrrrrr",
+                                        "description": "bar",
+                                    }
                                 }
+                            },
+                        ],
+                    },
+                    "ownership": {
+                        "owners": [
+                            {
+                                "owner": {"properties": {"email": "jdoe@test.io"}},
+                                "ownershipType": {"info": {"name": "Technical Owner"}},
                             }
-                        },
-                    ],
-                },
-                "ownership": {
-                    "owners": [
-                        {
-                            "owner": {"properties": {"email": "jdoe@test.io"}},
-                            "ownershipType": {"info": {"name": "Technical Owner"}},
-                        }
-                    ]
-                },
-                "schemaMetadata": {
-                    "fields": [
-                        {
-                            "fieldPath": "rental_id",
-                            "description": "Rental ID",
-                        },
-                        {
-                            "fieldPath": "duration",
-                            "description": "Duuuuuuuuuuu",
-                        },
-                        {"fieldPath": "bike_id", "description": None},
-                        {"fieldPath": "end_date", "description": None},
-                    ]
-                },
+                        ]
+                    },
+                    "schemaMetadata": {
+                        "fields": [
+                            {
+                                "fieldPath": "rental_id",
+                                "description": "Rental ID",
+                            },
+                            {
+                                "fieldPath": "duration",
+                                "description": "Duuuuuuuuuuu",
+                            },
+                            {"fieldPath": "bike_id", "description": None},
+                            {"fieldPath": "end_date", "description": None},
+                        ]
+                    },
+                }
             }
-        },
-        {
-            "dataset": {
-                "properties": {
-                    "description": "foo",
-                },
-                "name": "foo",
-                "platform": {
-                    "name": "synapse",
-                    "properties": None,
-                },
-                "tags": None,
-                "ownership": None,
-                "schemaMetadata": None,
+        if (
+            variable_values["urn"]
+            == "urn:li:dataset:(urn:li:dataPlatform:synapse,foo,PROD)"
+        ):
+            return {
+                "dataset": {
+                    "properties": {
+                        "description": "foo",
+                    },
+                    "name": "foo",
+                    "platform": {
+                        "name": "synapse",
+                        "properties": None,
+                    },
+                    "tags": None,
+                    "ownership": None,
+                    "schemaMetadata": None,
+                }
             }
-        },
-        {
+        return {
             "dataset": {
                 "properties": None,
                 "name": "bar",
@@ -124,8 +136,9 @@ async def test_extractor(
                 },
                 "schemaMetadata": None,
             }
-        },
-    ]
+        }
+
+    mock_gql_client_execute.side_effect = mock_execute
 
     dummy_config = DatahubConfig(
         output=OutputConfig(),
