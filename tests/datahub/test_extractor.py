@@ -89,7 +89,33 @@ async def test_extractor(
                     ]
                 },
             }
-        }
+        },
+        {
+            "dataset": {
+                "properties": None,
+                "name": "will.be.ignored",
+                "platform": {
+                    "name": "synapse",
+                    "properties": None,
+                },
+                "tags": None,
+                "ownership": None,
+                "schemaMetadata": None,
+            }
+        },
+        {
+            "dataset": {
+                "properties": None,
+                "name": "will.also.be.ignored",
+                "platform": {
+                    "name": "mssql",
+                    "properties": None,
+                },
+                "tags": None,
+                "ownership": None,
+                "schemaMetadata": None,
+            }
+        },
     ]
 
     dummy_config = DatahubConfig(
