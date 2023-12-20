@@ -363,8 +363,6 @@ class UnityCatalogExtractor(BaseExtractor):
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 for catalog_name, schema_name, table_name, tag_name, tag_value in rows:
-                    print(catalog_name, schema_name, table_name)
-
                     normalized_dataset_name = dataset_normalized_name(
                         catalog_name, schema_name, table_name
                     )
