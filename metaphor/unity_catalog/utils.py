@@ -2,17 +2,12 @@ import datetime
 import json
 from typing import Optional
 
+from databricks import sql
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.core import ApiClient
+from databricks.sdk.service.sql import EndpointInfo, QueryFilter, TimeRange
+from databricks.sql.client import Connection
 from requests import HTTPError
-
-try:
-    from databricks import sql
-    from databricks.sdk import WorkspaceClient
-    from databricks.sdk.core import ApiClient
-    from databricks.sdk.service.sql import EndpointInfo, QueryFilter, TimeRange
-    from databricks.sql.client import Connection
-except ImportError:
-    print("Please install metaphor[unity_catalog] extra\n")
-    raise
 
 from metaphor.common.logger import json_dump_to_debug_file
 from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
