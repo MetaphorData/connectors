@@ -282,6 +282,12 @@ class ArtifactParser:
                 depends_on["macros"] = filter_none(depends_on.get("macros", []))
                 depends_on["nodes"] = filter_none(depends_on.get("nodes", []))
 
+        # dbt can erroneously set null for metrics' "type_params.conversion_type_params"
+        # Filter these out for now
+        metrics = manifest_json.get("metrics", {})
+        for node in metrics.values():
+            node.get("type_params", {}).pop("conversion_type_params", None)
+
         return manifest_json
 
     @staticmethod
