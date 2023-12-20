@@ -5,7 +5,6 @@ import re
 import urllib.parse
 from typing import Collection, Dict, Generator, List
 
-from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import TableInfo, TableType
 
 from metaphor.common.base_extractor import BaseExtractor
@@ -45,6 +44,8 @@ from metaphor.unity_catalog.models import (
 )
 from metaphor.unity_catalog.utils import (
     build_query_log_filter_by,
+    create_api,
+    create_connection,
     list_column_lineage,
     list_table_lineage,
 )
@@ -87,6 +88,10 @@ class UnityCatalogExtractor(BaseExtractor):
         self._host = config.host
         self._token = config.token
         self._source_url = config.source_url
+        self._api = create_api(self._host, self._token)
+        self._connection = create_connection(
+            self._api, self._token, config.warehouse_id
+        )
 
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
@@ -94,8 +99,6 @@ class UnityCatalogExtractor(BaseExtractor):
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Unity Catalog")
-
-        self._api = UnityCatalogExtractor.create_api(self._host, self._token)
 
         catalogs = (
             self._get_catalogs()
@@ -121,6 +124,8 @@ class UnityCatalogExtractor(BaseExtractor):
                         continue
                     dataset = self._init_dataset(table_info)
                     self._populate_lineage(dataset)
+
+        self._fetch_tags(catalogs)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(list(self._datasets.values()))
@@ -340,6 +345,36 @@ class UnityCatalogExtractor(BaseExtractor):
 
         return QueryLogs(logs=logs)
 
-    @staticmethod
-    def create_api(host: str, token: str) -> WorkspaceClient:
-        return WorkspaceClient(host=host, token=token)
+    def _fetch_tags(self, catalogs: List[str]):
+        with self._connection.cursor() as cursor:
+            for catalog in catalogs:
+                columns = ", ".join(
+                    [
+                        "catalog_name",
+                        "schema_name",
+                        "table_name",
+                        "tag_name",
+                        "tag_value",
+                    ]
+                )
+                table_tags_table = f"{catalog}.information_schema.table_tags"
+                query = f"SELECT {columns} FROM {table_tags_table};"
+
+                cursor.execute(query)
+                rows = cursor.fetchall()
+                for catalog_name, schema_name, table_name, tag_name, tag_value in rows:
+                    normalized_dataset_name = dataset_normalized_name(
+                        catalog_name, schema_name, table_name
+                    )
+                    dataset = self._datasets.get(normalized_dataset_name)
+
+                    if dataset is None:
+                        logger.warn(f"Cannot find {normalized_dataset_name} table")
+                        continue
+
+                    tag = f"{tag_name}={tag_value}" if tag_value else tag_name
+
+                    if not dataset.schema.tags:
+                        dataset.schema.tags = []
+                    if tag not in dataset.schema.tags:
+                        dataset.schema.tags.append(tag)

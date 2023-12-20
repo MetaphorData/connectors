@@ -30,16 +30,6 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
-#### Warehouse ID
-
-To run the queries using a specific warehouse, simply add its IDt  in the configuration file:
-
-```yaml
-warehouse_id: <warehouse_id>
-```
-
-If no warehouse id is provided, the connector automatically uses the first discovered warehouse.
-
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `unity_catalog` extra.
