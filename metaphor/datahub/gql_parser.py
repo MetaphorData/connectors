@@ -219,9 +219,8 @@ class Dataset(BaseModel):
         )
         if metaphor_platform is MetaphorDataPlatform.UNKNOWN:
             logger.warning(
-                f"Found unknown data platform {self.platform.name}, ingesting it as EXTERNAL"
+                f"Found unknown data platform {self.platform.name}, will not ingest dataset {name}"
             )
-            metaphor_platform = MetaphorDataPlatform.EXTERNAL
 
         return DatasetLogicalID(
             account=config.get_account(metaphor_platform),

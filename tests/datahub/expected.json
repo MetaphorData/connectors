@@ -64,31 +64,5 @@
         "barrrrrr"
       ]
     }
-  },
-  {
-    "descriptionAssignment": {
-      "assetDescriptions": [
-        {
-          "author": "PERSON~5215EA306B22129038E1E76570944F28",
-          "description": "foo"
-        }
-      ],
-      "columnDescriptionAssignments": [
-        {
-          "assetDescriptions": [
-            {
-              "author": "PERSON~5215EA306B22129038E1E76570944F28",
-              "description": "Foo"
-            }
-          ],
-          "columnName": "foo"
-        }
-      ]
-    },
-    "entityType": "DATASET",
-    "logicalId": {
-      "name": "foo",
-      "platform": "EXTERNAL"
-    }
   }
 ]

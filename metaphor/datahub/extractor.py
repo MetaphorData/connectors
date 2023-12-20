@@ -9,7 +9,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.datahub.config import DatahubConfig
 from metaphor.datahub.gql_parser import get_dataset
-from metaphor.models.metadata_change_event import Dataset
+from metaphor.models.metadata_change_event import DataPlatform, Dataset
 
 logger = get_logger()
 
@@ -42,16 +42,20 @@ class DatahubExtractor(BaseExtractor):
         self._entities: List[ENTITY_TYPES] = []
 
     @staticmethod
-    def _dataset_has_additional_information(dataset: Dataset) -> bool:
+    def _should_ingest_dataset(dataset: Dataset) -> bool:
         return (
-            dataset.description_assignment is not None
-            or dataset.tag_assignment is not None
-            or dataset.ownership_assignment is not None
+            (
+                dataset.description_assignment is not None
+                or dataset.tag_assignment is not None
+                or dataset.ownership_assignment is not None
+            )
+            and dataset.logical_id is not None
+            and dataset.logical_id.platform is not DataPlatform.UNKNOWN
         )
 
     def _init_dataset(self, urn: str) -> None:
         dataset = get_dataset(self._gql_client, urn).as_metaphor_dataset(self._config)
-        if DatahubExtractor._dataset_has_additional_information(dataset):
+        if DatahubExtractor._should_ingest_dataset(dataset):
             self._entities.append(dataset)
 
     def _get_dataset_page(self, scroll_id: Optional[str]) -> Dict[str, Any]:
