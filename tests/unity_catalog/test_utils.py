@@ -8,6 +8,7 @@ from requests import HTTPError, Response
 from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
 from metaphor.unity_catalog.utils import (
     build_query_log_filter_by,
+    escape_special_characters,
     list_column_lineage,
     list_table_lineage,
 )
@@ -140,3 +141,8 @@ def test_parse_query_log_filter_by():
     )
     time_diff = end_time - start_time
     assert time_diff == datetime.timedelta(days=2)
+
+
+def test_escape_special_characters():
+    assert escape_special_characters("this.is.a_table") == "this.is.a_table"
+    assert escape_special_characters("this.is.also-a-table") == "`this.is.also-a-table`"

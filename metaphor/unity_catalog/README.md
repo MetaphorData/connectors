@@ -6,7 +6,7 @@ This connector extracts technical metadata from Unity Catalog using the [Unity C
 
 Create an access token in the Databrick workspace > `User setting` > `Access tokens`.
 
-Data lineage should be anbled by default for all workspaces that reference Unity Catalog. You can manually enable it by following [these instructions](https://docs.databricks.com/data-governance/unity-catalog/enable-workspaces.html)
+Data lineage should be enabled by default for all workspaces that reference Unity Catalog. You can manually enable it by following [these instructions](https://docs.databricks.com/data-governance/unity-catalog/enable-workspaces.html)
 
 > Refer to [this document](https://docs.databricks.com/data-governance/unity-catalog/data-lineage.html#limitations) to understand the limitations of Unity Catalog's data lineage.
 
@@ -31,6 +31,16 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 #### Filtering
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+
+#### Warehouse ID
+
+To run the queries using a specific warehouse, simply add its ID in the configuration file:
+
+```yaml
+warehouse_id: <warehouse_id>
+```
+
+If no warehouse id is provided, the connector automatically uses the first discovered warehouse.
 
 #### Source URL
 
