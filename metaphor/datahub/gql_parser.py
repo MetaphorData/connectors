@@ -265,12 +265,17 @@ class Dataset(BaseModel):
             if filtered_fields:
                 fields = filtered_fields
 
-        if not tags and not fields:
+        description = None
+        if self.properties and self.properties.description:
+            description = self.properties.description
+
+        if not tags and not fields and not description:
             return None
 
         return DatasetSchema(
             fields=fields,
             tags=tags,
+            description=description,
         )
 
     def has_additional_information(self) -> bool:

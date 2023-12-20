@@ -30,6 +30,7 @@
       ]
     },
     "schema": {
+      "description": "Just a simple dataset",
       "fields": [
         {
           "description": "Rental ID",
@@ -62,6 +63,9 @@
     "logicalId": {
       "name": "foo",
       "platform": "UNKNOWN"
+    },
+    "schema": {
+      "description": "foo"
     }
   },
   {
