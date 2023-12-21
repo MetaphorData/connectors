@@ -1,0 +1,68 @@
+[
+  {
+    "descriptionAssignment": {
+      "assetDescriptions": [
+        {
+          "author": "PERSON~F7D5A003324B483C59324700B72D1DDB",
+          "description": "Just a simple dataset"
+        }
+      ],
+      "columnDescriptionAssignments": [
+        {
+          "assetDescriptions": [
+            {
+              "author": "PERSON~F7D5A003324B483C59324700B72D1DDB",
+              "description": "Rental ID"
+            }
+          ],
+          "columnName": "rental_id"
+        },
+        {
+          "assetDescriptions": [
+            {
+              "author": "PERSON~F7D5A003324B483C59324700B72D1DDB",
+              "description": "Duuuuuuuuuuu"
+            }
+          ],
+          "columnName": "duration"
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "account": "test-dev",
+      "name": "acme.berlin_bicycles.cycle_hire",
+      "platform": "SNOWFLAKE"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Technical Owner",
+          "person": "PERSON~F7D5A003324B483C59324700B72D1DDB"
+        }
+      ]
+    },
+    "tagAssignment": {
+      "columnTagAssignments": [
+        {
+          "columnName": "rental_id",
+          "tagNames": [
+            "column_tag1",
+            "column_tag2",
+            "column_tag3"
+          ]
+        },
+        {
+          "columnName": "duration",
+          "tagNames": [
+            "column_tag1"
+          ]
+        }
+      ],
+      "tagNames": [
+        "foo_Tag",
+        "barrrrrr"
+      ]
+    }
+  }
+]
