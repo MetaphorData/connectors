@@ -33,12 +33,7 @@ from metaphor.snowflake.profile.config import (
     ColumnStatistics,
     SnowflakeProfileRunConfig,
 )
-from metaphor.snowflake.utils import (
-    DatasetInfo,
-    QueryWithParam,
-    SnowflakeTableType,
-    async_execute,
-)
+from metaphor.snowflake.utils import DatasetInfo, QueryWithParam, SnowflakeTableType
 
 logger = get_logger()
 
@@ -197,6 +192,9 @@ class SnowflakeProfileExtractor(BaseExtractor):
                     self._sampling,
                 )
             )
+
+        # Has to be here, otherwise patching during test would not work
+        from metaphor.snowflake.utils import async_execute
 
         profiles = async_execute(
             connection, profile_queries, "profile_columns", self._max_concurrency
