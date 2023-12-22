@@ -213,6 +213,7 @@ class TableauExtractor(BaseExtractor):
                     logger.info(
                         f"Ignoring datasources from workbook in excluded project: {workbook.projectName}"
                     )
+                    continue
                 self._parse_workbook_query_response(
                     server, workbook, datasource_upstream_datasets
                 )

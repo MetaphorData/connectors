@@ -458,6 +458,9 @@ async def test_extractor(
                             },
                         }
                     ],
+                    "owner": {
+                        "luid": "12345678",
+                    },
                 }
             ],
             "embeddedDatasources": [],
