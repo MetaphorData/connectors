@@ -9,7 +9,10 @@ except ImportError:
 
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_normalized_name
+from metaphor.common.entity_id import (
+    dataset_normalized_name,
+    normalize_full_dataset_name,
+)
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
@@ -136,38 +139,35 @@ class SnowflakeProfileExtractor(BaseExtractor):
     ) -> None:
         # Create a map of full_name => [column_info] from information_schema.columns
         cursor = connection.cursor()
-        cursor.execute(self.FETCH_COLUMNS_QUERY)
+        cursor.execute("SHOW TABLES")
+        table_tuples = [(row[1], row[2], row[3]) for row in cursor]
+
         column_info_map: Dict[str, List[Tuple[str, str]]] = {}
-        for row in cursor:
-            (
-                table_catalog,
-                table_schema,
-                table_name,
-                column_name,
-                data_type,
-            ) = row
-            normalized_name = dataset_normalized_name(
-                table_catalog, table_schema, table_name
-            )
-            if normalized_name not in tables:
-                continue
-
-            column_info_map.setdefault(normalized_name, []).append(
-                (column_name, data_type)
-            )
-
-        # Build profile query for each table
         profile_queries = {}
-        for normalized_name, column_info in column_info_map.items():
-            dataset_info = tables.get(normalized_name)
-            assert dataset_info is not None
+        for table_name, table_catalog, table_schema in table_tuples:
+            full_name = f"{table_catalog}.{table_schema}.{table_name}"
+            column_info: List[Tuple[str, str]] = []
 
-            profile_queries[normalized_name] = QueryWithParam(
+            cursor.execute(f'SHOW COLUMNS IN "{table_name}"')
+            for row in cursor:
+                column_name = row[2]
+                data_type = row[3]
+                column_info.append((column_name, data_type))
+            column_info_map[full_name] = column_info
+
+            row_count = None
+            dataset_info = tables.get(
+                normalize_full_dataset_name(full_name)
+            )  # FIXME normalized name is case insensitive, make it case sensitive so that this logic works properly
+            if dataset_info:
+                row_count = dataset_info.row_count
+
+            profile_queries[full_name] = QueryWithParam(
                 SnowflakeProfileExtractor._build_profiling_query(
                     column_info,
-                    dataset_info.schema,
-                    dataset_info.name,
-                    dataset_info.row_count or 0,
+                    table_schema,
+                    table_name,
+                    row_count or 0,
                     self._column_statistics,
                     self._sampling,
                 )
@@ -177,11 +177,13 @@ class SnowflakeProfileExtractor(BaseExtractor):
             connection, profile_queries, "profile_columns", self._max_concurrency
         )
 
-        for normalized_name, profile in profiles.items():
-            dataset = self._datasets[normalized_name]
+        for full_name, profile in profiles.items():
+            dataset = self._datasets[
+                normalize_full_dataset_name(full_name)
+            ]  # FIXME normalized name is case insensitive, make it case sensitive so that this logic works properly
 
             SnowflakeProfileExtractor._parse_profiling_result(
-                column_info_map[normalized_name],
+                column_info_map[full_name],
                 profile[0],
                 dataset,
                 self._column_statistics,
