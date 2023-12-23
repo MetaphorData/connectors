@@ -52,17 +52,17 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [bigquery](metaphor/bigquery/README.md)                           | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/README.md)           | Lineage                                  |
 | [bigquery.profile](metaphor/bigquery/profile/README.md)           | Data profile                             |
-| [dbt](metaphor/dbt/README.md)                                     | dbt model, test, lineage                 |
-| [dbt.cloud](metaphor/dbt/cloud/README.md)                         | dbt model, test, lineage                 |
-| [fivetran](metaphor/fivetran/README.md)                           | Lineage, Pipeline                        |
-| [glue](metaphor/glue/README.md)                                   | Schema, description                      |
-| [looker](metaphor/looker/README.md)                               | Looker view, explore, dashboard, lineage |
 | [custom.data_quality](metaphor/custom/data_quality/README.md)     | Data quality                             |
 | [custom.governance](metaphor/custom/governance/README.md)         | Ownership, tags, description             |
 | [custom.lineage](metaphor/custom/lineage/README.md)               | Lineage                                  |
 | [custom.metadata](metaphor/custom/metadata/README.md)             | Custom metadata                          |
 | [custom.query_attributions](metaphor/custom/metadata/README.md)   | Query attritutions                       |
 | [datahub](metaphor/datahub/README.md)                             | Description, tag, ownership              |
+| [dbt](metaphor/dbt/README.md)                                     | dbt model, test, lineage                 |
+| [dbt.cloud](metaphor/dbt/cloud/README.md)                         | dbt model, test, lineage                 |
+| [fivetran](metaphor/fivetran/README.md)                           | Lineage, Pipeline                        |
+| [glue](metaphor/glue/README.md)                                   | Schema, description                      |
+| [looker](metaphor/looker/README.md)                               | Looker view, explore, dashboard, lineage |
 | [kafka](metaphor/kafka/README.md)                                 | Schema, description                      |
 | [metabase](metaphor/metabase/README.md)                           | Dashboard, lineage                       |
 | [monte_carlo](metaphor/monte_carlo/README.md)                     | Data monitor                             |
