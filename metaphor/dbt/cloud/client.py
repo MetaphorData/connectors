@@ -2,13 +2,22 @@ import json
 import shutil
 import tempfile
 from os import path
-from typing import Dict, Optional, Tuple
+from typing import Dict, NamedTuple, Optional
 
 import requests
 
 from metaphor.common.logger import get_logger
 
 logger = get_logger()
+
+
+class DbtRun(NamedTuple):
+    run_id: int
+    project_id: int
+    job_id: int
+
+    def __str__(self) -> str:
+        return f"ID = {self.run_id}, project ID = {self.project_id}, job ID = {self.job_id}"
 
 
 class DbtAdminAPIClient:
@@ -38,29 +47,39 @@ class DbtAdminAPIClient:
         assert req.status_code == 200, f"{url} returned {req.status_code}"
         return req.json()
 
-    def get_last_successful_run(self, job_id: int) -> Tuple[int, int]:
+    def get_last_successful_run(
+        self, job_id: Optional[int], project_id: Optional[int]
+    ) -> DbtRun:
         """Get the project and run IDs of the last successful run for a job"""
+
+        assert (job_id is not None) != (project_id is not None)  # Should only specify 1
 
         offset = 0
         page_size = 50
+        payload = {
+            "order_by": "-id",
+            "limit": page_size,
+            "offset": offset,
+        }
+        if job_id:
+            payload["job_definition_id"] = job_id
+        if project_id:
+            payload["project_id"] = project_id
+
         while True:
             # https://docs.getdbt.com/dbt-cloud/api-v2#operation/listRunsForAccount
-            resp = self._get(
-                "runs/",
-                {
-                    "job_definition_id": job_id,
-                    "order_by": "-id",
-                    "limit": page_size,
-                    "offset": offset,
-                },
-            )
+            resp = self._get("runs/", payload)
 
             data = resp.get("data")
             assert len(data) > 0, "Unable to find any successful run"
 
             for run in data:
                 if run.get("status") == 10:
-                    return run.get("project_id"), run.get("id")
+                    return DbtRun(
+                        run_id=run.get("id"),
+                        project_id=run.get("project_id"),
+                        job_id=run.get("job_definition_id"),
+                    )
 
             offset += page_size
 
@@ -78,16 +97,18 @@ class DbtAdminAPIClient:
 
         return connection.get("details").get("account")
 
-    def get_run_artifact(self, job_id: int, run_id: int, artifact: str) -> str:
+    def get_run_artifact(self, run: DbtRun, artifact: str) -> str:
         """Write a particular artifact from a run to a temp file."""
 
         # https://docs.getdbt.com/dbt-cloud/api-v2#operation/getArtifactsByRunId
-        artifact_json = self._get(f"runs/{run_id}/artifacts/{artifact}")
+        artifact_json = self._get(f"runs/{run.run_id}/artifacts/{artifact}")
 
         fd, temp_name = tempfile.mkstemp()
         with open(fd, "w") as fp:
             json.dump(artifact_json, fp)
 
-        pretty_name = f"{path.dirname(temp_name)}/{job_id}-{artifact}"
+        pretty_name = (
+            f"{path.dirname(temp_name)}/{run.project_id}-{run.job_id}-{artifact}"
+        )
         shutil.copyfile(temp_name, pretty_name)
         return pretty_name

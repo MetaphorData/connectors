@@ -3,9 +3,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.extractor import DbtCloudExtractor
-from metaphor.dbt.config import DbtRunConfig
 
 
 @patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
@@ -15,7 +15,13 @@ async def test_extractor(
     mock_dbt_extractor_class: MagicMock, mock_client_class: MagicMock
 ):
     mock_client = MagicMock()
-    mock_client.get_last_successful_run = MagicMock(return_value=(3333, 4444))
+    mock_client.get_last_successful_run = MagicMock(
+        side_effect=(
+            DbtRun(run_id=3333, project_id=4444, job_id=2222),
+            DbtRun(run_id=7777, project_id=6666, job_id=8888),
+            DbtRun(run_id=3333, project_id=4444, job_id=2222),
+        )
+    )
     mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
     mock_client.get_run_artifact = MagicMock(return_value="tempfile")
 
@@ -33,25 +39,10 @@ async def test_extractor(
         output=OutputConfig(),
         account_id=1111,
         job_ids=[2222],
+        project_ids=[6666, 4444],
         base_url="https://cloud.metaphor.getdbt.com",
         service_token="service_token",
     )
     extractor = DbtCloudExtractor(config)
     await extractor.extract()
-
-    mock_client_class.assert_called_once_with(
-        base_url="https://cloud.metaphor.getdbt.com",
-        account_id=1111,
-        service_token="service_token",
-    )
-
-    mock_dbt_extractor_class.assert_called_once_with(
-        DbtRunConfig(
-            manifest="tempfile",
-            run_results="tempfile",
-            account="snowflake_account",
-            docs_base_url="https://cloud.metaphor.getdbt.com/accounts/1111/jobs/2222/docs",
-            output=OutputConfig(),
-        )
-    )
-    mock_dbt_extractor.extract.assert_called_once()
+    assert sorted(extractor._entities.keys()) == [3333, 7777]

@@ -17,13 +17,16 @@ class DbtCloudConfig(BaseConfig):
     service_token: str
 
     # dbt cloud job IDs
-    job_ids: List[int]
+    job_ids: List[int] = dataclass_field(default_factory=list)
+
+    # dbt cloud project IDs
+    project_ids: List[int] = dataclass_field(default_factory=list)
 
     # map meta field to ownerships
-    meta_ownerships: List[MetaOwnership] = dataclass_field(default_factory=lambda: [])
+    meta_ownerships: List[MetaOwnership] = dataclass_field(default_factory=list)
 
     # map meta field to tags
-    meta_tags: List[MetaTag] = dataclass_field(default_factory=lambda: [])
+    meta_tags: List[MetaTag] = dataclass_field(default_factory=list)
 
     # Base URL for dbt instance
     base_url: str = "https://cloud.getdbt.com"
