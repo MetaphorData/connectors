@@ -36,7 +36,7 @@ Similarly, you can also install the package using `requirements.txt` or `pyproje
 
 ## Docker
 
-We automatically push a [docker image](https://hub.docker.com/r/metaphordata/connectors) to Docker Hub as par of the CI/CD. See [this page](./docs/docker.md) for more details.
+We automatically push a [docker image](https://hub.docker.com/r/metaphordata/connectors) to Docker Hub as part of the CI/CD. See [this page](./docs/docker.md) for more details.
 
 ## GitHub Action
 
@@ -52,16 +52,17 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [bigquery](metaphor/bigquery/README.md)                           | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/README.md)           | Lineage                                  |
 | [bigquery.profile](metaphor/bigquery/profile/README.md)           | Data profile                             |
-| [dbt](metaphor/dbt/README.md)                                     | dbt model, test, lineage                 |
-| [dbt.cloud](metaphor/dbt/cloud/README.md)                         | dbt model, test, lineage                 |
-| [fivetran](metaphor/fivetran/README.md)                           | Lineage, Pipeline                        |
-| [glue](metaphor/glue/README.md)                                   | Schema, description                      |
-| [looker](metaphor/looker/README.md)                               | Looker view, explore, dashboard, lineage |
 | [custom.data_quality](metaphor/custom/data_quality/README.md)     | Data quality                             |
 | [custom.governance](metaphor/custom/governance/README.md)         | Ownership, tags, description             |
 | [custom.lineage](metaphor/custom/lineage/README.md)               | Lineage                                  |
 | [custom.metadata](metaphor/custom/metadata/README.md)             | Custom metadata                          |
 | [custom.query_attributions](metaphor/custom/metadata/README.md)   | Query attritutions                       |
+| [datahub](metaphor/datahub/README.md)                             | Description, tag, ownership              |
+| [dbt](metaphor/dbt/README.md)                                     | dbt model, test, lineage                 |
+| [dbt.cloud](metaphor/dbt/cloud/README.md)                         | dbt model, test, lineage                 |
+| [fivetran](metaphor/fivetran/README.md)                           | Lineage, Pipeline                        |
+| [glue](metaphor/glue/README.md)                                   | Schema, description                      |
+| [looker](metaphor/looker/README.md)                               | Looker view, explore, dashboard, lineage |
 | [kafka](metaphor/kafka/README.md)                                 | Schema, description                      |
 | [metabase](metaphor/metabase/README.md)                           | Dashboard, lineage                       |
 | [monte_carlo](metaphor/monte_carlo/README.md)                     | Data monitor                             |
@@ -80,13 +81,14 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [synapse](metaphor/synapse//README.md)                            | Schema, queries                          |
 | [tableau](metaphor/tableau/README.md)                             | Dashboard, lineage                       |
 | [thought_spot](metaphor/thought_spot/README.md)                   | Dashboard, lineage                       |
+| [trino](metaphor/trino/README.md)                                 | Schema, description, queries             |                       
 | [unity_catalog](metaphor/unity_catalog/README.md)                 | Schema, description                      |
 | [unity_catalog.profile](metaphor/unity_catalog/profile/README.md) | Statistics                               |
 
 ## Development
 
-See [Development Environment](docs/develop.md) for more instructions on how to setup your local development environment.
+See [Development Environment](docs/develop.md) for more instructions on how to set up your local development environment.
 
 ## Custom Connectors
 
-See [Adding a Custom Connector](docs/custom.md) for instructions and a full example on how to create your custom connectors.
+See [Adding a Custom Connector](docs/custom.md) for instructions and a full example of creating your custom connectors.
