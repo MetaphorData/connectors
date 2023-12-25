@@ -50,7 +50,7 @@ class DbtAdminAPIClient:
     def get_last_successful_run(
         self, job_id: Optional[int], project_id: Optional[int]
     ) -> DbtRun:
-        """Get the project and run IDs of the last successful run for a job"""
+        """Get the run ID of the last successful run for a job or a project"""
 
         assert (job_id is not None) != (project_id is not None)  # Should only specify 1
 
