@@ -22,6 +22,7 @@ async def test_extractor(
             DbtRun(run_id=3333, project_id=4444, job_id=2222),
         )
     )
+    mock_client.get_project_jobs = MagicMock(side_effect=[[8888], [2222]])
     mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
     mock_client.get_run_artifact = MagicMock(return_value="tempfile")
 
