@@ -79,6 +79,9 @@ URL_SCHEMA_RE = re.compile(r"{schema}")
 URL_TABLE_RE = re.compile(r"{table}")
 
 
+CatalogSystemTags = Dict[str, Tuple[List[SystemTag], Dict[str, List[SystemTag]]]]
+
+
 class UnityCatalogExtractor(BaseExtractor):
     """Unity Catalog metadata extractor"""
 
@@ -417,31 +420,33 @@ class UnityCatalogExtractor(BaseExtractor):
                 schema_tags[schema_name].append(tag)
         return catalog_tags, schema_tags
 
+    def _assign_dataset_system_tags(
+        self, catalog: str, catalog_system_tags: CatalogSystemTags
+    ) -> None:
+        for schema in self._api.schemas.list(catalog):
+            if schema.name:
+                for table in self._api.tables.list(catalog, schema.name):
+                    normalized_dataset_name = dataset_normalized_name(
+                        catalog, schema.name, table.name
+                    )
+                    dataset = self._datasets.get(normalized_dataset_name)
+                    if dataset is not None:
+                        tags = (
+                            catalog_system_tags[catalog][0]
+                            + catalog_system_tags[catalog][1][schema.name]
+                        )
+                        if tags and not dataset.system_tags:
+                            # We do not need to append to system tags once it's been assigned
+                            dataset.system_tags = SystemTags(tags=tags)
+
     def _fetch_tags(self, catalogs: List[str]):
         with self._connection.cursor() as cursor:
-            catalog_system_tags: Dict[
-                str, Tuple[List[SystemTag], Dict[str, List[SystemTag]]]
-            ] = {}
+            catalog_system_tags: CatalogSystemTags = {}
 
             for catalog in catalogs:
                 catalog_system_tags[catalog] = self._fetch_system_tags(catalog)
                 self._extract_hierarchies(catalog_system_tags)
-
-                for schema in self._api.schemas.list(catalog):
-                    if schema.name:
-                        for table in self._api.tables.list(catalog, schema.name):
-                            normalized_dataset_name = dataset_normalized_name(
-                                catalog, schema.name, table.name
-                            )
-                            dataset = self._datasets.get(normalized_dataset_name)
-                            if dataset is not None:
-                                tags = (
-                                    catalog_system_tags[catalog][0]
-                                    + catalog_system_tags[catalog][1][schema.name]
-                                )
-                                if tags and not dataset.system_tags:
-                                    # We do not need to append to system tags once it's been assigned
-                                    dataset.system_tags = SystemTags(tags=tags)
+                self._assign_dataset_system_tags(catalog, catalog_system_tags)
 
                 columns = ", ".join(
                     [
