@@ -2,7 +2,7 @@ import json
 import shutil
 import tempfile
 from os import path
-from typing import Dict, NamedTuple, Optional
+from typing import Dict, List, NamedTuple, Optional, Set
 
 import requests
 
@@ -47,12 +47,32 @@ class DbtAdminAPIClient:
         assert req.status_code == 200, f"{url} returned {req.status_code}"
         return req.json()
 
-    def get_last_successful_run(
-        self, job_id: Optional[int], project_id: Optional[int]
-    ) -> DbtRun:
-        """Get the run ID of the last successful run for a job or a project"""
+    def get_project_jobs(self, project_id: int) -> List[int]:
+        offset = 0
+        page_size = 50
+        payload = {
+            "limit": page_size,
+            "offset": offset,
+            "project_id": project_id,
+        }
+        jobs: Set[int] = set()
+        while True:
+            # https://docs.getdbt.com/dbt-cloud/api-v2#/operations/List%20Jobs
+            resp = self._get("jobs/", payload)
+            data = resp.get("data")
 
-        assert (job_id is not None) != (project_id is not None)  # Should only specify 1
+            # FIXME dbt pagination is buggy, if we go to a page that isn't supposed to have
+            # things it'll just return the last page that has stuff inside
+            new_jobs = {job["id"] for job in data}
+            # If everything in the current page have already been found, then we're done
+            if not any(job for job in new_jobs if job not in jobs):
+                return list(jobs)
+
+            jobs |= new_jobs
+            offset += page_size
+
+    def get_last_successful_run(self, job_id: Optional[int]) -> DbtRun:
+        """Get the run ID of the last successful run for a job"""
 
         offset = 0
         page_size = 50
@@ -60,11 +80,8 @@ class DbtAdminAPIClient:
             "order_by": "-id",
             "limit": page_size,
             "offset": offset,
+            "job_definition_id": job_id,
         }
-        if job_id:
-            payload["job_definition_id"] = job_id
-        if project_id:
-            payload["project_id"] = project_id
 
         while True:
             # https://docs.getdbt.com/dbt-cloud/api-v2#operation/listRunsForAccount

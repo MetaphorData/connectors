@@ -41,7 +41,7 @@ def test_get_last_successful_run(mock_requests):
         },
     )
 
-    run = client.get_last_successful_run(2222, None)
+    run = client.get_last_successful_run(2222)
     assert run.project_id == 222
     assert run.run_id == 2
     assert run.job_id == 8888
@@ -94,6 +94,30 @@ def test_get_snowflake_account(mock_requests):
         },
         timeout=600,
     )
+
+
+@patch("metaphor.dbt.cloud.client.requests")
+def test_get_project_jobs(mock_requests):
+    client = DbtAdminAPIClient(
+        base_url="http://base.url",
+        account_id=1111,
+        service_token="service_token",
+    )
+    mock_requests.get.return_value = Response(
+        200,
+        {
+            "data": [
+                {
+                    "id": 3333,
+                },
+                {
+                    "id": 2222,
+                },
+            ]
+        },
+    )
+    jobs = client.get_project_jobs(4444)
+    assert jobs == [3333, 2222]
 
 
 @patch("metaphor.dbt.cloud.client.requests")

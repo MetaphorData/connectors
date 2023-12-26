@@ -44,22 +44,19 @@ class DbtCloudExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from DBT cloud")
 
-        for job_id in self._job_ids:
-            await self._extract_last_run(job_id, None)
-
         for project_id in self._project_ids:
-            await self._extract_last_run(None, project_id)
+            self._job_ids.extend(self._client.get_project_jobs(project_id))
+
+        for job_id in self._job_ids:
+            await self._extract_last_run(job_id)
 
         return [item for ls in self._entities.values() for item in ls]
 
-    async def _extract_last_run(self, job_id: Optional[int], project_id: Optional[int]):
-        assert (job_id is None) != (project_id is None)
+    async def _extract_last_run(self, job_id: Optional[int]):
         if job_id is not None:
             logger.info(f"Fetching metadata for job ID: {job_id}")
-        if project_id is not None:
-            logger.info(f"Fetching metadata for project ID: {project_id}")
 
-        run = self._client.get_last_successful_run(job_id, project_id)
+        run = self._client.get_last_successful_run(job_id)
 
         if run.run_id in self._entities:
             logger.info(f"Found already extracted run: {run}")
