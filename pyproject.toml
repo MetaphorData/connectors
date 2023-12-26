@@ -149,6 +149,7 @@ extend_skip = [
 
 [tool.mypy]
 exclude = ["venv"]
+explicit_package_bases = true
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
 
