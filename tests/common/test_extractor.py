@@ -7,12 +7,7 @@ from metaphor.common.base_config import BaseConfig, OutputConfig
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.models.metadata_change_event import (
-    Dashboard,
-    Dataset,
-    MetadataChangeEvent,
-    VirtualView,
-)
+from metaphor.models.metadata_change_event import Dashboard, Dataset, VirtualView
 
 
 @dataclass(config=ConnectorConfig)
@@ -39,12 +34,12 @@ class DummyExtractor(BaseExtractor):
 def test_dummy_extractor():
     entities = [Dashboard(), Dataset(), VirtualView()]
     config = DummyRunConfig(dummy_attr=0, output=OutputConfig())
-    events = DummyExtractor(config, entities).run()
+    parsed_entities = DummyExtractor(config, entities).run_async()
 
-    assert events == [
-        MetadataChangeEvent(dashboard=Dashboard()),
-        MetadataChangeEvent(dataset=Dataset()),
-        MetadataChangeEvent(virtual_view=VirtualView()),
+    assert parsed_entities == [
+        Dashboard(),
+        Dataset(),
+        VirtualView(),
     ]
 
 
@@ -54,9 +49,9 @@ class InvalidExtractor(BaseExtractor):
         return InvalidExtractor(BaseConfig(output=OutputConfig()))
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        return []
+        raise AttributeError
 
 
 def test_invalid_extractor():
     with pytest.raises(AttributeError):
-        InvalidExtractor(BaseConfig(output=OutputConfig())).run()
+        InvalidExtractor(BaseConfig(output=OutputConfig())).run_async()
