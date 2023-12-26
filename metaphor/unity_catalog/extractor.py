@@ -3,7 +3,8 @@ import json
 import logging
 import re
 import urllib.parse
-from typing import Collection, Dict, Generator, List
+from collections import defaultdict
+from typing import Collection, Dict, Generator, List, Tuple
 
 from databricks.sdk.service.catalog import TableInfo, TableType
 
@@ -34,6 +35,9 @@ from metaphor.models.metadata_change_event import (
     SourceField,
     SourceInfo,
     SQLSchema,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     UnityCatalog,
     UnityCatalogTableType,
 )
@@ -96,6 +100,7 @@ class UnityCatalogExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._query_log_config = config.query_log
+        self._system_tags: List[SystemTag] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Unity Catalog")
@@ -347,7 +352,33 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def _fetch_tags(self, catalogs: List[str]):
         with self._connection.cursor() as cursor:
+            catalog_system_tags: Dict[
+                str, Tuple[List[SystemTag], Dict[str, List[SystemTag]]]
+            ] = defaultdict(lambda: ([], defaultdict(list)))
+
             for catalog in catalogs:
+                catalog_tags_query = f"SELECT tag_name, tag_value FROM {catalog}.information_schema.catalog_tags"
+                cursor.execute(catalog_tags_query)
+                for tag_name, tag_value in cursor.fetchall():
+                    catalog_system_tags[catalog][0].append(
+                        SystemTag(
+                            key=tag_name,
+                            value=tag_value,
+                            system_tag_source=SystemTagSource.UNITY_CATALOG,
+                        )
+                    )
+
+                schema_tags_query = f"SELECT schema_name, tag_name, tag_value FROM {catalog}.information_schema.schema_tags"
+                cursor.execute(schema_tags_query)
+                for schema_name, tag_name, tag_value in cursor.fetchall():
+                    catalog_system_tags[catalog][1][schema_name].append(
+                        SystemTag(
+                            key=tag_name,
+                            value=tag_value,
+                            system_tag_source=SystemTagSource.UNITY_CATALOG,
+                        )
+                    )
+
                 columns = ", ".join(
                     [
                         "catalog_name",
@@ -378,3 +409,11 @@ class UnityCatalogExtractor(BaseExtractor):
                         dataset.schema.tags = []
                     if tag not in dataset.schema.tags:
                         dataset.schema.tags.append(tag)
+
+                    tags = (
+                        catalog_system_tags[catalog_name][0]
+                        + catalog_system_tags[catalog_name][1][schema_name]
+                    )
+                    if tags and not dataset.system_tags:
+                        # We do not need to append to system tags once it's been assigned
+                        dataset.system_tags = SystemTags(tags=tags)
