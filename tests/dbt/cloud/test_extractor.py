@@ -6,6 +6,7 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.extractor import DbtCloudExtractor
+from metaphor.models.crawler_run_metadata import RunStatus
 
 
 @patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
@@ -64,7 +65,7 @@ async def test_extractor_not_throwing_exception(
     mock_dbt_extractor = MagicMock()
 
     async def fake_extract():
-        raise ValueError
+        raise ValueError("GG")
 
     mock_dbt_extractor.extract.side_effect = fake_extract
 
@@ -81,3 +82,5 @@ async def test_extractor_not_throwing_exception(
     extractor = DbtCloudExtractor(config)
     await extractor.extract()  # Note how it does not break even when the Dbt core extractor is throwing exceptions
     assert not extractor._entities
+    assert extractor.status is RunStatus.FAILURE
+    assert extractor.error_message == "GG"

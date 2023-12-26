@@ -49,6 +49,11 @@ def run_connector(
     entities: Collection[ENTITY_TYPES] = []
     try:
         entities = connector.run_async()
+        if connector.status is RunStatus.FAILURE:
+            logger.warning(f"Some of {name}'s entities cannot be parsed!")
+            run_status = connector.status
+            error_message = connector.error_message
+            stacktrace = connector.stacktrace
     except Exception as ex:
         run_status = RunStatus.FAILURE
         error_message = str(ex)

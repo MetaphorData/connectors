@@ -99,5 +99,6 @@ class DbtCloudExtractor(BaseExtractor):
                 )
             ).extract()
             self._entities[run.run_id] = entities
-        except Exception:
+        except Exception as e:
             logger.exception(f"Failed to parse artifacts for run {run}")
+            self.extend_errors(e)

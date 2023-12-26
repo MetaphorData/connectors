@@ -1,10 +1,11 @@
 import asyncio
+import traceback
 from abc import ABC, abstractmethod
 from typing import Collection, Optional
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.crawler_run_metadata import Platform, RunStatus
 
 
 class BaseExtractor(ABC):
@@ -24,6 +25,26 @@ class BaseExtractor(ABC):
 
     def __init__(self, config: BaseConfig) -> None:
         self._output = config.output
+        self.error_message: Optional[str] = None
+        self.stacktrace: Optional[str] = None
+
+    @property
+    def status(self) -> RunStatus:
+        if self.error_message or self.stacktrace:
+            return RunStatus.FAILURE
+        return RunStatus.SUCCESS
 
     def run_async(self) -> Collection[ENTITY_TYPES]:
         return asyncio.run(self.extract())
+
+    def extend_errors(self, e: Exception) -> None:
+        error_message = str(e)
+        stacktrace = traceback.format_exc()
+        if not self.error_message:
+            self.error_message = error_message
+        else:
+            self.error_message += f"\n{error_message}"
+        if not self.stacktrace:
+            self.stacktrace = stacktrace
+        else:
+            self.stacktrace
