@@ -119,6 +119,30 @@
       "schema": "schema",
       "table": "view"
     },
+    "systemTags": {
+      "tags": [
+        {
+          "key": "catalog_tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_1"
+        },
+        {
+          "key": "catalog_tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_2"
+        },
+        {
+          "key": "schema_tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_1"
+        },
+        {
+          "key": "schema_tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_2"
+        }
+      ]
+    },
     "unityCatalog": {
       "owner": "foo@bar.com",
       "properties": [
@@ -203,5 +227,50 @@
         "userId": "uwu"
       }
     ]
+  },
+  {
+    "logicalId": {
+      "path": [
+        "UNITY_CATALOG",
+        "catalog"
+      ]
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "key": "catalog_tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_1"
+        },
+        {
+          "key": "catalog_tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_2"
+        }
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "path": [
+        "UNITY_CATALOG",
+        "catalog",
+        "schema"
+      ]
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "key": "schema_tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_1"
+        },
+        {
+          "key": "schema_tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_2"
+        }
+      ]
+    }
   }
 ]
