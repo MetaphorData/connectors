@@ -2,7 +2,7 @@
 name: CI
 
 env:
-  PYTHON_VERSION: 3.8
+  PYTHON_VERSION: 3.10
   POETRY_VERSION: 1.2.2
 
 # Run this build workflow for every new PR
