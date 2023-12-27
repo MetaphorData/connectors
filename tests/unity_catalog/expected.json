@@ -33,7 +33,11 @@
           "fieldName": "col1",
           "fieldPath": "col1",
           "nativeType": "int",
-          "precision": 32.0
+          "precision": 32.0,
+          "tags": [
+            "col_tag=col_value",
+            "col_tag2=tag_value_2"
+          ]
         }
       ],
       "schemaType": "SQL",

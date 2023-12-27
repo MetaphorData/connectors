@@ -202,8 +202,8 @@ async def test_extractor(
             ("catalog", "schema", "table", "tag2", ""),
         ],
         [
-            ("catalog", "schema", "table", "col", "col_tag", "col_value"),
-            ("catalog", "schema", "table", "col", "col_tag2", "tag_value_2"),
+            ("catalog", "schema", "table", "col1", "col_tag", "col_value"),
+            ("catalog", "schema", "table", "col1", "col_tag2", "tag_value_2"),
         ],
     ]
 
