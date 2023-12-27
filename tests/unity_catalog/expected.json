@@ -33,7 +33,11 @@
           "fieldName": "col1",
           "fieldPath": "col1",
           "nativeType": "int",
-          "precision": 32.0
+          "precision": 32.0,
+          "tags": [
+            "col_tag=col_value",
+            "col_tag2=tag_value_2"
+          ]
         }
       ],
       "schemaType": "SQL",
@@ -56,22 +60,22 @@
     "systemTags": {
       "tags": [
         {
-          "key": "catalog_tag",
+          "key": "catalog_tag_key_1",
           "systemTagSource": "UNITY_CATALOG",
           "value": "catalog_tag_value_1"
         },
         {
-          "key": "catalog_tag",
+          "key": "catalog_tag_key_2",
           "systemTagSource": "UNITY_CATALOG",
           "value": "catalog_tag_value_2"
         },
         {
-          "key": "schema_tag",
+          "key": "schema_tag_key_1",
           "systemTagSource": "UNITY_CATALOG",
           "value": "schema_tag_value_1"
         },
         {
-          "key": "schema_tag",
+          "key": "schema_tag_key_2",
           "systemTagSource": "UNITY_CATALOG",
           "value": "schema_tag_value_2"
         }
@@ -122,22 +126,22 @@
     "systemTags": {
       "tags": [
         {
-          "key": "catalog_tag",
+          "key": "catalog_tag_key_1",
           "systemTagSource": "UNITY_CATALOG",
           "value": "catalog_tag_value_1"
         },
         {
-          "key": "catalog_tag",
+          "key": "catalog_tag_key_2",
           "systemTagSource": "UNITY_CATALOG",
           "value": "catalog_tag_value_2"
         },
         {
-          "key": "schema_tag",
+          "key": "schema_tag_key_1",
           "systemTagSource": "UNITY_CATALOG",
           "value": "schema_tag_value_1"
         },
         {
-          "key": "schema_tag",
+          "key": "schema_tag_key_2",
           "systemTagSource": "UNITY_CATALOG",
           "value": "schema_tag_value_2"
         }
@@ -238,12 +242,12 @@
     "systemTags": {
       "tags": [
         {
-          "key": "catalog_tag",
+          "key": "catalog_tag_key_1",
           "systemTagSource": "UNITY_CATALOG",
           "value": "catalog_tag_value_1"
         },
         {
-          "key": "catalog_tag",
+          "key": "catalog_tag_key_2",
           "systemTagSource": "UNITY_CATALOG",
           "value": "catalog_tag_value_2"
         }
@@ -261,12 +265,12 @@
     "systemTags": {
       "tags": [
         {
-          "key": "schema_tag",
+          "key": "schema_tag_key_1",
           "systemTagSource": "UNITY_CATALOG",
           "value": "schema_tag_value_1"
         },
         {
-          "key": "schema_tag",
+          "key": "schema_tag_key_2",
           "systemTagSource": "UNITY_CATALOG",
           "value": "schema_tag_value_2"
         }

@@ -190,16 +190,22 @@ async def test_extractor(
     mock_cursor.fetchall = MagicMock()
     mock_cursor.fetchall.side_effect = [
         [
-            ("catalog_tag", "catalog_tag_value_1"),
-            ("catalog_tag", "catalog_tag_value_2"),
+            ("catalog_tag_key_1", "catalog_tag_value_1"),
+            ("catalog_tag_key_2", "catalog_tag_value_2"),
         ],
         [
-            ("schema", "schema_tag", "schema_tag_value_1"),
-            ("schema", "schema_tag", "schema_tag_value_2"),
+            ("schema", "schema_tag_key_1", "schema_tag_value_1"),
+            ("schema", "schema_tag_key_2", "schema_tag_value_2"),
         ],
         [
             ("catalog", "schema", "table", "tag", "value"),
             ("catalog", "schema", "table", "tag2", ""),
+            ("does", "not", "exist", "also", "doesn't exist"),
+        ],
+        [
+            ("catalog", "schema", "table", "col1", "col_tag", "col_value"),
+            ("catalog", "schema", "table", "col1", "col_tag2", "tag_value_2"),
+            ("does", "not", "exist", "also", "doesn't", "exist"),
         ],
     ]
 
