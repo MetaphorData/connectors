@@ -47,4 +47,4 @@ class BaseExtractor(ABC):
         if not self.stacktrace:
             self.stacktrace = stacktrace
         else:
-            self.stacktrace
+            self.stacktrace += f"\n{stacktrace}"

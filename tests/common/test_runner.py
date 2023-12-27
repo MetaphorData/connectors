@@ -25,13 +25,13 @@ def test_run_connector() -> None:
             entities: List[ENTITY_TYPES] = []
             for i in range(4):
                 try:
-                    if i != 2:
+                    if i not in [1, 2]:
                         logical_id = DatasetLogicalID(
                             name=str(i), platform=DataPlatform.BIGQUERY
                         )
                         entities.append(Dataset(logical_id=logical_id))
                     else:
-                        raise ValueError
+                        raise ValueError(str(i))
                 except Exception as e:
                     self.extend_errors(e)
             return entities
@@ -45,4 +45,7 @@ def test_run_connector() -> None:
         event.dataset.logical_id.name
         for event in events
         if event.dataset and event.dataset.logical_id and event.dataset.logical_id.name
-    ) == ["0", "1", "3"]
+    ) == ["0", "3"]
+    assert dummy_connector.stacktrace
+    assert "ValueError: 1" in dummy_connector.stacktrace
+    assert "ValueError: 2" in dummy_connector.stacktrace
