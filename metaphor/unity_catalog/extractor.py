@@ -438,42 +438,99 @@ class UnityCatalogExtractor(BaseExtractor):
                             # We do not need to append to system tags once it's been assigned
                             dataset.system_tags = SystemTags(tags=tags)
 
-    def _fetch_tags(self, catalogs: List[str]):
+    def _extract_table_tags(self, catalog: str) -> None:
         with self._connection.cursor() as cursor:
-            catalog_system_tags: CatalogSystemTags = {}
+            columns = [
+                "catalog_name",
+                "schema_name",
+                "table_name",
+                "tag_name",
+                "tag_value",
+            ]
+            query = f"SELECT {', '.join(columns)} FROM {catalog}.information_schema.table_tags"
 
-            for catalog in catalogs:
-                catalog_system_tags[catalog] = self._fetch_catalog_system_tags(catalog)
-                self._extract_hierarchies(catalog_system_tags)
-                self._assign_dataset_system_tags(catalog, catalog_system_tags)
-
-                columns = ", ".join(
-                    [
-                        "catalog_name",
-                        "schema_name",
-                        "table_name",
-                        "tag_name",
-                        "tag_value",
-                    ]
+            cursor.execute(query)
+            for (
+                catalog_name,
+                schema_name,
+                table_name,
+                tag_name,
+                tag_value,
+            ) in cursor.fetchall():
+                normalized_dataset_name = dataset_normalized_name(
+                    catalog_name, schema_name, table_name
                 )
-                table_tags_table = f"{catalog}.information_schema.table_tags"
-                query = f"SELECT {columns} FROM {table_tags_table};"
+                dataset = self._datasets.get(normalized_dataset_name)
 
-                cursor.execute(query)
-                rows = cursor.fetchall()
-                for catalog_name, schema_name, table_name, tag_name, tag_value in rows:
-                    normalized_dataset_name = dataset_normalized_name(
-                        catalog_name, schema_name, table_name
+                if dataset is None:
+                    logger.warn(f"Cannot find {normalized_dataset_name} table")
+                    continue
+
+                tag = f"{tag_name}={tag_value}" if tag_value else tag_name
+
+                assert (
+                    dataset.schema is not None
+                )  # Can't be None, we initialized it at `init_dataset`
+                if not dataset.schema.tags:
+                    dataset.schema.tags = []
+                if tag not in dataset.schema.tags:
+                    dataset.schema.tags.append(tag)
+
+    def _extract_column_tags(self, catalog: str) -> None:
+        with self._connection.cursor() as cursor:
+            columns = [
+                "catalog_name",
+                "schema_name",
+                "table_name",
+                "column_name",
+                "tag_name",
+                "tag_value",
+            ]
+            query = f"SELECT {', '.join(columns)} FROM {catalog}.information_schema.column_tags"
+
+            cursor.execute(query)
+            for (
+                catalog_name,
+                schema_name,
+                table_name,
+                column_name,
+                tag_name,
+                tag_value,
+            ) in cursor.fetchall():
+                normalized_dataset_name = dataset_normalized_name(
+                    catalog_name, schema_name, table_name
+                )
+                dataset = self._datasets.get(normalized_dataset_name)
+                if dataset is None:
+                    logger.warn(f"Cannot find {normalized_dataset_name} table")
+                    continue
+
+                tag = f"{tag_name}={tag_value}" if tag_value else tag_name
+
+                assert (
+                    dataset.schema is not None
+                )  # Can't be None, we initialized it at `init_dataset`
+                if dataset.schema.fields:
+                    field = next(
+                        (
+                            f
+                            for f in dataset.schema.fields
+                            if f.field_name == column_name
+                        ),
+                        None,
                     )
-                    dataset = self._datasets.get(normalized_dataset_name)
+                    if field is not None:
+                        if field.tags:
+                            field.tags.append(tag)
+                        else:
+                            field.tags = [tag]
 
-                    if dataset is None:
-                        logger.warn(f"Cannot find {normalized_dataset_name} table")
-                        continue
+    def _fetch_tags(self, catalogs: List[str]):
+        catalog_system_tags: CatalogSystemTags = {}
 
-                    tag = f"{tag_name}={tag_value}" if tag_value else tag_name
-
-                    if not dataset.schema.tags:
-                        dataset.schema.tags = []
-                    if tag not in dataset.schema.tags:
-                        dataset.schema.tags.append(tag)
+        for catalog in catalogs:
+            catalog_system_tags[catalog] = self._fetch_catalog_system_tags(catalog)
+            self._extract_hierarchies(catalog_system_tags)
+            self._assign_dataset_system_tags(catalog, catalog_system_tags)
+            self._extract_table_tags(catalog)
+            self._extract_column_tags(catalog)
