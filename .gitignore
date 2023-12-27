@@ -136,6 +136,7 @@ dmypy.json
 .config
 .data
 .DS_Store
+poetry.toml
 
 # vscode
 .vscode

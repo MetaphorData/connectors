@@ -59,3 +59,23 @@ metaphor mssql <config_file>
 ```
 
 Manually verify the output after the command finishes.
+
+### Installing on Apple Silicon machines
+
+If you encounter linking issues when installing `pymssql` on a machine with Apple Silicon CPU, here is a possible fix:
+1. Set poetry config to build the package instead of using pre-compiled binary:
+```shell
+poetry config --local installer.no-binary pymssql
+```
+2. Instead of using system wide `ssl` module, install `openssl` and `FreeTDS` with Homebrew:
+```shell
+brew install FreeTDS openssl@1.1
+```
+3. Set `LDFLAGS` and `CFLAGS` when installing `pymssql`:
+```shell
+LDFLAGS="-L$(brew --prefix)/opt/freetds/lib -L$(brew --prefix)/opt/openssl@1.1/lib" \
+CFLAGS="-I$(brew --prefix)/opt/freetds/include -I$(brew --prefix)/opt/openssl@1.1/include" \
+poetry install -E mssql
+```
+
+If the above procedure does not fix the issue, please file an issue ticket.

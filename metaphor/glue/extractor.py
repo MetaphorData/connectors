@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, Collection, Dict, List
+from typing import Any, Collection, Dict, List, Optional
 
 import boto3
 from aws_assume_role_lib import assume_role
@@ -109,7 +109,11 @@ class GlueExtractor(BaseExtractor):
                 )
                 table_type = table.get("TableType")
                 parameters = table.get("Parameters")
-                row_count = parameters.get("numRows") if parameters else None
+                row_count = (
+                    int(parameters["numRows"])
+                    if parameters and "numRows" in parameters
+                    else None
+                )
                 description = table.get("Description")
 
                 dataset = self._init_dataset(
@@ -141,6 +145,7 @@ class GlueExtractor(BaseExtractor):
                     else None
                 )
 
+                assert dataset.schema is not None
                 dataset.schema.fields = columns
 
     def _init_dataset(
@@ -148,9 +153,9 @@ class GlueExtractor(BaseExtractor):
         schema: str,
         name: str,
         table_type: str,
-        description: str,
-        row_count: int,
-        last_updated: datetime,
+        description: Optional[str],
+        row_count: Optional[int],
+        last_updated: Optional[datetime],
     ) -> Dataset:
         normalized_name = dataset_normalized_name(schema=schema, table=name)
         dataset = Dataset()

@@ -55,7 +55,11 @@ class SnowflakeConfig(SnowflakeBaseConfig):
     tag_matchers: List[TagMatcher] = field(default_factory=lambda: [])
 
     # configs for fetching query logs
-    query_log: SnowflakeQueryLogConfig = SnowflakeQueryLogConfig()
+    query_log: SnowflakeQueryLogConfig = field(
+        default_factory=lambda: SnowflakeQueryLogConfig()
+    )
 
     # configs for fetching Snowflake streams
-    streams: SnowflakeStreamsConfig = SnowflakeStreamsConfig()
+    streams: SnowflakeStreamsConfig = field(
+        default_factory=lambda: SnowflakeStreamsConfig()
+    )
