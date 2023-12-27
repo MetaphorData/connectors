@@ -1,4 +1,4 @@
-from typing import Collection, Dict, Optional
+from typing import Collection, Dict
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
@@ -27,7 +27,7 @@ class DbtCloudExtractor(BaseExtractor):
     def __init__(self, config: DbtCloudConfig):
         super().__init__(config)
         self._account_id = config.account_id
-        self._job_ids = config.job_ids
+        self._job_ids = set(config.job_ids)
         self._project_ids = config.project_ids
         self._service_token = config.service_token
         self._meta_ownerships = config.meta_ownerships
@@ -45,16 +45,15 @@ class DbtCloudExtractor(BaseExtractor):
         logger.info("Fetching metadata from DBT cloud")
 
         for project_id in self._project_ids:
-            self._job_ids.extend(self._client.get_project_jobs(project_id))
+            self._job_ids.update(self._client.get_project_jobs(project_id))
 
         for job_id in self._job_ids:
             await self._extract_last_run(job_id)
 
         return [item for ls in self._entities.values() for item in ls]
 
-    async def _extract_last_run(self, job_id: Optional[int]):
-        if job_id is not None:
-            logger.info(f"Fetching metadata for job ID: {job_id}")
+    async def _extract_last_run(self, job_id: int):
+        logger.info(f"Fetching metadata for job ID: {job_id}")
 
         run = self._client.get_last_successful_run(job_id)
 
