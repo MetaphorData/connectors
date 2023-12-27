@@ -411,12 +411,13 @@ class UnityCatalogExtractor(BaseExtractor):
             schema_tags_query = f"SELECT schema_name, tag_name, tag_value FROM {catalog}.information_schema.schema_tags"
             cursor.execute(schema_tags_query)
             for schema_name, tag_name, tag_value in cursor.fetchall():
-                tag = SystemTag(
-                    key=tag_name,
-                    value=tag_value,
-                    system_tag_source=SystemTagSource.UNITY_CATALOG,
-                )
-                schema_tags[schema_name].append(tag)
+                if self._filter.include_schema(catalog, schema_name):
+                    tag = SystemTag(
+                        key=tag_name,
+                        value=tag_value,
+                        system_tag_source=SystemTagSource.UNITY_CATALOG,
+                    )
+                    schema_tags[schema_name].append(tag)
         return catalog_tags, schema_tags
 
     def _assign_dataset_system_tags(
@@ -520,17 +521,17 @@ class UnityCatalogExtractor(BaseExtractor):
                         None,
                     )
                     if field is not None:
-                        if field.tags:
-                            field.tags.append(tag)
-                        else:
-                            field.tags = [tag]
+                        if not field.tags:
+                            field.tags = []
+                        field.tags.append(tag)
 
     def _fetch_tags(self, catalogs: List[str]):
         catalog_system_tags: CatalogSystemTags = {}
 
         for catalog in catalogs:
-            catalog_system_tags[catalog] = self._fetch_catalog_system_tags(catalog)
-            self._extract_hierarchies(catalog_system_tags)
-            self._assign_dataset_system_tags(catalog, catalog_system_tags)
-            self._extract_table_tags(catalog)
-            self._extract_column_tags(catalog)
+            if self._filter.include_database(catalog):
+                catalog_system_tags[catalog] = self._fetch_catalog_system_tags(catalog)
+                self._extract_hierarchies(catalog_system_tags)
+                self._assign_dataset_system_tags(catalog, catalog_system_tags)
+                self._extract_table_tags(catalog)
+                self._extract_column_tags(catalog)
