@@ -12,9 +12,9 @@ logger = get_logger()
 
 
 class DbtRun(NamedTuple):
-    run_id: int
     project_id: int
     job_id: int
+    run_id: int
 
     def __str__(self) -> str:
         return f"ID = {self.run_id}, project ID = {self.project_id}, job ID = {self.job_id}"
@@ -71,7 +71,7 @@ class DbtAdminAPIClient:
             jobs |= new_jobs
             offset += page_size
 
-    def get_last_successful_run(self, job_id: Optional[int]) -> DbtRun:
+    def get_last_successful_run(self, job_id: int) -> DbtRun:
         """Get the run ID of the last successful run for a job"""
 
         offset = 0
@@ -93,9 +93,9 @@ class DbtAdminAPIClient:
             for run in data:
                 if run.get("status") == 10:
                     return DbtRun(
-                        run_id=run.get("id"),
                         project_id=run.get("project_id"),
                         job_id=run.get("job_definition_id"),
+                        run_id=run.get("id"),
                     )
 
             offset += page_size
