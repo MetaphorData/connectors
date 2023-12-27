@@ -79,7 +79,16 @@ URL_SCHEMA_RE = re.compile(r"{schema}")
 URL_TABLE_RE = re.compile(r"{table}")
 
 
-CatalogSystemTags = Dict[str, Tuple[List[SystemTag], Dict[str, List[SystemTag]]]]
+CatalogSystemTagsTuple = Tuple[List[SystemTag], Dict[str, List[SystemTag]]]
+"""
+(catalog system tags, schema name -> schema system tags)
+"""
+
+
+CatalogSystemTags = Dict[str, CatalogSystemTagsTuple]
+"""
+catalog name -> (catalog tags, schema name -> schema tags)
+"""
 
 
 class UnityCatalogExtractor(BaseExtractor):
@@ -356,16 +365,8 @@ class UnityCatalogExtractor(BaseExtractor):
 
         return QueryLogs(logs=logs)
 
-    def _extract_hierarchies(
-        self,
-        catalog_system_tags: Dict[
-            str, Tuple[List[SystemTag], Dict[str, List[SystemTag]]]
-        ],
-    ) -> None:
-        for catalog, (
-            catalog_tags,
-            schema_name_to_tag,
-        ) in catalog_system_tags.items():
+    def _extract_hierarchies(self, catalog_system_tags: CatalogSystemTags) -> None:
+        for catalog, (catalog_tags, schema_name_to_tag) in catalog_system_tags.items():
             if catalog_tags:
                 self._hierarchies.append(
                     Hierarchy(
@@ -393,9 +394,7 @@ class UnityCatalogExtractor(BaseExtractor):
                         )
                     )
 
-    def _fetch_system_tags(
-        self, catalog: str
-    ) -> Tuple[List[SystemTag], Dict[str, List[SystemTag]]]:
+    def _fetch_catalog_system_tags(self, catalog: str) -> CatalogSystemTagsTuple:
         with self._connection.cursor() as cursor:
             catalog_tags = []
             schema_tags: Dict[str, List[SystemTag]] = defaultdict(list)
@@ -444,7 +443,7 @@ class UnityCatalogExtractor(BaseExtractor):
             catalog_system_tags: CatalogSystemTags = {}
 
             for catalog in catalogs:
-                catalog_system_tags[catalog] = self._fetch_system_tags(catalog)
+                catalog_system_tags[catalog] = self._fetch_catalog_system_tags(catalog)
                 self._extract_hierarchies(catalog_system_tags)
                 self._assign_dataset_system_tags(catalog, catalog_system_tags)
 
