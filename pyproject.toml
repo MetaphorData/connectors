@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.90"
+version = "0.13.91"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -149,6 +149,7 @@ extend_skip = [
 
 [tool.mypy]
 exclude = ["venv"]
+explicit_package_bases = true
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
 

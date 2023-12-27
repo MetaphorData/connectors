@@ -81,16 +81,20 @@ class DbtCloudExtractor(BaseExtractor):
             f"{self._base_url}/accounts/{self._account_id}/jobs/{run.job_id}/docs"
         )
 
-        # Pass the path of the downloaded manifest file to the dbt Core extractor
-        entities = await DbtExtractor(
-            DbtRunConfig(
-                manifest=manifest_json,
-                run_results=run_results_json,
-                account=account,
-                docs_base_url=docs_base_url,
-                output=self._output,
-                meta_ownerships=self._meta_ownerships,
-                meta_tags=self._meta_tags,
-            )
-        ).extract()
-        self._entities[run.run_id] = entities
+        try:
+            # Pass the path of the downloaded manifest file to the dbt Core extractor
+            entities = await DbtExtractor(
+                DbtRunConfig(
+                    manifest=manifest_json,
+                    run_results=run_results_json,
+                    account=account,
+                    docs_base_url=docs_base_url,
+                    output=self._output,
+                    meta_ownerships=self._meta_ownerships,
+                    meta_tags=self._meta_tags,
+                )
+            ).extract()
+            self._entities[run.run_id] = entities
+        except Exception as e:
+            logger.exception(f"Failed to parse artifacts for run {run}")
+            self.extend_errors(e)
