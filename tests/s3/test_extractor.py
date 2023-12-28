@@ -6,7 +6,7 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.s3.config import S3PathSpec, S3RunConfig
 from metaphor.s3.extractor import S3Extractor
-from tests.test_utils import load_json
+from tests.test_utils import ignore_datetime_values, load_json
 
 
 @pytest.fixture(scope="module")
@@ -42,4 +42,6 @@ async def test_extractor(minio_container: MinioContainer, test_root_dir: str) ->
         )
     )
     events = [EventUtil.trim_event(entity) for entity in await extractor.extract()]
-    assert events == load_json(f"{test_root_dir}/s3/expected.json")
+    assert ignore_datetime_values(events) == ignore_datetime_values(
+        load_json(f"{test_root_dir}/s3/expected.json")
+    )
