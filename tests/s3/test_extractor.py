@@ -1,4 +1,3 @@
-import freezegun
 import pytest
 from testcontainers.minio import MinioContainer
 
@@ -14,12 +13,10 @@ from tests.test_utils import load_json
 def minio_container(test_root_dir: str):
     # Just read the directory as if it's the actual object storage
     container: MinioContainer = MinioContainer(image="minio/minio:RELEASE.2021-11-03T03-36-36Z").with_volume_mapping(host=f"{test_root_dir}/s3/data", container="/data", mode="rw")  # type: ignore
-    with freezegun.freeze_time("2023-01-01 12:00:00"):
-        with container as minio_container:
-            yield minio_container
+    with container as minio_container:
+        yield minio_container
 
 
-### FIXME either freeze this or don't compare creation time
 @pytest.mark.asyncio
 async def test_extractor(minio_container: MinioContainer, test_root_dir: str) -> None:
     port = minio_container.get_exposed_port(9000)
@@ -45,7 +42,4 @@ async def test_extractor(minio_container: MinioContainer, test_root_dir: str) ->
         )
     )
     events = [EventUtil.trim_event(entity) for entity in await extractor.extract()]
-    with open(f"{test_root_dir}/s3/expected.json", "w") as f:
-        import json
-        f.write(json.dumps(events))
     assert events == load_json(f"{test_root_dir}/s3/expected.json")
