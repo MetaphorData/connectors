@@ -1,0 +1,153 @@
+[
+  {
+    "logicalId": {
+      "name": "s3://bucket/directory/baz/quax/1.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "a",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "b",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "c",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 11.0,
+      "lastUpdated": "2023-12-28T07:58:37.105000+00:00"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "s3://bucket/directory/baz/quax/2.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "a",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "b",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "c",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "d",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "e",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 19.0,
+      "lastUpdated": "2023-12-28T09:04:58.789000+00:00"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "s3://bucket/directory/baz/quax/3.tsv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Some parameter",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Other parameter",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Last parameter",
+          "nativeType": "double"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 64.0,
+      "lastUpdated": "2023-12-28T10:54:40.850000+00:00"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "s3://bucket/directory/foo/bar/file1.json",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "foo",
+          "nativeType": "list<item: string>"
+        },
+        {
+          "fieldPath": "number",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "dict",
+          "nativeType": "struct<a: int64, b: int64, c: int64, d: null>"
+        },
+        {
+          "fieldPath": "empty",
+          "nativeType": "null"
+        }
+      ],
+      "schemaType": "JSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 199.0,
+      "lastUpdated": "2023-12-27T10:05:54.319000+00:00"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "s3://bucket/directory/foo/bar/file2.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "col1",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "col2",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "col3",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "col4",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 50.0,
+      "lastUpdated": "2023-12-27T10:05:54.319000+00:00"
+    }
+  }
+]

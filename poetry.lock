@@ -2960,6 +2960,17 @@ test = ["hypothesis (>=6.34.2)", "pytest (>=7.3.2)", "pytest-asyncio (>=0.17.0)"
 xml = ["lxml (>=4.6.3)"]
 
 [[package]]
+name = "parse"
+version = "1.20.0"
+description = "parse() is the opposite of format()"
+optional = true
+python-versions = "*"
+files = [
+    {file = "parse-1.20.0-py2.py3-none-any.whl", hash = "sha256:5e171b001452fa9f004c5a58a93525175468daf69b493e9fa915347ed7ff6968"},
+    {file = "parse-1.20.0.tar.gz", hash = "sha256:bd28bae37714b45d5894d77160a16e2be36b64a3b618c81168b3684676aa498b"},
+]
+
+[[package]]
 name = "pathspec"
 version = "0.11.2"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -3174,6 +3185,16 @@ files = [
 
 [package.dependencies]
 numpy = ">=1.16.6"
+
+[[package]]
+name = "pyarrow-stubs"
+version = "10.0.1.7"
+description = "Type annotations for pyarrow"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "pyarrow_stubs-10.0.1.7-py3-none-any.whl", hash = "sha256:cccc7a46eddeea4e3cb85330eb8972c116a615da6188b8ae1f7a44cb724b21ac"},
+]
 
 [[package]]
 name = "pyasn1"
@@ -4844,7 +4865,7 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "looker-sdk", "msal", "msgraph-beta-sdk", "pycarlo", "pymssql", "pymysql", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "trino"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "looker-sdk", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pymssql", "pymysql", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "trino"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
@@ -4858,6 +4879,7 @@ mysql = ["SQLAlchemy", "pymysql"]
 postgresql = ["asyncpg"]
 power-bi = ["msal", "msgraph-beta-sdk", "sql-metadata"]
 redshift = ["asyncpg", "sqllineage"]
+s3 = ["parse"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 synapse = ["pymssql"]
 tableau = ["sqllineage", "tableauserverclient"]
@@ -4868,4 +4890,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "306ee6eafda82e54f56bf4cac38d39ab87f3c0a89e531cd2f30edfaa3956de67"
+content-hash = "fdb6c177ec462a63a57643ff71b1cacf8a78741e77183e18b21705f47acc0bec"

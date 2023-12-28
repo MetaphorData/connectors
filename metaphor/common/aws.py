@@ -1,13 +1,15 @@
 from typing import Optional
-from aws_assume_role_lib import assume_role
-from pydantic.dataclasses import dataclass
-from boto3 import Session
 
+from aws_assume_role_lib import assume_role
+from boto3 import Session
+from pydantic.dataclasses import dataclass
+
+from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.logger import get_logger
 
 logger = get_logger()
 
-from metaphor.common.dataclass import ConnectorConfig
+
 @dataclass(config=ConnectorConfig)
 class AwsCredentials:
     """AWS Credentials"""
