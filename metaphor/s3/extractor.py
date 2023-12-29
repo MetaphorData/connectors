@@ -161,13 +161,13 @@ class S3Extractor(BaseExtractor):
             tables: Dict[str, TableData] = defaultdict(lambda: TableData())
             for file_object in self._browse_path_spec(path_spec):
                 table_data = TableData.from_file_object(file_object)
-                tables[table_data.table_path] = tables[table_data.table_path].merge(
+                tables[table_data.guid] = tables[table_data.table_path].merge(
                     table_data
                 )
 
             logger.debug(f"Tables: {tables}")
-            for table_path, table_data in tables.items():
-                logger.debug(f"Initializing {table_path}")
+            for table_data in tables.values():
+                logger.debug(f"Initializing dataset with {table_data}")
                 dataset = self._init_dataset(table_data)
                 entities.append(dataset)
 
@@ -176,7 +176,7 @@ class S3Extractor(BaseExtractor):
     def _init_dataset(self, table_data: TableData) -> Dataset:
         return Dataset(
             logical_id=DatasetLogicalID(
-                name=table_data.full_path,
+                name=table_data.guid,
                 platform=DataPlatform.S3,
             ),
             statistics=DatasetStatistics(

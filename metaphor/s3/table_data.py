@@ -39,6 +39,12 @@ class FileObject:
 
 @dataclass
 class TableData:
+    """
+    Represents a table in the S3 storage.
+
+    Use `table_path` as the guid.
+    """
+
     display_name: str = ""
     full_path: str = ""
     partitions: Optional[OrderedDict] = None
@@ -46,6 +52,10 @@ class TableData:
     table_path: str = ""
     size_in_bytes: int = 0
     number_of_files: int = 0
+
+    @property
+    def guid(self) -> str:
+        return self.table_path
 
     @classmethod
     def from_file_object(cls, file_object: FileObject) -> "TableData":

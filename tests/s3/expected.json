@@ -152,7 +152,7 @@
   },
   {
     "logicalId": {
-      "name": "s3://folders_as_datasets/a/b/c/dataset1/b/3.csv",
+      "name": "s3://folders_as_datasets/a/b/c/dataset1",
       "platform": "S3"
     },
     "schema": {
@@ -183,7 +183,7 @@
   },
   {
     "logicalId": {
-      "name": "s3://folders_as_datasets/a/d/e/dataset2/e/1.csv",
+      "name": "s3://folders_as_datasets/a/d/e/dataset2",
       "platform": "S3"
     },
     "schema": {
@@ -214,7 +214,7 @@
   },
   {
     "logicalId": {
-      "name": "s3://folders_as_datasets/b/a/c/dataset3/a/2.csv",
+      "name": "s3://folders_as_datasets/b/a/c/dataset3",
       "platform": "S3"
     },
     "schema": {
@@ -245,7 +245,7 @@
   },
   {
     "logicalId": {
-      "name": "s3://folders_as_datasets/b/a/c/dataset4/a/2.csv",
+      "name": "s3://folders_as_datasets/b/a/c/dataset4",
       "platform": "S3"
     },
     "schema": {
@@ -276,7 +276,7 @@
   },
   {
     "logicalId": {
-      "name": "s3://folders_as_datasets/b/a/c/dataset5/a/5.csv",
+      "name": "s3://folders_as_datasets/b/a/c/dataset5",
       "platform": "S3"
     },
     "schema": {
