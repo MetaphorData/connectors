@@ -149,5 +149,156 @@
       "dataSizeBytes": 50.0,
       "lastUpdated": "2023-12-27T10:05:54.319000+00:00"
     }
+  },
+  {
+    "logicalId": {
+      "name": "s3://folders_as_datasets/a/b/c/dataset1/b/3.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "ID",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Name",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Department",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Salary",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 169.0,
+      "lastUpdated": "2023-12-29T08:27:56.755000+00:00"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "s3://folders_as_datasets/a/d/e/dataset2/e/1.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Brand",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Product",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Price",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "Stock",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 502.0,
+      "lastUpdated": "2023-12-29T08:27:56.757000+00:00"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "s3://folders_as_datasets/b/a/c/dataset3/a/2.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Name",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Gender",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Age",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Country",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 279.0,
+      "lastUpdated": "2023-12-29T06:48:15.682000+00:00"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "s3://folders_as_datasets/b/a/c/dataset4/a/2.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Fruit",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Color",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Quantity",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "PricePerUnit",
+          "nativeType": "double"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 285.0,
+      "lastUpdated": "2023-12-29T06:48:27.679000+00:00"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "s3://folders_as_datasets/b/a/c/dataset5/a/5.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "City",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Population",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Area(sq km)",
+          "nativeType": "double"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 788.0,
+      "lastUpdated": "2023-12-29T06:49:00.963000+00:00"
+    }
   }
 ]

@@ -1,5 +1,8 @@
+import functools
 from collections import defaultdict
-from typing import Collection, Dict, Iterable, List
+from typing import Collection, Dict, Iterable, List, Optional
+
+from more_itertools import peekable
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
@@ -19,6 +22,29 @@ from metaphor.s3.table_data import FileObject, TableData
 
 logger = get_logger()
 PAGE_SIZE = 1000
+
+
+def partitioned_folder_comparator(folder1: str, folder2: str) -> int:
+    # Try to convert to number and compare if the folder name is a number
+    try:
+        # Stripping = from the folder names as it most probably partition name part like year=2021
+        if "=" in folder1 and "=" in folder2:
+            if folder1.rsplit("=", 1)[0] == folder2.rsplit("=", 1)[0]:
+                folder1 = folder1.rsplit("=", 1)[-1]
+                folder2 = folder2.rsplit("=", 1)[-1]
+
+        num_folder1 = int(folder1)
+        num_folder2 = int(folder2)
+        if num_folder1 == num_folder2:
+            return 0
+        else:
+            return 1 if num_folder1 > num_folder2 else -1
+    except Exception:
+        # If folder name is not a number then do string comparison
+        if folder1 == folder2:
+            return 0
+        else:
+            return 1 if folder1 > folder2 else -1
 
 
 class S3Extractor(BaseExtractor):
@@ -50,24 +76,73 @@ class S3Extractor(BaseExtractor):
                 bucket_name, f"{folder}{folder_split[1]}"
             )
 
+    def get_dir_to_process(
+        self, bucket_name: str, folder: str, path_spec: PathSpec
+    ) -> Optional[str]:
+        """
+        Parameters
+        ----------
+        bucket_name : str
+            The bucket name.
+        folder : str
+            The folder path within the bucket. Ends with a slash.
+        path_spec : PathSpec
+            The path specification to check the folder against.
+
+        Returns
+        -------
+        Optional[str]
+            The directory to process, or None if no such directory is found.
+        """
+        if not path_spec.allow_path(f"s3://{bucket_name}/{folder}"):
+            return None
+
+        iterator = list_folders(
+            bucket_name=bucket_name,
+            prefix=folder,
+            config=self._config,
+        )
+        iterator = peekable(iterator)
+        if iterator:
+            sorted_dirs = sorted(
+                iterator,
+                key=functools.cmp_to_key(partitioned_folder_comparator),
+                reverse=True,
+            )
+            for dir in sorted_dirs:
+                if path_spec.allow_path(f"s3://{bucket_name}/{dir}/"):
+                    return self.get_dir_to_process(
+                        bucket_name=bucket_name,
+                        folder=dir + "/",
+                        path_spec=path_spec,
+                    )
+            return folder
+        else:
+            return folder
+
     def _browse_path_spec(self, path_spec: PathSpec) -> Iterable[FileObject]:
-        bucket = self._config.s3_resource.Bucket(path_spec.bucket)
+        def yield_file_object(prefix: str):
+            for page in (
+                bucket.objects.filter(Prefix=prefix).page_size(PAGE_SIZE).pages()
+            ):
+                for obj in page:
+                    if path_spec.allow_key(obj.key):
+                        yield FileObject.from_object_summary(obj, path_spec)
+
+        bucket_name = path_spec.bucket
+        bucket = self._config.s3_resource.Bucket(bucket_name)
         if TABLE_TOKEN in path_spec.object_path:
             token_index = path_spec.object_path.find(TABLE_TOKEN)
             path_prefix = path_spec.object_path[:token_index]
-            for folder in self._resolve_templated_folders(
-                path_spec.bucket, path_prefix
-            ):
-                pass
+            for folder in self._resolve_templated_folders(bucket_name, path_prefix):
+                for f in list_folders(bucket_name, folder, self._config):
+                    logger.debug(f"Processing folder dataset: {f}")
+                    directory = self.get_dir_to_process(bucket_name, f"{f}/", path_spec)
+                    if directory:
+                        logger.debug(f"Found directory: {directory}")
+                        yield from yield_file_object(prefix=directory)
         else:
-            for page in (
-                bucket.objects.filter(Prefix=path_spec.path_prefix)
-                .page_size(PAGE_SIZE)
-                .pages()
-            ):
-                for obj in page:
-                    if path_spec.allow(obj.key):
-                        yield FileObject.from_object_summary(obj, path_spec)
+            yield from yield_file_object(prefix=path_spec.path_prefix)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         entities = []
@@ -90,6 +165,7 @@ class S3Extractor(BaseExtractor):
                     table_data
                 )
 
+            logger.debug(f"Tables: {tables}")
             for table_path, table_data in tables.items():
                 logger.debug(f"Initializing {table_path}")
                 dataset = self._init_dataset(table_data)

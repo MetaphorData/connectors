@@ -79,10 +79,40 @@ class PathSpec(BaseModel):
         assert self.url.host
         return self
 
-    def allow(self, key: str):
+    def allow_key(self, key: str):
         return (
-            fnmatch(key, self.object_path) and key.rsplit(".", 1)[-1] in self.file_types
+            fnmatch(key, self.object_path.replace("{table}", "*"))
+            and key.rsplit(".", 1)[-1] in self.file_types
         )
+
+    def allow_path(self, path: str) -> bool:
+        path_slash = path.count("/")
+        uri_slash = self.uri.count("/")
+        if path_slash > uri_slash:
+            return False
+
+        slash_to_remove = (uri_slash - path_slash) + 1
+        pat = self.uri.rsplit("/", slash_to_remove)[0].replace("{table}", "*")
+        if not fnmatch(path, pat):
+            logger.debug(f"Unmatched path: {path}")
+            return False
+
+        for exclude in self.excludes:
+            exclude_slash = exclude.count("/")
+            if path_slash < exclude_slash:
+                # Can't tell
+                continue
+            slash_to_remove = (path_slash - exclude_slash) + 1
+            path.rsplit("/", slash_to_remove)[0]
+            if exclude[-1] == "/":
+                exclude_pat = exclude[:-1]
+            else:
+                exclude_pat = exclude
+            if fnmatch(path.rsplit("/", slash_to_remove)[0], exclude_pat):
+                logger.debug(f"Path {path} excluded by pattern: {exclude}")
+                return False
+
+        return True
 
     def extract_table_name_and_path(self, path: str) -> Tuple[str, str]:
         parsed_vars = self.get_named_vars(path)

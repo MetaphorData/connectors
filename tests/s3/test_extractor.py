@@ -1,10 +1,8 @@
 import pytest
 from testcontainers.minio import MinioContainer
 
-from metaphor.common.aws import AwsCredentials
-from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.s3.config import PathSpec, S3RunConfig
+from metaphor.s3.config import S3RunConfig
 from metaphor.s3.extractor import S3Extractor
 from tests.test_utils import ignore_datetime_values, load_json
 
@@ -20,28 +18,15 @@ def minio_container(test_root_dir: str):
 @pytest.mark.asyncio
 async def test_extractor(minio_container: MinioContainer, test_root_dir: str) -> None:
     port = minio_container.get_exposed_port(9000)
-    extractor = S3Extractor(
-        S3RunConfig(
-            output=OutputConfig(),
-            aws=AwsCredentials(
-                access_key_id="minioadmin",
-                secret_access_key="minioadmin",
-                region_name="us-west-2",
-            ),
-            path_specs=[
-                PathSpec(
-                    uri="s3://bucket/directory/*/*/*.*",
-                    file_types={
-                        "csv",
-                        "json",
-                        "tsv",
-                    },
-                )
-            ],
-            endpoint_url=f"http://localhost:{port}",
-        )
-    )
+    config = S3RunConfig.from_yaml_file(f"{test_root_dir}/s3/config.yml")
+    config.endpoint_url = f"http://localhost:{port}"
+    extractor = S3Extractor(config)
     events = [EventUtil.trim_event(entity) for entity in await extractor.extract()]
-    assert ignore_datetime_values(events) == ignore_datetime_values(
-        load_json(f"{test_root_dir}/s3/expected.json")
-    )
+    expected = f"{test_root_dir}/s3/expected.json"
+
+    # Uncomment this to generate the test expected result
+    # with open(expected, "w") as f:
+    #     import json
+    #     f.write(json.dumps(events))
+
+    assert ignore_datetime_values(events) == ignore_datetime_values(load_json(expected))

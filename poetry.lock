@@ -2486,6 +2486,17 @@ pycryptodome = "*"
 urllib3 = "*"
 
 [[package]]
+name = "more-itertools"
+version = "10.1.0"
+description = "More routines for operating on iterables, beyond itertools"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "more-itertools-10.1.0.tar.gz", hash = "sha256:626c369fa0eb37bac0291bce8259b332fd59ac792fa5497b59837309cd5b114a"},
+    {file = "more_itertools-10.1.0-py3-none-any.whl", hash = "sha256:64e0735fcfdc6f3464ea133afe8ea4483b1c5fe3a3d69852e6503b43a0b222e6"},
+]
+
+[[package]]
 name = "msal"
 version = "1.25.0"
 description = "The Microsoft Authentication Library (MSAL) for Python library"
@@ -4865,7 +4876,7 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "looker-sdk", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pymssql", "pymysql", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "trino"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "looker-sdk", "more-itertools", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pymssql", "pymysql", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "trino"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
@@ -4879,7 +4890,7 @@ mysql = ["SQLAlchemy", "pymysql"]
 postgresql = ["asyncpg"]
 power-bi = ["msal", "msgraph-beta-sdk", "sql-metadata"]
 redshift = ["asyncpg", "sqllineage"]
-s3 = ["parse"]
+s3 = ["more-itertools", "parse"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
 synapse = ["pymssql"]
 tableau = ["sqllineage", "tableauserverclient"]
@@ -4890,4 +4901,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "fdb6c177ec462a63a57643ff71b1cacf8a78741e77183e18b21705f47acc0bec"
+content-hash = "93bcc2ffc48fbc69081d369113e979706e1c12b7663769c5c141e90f78172a9b"
