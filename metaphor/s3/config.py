@@ -95,8 +95,7 @@ class S3PathSpec(BaseModel):
 
     def allow(self, key: str):
         return (
-            fnmatch(key, self.object_path)
-            and yarl.URL(key).suffix[1:] in self.file_types
+            fnmatch(key, self.object_path) and key.rsplit(".", 1)[-1] in self.file_types
         )
 
     @field_validator("table_name", mode="before")
