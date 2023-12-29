@@ -4,7 +4,7 @@ from testcontainers.minio import MinioContainer
 from metaphor.common.aws import AwsCredentials
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.s3.config import S3PathSpec, S3RunConfig
+from metaphor.s3.config import PathSpec, S3RunConfig
 from metaphor.s3.extractor import S3Extractor
 from tests.test_utils import ignore_datetime_values, load_json
 
@@ -29,7 +29,7 @@ async def test_extractor(minio_container: MinioContainer, test_root_dir: str) ->
                 region_name="us-west-2",
             ),
             path_specs=[
-                S3PathSpec(
+                PathSpec(
                     uri="s3://bucket/directory/*/*/*.*",
                     file_types={
                         "csv",
