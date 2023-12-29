@@ -10,7 +10,7 @@ path_specs:
       - csv
       - json
       - tsv
-  - uri: s3://folders_as_datasets/*/*/*/{table}/*/*.csv
+  - uri: s3://folders_as_datasets/*/{dept}/*/{table}/*/*.csv
     excludes:
       - s3://folders_as_datasets/*/*/*/dataset1/ignore_this/
       - s3://folders_as_datasets/*/*/*/ignore_this/

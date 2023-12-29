@@ -73,17 +73,27 @@ class PathSpec(BaseModel):
     def get_named_vars(self, path: str) -> Union[None, parse.Result, parse.Match]:
         return self._compiled_parser.parse(path)
 
+    @cached_property
+    def matches(self) -> List[str]:
+        return re.findall(r"{\s*\w+\s*}", self.uri)
+
     @model_validator(mode="after")
     def _uri_is_valid(self) -> "PathSpec":
         assert self.url.scheme == "s3"
         assert self.url.host
         return self
 
+    @model_validator(mode="after")
+    def _matches_are_valid(self) -> "PathSpec":
+        if self.matches:
+            assert TABLE_TOKEN in self.matches
+        return self
+
     def allow_key(self, key: str):
-        return (
-            fnmatch(key, self.object_path.replace("{table}", "*"))
-            and key.rsplit(".", 1)[-1] in self.file_types
-        )
+        pattern = self.object_path
+        for match in self.matches:
+            pattern = pattern.replace(match, "*", 1)
+        return fnmatch(key, pattern) and key.rsplit(".", 1)[-1] in self.file_types
 
     def allow_path(self, path: str) -> bool:
         path_slash = path.count("/")
@@ -92,8 +102,11 @@ class PathSpec(BaseModel):
             return False
 
         slash_to_remove = (uri_slash - path_slash) + 1
-        pat = self.uri.rsplit("/", slash_to_remove)[0].replace("{table}", "*")
-        if not fnmatch(path, pat):
+        pattern = self.uri.rsplit("/", slash_to_remove)[0]
+        for match in self.matches:
+            if match in pattern:
+                pattern = pattern.replace(match, "*")
+        if not fnmatch(path, pattern):
             logger.debug(f"Unmatched path: {path}")
             return False
 
@@ -127,4 +140,7 @@ class PathSpec(BaseModel):
             table_path = (
                 "/".join(path.split("/")[:depth]) + "/" + parsed_vars.named["table"]
             )
-            return TABLE_TOKEN.format_map(parsed_vars.named), table_path
+            return (
+                "/".join(match.format_map(parsed_vars.named) for match in self.matches),
+                table_path,
+            )

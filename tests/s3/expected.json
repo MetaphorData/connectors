@@ -1,5 +1,6 @@
 [
   {
+    "displayName": "1.csv",
     "logicalId": {
       "name": "s3://bucket/directory/baz/quax/1.csv",
       "platform": "S3"
@@ -27,6 +28,7 @@
     }
   },
   {
+    "displayName": "2.csv",
     "logicalId": {
       "name": "s3://bucket/directory/baz/quax/2.csv",
       "platform": "S3"
@@ -62,6 +64,7 @@
     }
   },
   {
+    "displayName": "3.tsv",
     "logicalId": {
       "name": "s3://bucket/directory/baz/quax/3.tsv",
       "platform": "S3"
@@ -89,6 +92,7 @@
     }
   },
   {
+    "displayName": "file1.json",
     "logicalId": {
       "name": "s3://bucket/directory/foo/bar/file1.json",
       "platform": "S3"
@@ -120,6 +124,7 @@
     }
   },
   {
+    "displayName": "file2.csv",
     "logicalId": {
       "name": "s3://bucket/directory/foo/bar/file2.csv",
       "platform": "S3"
@@ -151,6 +156,7 @@
     }
   },
   {
+    "displayName": "b/dataset1",
     "logicalId": {
       "name": "s3://folders_as_datasets/a/b/c/dataset1",
       "platform": "S3"
@@ -182,6 +188,7 @@
     }
   },
   {
+    "displayName": "d/dataset2",
     "logicalId": {
       "name": "s3://folders_as_datasets/a/d/e/dataset2",
       "platform": "S3"
@@ -213,6 +220,7 @@
     }
   },
   {
+    "displayName": "a/dataset3",
     "logicalId": {
       "name": "s3://folders_as_datasets/b/a/c/dataset3",
       "platform": "S3"
@@ -240,10 +248,11 @@
     },
     "statistics": {
       "dataSizeBytes": 279.0,
-      "lastUpdated": "2023-12-29T06:48:15.682000+00:00"
+      "lastUpdated": "2023-12-29T15:18:03.436000+00:00"
     }
   },
   {
+    "displayName": "a/dataset4",
     "logicalId": {
       "name": "s3://folders_as_datasets/b/a/c/dataset4",
       "platform": "S3"
@@ -275,6 +284,7 @@
     }
   },
   {
+    "displayName": "a/dataset5",
     "logicalId": {
       "name": "s3://folders_as_datasets/b/a/c/dataset5",
       "platform": "S3"

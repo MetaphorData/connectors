@@ -131,9 +131,12 @@ class S3Extractor(BaseExtractor):
 
         bucket_name = path_spec.bucket
         bucket = self._config.s3_resource.Bucket(bucket_name)
-        if TABLE_TOKEN in path_spec.object_path:
-            token_index = path_spec.object_path.find(TABLE_TOKEN)
-            path_prefix = path_spec.object_path[:token_index]
+        if path_spec.matches:
+            object_path = path_spec.object_path
+            for match in path_spec.matches:
+                if match != TABLE_TOKEN:
+                    object_path = object_path.replace(match, "*", 1)
+            path_prefix = object_path[: object_path.find(TABLE_TOKEN)]
             for folder in self._resolve_templated_folders(bucket_name, path_prefix):
                 for f in list_folders(bucket_name, folder, self._config):
                     logger.debug(f"Processing folder dataset: {f}")
@@ -175,6 +178,7 @@ class S3Extractor(BaseExtractor):
 
     def _init_dataset(self, table_data: TableData) -> Dataset:
         return Dataset(
+            display_name=table_data.display_name,
             logical_id=DatasetLogicalID(
                 name=table_data.guid,
                 platform=DataPlatform.S3,
