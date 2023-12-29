@@ -156,6 +156,34 @@
     }
   },
   {
+    "displayName": "weather.avro",
+    "logicalId": {
+      "name": "s3://bucket/directory/foo/bar/weather.avro",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "station",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "time",
+          "nativeType": "long"
+        },
+        {
+          "fieldPath": "temp",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "AVRO"
+    },
+    "statistics": {
+      "dataSizeBytes": 337.0,
+      "lastUpdated": "2023-12-29T17:38:09.403000+00:00"
+    }
+  },
+  {
     "displayName": "b/dataset1",
     "logicalId": {
       "name": "s3://folders_as_datasets/a/b/c/dataset1",
