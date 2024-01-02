@@ -224,26 +224,22 @@
     "schema": {
       "fields": [
         {
-          "fieldPath": "Brand",
+          "fieldPath": "Username",
           "nativeType": "string"
         },
         {
-          "fieldPath": "Product",
+          "fieldPath": "Password",
           "nativeType": "string"
         },
         {
-          "fieldPath": "Price",
-          "nativeType": "double"
-        },
-        {
-          "fieldPath": "Stock",
-          "nativeType": "int64"
+          "fieldPath": "Status",
+          "nativeType": "string"
         }
       ],
       "schemaType": "SCHEMALESS"
     },
     "statistics": {
-      "dataSizeBytes": 342.0,
+      "dataSizeBytes": 160.0,
       "lastUpdated": "2023-12-29T08:27:56.757000+00:00"
     }
   },
@@ -256,27 +252,27 @@
     "schema": {
       "fields": [
         {
-          "fieldPath": "Name",
+          "fieldPath": "City",
           "nativeType": "string"
         },
         {
-          "fieldPath": "Gender",
-          "nativeType": "string"
-        },
-        {
-          "fieldPath": "Age",
+          "fieldPath": "Temperature(C)",
           "nativeType": "int64"
         },
         {
-          "fieldPath": "Country",
+          "fieldPath": "Humidity(%)",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Weather",
           "nativeType": "string"
         }
       ],
       "schemaType": "SCHEMALESS"
     },
     "statistics": {
-      "dataSizeBytes": 128.0,
-      "lastUpdated": "2023-12-29T15:18:03.436000+00:00"
+      "dataSizeBytes": 151.0,
+      "lastUpdated": "2023-12-29T06:48:09.322000+00:00"
     }
   },
   {
@@ -320,23 +316,27 @@
     "schema": {
       "fields": [
         {
-          "fieldPath": "City",
+          "fieldPath": "Username",
           "nativeType": "string"
         },
         {
-          "fieldPath": "Population",
-          "nativeType": "int64"
+          "fieldPath": "Email",
+          "nativeType": "string"
         },
         {
-          "fieldPath": "Area(sq km)",
-          "nativeType": "double"
+          "fieldPath": "Role",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Status",
+          "nativeType": "string"
         }
       ],
       "schemaType": "SCHEMALESS"
     },
     "statistics": {
-      "dataSizeBytes": 127.0,
-      "lastUpdated": "2023-12-29T06:49:00.963000+00:00"
+      "dataSizeBytes": 190.0,
+      "lastUpdated": "2023-12-29T06:48:32.672000+00:00"
     }
   },
   {
