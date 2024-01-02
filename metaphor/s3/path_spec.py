@@ -2,17 +2,56 @@ import os
 import re
 from fnmatch import fnmatch
 from functools import cached_property
-from typing import List, Set, Tuple, Union
+from typing import List, Optional, Set, Tuple, Union
 
+import dateutil.parser
 import parse
 import yarl
 from pydantic import BaseModel, Field, model_validator
 
 from metaphor.common.logger import get_logger
+from metaphor.models.metadata_change_event import SchemaField
 
 logger = get_logger()
 
 TABLE_TOKEN = "{table}"  # nosec - this ain't a password
+
+
+class PartitionField(BaseModel):
+    name: Optional[str]
+    raw_value: str
+    index: int
+
+    @cached_property
+    def inferred_type(self) -> str:
+        if not self.name:
+            return "string"
+        # Somehow this is preferred over try except pass by bandit
+        try:
+            int(self.raw_value)
+            return "int64"
+        except Exception:
+            try:
+                float(self.raw_value)
+                return "double"
+            except Exception:
+                try:
+                    dateutil.parser.parse(self.raw_value)
+                    return "datetime"
+                except Exception:
+                    return "string"
+
+    @model_validator(mode="after")
+    def _ensure_name(self) -> "PartitionField":
+        if not self.name:
+            self.name = f"Unnamed column {self.index}"
+        return self
+
+    def to_schema_field(self) -> SchemaField:
+        return SchemaField(
+            field_path=self.name if self.name else f"Unnamed column {self.index}",
+            native_type=self.inferred_type,
+        )
 
 
 class PathSpec(BaseModel):
@@ -77,6 +116,62 @@ class PathSpec(BaseModel):
     def matches(self) -> List[str]:
         return re.findall(r"{\s*\w+\s*}", self.uri)
 
+    @cached_property
+    def partitions(self) -> List[str]:
+        matches = re.findall(
+            r"({\s*partition_key\[\d+\]\s*}=)?({\s*partition\[\d+\]\s*})", self.uri
+        )
+        partitions = []
+        for match in matches:
+            key, value = match  # key could be empty string
+            partitions.append(f"{key}{value}")
+        return partitions
+
+    def extract_partitions(self, file_uri: str) -> List[PartitionField]:
+        partition_fields = []
+        part_index = 0
+        for part, file_part in zip(self.uri.split("/"), file_uri.split("/")):
+            if part_index >= len(self.partitions):
+                break
+            if part == self.partitions[part_index]:
+                if "partition_key" in part:
+                    tokens = file_part.rsplit("=", 1)
+                    if len(tokens) != 2:
+                        logger.warning(
+                            f"Cannot parse partition, expected partition format {part}, found {file_part}. Skipping this partition"
+                        )
+                        part_index += 1
+                        continue
+
+                    partition_fields.append(
+                        PartitionField(
+                            name=tokens[0], raw_value=tokens[1], index=part_index
+                        )
+                    )
+                else:
+                    partition_fields.append(
+                        PartitionField(name=None, raw_value=file_part, index=part_index)
+                    )
+                part_index += 1
+
+        return partition_fields
+
+    @model_validator(mode="after")
+    def _partitions_are_valid(self) -> "PathSpec":
+        for index, partition in enumerate(self.partitions):
+            indexes = re.findall(r"\[\d+\]", partition)
+            assert len(indexes) > 0 and len(indexes) < 3
+            value_index = int(indexes[-1][1:-1])
+            assert (
+                index == value_index
+            ), f"Invalid partition index, found {value_index} at pos {index}"
+            if len(indexes) == 2:
+                key_index = int(indexes[0][1:-1])
+                assert (
+                    key_index == value_index
+                ), f"Partition index does not match: {partition}"
+        return self
+
     @model_validator(mode="after")
     def _uri_is_valid(self) -> "PathSpec":
         assert self.url.scheme == "s3"
@@ -91,7 +186,7 @@ class PathSpec(BaseModel):
 
     def allow_key(self, key: str):
         pattern = self.object_path
-        for match in self.matches:
+        for match in self.matches + self.partitions:
             pattern = pattern.replace(match, "*", 1)
         return fnmatch(key, pattern) and key.rsplit(".", 1)[-1] in self.file_types
 
@@ -103,9 +198,9 @@ class PathSpec(BaseModel):
 
         slash_to_remove = (uri_slash - path_slash) + 1
         pattern = self.uri.rsplit("/", slash_to_remove)[0]
-        for match in self.matches:
+        for match in self.matches + self.partitions:
             if match in pattern:
-                pattern = pattern.replace(match, "*")
+                pattern = pattern.replace(match, "*", 1)
         if not fnmatch(path, pattern):
             logger.debug(f"Unmatched path: {path}")
             return False

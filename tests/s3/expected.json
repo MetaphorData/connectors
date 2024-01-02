@@ -338,5 +338,133 @@
       "dataSizeBytes": 788.0,
       "lastUpdated": "2023-12-29T06:49:00.963000+00:00"
     }
+  },
+  {
+    "displayName": "titanic",
+    "logicalId": {
+      "name": "s3://partitioned/with_partition_key/titanic",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Sex",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Pclass",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "PassengerId",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Survived",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Name",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Age",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "SibSp",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Parch",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Ticket",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Fare",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "Cabin",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Embarked",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "PARQUET"
+    },
+    "statistics": {
+      "dataSizeBytes": 19899.0,
+      "lastUpdated": "2023-12-29T18:05:09.415000+00:00"
+    }
+  },
+  {
+    "displayName": "titanic",
+    "logicalId": {
+      "name": "s3://partitioned/no_partition_key/titanic",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Unnamed column 0",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Unnamed column 1",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "PassengerId",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Survived",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Name",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Age",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "SibSp",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Parch",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Ticket",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Fare",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "Cabin",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Embarked",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "PARQUET"
+    },
+    "statistics": {
+      "dataSizeBytes": 19899.0,
+      "lastUpdated": "2024-01-02T09:49:47.670000+00:00"
+    }
   }
 ]

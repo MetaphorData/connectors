@@ -16,4 +16,10 @@ path_specs:
       - s3://folders_as_datasets/*/*/*/dataset1/ignore_this/
       - s3://folders_as_datasets/*/*/*/ignore_this/
       - s3://folders_as_datasets/ignore_this/
+  - uri: s3://partitioned/with_partition_key/{table}/{partition_key[0]}={partition[0]}/{partition_key[1]}={partition[1]}/*
+    file_types:
+      - parquet
+  - uri: s3://partitioned/no_partition_key/{table}/{partition[0]}/{partition[1]}/*
+    file_types:
+      - parquet
 output: {}

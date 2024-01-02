@@ -1,11 +1,12 @@
 from datetime import datetime
 from functools import cached_property
-from typing import Optional, OrderedDict
+from typing import List, Optional
 
 import yarl
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.logger import get_logger
+from metaphor.s3.path_spec import PartitionField
 
 try:
     from mypy_boto3_s3.service_resource import ObjectSummary
@@ -47,7 +48,7 @@ class TableData:
 
     display_name: str = ""
     full_path: str = ""
-    partitions: Optional[OrderedDict] = None
+    partitions: Optional[List[PartitionField]] = None
     timestamp: datetime = datetime.min
     table_path: str = ""
     size_in_bytes: int = 0
@@ -63,10 +64,15 @@ class TableData:
         table_name, table_path = file_object.path_spec.extract_table_name_and_path(
             file_object.path
         )
+        partitions = (
+            file_object.path_spec.extract_partitions(file_object.path)
+            if file_object.path_spec.partitions
+            else None
+        )
         return TableData(
             display_name=table_name,
             full_path=file_object.path,
-            partitions=None,
+            partitions=partitions,
             timestamp=file_object.last_modified,
             table_path=table_path,
             number_of_files=1,
@@ -76,6 +82,51 @@ class TableData:
     @cached_property
     def url(self) -> yarl.URL:
         return yarl.URL(self.full_path)
+
+    @staticmethod
+    def merge_partitions(
+        left: Optional[List[PartitionField]], right: Optional[List[PartitionField]]
+    ) -> Optional[List[PartitionField]]:
+        if left is not None != right is not None:  # noqa: E711
+            raise ValueError(
+                f"Found incompatible partitions while merging table definitions: {left} <-> {right}"
+            )
+        if left and right:
+            assert len(left) == len(
+                right
+            ), f"Found incompatible partitions while merging table definitions: {left} <-> {right}"
+
+            merged = []
+            left_fields = {
+                field.name: field for field in left if field.name
+            }  # Name cannot be empty
+            right_fields = {
+                field.name: field for field in right if field.name
+            }  # Name cannot be empty
+            for name, left_field in left_fields.items():
+                right_field = right_fields.get(name)
+                assert (
+                    right_field is not None
+                ), f"Cannot find field with name {name} in the partition"
+                if left_field.inferred_type == right_field.inferred_type:
+                    merged.append(left_field)
+                else:
+                    # Resolve types here
+                    type_to_field = {
+                        left_field.inferred_type: left_field,
+                        right_field.inferred_type: right_field,
+                    }
+                    if "string" in type_to_field:
+                        merged.append(type_to_field["string"])
+                    elif "double" in type_to_field:
+                        merged.append(type_to_field["double"])
+                    else:
+                        assert (
+                            False
+                        ), f"Cannot resolve imcompatible types: {left_field.inferred_type} <-> {right_field.inferred_type}"
+            return merged
+
+        return None
 
     def merge(self, other: "TableData") -> "TableData":
         if not self.table_path:
@@ -90,7 +141,7 @@ class TableData:
         return TableData(
             display_name=self.display_name,
             full_path=full_path,
-            partitions=self.partitions,  # TODO
+            partitions=TableData.merge_partitions(self.partitions, other.partitions),
             timestamp=timestamp,
             table_path=self.table_path,
             size_in_bytes=self.size_in_bytes + other.size_in_bytes,
