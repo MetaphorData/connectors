@@ -482,7 +482,11 @@ class SnowflakeExtractor(BaseExtractor):
             SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
             FROM snowflake.account_usage.tag_references
             WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
-            ORDER BY OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME
+            ORDER BY case when DOMAIN = 'DATABASE' then 1
+                          when DOMAIN = 'SCHEMA' then 2
+                          when DOMAIN = 'TABLE' then 3
+                          when DOMAIN = 'COLUMN' then 4
+                          end asc;
             """
         )
 
