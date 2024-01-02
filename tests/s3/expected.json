@@ -224,22 +224,26 @@
     "schema": {
       "fields": [
         {
-          "fieldPath": "Username",
+          "fieldPath": "Brand",
           "nativeType": "string"
         },
         {
-          "fieldPath": "Password",
+          "fieldPath": "Product",
           "nativeType": "string"
         },
         {
-          "fieldPath": "Status",
-          "nativeType": "string"
+          "fieldPath": "Price",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "Stock",
+          "nativeType": "int64"
         }
       ],
       "schemaType": "SCHEMALESS"
     },
     "statistics": {
-      "dataSizeBytes": 160.0,
+      "dataSizeBytes": 342.0,
       "lastUpdated": "2023-12-29T08:27:56.757000+00:00"
     }
   },

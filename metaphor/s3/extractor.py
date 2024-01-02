@@ -177,6 +177,8 @@ class S3Extractor(BaseExtractor):
         return entities
 
     def _init_dataset(self, table_data: TableData) -> Dataset:
+        if "dataset5" in table_data.full_path:
+            logger.info(f"Using {table_data.full_path}")
         return Dataset(
             display_name=table_data.display_name,
             logical_id=DatasetLogicalID(

@@ -137,15 +137,16 @@ class TableData:
         timestamp = self.timestamp
         size_in_bytes = self.size_in_bytes
         number_of_files = self.number_of_files
-        if (self.timestamp < other.timestamp and other.size_in_bytes > 0) or (
-            self.timestamp == other.timestamp
-            and other.size_in_bytes > 0
-            and self.full_path < other.full_path
-        ):  # In case they're created at the same time and we can't tell which one to use
+        if self.timestamp < other.timestamp and other.size_in_bytes > 0:
+            if "dataset5" in other.full_path:
+                logger.info(f"Using {other.full_path} during merge")
             full_path = other.full_path
             timestamp = other.timestamp
             size_in_bytes = other.size_in_bytes
             number_of_files = other.number_of_files
+        else:
+            if "dataset5" in self.full_path:
+                logger.info(f"Using {self.full_path} during merge (no change)")
 
         partitions = TableData.merge_partitions(self.partitions, other.partitions)
         if partitions:
