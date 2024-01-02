@@ -135,16 +135,29 @@ class TableData:
 
         full_path = self.full_path
         timestamp = self.timestamp
-        if self.timestamp < other.timestamp and other.size_in_bytes > 0:
+        size_in_bytes = self.size_in_bytes
+        number_of_files = self.number_of_files
+        if (self.timestamp < other.timestamp and other.size_in_bytes > 0) or (
+            self.timestamp == other.timestamp
+            and other.size_in_bytes > 0
+            and self.full_path < other.full_path
+        ):  # In case they're created at the same time and we can't tell which one to use
             full_path = other.full_path
             timestamp = other.timestamp
+            size_in_bytes = other.size_in_bytes
+            number_of_files = other.number_of_files
+
+        partitions = TableData.merge_partitions(self.partitions, other.partitions)
+        if partitions:
+            size_in_bytes = self.size_in_bytes + other.size_in_bytes
+            number_of_files = self.number_of_files + other.number_of_files
 
         return TableData(
             display_name=self.display_name,
             full_path=full_path,
-            partitions=TableData.merge_partitions(self.partitions, other.partitions),
+            partitions=partitions,
             timestamp=timestamp,
             table_path=self.table_path,
-            size_in_bytes=self.size_in_bytes + other.size_in_bytes,
-            number_of_files=self.number_of_files + other.number_of_files,
+            size_in_bytes=size_in_bytes,
+            number_of_files=number_of_files,
         )
