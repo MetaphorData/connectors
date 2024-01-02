@@ -24,7 +24,6 @@ def get_logger() -> logging.Logger:
     logger = logging.getLogger("metaphor")
     logger.setLevel(logging.DEBUG)
     logger.addHandler(console)
-    console.setLevel(logging.DEBUG)
     logger.addHandler(file)
 
     return logger
