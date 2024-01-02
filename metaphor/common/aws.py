@@ -14,14 +14,14 @@ logger = get_logger()
 class AwsCredentials:
     """AWS Credentials"""
 
-    # The access key of an aws credentials
-    access_key_id: str
-
-    # The secret access key of an aws credentials
-    secret_access_key: str
-
     # The aws region containing the service instance
     region_name: str
+
+    # The access key of an aws credentials
+    access_key_id: Optional[str] = None
+
+    # The secret access key of an aws credentials
+    secret_access_key: Optional[str] = None
 
     # The aws session token.
     session_token: Optional[str] = None
