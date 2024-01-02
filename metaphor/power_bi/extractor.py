@@ -170,7 +170,7 @@ class PowerBIExtractor(BaseExtractor):
                 display_name=user.displayName,
                 group_user_access_right=get_access_right(user.groupUserAccessRight),
             )
-            for user in workspace.users
+            for user in workspace.users or []
             if user.emailAddress  # Filter out group or service principal
         ]
 
@@ -529,7 +529,7 @@ class PowerBIExtractor(BaseExtractor):
         users = set(
             user
             for workspace in workspaces
-            for user in workspace.users
+            for user in workspace.users or []
             # Skipping report without datasetId
             if user.principalType == "User"
         )

@@ -182,7 +182,7 @@ class WorkspaceInfo(BaseModel):
     datasets: List[WorkspaceInfoDataset] = []
     dashboards: List[WorkspaceInfoDashboard] = []
     dataflows: List[WorkspaceInfoDataflow] = []
-    users: List[WorkspaceInfoUser] = []
+    users: Optional[List[WorkspaceInfoUser]] = []
 
 
 class PowerBiSubscriptionUser(BaseModel):
