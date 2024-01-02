@@ -1,9 +1,5 @@
 import pytest
-from botocore.exceptions import (
-    NoCredentialsError,
-    ParamValidationError,
-    ProfileNotFound,
-)
+from botocore.exceptions import ParamValidationError, ProfileNotFound
 
 from metaphor.common.aws import AwsCredentials
 
@@ -22,7 +18,7 @@ def test_aws_session() -> None:
     )
 
     if not session.get_credentials():
-        with pytest.raises(NoCredentialsError):
+        with pytest.raises(ProfileNotFound):
             session = conf.get_session()
     else:
         with pytest.raises(ParamValidationError):
