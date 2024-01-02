@@ -43,7 +43,7 @@ class TableData:
     """
     Represents a table in the S3 storage.
 
-    Use `table_path` as the guid.
+    User should use `table_path` as the guid.
     """
 
     display_name: str = ""
@@ -52,7 +52,8 @@ class TableData:
     timestamp: datetime = datetime.min
     table_path: str = ""
     size_in_bytes: int = 0
-    number_of_files: int = 0
+
+    number_of_files: int = 0  # TODO: make use of this field
 
     @property
     def guid(self) -> str:
@@ -87,7 +88,7 @@ class TableData:
     def merge_partitions(
         left: Optional[List[PartitionField]], right: Optional[List[PartitionField]]
     ) -> Optional[List[PartitionField]]:
-        if left is not None != right is not None:  # noqa: E711
+        if left is None != right is None:  # noqa: E711
             raise ValueError(
                 f"Found incompatible partitions while merging table definitions: {left} <-> {right}"
             )

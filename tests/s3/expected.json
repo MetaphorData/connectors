@@ -399,7 +399,7 @@
       "schemaType": "PARQUET"
     },
     "statistics": {
-      "dataSizeBytes": 19899.0,
+      "dataSizeBytes": 83221.0,
       "lastUpdated": "2023-12-29T18:05:09.415000+00:00"
     }
   },
@@ -463,7 +463,7 @@
       "schemaType": "PARQUET"
     },
     "statistics": {
-      "dataSizeBytes": 19899.0,
+      "dataSizeBytes": 83221.0,
       "lastUpdated": "2024-01-02T09:49:47.670000+00:00"
     }
   }

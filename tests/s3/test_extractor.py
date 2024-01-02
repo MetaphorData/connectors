@@ -24,9 +24,4 @@ async def test_extractor(minio_container: MinioContainer, test_root_dir: str) ->
     events = [EventUtil.trim_event(entity) for entity in await extractor.extract()]
     expected = f"{test_root_dir}/s3/expected.json"
 
-    # Uncomment this to generate the test expected result
-    # with open(expected, "w") as f:
-    #     import json
-    #     f.write(json.dumps(events))
-
     assert ignore_datetime_values(events) == ignore_datetime_values(load_json(expected))

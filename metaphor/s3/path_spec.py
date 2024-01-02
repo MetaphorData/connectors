@@ -198,7 +198,11 @@ class PathSpec(BaseModel):
 
         slash_to_remove = (uri_slash - path_slash) + 1
         pattern = self.uri.rsplit("/", slash_to_remove)[0]
-        for match in self.matches + self.partitions:
+        for (
+            match
+        ) in (
+            self.matches
+        ):  # Here we don't want to match the partition columns, instead we want to return the table-level directory.
             if match in pattern:
                 pattern = pattern.replace(match, "*", 1)
         if not fnmatch(path, pattern):
