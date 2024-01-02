@@ -22,6 +22,11 @@ class PartitionField(BaseModel):
     raw_value: str
     index: int
 
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, PartitionField):
+            return self.model_dump_json() == __value.model_dump_json()
+        return False
+
     @cached_property
     def inferred_type(self) -> str:
         if not self.name:
@@ -102,12 +107,6 @@ class PathSpec(BaseModel):
         parser = parse.compile(parsable)
         logger.debug(f"Setting compiled parser: {parser}")
         return parser
-
-    @cached_property
-    def _as_glob(self):
-        as_glob = re.sub(r"\{[^}]+\}", "*", self.uri)
-        logger.debug(f"Setting glob: {as_glob}")
-        return as_glob
 
     def get_named_vars(self, path: str) -> Union[None, parse.Result, parse.Match]:
         return self._compiled_parser.parse(path)
