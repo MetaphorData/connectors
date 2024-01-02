@@ -6,6 +6,7 @@ import yarl
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.logger import get_logger
+from metaphor.models.metadata_change_event import DataPlatform, DatasetLogicalID
 from metaphor.s3.path_spec import PartitionField
 
 try:
@@ -58,6 +59,15 @@ class TableData:
     @property
     def guid(self) -> str:
         return self.table_path
+
+    @property
+    def logical_id(self) -> DatasetLogicalID:
+        return DatasetLogicalID(
+            name=yarl.URL(self.table_path)
+            .with_scheme("")
+            .human_repr()[1:],  # Drop the first slash
+            platform=DataPlatform.S3,
+        )
 
     @classmethod
     def from_file_object(cls, file_object: FileObject) -> "TableData":
@@ -124,7 +134,7 @@ class TableData:
                     else:
                         assert (
                             False
-                        ), f"Cannot resolve imcompatible types: {left_field.inferred_type} <-> {right_field.inferred_type}"
+                        ), f"Cannot resolve incompatible types: {left_field.inferred_type} <-> {right_field.inferred_type}"
             return merged
 
         return None

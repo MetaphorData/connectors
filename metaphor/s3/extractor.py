@@ -8,12 +8,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    DatasetLogicalID,
-    DatasetStatistics,
-)
+from metaphor.models.metadata_change_event import Dataset, DatasetStatistics
 from metaphor.s3.boto_helpers import list_folders
 from metaphor.s3.config import PathSpec, S3RunConfig
 from metaphor.s3.parse_schema import parse_schema
@@ -179,10 +174,7 @@ class S3Extractor(BaseExtractor):
     def _init_dataset(self, table_data: TableData) -> Dataset:
         return Dataset(
             display_name=table_data.display_name,
-            logical_id=DatasetLogicalID(
-                name=table_data.guid,
-                platform=DataPlatform.S3,
-            ),
+            logical_id=table_data.logical_id,
             statistics=DatasetStatistics(
                 last_updated=table_data.timestamp,
                 data_size_bytes=float(table_data.size_in_bytes),

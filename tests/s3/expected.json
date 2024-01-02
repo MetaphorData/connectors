@@ -2,7 +2,7 @@
   {
     "displayName": "1.csv",
     "logicalId": {
-      "name": "s3://bucket/directory/baz/quax/1.csv",
+      "name": "/bucket/directory/baz/quax/1.csv",
       "platform": "S3"
     },
     "schema": {
@@ -30,7 +30,7 @@
   {
     "displayName": "2.csv",
     "logicalId": {
-      "name": "s3://bucket/directory/baz/quax/2.csv",
+      "name": "/bucket/directory/baz/quax/2.csv",
       "platform": "S3"
     },
     "schema": {
@@ -66,7 +66,7 @@
   {
     "displayName": "3.tsv",
     "logicalId": {
-      "name": "s3://bucket/directory/baz/quax/3.tsv",
+      "name": "/bucket/directory/baz/quax/3.tsv",
       "platform": "S3"
     },
     "schema": {
@@ -94,7 +94,7 @@
   {
     "displayName": "file1.json",
     "logicalId": {
-      "name": "s3://bucket/directory/foo/bar/file1.json",
+      "name": "/bucket/directory/foo/bar/file1.json",
       "platform": "S3"
     },
     "schema": {
@@ -126,7 +126,7 @@
   {
     "displayName": "file2.csv",
     "logicalId": {
-      "name": "s3://bucket/directory/foo/bar/file2.csv",
+      "name": "/bucket/directory/foo/bar/file2.csv",
       "platform": "S3"
     },
     "schema": {
@@ -158,7 +158,7 @@
   {
     "displayName": "weather.avro",
     "logicalId": {
-      "name": "s3://bucket/directory/foo/bar/weather.avro",
+      "name": "/bucket/directory/foo/bar/weather.avro",
       "platform": "S3"
     },
     "schema": {
@@ -186,7 +186,7 @@
   {
     "displayName": "b/dataset1",
     "logicalId": {
-      "name": "s3://folders_as_datasets/a/b/c/dataset1",
+      "name": "/folders_as_datasets/a/b/c/dataset1",
       "platform": "S3"
     },
     "schema": {
@@ -218,7 +218,7 @@
   {
     "displayName": "d/dataset2",
     "logicalId": {
-      "name": "s3://folders_as_datasets/a/d/e/dataset2",
+      "name": "/folders_as_datasets/a/d/e/dataset2",
       "platform": "S3"
     },
     "schema": {
@@ -246,7 +246,7 @@
   {
     "displayName": "a/dataset3",
     "logicalId": {
-      "name": "s3://folders_as_datasets/b/a/c/dataset3",
+      "name": "/folders_as_datasets/b/a/c/dataset3",
       "platform": "S3"
     },
     "schema": {
@@ -278,7 +278,7 @@
   {
     "displayName": "a/dataset4",
     "logicalId": {
-      "name": "s3://folders_as_datasets/b/a/c/dataset4",
+      "name": "/folders_as_datasets/b/a/c/dataset4",
       "platform": "S3"
     },
     "schema": {
@@ -310,7 +310,7 @@
   {
     "displayName": "a/dataset5",
     "logicalId": {
-      "name": "s3://folders_as_datasets/b/a/c/dataset5",
+      "name": "/folders_as_datasets/b/a/c/dataset5",
       "platform": "S3"
     },
     "schema": {
@@ -342,7 +342,7 @@
   {
     "displayName": "titanic",
     "logicalId": {
-      "name": "s3://partitioned/with_partition_key/titanic",
+      "name": "/partitioned/with_partition_key/titanic",
       "platform": "S3"
     },
     "schema": {
@@ -406,7 +406,7 @@
   {
     "displayName": "titanic",
     "logicalId": {
-      "name": "s3://partitioned/no_partition_key/titanic",
+      "name": "/partitioned/no_partition_key/titanic",
       "platform": "S3"
     },
     "schema": {
