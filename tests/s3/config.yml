@@ -5,6 +5,7 @@ aws:
   region_name: us-west-2
 endpoint_url: http://localhost:9000
 path_specs:
+  - uri: s3://does_not_exist/*
   - uri: s3://bucket/directory/*/*/*.*
     file_types:
       - csv
