@@ -13,7 +13,9 @@ from metaphor.s3.table_data import TableData
 
 
 def _parse_json(source, partition_fields: List[SchemaField]) -> DatasetSchema:
-    table: pyarrow.Table = pj.read_json(source)
+    table: pyarrow.Table = pj.read_json(
+        source
+    )  # We're parsing the json data itself, but perhaps in the future we want to parse its schema.
     fields = [
         SchemaField(
             field_path=column._name,

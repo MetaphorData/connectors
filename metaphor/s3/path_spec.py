@@ -1,7 +1,7 @@
 import os
 import re
 from fnmatch import fnmatch
-from functools import cached_property
+from functools import cached_property, reduce
 from typing import List, Optional, Set, Tuple, Union
 
 import dateutil.parser
@@ -18,7 +18,15 @@ TABLE_TOKEN = "{table}"  # nosec - this ain't a password
 
 
 class PartitionField(BaseModel):
+    """
+    Represents a partition column.
+    """
+
     name: Optional[str]
+    """
+    Name of the partition column. For unnamed columns, this will be
+    `Unnamed column {index}`.
+    """
     raw_value: str
     index: int
 
@@ -29,6 +37,12 @@ class PartitionField(BaseModel):
 
     @cached_property
     def inferred_type(self) -> str:
+        """
+        Infer partition column type from raw value.
+
+        There should be a more robust way to do this, but for now this will
+        be sufficient.
+        """
         if not self.name:
             return "string"
         # Somehow this is preferred over try except pass by bandit
@@ -54,17 +68,26 @@ class PartitionField(BaseModel):
 
     def to_schema_field(self) -> SchemaField:
         return SchemaField(
-            field_path=self.name if self.name else f"Unnamed column {self.index}",
+            field_path=self.name,  # self.name is always going to be a valid string here.
             native_type=self.inferred_type,
         )
 
 
 class PathSpec(BaseModel):
     uri: str
+    """
+    The path specification. E.g.
+    `s3://foo/bar/*/{dept}/{table}/*/*.csv`
+    """
+
     file_types: Set[str] = Field(
         default_factory=lambda: {"avro", "csv", "tsv", "parquet", "json"}
     )
+
     excludes: List[str] = Field(default_factory=list)
+    """
+    The excluded paths.
+    """
 
     def __str__(self) -> str:
         return self.uri
@@ -75,34 +98,45 @@ class PathSpec(BaseModel):
 
     @cached_property
     def bucket(self) -> str:
+        """
+        For uri = `s3://foo/bar/baz.csv`, this would be `foo`.
+        """
         return self.url.host  # type: ignore
 
     @cached_property
     def object_path(self) -> str:
+        """
+        For uri = `s3://foo/bar/baz.csv`, this would be `bar/baz.csv`.
+        """
         return self.url.path[1:]  # Drop the first slash
 
     @cached_property
     def full_path(self) -> str:
+        """
+        For uri = `s3://foo/bar/baz.csv`, this would be `/foo/bar/baz.csv`.
+        """
         return self.url.with_scheme("").human_repr()[1:]  # Drop the first slash
 
     @cached_property
     def path_prefix(self) -> str:
+        """
+        Returns the prefix of the path before the label level. E.g.
+        for uri = `s3://foo/bar/baz/*/*/{table}/*/*.*`, this would be
+        `bar/baz/*/*/`.
+        """
         index = re.search(r"[\*|\{]", self.object_path)
         if index:
             return self.object_path[: index.start()]
         else:
             return self.object_path
 
-    @classmethod
-    def replace_wildcards(cls, uri: str) -> str:
-        replaced = uri
-        for i in range(replaced.count("*")):
-            replaced = replaced.replace("*", f"{{token[{i}]}}", 1)
-        return replaced
-
     @cached_property
     def _compiled_parser(self):
-        parsable = PathSpec.replace_wildcards(self.uri)
+        parsable = reduce(
+            lambda acc, i: acc.replace("*", f"{{token[{i}]}}", 1),
+            range(self.uri.count("*")),
+            self.uri,
+        )
         logger.debug(f"Parsable uri: {parsable}")
         parser = parse.compile(parsable)
         logger.debug(f"Setting compiled parser: {parser}")
@@ -117,6 +151,11 @@ class PathSpec(BaseModel):
 
     @cached_property
     def partitions(self) -> List[str]:
+        """
+        Partitions are either a single label named `{partition[N]}`, or two labels joined
+        by a equal sign: `{partition_key[N]}={partition[N]}`. Both formats can exist within
+        a single uri.
+        """
         matches = re.findall(
             r"({\s*partition_key\[\d+\]\s*}=)?({\s*partition\[\d+\]\s*})", self.uri
         )
@@ -127,6 +166,9 @@ class PathSpec(BaseModel):
         return partitions
 
     def extract_partitions(self, file_uri: str) -> List[PartitionField]:
+        """
+        Extract the partition columns from a file uri.
+        """
         partition_fields = []
         part_index = 0
         for part, file_part in zip(self.uri.split("/"), file_uri.split("/")):
@@ -157,6 +199,9 @@ class PathSpec(BaseModel):
 
     @model_validator(mode="after")
     def _partitions_are_valid(self) -> "PathSpec":
+        """
+        Make sure the partition labels are valid.
+        """
         for index, partition in enumerate(self.partitions):
             indexes = re.findall(r"\[\d+\]", partition)
             assert len(indexes) > 0 and len(indexes) < 3
@@ -173,23 +218,39 @@ class PathSpec(BaseModel):
 
     @model_validator(mode="after")
     def _uri_is_valid(self) -> "PathSpec":
+        """
+        Make sure the scheme is `s3` and the bucket is provided.
+        """
         assert self.url.scheme == "s3"
         assert self.url.host
         return self
 
     @model_validator(mode="after")
     def _matches_are_valid(self) -> "PathSpec":
+        """
+        Make sure the `{table}` label exists if there's any label within the uri.
+        """
         if self.matches:
             assert TABLE_TOKEN in self.matches
         return self
 
     def allow_key(self, key: str):
+        """
+        Check if the object key is accepted by this path spec's uri. Here we are comparing
+        against the object path.
+        """
         pattern = self.object_path
         for match in self.matches + self.partitions:
             pattern = pattern.replace(match, "*", 1)
         return fnmatch(key, pattern) and key.rsplit(".", 1)[-1] in self.file_types
 
     def allow_path(self, path: str) -> bool:
+        """
+        Check if the directory path is accepted by this path spec.
+
+        Note that the `path` parameter should be a full path, i.e. has `s3` scheme,
+        with a specified bucket.
+        """
         path_slash = path.count("/")
         uri_slash = self.uri.count("/")
         if path_slash > uri_slash:
@@ -238,7 +299,7 @@ class PathSpec(BaseModel):
             table_path = (
                 "/".join(path.split("/")[:depth]) + "/" + parsed_vars.named["table"]
             )
-            return (
-                "/".join(match.format_map(parsed_vars.named) for match in self.matches),
-                table_path,
+            table_name = "/".join(
+                match.format_map(parsed_vars.named) for match in self.matches
             )
+            return table_name, table_path

@@ -101,7 +101,9 @@ class S3Extractor(BaseExtractor):
         if iterator:
             sorted_dirs = sorted(
                 iterator,
-                key=functools.cmp_to_key(partitioned_folder_comparator),
+                key=functools.cmp_to_key(
+                    partitioned_folder_comparator
+                ),  # We want to compare partitions by value instead of the entire label.
                 reverse=True,
             )
             for dir in sorted_dirs:
@@ -116,6 +118,11 @@ class S3Extractor(BaseExtractor):
             return folder
 
     def _browse_path_spec(self, path_spec: PathSpec) -> Iterable[FileObject]:
+        """
+        Browses thru all eligible file objects in path spec. Resolves the wildcard characters
+        and labels and returns actual file paths.
+        """
+
         def yield_file_object(prefix: str):
             for page in (
                 bucket.objects.filter(Prefix=prefix).page_size(PAGE_SIZE).pages()
@@ -127,6 +134,7 @@ class S3Extractor(BaseExtractor):
         bucket_name = path_spec.bucket
         bucket = self._config.s3_resource.Bucket(bucket_name)
         if path_spec.matches:
+            # This branch is for directory based datasets
             object_path = path_spec.object_path
             for match in path_spec.matches:
                 if match != TABLE_TOKEN:
@@ -140,6 +148,7 @@ class S3Extractor(BaseExtractor):
                         logger.debug(f"Found directory: {directory}")
                         yield from yield_file_object(prefix=directory)
         else:
+            # No label in uri, just return the resolved path
             yield from yield_file_object(prefix=path_spec.path_prefix)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -156,6 +165,11 @@ class S3Extractor(BaseExtractor):
                     f"Skipping {path_spec}: bucket {path_spec.bucket} does not exist"
                 )
                 continue
+
+            # Browse through all valid files covered by this path_spec. If there are
+            # overlapping files (i.e. different files under a directory that's parsed
+            # as a single dataset), they are merged. See `TableData.merge` for the
+            # implementation.
             tables: Dict[str, TableData] = defaultdict(lambda: TableData())
             for file_object in self._browse_path_spec(path_spec):
                 table_data = TableData.from_file_object(file_object)
