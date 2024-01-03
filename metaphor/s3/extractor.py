@@ -12,31 +12,28 @@ from metaphor.models.metadata_change_event import Dataset, DatasetStatistics
 from metaphor.s3.boto_helpers import list_folders
 from metaphor.s3.config import PathSpec, S3RunConfig
 from metaphor.s3.parse_schema import parse_schema
-from metaphor.s3.path_spec import TABLE_TOKEN
+from metaphor.s3.path_spec import TABLE_LABEL
 from metaphor.s3.table_data import FileObject, TableData
 
 logger = get_logger()
 PAGE_SIZE = 1000
 
 
-def partitioned_folder_comparator(folder1: str, folder2: str) -> int:
-    # Try to convert to number and compare if the folder name is a number
+def dir_comp(left: str, right: str) -> int:
+    # Try to convert to number and compare if the directory name is a number
     try:
-        # Stripping = from the folder names as it most probably partition name part like year=2021
-        if "=" in folder1 and "=" in folder2:
-            if folder1.rsplit("=", 1)[0] == folder2.rsplit("=", 1)[0]:
-                folder1 = folder1.rsplit("=", 1)[-1]
-                folder2 = folder2.rsplit("=", 1)[-1]
+        # Strip = from the directory names, just use the column value
+        if "=" in left and "=" in right:
+            left = left.rsplit("=", 1)[-1]
+            right = right.rsplit("=", 1)[-1]
 
-        num_folder1 = int(folder1)
-        num_folder2 = int(folder2)
-        return num_folder1 - num_folder2
+        return int(left) - int(right)  # This can throw if left / right are pure strings
+
     except Exception:
-        # If folder name is not a number then do string comparison
-        if folder1 == folder2:
+        if left == right:
             return 0
         else:
-            return 1 if folder1 > folder2 else -1
+            return 1 if left > right else -1
 
 
 class S3Extractor(BaseExtractor):
@@ -61,6 +58,7 @@ class S3Extractor(BaseExtractor):
         # If the len of split is 1 it means we don't have * in the prefix
         if len(folder_split) == 1:
             yield path_prefix
+            return
 
         for folder in list_folders(bucket_name, folder_split[0], self._config):
             yield from self._resolve_templated_folders(
@@ -98,8 +96,8 @@ class S3Extractor(BaseExtractor):
             sorted_dirs = sorted(
                 iterator,
                 key=functools.cmp_to_key(
-                    partitioned_folder_comparator
-                ),  # We want to compare partitions by value instead of the entire label.
+                    dir_comp
+                ),  # If it's a partition column then we want to compare the value, otherwise just compare names
                 reverse=True,
             )
             for dir in sorted_dirs:
@@ -129,13 +127,13 @@ class S3Extractor(BaseExtractor):
 
         bucket_name = path_spec.bucket
         bucket = self._config.s3_resource.Bucket(bucket_name)
-        if path_spec.matches:
+        if path_spec.labels:
             # This branch is for directory based datasets
             object_path = path_spec.object_path
-            for match in path_spec.matches:
-                if match != TABLE_TOKEN:
-                    object_path = object_path.replace(match, "*", 1)
-            path_prefix = object_path[: object_path.find(TABLE_TOKEN)]
+            for label in path_spec.labels:
+                if label != TABLE_LABEL:
+                    object_path = object_path.replace(label, "*", 1)
+            path_prefix = object_path[: object_path.find(TABLE_LABEL)]
             for folder in self._resolve_templated_folders(bucket_name, path_prefix):
                 for f in list_folders(bucket_name, folder, self._config):
                     logger.debug(f"Processing folder dataset: {f}")

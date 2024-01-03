@@ -14,7 +14,7 @@ from metaphor.models.metadata_change_event import SchemaField
 
 logger = get_logger()
 
-TABLE_TOKEN = "{table}"  # nosec - this ain't a password
+TABLE_LABEL = "{table}"  # nosec - this ain't a password
 
 
 class PartitionField(BaseModel):
@@ -120,9 +120,9 @@ class PathSpec(BaseModel):
     @cached_property
     def path_prefix(self) -> str:
         """
-        Returns the prefix of the path before the label level. E.g.
+        Returns the prefix of the path before the label or wildcard levels. E.g.
         for uri = `s3://foo/bar/baz/*/*/{table}/*/*.*`, this would be
-        `bar/baz/*/*/`.
+        `bar/baz/`.
         """
         index = re.search(r"[\*|\{]", self.object_path)
         if index:
@@ -146,7 +146,22 @@ class PathSpec(BaseModel):
         return self._compiled_parser.parse(path)
 
     @cached_property
-    def matches(self) -> List[str]:
+    def labels(self) -> List[str]:
+        """
+        The labels in the uri. Below are the rules for different labels:
+
+        - `{table}`
+            - The table label. The directories at the level of this label will
+              be treated as a dataset. This label can appear at most once in the
+              uri. If there are any other kinds of labels, this label must exist.
+        - `{partition[N]}` & `{partition_key[N]}`
+            - The partition labels. `{partition[N]}` are mandatory, all directories
+              within that level will be treated as a partition column. If
+              `{partition_key[N]}` is not provided, the partition column is considered
+              an unnamed column.
+        - All other labels
+            - Treated as part of display name, separated by `"/"`.
+        """
         return re.findall(r"{\s*\w+\s*}", self.uri)
 
     @cached_property
@@ -226,12 +241,12 @@ class PathSpec(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _matches_are_valid(self) -> "PathSpec":
+    def _labels_are_valid(self) -> "PathSpec":
         """
         Make sure the `{table}` label exists if there's any label within the uri.
         """
-        if self.matches:
-            assert TABLE_TOKEN in self.matches
+        if self.labels:
+            assert TABLE_LABEL in self.labels
         return self
 
     def allow_key(self, key: str):
@@ -240,7 +255,7 @@ class PathSpec(BaseModel):
         against the object path.
         """
         pattern = self.object_path
-        for match in self.matches + self.partitions:
+        for match in self.labels + self.partitions:
             pattern = pattern.replace(match, "*", 1)
         return fnmatch(key, pattern) and key.rsplit(".", 1)[-1] in self.file_types
 
@@ -261,7 +276,7 @@ class PathSpec(BaseModel):
         for (
             match
         ) in (
-            self.matches
+            self.labels
         ):  # Here we don't want to match the partition columns, instead we want to return the table-level directory.
             if match in pattern:
                 pattern = pattern.replace(match, "*", 1)
@@ -294,12 +309,12 @@ class PathSpec(BaseModel):
         ):
             return os.path.basename(path), path
         else:
-            assert TABLE_TOKEN in self.uri, f"Cannot find {{table}} in uri: {self.uri}"
-            depth = self.uri.count("/", 0, self.uri.find(TABLE_TOKEN))
+            assert TABLE_LABEL in self.uri, f"Cannot find {{table}} in uri: {self.uri}"
+            depth = self.uri.count("/", 0, self.uri.find(TABLE_LABEL))
             table_path = (
                 "/".join(path.split("/")[:depth]) + "/" + parsed_vars.named["table"]
             )
             table_name = "/".join(
-                match.format_map(parsed_vars.named) for match in self.matches
+                match.format_map(parsed_vars.named) for match in self.labels
             )
             return table_name, table_path
