@@ -140,8 +140,22 @@ class TableData:
         return None
 
     def merge(self, other: "TableData") -> "TableData":
+        """
+        Merges this TableData with another one.
+
+        The merge only makes sense if the table_paths are equivalent.
+
+        If there's no partition, we use the newer of the two; otherwise we merge
+        the partitions, and combine `size_in_bytes` and `number_of_files` of the
+        two TableDatas.
+        """
         if not self.table_path:
             return other
+
+        if self.table_path != other.table_path:
+            raise ValueError(
+                f"Cannot merge table datas with different table_paths: {self.table_path} <-> {other.table_path}"
+            )
 
         full_path = self.full_path
         timestamp = self.timestamp
