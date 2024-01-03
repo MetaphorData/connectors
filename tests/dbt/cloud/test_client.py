@@ -1,7 +1,7 @@
 from typing import Dict
 from unittest.mock import patch
 
-from metaphor.dbt.cloud.client import DbtAdminAPIClient
+from metaphor.dbt.cloud.client import DbtAdminAPIClient, DbtRun
 
 
 class Response:
@@ -28,20 +28,23 @@ def test_get_last_successful_run(mock_requests):
                 {
                     "id": 1,
                     "project_id": 111,
+                    "job_definition_id": 9999,
                     "status": 20,
                 },
                 {
                     "id": 2,
                     "project_id": 222,
+                    "job_definition_id": 8888,
                     "status": 10,
                 },
             ]
         },
     )
 
-    (project_id, run_id) = client.get_last_successful_run(2222)
-    assert project_id == 222
-    assert run_id == 2
+    run = client.get_last_successful_run(2222)
+    assert run.project_id == 222
+    assert run.run_id == 2
+    assert run.job_id == 8888
 
     mock_requests.get.assert_called_once_with(
         "http://base.url/api/v2/accounts/1111/runs/",
@@ -94,6 +97,30 @@ def test_get_snowflake_account(mock_requests):
 
 
 @patch("metaphor.dbt.cloud.client.requests")
+def test_get_project_jobs(mock_requests):
+    client = DbtAdminAPIClient(
+        base_url="http://base.url",
+        account_id=1111,
+        service_token="service_token",
+    )
+    mock_requests.get.return_value = Response(
+        200,
+        {
+            "data": [
+                {
+                    "id": 3333,
+                },
+                {
+                    "id": 2222,
+                },
+            ]
+        },
+    )
+    jobs = client.get_project_jobs(4444)
+    assert jobs == [3333, 2222]
+
+
+@patch("metaphor.dbt.cloud.client.requests")
 def test_get_run_artifact(mock_requests):
     client = DbtAdminAPIClient(
         base_url="http://base.url",
@@ -103,11 +130,12 @@ def test_get_run_artifact(mock_requests):
 
     mock_requests.get.return_value = Response(200, {"artifact": "json"})
 
-    path = client.get_run_artifact(2222, 3333, "manifest.json")
-    assert path.endswith("/2222-manifest.json")
+    run = DbtRun(run_id=2222, project_id=3333, job_id=4444)
+    path = client.get_run_artifact(run, "manifest.json")
+    assert path.endswith("/3333-4444-manifest.json")
 
     mock_requests.get.assert_called_once_with(
-        "http://base.url/api/v2/accounts/1111/runs/3333/artifacts/manifest.json",
+        "http://base.url/api/v2/accounts/1111/runs/2222/artifacts/manifest.json",
         params=None,
         headers={
             "Content-Type": "application/json",

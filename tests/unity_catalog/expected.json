@@ -1,46 +1,5 @@
 [
   {
-    "unityCatalog": {
-      "tableType": "MANAGED",
-      "dataSourceFormat": "CSV",
-      "owner": "foo@bar.com",
-      "storageLocation": "s3://path",
-      "properties": [
-        {
-          "key": "delta.lastCommitTimestamp",
-          "value": "\"1664444422000\""
-        }
-      ]
-    },
-    "logicalId": {
-      "name": "catalog.schema.table",
-      "platform": "UNITY_CATALOG"
-    },
-    "schema": {
-      "description": "example",
-      "fields": [
-        {
-          "fieldName": "col1",
-          "fieldPath": "col1",
-          "nativeType": "int",
-          "precision": 32.0,
-          "description": "some description"
-        }
-      ],
-      "schemaType": "SQL",
-      "sqlSchema": {
-        "materialization": "TABLE"
-      },
-      "tags": [
-        "tag=value",
-        "tag2"
-      ]
-    },
-    "structure": {
-      "database": "catalog",
-      "schema": "schema",
-      "table": "table"
-    },
     "entityUpstream": {
       "fieldMappings": [
         {
@@ -62,13 +21,133 @@
         "DATASET~97D032124F4B526411F0D04797CEAC96"
       ]
     },
+    "logicalId": {
+      "name": "catalog.schema.table",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "description": "example",
+      "fields": [
+        {
+          "description": "some description",
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int",
+          "precision": 32.0,
+          "tags": [
+            "col_tag=col_value",
+            "col_tag2=tag_value_2"
+          ]
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
+      },
+      "tags": [
+        "tag=value",
+        "tag2"
+      ]
+    },
     "sourceInfo": {
       "mainUrl": "http://dummy.host/explore/data/catalog/schema/table"
+    },
+    "structure": {
+      "database": "catalog",
+      "schema": "schema",
+      "table": "table"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "key": "catalog_tag_key_1",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_1"
+        },
+        {
+          "key": "catalog_tag_key_2",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_2"
+        },
+        {
+          "key": "schema_tag_key_1",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_1"
+        },
+        {
+          "key": "schema_tag_key_2",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_2"
+        }
+      ]
+    },
+    "unityCatalog": {
+      "dataSourceFormat": "CSV",
+      "owner": "foo@bar.com",
+      "properties": [
+        {
+          "key": "delta.lastCommitTimestamp",
+          "value": "\"1664444422000\""
+        }
+      ],
+      "storageLocation": "s3://path",
+      "tableType": "MANAGED"
     }
   },
   {
+    "logicalId": {
+      "name": "catalog.schema.view",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "description": "example",
+      "fields": [
+        {
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int",
+          "precision": 32.0
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "SELECT ..."
+      }
+    },
+    "sourceInfo": {
+      "mainUrl": "http://dummy.host/explore/data/catalog/schema/view"
+    },
+    "structure": {
+      "database": "catalog",
+      "schema": "schema",
+      "table": "view"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "key": "catalog_tag_key_1",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_1"
+        },
+        {
+          "key": "catalog_tag_key_2",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_2"
+        },
+        {
+          "key": "schema_tag_key_1",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_1"
+        },
+        {
+          "key": "schema_tag_key_2",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_2"
+        }
+      ]
+    },
     "unityCatalog": {
-      "tableType": "VIEW",
       "owner": "foo@bar.com",
       "properties": [
         {
@@ -131,35 +210,8 @@
           "key": "view.catalogAndNamespace.part.1",
           "value": "\"default\""
         }
-      ]
-    },
-    "logicalId": {
-      "name": "catalog.schema.view",
-      "platform": "UNITY_CATALOG"
-    },
-    "schema": {
-      "description": "example",
-      "fields": [
-        {
-          "fieldName": "col1",
-          "fieldPath": "col1",
-          "nativeType": "int",
-          "precision": 32.0
-        }
       ],
-      "schemaType": "SQL",
-      "sqlSchema": {
-        "materialization": "VIEW",
-        "tableSchema": "SELECT ..."
-      }
-    },
-    "structure": {
-      "database": "catalog",
-      "schema": "schema",
-      "table": "view"
-    },
-    "sourceInfo": {
-      "mainUrl": "http://dummy.host/explore/data/catalog/schema/view"
+      "tableType": "VIEW"
     }
   },
   {
@@ -179,5 +231,50 @@
         "userId": "uwu"
       }
     ]
+  },
+  {
+    "logicalId": {
+      "path": [
+        "UNITY_CATALOG",
+        "catalog"
+      ]
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "key": "catalog_tag_key_1",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_1"
+        },
+        {
+          "key": "catalog_tag_key_2",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "catalog_tag_value_2"
+        }
+      ]
+    }
+  },
+  {
+    "logicalId": {
+      "path": [
+        "UNITY_CATALOG",
+        "catalog",
+        "schema"
+      ]
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "key": "schema_tag_key_1",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_1"
+        },
+        {
+          "key": "schema_tag_key_2",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "schema_tag_value_2"
+        }
+      ]
+    }
   }
 ]

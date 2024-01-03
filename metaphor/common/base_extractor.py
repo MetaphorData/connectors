@@ -1,12 +1,11 @@
 import asyncio
+import traceback
 from abc import ABC, abstractmethod
-from typing import Collection, List, Optional
+from typing import Collection, Optional
 
 from metaphor.common.base_config import BaseConfig
-from metaphor.common.event_util import ENTITY_TYPES, EventUtil
-from metaphor.common.runner import run_connector
-from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import MetadataChangeEvent
+from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.models.crawler_run_metadata import Platform, RunStatus
 
 
 class BaseExtractor(ABC):
@@ -26,18 +25,26 @@ class BaseExtractor(ABC):
 
     def __init__(self, config: BaseConfig) -> None:
         self._output = config.output
+        self.error_message: Optional[str] = None
+        self.stacktrace: Optional[str] = None
+
+    @property
+    def status(self) -> RunStatus:
+        if self.error_message or self.stacktrace:
+            return RunStatus.FAILURE
+        return RunStatus.SUCCESS
 
     def run_async(self) -> Collection[ENTITY_TYPES]:
         return asyncio.run(self.extract())
 
-    def run(self) -> List[MetadataChangeEvent]:
-        """Callable function to extract metadata and send/post messages"""
-
-        (events, _) = run_connector(
-            connector_func=self.run_async,
-            name=EventUtil.class_fqcn(self.__class__),
-            platform=self._platform,
-            description=self._description,
-            file_sink_config=self._output.file,
-        )
-        return events
+    def extend_errors(self, e: Exception) -> None:
+        error_message = str(e)
+        stacktrace = traceback.format_exc()
+        if not self.error_message:
+            self.error_message = error_message
+        else:
+            self.error_message += f"\n{error_message}"
+        if not self.stacktrace:
+            self.stacktrace = stacktrace
+        else:
+            self.stacktrace += f"\n{stacktrace}"

@@ -14,14 +14,21 @@ Create a YAML config file based the following template.
 
 ```yaml
 account_id: <dbt_cloud_account_id>
-job_id: <dbt_cloud_job_id>
 service_token: <service_account_token>
+job_ids:
+  - <job_id_1>
+  - <job_id_2>
+project_ids:
+  - <project_id_1>
+  - <project_id_2>
 output:
   file:
     directory: <output_directory>
 ```
 
-You can extract `account_id` & `job_id` from a particular dbt job's URL, which has the format `https://cloud.getdbt.com/#/accounts/<account_id>/projects/<project_id>/jobs/<job_id>/`.
+You can extract `account_id` & `job_ids` from particular dbt job URLs, which have the format `https://cloud.getdbt.com/#/accounts/<account_id>/projects/<project_id>/jobs/<job_id>/`.
+
+It is also possible to specify the IDs for the projects to extract. The connector will extract the last successful run of each of the project's jobs.
 
 See [Output Config](../common/docs/output.md) for more information on `output`.
 
