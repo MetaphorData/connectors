@@ -30,10 +30,7 @@ def partitioned_folder_comparator(folder1: str, folder2: str) -> int:
 
         num_folder1 = int(folder1)
         num_folder2 = int(folder2)
-        if num_folder1 == num_folder2:
-            return 0
-        else:
-            return 1 if num_folder1 > num_folder2 else -1
+        return num_folder1 - num_folder2
     except Exception:
         # If folder name is not a number then do string comparison
         if folder1 == folder2:
@@ -64,7 +61,6 @@ class S3Extractor(BaseExtractor):
         # If the len of split is 1 it means we don't have * in the prefix
         if len(folder_split) == 1:
             yield path_prefix
-            return
 
         for folder in list_folders(bucket_name, folder_split[0], self._config):
             yield from self._resolve_templated_folders(

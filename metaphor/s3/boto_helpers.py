@@ -15,4 +15,4 @@ def list_folders(
             folder: str = str(o.get("Prefix"))
             if folder.endswith("/"):
                 folder = folder[:-1]
-            yield f"{folder}"
+            yield folder
