@@ -49,34 +49,40 @@ from metaphor.models.metadata_change_event import (
 
 from .generated.dbt_manifest_v5 import CompiledGenericTestNode as CompiledTestNodeV5
 from .generated.dbt_manifest_v5 import CompiledModelNode as CompiledModelNodeV5
+from .generated.dbt_manifest_v5 import CompiledSnapshotNode as CompiledSnapshotNodeV5
 from .generated.dbt_manifest_v5 import DbtManifest as DbtManifestV5
 from .generated.dbt_manifest_v5 import DependsOn as DependsOnV5
 from .generated.dbt_manifest_v5 import ParsedGenericTestNode as ParsedTestNodeV5
 from .generated.dbt_manifest_v5 import ParsedMacro as ParsedMacroV5
 from .generated.dbt_manifest_v5 import ParsedMetric as ParsedMetricV5
 from .generated.dbt_manifest_v5 import ParsedModelNode as ParsedModelNodeV5
+from .generated.dbt_manifest_v5 import ParsedSnapshotNode as ParsedSnapshotNodeV5
 from .generated.dbt_manifest_v5 import (
     ParsedSourceDefinition as ParsedSourceDefinitionV5,
 )
 from .generated.dbt_manifest_v6 import CompiledGenericTestNode as CompiledTestNodeV6
 from .generated.dbt_manifest_v6 import CompiledModelNode as CompiledModelNodeV6
+from .generated.dbt_manifest_v6 import CompiledSnapshotNode as CompiledSnapshotNodeV6
 from .generated.dbt_manifest_v6 import DbtManifest as DbtManifestV6
 from .generated.dbt_manifest_v6 import DependsOn as DependsOnV6
 from .generated.dbt_manifest_v6 import ParsedGenericTestNode as ParsedTestNodeV6
 from .generated.dbt_manifest_v6 import ParsedMacro as ParsedMacroV6
 from .generated.dbt_manifest_v6 import ParsedMetric as ParsedMetricV6
 from .generated.dbt_manifest_v6 import ParsedModelNode as ParsedModelNodeV6
+from .generated.dbt_manifest_v6 import ParsedSnapshotNode as ParsedSnapshotNodeV6
 from .generated.dbt_manifest_v6 import (
     ParsedSourceDefinition as ParsedSourceDefinitionV6,
 )
 from .generated.dbt_manifest_v7 import CompiledGenericTestNode as CompiledTestNodeV7
 from .generated.dbt_manifest_v7 import CompiledModelNode as CompiledModelNodeV7
+from .generated.dbt_manifest_v7 import CompiledSnapshotNode as CompiledSnapshotNodeV7
 from .generated.dbt_manifest_v7 import DbtManifest as DbtManifestV7
 from .generated.dbt_manifest_v7 import DependsOn as DependsOnV7
 from .generated.dbt_manifest_v7 import ParsedGenericTestNode as ParsedTestNodeV7
 from .generated.dbt_manifest_v7 import ParsedMacro as ParsedMacroV7
 from .generated.dbt_manifest_v7 import ParsedMetric as ParsedMetricV7
 from .generated.dbt_manifest_v7 import ParsedModelNode as ParsedModelNodeV7
+from .generated.dbt_manifest_v7 import ParsedSnapshotNode as ParsedSnapshotNodeV7
 from .generated.dbt_manifest_v7 import (
     ParsedSourceDefinition as ParsedSourceDefinitionV7,
 )
@@ -86,6 +92,7 @@ from .generated.dbt_manifest_v8 import GenericTestNode as GenericTestNodeV8
 from .generated.dbt_manifest_v8 import Macro as MacroV8
 from .generated.dbt_manifest_v8 import Metric as MetricV8
 from .generated.dbt_manifest_v8 import ModelNode as ModelNodeV8
+from .generated.dbt_manifest_v8 import SnapshotNode as SnapshotNodeV8
 from .generated.dbt_manifest_v8 import SourceDefinition as SourceDefinitionV8
 from .generated.dbt_manifest_v9 import DbtManifest as DbtManifestV9
 from .generated.dbt_manifest_v9 import DependsOn as DependsOnV9
@@ -93,6 +100,7 @@ from .generated.dbt_manifest_v9 import GenericTestNode as GenericTestNodeV9
 from .generated.dbt_manifest_v9 import Macro as MacroV9
 from .generated.dbt_manifest_v9 import Metric as MetricV9
 from .generated.dbt_manifest_v9 import ModelNode as ModelNodeV9
+from .generated.dbt_manifest_v9 import SnapshotNode as SnapshotNodeV9
 from .generated.dbt_manifest_v9 import SourceDefinition as SourceDefinitionV9
 from .generated.dbt_manifest_v10 import DbtManifest as DbtManifestV10
 from .generated.dbt_manifest_v10 import DependsOn as DependsOnV10
@@ -100,12 +108,14 @@ from .generated.dbt_manifest_v10 import GenericTestNode as GenericTestNodeV10
 from .generated.dbt_manifest_v10 import Macro as MacroV10
 from .generated.dbt_manifest_v10 import Metric as MetricV10
 from .generated.dbt_manifest_v10 import ModelNode as ModelNodeV10
+from .generated.dbt_manifest_v10 import SnapshotNode as SnapshotNodeV10
 from .generated.dbt_manifest_v10 import SourceDefinition as SourceDefinitionV10
 from .generated.dbt_manifest_v11 import DependsOn as DependsOnV11
 from .generated.dbt_manifest_v11 import GenericTestNode as GenericTestNodeV11
 from .generated.dbt_manifest_v11 import Macro as MacroV11
 from .generated.dbt_manifest_v11 import Metric as MetricV11
 from .generated.dbt_manifest_v11 import ModelNode as ModelNodeV11
+from .generated.dbt_manifest_v11 import SnapshotNode as SnapshotNodeV11
 from .generated.dbt_manifest_v11 import SourceDefinition as SourceDefinitionV11
 from .generated.dbt_manifest_v11 import WritableManifest as DbtManifestV11
 from .generated.dbt_run_results_v4 import DbtRunResults as DbtRunResultsV4
@@ -138,6 +148,19 @@ TEST_NODE_TYPE = Union[
     ParsedTestNodeV5,
     ParsedTestNodeV6,
     ParsedTestNodeV7,
+]
+
+SNAPSHOT_NODE_TYPE = Union[
+    CompiledSnapshotNodeV5,
+    CompiledSnapshotNodeV6,
+    CompiledSnapshotNodeV7,
+    ParsedSnapshotNodeV5,
+    ParsedSnapshotNodeV6,
+    ParsedSnapshotNodeV7,
+    SnapshotNodeV8,
+    SnapshotNodeV9,
+    SnapshotNodeV10,
+    SnapshotNodeV11,
 ]
 
 SOURCE_DEFINITION_TYPE = Union[
@@ -400,6 +423,27 @@ class ArtifactParser:
             # if upgraded to python 3.8+, can use get_args(TEST_NODE_TYPE)
         }
 
+        snapshots = {
+            k: v
+            for (k, v) in nodes.items()
+            if isinstance(
+                v,
+                (
+                    CompiledSnapshotNodeV5,
+                    CompiledSnapshotNodeV6,
+                    CompiledSnapshotNodeV7,
+                    ParsedSnapshotNodeV5,
+                    ParsedSnapshotNodeV6,
+                    ParsedSnapshotNodeV7,
+                    SnapshotNodeV8,
+                    SnapshotNodeV9,
+                    SnapshotNodeV10,
+                    SnapshotNodeV11,
+                ),
+            )
+            # if upgraded to python 3.8+, can use get_args(SNAPSHOT_NODE_TYPE)
+        }
+
         source_map = self._parse_sources(sources)
 
         macro_map = self._parse_macros(macros)
@@ -416,6 +460,9 @@ class ArtifactParser:
 
         for _, metric in metrics.items():
             self._parse_metric(metric, source_map, macro_map)
+
+        # TODO: what to do with snapshots?
+        print(snapshots)
 
     def _parse_test(
         self,
