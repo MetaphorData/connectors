@@ -1,0 +1,26 @@
+---
+aws:
+  access_key_id: minioadmin
+  secret_access_key: minioadmin
+  region_name: us-west-2
+endpoint_url: http://localhost:9000
+path_specs:
+  - uri: s3://does_not_exist/*
+  - uri: s3://bucket/directory/*/*/*.*
+    file_types:
+      - csv
+      - json
+      - tsv
+      - avro
+  - uri: s3://folders_as_datasets/*/{dept}/*/{table}/*/*.csv
+    excludes:
+      - s3://folders_as_datasets/*/*/*/dataset1/ignore_this/
+      - s3://folders_as_datasets/*/*/*/ignore_this/
+      - s3://folders_as_datasets/ignore_this/
+  - uri: s3://partitioned/with_partition_key/{table}/{partition_key[0]}={partition[0]}/{partition_key[1]}={partition[1]}/*
+    file_types:
+      - parquet
+  - uri: s3://partitioned/no_partition_key/{table}/{partition[0]}/{partition[1]}/*
+    file_types:
+      - parquet
+output: {}
