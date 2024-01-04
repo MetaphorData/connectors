@@ -36,58 +36,73 @@ class HiveExtractor(BaseExtractor):
     def __init__(self, config: HiveRunConfig) -> None:
         super().__init__(config)
         self._config = config
-        self._connection = hive.connect(**config.connect_kwargs)
+
+    @staticmethod
+    def get_connection(**kwargs) -> hive.Connection:
+        return hive.connect(**kwargs)
 
     @staticmethod
     def extract_names_from_cursor(cursor: Iterable[Tuple]) -> List[str]:
         return [tup[0] for tup in cursor]
+
+    def _extract_table(
+        self, database: str, table: str, materialization: MaterializationType
+    ) -> Dataset:
+        with self._connection.cursor() as cursor:
+            normalized_name = dataset_normalized_name(schema=database, table=table)
+            dataset = Dataset(
+                entity_type=EntityType.DATASET,
+                logical_id=DatasetLogicalID(
+                    name=normalized_name,
+                    platform=DataPlatform.HIVE,
+                ),
+            )
+            fields = []
+            cursor.execute(f"describe {database}.{table}")
+            for field_path, field_type, comment in cursor:
+                fields.append(
+                    SchemaField(
+                        field_path=field_path,
+                        native_type=field_type,
+                        description=comment if comment else None,
+                    )
+                )
+
+            cursor.execute(f"show create table {database}.{table}")
+            table_schema = "\n".join(
+                line for line in HiveExtractor.extract_names_from_cursor(cursor)
+            )
+
+            dataset_schema = None
+            if fields or table_schema:
+                dataset_schema = DatasetSchema()
+                if fields:
+                    dataset_schema.fields = fields
+                if table_schema:
+                    dataset_schema.schema_type = SchemaType.SQL
+                    dataset_schema.sql_schema = SQLSchema(
+                        materialization=materialization,
+                        table_schema=table_schema,
+                    )
+            dataset.schema = dataset_schema
+
+            return dataset
 
     def _extract_database(self, database: str) -> List[Dataset]:
         with self._connection.cursor() as cursor:
             datasets = []
             cursor.execute(f"show tables in {database}")
             for table in HiveExtractor.extract_names_from_cursor(cursor):
-                normalized_name = dataset_normalized_name(schema=database, table=table)
-                dataset = Dataset(
-                    entity_type=EntityType.DATASET,
-                    logical_id=DatasetLogicalID(
-                        name=normalized_name,
-                        platform=DataPlatform.HIVE,
-                    ),
-                )
-                fields = []
-                cursor.execute(f"describe {database}.{table}")
-                for field_path, field_type, comment in cursor:
-                    fields.append(
-                        SchemaField(
-                            field_path=field_path,
-                            native_type=field_type,
-                            description=comment if comment else None,
-                        )
-                    )
-
-                cursor.execute(f"show create table {database}.{table}")
-                table_schema = "\n".join(
-                    line for line in HiveExtractor.extract_names_from_cursor(cursor)
+                datasets.append(
+                    self._extract_table(database, table, MaterializationType.TABLE)
                 )
 
-                dataset_schema = None
-                if fields or table_schema:
-                    dataset_schema = DatasetSchema()
-                    if fields:
-                        dataset_schema.fields = fields
-                    if table_schema:
-                        dataset_schema.schema_type = SchemaType.SQL
-                        dataset_schema.sql_schema = SQLSchema(
-                            materialization=MaterializationType.TABLE,
-                            table_schema=table_schema,
-                        )
-                dataset.schema = dataset_schema
-                datasets.append(dataset)
+            # TODO: materialized view, view
 
             return datasets
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
+        self._connection = HiveExtractor.get_connection(**self._config.connect_kwargs)
         entities: List[ENTITY_TYPES] = []
         with self._connection.cursor() as cursor:
             cursor.execute("show databases")

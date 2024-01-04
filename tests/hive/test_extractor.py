@@ -6,10 +6,13 @@ from testcontainers.general import DockerContainer
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.common.logger import get_logger
 from metaphor.hive.config import HiveRunConfig
 from metaphor.hive.extractor import HiveExtractor
 from metaphor.models.metadata_change_event import Dataset, DatasetSchema
 from tests.test_utils import load_json
+
+logger = get_logger()
 
 
 def remove_transient_ddl_time_from_table_schema(schema: DatasetSchema) -> DatasetSchema:
@@ -31,13 +34,23 @@ async def test_extractor(test_root_dir: str) -> None:
     ) as container:
         port = container.get_exposed_port(10000)
         host = container.get_container_host_ip()
-        time.sleep(10)  # Wait for the hive server to be online
+
+        config = HiveRunConfig(output=OutputConfig(), host=host, port=int(port))
+
+        while True:
+            try:
+                HiveExtractor.get_connection(**config.connect_kwargs)
+                break
+            except Exception:
+                # Wait till it's up
+                logger.info("Waiting for hiveserver2 to start")
+                time.sleep(1)
+
         container.exec(
             "beeline -u jdbc:hive2://localhost:10000/default -f examples/files/starships.sql"
         )
-        extractor = HiveExtractor(
-            HiveRunConfig(output=OutputConfig(), host=host, port=int(port))
-        )
+
+        extractor = HiveExtractor(config)
 
         events = []
         for entity in await extractor.extract():
