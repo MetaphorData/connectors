@@ -18,7 +18,12 @@ Create a YAML config file based on the following template.
 
 ### Required Configurations
 
-TODO
+```yaml
+host: <host>
+port: <port>
+auth: <auth user for hiveserver>
+password: <password for the auth user>
+```
 
 ## Testing
 
