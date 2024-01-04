@@ -563,8 +563,8 @@ files = [
 jmespath = ">=0.7.1,<2.0.0"
 python-dateutil = ">=2.1,<3.0.0"
 urllib3 = [
-    {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""},
     {version = ">=1.25.4,<2.1", markers = "python_version >= \"3.10\""},
+    {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""},
 ]
 
 [package.extras]
@@ -1012,8 +1012,8 @@ files = [
 [package.dependencies]
 lz4 = ">=4.0.2,<5.0.0"
 numpy = [
-    {version = ">=1.16.6", markers = "python_version >= \"3.8\" and python_version < \"3.11\""},
     {version = ">=1.23.4", markers = "python_version >= \"3.11\""},
+    {version = ">=1.16.6", markers = "python_version >= \"3.8\" and python_version < \"3.11\""},
 ]
 oauthlib = ">=3.1.0,<4.0.0"
 openpyxl = ">=3.0.10,<4.0.0"
@@ -1063,9 +1063,9 @@ isort = ">=4.3.21,<6.0"
 jinja2 = ">=2.10.1,<4.0"
 packaging = "*"
 pydantic = [
-    {version = ">=1.5.1,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version < \"3.10\""},
     {version = ">=1.10.0,<2.0.0 || >2.0.0,<2.0.1 || >2.0.1,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.12\" and python_version < \"4.0\""},
     {version = ">=1.10.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.11\" and python_version < \"3.12\""},
+    {version = ">=1.5.1,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version < \"3.10\""},
     {version = ">=1.9.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
 ]
 pyyaml = ">=6.0.1"
@@ -1443,12 +1443,12 @@ files = [
 google-auth = ">=2.14.1,<3.0.dev0"
 googleapis-common-protos = ">=1.56.2,<2.0.dev0"
 grpcio = [
-    {version = ">=1.33.2,<2.0dev", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
     {version = ">=1.49.1,<2.0dev", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
+    {version = ">=1.33.2,<2.0dev", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
 ]
 grpcio-status = [
-    {version = ">=1.33.2,<2.0.dev0", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
     {version = ">=1.49.1,<2.0.dev0", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
+    {version = ">=1.33.2,<2.0.dev0", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
 ]
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0.dev0"
 requests = ">=2.18.0,<3.0.0.dev0"
@@ -1578,8 +1578,8 @@ google-cloud-audit-log = ">=0.1.0,<1.0.0dev"
 google-cloud-core = ">=2.0.0,<3.0.0dev"
 grpc-google-iam-v1 = ">=0.12.4,<1.0.0dev"
 proto-plus = [
-    {version = ">=1.22.0,<2.0.0dev", markers = "python_version < \"3.11\""},
     {version = ">=1.22.2,<2.0.0dev", markers = "python_version >= \"3.11\""},
+    {version = ">=1.22.0,<2.0.0dev", markers = "python_version < \"3.11\""},
 ]
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0dev"
 
@@ -3016,8 +3016,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.20.3", markers = "python_version < \"3.10\""},
     {version = ">=1.23.2", markers = "python_version >= \"3.11\""},
+    {version = ">=1.20.3", markers = "python_version < \"3.10\""},
     {version = ">=1.21.0", markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
 ]
 python-dateutil = ">=2.8.2"
@@ -3292,6 +3292,20 @@ files = [
     {file = "protobuf-4.25.1-py3-none-any.whl", hash = "sha256:a19731d5e83ae4737bb2a089605e636077ac001d18781b3cf489b9546c7c80d6"},
     {file = "protobuf-4.25.1.tar.gz", hash = "sha256:57d65074b4f5baa4ab5da1605c02be90ac20c8b40fb137d6a8df9f416b0d0ce2"},
 ]
+
+[[package]]
+name = "pure-sasl"
+version = "0.6.2"
+description = "Pure Python client SASL implementation"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pure-sasl-0.6.2.tar.gz", hash = "sha256:53c1355f5da95e2b85b2cc9a6af435518edc20c81193faa0eea65fdc835138f4"},
+    {file = "pure_sasl-0.6.2-py2-none-any.whl", hash = "sha256:edb33b1a46eb3c602c0166de0442c0fb41f5ac2bfccbde4775183b105ad89ab2"},
+]
+
+[package.extras]
+gssapi = ["kerberos (>=1.3.0)"]
 
 [[package]]
 name = "pyarrow"
@@ -4195,6 +4209,19 @@ botocore = ">=1.33.2,<2.0a.0"
 crt = ["botocore[crt] (>=1.33.2,<2.0a.0)"]
 
 [[package]]
+name = "sasl"
+version = "0.3.1"
+description = "Cyrus-SASL bindings for Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "sasl-0.3.1.tar.gz", hash = "sha256:0695030b23faa65aab2b462ce6f067d61caeb406de22d1ca7f9253fd9ebe127e"},
+]
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "setuptools"
 version = "68.2.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -4580,7 +4607,7 @@ requests = "*"
 name = "thrift"
 version = "0.16.0"
 description = "Python bindings for the Apache Thrift RPC system"
-optional = true
+optional = false
 python-versions = "*"
 files = [
     {file = "thrift-0.16.0.tar.gz", hash = "sha256:2b5b6488fcded21f9d312aa23c9ff6a0195d0f6ae26ddbd5ad9e3e25dfc14408"},
@@ -4593,6 +4620,22 @@ six = ">=1.7.2"
 all = ["tornado (>=4.0)", "twisted"]
 tornado = ["tornado (>=4.0)"]
 twisted = ["twisted"]
+
+[[package]]
+name = "thrift-sasl"
+version = "0.4.3"
+description = "Thrift SASL Python module that implements SASL transports for Thrift (`TSaslClientTransport`)."
+optional = false
+python-versions = "*"
+files = [
+    {file = "thrift_sasl-0.4.3-py2.py3-none-any.whl", hash = "sha256:d24b49140115e6e2a96d08335cff225a27a28ea71866fb1b2bdb30ca5afca64e"},
+    {file = "thrift_sasl-0.4.3.tar.gz", hash = "sha256:5bdd5b760d90a13d9b3abfce873db0425861aa8d6bf25912d3cc0467a4f773da"},
+]
+
+[package.dependencies]
+pure-sasl = ">=0.6.2"
+six = ">=1.13.0"
+thrift = {version = ">=0.10.0", markers = "python_version >= \"3.0\""}
 
 [[package]]
 name = "toml"
@@ -5047,4 +5090,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "e72938590ea07c246a318e5a3b349afea7a086115ae29658c0e7b7babced91f8"
+content-hash = "6b07113b0346c2e2cbd1cc18f33cb861afcf878f89c28da28ac336543b1118ab"

@@ -1,108 +1,26 @@
+from typing import Collection, Iterable, List, Tuple
+
 from pyhive import hive
-import json
-from dataclasses import asdict, dataclass
-from typing import Collection, Dict, List, Optional, Type
 
-from requests.auth import HTTPBasicAuth
-
-from metaphor.common.api_request import ApiError, get_request
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import (
-    dataset_normalized_name,
-    to_dataset_entity_id_from_logical_id,
-    to_pipeline_entity_id,
-)
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.utils import safe_float
-)
+from metaphor.hive.config import HiveRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    EntityUpstream,
-    FieldMapping,
-    FiveTranConnectorStatus,
-    FivetranPipeline,
-    Pipeline,
-    PipelineInfo,
-    PipelineLogicalID,
-    PipelineMapping,
-    PipelineType,
-    SourceField,
+    DatasetSchema,
+    EntityType,
+    MaterializationType,
+    SchemaField,
+    SchemaType,
+    SQLSchema,
 )
 
-from metaphor.hive.config import HiveRunConfig
-
 logger = get_logger()
-
-PLATFORM_MAPPING = {
-    "azure_sql_data_warehouse": DataPlatform.SYNAPSE,
-    "big_query": DataPlatform.BIGQUERY,
-    "mysql_warehouse": DataPlatform.MYSQL,
-    "mysql_rds_warehouse": DataPlatform.MYSQL,
-    "aurora_warehouse": DataPlatform.MYSQL,
-    "postgres_warehouse": DataPlatform.POSTGRESQL,
-    "postgres_rds_warehouse": DataPlatform.POSTGRESQL,
-    "aurora_postgres_warehouse": DataPlatform.POSTGRESQL,
-    "postgres_gcp_warehouse": DataPlatform.POSTGRESQL,
-    "redshift": DataPlatform.REDSHIFT,
-    "snowflake": DataPlatform.SNOWFLAKE,
-}
-
-SOURCE_PLATFORM_MAPPING = {
-    "documentdb": DataPlatform.DOCUMENTDB,
-    "aurora": DataPlatform.MYSQL,
-    "aurora_postgres": DataPlatform.POSTGRESQL,
-    "maria_azure": DataPlatform.MYSQL,
-    "mysql_azure": DataPlatform.MYSQL,
-    "azure_postgres": DataPlatform.POSTGRESQL,
-    "azure_sql_db": DataPlatform.MSSQL,
-    "google_cloud_mysql": DataPlatform.MYSQL,
-    "google_cloud_postgresql": DataPlatform.POSTGRESQL,
-    "google_cloud_sqlserver": DataPlatform.MSSQL,
-    "heroku_postgres": DataPlatform.POSTGRESQL,
-    "sql_server_hva": DataPlatform.MSSQL,
-    "magento_mysql": DataPlatform.MYSQL,
-    "magento_mysql_rds": DataPlatform.MYSQL,
-    "maria": DataPlatform.MYSQL,
-    "maria_rds": DataPlatform.MYSQL,
-    "mysql": DataPlatform.MYSQL,
-    "mysql_rds": DataPlatform.MYSQL,
-    "postgres": DataPlatform.POSTGRESQL,
-    "postgres_rds": DataPlatform.POSTGRESQL,
-    "sql_server": DataPlatform.MSSQL,
-    "sql_server_rds": DataPlatform.MSSQL,
-    "snowflake_db": DataPlatform.SNOWFLAKE,
-}
-
-
-@dataclass
-class ColumnMetadata:
-    name_in_source: str
-    name_in_destination: str
-    type_in_source: Optional[str]
-    type_in_destination: Optional[str]
-    is_primary_key: bool
-    is_foreign_key: bool
-
-
-@dataclass
-class TableMetadata:
-    name_in_source: str
-    name_in_destination: str
-    columns: List[ColumnMetadata]
-
-
-@dataclass
-class SchemaMetadata:
-    # name_in_source could be null
-    name_in_source: Optional[str]
-
-    name_in_destination: str
-    tables: List[TableMetadata]
 
 
 class HiveExtractor(BaseExtractor):
@@ -117,8 +35,62 @@ class HiveExtractor(BaseExtractor):
 
     def __init__(self, config: HiveRunConfig) -> None:
         super().__init__(config)
-        self._conn = hive.
+        self._config = config
+        self._connection = hive.connect(**config.connect_kwargs)
+
+    @staticmethod
+    def extract_names_from_cursor(cursor: Iterable[Tuple]) -> List[str]:
+        return [tup[0] for tup in cursor]
+
+    def _extract_database(self, database: str) -> List[Dataset]:
+        with self._connection.cursor() as cursor:
+            datasets = []
+            cursor.execute(f"show tables in {database}")
+            for table in HiveExtractor.extract_names_from_cursor(cursor):
+                normalized_name = dataset_normalized_name(schema=database, table=table)
+                dataset = Dataset(
+                    entity_type=EntityType.DATASET,
+                    logical_id=DatasetLogicalID(
+                        name=normalized_name,
+                        platform=DataPlatform.HIVE,
+                    ),
+                )
+                fields = []
+                cursor.execute(f"describe {database}.{table}")
+                for field_path, field_type, comment in cursor:
+                    fields.append(
+                        SchemaField(
+                            field_path=field_path,
+                            native_type=field_type,
+                            description=comment if comment else None,
+                        )
+                    )
+
+                cursor.execute(f"show create table {database}.{table}")
+                table_schema = "\n".join(
+                    line for line in HiveExtractor.extract_names_from_cursor(cursor)
+                )
+
+                dataset_schema = None
+                if fields or table_schema:
+                    dataset_schema = DatasetSchema()
+                    if fields:
+                        dataset_schema.fields = fields
+                    if table_schema:
+                        dataset_schema.schema_type = SchemaType.SQL
+                        dataset_schema.sql_schema = SQLSchema(
+                            materialization=MaterializationType.TABLE,
+                            table_schema=table_schema,
+                        )
+                dataset.schema = dataset_schema
+                datasets.append(dataset)
+
+            return datasets
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         entities: List[ENTITY_TYPES] = []
+        with self._connection.cursor() as cursor:
+            cursor.execute("show databases")
+            for database in HiveExtractor.extract_names_from_cursor(cursor):
+                entities.extend(self._extract_database(database))
         return entities
