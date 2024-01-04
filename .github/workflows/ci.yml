@@ -35,6 +35,7 @@ jobs:
 
       - name: Lint & Type Check
         run: |
+          sudo apt-get install libsasl2-dev
           poetry install -E all
           poetry run flake8
           poetry run black --check .
