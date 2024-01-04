@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/run-results/v5.json",
+    "dbt_version": "1.7.3",
+    "generated_at": "2024-01-03T08:48:48.141479Z",
+    "invocation_id": "b8a6486e-9e79-4f2f-b7a1-432b2fe8d198",
+    "env": {}
+  },
+  "results": [
+    {
+      "status": "success",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2024-01-03T08:48:46.256620Z",
+          "completed_at": "2024-01-03T08:48:46.266532Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2024-01-03T08:48:46.267509Z",
+          "completed_at": "2024-01-03T08:48:47.687337Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 1.8758258819580078,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b16b30-0603-e61f-0029-c003057d1d86"
+      },
+      "message": "SUCCESS 1",
+      "failures": null,
+      "unique_id": "snapshot.london_bike_analysis.cycle_hire_snapshot",
+      "compiled": true,
+      "compiled_code": "\n\n\nselect * from DEMO_DB.metaphor.cycle_hire",
+      "relation_name": "DEMO_DB.snapshots.cycle_hire_snapshot"
+    }
+  ],
+  "elapsed_time": 6.643038988113403,
+  "args": {
+    "which": "snapshot",
+    "print": true,
+    "partial_parse": true,
+    "exclude": [],
+    "project_dir": "/Users/andy/work/dbt/ride_share",
+    "log_level": "info",
+    "version_check": true,
+    "log_path": "/Users/andy/work/dbt/ride_share/logs",
+    "profiles_dir": "/Users/andy/.dbt",
+    "static_parser": true,
+    "select": [],
+    "vars": {},
+    "invocation_command": "dbt snapshot",
+    "printer_width": 80,
+    "enable_legacy_logger": false,
+    "use_colors": true,
+    "partial_parse_file_diff": true,
+    "show_resource_report": false,
+    "cache_selected_only": false,
+    "introspect": true,
+    "strict_mode": false,
+    "log_file_max_bytes": 10485760,
+    "use_colors_file": true,
+    "send_anonymous_usage_stats": true,
+    "defer": false,
+    "macro_debugging": false,
+    "write_json": true,
+    "indirect_selection": "eager",
+    "favor_state": false,
+    "populate_cache": true,
+    "log_format_file": "debug",
+    "quiet": false,
+    "log_format": "default",
+    "warn_error_options": {
+      "include": [],
+      "exclude": []
+    },
+    "log_level_file": "debug"
+  }
+}
