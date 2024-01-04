@@ -1,0 +1,6 @@
+City,Temperature(C),Humidity(%),Weather
+London,10,75,Cloudy
+Paris,15,65,Partly Cloudy
+Tokyo,20,50,Sunny
+New York,18,70,Partly Sunny
+Sydney,25,55,Clear
