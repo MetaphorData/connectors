@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 
 from metaphor.common.entity_id import (
     EntityId,
@@ -59,6 +59,11 @@ def get_model_name_from_unique_id(unique_id: str) -> str:
 def get_metric_name_from_unique_id(unique_id: str) -> str:
     assert unique_id.startswith("metric."), f"invalid metric id {unique_id}"
     return unique_id[7:]
+
+
+def get_snapshot_name_from_unique_id(unique_id: str) -> str:
+    assert unique_id.startswith("snapshot."), f"invalid snapshot id {unique_id}"
+    return unique_id[9:]
 
 
 @dataclass
@@ -140,12 +145,14 @@ def init_dataset(
 
 
 def init_virtual_view(
-    virtual_views: Dict[str, VirtualView], unique_id: str
+    virtual_views: Dict[str, VirtualView],
+    unique_id: str,
+    id_to_name_func: Callable[[str], str],
 ) -> VirtualView:
     if unique_id not in virtual_views:
         virtual_views[unique_id] = VirtualView(
             logical_id=VirtualViewLogicalID(
-                name=get_model_name_from_unique_id(unique_id),
+                name=id_to_name_func(unique_id),
                 type=VirtualViewType.DBT_MODEL,
             ),
         )

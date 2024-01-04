@@ -80,6 +80,15 @@ async def test_jaffle_v11(test_root_dir):
     )
 
 
+@pytest.mark.asyncio
+async def test_ride_share(test_root_dir):
+    await _test_project(
+        test_root_dir + "/dbt/data/ride_share",
+        "http://localhost:8080",
+        "https://github.com/MetaphorData/dbt/tree/main/ride_share",
+    )
+
+
 async def _test_project(
     data_dir, docs_base_url=None, project_source_url=None, useCatalog=False
 ):

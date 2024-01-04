@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
@@ -15,6 +15,7 @@ from metaphor.dbt.util import (
     find_run_result_ouptput_by_id,
     get_model_name_from_unique_id,
     get_ownerships_from_meta,
+    get_snapshot_name_from_unique_id,
     get_tags_from_meta,
     get_virtual_view_id,
     init_dataset,
@@ -49,34 +50,40 @@ from metaphor.models.metadata_change_event import (
 
 from .generated.dbt_manifest_v5 import CompiledGenericTestNode as CompiledTestNodeV5
 from .generated.dbt_manifest_v5 import CompiledModelNode as CompiledModelNodeV5
+from .generated.dbt_manifest_v5 import CompiledSnapshotNode as CompiledSnapshotNodeV5
 from .generated.dbt_manifest_v5 import DbtManifest as DbtManifestV5
 from .generated.dbt_manifest_v5 import DependsOn as DependsOnV5
 from .generated.dbt_manifest_v5 import ParsedGenericTestNode as ParsedTestNodeV5
 from .generated.dbt_manifest_v5 import ParsedMacro as ParsedMacroV5
 from .generated.dbt_manifest_v5 import ParsedMetric as ParsedMetricV5
 from .generated.dbt_manifest_v5 import ParsedModelNode as ParsedModelNodeV5
+from .generated.dbt_manifest_v5 import ParsedSnapshotNode as ParsedSnapshotNodeV5
 from .generated.dbt_manifest_v5 import (
     ParsedSourceDefinition as ParsedSourceDefinitionV5,
 )
 from .generated.dbt_manifest_v6 import CompiledGenericTestNode as CompiledTestNodeV6
 from .generated.dbt_manifest_v6 import CompiledModelNode as CompiledModelNodeV6
+from .generated.dbt_manifest_v6 import CompiledSnapshotNode as CompiledSnapshotNodeV6
 from .generated.dbt_manifest_v6 import DbtManifest as DbtManifestV6
 from .generated.dbt_manifest_v6 import DependsOn as DependsOnV6
 from .generated.dbt_manifest_v6 import ParsedGenericTestNode as ParsedTestNodeV6
 from .generated.dbt_manifest_v6 import ParsedMacro as ParsedMacroV6
 from .generated.dbt_manifest_v6 import ParsedMetric as ParsedMetricV6
 from .generated.dbt_manifest_v6 import ParsedModelNode as ParsedModelNodeV6
+from .generated.dbt_manifest_v6 import ParsedSnapshotNode as ParsedSnapshotNodeV6
 from .generated.dbt_manifest_v6 import (
     ParsedSourceDefinition as ParsedSourceDefinitionV6,
 )
 from .generated.dbt_manifest_v7 import CompiledGenericTestNode as CompiledTestNodeV7
 from .generated.dbt_manifest_v7 import CompiledModelNode as CompiledModelNodeV7
+from .generated.dbt_manifest_v7 import CompiledSnapshotNode as CompiledSnapshotNodeV7
 from .generated.dbt_manifest_v7 import DbtManifest as DbtManifestV7
 from .generated.dbt_manifest_v7 import DependsOn as DependsOnV7
 from .generated.dbt_manifest_v7 import ParsedGenericTestNode as ParsedTestNodeV7
 from .generated.dbt_manifest_v7 import ParsedMacro as ParsedMacroV7
 from .generated.dbt_manifest_v7 import ParsedMetric as ParsedMetricV7
 from .generated.dbt_manifest_v7 import ParsedModelNode as ParsedModelNodeV7
+from .generated.dbt_manifest_v7 import ParsedSnapshotNode as ParsedSnapshotNodeV7
 from .generated.dbt_manifest_v7 import (
     ParsedSourceDefinition as ParsedSourceDefinitionV7,
 )
@@ -86,6 +93,7 @@ from .generated.dbt_manifest_v8 import GenericTestNode as GenericTestNodeV8
 from .generated.dbt_manifest_v8 import Macro as MacroV8
 from .generated.dbt_manifest_v8 import Metric as MetricV8
 from .generated.dbt_manifest_v8 import ModelNode as ModelNodeV8
+from .generated.dbt_manifest_v8 import SnapshotNode as SnapshotNodeV8
 from .generated.dbt_manifest_v8 import SourceDefinition as SourceDefinitionV8
 from .generated.dbt_manifest_v9 import DbtManifest as DbtManifestV9
 from .generated.dbt_manifest_v9 import DependsOn as DependsOnV9
@@ -93,6 +101,7 @@ from .generated.dbt_manifest_v9 import GenericTestNode as GenericTestNodeV9
 from .generated.dbt_manifest_v9 import Macro as MacroV9
 from .generated.dbt_manifest_v9 import Metric as MetricV9
 from .generated.dbt_manifest_v9 import ModelNode as ModelNodeV9
+from .generated.dbt_manifest_v9 import SnapshotNode as SnapshotNodeV9
 from .generated.dbt_manifest_v9 import SourceDefinition as SourceDefinitionV9
 from .generated.dbt_manifest_v10 import DbtManifest as DbtManifestV10
 from .generated.dbt_manifest_v10 import DependsOn as DependsOnV10
@@ -100,12 +109,14 @@ from .generated.dbt_manifest_v10 import GenericTestNode as GenericTestNodeV10
 from .generated.dbt_manifest_v10 import Macro as MacroV10
 from .generated.dbt_manifest_v10 import Metric as MetricV10
 from .generated.dbt_manifest_v10 import ModelNode as ModelNodeV10
+from .generated.dbt_manifest_v10 import SnapshotNode as SnapshotNodeV10
 from .generated.dbt_manifest_v10 import SourceDefinition as SourceDefinitionV10
 from .generated.dbt_manifest_v11 import DependsOn as DependsOnV11
 from .generated.dbt_manifest_v11 import GenericTestNode as GenericTestNodeV11
 from .generated.dbt_manifest_v11 import Macro as MacroV11
 from .generated.dbt_manifest_v11 import Metric as MetricV11
 from .generated.dbt_manifest_v11 import ModelNode as ModelNodeV11
+from .generated.dbt_manifest_v11 import SnapshotNode as SnapshotNodeV11
 from .generated.dbt_manifest_v11 import SourceDefinition as SourceDefinitionV11
 from .generated.dbt_manifest_v11 import WritableManifest as DbtManifestV11
 from .generated.dbt_run_results_v4 import DbtRunResults as DbtRunResultsV4
@@ -139,6 +150,46 @@ TEST_NODE_TYPE = Union[
     ParsedTestNodeV6,
     ParsedTestNodeV7,
 ]
+
+SNAPSHOT_NODE_TYPES = [
+    CompiledSnapshotNodeV5,
+    CompiledSnapshotNodeV6,
+    CompiledSnapshotNodeV7,
+    ParsedSnapshotNodeV5,
+    ParsedSnapshotNodeV6,
+    ParsedSnapshotNodeV7,
+    SnapshotNodeV8,
+    SnapshotNodeV9,
+    SnapshotNodeV10,
+    SnapshotNodeV11,
+]
+
+SNAPSHOT_NODE_TYPE = Union[
+    CompiledSnapshotNodeV5,
+    CompiledSnapshotNodeV6,
+    CompiledSnapshotNodeV7,
+    ParsedSnapshotNodeV5,
+    ParsedSnapshotNodeV6,
+    ParsedSnapshotNodeV7,
+    SnapshotNodeV8,
+    SnapshotNodeV9,
+    SnapshotNodeV10,
+    SnapshotNodeV11,
+]
+
+VIRTUAL_VIEW_NODE_TYPE = Union[
+    MODEL_NODE_TYPE,
+    SNAPSHOT_NODE_TYPE,
+]
+
+
+def node_name_getter(node: VIRTUAL_VIEW_NODE_TYPE) -> Callable[[str], str]:
+    for _type in SNAPSHOT_NODE_TYPES:
+        if isinstance(node, _type):
+            return get_snapshot_name_from_unique_id
+    else:
+        return get_model_name_from_unique_id
+
 
 SOURCE_DEFINITION_TYPE = Union[
     ParsedSourceDefinitionV5,
@@ -400,16 +451,47 @@ class ArtifactParser:
             # if upgraded to python 3.8+, can use get_args(TEST_NODE_TYPE)
         }
 
+        snapshots = {
+            k: v
+            for (k, v) in nodes.items()
+            if isinstance(
+                v,
+                (
+                    CompiledSnapshotNodeV5,
+                    CompiledSnapshotNodeV6,
+                    CompiledSnapshotNodeV7,
+                    ParsedSnapshotNodeV5,
+                    ParsedSnapshotNodeV6,
+                    ParsedSnapshotNodeV7,
+                    SnapshotNodeV8,
+                    SnapshotNodeV9,
+                    SnapshotNodeV10,
+                    SnapshotNodeV11,
+                ),
+            )
+            # if upgraded to python 3.8+, can use get_args(SNAPSHOT_NODE_TYPE)
+        }
+
         source_map = self._parse_sources(sources)
 
         macro_map = self._parse_macros(macros)
 
-        # initialize all virtual views to be used in cross-references
-        for _, model in models.items():
-            init_virtual_view(self._virtual_views, model.unique_id)
+        # We generate a virtual view for normal dbt model or snapshot
+        virtual_view_nodes: List[VIRTUAL_VIEW_NODE_TYPE] = [
+            *models.values(),
+            *snapshots.values(),
+        ]
 
-        for _, model in models.items():
-            self._parse_model(model, source_map, macro_map)
+        # initialize all virtual views to be used in cross-references
+        for node in virtual_view_nodes:
+            init_virtual_view(
+                self._virtual_views,
+                node.unique_id,
+                node_name_getter(node),
+            )
+
+        for node in virtual_view_nodes:
+            self._parse_virtual_view_node(node, source_map, macro_map)
 
         for _, test in tests.items():
             self._parse_test(test, run_results, models)
@@ -488,68 +570,70 @@ class ArtifactParser:
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
         add_data_quality_monitor(dataset, test.name, test.column_name, status)
 
-    def _parse_model(
+    def _parse_virtual_view_node(
         self,
-        model: MODEL_NODE_TYPE,
+        node: VIRTUAL_VIEW_NODE_TYPE,
         source_map: Dict[str, EntityId],
         macro_map: Dict[str, DbtMacro],
     ):
-        if model.config is None or model.database is None:
+        if node.config is None or node.database is None:
             logger.warning(
-                f"Skipping model without config or database, {model.unique_id}"
+                f"Skipping model / snapshot without config or database, {node.unique_id}"
             )
             return
 
-        virtual_view = init_virtual_view(self._virtual_views, model.unique_id)
+        virtual_view = init_virtual_view(
+            self._virtual_views, node.unique_id, node_name_getter(node)
+        )
 
         # Extract project directory from the model's unique id
         # Split by ".", and ditch the model name
-        directory = get_model_name_from_unique_id(model.unique_id).rsplit(".")[0]
+        directory = node_name_getter(node)(node.unique_id).rsplit(".")[0]
         virtual_view.structure = AssetStructure(
             directories=[directory],
-            name=model.name,
+            name=node.name,
         )
 
         virtual_view.dbt_model = DbtModel(
-            package_name=model.package_name,
-            description=model.description or None,
+            package_name=node.package_name,
+            description=node.description or None,
             url=build_source_code_url(
-                self._project_source_url, model.original_file_path
+                self._project_source_url, node.original_file_path
             ),
-            docs_url=build_model_docs_url(self._docs_base_url, model.unique_id),
-            tags=filter_empty_strings(model.tags) if model.tags is not None else None,
+            docs_url=build_model_docs_url(self._docs_base_url, node.unique_id),
+            tags=filter_empty_strings(node.tags) if node.tags is not None else None,
             fields=[],
         )
         dbt_model = virtual_view.dbt_model
 
         # raw_sql & complied_sql got renamed to raw_code & complied_code in V7
-        if hasattr(model, "raw_sql"):
-            virtual_view.dbt_model.raw_sql = getattr(model, "raw_sql")
-            dbt_model.raw_sql = getattr(model, "raw_sql")
+        if hasattr(node, "raw_sql"):
+            virtual_view.dbt_model.raw_sql = getattr(node, "raw_sql")
+            dbt_model.raw_sql = getattr(node, "raw_sql")
 
-        if hasattr(model, "compiled_sql"):
-            virtual_view.dbt_model.compiled_sql = getattr(model, "compiled_sql")
-            dbt_model.compiled_sql = getattr(model, "compiled_sql")
+        if hasattr(node, "compiled_sql"):
+            virtual_view.dbt_model.compiled_sql = getattr(node, "compiled_sql")
+            dbt_model.compiled_sql = getattr(node, "compiled_sql")
 
-        if hasattr(model, "raw_code"):
-            virtual_view.dbt_model.raw_sql = getattr(model, "raw_code")
-            dbt_model.raw_sql = getattr(model, "raw_code")
+        if hasattr(node, "raw_code"):
+            virtual_view.dbt_model.raw_sql = getattr(node, "raw_code")
+            dbt_model.raw_sql = getattr(node, "raw_code")
 
-        if hasattr(model, "compiled_code"):
-            virtual_view.dbt_model.compiled_sql = getattr(model, "compiled_code")
-            dbt_model.compiled_sql = getattr(model, "compiled_code")
+        if hasattr(node, "compiled_code"):
+            virtual_view.dbt_model.compiled_sql = getattr(node, "compiled_code")
+            dbt_model.compiled_sql = getattr(node, "compiled_code")
 
-        self._parse_model_meta(model, virtual_view)
+        self._parse_node_meta(node, virtual_view)
 
-        self._parse_model_materialization(model, dbt_model)
+        self._parse_node_materialization(node, dbt_model)
 
-        self._parse_model_columns(model, dbt_model)
+        self._parse_node_columns(node, dbt_model)
 
         (
             dbt_model.source_datasets,
             dbt_model.source_models,
             dbt_model.macros,
-        ) = self._parse_depends_on(model.depends_on, source_map, macro_map)
+        ) = self._parse_depends_on(node.depends_on, source_map, macro_map)
 
         source_entities = []
         if dbt_model.source_datasets is not None:
@@ -589,33 +673,31 @@ class ArtifactParser:
 
         return macro_map
 
-    def _parse_model_meta(
-        self, model: MODEL_NODE_TYPE, virtual_view: VirtualView
+    def _parse_node_meta(
+        self, node: VIRTUAL_VIEW_NODE_TYPE, virtual_view: VirtualView
     ) -> None:
-        if model.config is None:
+        if node.config is None:
             return
 
         if (
-            model.config is None
-            or model.config.materialized is None
-            or model.config.materialized.upper() in ["EPHEMERAL", "OTHER"]
+            node.config is None
+            or node.config.materialized is None
+            or node.config.materialized.upper() in ["EPHEMERAL", "OTHER"]
         ):
             return
 
         # v3 use 'model.config.meta' while v1, v2 use 'model.meta'
-        meta: Dict[str, Any] = (
-            model.config.meta if model.config.meta else model.meta or {}
-        )
+        meta: Dict[str, Any] = node.config.meta if node.config.meta else node.meta or {}
 
         def get_dataset():
             return init_dataset(
                 self._datasets,
-                model.database,
-                model.schema_,
-                model.alias or model.name,
+                node.database,
+                node.schema_,
+                node.alias or node.name,
                 self._platform,
                 self._account,
-                model.unique_id,
+                node.unique_id,
             )
 
         # Assign ownership & tags to materialized table/view
@@ -633,13 +715,13 @@ class ArtifactParser:
         if len(tag_names) > 0:
             get_dataset().tag_assignment = TagAssignment(tag_names=tag_names)
 
-    def _parse_model_materialization(
-        self, model: MODEL_NODE_TYPE, dbt_model: DbtModel
+    def _parse_node_materialization(
+        self, node: VIRTUAL_VIEW_NODE_TYPE, dbt_model: DbtModel
     ) -> None:
-        if model.config is None:
+        if node.config is None:
             return
 
-        materialized = model.config.materialized
+        materialized = node.config.materialized
         if materialized is None:
             return
 
@@ -650,12 +732,12 @@ class ArtifactParser:
 
         dbt_model.materialization = DbtMaterialization(
             type=materialization_type,
-            target_dataset=str(self._get_model_entity_id(model)),
+            target_dataset=str(self._get_node_entity_id(node)),
         )
 
-    def _get_model_entity_id(self, model: MODEL_NODE_TYPE) -> EntityId:
+    def _get_node_entity_id(self, node: VIRTUAL_VIEW_NODE_TYPE) -> EntityId:
         return self._get_dataset_entity_id(
-            model.database, model.schema_, model.alias or model.name
+            node.database, node.schema_, node.alias or node.name
         )
 
     def _get_dataset_entity_id(
@@ -667,9 +749,11 @@ class ArtifactParser:
             self._account,
         )
 
-    def _parse_model_columns(self, model: MODEL_NODE_TYPE, dbt_model: DbtModel) -> None:
-        if model.columns is not None:
-            for col in model.columns.values():
+    def _parse_node_columns(
+        self, node: VIRTUAL_VIEW_NODE_TYPE, dbt_model: DbtModel
+    ) -> None:
+        if node.columns is not None:
+            for col in node.columns.values():
                 column_name = col.name.lower()
                 field = init_field(dbt_model.fields, column_name)
                 field.description = col.description
@@ -677,14 +761,14 @@ class ArtifactParser:
                 field.tags = col.tags
 
                 if col.meta is not None:
-                    self._parse_column_meta(model, column_name, col.meta)
+                    self._parse_column_meta(node, column_name, col.meta)
 
     def _parse_column_meta(
-        self, model: MODEL_NODE_TYPE, column_name: str, meta: Dict
+        self, node: VIRTUAL_VIEW_NODE_TYPE, column_name: str, meta: Dict
     ) -> None:
-        if model.config is None or model.database is None:
+        if node.config is None or node.database is None:
             logger.warning(
-                f"Skipping model without config or database, {model.unique_id}"
+                f"Skipping model without config or database, {node.unique_id}"
             )
             return
 
@@ -694,12 +778,12 @@ class ArtifactParser:
 
         dataset = init_dataset(
             self._datasets,
-            model.database,
-            model.schema_,
-            model.alias or model.name,
+            node.database,
+            node.schema_,
+            node.alias or node.name,
             self._platform,
             self._account,
-            model.unique_id,
+            node.unique_id,
         )
         if dataset.tag_assignment is None:
             dataset.tag_assignment = TagAssignment()
