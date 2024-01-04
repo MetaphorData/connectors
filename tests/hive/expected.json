@@ -1,0 +1,102 @@
+[
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.admirals",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "id",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`admirals`(\n  `id` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/admirals'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.ship_types",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "type_name",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`ship_types`(\n  `id` int, \n  `type_name` string)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/ship_types'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.ships",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "ship_type_id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "crew_size",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`ships`(\n  `id` int, \n  `ship_type_id` int, \n  `crew_size` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/ships'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.torpedos",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "ship_id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "admiral_id",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`torpedos`(\n  `id` int, \n  `ship_id` int, \n  `admiral_id` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/torpedos'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  }
+]
