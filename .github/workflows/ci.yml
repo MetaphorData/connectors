@@ -36,7 +36,7 @@ jobs:
       - name: Setup dev libs
         run: |
           sudo apt-get install libsasl2-dev
-      
+
       - name: Lint & Type Check
         run: |
           poetry install -E all
@@ -73,10 +73,6 @@ jobs:
     name: Docker build
     runs-on: ubuntu-latest
     steps:
-      - name: Setup dev libs
-        run: |
-          sudo apt-get install libsasl2-dev
-      
       - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
