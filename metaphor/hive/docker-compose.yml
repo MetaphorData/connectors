@@ -1,0 +1,20 @@
+---
+version: '3'
+services:
+  hive:
+    image: apache/hive:4.0.0-beta-1
+    ports:
+      - 10000:10000
+      - 10002:10002
+    container_name: hive
+    environment:
+      - SERVICE_NAME=hiveserver2
+  hive-setup:
+    image: apache/hive:4.0.0-beta-1
+    depends_on:
+      - hive
+    restart: no
+    entrypoint:
+      - bash
+      - -c
+      - sleep 10 && beeline -u jdbc:hive2://hive:10000/default -f examples/files/starships.sql
