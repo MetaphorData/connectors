@@ -1,0 +1,258 @@
+[
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.admirals",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "id",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`admirals`(\n  `id` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/admirals'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.depts",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "deptno",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "deptname",
+          "nativeType": "varchar(256)"
+        },
+        {
+          "fieldPath": "locationid",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE TABLE `default`.`depts`(\n  `deptno` int, \n  `deptname` varchar(256), \n  `locationid` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/depts'\nTBLPROPERTIES (\n  'bucketing_version'='2', \n  'transactional'='true', \n  'transactional_properties'='default')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.emps",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "empid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "deptno",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "name",
+          "nativeType": "varchar(256)"
+        },
+        {
+          "fieldPath": "salary",
+          "nativeType": "float"
+        },
+        {
+          "fieldPath": "hire_date",
+          "nativeType": "timestamp"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE TABLE `default`.`emps`(\n  `empid` int, \n  `deptno` int, \n  `name` varchar(256), \n  `salary` float, \n  `hire_date` timestamp)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/emps'\nTBLPROPERTIES (\n  'bucketing_version'='2', \n  'transactional'='true', \n  'transactional_properties'='default')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.mv1",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "empid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "deptname",
+          "nativeType": "varchar(256)"
+        },
+        {
+          "fieldPath": "hire_date",
+          "nativeType": "timestamp"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "MATERIALIZED_VIEW",
+        "tableSchema": "CREATE TABLE `default`.`mv1`(\n  `empid` int, \n  `deptname` varchar(256), \n  `hire_date` timestamp)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/mv1'\nTBLPROPERTIES (\n  'bucketing_version'='2')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.ok_movies",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "userid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "movieid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "rating",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "unixtime",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "CREATE VIEW `default`.`ok_movies` AS select `u_data`.`userid`, `u_data`.`movieid`, `u_data`.`rating`, `u_data`.`unixtime` from `default`.`u_data`\nwhere `u_data`.`rating` >= 2 and `u_data`.`rating` <=4"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.ship_types",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "type_name",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`ship_types`(\n  `id` int, \n  `type_name` string)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/ship_types'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.ships",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "ship_type_id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "crew_size",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`ships`(\n  `id` int, \n  `ship_type_id` int, \n  `crew_size` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/ships'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.torpedos",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "ship_id",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "admiral_id",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`torpedos`(\n  `id` int, \n  `ship_id` int, \n  `admiral_id` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/torpedos'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.u_data",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "userid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "movieid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "rating",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "unixtime",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "tableSchema": "CREATE EXTERNAL TABLE `default`.`u_data`(\n  `userid` int, \n  `movieid` int, \n  `rating` int, \n  `unixtime` string)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nWITH SERDEPROPERTIES ( \n  'field.delim'='\\t', \n  'serialization.format'='\\t') \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/u_data'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
+      }
+    }
+  }
+]

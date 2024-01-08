@@ -1,5 +1,6 @@
 import logging
-from typing import Collection, Dict, List, Tuple
+from collections import defaultdict
+from typing import Collection, Dict, List, NamedTuple, Tuple
 
 try:
     from snowflake.connector import ProgrammingError, SnowflakeConnection
@@ -9,7 +10,10 @@ except ImportError:
 
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_normalized_name
+from metaphor.common.entity_id import (
+    dataset_normalized_name,
+    normalize_full_dataset_name,
+)
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
@@ -29,16 +33,26 @@ from metaphor.snowflake.profile.config import (
     ColumnStatistics,
     SnowflakeProfileRunConfig,
 )
-from metaphor.snowflake.utils import (
-    DatasetInfo,
-    QueryWithParam,
-    SnowflakeTableType,
-    async_execute,
-)
+from metaphor.snowflake.utils import DatasetInfo, QueryWithParam, SnowflakeTableType
 
 logger = get_logger()
 
 logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
+
+
+class Table(NamedTuple):
+    catalog: str
+    schema: str
+    name: str
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.catalog}.{self.schema}.{self.name}"
+
+    @classmethod
+    def from_name(cls, name: str) -> "Table":
+        catalog, schema, table_name = name.split(".")
+        return Table(catalog, schema, table_name)
 
 
 class SnowflakeProfileExtractor(BaseExtractor):
@@ -135,57 +149,71 @@ class SnowflakeProfileExtractor(BaseExtractor):
         tables: Dict[str, DatasetInfo],
     ) -> None:
         # Create a map of full_name => [column_info] from information_schema.columns
+        column_info_map: Dict[Table, List[Tuple[str, str]]] = defaultdict(list)
+        profile_queries = {}
+
         cursor = connection.cursor()
-        cursor.execute(self.FETCH_COLUMNS_QUERY)
-        column_info_map: Dict[str, List[Tuple[str, str]]] = {}
+        cursor.execute("SHOW COLUMNS")
+
+        # This could include columns in views or stream tables.
         for row in cursor:
             (
-                table_catalog,
-                table_schema,
                 table_name,
+                table_schema,
                 column_name,
                 data_type,
+                _,
+                _,
+                _,
+                _,
+                _,
+                table_catalog,
+                _,
             ) = row
-            normalized_name = dataset_normalized_name(
-                table_catalog, table_schema, table_name
-            )
-            if normalized_name not in tables:
-                continue
-
-            column_info_map.setdefault(normalized_name, []).append(
+            column_info_map[Table(table_catalog, table_schema, table_name)].append(
                 (column_name, data_type)
             )
 
-        # Build profile query for each table
-        profile_queries = {}
-        for normalized_name, column_info in column_info_map.items():
-            dataset_info = tables.get(normalized_name)
-            assert dataset_info is not None
+        for table, column_info in column_info_map.items():
+            row_count = None
+            dataset_info = tables.get(
+                normalize_full_dataset_name(table.full_name)
+            )  # FIXME normalized name is case insensitive, make it case sensitive so that this logic works properly
+            if dataset_info:
+                row_count = dataset_info.row_count
 
-            profile_queries[normalized_name] = QueryWithParam(
+            profile_queries[table.full_name] = QueryWithParam(
                 SnowflakeProfileExtractor._build_profiling_query(
                     column_info,
-                    dataset_info.schema,
-                    dataset_info.name,
-                    dataset_info.row_count or 0,
+                    table.schema,
+                    table.name,
+                    row_count or 0,
                     self._column_statistics,
                     self._sampling,
                 )
             )
 
+        # Has to be here, otherwise patching during test would not work
+        from metaphor.snowflake.utils import async_execute
+
         profiles = async_execute(
             connection, profile_queries, "profile_columns", self._max_concurrency
         )
 
-        for normalized_name, profile in profiles.items():
-            dataset = self._datasets[normalized_name]
+        for full_name, profile in profiles.items():
+            # We need to make sure full_name points to an actual table,
+            # instead of view or stream table.
+            dataset = self._datasets.get(
+                normalize_full_dataset_name(full_name)
+            )  # FIXME normalized name is case insensitive, make it case sensitive so that this logic works properly
 
-            SnowflakeProfileExtractor._parse_profiling_result(
-                column_info_map[normalized_name],
-                profile[0],
-                dataset,
-                self._column_statistics,
-            )
+            if dataset:
+                SnowflakeProfileExtractor._parse_profiling_result(
+                    column_info_map[Table.from_name(full_name)],
+                    profile[0],
+                    dataset,
+                    self._column_statistics,
+                )
 
     @staticmethod
     def _build_profiling_query(

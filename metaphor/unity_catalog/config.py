@@ -31,5 +31,8 @@ class UnityCatalogRunConfig(BaseConfig):
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
 
+    # The id of warehouse which will run the sql
+    warehouse_id: Optional[str] = None
+
     # configs for fetching query logs
     query_log: UnityCatalogQueryLogConfig = UnityCatalogQueryLogConfig()

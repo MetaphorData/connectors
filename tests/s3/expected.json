@@ -1,0 +1,470 @@
+[
+  {
+    "displayName": "1.csv",
+    "logicalId": {
+      "name": "/bucket/directory/baz/quax/1.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "a",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "b",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "c",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 11.0,
+      "lastUpdated": "2023-12-28T07:58:37.105000+00:00"
+    }
+  },
+  {
+    "displayName": "2.csv",
+    "logicalId": {
+      "name": "/bucket/directory/baz/quax/2.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "a",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "b",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "c",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "d",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "e",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 19.0,
+      "lastUpdated": "2023-12-28T09:04:58.789000+00:00"
+    }
+  },
+  {
+    "displayName": "3.tsv",
+    "logicalId": {
+      "name": "/bucket/directory/baz/quax/3.tsv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Some parameter",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Other parameter",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Last parameter",
+          "nativeType": "double"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 64.0,
+      "lastUpdated": "2023-12-28T10:54:40.850000+00:00"
+    }
+  },
+  {
+    "displayName": "file1.json",
+    "logicalId": {
+      "name": "/bucket/directory/foo/bar/file1.json",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "foo",
+          "nativeType": "list<item: string>"
+        },
+        {
+          "fieldPath": "number",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "dict",
+          "nativeType": "struct<a: int64, b: int64, c: int64, d: null>"
+        },
+        {
+          "fieldPath": "empty",
+          "nativeType": "null"
+        }
+      ],
+      "schemaType": "JSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 160.0,
+      "lastUpdated": "2023-12-28T11:50:02.557000+00:00"
+    }
+  },
+  {
+    "displayName": "file2.csv",
+    "logicalId": {
+      "name": "/bucket/directory/foo/bar/file2.csv",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "col1",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "col2",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "col3",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "col4",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 50.0,
+      "lastUpdated": "2023-12-27T10:05:54.319000+00:00"
+    }
+  },
+  {
+    "displayName": "weather.avro",
+    "logicalId": {
+      "name": "/bucket/directory/foo/bar/weather.avro",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "station",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "time",
+          "nativeType": "long"
+        },
+        {
+          "fieldPath": "temp",
+          "nativeType": "int"
+        }
+      ],
+      "schemaType": "AVRO"
+    },
+    "statistics": {
+      "dataSizeBytes": 337.0,
+      "lastUpdated": "2023-12-29T17:38:09.403000+00:00"
+    }
+  },
+  {
+    "displayName": "b/dataset1",
+    "logicalId": {
+      "name": "/folders_as_datasets/a/b/c/dataset1",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "ID",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Name",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Department",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Salary",
+          "nativeType": "int64"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 169.0,
+      "lastUpdated": "2023-12-29T08:27:56.755000+00:00"
+    }
+  },
+  {
+    "displayName": "d/dataset2",
+    "logicalId": {
+      "name": "/folders_as_datasets/a/d/e/dataset2",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Username",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Password",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Status",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 160.0,
+      "lastUpdated": "2023-12-29T08:27:56.757000+00:00"
+    }
+  },
+  {
+    "displayName": "a/dataset3",
+    "logicalId": {
+      "name": "/folders_as_datasets/b/a/c/dataset3",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "City",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Temperature(C)",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Humidity(%)",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Weather",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 151.0,
+      "lastUpdated": "2023-12-29T06:48:09.322000+00:00"
+    }
+  },
+  {
+    "displayName": "a/dataset4",
+    "logicalId": {
+      "name": "/folders_as_datasets/b/a/c/dataset4",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Fruit",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Color",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Quantity",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "PricePerUnit",
+          "nativeType": "double"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 117.0,
+      "lastUpdated": "2023-12-29T06:48:27.679000+00:00"
+    }
+  },
+  {
+    "displayName": "a/dataset5",
+    "logicalId": {
+      "name": "/folders_as_datasets/b/a/c/dataset5",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Username",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Email",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Role",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Status",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SCHEMALESS"
+    },
+    "statistics": {
+      "dataSizeBytes": 190.0,
+      "lastUpdated": "2023-12-29T06:48:32.672000+00:00"
+    }
+  },
+  {
+    "displayName": "titanic",
+    "logicalId": {
+      "name": "/partitioned/with_partition_key/titanic",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Sex",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Pclass",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "PassengerId",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Survived",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Name",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Age",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "SibSp",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Parch",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Ticket",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Fare",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "Cabin",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Embarked",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "PARQUET"
+    },
+    "statistics": {
+      "dataSizeBytes": 83221.0,
+      "lastUpdated": "2023-12-29T18:05:09.415000+00:00"
+    }
+  },
+  {
+    "displayName": "titanic",
+    "logicalId": {
+      "name": "/partitioned/no_partition_key/titanic",
+      "platform": "S3"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "Unnamed column 0",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Unnamed column 1",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "PassengerId",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Survived",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Name",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Age",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "SibSp",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Parch",
+          "nativeType": "int64"
+        },
+        {
+          "fieldPath": "Ticket",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Fare",
+          "nativeType": "double"
+        },
+        {
+          "fieldPath": "Cabin",
+          "nativeType": "string"
+        },
+        {
+          "fieldPath": "Embarked",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "PARQUET"
+    },
+    "statistics": {
+      "dataSizeBytes": 83221.0,
+      "lastUpdated": "2024-01-02T09:49:47.670000+00:00"
+    }
+  }
+]

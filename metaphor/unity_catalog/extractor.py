@@ -3,9 +3,9 @@ import json
 import logging
 import re
 import urllib.parse
-from typing import Collection, Dict, Generator, List
+from collections import defaultdict
+from typing import Collection, Dict, Generator, List, Tuple
 
-from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import TableInfo, TableType
 
 from metaphor.common.base_extractor import BaseExtractor
@@ -27,6 +27,8 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     EntityUpstream,
     FieldMapping,
+    Hierarchy,
+    HierarchyLogicalID,
     KeyValuePair,
     MaterializationType,
     QueryLog,
@@ -35,6 +37,9 @@ from metaphor.models.metadata_change_event import (
     SourceField,
     SourceInfo,
     SQLSchema,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     UnityCatalog,
     UnityCatalogTableType,
 )
@@ -45,6 +50,8 @@ from metaphor.unity_catalog.models import (
 )
 from metaphor.unity_catalog.utils import (
     build_query_log_filter_by,
+    create_api,
+    create_connection,
     list_column_lineage,
     list_table_lineage,
 )
@@ -72,6 +79,18 @@ URL_SCHEMA_RE = re.compile(r"{schema}")
 URL_TABLE_RE = re.compile(r"{table}")
 
 
+CatalogSystemTagsTuple = Tuple[List[SystemTag], Dict[str, List[SystemTag]]]
+"""
+(catalog system tags, schema name -> schema system tags)
+"""
+
+
+CatalogSystemTags = Dict[str, CatalogSystemTagsTuple]
+"""
+catalog name -> (catalog tags, schema name -> schema tags)
+"""
+
+
 class UnityCatalogExtractor(BaseExtractor):
     """Unity Catalog metadata extractor"""
 
@@ -87,15 +106,18 @@ class UnityCatalogExtractor(BaseExtractor):
         self._host = config.host
         self._token = config.token
         self._source_url = config.source_url
+        self._api = create_api(self._host, self._token)
+        self._connection = create_connection(
+            self._api, self._token, config.warehouse_id
+        )
 
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._query_log_config = config.query_log
+        self._hierarchies: List[Hierarchy] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Unity Catalog")
-
-        self._api = UnityCatalogExtractor.create_api(self._host, self._token)
 
         catalogs = (
             self._get_catalogs()
@@ -122,11 +144,14 @@ class UnityCatalogExtractor(BaseExtractor):
                     dataset = self._init_dataset(table_info)
                     self._populate_lineage(dataset)
 
+        self._fetch_tags(catalogs)
+
         entities: List[ENTITY_TYPES] = []
         entities.extend(list(self._datasets.values()))
         if self._query_log_config.lookback_days > 0:
             entities.append(self._get_query_logs())
 
+        entities.extend(self._hierarchies)
         return entities
 
     def _get_catalogs(self) -> List[str]:
@@ -340,6 +365,173 @@ class UnityCatalogExtractor(BaseExtractor):
 
         return QueryLogs(logs=logs)
 
-    @staticmethod
-    def create_api(host: str, token: str) -> WorkspaceClient:
-        return WorkspaceClient(host=host, token=token)
+    def _extract_hierarchies(self, catalog_system_tags: CatalogSystemTags) -> None:
+        for catalog, (catalog_tags, schema_name_to_tag) in catalog_system_tags.items():
+            if catalog_tags:
+                self._hierarchies.append(
+                    Hierarchy(
+                        logical_id=HierarchyLogicalID(
+                            path=[
+                                DataPlatform.UNITY_CATALOG.value,
+                                catalog.lower(),
+                            ]
+                        ),
+                        system_tags=SystemTags(tags=catalog_tags),
+                    )
+                )
+            for schema, schema_tags in schema_name_to_tag.items():
+                if schema_tags:
+                    self._hierarchies.append(
+                        Hierarchy(
+                            logical_id=HierarchyLogicalID(
+                                path=[
+                                    DataPlatform.UNITY_CATALOG.value,
+                                    catalog.lower(),
+                                    schema.lower(),
+                                ]
+                            ),
+                            system_tags=SystemTags(tags=schema_tags),
+                        )
+                    )
+
+    def _fetch_catalog_system_tags(self, catalog: str) -> CatalogSystemTagsTuple:
+        with self._connection.cursor() as cursor:
+            catalog_tags = []
+            schema_tags: Dict[str, List[SystemTag]] = defaultdict(list)
+            catalog_tags_query = f"SELECT tag_name, tag_value FROM {catalog}.information_schema.catalog_tags"
+            cursor.execute(catalog_tags_query)
+            for tag_name, tag_value in cursor.fetchall():
+                tag = SystemTag(
+                    key=tag_name,
+                    value=tag_value,
+                    system_tag_source=SystemTagSource.UNITY_CATALOG,
+                )
+                catalog_tags.append(tag)
+
+            schema_tags_query = f"SELECT schema_name, tag_name, tag_value FROM {catalog}.information_schema.schema_tags"
+            cursor.execute(schema_tags_query)
+            for schema_name, tag_name, tag_value in cursor.fetchall():
+                if self._filter.include_schema(catalog, schema_name):
+                    tag = SystemTag(
+                        key=tag_name,
+                        value=tag_value,
+                        system_tag_source=SystemTagSource.UNITY_CATALOG,
+                    )
+                    schema_tags[schema_name].append(tag)
+        return catalog_tags, schema_tags
+
+    def _assign_dataset_system_tags(
+        self, catalog: str, catalog_system_tags: CatalogSystemTags
+    ) -> None:
+        for schema in self._api.schemas.list(catalog):
+            if schema.name:
+                for table in self._api.tables.list(catalog, schema.name):
+                    normalized_dataset_name = dataset_normalized_name(
+                        catalog, schema.name, table.name
+                    )
+                    dataset = self._datasets.get(normalized_dataset_name)
+                    if dataset is not None:
+                        tags = (
+                            catalog_system_tags[catalog][0]
+                            + catalog_system_tags[catalog][1][schema.name]
+                        )
+                        if tags and not dataset.system_tags:
+                            # We do not need to append to system tags once it's been assigned
+                            dataset.system_tags = SystemTags(tags=tags)
+
+    def _extract_table_tags(self, catalog: str) -> None:
+        with self._connection.cursor() as cursor:
+            columns = [
+                "catalog_name",
+                "schema_name",
+                "table_name",
+                "tag_name",
+                "tag_value",
+            ]
+            query = f"SELECT {', '.join(columns)} FROM {catalog}.information_schema.table_tags"
+
+            cursor.execute(query)
+            for (
+                catalog_name,
+                schema_name,
+                table_name,
+                tag_name,
+                tag_value,
+            ) in cursor.fetchall():
+                normalized_dataset_name = dataset_normalized_name(
+                    catalog_name, schema_name, table_name
+                )
+                dataset = self._datasets.get(normalized_dataset_name)
+
+                if dataset is None:
+                    logger.warn(f"Cannot find {normalized_dataset_name} table")
+                    continue
+
+                tag = f"{tag_name}={tag_value}" if tag_value else tag_name
+
+                assert (
+                    dataset.schema is not None
+                )  # Can't be None, we initialized it at `init_dataset`
+                if not dataset.schema.tags:
+                    dataset.schema.tags = []
+                if tag not in dataset.schema.tags:
+                    dataset.schema.tags.append(tag)
+
+    def _extract_column_tags(self, catalog: str) -> None:
+        with self._connection.cursor() as cursor:
+            columns = [
+                "catalog_name",
+                "schema_name",
+                "table_name",
+                "column_name",
+                "tag_name",
+                "tag_value",
+            ]
+            query = f"SELECT {', '.join(columns)} FROM {catalog}.information_schema.column_tags"
+
+            cursor.execute(query)
+            for (
+                catalog_name,
+                schema_name,
+                table_name,
+                column_name,
+                tag_name,
+                tag_value,
+            ) in cursor.fetchall():
+                normalized_dataset_name = dataset_normalized_name(
+                    catalog_name, schema_name, table_name
+                )
+                dataset = self._datasets.get(normalized_dataset_name)
+                if dataset is None:
+                    logger.warn(f"Cannot find {normalized_dataset_name} table")
+                    continue
+
+                tag = f"{tag_name}={tag_value}" if tag_value else tag_name
+
+                assert (
+                    dataset.schema is not None
+                )  # Can't be None, we initialized it at `init_dataset`
+                if dataset.schema.fields:
+                    field = next(
+                        (
+                            f
+                            for f in dataset.schema.fields
+                            if f.field_name == column_name
+                        ),
+                        None,
+                    )
+                    if field is not None:
+                        if not field.tags:
+                            field.tags = []
+                        field.tags.append(tag)
+
+    def _fetch_tags(self, catalogs: List[str]):
+        catalog_system_tags: CatalogSystemTags = {}
+
+        for catalog in catalogs:
+            if self._filter.include_database(catalog):
+                catalog_system_tags[catalog] = self._fetch_catalog_system_tags(catalog)
+                self._extract_hierarchies(catalog_system_tags)
+                self._assign_dataset_system_tags(catalog, catalog_system_tags)
+                self._extract_table_tags(catalog)
+                self._extract_column_tags(catalog)

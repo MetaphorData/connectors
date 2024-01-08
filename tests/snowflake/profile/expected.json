@@ -1,0 +1,121 @@
+[
+  {
+    "fieldStatistics": {
+      "fieldStatistics": [
+        {
+          "fieldPath": "ID",
+          "nonnullValueCount": 4.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "COMMON",
+          "nonnullValueCount": 4.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "CLASS",
+          "nonnullValueCount": 4.0,
+          "nullValueCount": 0.0
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor-dev",
+      "name": "demo_db.public.birds",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "fieldStatistics": {
+      "fieldStatistics": [
+        {
+          "fieldPath": "ID",
+          "nonnullValueCount": 0.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "FOO",
+          "nonnullValueCount": 0.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "BAR",
+          "nonnullValueCount": 0.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "ID",
+          "nonnullValueCount": 0.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "FoO",
+          "nonnullValueCount": 0.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "Phone Number",
+          "nonnullValueCount": 0.0,
+          "nullValueCount": 0.0
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor-dev",
+      "name": "demo_db.public.m3_consensus_aggregate",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "fieldStatistics": {
+      "fieldStatistics": [
+        {
+          "fieldPath": "D",
+          "nonnullValueCount": 5.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "LOC",
+          "nonnullValueCount": 5.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "B_ID",
+          "nonnullValueCount": 5.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "C",
+          "nonnullValueCount": 5.0,
+          "nullValueCount": 0.0
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor-dev",
+      "name": "demo_db.public.sightings",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "fieldStatistics": {
+      "fieldStatistics": [
+        {
+          "fieldPath": "ID",
+          "nonnullValueCount": 2.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "fieldPath": "NAME",
+          "nonnullValueCount": 2.0,
+          "nullValueCount": 0.0
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "metaphor-dev",
+      "name": "demo_db.public.t",
+      "platform": "SNOWFLAKE"
+    }
+  }
+]

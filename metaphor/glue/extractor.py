@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Any, Collection, Dict, List
 
 import boto3
-from aws_assume_role_lib import assume_role
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
@@ -31,15 +30,7 @@ logger = get_logger()
 
 
 def create_glue_client(aws: AwsCredentials) -> boto3.client:
-    session = boto3.Session(
-        aws_access_key_id=aws.access_key_id,
-        aws_secret_access_key=aws.secret_access_key,
-        region_name=aws.region_name,
-    )
-    if aws.assume_role_arn is not None:
-        session = assume_role(session, aws.assume_role_arn)
-        logger.info(f"Assumed role: {session.client('sts').get_caller_identity()}")
-    return session.client("glue")
+    return aws.get_session().client("glue")
 
 
 class GlueExtractor(BaseExtractor):

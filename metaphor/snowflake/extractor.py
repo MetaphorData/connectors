@@ -435,53 +435,88 @@ class SnowflakeExtractor(BaseExtractor):
             )
         )
 
+    def _append_tag(
+        self, dataset_key: str, key: str, value: str, column_name: Optional[str]
+    ):
+        """
+        Appends a tag to the dataset. If column_name is provided, it is a column tag.
+        """
+        dataset = self._datasets.get(dataset_key)
+        tag = SnowflakeExtractor._build_tag_string(key, value)
+
+        if dataset is None or dataset.schema is None:
+            logger.error(f"Table {dataset_key} not found for tag {tag}")
+            return
+
+        if not column_name:
+            if not dataset.schema.tags:
+                dataset.schema.tags = []
+            other_tags = [t for t in dataset.schema.tags if t.split("=", 1)[0] != key]
+            dataset.schema.tags = other_tags + [tag]
+
+        # When we get here the fields should already be populated.
+        if dataset.schema.fields:
+            if column_name:
+                field = next(
+                    (
+                        fd
+                        for fd in dataset.schema.fields
+                        if fd.field_path
+                        and fd.field_path.upper() == column_name.upper()
+                    ),
+                    None,
+                )
+                if not field:
+                    logger.error(
+                        f"Field {column_name} not found in {dataset_key} for tag {tag}"
+                    )
+                    return
+                if not field.tags:
+                    field.tags = []
+                other_field_tags = [t for t in field.tags if t.split("=", 1)[0] != key]
+                field.tags = other_field_tags + [tag]
+
+            else:
+                for field in dataset.schema.fields:
+                    if not field.tags:
+                        field.tags = []
+                    field.tags.append(tag)
+
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
         cursor.execute(
             """
             SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
             FROM snowflake.account_usage.tag_references
             WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
-            ORDER BY OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME
+            ORDER BY case when DOMAIN = 'DATABASE' then 1
+                          when DOMAIN = 'SCHEMA' then 2
+                          when DOMAIN = 'TABLE' then 3
+                          when DOMAIN = 'COLUMN' then 4
+                          end asc;
             """
         )
 
         for key, value, object_type, database, schema, object_name, column in cursor:
-            normalized_dataset_name = dataset_normalized_name(
-                database, schema, object_name
-            )
-            tag = self._build_tag_string(key, value)
-
-            if object_type == "TABLE" or object_type == "COLUMN":
-                dataset = self._datasets.get(normalized_dataset_name)
-                if dataset is None or dataset.schema is None:
-                    logger.error(
-                        f"Table {normalized_dataset_name} not found for tag {tag}"
-                    )
-                    continue
-
-                if object_type == "TABLE":
-                    if not dataset.schema.tags:
-                        dataset.schema.tags = []
-                    dataset.schema.tags.append(tag)
-                elif column:
-                    field = next(
-                        (
-                            fd
-                            for fd in dataset.schema.fields
-                            if fd.field_path.upper() == column.upper()
-                        ),
-                        None,
-                    )
-                    if not field:
-                        logger.error(
-                            f"Field {column} not found in {normalized_dataset_name} for tag {tag}"
-                        )
-                        continue
-                    if not field.tags:
-                        field.tags = []
-                    field.tags.append(tag)
-            else:
+            if object_type in {"DATABASE", "SCHEMA"}:
                 self._add_system_tag(database, object_name, object_type, key, value)
+
+            if object_type == "DATABASE":
+                key_prefix = dataset_normalized_name(db=object_name)
+            elif object_type == "SCHEMA":
+                key_prefix = dataset_normalized_name(db=database, schema=object_name)
+            else:
+                key_prefix = dataset_normalized_name(
+                    db=database, schema=schema, table=object_name
+                )
+
+            if object_type in {"DATABASE", "SCHEMA"}:
+                for dataset_key in self._datasets:
+                    if dataset_key.startswith(key_prefix):
+                        self._append_tag(dataset_key, key, value, None)
+            else:
+                self._append_tag(
+                    key_prefix, key, value, column if object_type == "COLUMN" else None
+                )
 
     def _fetch_query_logs(self) -> None:
         logger.info("Fetching Snowflake query logs")

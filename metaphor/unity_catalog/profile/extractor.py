@@ -2,15 +2,16 @@ import logging
 import re
 from typing import Collection, List, Optional, Tuple
 
-from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
-from metaphor.unity_catalog.profile.utils import escape_special_characters
+from metaphor.unity_catalog.config import UnityCatalogRunConfig
+from metaphor.unity_catalog.extractor import DEFAULT_FILTER
+from metaphor.unity_catalog.utils import (
+    create_api,
+    create_connection,
+    escape_special_characters,
+)
 
 try:
-    from databricks import sql
-    from databricks.sdk import WorkspaceClient
     from databricks.sdk.service.catalog import ColumnTypeName, TableInfo, TableType
-    from databricks.sdk.service.sql import EndpointInfo
-    from databricks.sql.client import Connection
 except ImportError:
     print("Please install metaphor[unity_catalog] extra\n")
     raise
@@ -29,7 +30,6 @@ from metaphor.models.metadata_change_event import (
     DatasetStatistics,
     FieldStatistics,
 )
-from metaphor.unity_catalog.extractor import DEFAULT_FILTER, UnityCatalogExtractor
 
 logger = get_logger()
 
@@ -60,15 +60,15 @@ class UnityCatalogProfileExtractor(BaseExtractor):
     @staticmethod
     def from_config_file(config_file: str) -> "UnityCatalogProfileExtractor":
         return UnityCatalogProfileExtractor(
-            UnityCatalogProfileRunConfig.from_yaml_file(config_file)
+            UnityCatalogRunConfig.from_yaml_file(config_file)
         )
 
-    def __init__(self, config: UnityCatalogProfileRunConfig):
+    def __init__(self, config: UnityCatalogRunConfig):
         super().__init__(config)
         self._token = config.token
         self._host = config.host
-        self._api = UnityCatalogExtractor.create_api(config.host, config.token)
-        self._connection = UnityCatalogProfileExtractor.create_connection(
+        self._api = create_api(config.host, config.token)
+        self._connection = create_connection(
             self._api, config.token, config.warehouse_id
         )
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
@@ -189,23 +189,4 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         return (
             dataset_statistics,
             None if not field_statistics.field_statistics else field_statistics,
-        )
-
-    @staticmethod
-    def create_connection(
-        client: WorkspaceClient, token: str, warehouse_id: Optional[str]
-    ) -> Connection:
-        endpoints = list(client.warehouses.list())
-        if not endpoints:
-            raise ValueError("No valid warehouse found")
-        endpoint_info: EndpointInfo = endpoints[0]
-        if warehouse_id:
-            try:
-                endpoint_info = client.warehouses.get(warehouse_id)
-            except Exception:
-                raise ValueError(f"Invalid warehouse id: {warehouse_id}")
-        return sql.connect(
-            server_hostname=endpoint_info.odbc_params.hostname,
-            http_path=endpoint_info.odbc_params.path,
-            access_token=token,
         )

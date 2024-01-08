@@ -136,6 +136,10 @@ dmypy.json
 .config
 .data
 .DS_Store
+poetry.toml
 
 # vscode
 .vscode
+
+# Minio system files
+tests/s3/data/.minio.sys

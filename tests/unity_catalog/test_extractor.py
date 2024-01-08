@@ -36,7 +36,8 @@ def dummy_config():
     )
 
 
-@patch("metaphor.unity_catalog.extractor.UnityCatalogExtractor.create_api")
+@patch("metaphor.unity_catalog.extractor.create_connection")
+@patch("metaphor.unity_catalog.extractor.create_api")
 @patch("metaphor.unity_catalog.extractor.list_table_lineage")
 @patch("metaphor.unity_catalog.extractor.list_column_lineage")
 @pytest.mark.asyncio
@@ -44,6 +45,7 @@ async def test_extractor(
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
     mock_create_api: MagicMock,
+    mock_create_connection: MagicMock,
     test_root_dir: str,
 ):
     def mock_list_catalogs():
@@ -184,13 +186,54 @@ async def test_extractor(
     ]
     mock_create_api.return_value = mock_client
 
+    mock_cursor = MagicMock()
+    mock_cursor.fetchall = MagicMock()
+    mock_cursor.fetchall.side_effect = [
+        [
+            ("catalog_tag_key_1", "catalog_tag_value_1"),
+            ("catalog_tag_key_2", "catalog_tag_value_2"),
+        ],
+        [
+            ("schema", "schema_tag_key_1", "schema_tag_value_1"),
+            ("schema", "schema_tag_key_2", "schema_tag_value_2"),
+        ],
+        [
+            ("catalog", "schema", "table", "tag", "value"),
+            ("catalog", "schema", "table", "tag2", ""),
+            ("does", "not", "exist", "also", "doesn't exist"),
+        ],
+        [
+            ("catalog", "schema", "table", "col1", "col_tag", "col_value"),
+            ("catalog", "schema", "table", "col1", "col_tag2", "tag_value_2"),
+            ("does", "not", "exist", "also", "doesn't", "exist"),
+        ],
+    ]
+
+    mock_cursor_ctx = MagicMock()
+    mock_cursor_ctx.__enter__ = MagicMock()
+    mock_cursor_ctx.__enter__.return_value = mock_cursor
+
+    mock_connection = MagicMock()
+    mock_connection.cursor = MagicMock()
+    mock_connection.cursor.return_value = mock_cursor_ctx
+
+    mock_create_connection.return_value = mock_connection
+
     extractor = UnityCatalogExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/unity_catalog/expected.json")
 
 
-def test_source_url():
+@patch("metaphor.unity_catalog.extractor.create_connection")
+@patch("metaphor.unity_catalog.extractor.create_api")
+def test_source_url(
+    mock_create_api: MagicMock,
+    mock_create_connection: MagicMock,
+):
+    mock_create_api.return_value = None
+    mock_create_connection.return_value = None
+
     # Default pattern
     config = dummy_config()
     extractor = UnityCatalogExtractor(config)
@@ -208,9 +251,16 @@ def test_source_url():
     )
 
 
+@patch("metaphor.unity_catalog.extractor.create_connection")
+@patch("metaphor.unity_catalog.extractor.create_api")
 def test_init_invalid_dataset(
+    mock_create_api: MagicMock,
+    mock_create_connection: MagicMock,
     test_root_dir: str,
 ) -> None:
+    mock_create_api.return_value = None
+    mock_create_connection.return_value = None
+
     extractor = UnityCatalogExtractor.from_config_file(
         f"{test_root_dir}/unity_catalog/config.yml"
     )
