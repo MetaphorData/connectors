@@ -66,6 +66,10 @@ jobs:
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
 
+      - name: Setup dev libs
+        run: |
+          sudo apt-get install libsasl2-dev
+
       - name: Test
         run: |
           poetry install -E all
