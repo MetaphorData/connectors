@@ -15,8 +15,10 @@ class NotionRunConfig(BaseConfig):
     azure_openAI_key: str
     azure_openAI_version: str
     azure_openAI_endpoint: str
-    azure_openAI_model: str
     azure_openAI_model_name: str
+
+    # Manual selection of embedding model
+    azure_openAI_model: str = "text-embedding-ada-002"
 
     # Store the document's content alongside embeddings
     include_text: bool = False

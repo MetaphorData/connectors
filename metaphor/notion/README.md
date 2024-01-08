@@ -19,7 +19,6 @@ notion_api_token: <notion_api_token>
 azure_openAI_key: <azure_openAI_key>
 azure_openAI_version: <azure_openAI_version>
 azure_openAI_endpoint: <azure_openAI_endpoint>
-azure_openAI_model: <azure_openAI_model>
 azure_openAI_model_name: <azure_openAI_model_name>
 output:
   file:
@@ -35,4 +34,5 @@ These defaults are provided; you don't have to manually configure them.
 ```yaml
 notion_api_version: <api_key_version> # "2022-06-08" by default
 include_text: <include_text> # False by default
+azure_openAI_model: <azure_openAI_model> # "text-embedding-ada-002" by default
 ```
