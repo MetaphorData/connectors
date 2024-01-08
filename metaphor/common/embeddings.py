@@ -20,9 +20,11 @@ def clean_text(input_string: str) -> str:
     Returns a string.
     """
 
-    input_string = input_string.strip().replace("\n", " ").replace("\t", " ")
+    input_string = input_string.replace("\n", " ").replace("\t", " ").replace("\r", " ")
 
     output = re.sub("[ ]+", " ", input_string)
+
+    output = output.strip()
 
     return output
 

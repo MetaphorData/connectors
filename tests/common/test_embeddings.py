@@ -7,7 +7,7 @@ def test_clean_text(test_root_dir: str) -> None:
     assert clean_text("  Hello  World  ") == "Hello World"
     assert clean_text("\nNew\nLine\n") == "New Line"
     assert clean_text("\tTab\tCharacter\t") == "Tab Character"
-    assert clean_text("\tTab\tCharacter\t") == "Tab Character"
+    assert clean_text("\rCarriage\rReturn\r") == "Carriage Return"
     assert clean_text(" Multiple    Spaces ") == "Multiple Spaces"
 
 
