@@ -4,7 +4,7 @@ This connector extracts technical metadata from Apache Hive.
 
 ## Setup
 
-Please ensure the user running the connector has `SELECT` privilege, so that the connector can read table informations from Hive. See [https://cwiki.apache.org/confluence/display/Hive/SQL+Standard+Based+Hive+Authorization](https://cwiki.apache.org/confluence/display/Hive/SQL+Standard+Based+Hive+Authorization) for more information.
+Please ensure the user running the connector has `SELECT` privilege with `WITH GRANT OPTION` specified, so that the connector can read table informations from Hive. See [SQL Standard Based Hive Authorization](https://cwiki.apache.org/confluence/display/Hive/SQL+Standard+Based+Hive+Authorization) for more information.
 
 ## Config File
 
