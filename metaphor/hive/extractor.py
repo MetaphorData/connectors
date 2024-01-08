@@ -1,4 +1,4 @@
-from typing import Collection, Iterable, List, Tuple
+from typing import Any, Collection, Dict, Iterable, List, Tuple
 
 from pyhive import hive
 
@@ -13,7 +13,9 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
+    DatasetStatistics,
     EntityType,
+    FieldStatistics,
     MaterializationType,
     SchemaField,
     SchemaType,
@@ -39,7 +41,15 @@ class HiveExtractor(BaseExtractor):
 
     @staticmethod
     def get_connection(**kwargs) -> hive.Connection:
-        return hive.connect(**kwargs)
+        return hive.connect(
+            **kwargs,
+            configuration={
+                "hive.txn.manager": "org.apache.hadoop.hive.ql.lockmgr.DbTxnManager",
+                "hive.support.concurrency": "true",
+                "hive.enforce.bucketing": "true",
+                "hive.exec.dynamic.partition.mode": "nonstrict",
+            },
+        )
 
     @staticmethod
     def extract_names_from_cursor(cursor: Iterable[Tuple]) -> List[str]:
@@ -57,7 +67,7 @@ class HiveExtractor(BaseExtractor):
                     platform=DataPlatform.HIVE,
                 ),
             )
-            fields = []
+            fields: List[SchemaField] = []
             cursor.execute(f"describe {database}.{table}")
             for field_path, field_type, comment in cursor:
                 fields.append(
@@ -85,7 +95,86 @@ class HiveExtractor(BaseExtractor):
                         table_schema=table_schema,
                     )
             dataset.schema = dataset_schema
+
+            if self._config.collect_stats and materialization in {
+                MaterializationType.TABLE,
+                MaterializationType.MATERIALIZED_VIEW,
+            }:
+                dataset.statistics = self._extract_table_stats(database, table, fields)
             return dataset
+
+    def _extract_table_stats(
+        self, database: str, table: str, fields: List[SchemaField]
+    ):
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                f"analyze table {database}.{table} compute statistics for columns"
+            )
+            cursor.execute(f"describe formatted {database}.{table}")
+            raw_table_stats = list(cursor)
+            table_size = next(
+                (
+                    float(str(r[-1]).strip())
+                    for r in raw_table_stats
+                    if r[1] and "totalSize" in r[1]
+                ),
+                None,
+            )
+            num_rows = next(
+                (
+                    float(str(r[-1]).strip())
+                    for r in raw_table_stats
+                    if r[1] and "numRows" in r[1]
+                ),
+                None,
+            )
+            dataset_statistics = DatasetStatistics(
+                data_size_bytes=table_size,
+                record_count=num_rows,
+            )
+            field_statistics: List[FieldStatistics] = []
+            for field in fields:
+                cursor.execute(
+                    f"describe formatted {database}.{table} {field.field_path}"
+                )
+                stats_col_names = {
+                    "num_nulls": "nullValueCount",
+                    "min": "minValue",
+                    "max": "maxValue",
+                    "distinct_count": "distinctValueCount",
+                }
+                raw_field_statistics: Dict[str, Any] = {
+                    "fieldPath": field.field_path,
+                }
+                for row in cursor:
+                    field_stats_key = stats_col_names.get(row[0])
+                    if field_stats_key:
+                        try:
+                            raw_field_statistics[field_stats_key] = float(row[1])
+                        except Exception:
+                            numeric_types = {
+                                "TINYINT",
+                                "SMALLINT",
+                                "INT",
+                                "INTEGER",
+                                "BIGINT",
+                                "FLOAT",
+                                "DOUBLE",
+                                "DOUBLE PRECISION",
+                                "DECIMAL",
+                                "NUMERIC",
+                            }
+                            if (
+                                field.native_type
+                                and field.native_type.upper() in numeric_types
+                            ):
+                                logger.warning(
+                                    f"Cannot find {field_stats_key} for field {field.field_path}"
+                                )
+                field_statistics.append(FieldStatistics.from_dict(raw_field_statistics))
+            if field_statistics:
+                dataset_statistics.field_statistics = field_statistics
+            return dataset_statistics
 
     def _extract_database(self, database: str) -> List[Dataset]:
         with self._connection.cursor() as cursor:

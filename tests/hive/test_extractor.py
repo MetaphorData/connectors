@@ -43,7 +43,9 @@ async def test_extractor(test_root_dir: str) -> None:
         port = container.get_exposed_port(10000)
         host = container.get_container_host_ip()
 
-        config = HiveRunConfig(output=OutputConfig(), host=host, port=int(port))
+        config = HiveRunConfig(
+            output=OutputConfig(), host=host, port=int(port), collect_stats=True
+        )
 
         while True:
             try:

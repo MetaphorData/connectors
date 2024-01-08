@@ -17,6 +17,19 @@
         "materialization": "TABLE",
         "tableSchema": "CREATE EXTERNAL TABLE `default`.`admirals`(\n  `id` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/admirals'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
       }
+    },
+    "statistics": {
+      "dataSizeBytes": 21.0,
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 10.0,
+          "fieldPath": "id",
+          "maxValue": 10.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        }
+      ],
+      "recordCount": 10.0
     }
   },
   {
@@ -45,6 +58,31 @@
         "materialization": "TABLE",
         "tableSchema": "CREATE TABLE `default`.`depts`(\n  `deptno` int, \n  `deptname` varchar(256), \n  `locationid` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/depts'\nTBLPROPERTIES (\n  'bucketing_version'='2', \n  'transactional'='true', \n  'transactional_properties'='default')"
       }
+    },
+    "statistics": {
+      "dataSizeBytes": 926.0,
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 5.0,
+          "fieldPath": "deptno",
+          "maxValue": 205.0,
+          "minValue": 201.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 5.0,
+          "fieldPath": "deptname",
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 5.0,
+          "fieldPath": "locationid",
+          "maxValue": 505.0,
+          "minValue": 501.0,
+          "nullValueCount": 0.0
+        }
+      ],
+      "recordCount": 5.0
     }
   },
   {
@@ -81,6 +119,43 @@
         "materialization": "TABLE",
         "tableSchema": "CREATE TABLE `default`.`emps`(\n  `empid` int, \n  `deptno` int, \n  `name` varchar(256), \n  `salary` float, \n  `hire_date` timestamp)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/emps'\nTBLPROPERTIES (\n  'bucketing_version'='2', \n  'transactional'='true', \n  'transactional_properties'='default')"
       }
+    },
+    "statistics": {
+      "dataSizeBytes": 1594.0,
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 25.0,
+          "fieldPath": "empid",
+          "maxValue": 125.0,
+          "minValue": 101.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 5.0,
+          "fieldPath": "deptno",
+          "maxValue": 205.0,
+          "minValue": 201.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 25.0,
+          "fieldPath": "name",
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 13.0,
+          "fieldPath": "salary",
+          "maxValue": 65000.0,
+          "minValue": 50000.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 25.0,
+          "fieldPath": "hire_date",
+          "nullValueCount": 0.0
+        }
+      ],
+      "recordCount": 25.0
     }
   },
   {
@@ -109,6 +184,29 @@
         "materialization": "MATERIALIZED_VIEW",
         "tableSchema": "CREATE TABLE `default`.`mv1`(\n  `empid` int, \n  `deptname` varchar(256), \n  `hire_date` timestamp)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/mv1'\nTBLPROPERTIES (\n  'bucketing_version'='2')"
       }
+    },
+    "statistics": {
+      "dataSizeBytes": 624.0,
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 13.0,
+          "fieldPath": "empid",
+          "maxValue": 125.0,
+          "minValue": 102.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 5.0,
+          "fieldPath": "deptname",
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 13.0,
+          "fieldPath": "hire_date",
+          "nullValueCount": 0.0
+        }
+      ],
+      "recordCount": 13.0
     }
   },
   {
@@ -165,6 +263,24 @@
         "materialization": "TABLE",
         "tableSchema": "CREATE EXTERNAL TABLE `default`.`ship_types`(\n  `id` int, \n  `type_name` string)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/ship_types'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
       }
+    },
+    "statistics": {
+      "dataSizeBytes": 139.0,
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 10.0,
+          "fieldPath": "id",
+          "maxValue": 10.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 9.0,
+          "fieldPath": "type_name",
+          "nullValueCount": 0.0
+        }
+      ],
+      "recordCount": 10.0
     }
   },
   {
@@ -193,6 +309,33 @@
         "materialization": "TABLE",
         "tableSchema": "CREATE EXTERNAL TABLE `default`.`ships`(\n  `id` int, \n  `ship_type_id` int, \n  `crew_size` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/ships'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
       }
+    },
+    "statistics": {
+      "dataSizeBytes": 712.0,
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 100.0,
+          "fieldPath": "id",
+          "maxValue": 100.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 10.0,
+          "fieldPath": "ship_type_id",
+          "maxValue": 10.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 10.0,
+          "fieldPath": "crew_size",
+          "maxValue": 10.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        }
+      ],
+      "recordCount": 100.0
     }
   },
   {
@@ -221,6 +364,33 @@
         "materialization": "TABLE",
         "tableSchema": "CREATE EXTERNAL TABLE `default`.`torpedos`(\n  `id` int, \n  `ship_id` int, \n  `admiral_id` int)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/torpedos'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
       }
+    },
+    "statistics": {
+      "dataSizeBytes": 8913.0,
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 987.0,
+          "fieldPath": "id",
+          "maxValue": 1000.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 100.0,
+          "fieldPath": "ship_id",
+          "maxValue": 100.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 10.0,
+          "fieldPath": "admiral_id",
+          "maxValue": 10.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        }
+      ],
+      "recordCount": 1000.0
     }
   },
   {
@@ -253,6 +423,38 @@
         "materialization": "TABLE",
         "tableSchema": "CREATE EXTERNAL TABLE `default`.`u_data`(\n  `userid` int, \n  `movieid` int, \n  `rating` int, \n  `unixtime` string)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nWITH SERDEPROPERTIES ( \n  'field.delim'='\\t', \n  'serialization.format'='\\t') \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/u_data'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
       }
+    },
+    "statistics": {
+      "dataSizeBytes": 1979173.0,
+      "fieldStatistics": [
+        {
+          "distinctValueCount": 940.0,
+          "fieldPath": "userid",
+          "maxValue": 943.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 1720.0,
+          "fieldPath": "movieid",
+          "maxValue": 1682.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 5.0,
+          "fieldPath": "rating",
+          "maxValue": 5.0,
+          "minValue": 1.0,
+          "nullValueCount": 0.0
+        },
+        {
+          "distinctValueCount": 49262.0,
+          "fieldPath": "unixtime",
+          "nullValueCount": 0.0
+        }
+      ],
+      "recordCount": 100000.0
     }
   }
 ]

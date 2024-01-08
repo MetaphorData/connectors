@@ -13,6 +13,8 @@ class HiveRunConfig(BaseConfig):
     auth_user: Optional[str] = None
     password: Optional[str] = None
 
+    collect_stats: bool = False
+
     @property
     def connect_kwargs(self) -> Dict[str, Any]:
         kwargs = {
