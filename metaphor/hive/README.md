@@ -13,7 +13,15 @@ host: <host>
 port: <port>
 auth_user: <auth user for hiveserver>
 password: <password for the auth user>
+
+output:
+  file:
+    directory: <output_directory>
 ```
+
+If `auth_user` and `password` are provided, ensure the specified user has `SELECT` privilege. See [https://cwiki.apache.org/confluence/display/Hive/SQL+Standard+Based+Hive+Authorization](https://cwiki.apache.org/confluence/display/Hive/SQL+Standard+Based+Hive+Authorization) for more information.
+
+See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
