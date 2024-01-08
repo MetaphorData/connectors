@@ -15,6 +15,16 @@ auth_user: <auth user for hiveserver>
 password: <password for the auth user>
 ```
 
+### Optional Configurations
+
+#### `collect_stats`
+
+```yaml
+collect_stats: <collect_stats>
+```
+
+Whether to collect table and column level statistics. Default is `False`.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv).
