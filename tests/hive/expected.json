@@ -86,6 +86,66 @@
   {
     "entityType": "DATASET",
     "logicalId": {
+      "name": "default.mv1",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "empid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "deptname",
+          "nativeType": "varchar(256)"
+        },
+        {
+          "fieldPath": "hire_date",
+          "nativeType": "timestamp"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "MATERIALIZED_VIEW",
+        "tableSchema": "CREATE TABLE `default`.`mv1`(\n  `empid` int, \n  `deptname` varchar(256), \n  `hire_date` timestamp)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/mv1'\nTBLPROPERTIES (\n  'bucketing_version'='2')"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "default.ok_movies",
+      "platform": "HIVE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldPath": "userid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "movieid",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "rating",
+          "nativeType": "int"
+        },
+        {
+          "fieldPath": "unixtime",
+          "nativeType": "string"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "CREATE VIEW `default`.`ok_movies` AS select `u_data`.`userid`, `u_data`.`movieid`, `u_data`.`rating`, `u_data`.`unixtime` from `default`.`u_data`\nwhere `u_data`.`rating` >= 2 and `u_data`.`rating` <=4"
+      }
+    }
+  },
+  {
+    "entityType": "DATASET",
+    "logicalId": {
       "name": "default.ship_types",
       "platform": "HIVE"
     },
@@ -192,66 +252,6 @@
       "sqlSchema": {
         "materialization": "TABLE",
         "tableSchema": "CREATE EXTERNAL TABLE `default`.`u_data`(\n  `userid` int, \n  `movieid` int, \n  `rating` int, \n  `unixtime` string)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' \nWITH SERDEPROPERTIES ( \n  'field.delim'='\\t', \n  'serialization.format'='\\t') \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.mapred.TextInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/u_data'\nTBLPROPERTIES (\n  'TRANSLATED_TO_EXTERNAL'='TRUE', \n  'bucketing_version'='2', \n  'external.table.purge'='TRUE')"
-      }
-    }
-  },
-  {
-    "entityType": "DATASET",
-    "logicalId": {
-      "name": "default.ok_movies",
-      "platform": "HIVE"
-    },
-    "schema": {
-      "fields": [
-        {
-          "fieldPath": "userid",
-          "nativeType": "int"
-        },
-        {
-          "fieldPath": "movieid",
-          "nativeType": "int"
-        },
-        {
-          "fieldPath": "rating",
-          "nativeType": "int"
-        },
-        {
-          "fieldPath": "unixtime",
-          "nativeType": "string"
-        }
-      ],
-      "schemaType": "SQL",
-      "sqlSchema": {
-        "materialization": "VIEW",
-        "tableSchema": "CREATE VIEW `default`.`ok_movies` AS select `u_data`.`userid`, `u_data`.`movieid`, `u_data`.`rating`, `u_data`.`unixtime` from `default`.`u_data`\nwhere `u_data`.`rating` >= 2 and `u_data`.`rating` <=4"
-      }
-    }
-  },
-  {
-    "entityType": "DATASET",
-    "logicalId": {
-      "name": "default.mv1",
-      "platform": "HIVE"
-    },
-    "schema": {
-      "fields": [
-        {
-          "fieldPath": "empid",
-          "nativeType": "int"
-        },
-        {
-          "fieldPath": "deptname",
-          "nativeType": "varchar(256)"
-        },
-        {
-          "fieldPath": "hire_date",
-          "nativeType": "timestamp"
-        }
-      ],
-      "schemaType": "SQL",
-      "sqlSchema": {
-        "materialization": "MATERIALIZED_VIEW",
-        "tableSchema": "CREATE TABLE `default`.`mv1`(\n  `empid` int, \n  `deptname` varchar(256), \n  `hire_date` timestamp)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nLOCATION\n  'file:/opt/hive/data/warehouse/mv1'\nTBLPROPERTIES (\n  'bucketing_version'='2')"
       }
     }
   }

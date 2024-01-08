@@ -93,17 +93,17 @@ class HiveExtractor(BaseExtractor):
 
             # Hive considers views as tables, but we have to treat them differently!
             cursor.execute(f"show tables in {database}")
-            all_tables = HiveExtractor.extract_names_from_cursor(cursor)
+            all_tables = set(HiveExtractor.extract_names_from_cursor(cursor))
 
             cursor.execute(f"show views in {database}")
-            views = HiveExtractor.extract_names_from_cursor(cursor)
+            views = set(HiveExtractor.extract_names_from_cursor(cursor))
 
             cursor.execute(f"show materialized views in {database}")
-            materialized_views = HiveExtractor.extract_names_from_cursor(cursor)
+            materialized_views = set(HiveExtractor.extract_names_from_cursor(cursor))
 
-            tables = [
+            tables = {
                 x for x in all_tables if x not in views and x not in materialized_views
-            ]
+            }
 
             for table in tables:
                 datasets.append(
