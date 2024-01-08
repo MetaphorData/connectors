@@ -85,19 +85,44 @@ class HiveExtractor(BaseExtractor):
                         table_schema=table_schema,
                     )
             dataset.schema = dataset_schema
-
             return dataset
 
     def _extract_database(self, database: str) -> List[Dataset]:
         with self._connection.cursor() as cursor:
             datasets = []
+
+            # Hive considers views as tables, but we have to treat them differently!
             cursor.execute(f"show tables in {database}")
-            for table in HiveExtractor.extract_names_from_cursor(cursor):
+            all_tables = set(HiveExtractor.extract_names_from_cursor(cursor))
+
+            cursor.execute(f"show views in {database}")
+            views = set(HiveExtractor.extract_names_from_cursor(cursor))
+
+            cursor.execute(f"show materialized views in {database}")
+            materialized_views = set(HiveExtractor.extract_names_from_cursor(cursor))
+
+            tables = {
+                x for x in all_tables if x not in views and x not in materialized_views
+            }
+
+            for table in tables:
                 datasets.append(
                     self._extract_table(database, table, MaterializationType.TABLE)
                 )
 
-            # TODO: materialized view, view
+            for view in views:
+                datasets.append(
+                    self._extract_table(database, view, MaterializationType.VIEW)
+                )
+
+            for materialized_view in materialized_views:
+                datasets.append(
+                    self._extract_table(
+                        database,
+                        materialized_view,
+                        MaterializationType.MATERIALIZED_VIEW,
+                    )
+                )
 
             return datasets
 

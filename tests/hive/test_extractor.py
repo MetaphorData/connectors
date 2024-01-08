@@ -29,8 +29,16 @@ def remove_transient_ddl_time_from_table_schema(schema: DatasetSchema) -> Datase
 
 @pytest.mark.asyncio
 async def test_extractor(test_root_dir: str) -> None:
-    with DockerContainer("apache/hive:4.0.0-beta-1").with_exposed_ports(10000).with_env(
-        "SERVICE_NAME", "hiveserver2"
+    with (
+        DockerContainer("apache/hive:4.0.0-beta-1")
+        .with_exposed_ports(10000)
+        .with_env("SERVICE_NAME", "hiveserver2")
+        .with_volume_mapping(
+            f"{test_root_dir}/hive/data/init.sql", "/opt/hive/init.sql"
+        )
+        .with_volume_mapping(
+            f"{test_root_dir}/hive/data/u.data", "/opt/hive/examples/files/u.data"
+        )
     ) as container:
         port = container.get_exposed_port(10000)
         host = container.get_container_host_ip()
@@ -46,9 +54,7 @@ async def test_extractor(test_root_dir: str) -> None:
                 logger.info("Waiting for hiveserver2 to start")
                 time.sleep(1)
 
-        container.exec(
-            "beeline -u jdbc:hive2://localhost:10000/default -f examples/files/starships.sql"
-        )
+        container.exec("beeline -u jdbc:hive2://localhost:10000/default -f init.sql")
 
         extractor = HiveExtractor(config)
 
@@ -60,6 +66,7 @@ async def test_extractor(test_root_dir: str) -> None:
                 )
             events.append(EventUtil.trim_event(entity))
 
+        events.sort(key=lambda event: event.get("logicalId", {}).get("name", ""))
         expected = f"{test_root_dir}/hive/expected.json"
 
         assert events == load_json(expected)
