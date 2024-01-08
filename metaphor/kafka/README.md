@@ -113,8 +113,6 @@ topic_naming_strategies:
     records:
       - type1
       - type2
-  topic2:
-    records: []
 ```
 
 Instead of explicitly enumerating the type values, you can specify an empty list to match all possible values, i.e. `(topic-*-key, topic-*-value)`:
