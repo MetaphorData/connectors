@@ -44,7 +44,7 @@ sasl_config:
   password: <password>
 ```
 
-Some mechanisms (e.g., `keberos` & `oauhbearer`) require additional configs that can be specified using `extra_admin_client_config`:
+Some mechanisms (e.g., `kerberos` & `oauthbearer`) require additional configs that can be specified using `extra_admin_client_config`:
 
 ```yaml
 extra_admin_client_config:
