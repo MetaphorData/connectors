@@ -8,18 +8,18 @@ from metaphor.common.dataclass import ConnectorConfig
 
 @dataclass(config=ConnectorConfig)
 class NotionRunConfig(BaseConfig):
-    # notion integration authorization token
-    notion_api_tok: str
+    # Notion integration authorization token
+    notion_api_token: str
 
-    # azure openai services configs
+    # Azure OpenAI services configs
     azure_openAI_key: str
-    azure_openAI_ver: str
+    azure_openAI_version: str
     azure_openAI_endpoint: str
     azure_openAI_model: str
     azure_openAI_model_name: str
 
-    # Include embeddingString in nodes stored to db
-    include_text: bool
+    # Store the document's content alongside embeddings
+    include_text: bool = False
 
     # Notion API version
     notion_api_version: Optional[str] = "2022-06-08"

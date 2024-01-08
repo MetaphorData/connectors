@@ -4,7 +4,8 @@ import traceback
 from typing import Collection, Sequence
 
 import requests
-from llama_index import Document, download_loader
+from llama_hub.notion import NotionPageReader
+from llama_index import Document
 from requests.exceptions import HTTPError
 
 from metaphor.common.base_extractor import BaseExtractor
@@ -27,11 +28,11 @@ class NotionExtractor(BaseExtractor):
     def __init__(self, config: NotionRunConfig):
         super().__init__(config=config)  # type: ignore[call-arg]
 
-        self.notion_api_tok = config.notion_api_tok
+        self.notion_api_token = config.notion_api_token
         self.notion_api_version = config.notion_api_version
 
         self.azure_openAI_key = config.azure_openAI_key
-        self.azure_openAI_ver = config.azure_openAI_ver
+        self.azure_openAI_version = config.azure_openAI_version
         self.azure_openAI_endpoint = config.azure_openAI_endpoint
         self.azure_openAI_model = config.azure_openAI_model
         self.azure_openAI_model_name = config.azure_openAI_model_name
@@ -41,22 +42,22 @@ class NotionExtractor(BaseExtractor):
         self.embedding_overlap_size = 50
 
         # Set up LlamaIndex Notion integration
-        npr = download_loader("NotionPageReader")
-        self.NotionReader = npr(self.notion_api_tok)  # type: ignore[call-arg]
+        npr = NotionPageReader
+        self.NotionReader = npr(self.notion_api_token)  # type: ignore[call-arg]
 
     async def extract(self) -> Collection[dict]:
         logger.info("Fetching documents from Notion")
 
-        # this method should do all the things
+        # Retrieve all databases and documents the integration can "see"
         self._get_databases()
         docs = self._get_all_documents()
 
-        # call embedder function here
+        # Embedding process
         logger.info("Starting embedding process")
         VSI = embed_documents(
             docs,
             self.azure_openAI_key,
-            self.azure_openAI_ver,
+            self.azure_openAI_version,
             self.azure_openAI_endpoint,
             self.azure_openAI_model,
             self.azure_openAI_model_name,
@@ -64,22 +65,10 @@ class NotionExtractor(BaseExtractor):
             self.embedding_overlap_size,
         )
 
-        # # get vector_store from VectorStoreIndex
-        # vector_store = VSI.storage_context.to_dict()["vector_store"]["default"]
-        # doc_store = VSI.storage_context.to_dict()["doc_store"]
-
-        # # map metadata back to each node
-        # embedded_nodes = map_metadata(
-        #     embedding_dict=vector_store["embedding_dict"],
-        #     metadata_dict=vector_store["metadata_dict"],
-        #     doc_store=doc_store["docstore/data"],
-        #     include_text=self.include_text,
-        # )
-
         embedded_nodes = map_metadata(VSI, include_text=self.include_text)
 
-        # currently returns a list of document dicts
-        # each document dict has nodeId, embedding, lastRefreshed, metadata
+        # Returns a list of document dicts
+        # Each document dict has nodeId, embedding, lastRefreshed, metadata
         return embedded_nodes
 
     def _get_databases(self) -> Collection[str]:
@@ -88,22 +77,22 @@ class NotionExtractor(BaseExtractor):
         """
 
         headers = {
-            "Authorization": f"Bearer {self.notion_api_tok}",
+            "Authorization": f"Bearer {self.notion_api_token}",
             "Notion-Version": f"{self.notion_api_version}",
         }
 
         payload = {"query": "", "filter": {"value": "database", "property": "object"}}
 
         try:
-            # send request
+            # Send databases query
             r = requests.post(
                 baseurl + "search", headers=headers, json=payload, timeout=15
             )
 
-            # throw error if 400
+            # Catch errors
             r.raise_for_status()
 
-            # load json
+            # Load JSON response
             dbs = json.loads(r.content)["results"]
 
             logger.info(f"Retrieved {len(dbs)} databases")
@@ -129,10 +118,10 @@ class NotionExtractor(BaseExtractor):
 
         self.docs = list()
 
-        # forcing lastRefreshed to be constant for all documents in this crawler run
+        # Forcing lastRefreshed to be constant for all documents in this crawler run
         current_time = str(datetime.datetime.utcnow())
 
-        # add all documents
+        # Add all documents
         for db_id in self.db_ids:
             logger.info(f"Getting documents from db {db_id}")
 
@@ -145,24 +134,23 @@ class NotionExtractor(BaseExtractor):
             # exclude functionality would be implemented here somewhere
             # regex patterns, url-exclusion, etc.
 
-            # update queried document metadata with db_id, platform info, link
-
+            # Update queried document metadata with db_id, platform info, link
             for q in queried:
-                # update db_id and platform
+                # Update db_id and platform
                 q.metadata["dbId"] = db_id.replace("-", "")  # remove hyphens
                 q.metadata["platform"] = "notion"
 
-                # reset page-id, remove hyphens
+                # Reset page-id, remove hyphens
                 q.metadata["pageId"] = q.metadata.pop("page_id").replace("-", "")
 
-                # construct link
+                # Construct link
                 link = f'https://notion.so/{q.metadata["pageId"]}'
                 q.metadata["link"] = link
 
-                # add timestamp (UTC) for crawl-time
+                # Add timestamp (UTC) for crawl-time
                 q.metadata["lastRefreshed"] = current_time
 
-            # extend documents
+            # Extend documents
             logger.info(f"Successfully retrieved {len(queried)} documents")
             self.docs.extend(queried)
 
