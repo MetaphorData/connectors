@@ -113,7 +113,7 @@ topic_naming_strategies:
     records:
       - type1
       - type2
-  tpoic2:
+  topic2:
     records: []
 ```
 
