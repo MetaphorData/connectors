@@ -100,11 +100,9 @@ class HiveExtractor(BaseExtractor):
                 )
 
             cursor.execute(f"show views in {database}")
-            for materialized_view in HiveExtractor.extract_names_from_cursor(cursor):
+            for view in HiveExtractor.extract_names_from_cursor(cursor):
                 datasets.append(
-                    self._extract_table(
-                        database, materialized_view, MaterializationType.VIEW
-                    )
+                    self._extract_table(database, view, MaterializationType.VIEW)
                 )
 
             cursor.execute(f"show materialized views in {database}")
