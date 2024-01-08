@@ -67,7 +67,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [monte_carlo](metaphor/monte_carlo/README.md)                     | Data monitor                             |
 | [mssql](metaphor/mssql/README.md)                                 | Schema                                   |
 | [mysql](metaphor/mysql/README.md)                                 | Schema, description                      |
-| [notion](metaphor/notion/README.md)                               | Documents, vector embeddings             |
+| [notion](metaphor/notion/README.md)                               | Document embeddings                      |
 | [postgresql](metaphor/postgresql/README.md)                       | Schema, description, statistics          |
 | [postgresql.profile](metaphor/postgresql/profile/README.md)       | Data profile                             |
 | [postgresql.usage](metaphor/postgresql/usage/README.md)           | Usage                                    |

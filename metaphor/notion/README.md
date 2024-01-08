@@ -1,6 +1,6 @@
 # Notion Connector
 
-This connector extracts documents from an appropriately configured Notion site using the [Notion API](https://developers.notion.com/reference/intro) and the [LlamaIndex loader](https://llamahub.ai/l/notion) for Notion.
+This connector extracts documents from an appropriately configured Notion site using the [Notion API](https://developers.notion.com/reference/intro) and the [LlamaIndex loader](https://llamahub.ai/l/notion) for Notion. It relies on a configured Azure OpenAI embedding model to get the appropriate vector embeddings for input documents.
 
 ## Setup
 
@@ -15,13 +15,12 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 ```yaml
-notion_api_tok: <notion_api_tok>
+notion_api_token: <notion_api_token>
 azure_openAI_key: <azure_openAI_key>
-azure_openAI_ver: <azure_openAI_ver>
+azure_openAI_version: <azure_openAI_version>
 azure_openAI_endpoint: <azure_openAI_endpoint>
 azure_openAI_model: <azure_openAI_model>
 azure_openAI_model_name: <azure_openAI_model_name>
-include_text: <include_text> # True or False; if you want to include the original document text in the vector database or not
 output:
   file:
     directory: <output_directory> 
@@ -31,6 +30,9 @@ output:
 
 These defaults are provided; you don't have to manually configure them.
 
+`include_text` refers to if you'd like to include the original document representation alongside the embedded content.
+
 ```yaml
 notion_api_version: <api_key_version> # "2022-06-08" by default
+include_text: <include_text> # False by default
 ```
