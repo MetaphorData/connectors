@@ -9,7 +9,7 @@ from llama_index import Document
 from requests.exceptions import HTTPError
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.embeddings import embed_documents, map_metadata
+from metaphor.common.embeddings import clean_text, embed_documents, map_metadata
 from metaphor.common.logger import get_logger
 from metaphor.notion.config import NotionRunConfig
 
@@ -136,6 +136,9 @@ class NotionExtractor(BaseExtractor):
 
             # Update queried document metadata with db_id, platform info, link
             for q in queried:
+                # Clean the document text
+                q.text = clean_text(q.text)
+
                 # Update db_id and platform
                 q.metadata["dbId"] = db_id.replace("-", "")  # remove hyphens
                 q.metadata["platform"] = "notion"
