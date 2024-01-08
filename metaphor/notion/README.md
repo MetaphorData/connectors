@@ -8,6 +8,8 @@ A Notion integration's API token is required for this connector. Follow [these i
 
 The integration will only have access to pages that it has been added to, or pages whose parent it has been added to. To ensure a certain section or group of pages is crawled, add the integration to the parent of those pages by following [these instructions](https://developers.notion.com/docs/create-a-notion-integration#give-your-integration-page-permissions).
 
+Additionally, this connector requires [Azure OpenAI services](https://azure.microsoft.com/en-us/products/ai-services/openai-service) to generate embedding vectors for documents.
+
 ## Config File
 
 Create a YAML config file based on the following template.
@@ -16,10 +18,9 @@ Create a YAML config file based on the following template.
 
 ```yaml
 notion_api_token: <notion_api_token>
+
 azure_openAI_key: <azure_openAI_key>
-azure_openAI_version: <azure_openAI_version>
-azure_openAI_endpoint: <azure_openAI_endpoint>
-azure_openAI_model_name: <azure_openAI_model_name>
+
 output:
   file:
     directory: <output_directory> 
@@ -29,10 +30,26 @@ output:
 
 These defaults are provided; you don't have to manually configure them.
 
-`include_text` refers to if you'd like to include the original document representation alongside the embedded content.
+`include_text` refers to if you'd like to include the original document text alongside the embedded content.
 
 ```yaml
-notion_api_version: <api_key_version> # "2022-06-08" by default
-include_text: <include_text> # False by default
-azure_openAI_model: <azure_openAI_model> # "text-embedding-ada-002" by default
+azure_openAI_version: <azure_openAI_version> # "2023-07-01-preview"
+azure_openAI_endpoint: <azure_openAI_endpoint> # "https://metaphorazureopenairesource.openai.azure.com/"
+azure_openAI_model_name: <azure_openAI_model_name> # "Embedding_ada002"
+azure_openAI_model: <azure_openAI_model> # "text-embedding-ada-002"
+
+notion_api_version: <api_key_version> # "2022-06-08"
+include_text: <include_text> # False
 ```
+
+## Testing
+
+Follow the [installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include the `notion` or `all` extra. 
+
+To test the connector locally, change the config file to output to a local path and run the following command
+
+```shell
+metaphor notion <config_file>
+```
+
+Manually verify the output after the run finishes.
