@@ -46,7 +46,7 @@ class DbtExtractor(BaseExtractor):
             add_debug_file(config.run_results)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info("Fetching metadata from dbt repo")
+        logger.info("Fetching metadata from DBT repo")
 
         with open(self._manifest) as file:
             manifest_json = json.load(file)
