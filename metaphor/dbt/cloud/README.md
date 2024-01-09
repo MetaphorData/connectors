@@ -42,6 +42,16 @@ If you're using dbt [Single Tenancy](https://docs.getdbt.com/docs/cloud/about-cl
 base_url: https://cloud.<tenant>.getdbt.com
 ```
 
+#### Environment IDs
+
+```yaml
+environment_ids:
+  - <environment_id_1>
+  - <environment_id_2>
+```
+
+If `environment_ids` are specified, only jobs run within those environments are collected. If it is not provided, all dbt jobs will be collected.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `dbt` extra.

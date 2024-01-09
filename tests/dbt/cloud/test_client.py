@@ -143,3 +143,53 @@ def test_get_run_artifact(mock_requests):
         },
         timeout=600,
     )
+
+
+@patch("metaphor.dbt.cloud.client.requests")
+def test_job_is_included(mock_requests):
+    client = DbtAdminAPIClient(
+        base_url="http://base.url",
+        account_id=1111,
+        service_token="service_token",
+        included_env_ids={1, 3},
+    )
+
+    def mock_get(url: str, **kwargs):
+        job_id = int(url.rsplit("/", 1)[-1])
+        if job_id == 1:
+            return Response(
+                200,
+                {
+                    "data": {
+                        "environment_id": 1,
+                    }
+                },
+            )
+        elif job_id == 2:
+            return Response(
+                200,
+                {
+                    "data": {
+                        "environment_id": 2,
+                    }
+                },
+            )
+        elif job_id == 3:
+            return Response(
+                200,
+                {
+                    "data": {
+                        "environment_id": 4,
+                    }
+                },
+            )
+        return Response(404, {})
+
+    mock_requests.get = mock_get
+
+    for i in range(1, 4):
+        included = client.job_is_included(i)
+        if i == 1:
+            assert included
+        else:
+            assert not included

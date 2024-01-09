@@ -39,6 +39,7 @@ class DbtCloudExtractor(BaseExtractor):
             base_url=self._base_url,
             account_id=self._account_id,
             service_token=self._service_token,
+            included_env_ids=config.environment_ids,
         )
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -53,6 +54,10 @@ class DbtCloudExtractor(BaseExtractor):
         return [item for ls in self._entities.values() for item in ls]
 
     async def _extract_last_run(self, job_id: int):
+        if not self._client.job_is_included(job_id):
+            logger.info(f"Ignoring job ID: {job_id}")
+            return
+
         logger.info(f"Fetching metadata for job ID: {job_id}")
 
         run = self._client.get_last_successful_run(job_id)

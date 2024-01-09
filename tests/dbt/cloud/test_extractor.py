@@ -23,6 +23,11 @@ async def test_extractor(
         )
     )
     mock_client.get_project_jobs = MagicMock(side_effect=[[8888], [2222]])
+
+    def mock_job_is_included(job_id: int) -> bool:
+        return job_id != 3333
+
+    mock_client.job_is_included = mock_job_is_included
     mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
     mock_client.get_run_artifact = MagicMock(return_value="tempfile")
 
@@ -39,8 +44,9 @@ async def test_extractor(
     config = DbtCloudConfig(
         output=OutputConfig(),
         account_id=1111,
-        job_ids=[2222],
+        job_ids=[2222, 3333],
         project_ids=[6666, 4444],
+        environment_ids={1},
         base_url="https://cloud.metaphor.getdbt.com",
         service_token="service_token",
     )

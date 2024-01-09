@@ -1,5 +1,5 @@
 from dataclasses import field as dataclass_field
-from typing import List
+from typing import List, Set
 
 from pydantic.dataclasses import dataclass
 
@@ -21,6 +21,9 @@ class DbtCloudConfig(BaseConfig):
 
     # dbt cloud project IDs
     project_ids: List[int] = dataclass_field(default_factory=list)
+
+    # dbt cloud environment IDs to include. If specified, only jobs run in the provided environments will be crawled.
+    environment_ids: Set[int] = dataclass_field(default_factory=set)
 
     # map meta field to ownerships
     meta_ownerships: List[MetaOwnership] = dataclass_field(default_factory=list)
