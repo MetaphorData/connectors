@@ -9,7 +9,7 @@ from llama_index import Document
 from requests.exceptions import HTTPError
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.embeddings import sanitize_text, embed_documents, map_metadata
+from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
 from metaphor.common.logger import get_logger
 from metaphor.notion.config import NotionRunConfig
 
@@ -19,6 +19,7 @@ baseURL = "https://api.notion.com/v1"
 
 embedding_chunk_size = 512
 embedding_overlap_size = 50
+
 
 class NotionExtractor(BaseExtractor):
     """Notion Document extractor."""
@@ -84,10 +85,8 @@ class NotionExtractor(BaseExtractor):
 
         try:
             # Send databases query
-            r = requests.post(f'{baseURL}/search',
-                              headers=headers,
-                              json=payload,
-                              timeout=15
+            r = requests.post(
+                f"{baseURL}/search", headers=headers, json=payload, timeout=15
             )
 
             # Catch errors

@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from metaphor.common.embeddings import sanitize_text, map_metadata
+from metaphor.common.embeddings import map_metadata, sanitize_text
 
 
 def test_sanitize_text(test_root_dir: str) -> None:

@@ -111,7 +111,9 @@ def map_metadata(
                 "documentId": nodeid_format,
                 "embedding_1": embedding_dict[nodeid],
                 "pageId": metadata_dict[nodeid]["pageId"],
-                "embeddedString_1": sanitize_text(doc_store[nodeid]["__data__"]["text"]),
+                "embeddedString_1": sanitize_text(
+                    doc_store[nodeid]["__data__"]["text"]
+                ),
                 "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
                 "metadata": metadata_dict[nodeid],
             }
