@@ -15,6 +15,8 @@ class HiveRunConfig(BaseConfig):
 
     collect_stats: bool = False
 
+    # TODO: logic for controlling what column statistics to gather.
+
     @property
     def connect_kwargs(self) -> Dict[str, Any]:
         kwargs = {

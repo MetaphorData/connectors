@@ -22,11 +22,13 @@
       "dataSizeBytes": 21.0,
       "fieldStatistics": [
         {
+          "average": 5.5,
           "distinctValueCount": 10.0,
           "fieldPath": "id",
           "maxValue": 10.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 2.8722813232690143
         }
       ],
       "recordCount": 10.0
@@ -63,11 +65,13 @@
       "dataSizeBytes": 926.0,
       "fieldStatistics": [
         {
+          "average": 203.0,
           "distinctValueCount": 5.0,
           "fieldPath": "deptno",
           "maxValue": 205.0,
           "minValue": 201.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 1.4142135623730951
         },
         {
           "distinctValueCount": 5.0,
@@ -75,11 +79,13 @@
           "nullValueCount": 0.0
         },
         {
+          "average": 503.0,
           "distinctValueCount": 5.0,
           "fieldPath": "locationid",
           "maxValue": 505.0,
           "minValue": 501.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 1.4142135623730951
         }
       ],
       "recordCount": 5.0
@@ -124,18 +130,22 @@
       "dataSizeBytes": 1594.0,
       "fieldStatistics": [
         {
+          "average": 113.0,
           "distinctValueCount": 25.0,
           "fieldPath": "empid",
           "maxValue": 125.0,
           "minValue": 101.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 7.211102550927978
         },
         {
+          "average": 203.0,
           "distinctValueCount": 5.0,
           "fieldPath": "deptno",
           "maxValue": 205.0,
           "minValue": 201.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 1.4142135623730951
         },
         {
           "distinctValueCount": 25.0,
@@ -143,11 +153,13 @@
           "nullValueCount": 0.0
         },
         {
+          "average": 58000.0,
           "distinctValueCount": 13.0,
           "fieldPath": "salary",
           "maxValue": 65000.0,
           "minValue": 50000.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 3577.7087639996635
         },
         {
           "distinctValueCount": 25.0,
@@ -189,11 +201,13 @@
       "dataSizeBytes": 624.0,
       "fieldStatistics": [
         {
+          "average": 113.61538461538461,
           "distinctValueCount": 13.0,
           "fieldPath": "empid",
           "maxValue": 125.0,
           "minValue": 102.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 7.07692307692315
         },
         {
           "distinctValueCount": 5.0,
@@ -268,11 +282,13 @@
       "dataSizeBytes": 139.0,
       "fieldStatistics": [
         {
+          "average": 5.5,
           "distinctValueCount": 10.0,
           "fieldPath": "id",
           "maxValue": 10.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 2.8722813232690143
         },
         {
           "distinctValueCount": 9.0,
@@ -314,25 +330,31 @@
       "dataSizeBytes": 712.0,
       "fieldStatistics": [
         {
+          "average": 50.5,
           "distinctValueCount": 100.0,
           "fieldPath": "id",
           "maxValue": 100.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 28.86607004772212
         },
         {
+          "average": 5.5,
           "distinctValueCount": 10.0,
           "fieldPath": "ship_type_id",
           "maxValue": 10.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 2.8722813232690143
         },
         {
+          "average": 5.5,
           "distinctValueCount": 10.0,
           "fieldPath": "crew_size",
           "maxValue": 10.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 2.8722813232690143
         }
       ],
       "recordCount": 100.0
@@ -369,25 +391,31 @@
       "dataSizeBytes": 8913.0,
       "fieldStatistics": [
         {
+          "average": 500.5,
           "distinctValueCount": 987.0,
           "fieldPath": "id",
           "maxValue": 1000.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 288.6749902572095
         },
         {
+          "average": 50.5,
           "distinctValueCount": 100.0,
           "fieldPath": "ship_id",
           "maxValue": 100.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 28.86607004772212
         },
         {
+          "average": 5.5,
           "distinctValueCount": 10.0,
           "fieldPath": "admiral_id",
           "maxValue": 10.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 2.8722813232690143
         }
       ],
       "recordCount": 1000.0
@@ -428,25 +456,31 @@
       "dataSizeBytes": 1979173.0,
       "fieldStatistics": [
         {
+          "average": 462.48475,
           "distinctValueCount": 940.0,
           "fieldPath": "userid",
           "maxValue": 943.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 266.61308705207534
         },
         {
+          "average": 425.53013,
           "distinctValueCount": 1720.0,
           "fieldPath": "movieid",
           "maxValue": 1682.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 330.7967023296682
         },
         {
+          "average": 3.52986,
           "distinctValueCount": 5.0,
           "fieldPath": "rating",
           "maxValue": 5.0,
           "minValue": 1.0,
-          "nullValueCount": 0.0
+          "nullValueCount": 0.0,
+          "stdDev": 1.1256679707622494
         },
         {
           "distinctValueCount": 49262.0,

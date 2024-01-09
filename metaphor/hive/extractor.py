@@ -132,6 +132,20 @@ class HiveExtractor(BaseExtractor):
                 data_size_bytes=table_size,
                 record_count=num_rows,
             )
+
+            numeric_types = {
+                "TINYINT",
+                "SMALLINT",
+                "INT",
+                "INTEGER",
+                "BIGINT",
+                "FLOAT",
+                "DOUBLE",
+                "DOUBLE PRECISION",
+                "DECIMAL",
+                "NUMERIC",
+            }
+
             field_statistics: List[FieldStatistics] = []
             for field in fields:
                 cursor.execute(
@@ -146,24 +160,13 @@ class HiveExtractor(BaseExtractor):
                 raw_field_statistics: Dict[str, Any] = {
                     "fieldPath": field.field_path,
                 }
+
                 for row in cursor:
                     field_stats_key = stats_col_names.get(row[0])
                     if field_stats_key:
                         try:
                             raw_field_statistics[field_stats_key] = float(row[1])
                         except Exception:
-                            numeric_types = {
-                                "TINYINT",
-                                "SMALLINT",
-                                "INT",
-                                "INTEGER",
-                                "BIGINT",
-                                "FLOAT",
-                                "DOUBLE",
-                                "DOUBLE PRECISION",
-                                "DECIMAL",
-                                "NUMERIC",
-                            }
                             if (
                                 field.native_type
                                 and field.native_type.upper() in numeric_types
@@ -171,6 +174,20 @@ class HiveExtractor(BaseExtractor):
                                 logger.warning(
                                     f"Cannot find {field_stats_key} for field {field.field_path}"
                                 )
+                if field.native_type and field.native_type.upper() in numeric_types:
+                    try:
+                        cursor.execute(
+                            f"select std({field.field_path}), avg({field.field_path}) from {database}.{table}"
+                        )
+                        std_dev, avg = next(cursor)
+                        raw_field_statistics.update(
+                            {"stdDev": float(std_dev), "average": float(avg)}
+                        )
+                    except Exception:
+                        logger.exception(
+                            f"Cannot calculate std and / or avg for field {field.field_path}"
+                        )
+
                 field_statistics.append(FieldStatistics.from_dict(raw_field_statistics))
             if field_statistics:
                 dataset_statistics.field_statistics = field_statistics

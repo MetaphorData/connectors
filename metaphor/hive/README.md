@@ -32,13 +32,13 @@ auth_user: <auth user for hiveserver>
 password: <password for the auth user>
 ```
 
-#### `collect_stats`
+#### Collecting Table and Column Statistics
 
 ```yaml
 collect_stats: <collect_stats>
 ```
 
-Whether to collect table and column level statistics. Default is `False`.
+`collect_stats` controls whether to collect table and column level statistics. Default is `False`.
 
 ## Testing
 
