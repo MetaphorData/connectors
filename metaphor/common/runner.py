@@ -76,8 +76,8 @@ def run_connector(
         end_time=end_time,
         status=run_status,
         entity_count=float(entity_count),
-        error_message=error_message,
-        stack_trace=stacktrace,
+        error_message=error_message if error_message else None,
+        stack_trace=stacktrace if stacktrace else None,
     )
 
     if file_sink_config is not None:
