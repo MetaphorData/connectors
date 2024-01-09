@@ -9,14 +9,16 @@ from llama_index import Document
 from requests.exceptions import HTTPError
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.embeddings import clean_text, embed_documents, map_metadata
+from metaphor.common.embeddings import sanitize_text, embed_documents, map_metadata
 from metaphor.common.logger import get_logger
 from metaphor.notion.config import NotionRunConfig
 
 logger = get_logger()
 
-baseurl = "https://api.notion.com/v1/"
+baseURL = "https://api.notion.com/v1"
 
+embedding_chunk_size = 512
+embedding_overlap_size = 50
 
 class NotionExtractor(BaseExtractor):
     """Notion Document extractor."""
@@ -38,12 +40,9 @@ class NotionExtractor(BaseExtractor):
         self.azure_openAI_model_name = config.azure_openAI_model_name
 
         self.include_text = config.include_text
-        self.embedding_chunk_size = 512
-        self.embedding_overlap_size = 50
 
         # Set up LlamaIndex Notion integration
-        npr = NotionPageReader
-        self.NotionReader = npr(self.notion_api_token)  # type: ignore[call-arg]
+        self.NotionReader = NotionPageReader(self.notion_api_token)  # type: ignore[call-arg]
 
     async def extract(self) -> Collection[dict]:
         logger.info("Fetching documents from Notion")
@@ -54,18 +53,18 @@ class NotionExtractor(BaseExtractor):
 
         # Embedding process
         logger.info("Starting embedding process")
-        VSI = embed_documents(
+        vsi = embed_documents(
             docs,
             self.azure_openAI_key,
             self.azure_openAI_version,
             self.azure_openAI_endpoint,
             self.azure_openAI_model,
             self.azure_openAI_model_name,
-            self.embedding_chunk_size,
-            self.embedding_overlap_size,
+            embedding_chunk_size,
+            embedding_overlap_size,
         )
 
-        embedded_nodes = map_metadata(VSI, include_text=self.include_text)
+        embedded_nodes = map_metadata(vsi, include_text=self.include_text)
 
         # Returns a list of document dicts
         # Each document dict has nodeId, embedding, lastRefreshed, metadata
@@ -85,21 +84,23 @@ class NotionExtractor(BaseExtractor):
 
         try:
             # Send databases query
-            r = requests.post(
-                baseurl + "search", headers=headers, json=payload, timeout=15
+            r = requests.post(f'{baseURL}/search',
+                              headers=headers,
+                              json=payload,
+                              timeout=15
             )
 
             # Catch errors
             r.raise_for_status()
 
-            # Load JSON response
-            dbs = json.loads(r.content)["results"]
-
-            logger.info(f"Retrieved {len(dbs)} databases")
-
         except HTTPError as error:
             traceback.print_exc()
             logger.error(f"Failed to get Notion database IDs, error {error}")
+
+        # Load JSON response
+        dbs = json.loads(r.content)["results"]
+
+        logger.info(f"Retrieved {len(dbs)} databases")
 
         self.db_ids = [dbs[i]["id"] for i in range(len(dbs))]
 
@@ -137,7 +138,7 @@ class NotionExtractor(BaseExtractor):
             # Update queried document metadata with db_id, platform info, link
             for q in queried:
                 # Clean the document text
-                q.text = clean_text(q.text)
+                q.text = sanitize_text(q.text)
 
                 # Update db_id and platform
                 q.metadata["dbId"] = db_id.replace("-", "")  # remove hyphens

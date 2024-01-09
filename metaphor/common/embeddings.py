@@ -9,13 +9,14 @@ from llama_index.storage.storage_context import StorageContext
 from llama_index.vector_stores import SimpleVectorStore
 
 
-def clean_text(input_string: str) -> str:
+def sanitize_text(input_string: str) -> str:
     """
     Takes an input string and applies the following manipulations:
-    * leading / trailing whitespace removed
     * newline characters replaced with a single space
     * tab characters replaced with a single space
+    * carriage return characters replaced with a single space
     * multiple spaces replaced with a single space
+    * leading / trailing whitespace removed
 
     Returns a string.
     """
@@ -36,8 +37,8 @@ def embed_documents(
     azure_openAI_endpoint: str,
     azure_openAI_model: str,
     azure_openAI_model_name: str,
-    chunk_size: int = 512,
-    chunk_overlap: int = 50,
+    chunk_size: int,
+    chunk_overlap: int,
 ) -> VectorStoreIndex:
     """
     Generates embeddings for Documents and returns them as stored in a
@@ -67,18 +68,18 @@ def embed_documents(
 
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    VSI = VectorStoreIndex.from_documents(
+    vsi = VectorStoreIndex.from_documents(
         docs,
         service_context=service_context,
         storage_context=storage_context,
         show_progress=True,
     )
 
-    return VSI
+    return vsi
 
 
 def map_metadata(
-    VSI: VectorStoreIndex,
+    vsi: VectorStoreIndex,
     include_text: bool,
 ) -> Collection[dict]:
     """
@@ -90,8 +91,8 @@ def map_metadata(
     """
     # retrieve appropriate dictionaries
 
-    vector_store = VSI.storage_context.to_dict()["vector_store"]["default"]
-    doc_store = VSI.storage_context.to_dict()["doc_store"]
+    vector_store = vsi.storage_context.to_dict()["vector_store"]["default"]
+    doc_store = vsi.storage_context.to_dict()["doc_store"]
 
     embedding_dict = vector_store["embedding_dict"]
     metadata_dict = vector_store["metadata_dict"]
@@ -110,7 +111,7 @@ def map_metadata(
                 "documentId": nodeid_format,
                 "embedding_1": embedding_dict[nodeid],
                 "pageId": metadata_dict[nodeid]["pageId"],
-                "embeddedString_1": clean_text(doc_store[nodeid]["__data__"]["text"]),
+                "embeddedString_1": sanitize_text(doc_store[nodeid]["__data__"]["text"]),
                 "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
                 "metadata": metadata_dict[nodeid],
             }
