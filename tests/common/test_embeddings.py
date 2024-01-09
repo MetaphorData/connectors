@@ -1,14 +1,14 @@
 from unittest.mock import MagicMock
 
-from metaphor.common.embeddings import clean_text, map_metadata
+from metaphor.common.embeddings import sanitize_text, map_metadata
 
 
-def test_clean_text(test_root_dir: str) -> None:
-    assert clean_text("  Hello  World  ") == "Hello World"
-    assert clean_text("\nNew\nLine\n") == "New Line"
-    assert clean_text("\tTab\tCharacter\t") == "Tab Character"
-    assert clean_text("\rCarriage\rReturn\r") == "Carriage Return"
-    assert clean_text(" Multiple    Spaces ") == "Multiple Spaces"
+def test_sanitize_text(test_root_dir: str) -> None:
+    assert sanitize_text("  Hello  World  ") == "Hello World"
+    assert sanitize_text("\nNew\nLine\n") == "New Line"
+    assert sanitize_text("\tTab\tCharacter\t") == "Tab Character"
+    assert sanitize_text("\rCarriage\rReturn\r") == "Carriage Return"
+    assert sanitize_text(" Multiple    Spaces ") == "Multiple Spaces"
 
 
 def test_map_metadata_string():
