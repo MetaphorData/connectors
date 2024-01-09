@@ -49,3 +49,28 @@ def test_run_connector() -> None:
     assert dummy_connector.stacktrace
     assert "ValueError: 1" in dummy_connector.stacktrace
     assert "ValueError: 2" in dummy_connector.stacktrace
+    assert run_metadata.error_message
+    assert run_metadata.stack_trace
+
+
+def test_run_connector_empty_error_message() -> None:
+    class DummyConnector(BaseExtractor):
+        @staticmethod
+        def from_config_file(config_file: str) -> "DummyConnector":
+            return DummyConnector(BaseConfig.from_yaml_file(config_file))
+
+        def __init__(self, config: BaseConfig) -> None:
+            super().__init__(config)
+
+        async def extract(self) -> Collection[ENTITY_TYPES]:
+            raise Exception
+
+    dummy_connector = DummyConnector(BaseConfig(output=OutputConfig()))
+    events, run_metadata = run_connector(
+        dummy_connector, "dummy_connector", "dummy connector"
+    )
+    assert run_metadata.status is RunStatus.FAILURE
+    assert run_metadata.error_message is None
+
+    # stack_trace should never be empty
+    assert run_metadata.stack_trace
