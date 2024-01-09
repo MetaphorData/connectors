@@ -2,8 +2,8 @@
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/run-results/v5.json",
     "dbt_version": "1.7.3",
-    "generated_at": "2024-01-03T08:48:48.141479Z",
-    "invocation_id": "b8a6486e-9e79-4f2f-b7a1-432b2fe8d198",
+    "generated_at": "2024-01-09T08:22:10.451896Z",
+    "invocation_id": "4c002312-d619-45e7-9208-49e8751dc20e",
     "env": {}
   },
   "results": [
@@ -12,70 +12,215 @@
       "timing": [
         {
           "name": "compile",
-          "started_at": "2024-01-03T08:48:46.256620Z",
-          "completed_at": "2024-01-03T08:48:46.266532Z"
+          "started_at": "2024-01-09T08:21:57.612116Z",
+          "completed_at": "2024-01-09T08:21:57.623945Z"
         },
         {
           "name": "execute",
-          "started_at": "2024-01-03T08:48:46.267509Z",
-          "completed_at": "2024-01-03T08:48:47.687337Z"
+          "started_at": "2024-01-09T08:21:57.624981Z",
+          "completed_at": "2024-01-09T08:21:59.220002Z"
         }
       ],
       "thread_id": "Thread-1",
-      "execution_time": 1.8758258819580078,
+      "execution_time": 2.0987839698791504,
       "adapter_response": {
         "_message": "SUCCESS 1",
         "code": "SUCCESS",
         "rows_affected": 1,
-        "query_id": "01b16b30-0603-e61f-0029-c003057d1d86"
+        "query_id": "01b18cd5-0603-f4b9-0029-c003058c8d0e"
       },
       "message": "SUCCESS 1",
       "failures": null,
-      "unique_id": "snapshot.london_bike_analysis.cycle_hire_snapshot",
+      "unique_id": "model.london_bike_analysis.cleaned_bike_rides_from_snapshot",
       "compiled": true,
-      "compiled_code": "\n\n\nselect * from DEMO_DB.metaphor.cycle_hire",
-      "relation_name": "DEMO_DB.snapshots.cycle_hire_snapshot"
+      "compiled_code": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration) as total_seconds\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM DEMO_DB.snapshots.cycle_hire_snapshot\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_seconds DESC",
+      "relation_name": "DEMO_DB.METAPHOR.cleaned_bike_rides_from_snapshot"
+    },
+    {
+      "status": "success",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2024-01-09T08:21:59.718150Z",
+          "completed_at": "2024-01-09T08:21:59.725778Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2024-01-09T08:21:59.727042Z",
+          "completed_at": "2024-01-09T08:22:01.375456Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 2.021347999572754,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b18cd6-0603-f4b9-0029-c003058c8d12"
+      },
+      "message": "SUCCESS 1",
+      "failures": null,
+      "unique_id": "model.london_bike_analysis.raw_bike_hires",
+      "compiled": true,
+      "compiled_code": "SELECT \n    rental_id\n    , duration as duration_seconds\n    , duration / 60 as duration_minutes\n    , bike_id\n    , start_date\n    , start_station_id\n    , start_station_name\n    , end_date\n    , end_station_id\n    , end_station_name\nFROM  DEMO_DB.metaphor.cycle_hire\nWHERE EXTRACT(year from start_date) = 2017",
+      "relation_name": "DEMO_DB.METAPHOR.raw_bike_hires"
+    },
+    {
+      "status": "success",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2024-01-09T08:22:01.745774Z",
+          "completed_at": "2024-01-09T08:22:01.754245Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2024-01-09T08:22:01.755512Z",
+          "completed_at": "2024-01-09T08:22:03.770925Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 2.4070920944213867,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b18cd6-0603-f4be-0029-c003058c94da"
+      },
+      "message": "SUCCESS 1",
+      "failures": null,
+      "unique_id": "model.london_bike_analysis.raw_bike_stations",
+      "compiled": true,
+      "compiled_code": "SELECT \n    id\n    , name as station_name\n    , bikes_count\n    , docks_count\n    , install_date\n    , removal_date\nFROM  DEMO_DB.metaphor.cycle_stations\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
+      "relation_name": "DEMO_DB.METAPHOR.raw_bike_stations"
+    },
+    {
+      "status": "success",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2024-01-09T08:22:04.160096Z",
+          "completed_at": "2024-01-09T08:22:04.166531Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2024-01-09T08:22:04.167785Z",
+          "completed_at": "2024-01-09T08:22:06.355011Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 2.57037091255188,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b18cd6-0603-f4b9-0029-c003058c8d1e"
+      },
+      "message": "SUCCESS 1",
+      "failures": null,
+      "unique_id": "model.london_bike_analysis.cleaned_bike_rides",
+      "compiled": true,
+      "compiled_code": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration_minutes) as total_minutes\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM DEMO_DB.METAPHOR.raw_bike_hires\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_minutes DESC",
+      "relation_name": "DEMO_DB.METAPHOR.cleaned_bike_rides"
+    },
+    {
+      "status": "success",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2024-01-09T08:22:06.737855Z",
+          "completed_at": "2024-01-09T08:22:06.744738Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2024-01-09T08:22:06.745922Z",
+          "completed_at": "2024-01-09T08:22:08.211585Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 1.8485279083251953,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b18cd6-0603-f4b9-0029-c003058c8d2a"
+      },
+      "message": "SUCCESS 1",
+      "failures": null,
+      "unique_id": "model.london_bike_analysis.rides_by_month_2017",
+      "compiled": true,
+      "compiled_code": "WITH stations AS (\n\n    SELECT *\n    FROM DEMO_DB.METAPHOR.raw_bike_stations\n\n),\n\nrides AS (\n\n    SELECT *\n    FROM DEMO_DB.METAPHOR.cleaned_bike_rides\n\n),\n\nstart_stat_join AS (\n\n    SELECT rides.*\n    , stations.bikes_count as start_station_bikes_count\n    , stations.docks_count as start_station_docks_count\n    , stations.install_date as start_station_install_date\n    FROM rides\n    LEFT JOIN stations\n    ON rides.start_station_id = stations.id\n)\n\nSELECT \n    total_minutes \n    , total_bike_hires \n    , average_duration \n    , month \n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count \n    , start_station_docks_count \n    , start_station_install_date \n    , end_station_id\n    , end_station_name\n    , stations.bikes_count as end_station_bikes_count\n    , stations.docks_count as end_station_docks_count\n    , stations.install_date as end_station_install_date\nFROM start_stat_join\nLEFT JOIN stations\nON start_stat_join.end_station_id = stations.id",
+      "relation_name": "DEMO_DB.METAPHOR.rides_by_month_2017"
+    },
+    {
+      "status": "success",
+      "timing": [
+        {
+          "name": "compile",
+          "started_at": "2024-01-09T08:22:08.593947Z",
+          "completed_at": "2024-01-09T08:22:08.600985Z"
+        },
+        {
+          "name": "execute",
+          "started_at": "2024-01-09T08:22:08.602320Z",
+          "completed_at": "2024-01-09T08:22:10.047149Z"
+        }
+      ],
+      "thread_id": "Thread-1",
+      "execution_time": 1.8513391017913818,
+      "adapter_response": {
+        "_message": "SUCCESS 1",
+        "code": "SUCCESS",
+        "rows_affected": 1,
+        "query_id": "01b18cd6-0603-f4be-0029-c003058c94ea"
+      },
+      "message": "SUCCESS 1",
+      "failures": null,
+      "unique_id": "model.london_bike_analysis.rides_by_month_start_station_2017",
+      "compiled": true,
+      "compiled_code": "SELECT \n    SUM(total_minutes) AS total_minutes\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\n    , SUM(total_bike_hires) AS total_bike_hires\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\n    , month\n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count\n    , start_station_docks_count\n    , start_station_install_date\nFROM DEMO_DB.METAPHOR.rides_by_month_2017\nGROUP BY 5,6,7,8,9,10,11,12\nORDER BY total_bike_hires DESC",
+      "relation_name": "DEMO_DB.METAPHOR.rides_by_month_start_station_2017"
     }
   ],
-  "elapsed_time": 6.643038988113403,
+  "elapsed_time": 17.67696475982666,
   "args": {
-    "which": "snapshot",
-    "print": true,
-    "partial_parse": true,
-    "exclude": [],
-    "project_dir": "/Users/andy/work/dbt/ride_share",
-    "log_level": "info",
-    "version_check": true,
-    "log_path": "/Users/andy/work/dbt/ride_share/logs",
-    "profiles_dir": "/Users/andy/.dbt",
-    "static_parser": true,
-    "select": [],
-    "vars": {},
-    "invocation_command": "dbt snapshot",
-    "printer_width": 80,
-    "enable_legacy_logger": false,
-    "use_colors": true,
-    "partial_parse_file_diff": true,
-    "show_resource_report": false,
-    "cache_selected_only": false,
-    "introspect": true,
-    "strict_mode": false,
-    "log_file_max_bytes": 10485760,
-    "use_colors_file": true,
-    "send_anonymous_usage_stats": true,
-    "defer": false,
-    "macro_debugging": false,
-    "write_json": true,
-    "indirect_selection": "eager",
-    "favor_state": false,
-    "populate_cache": true,
-    "log_format_file": "debug",
     "quiet": false,
+    "printer_width": 80,
+    "partial_parse": true,
+    "use_colors_file": true,
+    "enable_legacy_logger": false,
+    "log_path": "/Users/andy/work/dbt/ride_share/logs",
     "log_format": "default",
+    "print": true,
+    "log_format_file": "debug",
     "warn_error_options": {
       "include": [],
       "exclude": []
     },
-    "log_level_file": "debug"
+    "profiles_dir": "/Users/andy/.dbt",
+    "exclude": [],
+    "log_level": "info",
+    "cache_selected_only": false,
+    "version_check": true,
+    "strict_mode": false,
+    "log_level_file": "debug",
+    "partial_parse_file_diff": true,
+    "select": [],
+    "macro_debugging": false,
+    "vars": {},
+    "which": "run",
+    "log_file_max_bytes": 10485760,
+    "project_dir": "/Users/andy/work/dbt/ride_share",
+    "show_resource_report": false,
+    "static_parser": true,
+    "introspect": true,
+    "defer": false,
+    "write_json": true,
+    "populate_cache": true,
+    "use_colors": true,
+    "favor_state": false,
+    "invocation_command": "dbt run",
+    "indirect_selection": "eager",
+    "send_anonymous_usage_stats": true
   }
 }
