@@ -7,7 +7,7 @@
           "lastRun": "2023-06-23T03:54:35.817000+00:00",
           "owner": "yi@metaphor.io",
           "severity": "UNKNOWN",
-          "status": "ERROR",
+          "status": "UNKNOWN",
           "targets": [],
           "title": "auto_monitor_name_cd5b69bd-e465-4545-b3f9-a5d507ea766c",
           "url": "https://getmontecarlo.com/monitors/e0dc143e-dd8a-4cb9-b4cc-dedec715d955"
@@ -51,6 +51,30 @@
     "logicalId": {
       "account": "snow",
       "name": "db.metaphor.test2",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "description": "Field Health for all fields in db:metaphor.test3",
+          "lastRun": "2023-06-23T03:54:35.817000+00:00",
+          "owner": "yi@metaphor.io",
+          "severity": "UNKNOWN",
+          "status": "ERROR",
+          "targets": [],
+          "title": "auto_monitor_name_18637195-a3c4-416e-a3e2-a89cc10adbc8",
+          "url": "https://getmontecarlo.com/monitors/2c156c8d-ab4a-432f-b8bb-f9ea9f31ed3d"
+        }
+      ],
+      "provider": "MONTE_CARLO",
+      "url": "https://getmontecarlo.com/assets/MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test3/custom-monitors"
+    },
+    "id": "DATASET~EC9202BF4193DCE73F8EF04D5CAEAF75",
+    "logicalId": {
+      "account": "snow",
+      "name": "db.metaphor.test3",
       "platform": "SNOWFLAKE"
     }
   }

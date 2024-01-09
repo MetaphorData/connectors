@@ -37,6 +37,12 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                             "warehouse": {"connection_type": "SNOWFLAKE"},
                         }
                     },
+                    {
+                        "node": {
+                            "mcon": "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test3",
+                            "warehouse": {"connection_type": "SNOWFLAKE"},
+                        }
+                    },
                 ],
                 "page_info": {
                     "end_corsor": "cursor",
@@ -71,6 +77,20 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "severity": "LOW",
                     "monitorStatus": "SUCCESS",
                     "monitorFields": ["foo", "bar"],
+                    "creatorId": "yi@metaphor.io",
+                    "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
+                },
+                {
+                    "uuid": "2c156c8d-ab4a-432f-b8bb-f9ea9f31ed3d",
+                    "name": "auto_monitor_name_18637195-a3c4-416e-a3e2-a89cc10adbc8",
+                    "description": "Field Health for all fields in db:metaphor.test3",
+                    "entities": ["db:metaphor.test3"],
+                    "entityMcons": [
+                        "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test3"
+                    ],
+                    "severity": None,
+                    "monitorStatus": "ERROR",
+                    "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
                 },
