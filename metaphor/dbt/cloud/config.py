@@ -17,10 +17,10 @@ class DbtCloudConfig(BaseConfig):
     service_token: str
 
     # dbt cloud job IDs
-    job_ids: List[int] = dataclass_field(default_factory=list)
+    job_ids: Set[int] = dataclass_field(default_factory=set)
 
     # dbt cloud project IDs
-    project_ids: List[int] = dataclass_field(default_factory=list)
+    project_ids: Set[int] = dataclass_field(default_factory=set)
 
     # dbt cloud environment IDs to include. If specified, only jobs run in the provided environments will be crawled.
     environment_ids: Set[int] = dataclass_field(default_factory=set)

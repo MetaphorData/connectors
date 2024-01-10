@@ -78,7 +78,7 @@ class DbtAdminAPIClient:
             jobs |= new_jobs
             offset += page_size
 
-    def job_is_included(self, job_id: int) -> bool:
+    def is_job_included(self, job_id: int) -> bool:
         if len(self.included_env_ids) == 0:
             # No excluded environment, just return True
             return True

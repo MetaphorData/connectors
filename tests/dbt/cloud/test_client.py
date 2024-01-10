@@ -188,7 +188,7 @@ def test_job_is_included(mock_requests):
     mock_requests.get = mock_get
 
     for i in range(1, 4):
-        included = client.job_is_included(i)
+        included = client.is_job_included(i)
         if i == 1:
             assert included
         else:
