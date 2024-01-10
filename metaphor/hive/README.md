@@ -29,13 +29,9 @@ See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
-#### Collecting Table and Column Statistics
+#### Column Statistics
 
-```yaml
-collect_stats: <collect_stats>
-```
-
-`collect_stats` controls whether to collect table and column level statistics. Default is `False`.
+See [Column Statistics](../../common/docs/column_statistics.md) for details.
 
 ## Testing
 
