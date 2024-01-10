@@ -22,3 +22,7 @@ class ColumnStatistics:
 
     # Compute standard deviation
     std_dev: bool = False
+
+    @property
+    def should_calculate(self) -> bool:
+        return any(bool(value) for value in self.__dict__.values())

@@ -1,8 +1,10 @@
+from dataclasses import field
 from typing import Any, Dict, Optional
 
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
+from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.dataclass import ConnectorConfig
 
 
@@ -12,6 +14,11 @@ class HiveRunConfig(BaseConfig):
     port: int
     auth_user: Optional[str] = None
     password: Optional[str] = None
+
+    # Compute specific types of statistics for each column
+    column_statistics: ColumnStatistics = field(
+        default_factory=lambda: ColumnStatistics()
+    )
 
     @property
     def connect_kwargs(self) -> Dict[str, Any]:
