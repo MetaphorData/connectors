@@ -857,7 +857,7 @@ class ArtifactParser:
                 [
                     get_virtual_view_id(self._virtual_views[n].logical_id)
                     for n in depends_on.nodes
-                    if n.startswith("model.")
+                    if n.startswith("model.") or n.startswith("snapshot.")
                 ]
             )
 

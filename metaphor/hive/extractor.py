@@ -1,4 +1,4 @@
-from typing import Collection, Iterable, List, Tuple
+from typing import Any, Collection, Dict, Iterable, List, Optional, Tuple
 
 from pyhive import hive
 
@@ -13,7 +13,9 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
+    DatasetStatistics,
     EntityType,
+    FieldStatistics,
     MaterializationType,
     SchemaField,
     SchemaType,
@@ -21,6 +23,19 @@ from metaphor.models.metadata_change_event import (
 )
 
 logger = get_logger()
+
+NUMERIC_TYPES = {
+    "TINYINT",
+    "SMALLINT",
+    "INT",
+    "INTEGER",
+    "BIGINT",
+    "FLOAT",
+    "DOUBLE",
+    "DOUBLE PRECISION",
+    "DECIMAL",
+    "NUMERIC",
+}
 
 
 class HiveExtractor(BaseExtractor):
@@ -39,7 +54,15 @@ class HiveExtractor(BaseExtractor):
 
     @staticmethod
     def get_connection(**kwargs) -> hive.Connection:
-        return hive.connect(**kwargs)
+        return hive.connect(
+            **kwargs,
+            configuration={
+                "hive.txn.manager": "org.apache.hadoop.hive.ql.lockmgr.DbTxnManager",
+                "hive.support.concurrency": "true",
+                "hive.enforce.bucketing": "true",
+                "hive.exec.dynamic.partition.mode": "nonstrict",
+            },
+        )
 
     @staticmethod
     def extract_names_from_cursor(cursor: Iterable[Tuple]) -> List[str]:
@@ -57,7 +80,7 @@ class HiveExtractor(BaseExtractor):
                     platform=DataPlatform.HIVE,
                 ),
             )
-            fields = []
+            fields: List[SchemaField] = []
             cursor.execute(f"describe {database}.{table}")
             for field_path, field_type, comment in cursor:
                 fields.append(
@@ -85,7 +108,117 @@ class HiveExtractor(BaseExtractor):
                         table_schema=table_schema,
                     )
             dataset.schema = dataset_schema
+
+            if materialization in {
+                MaterializationType.TABLE,
+                MaterializationType.MATERIALIZED_VIEW,
+            }:
+                dataset.statistics = self._extract_table_stats(database, table, fields)
             return dataset
+
+    @staticmethod
+    def _is_numeric_field(field: SchemaField) -> bool:
+        return (
+            field.native_type is not None and field.native_type.upper() in NUMERIC_TYPES
+        )
+
+    def _extract_field_stats(  # noqa C091
+        self,
+        database: str,
+        table: str,
+        field: SchemaField,
+    ) -> FieldStatistics:
+        with self._connection.cursor() as cursor:
+            raw_field_statistics: Dict[str, Any] = {
+                "fieldPath": field.field_path,
+            }
+
+            chosen_stats: Dict[str, str] = {}
+            if self._config.column_statistics.null_count:
+                chosen_stats["num_nulls"] = "nullValueCount"
+            if self._config.column_statistics.min_value:
+                chosen_stats["min"] = "minValue"
+            if self._config.column_statistics.max_value:
+                chosen_stats["max"] = "maxValue"
+            if self._config.column_statistics.unique_count:
+                chosen_stats["distinct_count"] = "distinctValueCount"
+
+            if chosen_stats:
+                # Gotta extract column stats calculated by Hive
+                cursor.execute(
+                    f"describe formatted {database}.{table} {field.field_path}"
+                )
+                for row in cursor:
+                    field_stats_key = chosen_stats.get(row[0])
+                    if field_stats_key:
+                        try:
+                            raw_field_statistics[field_stats_key] = float(row[1])
+                        except Exception:
+                            if HiveExtractor._is_numeric_field(field):
+                                logger.warning(
+                                    f"Cannot find {field_stats_key} for field {field.field_path}"
+                                )
+
+            def _calculate_by_hand(function: str) -> Optional[float]:
+                try:
+                    cursor.execute(
+                        f"select {function}({field.field_path}) from {database}.{table}"
+                    )
+                    return float(next(cursor)[0])
+                except Exception:
+                    logger.exception(
+                        f"Cannot calculate {function} for field {field.field_path}"
+                    )
+                    return None
+
+            if field.native_type and field.native_type.upper() in NUMERIC_TYPES:
+                if self._config.column_statistics.avg_value:
+                    raw_field_statistics["average"] = _calculate_by_hand("avg")
+                if self._config.column_statistics.std_dev:
+                    raw_field_statistics["stdDev"] = _calculate_by_hand("std")
+
+            return FieldStatistics.from_dict(raw_field_statistics)
+
+    def _extract_table_stats(
+        self, database: str, table: str, fields: List[SchemaField]
+    ):
+        with self._connection.cursor() as cursor:
+            statement = f"analyze table {database}.{table} compute statistics"
+            if self._config.column_statistics.should_calculate:
+                statement += " for columns"
+            cursor.execute(statement)
+            cursor.execute(f"describe formatted {database}.{table}")
+            raw_table_stats = list(cursor)
+            table_size = next(
+                (
+                    float(str(r[-1]).strip())
+                    for r in raw_table_stats
+                    if r[1] and "totalSize" in r[1]
+                ),
+                None,
+            )
+            num_rows = next(
+                (
+                    float(str(r[-1]).strip())
+                    for r in raw_table_stats
+                    if r[1] and "numRows" in r[1]
+                ),
+                None,
+            )
+            dataset_statistics = DatasetStatistics(
+                data_size_bytes=table_size,
+                record_count=num_rows,
+            )
+
+            field_statistics = None
+            if self._config.column_statistics.should_calculate:
+                field_statistics = [
+                    self._extract_field_stats(database, table, field)
+                    for field in fields
+                ]
+
+            dataset_statistics.field_statistics = field_statistics
+            return dataset_statistics
 
     def _extract_database(self, database: str) -> List[Dataset]:
         with self._connection.cursor() as cursor:
