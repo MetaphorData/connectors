@@ -15,22 +15,19 @@ Create a YAML config file based on the following template.
 ```yaml
 host: <host>
 port: <port>
+auth_user: <auth user for hiveserver>
+password: <password for the auth user>
 
 output:
   file:
     directory: <output_directory>
 ```
 
+For testing environments there could be no authentication. In that case, do not set `auth_user` and `password`
+
 See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
-
-#### Authenticated User
-
-```yaml
-auth_user: <auth user for hiveserver>
-password: <password for the auth user>
-```
 
 #### Collecting Table and Column Statistics
 
