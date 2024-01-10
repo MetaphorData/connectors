@@ -26,10 +26,17 @@ class DbtAdminAPIClient:
     See https://docs.getdbt.com/dbt-cloud/api-v2 for more details.
     """
 
-    def __init__(self, base_url: str, account_id: int, service_token: str):
+    def __init__(
+        self,
+        base_url: str,
+        account_id: int,
+        service_token: str,
+        included_env_ids: Set[int] = set(),
+    ):
         self.admin_api_base_url = f"{base_url}/api/v2"
         self.account_id = account_id
         self.service_token = service_token
+        self.included_env_ids = included_env_ids
 
     def _get(self, path: str, params: Optional[Dict] = None):
         url = f"{self.admin_api_base_url}/accounts/{self.account_id}/{path}"
@@ -70,6 +77,15 @@ class DbtAdminAPIClient:
 
             jobs |= new_jobs
             offset += page_size
+
+    def is_job_included(self, job_id: int) -> bool:
+        if len(self.included_env_ids) == 0:
+            # No excluded environment, just return True
+            return True
+
+        resp = self._get(f"jobs/{job_id}")
+        data = resp.get("data")
+        return int(data.get("environment_id", -1)) in self.included_env_ids
 
     def get_last_successful_run(self, job_id: int) -> DbtRun:
         """Get the run ID of the last successful run for a job"""

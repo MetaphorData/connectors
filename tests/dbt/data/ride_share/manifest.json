@@ -2,8 +2,8 @@
   "metadata": {
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v11.json",
     "dbt_version": "1.7.3",
-    "generated_at": "2024-01-03T08:48:41.340530Z",
-    "invocation_id": "b8a6486e-9e79-4f2f-b7a1-432b2fe8d198",
+    "generated_at": "2024-01-09T08:21:52.625121Z",
+    "invocation_id": "4c002312-d619-45e7-9208-49e8751dc20e",
     "env": {},
     "project_name": "london_bike_analysis",
     "project_id": "93e9f03e91c8b3ac4a3bded8659f996c",
@@ -75,7 +75,7 @@
         "node_color": null
       },
       "patch_path": null,
-      "build_path": null,
+      "build_path": "target/run/london_bike_analysis/models/rides/rides_by_month_2017.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -84,7 +84,7 @@
         },
         "materialized": "table"
       },
-      "created_at": 1704271433.804221,
+      "created_at": 1704787952.617712,
       "relation_name": "DEMO_DB.METAPHOR.rides_by_month_2017",
       "raw_code": "WITH stations AS (\r\n\r\n    SELECT *\r\n    FROM {{ ref('raw_bike_stations') }}\r\n\r\n),\r\n\r\nrides AS (\r\n\r\n    SELECT *\r\n    FROM {{ ref('cleaned_bike_rides') }}\r\n\r\n),\r\n\r\nstart_stat_join AS (\r\n\r\n    SELECT rides.*\r\n    , stations.bikes_count as start_station_bikes_count\r\n    , stations.docks_count as start_station_docks_count\r\n    , stations.install_date as start_station_install_date\r\n    FROM rides\r\n    LEFT JOIN stations\r\n    ON rides.start_station_id = stations.id\r\n)\r\n\r\nSELECT \r\n    total_minutes \r\n    , total_bike_hires \r\n    , average_duration \r\n    , month \r\n    , start_peak_travel\r\n    , same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , start_station_bikes_count \r\n    , start_station_docks_count \r\n    , start_station_install_date \r\n    , end_station_id\r\n    , end_station_name\r\n    , stations.bikes_count as end_station_bikes_count\r\n    , stations.docks_count as end_station_docks_count\r\n    , stations.install_date as end_station_install_date\r\nFROM start_stat_join\r\nLEFT JOIN stations\r\nON start_stat_join.end_station_id = stations.id",
       "language": "sql",
@@ -109,7 +109,11 @@
           "model.london_bike_analysis.cleaned_bike_rides"
         ]
       },
-      "compiled_path": null,
+      "compiled_path": "target/compiled/london_bike_analysis/models/rides/rides_by_month_2017.sql",
+      "compiled": true,
+      "compiled_code": "WITH stations AS (\n\n    SELECT *\n    FROM DEMO_DB.METAPHOR.raw_bike_stations\n\n),\n\nrides AS (\n\n    SELECT *\n    FROM DEMO_DB.METAPHOR.cleaned_bike_rides\n\n),\n\nstart_stat_join AS (\n\n    SELECT rides.*\n    , stations.bikes_count as start_station_bikes_count\n    , stations.docks_count as start_station_docks_count\n    , stations.install_date as start_station_install_date\n    FROM rides\n    LEFT JOIN stations\n    ON rides.start_station_id = stations.id\n)\n\nSELECT \n    total_minutes \n    , total_bike_hires \n    , average_duration \n    , month \n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count \n    , start_station_docks_count \n    , start_station_install_date \n    , end_station_id\n    , end_station_name\n    , stations.bikes_count as end_station_bikes_count\n    , stations.docks_count as end_station_docks_count\n    , stations.install_date as end_station_install_date\nFROM start_stat_join\nLEFT JOIN stations\nON start_stat_join.end_station_id = stations.id",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
       "contract": {
         "enforced": false,
         "alias_types": true,
@@ -239,7 +243,7 @@
         "node_color": null
       },
       "patch_path": "london_bike_analysis://models/rides/schema.yml",
-      "build_path": null,
+      "build_path": "target/run/london_bike_analysis/models/rides/cleaned_bike_rides.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -248,7 +252,7 @@
         },
         "materialized": "table"
       },
-      "created_at": 1704271433.906326,
+      "created_at": 1704787952.8229089,
       "relation_name": "DEMO_DB.METAPHOR.cleaned_bike_rides",
       "raw_code": "-- Adding extra fields including if the bike was rented during peak time \r\nSELECT\r\n    SUM(duration_minutes) as total_minutes\r\n    , COUNT(rental_id) as total_bike_hires\r\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\r\n    , EXTRACT(month from start_date) as month\r\n    , CASE\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\r\n        ELSE 'Off-Peak'\r\n      END AS start_peak_travel\r\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_station_id\r\n    , end_station_name\r\nFROM {{ ref('raw_bike_hires') }}\r\nGROUP BY 4,5,6,7,8,9,10\r\nORDER BY total_minutes DESC",
       "language": "sql",
@@ -267,7 +271,11 @@
           "model.london_bike_analysis.raw_bike_hires"
         ]
       },
-      "compiled_path": null,
+      "compiled_path": "target/compiled/london_bike_analysis/models/rides/cleaned_bike_rides.sql",
+      "compiled": true,
+      "compiled_code": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration_minutes) as total_minutes\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM DEMO_DB.METAPHOR.raw_bike_hires\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_minutes DESC",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
       "contract": {
         "enforced": false,
         "alias_types": true,
@@ -342,7 +350,7 @@
         "node_color": null
       },
       "patch_path": null,
-      "build_path": null,
+      "build_path": "target/run/london_bike_analysis/models/rides/rides_by_month_start_station_2017.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -351,7 +359,7 @@
         },
         "materialized": "table"
       },
-      "created_at": 1704271433.814208,
+      "created_at": 1704787952.6297479,
       "relation_name": "DEMO_DB.METAPHOR.rides_by_month_start_station_2017",
       "raw_code": "SELECT \r\n    SUM(total_minutes) AS total_minutes\r\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\r\n    , SUM(total_bike_hires) AS total_bike_hires\r\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\r\n    , month\r\n    , start_peak_travel\r\n    , same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , start_station_bikes_count\r\n    , start_station_docks_count\r\n    , start_station_install_date\r\nFROM {{ ref('rides_by_month_2017') }}\r\nGROUP BY 5,6,7,8,9,10,11,12\r\nORDER BY total_bike_hires DESC",
       "language": "sql",
@@ -370,7 +378,11 @@
           "model.london_bike_analysis.rides_by_month_2017"
         ]
       },
-      "compiled_path": null,
+      "compiled_path": "target/compiled/london_bike_analysis/models/rides/rides_by_month_start_station_2017.sql",
+      "compiled": true,
+      "compiled_code": "SELECT \n    SUM(total_minutes) AS total_minutes\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\n    , SUM(total_bike_hires) AS total_bike_hires\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\n    , month\n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count\n    , start_station_docks_count\n    , start_station_install_date\nFROM DEMO_DB.METAPHOR.rides_by_month_2017\nGROUP BY 5,6,7,8,9,10,11,12\nORDER BY total_bike_hires DESC",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
       "contract": {
         "enforced": false,
         "alias_types": true,
@@ -445,7 +457,7 @@
         "node_color": null
       },
       "patch_path": "london_bike_analysis://models/rides/schema.yml",
-      "build_path": null,
+      "build_path": "target/run/london_bike_analysis/models/rides/raw_bike_hires.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -454,7 +466,7 @@
         },
         "materialized": "table"
       },
-      "created_at": 1704271433.904459,
+      "created_at": 1704787952.821089,
       "relation_name": "DEMO_DB.METAPHOR.raw_bike_hires",
       "raw_code": "SELECT \r\n    rental_id\r\n    , duration as duration_seconds\r\n    , duration / 60 as duration_minutes\r\n    , bike_id\r\n    , start_date\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_date\r\n    , end_station_id\r\n    , end_station_name\r\nFROM  {{ source('metaphor', 'cycle_hire') }}\r\nWHERE EXTRACT(year from start_date) = 2017",
       "language": "sql",
@@ -472,7 +484,11 @@
           "source.london_bike_analysis.metaphor.cycle_hire"
         ]
       },
-      "compiled_path": null,
+      "compiled_path": "target/compiled/london_bike_analysis/models/rides/raw_bike_hires.sql",
+      "compiled": true,
+      "compiled_code": "SELECT \n    rental_id\n    , duration as duration_seconds\n    , duration / 60 as duration_minutes\n    , bike_id\n    , start_date\n    , start_station_id\n    , start_station_name\n    , end_date\n    , end_station_id\n    , end_station_name\nFROM  DEMO_DB.metaphor.cycle_hire\nWHERE EXTRACT(year from start_date) = 2017",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
       "contract": {
         "enforced": false,
         "alias_types": true,
@@ -557,7 +573,7 @@
         "node_color": null
       },
       "patch_path": "london_bike_analysis://models/rides/schema.yml",
-      "build_path": null,
+      "build_path": "target/run/london_bike_analysis/models/rides/raw_bike_stations.sql",
       "deferred": false,
       "unrendered_config": {
         "persist_docs": {
@@ -566,7 +582,7 @@
         },
         "materialized": "table"
       },
-      "created_at": 1704271433.9049652,
+      "created_at": 1704787952.8216069,
       "relation_name": "DEMO_DB.METAPHOR.raw_bike_stations",
       "raw_code": "SELECT \r\n    id\r\n    , name as station_name\r\n    , bikes_count\r\n    , docks_count\r\n    , install_date\r\n    , removal_date\r\nFROM  {{ source('metaphor', 'cycle_stations') }}\r\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
       "language": "sql",
@@ -584,7 +600,11 @@
           "source.london_bike_analysis.metaphor.cycle_stations"
         ]
       },
-      "compiled_path": null,
+      "compiled_path": "target/compiled/london_bike_analysis/models/rides/raw_bike_stations.sql",
+      "compiled": true,
+      "compiled_code": "SELECT \n    id\n    , name as station_name\n    , bikes_count\n    , docks_count\n    , install_date\n    , removal_date\nFROM  DEMO_DB.metaphor.cycle_stations\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
+      "extra_ctes_injected": true,
+      "extra_ctes": [],
       "contract": {
         "enforced": false,
         "alias_types": true,
@@ -595,6 +615,109 @@
       "version": null,
       "latest_version": null,
       "deprecation_date": null
+    },
+    "snapshot.london_bike_analysis.cycle_hire_snapshot": {
+      "database": "DEMO_DB",
+      "schema": "snapshots",
+      "name": "cycle_hire_snapshot",
+      "resource_type": "snapshot",
+      "package_name": "london_bike_analysis",
+      "path": "cycle_hire_snapshot.sql",
+      "original_file_path": "snapshots/cycle_hire_snapshot.sql",
+      "unique_id": "snapshot.london_bike_analysis.cycle_hire_snapshot",
+      "fqn": [
+        "london_bike_analysis",
+        "cycle_hire_snapshot",
+        "cycle_hire_snapshot"
+      ],
+      "alias": "cycle_hire_snapshot",
+      "checksum": {
+        "name": "sha256",
+        "checksum": "a95c9aa891d51df00c3efa78644a5f81cabf6018573d63e253fdeec87744282c"
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": null,
+        "database": null,
+        "tags": [],
+        "meta": {},
+        "group": null,
+        "materialized": "snapshot",
+        "incremental_strategy": null,
+        "persist_docs": {},
+        "post-hook": [],
+        "pre-hook": [],
+        "quoting": {},
+        "column_types": {},
+        "full_refresh": null,
+        "unique_key": "bike_id",
+        "on_schema_change": "ignore",
+        "on_configuration_change": "apply",
+        "grants": {},
+        "packages": [],
+        "docs": {
+          "show": true,
+          "node_color": null
+        },
+        "contract": {
+          "enforced": false,
+          "alias_types": true
+        },
+        "strategy": "check",
+        "target_schema": "snapshots",
+        "target_database": null,
+        "updated_at": null,
+        "check_cols": [
+          "start_date",
+          "end_date"
+        ]
+      },
+      "tags": [],
+      "description": "",
+      "columns": {},
+      "meta": {},
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": null,
+      "build_path": null,
+      "deferred": false,
+      "unrendered_config": {
+        "target_schema": "snapshots",
+        "strategy": "check",
+        "unique_key": "bike_id",
+        "check_cols": [
+          "start_date",
+          "end_date"
+        ]
+      },
+      "created_at": 1704787952.682708,
+      "relation_name": "DEMO_DB.snapshots.cycle_hire_snapshot",
+      "raw_code": "\n{{\n    config(\n      target_schema='snapshots',\n      strategy='check',\n      unique_key='bike_id',\n      check_cols=['start_date', 'end_date']\n    )\n}}\n\nselect * from {{ source('metaphor', 'cycle_hire') }}\n",
+      "language": "sql",
+      "refs": [],
+      "sources": [
+        [
+          "metaphor",
+          "cycle_hire"
+        ]
+      ],
+      "metrics": [],
+      "depends_on": {
+        "macros": [],
+        "nodes": [
+          "source.london_bike_analysis.metaphor.cycle_hire"
+        ]
+      },
+      "compiled_path": null,
+      "contract": {
+        "enforced": false,
+        "alias_types": true,
+        "checksum": null
+      }
     },
     "test.london_bike_analysis.dbt_utils_fewer_rows_than_raw_bike_hires_ref_raw_bike_stations_.ffa7ccfb39": {
       "test_metadata": {
@@ -657,7 +780,7 @@
         "fail_calc": "coalesce(row_count_delta, 0)",
         "severity": "warn"
       },
-      "created_at": 1704271433.9391801,
+      "created_at": 1704787952.8551412,
       "relation_name": null,
       "raw_code": "{{ dbt_utils.test_fewer_rows_than(**_dbt_generic_test_kwargs) }}{{ config(severity=\"warn\") }}",
       "language": "sql",
@@ -753,7 +876,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1704271433.94529,
+      "created_at": 1704787952.861666,
       "relation_name": null,
       "raw_code": "{{ test_not_null(**_dbt_generic_test_kwargs) }}",
       "language": "sql",
@@ -842,7 +965,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1704271433.946377,
+      "created_at": 1704787952.862758,
       "relation_name": null,
       "raw_code": "{{ dbt_utils.test_at_least_one(**_dbt_generic_test_kwargs) }}",
       "language": "sql",
@@ -932,7 +1055,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1704271433.950009,
+      "created_at": 1704787952.8663921,
       "relation_name": null,
       "raw_code": "{{ test_not_null(**_dbt_generic_test_kwargs) }}",
       "language": "sql",
@@ -1021,7 +1144,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1704271433.951076,
+      "created_at": 1704787952.867456,
       "relation_name": null,
       "raw_code": "{{ dbt_utils.test_at_least_one(**_dbt_generic_test_kwargs) }}",
       "language": "sql",
@@ -1111,7 +1234,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1704271433.953538,
+      "created_at": 1704787952.869914,
       "relation_name": null,
       "raw_code": "{{ test_not_null(**_dbt_generic_test_kwargs) }}",
       "language": "sql",
@@ -1200,7 +1323,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1704271433.95462,
+      "created_at": 1704787952.870974,
       "relation_name": null,
       "raw_code": "{{ dbt_utils.test_at_least_one(**_dbt_generic_test_kwargs) }}",
       "language": "sql",
@@ -1297,7 +1420,7 @@
       "unrendered_config": {
         "alias": "accepted_values_cleaned_bike_r_9be401068e6aa322e17682a1024b6feb"
       },
-      "created_at": 1704271433.957087,
+      "created_at": 1704787952.873431,
       "relation_name": null,
       "raw_code": "{{ test_accepted_values(**_dbt_generic_test_kwargs) }}{{ config(alias=\"accepted_values_cleaned_bike_r_9be401068e6aa322e17682a1024b6feb\") }}",
       "language": "sql",
@@ -1387,7 +1510,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1704271433.961942,
+      "created_at": 1704787952.878273,
       "relation_name": null,
       "raw_code": "{{ test_not_null(**_dbt_generic_test_kwargs) }}",
       "language": "sql",
@@ -1476,7 +1599,7 @@
       "build_path": null,
       "deferred": false,
       "unrendered_config": {},
-      "created_at": 1704271433.963022,
+      "created_at": 1704787952.879349,
       "relation_name": null,
       "raw_code": "{{ test_not_null(**_dbt_generic_test_kwargs) }}",
       "language": "sql",
@@ -1507,24 +1630,24 @@
       "file_key_name": "models.cleaned_bike_rides",
       "attached_node": "model.london_bike_analysis.cleaned_bike_rides"
     },
-    "snapshot.london_bike_analysis.cycle_hire_snapshot": {
+    "model.london_bike_analysis.cleaned_bike_rides_from_snapshot": {
       "database": "DEMO_DB",
-      "schema": "snapshots",
-      "name": "cycle_hire_snapshot",
-      "resource_type": "snapshot",
+      "schema": "METAPHOR",
+      "name": "cleaned_bike_rides_from_snapshot",
+      "resource_type": "model",
       "package_name": "london_bike_analysis",
-      "path": "cycle_hire_snapshot.sql",
-      "original_file_path": "snapshots/cycle_hire_snapshot.sql",
-      "unique_id": "snapshot.london_bike_analysis.cycle_hire_snapshot",
+      "path": "rides/cleaned_bike_rides_from_snapshot.sql",
+      "original_file_path": "models/rides/cleaned_bike_rides_from_snapshot.sql",
+      "unique_id": "model.london_bike_analysis.cleaned_bike_rides_from_snapshot",
       "fqn": [
         "london_bike_analysis",
-        "cycle_hire_snapshot",
-        "cycle_hire_snapshot"
+        "rides",
+        "cleaned_bike_rides_from_snapshot"
       ],
-      "alias": "cycle_hire_snapshot",
+      "alias": "cleaned_bike_rides_from_snapshot",
       "checksum": {
         "name": "sha256",
-        "checksum": "a95c9aa891d51df00c3efa78644a5f81cabf6018573d63e253fdeec87744282c"
+        "checksum": "b0bcd7b04003e507997938f8fd62211d783a425b0dec21b040ccd980e760de3f"
       },
       "config": {
         "enabled": true,
@@ -1534,15 +1657,18 @@
         "tags": [],
         "meta": {},
         "group": null,
-        "materialized": "snapshot",
+        "materialized": "table",
         "incremental_strategy": null,
-        "persist_docs": {},
+        "persist_docs": {
+          "relation": true,
+          "columns": true
+        },
         "post-hook": [],
         "pre-hook": [],
         "quoting": {},
         "column_types": {},
         "full_refresh": null,
-        "unique_key": "bike_id",
+        "unique_key": null,
         "on_schema_change": "ignore",
         "on_configuration_change": "apply",
         "grants": {},
@@ -1555,14 +1681,7 @@
           "enforced": false,
           "alias_types": true
         },
-        "strategy": "check",
-        "target_schema": "snapshots",
-        "target_database": null,
-        "updated_at": null,
-        "check_cols": [
-          "start_date",
-          "end_date"
-        ]
+        "access": "protected"
       },
       "tags": [],
       "description": "",
@@ -1574,45 +1693,49 @@
         "node_color": null
       },
       "patch_path": null,
-      "build_path": "target/run/london_bike_analysis/snapshots/cycle_hire_snapshot.sql",
+      "build_path": "target/run/london_bike_analysis/models/rides/cleaned_bike_rides_from_snapshot.sql",
       "deferred": false,
       "unrendered_config": {
-        "target_schema": "snapshots",
-        "strategy": "check",
-        "unique_key": "bike_id",
-        "check_cols": [
-          "start_date",
-          "end_date"
-        ]
+        "persist_docs": {
+          "relation": true,
+          "columns": true
+        },
+        "materialized": "table"
       },
-      "created_at": 1704271721.422143,
-      "relation_name": "DEMO_DB.snapshots.cycle_hire_snapshot",
-      "raw_code": "\n{{\n    config(\n      target_schema='snapshots',\n      strategy='check',\n      unique_key='bike_id',\n      check_cols=['start_date', 'end_date']\n    )\n}}\n\nselect * from {{ source('metaphor', 'cycle_hire') }}\n",
+      "created_at": 1704788512.7159529,
+      "relation_name": "DEMO_DB.METAPHOR.cleaned_bike_rides_from_snapshot",
+      "raw_code": "-- Adding extra fields including if the bike was rented during peak time \r\nSELECT\r\n    SUM(duration) as total_seconds\r\n    , COUNT(rental_id) as total_bike_hires\r\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\r\n    , EXTRACT(month from start_date) as month\r\n    , CASE\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\r\n        ELSE 'Off-Peak'\r\n      END AS start_peak_travel\r\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_station_id\r\n    , end_station_name\r\nFROM {{ ref('cycle_hire_snapshot') }}\r\nGROUP BY 4,5,6,7,8,9,10\r\nORDER BY total_seconds DESC",
       "language": "sql",
-      "refs": [],
-      "sources": [
-        [
-          "metaphor",
-          "cycle_hire"
-        ]
+      "refs": [
+        {
+          "name": "cycle_hire_snapshot",
+          "package": null,
+          "version": null
+        }
       ],
+      "sources": [],
       "metrics": [],
       "depends_on": {
         "macros": [],
         "nodes": [
-          "source.london_bike_analysis.metaphor.cycle_hire"
+          "snapshot.london_bike_analysis.cycle_hire_snapshot"
         ]
       },
-      "compiled_path": null,
+      "compiled_path": "target/compiled/london_bike_analysis/models/rides/cleaned_bike_rides_from_snapshot.sql",
       "compiled": true,
-      "compiled_code": "\n\n\nselect * from DEMO_DB.metaphor.cycle_hire",
+      "compiled_code": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration) as total_seconds\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM DEMO_DB.snapshots.cycle_hire_snapshot\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_seconds DESC",
       "extra_ctes_injected": true,
       "extra_ctes": [],
       "contract": {
         "enforced": false,
         "alias_types": true,
         "checksum": null
-      }
+      },
+      "access": "protected",
+      "constraints": [],
+      "version": null,
+      "latest_version": null,
+      "deprecation_date": null
     }
   },
   "sources": {
@@ -1774,7 +1897,7 @@
       "patch_path": null,
       "unrendered_config": {},
       "relation_name": "DEMO_DB.metaphor.cycle_hire",
-      "created_at": 1704271434.0023801
+      "created_at": 1704787952.918292
     },
     "source.london_bike_analysis.metaphor.cycle_stations": {
       "database": "DEMO_DB",
@@ -1943,7 +2066,7 @@
       "patch_path": null,
       "unrendered_config": {},
       "relation_name": "DEMO_DB.metaphor.cycle_stations",
-      "created_at": 1704271434.002496
+      "created_at": 1704787952.9184132
     }
   },
   "macros": {
@@ -1972,7 +2095,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.128869,
+      "created_at": 1704787951.941015,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_catalog_relations": {
@@ -2000,7 +2123,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1292968,
+      "created_at": 1704787951.9414132,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_catalog_tables_sql": {
@@ -2022,7 +2145,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.129487,
+      "created_at": 1704787951.941608,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_catalog_columns_sql": {
@@ -2044,7 +2167,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.129619,
+      "created_at": 1704787951.94173,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_catalog_results_sql": {
@@ -2066,7 +2189,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.129707,
+      "created_at": 1704787951.941813,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_catalog_schemas_where_clause_sql": {
@@ -2088,7 +2211,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.129963,
+      "created_at": 1704787951.942049,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_catalog_relations_where_clause_sql": {
@@ -2110,7 +2233,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.130883,
+      "created_at": 1704787951.942901,
       "supported_languages": null
     },
     "macro.dbt_snowflake.get_column_comment_sql": {
@@ -2132,7 +2255,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.14094,
+      "created_at": 1704787951.952659,
       "supported_languages": null
     },
     "macro.dbt_snowflake.get_persist_docs_column_list": {
@@ -2156,7 +2279,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.141237,
+      "created_at": 1704787951.95295,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_columns_in_relation": {
@@ -2180,7 +2303,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.142022,
+      "created_at": 1704787951.953731,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__list_schemas": {
@@ -2204,7 +2327,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.14274,
+      "created_at": 1704787951.954392,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_paginated_relations_array": {
@@ -2228,7 +2351,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1438022,
+      "created_at": 1704787951.9554272,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__list_relations_without_caching": {
@@ -2253,7 +2376,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.144756,
+      "created_at": 1704787951.956339,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__check_schema_exists": {
@@ -2277,7 +2400,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1450791,
+      "created_at": 1704787951.9566562,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__alter_column_type": {
@@ -2301,7 +2424,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.145331,
+      "created_at": 1704787951.956908,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__alter_relation_comment": {
@@ -2323,7 +2446,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.145658,
+      "created_at": 1704787951.957237,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__alter_column_comment": {
@@ -2347,7 +2470,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1463091,
+      "created_at": 1704787951.957881,
       "supported_languages": null
     },
     "macro.dbt_snowflake.get_current_query_tag": {
@@ -2371,7 +2494,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1464908,
+      "created_at": 1704787951.958059,
       "supported_languages": null
     },
     "macro.dbt_snowflake.set_query_tag": {
@@ -2395,7 +2518,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.146652,
+      "created_at": 1704787951.95822,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__set_query_tag": {
@@ -2420,7 +2543,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1471272,
+      "created_at": 1704787951.958706,
       "supported_languages": null
     },
     "macro.dbt_snowflake.unset_query_tag": {
@@ -2444,7 +2567,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1473112,
+      "created_at": 1704787951.9588852,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__unset_query_tag": {
@@ -2468,7 +2591,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1477911,
+      "created_at": 1704787951.9593658,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__alter_relation_add_remove_columns": {
@@ -2492,7 +2615,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.148673,
+      "created_at": 1704787951.9602308,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake_dml_explicit_transaction": {
@@ -2514,7 +2637,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.148882,
+      "created_at": 1704787951.960445,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__truncate_relation": {
@@ -2539,7 +2662,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1491442,
+      "created_at": 1704787951.960681,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__copy_grants": {
@@ -2561,7 +2684,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1494248,
+      "created_at": 1704787951.9609542,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__support_multiple_grantees_per_dcl_statement": {
@@ -2583,7 +2706,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.149537,
+      "created_at": 1704787951.961061,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_relation_last_modified": {
@@ -2608,7 +2731,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.15022,
+      "created_at": 1704787951.9617448,
       "supported_languages": null
     },
     "macro.dbt_snowflake.materialization_test_snowflake": {
@@ -2634,7 +2757,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1505668,
+      "created_at": 1704787951.962083,
       "supported_languages": [
         "sql"
       ]
@@ -2662,7 +2785,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1519392,
+      "created_at": 1704787951.963427,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_delete_insert_merge_sql": {
@@ -2687,7 +2810,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.152318,
+      "created_at": 1704787951.9637928,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__snapshot_merge_sql": {
@@ -2712,7 +2835,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.152571,
+      "created_at": 1704787951.964045,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_incremental_append_sql": {
@@ -2737,7 +2860,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.152779,
+      "created_at": 1704787951.964247,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__load_csv_rows": {
@@ -2762,7 +2885,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1549282,
+      "created_at": 1704787951.966352,
       "supported_languages": null
     },
     "macro.dbt_snowflake.materialization_seed_snowflake": {
@@ -2788,7 +2911,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.155224,
+      "created_at": 1704787951.9666471,
       "supported_languages": [
         "sql"
       ]
@@ -2817,7 +2940,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.155754,
+      "created_at": 1704787951.9671721,
       "supported_languages": [
         "sql"
       ]
@@ -2851,7 +2974,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.157936,
+      "created_at": 1704787951.969356,
       "supported_languages": [
         "sql",
         "python"
@@ -2878,7 +3001,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.158428,
+      "created_at": 1704787951.9698439,
       "supported_languages": null
     },
     "macro.dbt_snowflake.py_script_comment": {
@@ -2900,7 +3023,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.158533,
+      "created_at": 1704787951.9699452,
       "supported_languages": null
     },
     "macro.dbt_snowflake.dbt_snowflake_get_tmp_relation_type": {
@@ -2922,7 +3045,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.161098,
+      "created_at": 1704787951.9723809,
       "supported_languages": null
     },
     "macro.dbt_snowflake.materialization_incremental_snowflake": {
@@ -2961,7 +3084,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.164447,
+      "created_at": 1704787951.97566,
       "supported_languages": [
         "sql",
         "python"
@@ -2988,7 +3111,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.164624,
+      "created_at": 1704787951.9758248,
       "supported_languages": null
     },
     "macro.dbt_snowflake.materialization_snapshot_snowflake": {
@@ -3014,7 +3137,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.164993,
+      "created_at": 1704787951.976171,
       "supported_languages": [
         "sql"
       ]
@@ -3046,7 +3169,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.168426,
+      "created_at": 1704787951.979604,
       "supported_languages": [
         "sql"
       ]
@@ -3076,7 +3199,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.169816,
+      "created_at": 1704787951.980884,
       "supported_languages": null
     },
     "macro.dbt_snowflake.dynamic_table_execute_no_op": {
@@ -3098,7 +3221,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.170045,
+      "created_at": 1704787951.98111,
       "supported_languages": null
     },
     "macro.dbt_snowflake.dynamic_table_execute_build_sql": {
@@ -3125,7 +3248,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1705248,
+      "created_at": 1704787951.981587,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_dynamic_table_configuration_changes": {
@@ -3149,7 +3272,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.170809,
+      "created_at": 1704787951.981858,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__can_clone_table": {
@@ -3171,7 +3294,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1710458,
+      "created_at": 1704787951.9820921,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__create_or_replace_clone": {
@@ -3193,7 +3316,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.171347,
+      "created_at": 1704787951.982371,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_drop_sql": {
@@ -3218,7 +3341,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.171674,
+      "created_at": 1704787951.9826822,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_replace_sql": {
@@ -3243,7 +3366,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1720672,
+      "created_at": 1704787951.9830668,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__rename_relation": {
@@ -3267,7 +3390,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.17231,
+      "created_at": 1704787951.983308,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_create_sql": {
@@ -3292,7 +3415,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1726441,
+      "created_at": 1704787951.983642,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_drop_table_sql": {
@@ -3314,7 +3437,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.172776,
+      "created_at": 1704787951.983775,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_replace_table_sql": {
@@ -3338,7 +3461,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.172962,
+      "created_at": 1704787951.983959,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_rename_table_sql": {
@@ -3360,7 +3483,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1731288,
+      "created_at": 1704787951.984124,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__create_table_as": {
@@ -3387,7 +3510,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1769972,
+      "created_at": 1704787951.988029,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_drop_view_sql": {
@@ -3409,7 +3532,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.177145,
+      "created_at": 1704787951.9881768,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_replace_view_sql": {
@@ -3433,7 +3556,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1773162,
+      "created_at": 1704787951.9883468,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_rename_view_sql": {
@@ -3455,7 +3578,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.177492,
+      "created_at": 1704787951.988508,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__create_view_as_with_temp_flag": {
@@ -3481,7 +3604,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.179196,
+      "created_at": 1704787951.990182,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__create_view_as": {
@@ -3505,7 +3628,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.179344,
+      "created_at": 1704787951.990328,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__create_or_replace_view": {
@@ -3535,7 +3658,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1804411,
+      "created_at": 1704787951.991412,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_drop_dynamic_table_sql": {
@@ -3557,7 +3680,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.180595,
+      "created_at": 1704787951.991551,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_replace_dynamic_table_sql": {
@@ -3581,7 +3704,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.180968,
+      "created_at": 1704787951.9919229,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__describe_dynamic_table": {
@@ -3605,7 +3728,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.181504,
+      "created_at": 1704787951.9924579,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__refresh_dynamic_table": {
@@ -3627,7 +3750,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1817012,
+      "created_at": 1704787951.99266,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_alter_dynamic_table_as_sql": {
@@ -3651,7 +3774,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.18275,
+      "created_at": 1704787951.993686,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__get_create_dynamic_table_as_sql": {
@@ -3673,7 +3796,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.183072,
+      "created_at": 1704787951.994003,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__current_timestamp": {
@@ -3695,7 +3818,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.18335,
+      "created_at": 1704787951.994278,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__snapshot_string_as_time": {
@@ -3717,7 +3840,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.183521,
+      "created_at": 1704787951.994449,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__snapshot_get_time": {
@@ -3741,7 +3864,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.183626,
+      "created_at": 1704787951.994555,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__current_timestamp_backcompat": {
@@ -3765,7 +3888,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.183727,
+      "created_at": 1704787951.994675,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__current_timestamp_in_utc_backcompat": {
@@ -3790,7 +3913,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.18386,
+      "created_at": 1704787951.9948092,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__escape_single_quotes": {
@@ -3812,7 +3935,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.184045,
+      "created_at": 1704787951.9949949,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__right": {
@@ -3834,7 +3957,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.184279,
+      "created_at": 1704787951.9952168,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__safe_cast": {
@@ -3856,7 +3979,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.184435,
+      "created_at": 1704787951.995372,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__bool_or": {
@@ -3878,7 +4001,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1846242,
+      "created_at": 1704787951.995553,
       "supported_languages": null
     },
     "macro.dbt_snowflake.snowflake__array_construct": {
@@ -3900,7 +4023,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.184792,
+      "created_at": 1704787951.995723,
       "supported_languages": null
     },
     "macro.dbt.run_hooks": {
@@ -3924,7 +4047,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.185834,
+      "created_at": 1704787951.9967518,
       "supported_languages": null
     },
     "macro.dbt.make_hook_config": {
@@ -3946,7 +4069,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.186041,
+      "created_at": 1704787951.996939,
       "supported_languages": null
     },
     "macro.dbt.before_begin": {
@@ -3970,7 +4093,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1861918,
+      "created_at": 1704787951.997082,
       "supported_languages": null
     },
     "macro.dbt.in_transaction": {
@@ -3994,7 +4117,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.186344,
+      "created_at": 1704787951.997222,
       "supported_languages": null
     },
     "macro.dbt.after_commit": {
@@ -4018,7 +4141,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.186482,
+      "created_at": 1704787951.997358,
       "supported_languages": null
     },
     "macro.dbt.set_sql_header": {
@@ -4040,7 +4163,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.186846,
+      "created_at": 1704787951.997708,
       "supported_languages": null
     },
     "macro.dbt.should_full_refresh": {
@@ -4062,7 +4185,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.187139,
+      "created_at": 1704787951.997998,
       "supported_languages": null
     },
     "macro.dbt.should_store_failures": {
@@ -4084,7 +4207,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1874392,
+      "created_at": 1704787951.998297,
       "supported_languages": null
     },
     "macro.dbt.snapshot_merge_sql": {
@@ -4108,7 +4231,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.187856,
+      "created_at": 1704787951.998713,
       "supported_languages": null
     },
     "macro.dbt.default__snapshot_merge_sql": {
@@ -4130,7 +4253,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.188121,
+      "created_at": 1704787951.998975,
       "supported_languages": null
     },
     "macro.dbt.strategy_dispatch": {
@@ -4152,7 +4275,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1915069,
+      "created_at": 1704787952.002356,
       "supported_languages": null
     },
     "macro.dbt.snapshot_hash_arguments": {
@@ -4176,7 +4299,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.191672,
+      "created_at": 1704787952.0025191,
       "supported_languages": null
     },
     "macro.dbt.default__snapshot_hash_arguments": {
@@ -4198,7 +4321,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1918862,
+      "created_at": 1704787952.002731,
       "supported_languages": null
     },
     "macro.dbt.snapshot_timestamp_strategy": {
@@ -4222,7 +4345,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.1926348,
+      "created_at": 1704787952.003478,
       "supported_languages": null
     },
     "macro.dbt.snapshot_string_as_time": {
@@ -4246,7 +4369,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.192799,
+      "created_at": 1704787952.0036402,
       "supported_languages": null
     },
     "macro.dbt.default__snapshot_string_as_time": {
@@ -4268,7 +4391,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.192966,
+      "created_at": 1704787952.0038059,
       "supported_languages": null
     },
     "macro.dbt.snapshot_check_all_get_existing_columns": {
@@ -4292,7 +4415,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.194346,
+      "created_at": 1704787952.005159,
       "supported_languages": null
     },
     "macro.dbt.snapshot_check_strategy": {
@@ -4319,7 +4442,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.195606,
+      "created_at": 1704787952.0064158,
       "supported_languages": null
     },
     "macro.dbt.create_columns": {
@@ -4343,7 +4466,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.199578,
+      "created_at": 1704787952.0103848,
       "supported_languages": null
     },
     "macro.dbt.default__create_columns": {
@@ -4367,7 +4490,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.199857,
+      "created_at": 1704787952.010658,
       "supported_languages": null
     },
     "macro.dbt.post_snapshot": {
@@ -4391,7 +4514,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.200026,
+      "created_at": 1704787952.0108202,
       "supported_languages": null
     },
     "macro.dbt.default__post_snapshot": {
@@ -4413,7 +4536,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2001102,
+      "created_at": 1704787952.0109131,
       "supported_languages": null
     },
     "macro.dbt.get_true_sql": {
@@ -4437,7 +4560,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2002509,
+      "created_at": 1704787952.0110562,
       "supported_languages": null
     },
     "macro.dbt.default__get_true_sql": {
@@ -4459,7 +4582,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.200366,
+      "created_at": 1704787952.011168,
       "supported_languages": null
     },
     "macro.dbt.snapshot_staging_table": {
@@ -4483,7 +4606,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.200568,
+      "created_at": 1704787952.0113878,
       "supported_languages": null
     },
     "macro.dbt.default__snapshot_staging_table": {
@@ -4507,7 +4630,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.201421,
+      "created_at": 1704787952.012244,
       "supported_languages": null
     },
     "macro.dbt.build_snapshot_table": {
@@ -4531,7 +4654,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.201622,
+      "created_at": 1704787952.0124311,
       "supported_languages": null
     },
     "macro.dbt.default__build_snapshot_table": {
@@ -4553,7 +4676,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2018719,
+      "created_at": 1704787952.012678,
       "supported_languages": null
     },
     "macro.dbt.build_snapshot_staging_table": {
@@ -4580,7 +4703,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.202291,
+      "created_at": 1704787952.013095,
       "supported_languages": null
     },
     "macro.dbt.materialization_snapshot_default": {
@@ -4617,7 +4740,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.208552,
+      "created_at": 1704787952.019259,
       "supported_languages": [
         "sql"
       ]
@@ -4646,7 +4769,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2112079,
+      "created_at": 1704787952.021877,
       "supported_languages": [
         "sql"
       ]
@@ -4672,7 +4795,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.211643,
+      "created_at": 1704787952.0223172,
       "supported_languages": null
     },
     "macro.dbt.default__get_test_sql": {
@@ -4694,7 +4817,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.211953,
+      "created_at": 1704787952.022623,
       "supported_languages": null
     },
     "macro.dbt.get_where_subquery": {
@@ -4718,7 +4841,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.212312,
+      "created_at": 1704787952.0229828,
       "supported_languages": null
     },
     "macro.dbt.default__get_where_subquery": {
@@ -4740,7 +4863,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2126799,
+      "created_at": 1704787952.023351,
       "supported_languages": null
     },
     "macro.dbt.materialization_materialized_view_default": {
@@ -4771,7 +4894,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.217487,
+      "created_at": 1704787952.028123,
       "supported_languages": [
         "sql"
       ]
@@ -4799,7 +4922,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.217864,
+      "created_at": 1704787952.0285,
       "supported_languages": null
     },
     "macro.dbt.materialized_view_teardown": {
@@ -4824,7 +4947,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.218108,
+      "created_at": 1704787952.028744,
       "supported_languages": null
     },
     "macro.dbt.materialized_view_get_build_sql": {
@@ -4853,7 +4976,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.219358,
+      "created_at": 1704787952.029984,
       "supported_languages": null
     },
     "macro.dbt.materialized_view_execute_no_op": {
@@ -4875,7 +4998,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.219585,
+      "created_at": 1704787952.030207,
       "supported_languages": null
     },
     "macro.dbt.materialized_view_execute_build_sql": {
@@ -4903,7 +5026,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.220224,
+      "created_at": 1704787952.030842,
       "supported_languages": null
     },
     "macro.dbt.materialization_view_default": {
@@ -4936,7 +5059,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.22306,
+      "created_at": 1704787952.03364,
       "supported_languages": [
         "sql"
       ]
@@ -4972,7 +5095,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2258089,
+      "created_at": 1704787952.036426,
       "supported_languages": [
         "sql"
       ]
@@ -4996,7 +5119,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.227345,
+      "created_at": 1704787952.03796,
       "supported_languages": null
     },
     "macro.dbt.diff_columns": {
@@ -5018,7 +5141,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.227901,
+      "created_at": 1704787952.0384881,
       "supported_languages": null
     },
     "macro.dbt.diff_column_data_types": {
@@ -5040,7 +5163,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.228549,
+      "created_at": 1704787952.039129,
       "supported_languages": null
     },
     "macro.dbt.get_merge_update_columns": {
@@ -5064,7 +5187,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2287822,
+      "created_at": 1704787952.0393531,
       "supported_languages": null
     },
     "macro.dbt.default__get_merge_update_columns": {
@@ -5086,7 +5209,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.229474,
+      "created_at": 1704787952.0400379,
       "supported_languages": null
     },
     "macro.dbt.get_merge_sql": {
@@ -5110,7 +5233,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2358022,
+      "created_at": 1704787952.046517,
       "supported_languages": null
     },
     "macro.dbt.default__get_merge_sql": {
@@ -5135,7 +5258,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.237375,
+      "created_at": 1704787952.048157,
       "supported_languages": null
     },
     "macro.dbt.get_delete_insert_merge_sql": {
@@ -5159,7 +5282,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2376351,
+      "created_at": 1704787952.048425,
       "supported_languages": null
     },
     "macro.dbt.default__get_delete_insert_merge_sql": {
@@ -5183,7 +5306,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.238629,
+      "created_at": 1704787952.04944,
       "supported_languages": null
     },
     "macro.dbt.get_insert_overwrite_merge_sql": {
@@ -5207,7 +5330,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.238893,
+      "created_at": 1704787952.049703,
       "supported_languages": null
     },
     "macro.dbt.default__get_insert_overwrite_merge_sql": {
@@ -5231,7 +5354,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.239532,
+      "created_at": 1704787952.050338,
       "supported_languages": null
     },
     "macro.dbt.is_incremental": {
@@ -5255,7 +5378,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2401679,
+      "created_at": 1704787952.050959,
       "supported_languages": null
     },
     "macro.dbt.get_incremental_append_sql": {
@@ -5279,7 +5402,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.241021,
+      "created_at": 1704787952.0518,
       "supported_languages": null
     },
     "macro.dbt.default__get_incremental_append_sql": {
@@ -5303,7 +5426,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2412632,
+      "created_at": 1704787952.0520372,
       "supported_languages": null
     },
     "macro.dbt.get_incremental_delete_insert_sql": {
@@ -5327,7 +5450,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2414458,
+      "created_at": 1704787952.0522199,
       "supported_languages": null
     },
     "macro.dbt.default__get_incremental_delete_insert_sql": {
@@ -5351,7 +5474,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2417479,
+      "created_at": 1704787952.0525088,
       "supported_languages": null
     },
     "macro.dbt.get_incremental_merge_sql": {
@@ -5375,7 +5498,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2419882,
+      "created_at": 1704787952.052753,
       "supported_languages": null
     },
     "macro.dbt.default__get_incremental_merge_sql": {
@@ -5399,7 +5522,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.242283,
+      "created_at": 1704787952.053045,
       "supported_languages": null
     },
     "macro.dbt.get_incremental_insert_overwrite_sql": {
@@ -5423,7 +5546,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2424629,
+      "created_at": 1704787952.053225,
       "supported_languages": null
     },
     "macro.dbt.default__get_incremental_insert_overwrite_sql": {
@@ -5447,7 +5570,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.242723,
+      "created_at": 1704787952.053483,
       "supported_languages": null
     },
     "macro.dbt.get_incremental_default_sql": {
@@ -5471,7 +5594,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.242903,
+      "created_at": 1704787952.053663,
       "supported_languages": null
     },
     "macro.dbt.default__get_incremental_default_sql": {
@@ -5495,7 +5618,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.243053,
+      "created_at": 1704787952.0538108,
       "supported_languages": null
     },
     "macro.dbt.get_insert_into_sql": {
@@ -5519,7 +5642,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2433221,
+      "created_at": 1704787952.054076,
       "supported_languages": null
     },
     "macro.dbt.materialization_incremental_default": {
@@ -5558,7 +5681,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.248189,
+      "created_at": 1704787952.058901,
       "supported_languages": [
         "sql"
       ]
@@ -5582,7 +5705,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2536142,
+      "created_at": 1704787952.0643892,
       "supported_languages": null
     },
     "macro.dbt.check_for_schema_changes": {
@@ -5607,7 +5730,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.254793,
+      "created_at": 1704787952.0655732,
       "supported_languages": null
     },
     "macro.dbt.sync_column_schemas": {
@@ -5632,7 +5755,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.255956,
+      "created_at": 1704787952.06673,
       "supported_languages": null
     },
     "macro.dbt.process_schema_changes": {
@@ -5657,7 +5780,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.256782,
+      "created_at": 1704787952.067561,
       "supported_languages": null
     },
     "macro.dbt.can_clone_table": {
@@ -5681,7 +5804,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.257014,
+      "created_at": 1704787952.067791,
       "supported_languages": null
     },
     "macro.dbt.default__can_clone_table": {
@@ -5703,7 +5826,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.25713,
+      "created_at": 1704787952.0679061,
       "supported_languages": null
     },
     "macro.dbt.create_or_replace_clone": {
@@ -5727,7 +5850,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2574131,
+      "created_at": 1704787952.068188,
       "supported_languages": null
     },
     "macro.dbt.default__create_or_replace_clone": {
@@ -5749,7 +5872,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2575412,
+      "created_at": 1704787952.068319,
       "supported_languages": null
     },
     "macro.dbt.materialization_clone_default": {
@@ -5780,7 +5903,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.261088,
+      "created_at": 1704787952.0718532,
       "supported_languages": [
         "sql"
       ]
@@ -5816,7 +5939,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.264212,
+      "created_at": 1704787952.074928,
       "supported_languages": [
         "sql"
       ]
@@ -5842,7 +5965,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.269088,
+      "created_at": 1704787952.079802,
       "supported_languages": null
     },
     "macro.dbt.default__create_csv_table": {
@@ -5866,7 +5989,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.269972,
+      "created_at": 1704787952.0806699,
       "supported_languages": null
     },
     "macro.dbt.reset_csv_table": {
@@ -5890,7 +6013,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2702022,
+      "created_at": 1704787952.080897,
       "supported_languages": null
     },
     "macro.dbt.default__reset_csv_table": {
@@ -5914,7 +6037,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.270679,
+      "created_at": 1704787952.081354,
       "supported_languages": null
     },
     "macro.dbt.get_csv_sql": {
@@ -5938,7 +6061,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2708669,
+      "created_at": 1704787952.08154,
       "supported_languages": null
     },
     "macro.dbt.default__get_csv_sql": {
@@ -5960,7 +6083,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.270997,
+      "created_at": 1704787952.0816681,
       "supported_languages": null
     },
     "macro.dbt.get_binding_char": {
@@ -5984,7 +6107,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.271133,
+      "created_at": 1704787952.081805,
       "supported_languages": null
     },
     "macro.dbt.default__get_binding_char": {
@@ -6006,7 +6129,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2712488,
+      "created_at": 1704787952.081915,
       "supported_languages": null
     },
     "macro.dbt.get_batch_size": {
@@ -6030,7 +6153,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.271408,
+      "created_at": 1704787952.082073,
       "supported_languages": null
     },
     "macro.dbt.default__get_batch_size": {
@@ -6052,7 +6175,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.271522,
+      "created_at": 1704787952.082197,
       "supported_languages": null
     },
     "macro.dbt.get_seed_column_quoted_csv": {
@@ -6074,7 +6197,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2719822,
+      "created_at": 1704787952.082658,
       "supported_languages": null
     },
     "macro.dbt.load_csv_rows": {
@@ -6098,7 +6221,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.272164,
+      "created_at": 1704787952.082836,
       "supported_languages": null
     },
     "macro.dbt.default__load_csv_rows": {
@@ -6124,7 +6247,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.273414,
+      "created_at": 1704787952.084071,
       "supported_languages": null
     },
     "macro.dbt.generate_alias_name": {
@@ -6148,7 +6271,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.273828,
+      "created_at": 1704787952.0844858,
       "supported_languages": null
     },
     "macro.dbt.default__generate_alias_name": {
@@ -6170,7 +6293,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.274204,
+      "created_at": 1704787952.0848489,
       "supported_languages": null
     },
     "macro.dbt.generate_schema_name": {
@@ -6194,7 +6317,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.274704,
+      "created_at": 1704787952.08536,
       "supported_languages": null
     },
     "macro.dbt.default__generate_schema_name": {
@@ -6216,7 +6339,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.274956,
+      "created_at": 1704787952.085609,
       "supported_languages": null
     },
     "macro.dbt.generate_schema_name_for_env": {
@@ -6238,7 +6361,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2752278,
+      "created_at": 1704787952.085883,
       "supported_languages": null
     },
     "macro.dbt.generate_database_name": {
@@ -6262,7 +6385,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.275609,
+      "created_at": 1704787952.086258,
       "supported_languages": null
     },
     "macro.dbt.default__generate_database_name": {
@@ -6284,7 +6407,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.275852,
+      "created_at": 1704787952.086498,
       "supported_languages": null
     },
     "macro.dbt.get_drop_sql": {
@@ -6308,7 +6431,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.27653,
+      "created_at": 1704787952.0871732,
       "supported_languages": null
     },
     "macro.dbt.default__get_drop_sql": {
@@ -6334,7 +6457,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.276891,
+      "created_at": 1704787952.0875351,
       "supported_languages": null
     },
     "macro.dbt.drop_relation": {
@@ -6358,7 +6481,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.277092,
+      "created_at": 1704787952.087716,
       "supported_languages": null
     },
     "macro.dbt.default__drop_relation": {
@@ -6383,7 +6506,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.277288,
+      "created_at": 1704787952.0879219,
       "supported_languages": null
     },
     "macro.dbt.drop_relation_if_exists": {
@@ -6405,7 +6528,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.27749,
+      "created_at": 1704787952.088106,
       "supported_languages": null
     },
     "macro.dbt.get_replace_sql": {
@@ -6429,7 +6552,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.278234,
+      "created_at": 1704787952.0888472,
       "supported_languages": null
     },
     "macro.dbt.default__get_replace_sql": {
@@ -6461,7 +6584,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.279619,
+      "created_at": 1704787952.090237,
       "supported_languages": null
     },
     "macro.dbt.get_create_intermediate_sql": {
@@ -6485,7 +6608,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.279985,
+      "created_at": 1704787952.090613,
       "supported_languages": null
     },
     "macro.dbt.default__get_create_intermediate_sql": {
@@ -6511,7 +6634,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2802281,
+      "created_at": 1704787952.0908532,
       "supported_languages": null
     },
     "macro.dbt.get_drop_backup_sql": {
@@ -6535,7 +6658,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.280532,
+      "created_at": 1704787952.091159,
       "supported_languages": null
     },
     "macro.dbt.default__get_drop_backup_sql": {
@@ -6560,7 +6683,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.280736,
+      "created_at": 1704787952.091373,
       "supported_languages": null
     },
     "macro.dbt.get_rename_sql": {
@@ -6584,7 +6707,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.281405,
+      "created_at": 1704787952.0920398,
       "supported_languages": null
     },
     "macro.dbt.default__get_rename_sql": {
@@ -6610,7 +6733,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2818282,
+      "created_at": 1704787952.092469,
       "supported_languages": null
     },
     "macro.dbt.rename_relation": {
@@ -6634,7 +6757,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2820292,
+      "created_at": 1704787952.092672,
       "supported_languages": null
     },
     "macro.dbt.default__rename_relation": {
@@ -6658,7 +6781,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.282308,
+      "created_at": 1704787952.0929458,
       "supported_languages": null
     },
     "macro.dbt.get_create_backup_sql": {
@@ -6682,7 +6805,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.282639,
+      "created_at": 1704787952.093292,
       "supported_languages": null
     },
     "macro.dbt.default__get_create_backup_sql": {
@@ -6708,7 +6831,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.282902,
+      "created_at": 1704787952.0935512,
       "supported_languages": null
     },
     "macro.dbt.get_create_sql": {
@@ -6732,7 +6855,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.283357,
+      "created_at": 1704787952.094,
       "supported_languages": null
     },
     "macro.dbt.default__get_create_sql": {
@@ -6758,7 +6881,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.283797,
+      "created_at": 1704787952.094432,
       "supported_languages": null
     },
     "macro.dbt.get_rename_intermediate_sql": {
@@ -6782,7 +6905,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2841291,
+      "created_at": 1704787952.094763,
       "supported_languages": null
     },
     "macro.dbt.default__get_rename_intermediate_sql": {
@@ -6807,7 +6930,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.284329,
+      "created_at": 1704787952.0949628,
       "supported_languages": null
     },
     "macro.dbt.drop_materialized_view": {
@@ -6831,7 +6954,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.284588,
+      "created_at": 1704787952.0952199,
       "supported_languages": null
     },
     "macro.dbt.default__drop_materialized_view": {
@@ -6853,7 +6976,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.284693,
+      "created_at": 1704787952.0953228,
       "supported_languages": null
     },
     "macro.dbt.get_replace_materialized_view_sql": {
@@ -6877,7 +7000,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.284956,
+      "created_at": 1704787952.095584,
       "supported_languages": null
     },
     "macro.dbt.default__get_replace_materialized_view_sql": {
@@ -6899,7 +7022,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2851,
+      "created_at": 1704787952.095724,
       "supported_languages": null
     },
     "macro.dbt.refresh_materialized_view": {
@@ -6923,7 +7046,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.285397,
+      "created_at": 1704787952.096019,
       "supported_languages": null
     },
     "macro.dbt.default__refresh_materialized_view": {
@@ -6945,7 +7068,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2855911,
+      "created_at": 1704787952.096205,
       "supported_languages": null
     },
     "macro.dbt.get_rename_materialized_view_sql": {
@@ -6969,7 +7092,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.285855,
+      "created_at": 1704787952.096467,
       "supported_languages": null
     },
     "macro.dbt.default__get_rename_materialized_view_sql": {
@@ -6991,7 +7114,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.285998,
+      "created_at": 1704787952.096608,
       "supported_languages": null
     },
     "macro.dbt.get_alter_materialized_view_as_sql": {
@@ -7015,7 +7138,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.286592,
+      "created_at": 1704787952.097193,
       "supported_languages": null
     },
     "macro.dbt.default__get_alter_materialized_view_as_sql": {
@@ -7037,7 +7160,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.286776,
+      "created_at": 1704787952.097377,
       "supported_languages": null
     },
     "macro.dbt.get_materialized_view_configuration_changes": {
@@ -7061,7 +7184,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.287049,
+      "created_at": 1704787952.097652,
       "supported_languages": null
     },
     "macro.dbt.default__get_materialized_view_configuration_changes": {
@@ -7083,7 +7206,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.287192,
+      "created_at": 1704787952.097793,
       "supported_languages": null
     },
     "macro.dbt.get_create_materialized_view_as_sql": {
@@ -7107,7 +7230,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.287456,
+      "created_at": 1704787952.098054,
       "supported_languages": null
     },
     "macro.dbt.default__get_create_materialized_view_as_sql": {
@@ -7129,7 +7252,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.287594,
+      "created_at": 1704787952.098189,
       "supported_languages": null
     },
     "macro.dbt.get_table_columns_and_constraints": {
@@ -7153,7 +7276,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2885618,
+      "created_at": 1704787952.099156,
       "supported_languages": null
     },
     "macro.dbt.default__get_table_columns_and_constraints": {
@@ -7177,7 +7300,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.288691,
+      "created_at": 1704787952.099272,
       "supported_languages": null
     },
     "macro.dbt.table_columns_and_constraints": {
@@ -7199,7 +7322,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.289216,
+      "created_at": 1704787952.0998,
       "supported_languages": null
     },
     "macro.dbt.get_assert_columns_equivalent": {
@@ -7223,7 +7346,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2893782,
+      "created_at": 1704787952.09996,
       "supported_languages": null
     },
     "macro.dbt.default__get_assert_columns_equivalent": {
@@ -7247,7 +7370,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.289509,
+      "created_at": 1704787952.100089,
       "supported_languages": null
     },
     "macro.dbt.assert_columns_equivalent": {
@@ -7273,7 +7396,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.290817,
+      "created_at": 1704787952.101402,
       "supported_languages": null
     },
     "macro.dbt.format_columns": {
@@ -7297,7 +7420,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.291192,
+      "created_at": 1704787952.101772,
       "supported_languages": null
     },
     "macro.dbt.default__format_column": {
@@ -7319,7 +7442,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2915251,
+      "created_at": 1704787952.1021068,
       "supported_languages": null
     },
     "macro.dbt.drop_table": {
@@ -7343,7 +7466,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.291782,
+      "created_at": 1704787952.1023622,
       "supported_languages": null
     },
     "macro.dbt.default__drop_table": {
@@ -7365,7 +7488,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.291887,
+      "created_at": 1704787952.102464,
       "supported_languages": null
     },
     "macro.dbt.get_replace_table_sql": {
@@ -7389,7 +7512,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.292149,
+      "created_at": 1704787952.102724,
       "supported_languages": null
     },
     "macro.dbt.default__get_replace_table_sql": {
@@ -7411,7 +7534,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2922912,
+      "created_at": 1704787952.1028638,
       "supported_languages": null
     },
     "macro.dbt.get_rename_table_sql": {
@@ -7435,7 +7558,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.292553,
+      "created_at": 1704787952.1031208,
       "supported_languages": null
     },
     "macro.dbt.default__get_rename_table_sql": {
@@ -7457,7 +7580,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.292696,
+      "created_at": 1704787952.103263,
       "supported_languages": null
     },
     "macro.dbt.get_create_table_as_sql": {
@@ -7481,7 +7604,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.293511,
+      "created_at": 1704787952.104074,
       "supported_languages": null
     },
     "macro.dbt.default__get_create_table_as_sql": {
@@ -7505,7 +7628,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2936919,
+      "created_at": 1704787952.104251,
       "supported_languages": null
     },
     "macro.dbt.create_table_as": {
@@ -7529,7 +7652,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.294119,
+      "created_at": 1704787952.104673,
       "supported_languages": null
     },
     "macro.dbt.default__create_table_as": {
@@ -7555,7 +7678,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2948108,
+      "created_at": 1704787952.1053388,
       "supported_languages": null
     },
     "macro.dbt.default__get_column_names": {
@@ -7577,7 +7700,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.295267,
+      "created_at": 1704787952.1057868,
       "supported_languages": null
     },
     "macro.dbt.get_select_subquery": {
@@ -7601,7 +7724,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.295458,
+      "created_at": 1704787952.1059682,
       "supported_languages": null
     },
     "macro.dbt.default__get_select_subquery": {
@@ -7625,7 +7748,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.295632,
+      "created_at": 1704787952.1061382,
       "supported_languages": null
     },
     "macro.dbt.drop_view": {
@@ -7649,7 +7772,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2958899,
+      "created_at": 1704787952.106389,
       "supported_languages": null
     },
     "macro.dbt.default__drop_view": {
@@ -7671,7 +7794,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.295993,
+      "created_at": 1704787952.1064918,
       "supported_languages": null
     },
     "macro.dbt.get_replace_view_sql": {
@@ -7695,7 +7818,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.296814,
+      "created_at": 1704787952.1072981,
       "supported_languages": null
     },
     "macro.dbt.default__get_replace_view_sql": {
@@ -7717,7 +7840,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.296959,
+      "created_at": 1704787952.107438,
       "supported_languages": null
     },
     "macro.dbt.create_or_replace_view": {
@@ -7747,7 +7870,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.298128,
+      "created_at": 1704787952.1085818,
       "supported_languages": null
     },
     "macro.dbt.handle_existing_table": {
@@ -7771,7 +7894,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.298323,
+      "created_at": 1704787952.108771,
       "supported_languages": null
     },
     "macro.dbt.default__handle_existing_table": {
@@ -7793,7 +7916,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2985432,
+      "created_at": 1704787952.1089852,
       "supported_languages": null
     },
     "macro.dbt.get_rename_view_sql": {
@@ -7817,7 +7940,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.2988071,
+      "created_at": 1704787952.1092439,
       "supported_languages": null
     },
     "macro.dbt.default__get_rename_view_sql": {
@@ -7839,7 +7962,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.298951,
+      "created_at": 1704787952.1093829,
       "supported_languages": null
     },
     "macro.dbt.get_create_view_as_sql": {
@@ -7863,7 +7986,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.299351,
+      "created_at": 1704787952.1097758,
       "supported_languages": null
     },
     "macro.dbt.default__get_create_view_as_sql": {
@@ -7887,7 +8010,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.299511,
+      "created_at": 1704787952.1099331,
       "supported_languages": null
     },
     "macro.dbt.create_view_as": {
@@ -7911,7 +8034,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.299685,
+      "created_at": 1704787952.110107,
       "supported_languages": null
     },
     "macro.dbt.default__create_view_as": {
@@ -7935,7 +8058,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.300094,
+      "created_at": 1704787952.110512,
       "supported_languages": null
     },
     "macro.dbt.default__test_relationships": {
@@ -7957,7 +8080,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3004391,
+      "created_at": 1704787952.110844,
       "supported_languages": null
     },
     "macro.dbt.default__test_not_null": {
@@ -7981,7 +8104,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3007329,
+      "created_at": 1704787952.11113,
       "supported_languages": null
     },
     "macro.dbt.default__test_unique": {
@@ -8003,7 +8126,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.300968,
+      "created_at": 1704787952.111382,
       "supported_languages": null
     },
     "macro.dbt.default__test_accepted_values": {
@@ -8025,7 +8148,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.301515,
+      "created_at": 1704787952.111925,
       "supported_languages": null
     },
     "macro.dbt.statement": {
@@ -8047,7 +8170,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.302921,
+      "created_at": 1704787952.11333,
       "supported_languages": null
     },
     "macro.dbt.noop_statement": {
@@ -8069,7 +8192,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3034828,
+      "created_at": 1704787952.113888,
       "supported_languages": null
     },
     "macro.dbt.run_query": {
@@ -8093,7 +8216,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3037682,
+      "created_at": 1704787952.114172,
       "supported_languages": null
     },
     "macro.dbt.convert_datetime": {
@@ -8115,7 +8238,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3055282,
+      "created_at": 1704787952.115937,
       "supported_languages": null
     },
     "macro.dbt.dates_in_range": {
@@ -8139,7 +8262,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.306742,
+      "created_at": 1704787952.1171541,
       "supported_languages": null
     },
     "macro.dbt.partition_range": {
@@ -8163,7 +8286,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.307474,
+      "created_at": 1704787952.117878,
       "supported_languages": null
     },
     "macro.dbt.py_current_timestring": {
@@ -8185,7 +8308,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.307704,
+      "created_at": 1704787952.1181061,
       "supported_languages": null
     },
     "macro.dbt.except": {
@@ -8209,7 +8332,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.307925,
+      "created_at": 1704787952.118325,
       "supported_languages": null
     },
     "macro.dbt.default__except": {
@@ -8231,7 +8354,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.308,
+      "created_at": 1704787952.118399,
       "supported_languages": null
     },
     "macro.dbt.get_intervals_between": {
@@ -8255,7 +8378,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.30878,
+      "created_at": 1704787952.119116,
       "supported_languages": null
     },
     "macro.dbt.default__get_intervals_between": {
@@ -8280,7 +8403,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.309354,
+      "created_at": 1704787952.11969,
       "supported_languages": null
     },
     "macro.dbt.date_spine": {
@@ -8304,7 +8427,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.30958,
+      "created_at": 1704787952.119915,
       "supported_languages": null
     },
     "macro.dbt.default__date_spine": {
@@ -8330,7 +8453,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.309941,
+      "created_at": 1704787952.1202738,
       "supported_languages": null
     },
     "macro.dbt.replace": {
@@ -8354,7 +8477,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.310258,
+      "created_at": 1704787952.1205912,
       "supported_languages": null
     },
     "macro.dbt.default__replace": {
@@ -8376,7 +8499,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3104188,
+      "created_at": 1704787952.120752,
       "supported_languages": null
     },
     "macro.dbt.concat": {
@@ -8400,7 +8523,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3106618,
+      "created_at": 1704787952.120987,
       "supported_languages": null
     },
     "macro.dbt.default__concat": {
@@ -8422,7 +8545,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3107898,
+      "created_at": 1704787952.1211038,
       "supported_languages": null
     },
     "macro.dbt.get_powers_of_two": {
@@ -8446,7 +8569,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.311594,
+      "created_at": 1704787952.1218922,
       "supported_languages": null
     },
     "macro.dbt.default__get_powers_of_two": {
@@ -8468,7 +8591,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.312017,
+      "created_at": 1704787952.1222951,
       "supported_languages": null
     },
     "macro.dbt.generate_series": {
@@ -8492,7 +8615,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3121989,
+      "created_at": 1704787952.122475,
       "supported_languages": null
     },
     "macro.dbt.default__generate_series": {
@@ -8516,7 +8639,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3127072,
+      "created_at": 1704787952.122977,
       "supported_languages": null
     },
     "macro.dbt.length": {
@@ -8540,7 +8663,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.312953,
+      "created_at": 1704787952.123221,
       "supported_languages": null
     },
     "macro.dbt.default__length": {
@@ -8562,7 +8685,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.313057,
+      "created_at": 1704787952.123323,
       "supported_languages": null
     },
     "macro.dbt.dateadd": {
@@ -8586,7 +8709,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.313386,
+      "created_at": 1704787952.123647,
       "supported_languages": null
     },
     "macro.dbt.default__dateadd": {
@@ -8608,7 +8731,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.313545,
+      "created_at": 1704787952.123808,
       "supported_languages": null
     },
     "macro.dbt.intersect": {
@@ -8632,7 +8755,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.313761,
+      "created_at": 1704787952.124022,
       "supported_languages": null
     },
     "macro.dbt.default__intersect": {
@@ -8654,7 +8777,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.313899,
+      "created_at": 1704787952.1241589,
       "supported_languages": null
     },
     "macro.dbt.escape_single_quotes": {
@@ -8678,7 +8801,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3141499,
+      "created_at": 1704787952.1244102,
       "supported_languages": null
     },
     "macro.dbt.default__escape_single_quotes": {
@@ -8700,7 +8823,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3142872,
+      "created_at": 1704787952.124545,
       "supported_languages": null
     },
     "macro.dbt.right": {
@@ -8724,7 +8847,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3145669,
+      "created_at": 1704787952.124824,
       "supported_languages": null
     },
     "macro.dbt.default__right": {
@@ -8746,7 +8869,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3147001,
+      "created_at": 1704787952.124956,
       "supported_languages": null
     },
     "macro.dbt.listagg": {
@@ -8770,7 +8893,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3153222,
+      "created_at": 1704787952.125569,
       "supported_languages": null
     },
     "macro.dbt.default__listagg": {
@@ -8792,7 +8915,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3157198,
+      "created_at": 1704787952.125962,
       "supported_languages": null
     },
     "macro.dbt.datediff": {
@@ -8816,7 +8939,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.316042,
+      "created_at": 1704787952.1262841,
       "supported_languages": null
     },
     "macro.dbt.default__datediff": {
@@ -8838,7 +8961,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.316202,
+      "created_at": 1704787952.126441,
       "supported_languages": null
     },
     "macro.dbt.safe_cast": {
@@ -8862,7 +8985,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3164759,
+      "created_at": 1704787952.126716,
       "supported_languages": null
     },
     "macro.dbt.default__safe_cast": {
@@ -8884,7 +9007,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.316612,
+      "created_at": 1704787952.126852,
       "supported_languages": null
     },
     "macro.dbt.hash": {
@@ -8908,7 +9031,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.316871,
+      "created_at": 1704787952.127098,
       "supported_languages": null
     },
     "macro.dbt.default__hash": {
@@ -8930,7 +9053,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.317027,
+      "created_at": 1704787952.1272562,
       "supported_languages": null
     },
     "macro.dbt.cast_bool_to_text": {
@@ -8954,7 +9077,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.317261,
+      "created_at": 1704787952.127489,
       "supported_languages": null
     },
     "macro.dbt.default__cast_bool_to_text": {
@@ -8976,7 +9099,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.317418,
+      "created_at": 1704787952.1276412,
       "supported_languages": null
     },
     "macro.dbt.any_value": {
@@ -9000,7 +9123,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.317665,
+      "created_at": 1704787952.127894,
       "supported_languages": null
     },
     "macro.dbt.default__any_value": {
@@ -9022,7 +9145,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3177679,
+      "created_at": 1704787952.128266,
       "supported_languages": null
     },
     "macro.dbt.position": {
@@ -9046,7 +9169,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.318044,
+      "created_at": 1704787952.128623,
       "supported_languages": null
     },
     "macro.dbt.default__position": {
@@ -9068,7 +9191,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.318182,
+      "created_at": 1704787952.128775,
       "supported_languages": null
     },
     "macro.dbt.string_literal": {
@@ -9092,7 +9215,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.318418,
+      "created_at": 1704787952.129044,
       "supported_languages": null
     },
     "macro.dbt.default__string_literal": {
@@ -9114,7 +9237,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3185742,
+      "created_at": 1704787952.129249,
       "supported_languages": null
     },
     "macro.dbt.type_string": {
@@ -9138,7 +9261,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3194728,
+      "created_at": 1704787952.130222,
       "supported_languages": null
     },
     "macro.dbt.default__type_string": {
@@ -9160,7 +9283,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3196218,
+      "created_at": 1704787952.130392,
       "supported_languages": null
     },
     "macro.dbt.type_timestamp": {
@@ -9184,7 +9307,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.319783,
+      "created_at": 1704787952.1305652,
       "supported_languages": null
     },
     "macro.dbt.default__type_timestamp": {
@@ -9206,7 +9329,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3199308,
+      "created_at": 1704787952.130729,
       "supported_languages": null
     },
     "macro.dbt.type_float": {
@@ -9230,7 +9353,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.32009,
+      "created_at": 1704787952.130904,
       "supported_languages": null
     },
     "macro.dbt.default__type_float": {
@@ -9252,7 +9375,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3202372,
+      "created_at": 1704787952.1310651,
       "supported_languages": null
     },
     "macro.dbt.type_numeric": {
@@ -9276,7 +9399,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.320398,
+      "created_at": 1704787952.131236,
       "supported_languages": null
     },
     "macro.dbt.default__type_numeric": {
@@ -9298,7 +9421,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.32058,
+      "created_at": 1704787952.131424,
       "supported_languages": null
     },
     "macro.dbt.type_bigint": {
@@ -9322,7 +9445,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.320738,
+      "created_at": 1704787952.131598,
       "supported_languages": null
     },
     "macro.dbt.default__type_bigint": {
@@ -9344,7 +9467,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.320889,
+      "created_at": 1704787952.131758,
       "supported_languages": null
     },
     "macro.dbt.type_int": {
@@ -9368,7 +9491,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.321045,
+      "created_at": 1704787952.131926,
       "supported_languages": null
     },
     "macro.dbt.default__type_int": {
@@ -9390,7 +9513,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.321186,
+      "created_at": 1704787952.132083,
       "supported_languages": null
     },
     "macro.dbt.type_boolean": {
@@ -9414,7 +9537,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.321343,
+      "created_at": 1704787952.132255,
       "supported_languages": null
     },
     "macro.dbt.default__type_boolean": {
@@ -9436,7 +9559,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.321484,
+      "created_at": 1704787952.132405,
       "supported_languages": null
     },
     "macro.dbt.array_concat": {
@@ -9460,7 +9583,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.321752,
+      "created_at": 1704787952.1327019,
       "supported_languages": null
     },
     "macro.dbt.default__array_concat": {
@@ -9482,7 +9605,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.321888,
+      "created_at": 1704787952.132842,
       "supported_languages": null
     },
     "macro.dbt.bool_or": {
@@ -9506,7 +9629,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3221262,
+      "created_at": 1704787952.133101,
       "supported_languages": null
     },
     "macro.dbt.default__bool_or": {
@@ -9528,7 +9651,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.322229,
+      "created_at": 1704787952.133211,
       "supported_languages": null
     },
     "macro.dbt.last_day": {
@@ -9552,7 +9675,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.322565,
+      "created_at": 1704787952.133572,
       "supported_languages": null
     },
     "macro.dbt.default_last_day": {
@@ -9577,7 +9700,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.322887,
+      "created_at": 1704787952.133926,
       "supported_languages": null
     },
     "macro.dbt.default__last_day": {
@@ -9601,7 +9724,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.323029,
+      "created_at": 1704787952.134089,
       "supported_languages": null
     },
     "macro.dbt.split_part": {
@@ -9625,7 +9748,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.323539,
+      "created_at": 1704787952.134659,
       "supported_languages": null
     },
     "macro.dbt.default__split_part": {
@@ -9647,7 +9770,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3236969,
+      "created_at": 1704787952.1348422,
       "supported_languages": null
     },
     "macro.dbt._split_part_negative": {
@@ -9669,7 +9792,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.32391,
+      "created_at": 1704787952.135071,
       "supported_languages": null
     },
     "macro.dbt.date_trunc": {
@@ -9693,7 +9816,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3241699,
+      "created_at": 1704787952.135354,
       "supported_languages": null
     },
     "macro.dbt.default__date_trunc": {
@@ -9715,7 +9838,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.324296,
+      "created_at": 1704787952.135487,
       "supported_languages": null
     },
     "macro.dbt.array_construct": {
@@ -9739,7 +9862,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.324658,
+      "created_at": 1704787952.135874,
       "supported_languages": null
     },
     "macro.dbt.default__array_construct": {
@@ -9761,7 +9884,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.324895,
+      "created_at": 1704787952.13613,
       "supported_languages": null
     },
     "macro.dbt.array_append": {
@@ -9785,7 +9908,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.325165,
+      "created_at": 1704787952.136419,
       "supported_languages": null
     },
     "macro.dbt.default__array_append": {
@@ -9807,7 +9930,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3252962,
+      "created_at": 1704787952.1365561,
       "supported_languages": null
     },
     "macro.dbt.create_schema": {
@@ -9831,7 +9954,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.325687,
+      "created_at": 1704787952.136936,
       "supported_languages": null
     },
     "macro.dbt.default__create_schema": {
@@ -9855,7 +9978,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.325866,
+      "created_at": 1704787952.137131,
       "supported_languages": null
     },
     "macro.dbt.drop_schema": {
@@ -9879,7 +10002,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.32602,
+      "created_at": 1704787952.137297,
       "supported_languages": null
     },
     "macro.dbt.default__drop_schema": {
@@ -9903,7 +10026,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.326199,
+      "created_at": 1704787952.1374872,
       "supported_languages": null
     },
     "macro.dbt.current_timestamp": {
@@ -9927,7 +10050,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3266602,
+      "created_at": 1704787952.137982,
       "supported_languages": null
     },
     "macro.dbt.default__current_timestamp": {
@@ -9949,7 +10072,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3268092,
+      "created_at": 1704787952.138145,
       "supported_languages": null
     },
     "macro.dbt.snapshot_get_time": {
@@ -9973,7 +10096,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.326947,
+      "created_at": 1704787952.138295,
       "supported_languages": null
     },
     "macro.dbt.default__snapshot_get_time": {
@@ -9997,7 +10120,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.327051,
+      "created_at": 1704787952.1384032,
       "supported_languages": null
     },
     "macro.dbt.current_timestamp_backcompat": {
@@ -10021,7 +10144,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3272152,
+      "created_at": 1704787952.138579,
       "supported_languages": null
     },
     "macro.dbt.default__current_timestamp_backcompat": {
@@ -10043,7 +10166,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.327289,
+      "created_at": 1704787952.138659,
       "supported_languages": null
     },
     "macro.dbt.current_timestamp_in_utc_backcompat": {
@@ -10067,7 +10190,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.327531,
+      "created_at": 1704787952.138908,
       "supported_languages": null
     },
     "macro.dbt.default__current_timestamp_in_utc_backcompat": {
@@ -10092,7 +10215,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.327693,
+      "created_at": 1704787952.1390789,
       "supported_languages": null
     },
     "macro.dbt.get_create_index_sql": {
@@ -10116,7 +10239,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.328494,
+      "created_at": 1704787952.139929,
       "supported_languages": null
     },
     "macro.dbt.default__get_create_index_sql": {
@@ -10138,7 +10261,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3286269,
+      "created_at": 1704787952.140073,
       "supported_languages": null
     },
     "macro.dbt.create_indexes": {
@@ -10162,7 +10285,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.32878,
+      "created_at": 1704787952.1402361,
       "supported_languages": null
     },
     "macro.dbt.default__create_indexes": {
@@ -10187,7 +10310,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.329178,
+      "created_at": 1704787952.140667,
       "supported_languages": null
     },
     "macro.dbt.get_drop_index_sql": {
@@ -10211,7 +10334,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.329362,
+      "created_at": 1704787952.140864,
       "supported_languages": null
     },
     "macro.dbt.default__get_drop_index_sql": {
@@ -10233,7 +10356,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.329495,
+      "created_at": 1704787952.141006,
       "supported_languages": null
     },
     "macro.dbt.get_show_indexes_sql": {
@@ -10257,7 +10380,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.329649,
+      "created_at": 1704787952.141174,
       "supported_languages": null
     },
     "macro.dbt.default__get_show_indexes_sql": {
@@ -10279,7 +10402,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.329771,
+      "created_at": 1704787952.141304,
       "supported_languages": null
     },
     "macro.dbt.make_intermediate_relation": {
@@ -10303,7 +10426,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.331702,
+      "created_at": 1704787952.143362,
       "supported_languages": null
     },
     "macro.dbt.default__make_intermediate_relation": {
@@ -10327,7 +10450,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.331862,
+      "created_at": 1704787952.1435351,
       "supported_languages": null
     },
     "macro.dbt.make_temp_relation": {
@@ -10351,7 +10474,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.332074,
+      "created_at": 1704787952.1437619,
       "supported_languages": null
     },
     "macro.dbt.default__make_temp_relation": {
@@ -10373,7 +10496,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.332355,
+      "created_at": 1704787952.144066,
       "supported_languages": null
     },
     "macro.dbt.make_backup_relation": {
@@ -10397,7 +10520,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.332591,
+      "created_at": 1704787952.144316,
       "supported_languages": null
     },
     "macro.dbt.default__make_backup_relation": {
@@ -10419,7 +10542,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3329,
+      "created_at": 1704787952.144644,
       "supported_languages": null
     },
     "macro.dbt.truncate_relation": {
@@ -10443,7 +10566,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.333075,
+      "created_at": 1704787952.1448379,
       "supported_languages": null
     },
     "macro.dbt.default__truncate_relation": {
@@ -10467,7 +10590,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.33323,
+      "created_at": 1704787952.1450088,
       "supported_languages": null
     },
     "macro.dbt.get_or_create_relation": {
@@ -10491,7 +10614,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3334668,
+      "created_at": 1704787952.1452658,
       "supported_languages": null
     },
     "macro.dbt.default__get_or_create_relation": {
@@ -10513,7 +10636,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.334063,
+      "created_at": 1704787952.145921,
       "supported_languages": null
     },
     "macro.dbt.load_cached_relation": {
@@ -10535,7 +10658,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3342872,
+      "created_at": 1704787952.146165,
       "supported_languages": null
     },
     "macro.dbt.load_relation": {
@@ -10559,7 +10682,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3344278,
+      "created_at": 1704787952.1475651,
       "supported_languages": null
     },
     "macro.dbt.collect_freshness": {
@@ -10583,7 +10706,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3348281,
+      "created_at": 1704787952.148119,
       "supported_languages": null
     },
     "macro.dbt.default__collect_freshness": {
@@ -10608,7 +10731,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.335229,
+      "created_at": 1704787952.148584,
       "supported_languages": null
     },
     "macro.dbt.validate_sql": {
@@ -10632,7 +10755,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.335499,
+      "created_at": 1704787952.14893,
       "supported_languages": null
     },
     "macro.dbt.default__validate_sql": {
@@ -10656,7 +10779,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3357172,
+      "created_at": 1704787952.149214,
       "supported_languages": null
     },
     "macro.dbt.copy_grants": {
@@ -10680,7 +10803,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3373592,
+      "created_at": 1704787952.151168,
       "supported_languages": null
     },
     "macro.dbt.default__copy_grants": {
@@ -10702,7 +10825,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.337475,
+      "created_at": 1704787952.151316,
       "supported_languages": null
     },
     "macro.dbt.support_multiple_grantees_per_dcl_statement": {
@@ -10726,7 +10849,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3376389,
+      "created_at": 1704787952.151503,
       "supported_languages": null
     },
     "macro.dbt.default__support_multiple_grantees_per_dcl_statement": {
@@ -10748,7 +10871,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.337748,
+      "created_at": 1704787952.151628,
       "supported_languages": null
     },
     "macro.dbt.should_revoke": {
@@ -10772,7 +10895,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3380811,
+      "created_at": 1704787952.151992,
       "supported_languages": null
     },
     "macro.dbt.get_show_grant_sql": {
@@ -10796,7 +10919,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.338264,
+      "created_at": 1704787952.15219,
       "supported_languages": null
     },
     "macro.dbt.default__get_show_grant_sql": {
@@ -10818,7 +10941,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.338363,
+      "created_at": 1704787952.15229,
       "supported_languages": null
     },
     "macro.dbt.get_grant_sql": {
@@ -10842,7 +10965,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.338584,
+      "created_at": 1704787952.152509,
       "supported_languages": null
     },
     "macro.dbt.default__get_grant_sql": {
@@ -10864,7 +10987,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.338767,
+      "created_at": 1704787952.15271,
       "supported_languages": null
     },
     "macro.dbt.get_revoke_sql": {
@@ -10888,7 +11011,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3389912,
+      "created_at": 1704787952.152946,
       "supported_languages": null
     },
     "macro.dbt.default__get_revoke_sql": {
@@ -10910,7 +11033,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.339173,
+      "created_at": 1704787952.153128,
       "supported_languages": null
     },
     "macro.dbt.get_dcl_statement_list": {
@@ -10934,7 +11057,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.339398,
+      "created_at": 1704787952.153343,
       "supported_languages": null
     },
     "macro.dbt.default__get_dcl_statement_list": {
@@ -10958,7 +11081,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.340153,
+      "created_at": 1704787952.154098,
       "supported_languages": null
     },
     "macro.dbt.call_dcl_statements": {
@@ -10982,7 +11105,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.340339,
+      "created_at": 1704787952.154279,
       "supported_languages": null
     },
     "macro.dbt.default__call_dcl_statements": {
@@ -11006,7 +11129,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.340578,
+      "created_at": 1704787952.154512,
       "supported_languages": null
     },
     "macro.dbt.apply_grants": {
@@ -11030,7 +11153,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3408031,
+      "created_at": 1704787952.154758,
       "supported_languages": null
     },
     "macro.dbt.default__apply_grants": {
@@ -11057,7 +11180,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3419058,
+      "created_at": 1704787952.1559281,
       "supported_languages": null
     },
     "macro.dbt.get_show_sql": {
@@ -11081,7 +11204,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.342409,
+      "created_at": 1704787952.1564841,
       "supported_languages": null
     },
     "macro.dbt.get_limit_subquery_sql": {
@@ -11105,7 +11228,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.342601,
+      "created_at": 1704787952.156683,
       "supported_languages": null
     },
     "macro.dbt.default__get_limit_subquery_sql": {
@@ -11127,7 +11250,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3427358,
+      "created_at": 1704787952.1568232,
       "supported_languages": null
     },
     "macro.dbt.alter_column_comment": {
@@ -11151,7 +11274,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.343381,
+      "created_at": 1704787952.1575098,
       "supported_languages": null
     },
     "macro.dbt.default__alter_column_comment": {
@@ -11173,7 +11296,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3435452,
+      "created_at": 1704787952.1576838,
       "supported_languages": null
     },
     "macro.dbt.alter_relation_comment": {
@@ -11197,7 +11320,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.343743,
+      "created_at": 1704787952.157898,
       "supported_languages": null
     },
     "macro.dbt.default__alter_relation_comment": {
@@ -11219,7 +11342,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.343907,
+      "created_at": 1704787952.158068,
       "supported_languages": null
     },
     "macro.dbt.persist_docs": {
@@ -11243,7 +11366,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.344189,
+      "created_at": 1704787952.158331,
       "supported_languages": null
     },
     "macro.dbt.default__persist_docs": {
@@ -11269,7 +11392,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.344661,
+      "created_at": 1704787952.158824,
       "supported_languages": null
     },
     "macro.dbt.get_catalog_relations": {
@@ -11293,7 +11416,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.347359,
+      "created_at": 1704787952.16176,
       "supported_languages": null
     },
     "macro.dbt.default__get_catalog_relations": {
@@ -11315,7 +11438,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3476129,
+      "created_at": 1704787952.162035,
       "supported_languages": null
     },
     "macro.dbt.get_catalog": {
@@ -11339,7 +11462,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3478122,
+      "created_at": 1704787952.162237,
       "supported_languages": null
     },
     "macro.dbt.default__get_catalog": {
@@ -11361,7 +11484,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.348067,
+      "created_at": 1704787952.162484,
       "supported_languages": null
     },
     "macro.dbt.information_schema_name": {
@@ -11385,7 +11508,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.348248,
+      "created_at": 1704787952.162681,
       "supported_languages": null
     },
     "macro.dbt.default__information_schema_name": {
@@ -11407,7 +11530,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3483992,
+      "created_at": 1704787952.162842,
       "supported_languages": null
     },
     "macro.dbt.list_schemas": {
@@ -11431,7 +11554,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3485708,
+      "created_at": 1704787952.163028,
       "supported_languages": null
     },
     "macro.dbt.default__list_schemas": {
@@ -11456,7 +11579,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.348877,
+      "created_at": 1704787952.163337,
       "supported_languages": null
     },
     "macro.dbt.check_schema_exists": {
@@ -11480,7 +11603,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.349078,
+      "created_at": 1704787952.1635299,
       "supported_languages": null
     },
     "macro.dbt.default__check_schema_exists": {
@@ -11505,7 +11628,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3493729,
+      "created_at": 1704787952.1638458,
       "supported_languages": null
     },
     "macro.dbt.list_relations_without_caching": {
@@ -11529,7 +11652,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3495522,
+      "created_at": 1704787952.164039,
       "supported_languages": null
     },
     "macro.dbt.default__list_relations_without_caching": {
@@ -11551,7 +11674,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.349712,
+      "created_at": 1704787952.16419,
       "supported_languages": null
     },
     "macro.dbt.get_relations": {
@@ -11575,7 +11698,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.349874,
+      "created_at": 1704787952.164347,
       "supported_languages": null
     },
     "macro.dbt.default__get_relations": {
@@ -11597,7 +11720,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.350027,
+      "created_at": 1704787952.164493,
       "supported_languages": null
     },
     "macro.dbt.get_relation_last_modified": {
@@ -11621,7 +11744,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3502321,
+      "created_at": 1704787952.164709,
       "supported_languages": null
     },
     "macro.dbt.default__get_relation_last_modified": {
@@ -11643,7 +11766,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.350398,
+      "created_at": 1704787952.1648881,
       "supported_languages": null
     },
     "macro.dbt.get_columns_in_relation": {
@@ -11667,7 +11790,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3525708,
+      "created_at": 1704787952.167129,
       "supported_languages": null
     },
     "macro.dbt.default__get_columns_in_relation": {
@@ -11689,7 +11812,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.35273,
+      "created_at": 1704787952.167286,
       "supported_languages": null
     },
     "macro.dbt.sql_convert_columns_in_relation": {
@@ -11711,7 +11834,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.353029,
+      "created_at": 1704787952.167618,
       "supported_languages": null
     },
     "macro.dbt.get_empty_subquery_sql": {
@@ -11735,7 +11858,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3532429,
+      "created_at": 1704787952.167835,
       "supported_languages": null
     },
     "macro.dbt.default__get_empty_subquery_sql": {
@@ -11757,7 +11880,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.353444,
+      "created_at": 1704787952.1680279,
       "supported_languages": null
     },
     "macro.dbt.get_empty_schema_sql": {
@@ -11781,7 +11904,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.353621,
+      "created_at": 1704787952.168201,
       "supported_languages": null
     },
     "macro.dbt.default__get_empty_schema_sql": {
@@ -11803,7 +11926,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.354933,
+      "created_at": 1704787952.169528,
       "supported_languages": null
     },
     "macro.dbt.get_column_schema_from_query": {
@@ -11827,7 +11950,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3552692,
+      "created_at": 1704787952.169871,
       "supported_languages": null
     },
     "macro.dbt.get_columns_in_query": {
@@ -11851,7 +11974,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.355446,
+      "created_at": 1704787952.170049,
       "supported_languages": null
     },
     "macro.dbt.default__get_columns_in_query": {
@@ -11876,7 +11999,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.355787,
+      "created_at": 1704787952.1703942,
       "supported_languages": null
     },
     "macro.dbt.alter_column_type": {
@@ -11900,7 +12023,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.356011,
+      "created_at": 1704787952.170627,
       "supported_languages": null
     },
     "macro.dbt.default__alter_column_type": {
@@ -11924,7 +12047,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.356595,
+      "created_at": 1704787952.171206,
       "supported_languages": null
     },
     "macro.dbt.alter_relation_add_remove_columns": {
@@ -11948,7 +12071,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3568451,
+      "created_at": 1704787952.171454,
       "supported_languages": null
     },
     "macro.dbt.default__alter_relation_add_remove_columns": {
@@ -11972,7 +12095,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.357598,
+      "created_at": 1704787952.1722791,
       "supported_languages": null
     },
     "macro.dbt.resolve_model_name": {
@@ -11996,7 +12119,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.359165,
+      "created_at": 1704787952.173942,
       "supported_languages": null
     },
     "macro.dbt.default__resolve_model_name": {
@@ -12018,7 +12141,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.359326,
+      "created_at": 1704787952.174094,
       "supported_languages": null
     },
     "macro.dbt.build_ref_function": {
@@ -12042,7 +12165,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.360141,
+      "created_at": 1704787952.1748931,
       "supported_languages": null
     },
     "macro.dbt.build_source_function": {
@@ -12066,7 +12189,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.360557,
+      "created_at": 1704787952.175288,
       "supported_languages": null
     },
     "macro.dbt.build_config_dict": {
@@ -12088,7 +12211,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.361135,
+      "created_at": 1704787952.1758862,
       "supported_languages": null
     },
     "macro.dbt.py_script_postfix": {
@@ -12117,7 +12240,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.361593,
+      "created_at": 1704787952.1763442,
       "supported_languages": null
     },
     "macro.dbt.py_script_comment": {
@@ -12139,7 +12262,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.361662,
+      "created_at": 1704787952.176414,
       "supported_languages": null
     },
     "macro.dbt.test_unique": {
@@ -12163,7 +12286,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.362141,
+      "created_at": 1704787952.1769128,
       "supported_languages": null
     },
     "macro.dbt.test_not_null": {
@@ -12187,7 +12310,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3623621,
+      "created_at": 1704787952.177134,
       "supported_languages": null
     },
     "macro.dbt.test_accepted_values": {
@@ -12211,7 +12334,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.362645,
+      "created_at": 1704787952.17743,
       "supported_languages": null
     },
     "macro.dbt.test_relationships": {
@@ -12235,7 +12358,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.362907,
+      "created_at": 1704787952.1777122,
       "supported_languages": null
     },
     "macro.dbt_utils.except": {
@@ -12259,7 +12382,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.363147,
+      "created_at": 1704787952.177975,
       "supported_languages": null
     },
     "macro.dbt_utils.default__except": {
@@ -12281,7 +12404,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.36324,
+      "created_at": 1704787952.178049,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__except": {
@@ -12303,7 +12426,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3633091,
+      "created_at": 1704787952.178118,
       "supported_languages": null
     },
     "macro.dbt_utils.replace": {
@@ -12327,7 +12450,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.363629,
+      "created_at": 1704787952.178431,
       "supported_languages": null
     },
     "macro.dbt_utils.default__replace": {
@@ -12349,7 +12472,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3931751,
+      "created_at": 1704787952.208568,
       "supported_languages": null
     },
     "macro.dbt_utils.concat": {
@@ -12373,7 +12496,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.393475,
+      "created_at": 1704787952.208873,
       "supported_languages": null
     },
     "macro.dbt_utils.default__concat": {
@@ -12395,7 +12518,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.39361,
+      "created_at": 1704787952.2090082,
       "supported_languages": null
     },
     "macro.dbt_utils.type_string": {
@@ -12419,7 +12542,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3942919,
+      "created_at": 1704787952.2096589,
       "supported_languages": null
     },
     "macro.dbt_utils.default__type_string": {
@@ -12441,7 +12564,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.39437,
+      "created_at": 1704787952.209733,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__type_string": {
@@ -12463,7 +12586,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.394441,
+      "created_at": 1704787952.2098079,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__type_string": {
@@ -12485,7 +12608,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.39451,
+      "created_at": 1704787952.209879,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__type_string": {
@@ -12507,7 +12630,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.394582,
+      "created_at": 1704787952.2099469,
       "supported_languages": null
     },
     "macro.dbt_utils.type_timestamp": {
@@ -12531,7 +12654,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.394735,
+      "created_at": 1704787952.210099,
       "supported_languages": null
     },
     "macro.dbt_utils.default__type_timestamp": {
@@ -12553,7 +12676,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.394806,
+      "created_at": 1704787952.21017,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__type_timestamp": {
@@ -12575,7 +12698,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.394874,
+      "created_at": 1704787952.210238,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__type_timestamp": {
@@ -12597,7 +12720,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.394943,
+      "created_at": 1704787952.210306,
       "supported_languages": null
     },
     "macro.dbt_utils.type_float": {
@@ -12621,7 +12744,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.395094,
+      "created_at": 1704787952.210457,
       "supported_languages": null
     },
     "macro.dbt_utils.default__type_float": {
@@ -12643,7 +12766,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.395165,
+      "created_at": 1704787952.210527,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__type_float": {
@@ -12665,7 +12788,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.395231,
+      "created_at": 1704787952.210593,
       "supported_languages": null
     },
     "macro.dbt_utils.type_numeric": {
@@ -12689,7 +12812,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.395385,
+      "created_at": 1704787952.210745,
       "supported_languages": null
     },
     "macro.dbt_utils.default__type_numeric": {
@@ -12711,7 +12834,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.395456,
+      "created_at": 1704787952.210817,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__type_numeric": {
@@ -12733,7 +12856,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3955789,
+      "created_at": 1704787952.210937,
       "supported_languages": null
     },
     "macro.dbt_utils.type_bigint": {
@@ -12757,7 +12880,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.395732,
+      "created_at": 1704787952.211091,
       "supported_languages": null
     },
     "macro.dbt_utils.default__type_bigint": {
@@ -12779,7 +12902,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.395803,
+      "created_at": 1704787952.2111628,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__type_bigint": {
@@ -12801,7 +12924,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.395869,
+      "created_at": 1704787952.211235,
       "supported_languages": null
     },
     "macro.dbt_utils.type_int": {
@@ -12825,7 +12948,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3960252,
+      "created_at": 1704787952.211411,
       "supported_languages": null
     },
     "macro.dbt_utils.default__type_int": {
@@ -12847,7 +12970,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.396097,
+      "created_at": 1704787952.2114828,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__type_int": {
@@ -12869,7 +12992,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.396162,
+      "created_at": 1704787952.211549,
       "supported_languages": null
     },
     "macro.dbt_utils._is_relation": {
@@ -12891,7 +13014,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.39659,
+      "created_at": 1704787952.211982,
       "supported_languages": null
     },
     "macro.dbt_utils.cast_array_to_string": {
@@ -12915,7 +13038,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3969688,
+      "created_at": 1704787952.212362,
       "supported_languages": null
     },
     "macro.dbt_utils.default__cast_array_to_string": {
@@ -12939,7 +13062,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.397107,
+      "created_at": 1704787952.212499,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__cast_array_to_string": {
@@ -12964,7 +13087,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.397399,
+      "created_at": 1704787952.212796,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__cast_array_to_string": {
@@ -12988,7 +13111,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.397537,
+      "created_at": 1704787952.2129338,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__cast_array_to_string": {
@@ -13010,7 +13133,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3976362,
+      "created_at": 1704787952.213043,
       "supported_languages": null
     },
     "macro.dbt_utils.length": {
@@ -13034,7 +13157,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.397933,
+      "created_at": 1704787952.213323,
       "supported_languages": null
     },
     "macro.dbt_utils.default__length": {
@@ -13056,7 +13179,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.398039,
+      "created_at": 1704787952.213425,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__length": {
@@ -13078,7 +13201,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3981388,
+      "created_at": 1704787952.213522,
       "supported_languages": null
     },
     "macro.dbt_utils.dateadd": {
@@ -13102,7 +13225,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.398668,
+      "created_at": 1704787952.214047,
       "supported_languages": null
     },
     "macro.dbt_utils.default__dateadd": {
@@ -13124,7 +13247,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.398827,
+      "created_at": 1704787952.214207,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__dateadd": {
@@ -13146,7 +13269,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.398988,
+      "created_at": 1704787952.21436,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__dateadd": {
@@ -13168,7 +13291,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.399146,
+      "created_at": 1704787952.214514,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__dateadd": {
@@ -13192,7 +13315,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3993988,
+      "created_at": 1704787952.214763,
       "supported_languages": null
     },
     "macro.dbt_utils.intersect": {
@@ -13216,7 +13339,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.399643,
+      "created_at": 1704787952.2150002,
       "supported_languages": null
     },
     "macro.dbt_utils.default__intersect": {
@@ -13238,7 +13361,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.3997178,
+      "created_at": 1704787952.215073,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__intersect": {
@@ -13260,7 +13383,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.39979,
+      "created_at": 1704787952.2151418,
       "supported_languages": null
     },
     "macro.dbt_utils.escape_single_quotes": {
@@ -13284,7 +13407,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4001129,
+      "created_at": 1704787952.215449,
       "supported_languages": null
     },
     "macro.dbt_utils.default__escape_single_quotes": {
@@ -13306,7 +13429,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4002528,
+      "created_at": 1704787952.215584,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__escape_single_quotes": {
@@ -13328,7 +13451,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.400387,
+      "created_at": 1704787952.2157178,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__escape_single_quotes": {
@@ -13350,7 +13473,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4005198,
+      "created_at": 1704787952.215847,
       "supported_languages": null
     },
     "macro.dbt_utils.right": {
@@ -13374,7 +13497,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.401066,
+      "created_at": 1704787952.216377,
       "supported_languages": null
     },
     "macro.dbt_utils.default__right": {
@@ -13396,7 +13519,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.401199,
+      "created_at": 1704787952.216506,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__right": {
@@ -13418,7 +13541,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.401354,
+      "created_at": 1704787952.216655,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__right": {
@@ -13440,7 +13563,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4015071,
+      "created_at": 1704787952.216803,
       "supported_languages": null
     },
     "macro.dbt_utils.listagg": {
@@ -13464,7 +13587,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.403868,
+      "created_at": 1704787952.2191832,
       "supported_languages": null
     },
     "macro.dbt_utils.default__listagg": {
@@ -13486,7 +13609,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4042702,
+      "created_at": 1704787952.219581,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__listagg": {
@@ -13508,7 +13631,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4045498,
+      "created_at": 1704787952.219857,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__listagg": {
@@ -13530,7 +13653,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.404935,
+      "created_at": 1704787952.2202299,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__listagg": {
@@ -13552,7 +13675,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.405925,
+      "created_at": 1704787952.22121,
       "supported_languages": null
     },
     "macro.dbt_utils.datediff": {
@@ -13576,7 +13699,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.408591,
+      "created_at": 1704787952.223843,
       "supported_languages": null
     },
     "macro.dbt_utils.default__datediff": {
@@ -13598,7 +13721,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.408753,
+      "created_at": 1704787952.2240078,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__datediff": {
@@ -13620,7 +13743,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4089139,
+      "created_at": 1704787952.224162,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__datediff": {
@@ -13644,7 +13767,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.410582,
+      "created_at": 1704787952.2258172,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__datediff": {
@@ -13668,7 +13791,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.410799,
+      "created_at": 1704787952.226016,
       "supported_languages": null
     },
     "macro.dbt_utils.safe_cast": {
@@ -13692,7 +13815,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.411165,
+      "created_at": 1704787952.226364,
       "supported_languages": null
     },
     "macro.dbt_utils.default__safe_cast": {
@@ -13714,7 +13837,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4113011,
+      "created_at": 1704787952.2264981,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__safe_cast": {
@@ -13736,7 +13859,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.411425,
+      "created_at": 1704787952.226623,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__safe_cast": {
@@ -13758,7 +13881,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.411553,
+      "created_at": 1704787952.2267451,
       "supported_languages": null
     },
     "macro.dbt_utils.hash": {
@@ -13782,7 +13905,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.41183,
+      "created_at": 1704787952.227021,
       "supported_languages": null
     },
     "macro.dbt_utils.default__hash": {
@@ -13806,7 +13929,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.411967,
+      "created_at": 1704787952.22716,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__hash": {
@@ -13830,7 +13953,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.412093,
+      "created_at": 1704787952.227288,
       "supported_languages": null
     },
     "macro.dbt_utils.cast_bool_to_text": {
@@ -13854,7 +13977,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.41239,
+      "created_at": 1704787952.227585,
       "supported_languages": null
     },
     "macro.dbt_utils.default__cast_bool_to_text": {
@@ -13878,7 +14001,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.412528,
+      "created_at": 1704787952.2277231,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__cast_bool_to_text": {
@@ -13900,7 +14023,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.412655,
+      "created_at": 1704787952.227843,
       "supported_languages": null
     },
     "macro.dbt_utils.identifier": {
@@ -13924,7 +14047,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.413101,
+      "created_at": 1704787952.228313,
       "supported_languages": null
     },
     "macro.dbt_utils.default__identifier": {
@@ -13946,7 +14069,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4132109,
+      "created_at": 1704787952.2284129,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__identifier": {
@@ -13968,7 +14091,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4133089,
+      "created_at": 1704787952.228509,
       "supported_languages": null
     },
     "macro.dbt_utils.any_value": {
@@ -13992,7 +14115,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.413586,
+      "created_at": 1704787952.228781,
       "supported_languages": null
     },
     "macro.dbt_utils.default__any_value": {
@@ -14014,7 +14137,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4137511,
+      "created_at": 1704787952.22895,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__any_value": {
@@ -14036,7 +14159,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.413858,
+      "created_at": 1704787952.229055,
       "supported_languages": null
     },
     "macro.dbt_utils.position": {
@@ -14060,7 +14183,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4142148,
+      "created_at": 1704787952.229404,
       "supported_languages": null
     },
     "macro.dbt_utils.default__position": {
@@ -14082,7 +14205,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.414347,
+      "created_at": 1704787952.2295392,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__position": {
@@ -14104,7 +14227,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.414484,
+      "created_at": 1704787952.229669,
       "supported_languages": null
     },
     "macro.dbt_utils.string_literal": {
@@ -14128,7 +14251,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.414722,
+      "created_at": 1704787952.229908,
       "supported_languages": null
     },
     "macro.dbt_utils.default__string_literal": {
@@ -14150,7 +14273,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4148228,
+      "created_at": 1704787952.230012,
       "supported_languages": null
     },
     "macro.dbt_utils.current_timestamp": {
@@ -14174,7 +14297,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.415361,
+      "created_at": 1704787952.230547,
       "supported_languages": null
     },
     "macro.dbt_utils.default__current_timestamp": {
@@ -14198,7 +14321,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.415483,
+      "created_at": 1704787952.230658,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__current_timestamp": {
@@ -14220,7 +14343,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.415555,
+      "created_at": 1704787952.23073,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__current_timestamp": {
@@ -14242,7 +14365,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4156249,
+      "created_at": 1704787952.2308,
       "supported_languages": null
     },
     "macro.dbt_utils.current_timestamp_in_utc": {
@@ -14266,7 +14389,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.415782,
+      "created_at": 1704787952.230956,
       "supported_languages": null
     },
     "macro.dbt_utils.default__current_timestamp_in_utc": {
@@ -14290,7 +14413,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.415893,
+      "created_at": 1704787952.231064,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__current_timestamp_in_utc": {
@@ -14315,7 +14438,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4160361,
+      "created_at": 1704787952.231207,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__current_timestamp_in_utc": {
@@ -14339,7 +14462,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.41615,
+      "created_at": 1704787952.231319,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__current_timestamp_in_utc": {
@@ -14363,7 +14486,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.41628,
+      "created_at": 1704787952.2314482,
       "supported_languages": null
     },
     "macro.dbt_utils.width_bucket": {
@@ -14387,7 +14510,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.417748,
+      "created_at": 1704787952.232925,
       "supported_languages": null
     },
     "macro.dbt_utils.default__width_bucket": {
@@ -14412,7 +14535,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.418205,
+      "created_at": 1704787952.233376,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__width_bucket": {
@@ -14437,7 +14560,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.418719,
+      "created_at": 1704787952.233886,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__width_bucket": {
@@ -14459,7 +14582,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4189062,
+      "created_at": 1704787952.234072,
       "supported_languages": null
     },
     "macro.dbt_utils.array_concat": {
@@ -14483,7 +14606,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.419276,
+      "created_at": 1704787952.234428,
       "supported_languages": null
     },
     "macro.dbt_utils.default__array_concat": {
@@ -14505,7 +14628,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4194078,
+      "created_at": 1704787952.2345579,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__array_concat": {
@@ -14527,7 +14650,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.419533,
+      "created_at": 1704787952.234684,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__array_concat": {
@@ -14549,7 +14672,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4196658,
+      "created_at": 1704787952.23481,
       "supported_languages": null
     },
     "macro.dbt_utils.bool_or": {
@@ -14573,7 +14696,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4199831,
+      "created_at": 1704787952.235137,
       "supported_languages": null
     },
     "macro.dbt_utils.default__bool_or": {
@@ -14595,7 +14718,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.420086,
+      "created_at": 1704787952.2352378,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__bool_or": {
@@ -14617,7 +14740,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.420185,
+      "created_at": 1704787952.2353358,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__bool_or": {
@@ -14639,7 +14762,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4202828,
+      "created_at": 1704787952.235434,
       "supported_languages": null
     },
     "macro.dbt_utils.last_day": {
@@ -14663,7 +14786,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4208288,
+      "created_at": 1704787952.2359731,
       "supported_languages": null
     },
     "macro.dbt_utils.default_last_day": {
@@ -14688,7 +14811,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.421097,
+      "created_at": 1704787952.236235,
       "supported_languages": null
     },
     "macro.dbt_utils.default__last_day": {
@@ -14712,7 +14835,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.421244,
+      "created_at": 1704787952.236379,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__last_day": {
@@ -14738,7 +14861,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.421634,
+      "created_at": 1704787952.23679,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__last_day": {
@@ -14762,7 +14885,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4218082,
+      "created_at": 1704787952.236963,
       "supported_languages": null
     },
     "macro.dbt_utils.split_part": {
@@ -14786,7 +14909,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.423284,
+      "created_at": 1704787952.238445,
       "supported_languages": null
     },
     "macro.dbt_utils.default__split_part": {
@@ -14808,7 +14931,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.423451,
+      "created_at": 1704787952.2386072,
       "supported_languages": null
     },
     "macro.dbt_utils._split_part_negative": {
@@ -14830,7 +14953,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.42367,
+      "created_at": 1704787952.238822,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__split_part": {
@@ -14855,7 +14978,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.424055,
+      "created_at": 1704787952.239203,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__split_part": {
@@ -14880,7 +15003,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.424381,
+      "created_at": 1704787952.2395258,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__split_part": {
@@ -14902,7 +15025,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4247308,
+      "created_at": 1704787952.2398741,
       "supported_languages": null
     },
     "macro.dbt_utils.date_trunc": {
@@ -14926,7 +15049,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4250538,
+      "created_at": 1704787952.240195,
       "supported_languages": null
     },
     "macro.dbt_utils.default__date_trunc": {
@@ -14948,7 +15071,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.42518,
+      "created_at": 1704787952.240321,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__date_trunc": {
@@ -14970,7 +15093,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4253068,
+      "created_at": 1704787952.240449,
       "supported_languages": null
     },
     "macro.dbt_utils.array_construct": {
@@ -14994,7 +15117,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.425803,
+      "created_at": 1704787952.2409348,
       "supported_languages": null
     },
     "macro.dbt_utils.default__array_construct": {
@@ -15016,7 +15139,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.426042,
+      "created_at": 1704787952.241166,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__array_construct": {
@@ -15038,7 +15161,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.426184,
+      "created_at": 1704787952.241301,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__array_construct": {
@@ -15060,7 +15183,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4263191,
+      "created_at": 1704787952.241437,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__array_construct": {
@@ -15082,7 +15205,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4264529,
+      "created_at": 1704787952.241573,
       "supported_languages": null
     },
     "macro.dbt_utils._is_ephemeral": {
@@ -15104,7 +15227,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.427267,
+      "created_at": 1704787952.242381,
       "supported_languages": null
     },
     "macro.dbt_utils.array_append": {
@@ -15128,7 +15251,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.427644,
+      "created_at": 1704787952.242738,
       "supported_languages": null
     },
     "macro.dbt_utils.default__array_append": {
@@ -15150,7 +15273,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.427774,
+      "created_at": 1704787952.2428658,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__array_append": {
@@ -15175,7 +15298,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4279559,
+      "created_at": 1704787952.243048,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__array_append": {
@@ -15200,7 +15323,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.428143,
+      "created_at": 1704787952.2432299,
       "supported_languages": null
     },
     "macro.dbt_utils.get_period_boundaries": {
@@ -15224,7 +15347,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.434453,
+      "created_at": 1704787952.249553,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_period_boundaries": {
@@ -15251,7 +15374,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.434977,
+      "created_at": 1704787952.2500548,
       "supported_languages": null
     },
     "macro.dbt_utils.get_period_sql": {
@@ -15275,7 +15398,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.435286,
+      "created_at": 1704787952.2503638,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_period_sql": {
@@ -15297,7 +15420,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.435833,
+      "created_at": 1704787952.25091,
       "supported_languages": null
     },
     "macro.dbt_utils.materialization_insert_by_period_default": {
@@ -15327,7 +15450,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.440777,
+      "created_at": 1704787952.255821,
       "supported_languages": [
         "sql"
       ]
@@ -15353,7 +15476,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.441165,
+      "created_at": 1704787952.2562099,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_url_host": {
@@ -15380,7 +15503,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.441643,
+      "created_at": 1704787952.25668,
       "supported_languages": null
     },
     "macro.dbt_utils.get_url_path": {
@@ -15404,7 +15527,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.442126,
+      "created_at": 1704787952.2571678,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_url_path": {
@@ -15434,7 +15557,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.44277,
+      "created_at": 1704787952.257804,
       "supported_languages": null
     },
     "macro.dbt_utils.get_url_parameter": {
@@ -15458,7 +15581,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.443077,
+      "created_at": 1704787952.2581089,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_url_parameter": {
@@ -15482,7 +15605,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.443399,
+      "created_at": 1704787952.258424,
       "supported_languages": null
     },
     "macro.dbt_utils.test_fewer_rows_than": {
@@ -15506,7 +15629,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.443927,
+      "created_at": 1704787952.258948,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_fewer_rows_than": {
@@ -15528,7 +15651,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4441862,
+      "created_at": 1704787952.2591848,
       "supported_languages": null
     },
     "macro.dbt_utils.test_equal_rowcount": {
@@ -15552,7 +15675,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.444572,
+      "created_at": 1704787952.259565,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_equal_rowcount": {
@@ -15574,7 +15697,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4448671,
+      "created_at": 1704787952.259858,
       "supported_languages": null
     },
     "macro.dbt_utils.test_relationships_where": {
@@ -15598,7 +15721,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.445499,
+      "created_at": 1704787952.260478,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_relationships_where": {
@@ -15620,7 +15743,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.445832,
+      "created_at": 1704787952.260811,
       "supported_languages": null
     },
     "macro.dbt_utils.test_recency": {
@@ -15644,7 +15767,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.44622,
+      "created_at": 1704787952.261194,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_recency": {
@@ -15669,7 +15792,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.446539,
+      "created_at": 1704787952.2615309,
       "supported_languages": null
     },
     "macro.dbt_utils.test_not_constant": {
@@ -15693,7 +15816,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4468448,
+      "created_at": 1704787952.261837,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_not_constant": {
@@ -15715,7 +15838,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4470131,
+      "created_at": 1704787952.262006,
       "supported_languages": null
     },
     "macro.dbt_utils.test_accepted_range": {
@@ -15739,7 +15862,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4475992,
+      "created_at": 1704787952.26258,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_accepted_range": {
@@ -15761,7 +15884,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4481258,
+      "created_at": 1704787952.263099,
       "supported_languages": null
     },
     "macro.dbt_utils.test_not_accepted_values": {
@@ -15785,7 +15908,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.44866,
+      "created_at": 1704787952.2636359,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_not_accepted_values": {
@@ -15807,7 +15930,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.449038,
+      "created_at": 1704787952.264012,
       "supported_languages": null
     },
     "macro.dbt_utils.test_unique_where": {
@@ -15831,7 +15954,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.449437,
+      "created_at": 1704787952.264401,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_unique_where": {
@@ -15855,7 +15978,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4496021,
+      "created_at": 1704787952.264565,
       "supported_languages": null
     },
     "macro.dbt_utils.test_at_least_one": {
@@ -15879,7 +16002,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.449919,
+      "created_at": 1704787952.264875,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_at_least_one": {
@@ -15901,7 +16024,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.450092,
+      "created_at": 1704787952.265049,
       "supported_languages": null
     },
     "macro.dbt_utils.test_unique_combination_of_columns": {
@@ -15925,7 +16048,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4507039,
+      "created_at": 1704787952.265642,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_unique_combination_of_columns": {
@@ -15947,7 +16070,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.451339,
+      "created_at": 1704787952.266264,
       "supported_languages": null
     },
     "macro.dbt_utils.test_cardinality_equality": {
@@ -15971,7 +16094,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.451877,
+      "created_at": 1704787952.2667918,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_cardinality_equality": {
@@ -15995,7 +16118,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.452214,
+      "created_at": 1704787952.267122,
       "supported_languages": null
     },
     "macro.dbt_utils.test_expression_is_true": {
@@ -16019,7 +16142,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.452663,
+      "created_at": 1704787952.267563,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_expression_is_true": {
@@ -16041,7 +16164,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.452946,
+      "created_at": 1704787952.2678442,
       "supported_languages": null
     },
     "macro.dbt_utils.test_not_null_proportion": {
@@ -16065,7 +16188,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.453367,
+      "created_at": 1704787952.268249,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_not_null_proportion": {
@@ -16087,7 +16210,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4538682,
+      "created_at": 1704787952.268746,
       "supported_languages": null
     },
     "macro.dbt_utils.test_sequential_values": {
@@ -16111,7 +16234,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.454498,
+      "created_at": 1704787952.269374,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_sequential_values": {
@@ -16137,7 +16260,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4551601,
+      "created_at": 1704787952.2700238,
       "supported_languages": null
     },
     "macro.dbt_utils.test_not_null_where": {
@@ -16161,7 +16284,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4555562,
+      "created_at": 1704787952.270417,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_not_null_where": {
@@ -16185,7 +16308,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.455721,
+      "created_at": 1704787952.27058,
       "supported_languages": null
     },
     "macro.dbt_utils.test_equality": {
@@ -16209,7 +16332,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.456426,
+      "created_at": 1704787952.271276,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_equality": {
@@ -16235,7 +16358,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4573,
+      "created_at": 1704787952.272147,
       "supported_languages": null
     },
     "macro.dbt_utils.test_mutually_exclusive_ranges": {
@@ -16259,7 +16382,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.460474,
+      "created_at": 1704787952.275359,
       "supported_languages": null
     },
     "macro.dbt_utils.default__test_mutually_exclusive_ranges": {
@@ -16281,7 +16404,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.461951,
+      "created_at": 1704787952.276832,
       "supported_languages": null
     },
     "macro.dbt_utils.pretty_log_format": {
@@ -16305,7 +16428,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.462212,
+      "created_at": 1704787952.27709,
       "supported_languages": null
     },
     "macro.dbt_utils.default__pretty_log_format": {
@@ -16329,7 +16452,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.462377,
+      "created_at": 1704787952.2772532,
       "supported_languages": null
     },
     "macro.dbt_utils.pretty_time": {
@@ -16353,7 +16476,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4626439,
+      "created_at": 1704787952.277519,
       "supported_languages": null
     },
     "macro.dbt_utils.default__pretty_time": {
@@ -16375,7 +16498,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4628391,
+      "created_at": 1704787952.2777169,
       "supported_languages": null
     },
     "macro.dbt_utils.log_info": {
@@ -16399,7 +16522,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.463084,
+      "created_at": 1704787952.2779899,
       "supported_languages": null
     },
     "macro.dbt_utils.default__log_info": {
@@ -16423,7 +16546,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.463258,
+      "created_at": 1704787952.2781599,
       "supported_languages": null
     },
     "macro.dbt_utils.slugify": {
@@ -16445,7 +16568,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.463706,
+      "created_at": 1704787952.278614,
       "supported_languages": null
     },
     "macro.dbt_utils.get_intervals_between": {
@@ -16469,7 +16592,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.464403,
+      "created_at": 1704787952.279295,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_intervals_between": {
@@ -16494,7 +16617,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.464988,
+      "created_at": 1704787952.279883,
       "supported_languages": null
     },
     "macro.dbt_utils.date_spine": {
@@ -16518,7 +16641,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4652212,
+      "created_at": 1704787952.280108,
       "supported_languages": null
     },
     "macro.dbt_utils.default__date_spine": {
@@ -16544,7 +16667,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.465584,
+      "created_at": 1704787952.280464,
       "supported_languages": null
     },
     "macro.dbt_utils.nullcheck_table": {
@@ -16568,7 +16691,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4658859,
+      "created_at": 1704787952.280763,
       "supported_languages": null
     },
     "macro.dbt_utils.default__nullcheck_table": {
@@ -16594,7 +16717,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4663239,
+      "created_at": 1704787952.281164,
       "supported_languages": null
     },
     "macro.dbt_utils.get_relations_by_pattern": {
@@ -16618,7 +16741,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4669912,
+      "created_at": 1704787952.28186,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_relations_by_pattern": {
@@ -16643,7 +16766,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.467817,
+      "created_at": 1704787952.282691,
       "supported_languages": null
     },
     "macro.dbt_utils.get_powers_of_two": {
@@ -16667,7 +16790,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.468628,
+      "created_at": 1704787952.283495,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_powers_of_two": {
@@ -16689,7 +16812,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.469038,
+      "created_at": 1704787952.283905,
       "supported_languages": null
     },
     "macro.dbt_utils.generate_series": {
@@ -16713,7 +16836,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.469225,
+      "created_at": 1704787952.284087,
       "supported_languages": null
     },
     "macro.dbt_utils.default__generate_series": {
@@ -16737,7 +16860,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.469731,
+      "created_at": 1704787952.2845929,
       "supported_languages": null
     },
     "macro.dbt_utils.get_relations_by_prefix": {
@@ -16761,7 +16884,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.470397,
+      "created_at": 1704787952.285262,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_relations_by_prefix": {
@@ -16786,7 +16909,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.471243,
+      "created_at": 1704787952.28609,
       "supported_languages": null
     },
     "macro.dbt_utils.get_tables_by_prefix_sql": {
@@ -16810,7 +16933,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.471637,
+      "created_at": 1704787952.286485,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_tables_by_prefix_sql": {
@@ -16834,7 +16957,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.471914,
+      "created_at": 1704787952.2867599,
       "supported_languages": null
     },
     "macro.dbt_utils.star": {
@@ -16858,7 +16981,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4725828,
+      "created_at": 1704787952.287424,
       "supported_languages": null
     },
     "macro.dbt_utils.default__star": {
@@ -16884,7 +17007,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.473557,
+      "created_at": 1704787952.288385,
       "supported_languages": null
     },
     "macro.dbt_utils.unpivot": {
@@ -16908,7 +17031,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.47531,
+      "created_at": 1704787952.290139,
       "supported_languages": null
     },
     "macro.dbt_utils.default__unpivot": {
@@ -16935,7 +17058,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4774752,
+      "created_at": 1704787952.2922711,
       "supported_languages": null
     },
     "macro.dbt_utils.union_relations": {
@@ -16959,7 +17082,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4801931,
+      "created_at": 1704787952.295016,
       "supported_languages": null
     },
     "macro.dbt_utils.default__union_relations": {
@@ -16986,7 +17109,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4831119,
+      "created_at": 1704787952.297917,
       "supported_languages": null
     },
     "macro.dbt_utils.group_by": {
@@ -17010,7 +17133,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.483403,
+      "created_at": 1704787952.298204,
       "supported_languages": null
     },
     "macro.dbt_utils.default__group_by": {
@@ -17032,7 +17155,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4836469,
+      "created_at": 1704787952.298443,
       "supported_languages": null
     },
     "macro.dbt_utils.deduplicate": {
@@ -17056,7 +17179,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.486044,
+      "created_at": 1704787952.300832,
       "supported_languages": null
     },
     "macro.dbt_utils.default__deduplicate": {
@@ -17078,7 +17201,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4862652,
+      "created_at": 1704787952.301053,
       "supported_languages": null
     },
     "macro.dbt_utils.redshift__deduplicate": {
@@ -17102,7 +17225,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4864619,
+      "created_at": 1704787952.301248,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__deduplicate": {
@@ -17124,7 +17247,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.486651,
+      "created_at": 1704787952.30143,
       "supported_languages": null
     },
     "macro.dbt_utils.snowflake__deduplicate": {
@@ -17146,7 +17269,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.486819,
+      "created_at": 1704787952.3016078,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__deduplicate": {
@@ -17168,7 +17291,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.486987,
+      "created_at": 1704787952.3017778,
       "supported_languages": null
     },
     "macro.dbt_utils.surrogate_key": {
@@ -17192,7 +17315,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.487556,
+      "created_at": 1704787952.302334,
       "supported_languages": null
     },
     "macro.dbt_utils.default__surrogate_key": {
@@ -17218,7 +17341,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.488469,
+      "created_at": 1704787952.3032498,
       "supported_languages": null
     },
     "macro.dbt_utils.safe_add": {
@@ -17242,7 +17365,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.488844,
+      "created_at": 1704787952.303616,
       "supported_languages": null
     },
     "macro.dbt_utils.default__safe_add": {
@@ -17264,7 +17387,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4891179,
+      "created_at": 1704787952.303893,
       "supported_languages": null
     },
     "macro.dbt_utils.nullcheck": {
@@ -17288,7 +17411,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.489457,
+      "created_at": 1704787952.3042219,
       "supported_languages": null
     },
     "macro.dbt_utils.default__nullcheck": {
@@ -17310,7 +17433,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.489789,
+      "created_at": 1704787952.304564,
       "supported_languages": null
     },
     "macro.dbt_utils.get_tables_by_pattern_sql": {
@@ -17334,7 +17457,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.491372,
+      "created_at": 1704787952.306138,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_tables_by_pattern_sql": {
@@ -17358,7 +17481,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.491642,
+      "created_at": 1704787952.3064058,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__get_tables_by_pattern_sql": {
@@ -17383,7 +17506,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.492413,
+      "created_at": 1704787952.307165,
       "supported_languages": null
     },
     "macro.dbt_utils._bigquery__get_matching_schemata": {
@@ -17407,7 +17530,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.492919,
+      "created_at": 1704787952.30766,
       "supported_languages": null
     },
     "macro.dbt_utils.get_column_values": {
@@ -17431,7 +17554,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.494032,
+      "created_at": 1704787952.3087769,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_column_values": {
@@ -17457,7 +17580,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4955351,
+      "created_at": 1704787952.310236,
       "supported_languages": null
     },
     "macro.dbt_utils.pivot": {
@@ -17481,7 +17604,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4965818,
+      "created_at": 1704787952.311285,
       "supported_languages": null
     },
     "macro.dbt_utils.default__pivot": {
@@ -17506,7 +17629,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.497408,
+      "created_at": 1704787952.312112,
       "supported_languages": null
     },
     "macro.dbt_utils.get_filtered_columns_in_relation": {
@@ -17530,7 +17653,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.497888,
+      "created_at": 1704787952.312565,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_filtered_columns_in_relation": {
@@ -17555,7 +17678,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.498593,
+      "created_at": 1704787952.313261,
       "supported_languages": null
     },
     "macro.dbt_utils.get_query_results_as_dict": {
@@ -17579,7 +17702,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4989738,
+      "created_at": 1704787952.313637,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_query_results_as_dict": {
@@ -17603,7 +17726,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.4995542,
+      "created_at": 1704787952.314214,
       "supported_languages": null
     },
     "macro.dbt_utils.get_table_types_sql": {
@@ -17627,7 +17750,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.5000288,
+      "created_at": 1704787952.314707,
       "supported_languages": null
     },
     "macro.dbt_utils.default__get_table_types_sql": {
@@ -17649,7 +17772,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.5001202,
+      "created_at": 1704787952.314796,
       "supported_languages": null
     },
     "macro.dbt_utils.postgres__get_table_types_sql": {
@@ -17671,7 +17794,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.500205,
+      "created_at": 1704787952.314882,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__get_table_types_sql": {
@@ -17693,7 +17816,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.500289,
+      "created_at": 1704787952.314968,
       "supported_languages": null
     },
     "macro.dbt_utils.degrees_to_radians": {
@@ -17715,7 +17838,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.50134,
+      "created_at": 1704787952.3159769,
       "supported_languages": null
     },
     "macro.dbt_utils.haversine_distance": {
@@ -17739,7 +17862,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.501612,
+      "created_at": 1704787952.316247,
       "supported_languages": null
     },
     "macro.dbt_utils.default__haversine_distance": {
@@ -17761,7 +17884,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.50217,
+      "created_at": 1704787952.3168068,
       "supported_languages": null
     },
     "macro.dbt_utils.bigquery__haversine_distance": {
@@ -17785,7 +17908,7 @@
       },
       "patch_path": null,
       "arguments": [],
-      "created_at": 1704271433.5030231,
+      "created_at": 1704787952.317661,
       "supported_languages": null
     }
   },
@@ -17864,7 +17987,7 @@
         "build_path": null,
         "deferred": false,
         "unrendered_config": {},
-        "created_at": 1704271433.8600168,
+        "created_at": 1704787952.74419,
         "config_call_dict": {},
         "relation_name": null,
         "raw_code": "SELECT *\r\nFROM {{ ref('rides_by_month')}}\r\nWHERE end_station_install_date >= '2017-01-01'",
@@ -17908,6 +18031,9 @@
     "model.london_bike_analysis.raw_bike_stations": [
       "source.london_bike_analysis.metaphor.cycle_stations"
     ],
+    "snapshot.london_bike_analysis.cycle_hire_snapshot": [
+      "source.london_bike_analysis.metaphor.cycle_hire"
+    ],
     "test.london_bike_analysis.dbt_utils_fewer_rows_than_raw_bike_hires_ref_raw_bike_stations_.ffa7ccfb39": [
       "model.london_bike_analysis.raw_bike_hires",
       "model.london_bike_analysis.raw_bike_stations"
@@ -17939,8 +18065,8 @@
     "test.london_bike_analysis.not_null_cleaned_bike_rides_start_station_name.4eec63218d": [
       "model.london_bike_analysis.cleaned_bike_rides"
     ],
-    "snapshot.london_bike_analysis.cycle_hire_snapshot": [
-      "source.london_bike_analysis.metaphor.cycle_hire"
+    "model.london_bike_analysis.cleaned_bike_rides_from_snapshot": [
+      "snapshot.london_bike_analysis.cycle_hire_snapshot"
     ],
     "source.london_bike_analysis.metaphor.cycle_hire": [],
     "source.london_bike_analysis.metaphor.cycle_stations": []
@@ -17970,6 +18096,9 @@
       "model.london_bike_analysis.rides_by_month_2017",
       "test.london_bike_analysis.dbt_utils_fewer_rows_than_raw_bike_hires_ref_raw_bike_stations_.ffa7ccfb39"
     ],
+    "snapshot.london_bike_analysis.cycle_hire_snapshot": [
+      "model.london_bike_analysis.cleaned_bike_rides_from_snapshot"
+    ],
     "test.london_bike_analysis.dbt_utils_fewer_rows_than_raw_bike_hires_ref_raw_bike_stations_.ffa7ccfb39": [],
     "test.london_bike_analysis.not_null_cleaned_bike_rides_total_minutes.1c7c80a2d6": [],
     "test.london_bike_analysis.dbt_utils_at_least_one_cleaned_bike_rides_total_minutes.8432437e46": [],
@@ -17980,7 +18109,7 @@
     "test.london_bike_analysis.accepted_values_cleaned_bike_rides_start_peak_travel__Evening_Peak__Off_Peak__Morning_Peak.014130c1a3": [],
     "test.london_bike_analysis.not_null_cleaned_bike_rides_same_station_flag.6293c4e2a8": [],
     "test.london_bike_analysis.not_null_cleaned_bike_rides_start_station_name.4eec63218d": [],
-    "snapshot.london_bike_analysis.cycle_hire_snapshot": [],
+    "model.london_bike_analysis.cleaned_bike_rides_from_snapshot": [],
     "source.london_bike_analysis.metaphor.cycle_hire": [
       "model.london_bike_analysis.raw_bike_hires",
       "snapshot.london_bike_analysis.cycle_hire_snapshot"
