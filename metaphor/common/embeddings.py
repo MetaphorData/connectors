@@ -100,41 +100,25 @@ def map_metadata(
 
     out = []
 
-    if include_text:
-        for nodeid in embedding_dict:
-            # alter nodeid to match our input schema
-            # this should already be 32 characters
-            nodeid_format = f"EXTERNAL_DOCUMENT~{nodeid.replace('-', '').upper()}"
+    for nodeid in embedding_dict:
+        # alter nodeid to match our input schema
+        # this should already be 32 characters
+        nodeid_format = f"EXTERNAL_DOCUMENT~{nodeid.replace('-', '').upper()}"
 
-            embedding_dict[nodeid] = {
-                "entityId": nodeid_format,
-                "documentId": nodeid_format,
-                "embedding_1": embedding_dict[nodeid],
-                "pageId": metadata_dict[nodeid]["pageId"],
-                "embeddedString_1": sanitize_text(
-                    doc_store[nodeid]["__data__"]["text"]
-                ),
-                "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
-                "metadata": metadata_dict[nodeid],
-            }
+        embedding_dict[nodeid] = {
+            "entityId": nodeid_format,
+            "documentId": nodeid_format,
+            "embedding_1": embedding_dict[nodeid],
+            "pageId": metadata_dict[nodeid]["pageId"],
+            "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
+            "metadata": metadata_dict[nodeid],
+        }
 
-            out.append({"externalSearchDocument": embedding_dict[nodeid]})
+        if include_text:
+            embedding_dict[nodeid]["embeddedString_1"] = sanitize_text(
+                doc_store[nodeid]["__data__"]["text"]
+            )
 
-    else:
-        for nodeid in embedding_dict:
-            # alter nodeid to match our input schema
-            # this should already be 32 characters
-            nodeid_format = f"EXTERNAL_DOCUMENT~{nodeid.replace('-', '')}"
-
-            embedding_dict[nodeid] = {
-                "entityId": nodeid_format,
-                "documentId": nodeid_format,
-                "embedding_1": embedding_dict[nodeid],
-                "pageId": metadata_dict[nodeid]["pageId"],
-                "lastRefreshed": metadata_dict[nodeid]["lastRefreshed"],
-                "metadata": metadata_dict[nodeid],
-            }
-
-            out.append({"externalSearchDocument": embedding_dict[nodeid]})
+        out.append({"externalSearchDocument": embedding_dict[nodeid]})
 
     return out
