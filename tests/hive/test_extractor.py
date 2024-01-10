@@ -5,6 +5,7 @@ import pytest
 from testcontainers.general import DockerContainer
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logger import get_logger
 from metaphor.hive.config import HiveRunConfig
@@ -43,7 +44,14 @@ async def test_extractor(test_root_dir: str) -> None:
         port = container.get_exposed_port(10000)
         host = container.get_container_host_ip()
 
-        config = HiveRunConfig(output=OutputConfig(), host=host, port=int(port))
+        config = HiveRunConfig(
+            output=OutputConfig(),
+            host=host,
+            port=int(port),
+            column_statistics=ColumnStatistics(
+                unique_count=True, avg_value=True, std_dev=True
+            ),
+        )
 
         while True:
             try:
