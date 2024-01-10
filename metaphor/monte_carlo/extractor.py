@@ -43,7 +43,7 @@ monitor_status_map = {
     "ERROR": DataMonitorStatus.ERROR,
     "IN_PROGRESS": DataMonitorStatus.UNKNOWN,
     "NO_STATUS": DataMonitorStatus.UNKNOWN,
-    "MISCONFIGURED": DataMonitorStatus.ERROR,
+    "MISCONFIGURED": DataMonitorStatus.UNKNOWN,
     "IN_TRAINING": DataMonitorStatus.UNKNOWN,
 }
 

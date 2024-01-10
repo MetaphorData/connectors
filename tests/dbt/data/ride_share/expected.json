@@ -28,6 +28,7 @@
   },
   {
     "dbtModel": {
+      "compiledSql": "WITH stations AS (\n\n    SELECT *\n    FROM DEMO_DB.METAPHOR.raw_bike_stations\n\n),\n\nrides AS (\n\n    SELECT *\n    FROM DEMO_DB.METAPHOR.cleaned_bike_rides\n\n),\n\nstart_stat_join AS (\n\n    SELECT rides.*\n    , stations.bikes_count as start_station_bikes_count\n    , stations.docks_count as start_station_docks_count\n    , stations.install_date as start_station_install_date\n    FROM rides\n    LEFT JOIN stations\n    ON rides.start_station_id = stations.id\n)\n\nSELECT \n    total_minutes \n    , total_bike_hires \n    , average_duration \n    , month \n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count \n    , start_station_docks_count \n    , start_station_install_date \n    , end_station_id\n    , end_station_name\n    , stations.bikes_count as end_station_bikes_count\n    , stations.docks_count as end_station_docks_count\n    , stations.install_date as end_station_install_date\nFROM start_stat_join\nLEFT JOIN stations\nON start_stat_join.end_station_id = stations.id",
       "docsUrl": "http://localhost:8080/#!/model/model.london_bike_analysis.rides_by_month_2017",
       "fields": [],
       "materialization": {
@@ -63,6 +64,7 @@
   },
   {
     "dbtModel": {
+      "compiledSql": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration_minutes) as total_minutes\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM DEMO_DB.METAPHOR.raw_bike_hires\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_minutes DESC",
       "description": "This table contains a transformed version of the raw_bike_hires table, which includes additional calculated fields such as creating a duration in minutes field.  Each ride has been aggregated so any journey that starts and ends at the same station, in the same month and roughly time of day are  aggregated together to get the total minutes similar journeys have taken.\n",
       "docsUrl": "http://localhost:8080/#!/model/model.london_bike_analysis.cleaned_bike_rides",
       "fields": [
@@ -236,6 +238,7 @@
   },
   {
     "dbtModel": {
+      "compiledSql": "SELECT \n    SUM(total_minutes) AS total_minutes\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\n    , SUM(total_bike_hires) AS total_bike_hires\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\n    , month\n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count\n    , start_station_docks_count\n    , start_station_install_date\nFROM DEMO_DB.METAPHOR.rides_by_month_2017\nGROUP BY 5,6,7,8,9,10,11,12\nORDER BY total_bike_hires DESC",
       "docsUrl": "http://localhost:8080/#!/model/model.london_bike_analysis.rides_by_month_start_station_2017",
       "fields": [],
       "materialization": {
@@ -269,6 +272,7 @@
   },
   {
     "dbtModel": {
+      "compiledSql": "SELECT \n    rental_id\n    , duration as duration_seconds\n    , duration / 60 as duration_minutes\n    , bike_id\n    , start_date\n    , start_station_id\n    , start_station_name\n    , end_date\n    , end_station_id\n    , end_station_name\nFROM  DEMO_DB.metaphor.cycle_hire\nWHERE EXTRACT(year from start_date) = 2017",
       "description": "This table contains all bike hires in London in 2017. This is the raw dataset so no cleaning or transformation.",
       "docsUrl": "http://localhost:8080/#!/model/model.london_bike_analysis.raw_bike_hires",
       "fields": [],
@@ -314,6 +318,7 @@
   },
   {
     "dbtModel": {
+      "compiledSql": "SELECT \n    id\n    , name as station_name\n    , bikes_count\n    , docks_count\n    , install_date\n    , removal_date\nFROM  DEMO_DB.metaphor.cycle_stations\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
       "description": "This table contains all bike stations in the London area. This only includes stations intalled before January 1, 2017 and doesn't include stations that were removed in 2017 (before Jan 1 2018). This is the raw data so no cleaning or transformation.",
       "docsUrl": "http://localhost:8080/#!/model/model.london_bike_analysis.raw_bike_stations",
       "fields": [
@@ -356,7 +361,40 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "\n\n\nselect * from DEMO_DB.metaphor.cycle_hire",
+      "compiledSql": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration) as total_seconds\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM DEMO_DB.snapshots.cycle_hire_snapshot\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_seconds DESC",
+      "docsUrl": "http://localhost:8080/#!/model/model.london_bike_analysis.cleaned_bike_rides_from_snapshot",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~9EC8C9186E2155503243FED495387698",
+        "type": "TABLE"
+      },
+      "packageName": "london_bike_analysis",
+      "rawSql": "-- Adding extra fields including if the bike was rented during peak time \r\nSELECT\r\n    SUM(duration) as total_seconds\r\n    , COUNT(rental_id) as total_bike_hires\r\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\r\n    , EXTRACT(month from start_date) as month\r\n    , CASE\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\r\n        ELSE 'Off-Peak'\r\n      END AS start_peak_travel\r\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_station_id\r\n    , end_station_name\r\nFROM {{ ref('cycle_hire_snapshot') }}\r\nGROUP BY 4,5,6,7,8,9,10\r\nORDER BY total_seconds DESC",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~FEE8405461EBC519C4D9B3A20C4E251C"
+      ],
+      "tags": [],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/ride_share/models/rides/cleaned_bike_rides_from_snapshot.sql"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~FEE8405461EBC519C4D9B3A20C4E251C"
+      ]
+    },
+    "logicalId": {
+      "name": "london_bike_analysis.cleaned_bike_rides_from_snapshot",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "london_bike_analysis"
+      ],
+      "name": "cleaned_bike_rides_from_snapshot"
+    }
+  },
+  {
+    "dbtModel": {
       "docsUrl": "http://localhost:8080/#!/model/snapshot.london_bike_analysis.cycle_hire_snapshot",
       "fields": [],
       "materialization": {
