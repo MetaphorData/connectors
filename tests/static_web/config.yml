@@ -1,0 +1,10 @@
+---
+links:
+  - https://metaphor.io
+azure_openAI_key: azure_openAI_key
+azure_openAI_version: azure_openAI_version
+azure_openAI_endpoint: azure_openAI_endpoint
+azure_openAI_model: text-embedding-ada-002
+azure_openAI_model_name: EmbeddingModel
+include_text: true
+output: {}

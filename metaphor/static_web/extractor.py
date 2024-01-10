@@ -157,9 +157,8 @@ class StaticWebExtractor(BaseExtractor):
                     "platform": base_URL,
                     "link": url,
                     "lastRefreshed": current_time,
-                    "pageId": hash(
-                        url
-                    ),  # Create a pageId based on URL - is this necessary?
+                    # Create a pageId based on URL - is this necessary?
+                    "pageId": hash(url),
                 },
             )
             docs.append(doc)
