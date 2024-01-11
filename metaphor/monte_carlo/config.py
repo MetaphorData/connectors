@@ -1,4 +1,5 @@
-from typing import Optional
+from dataclasses import field
+from typing import List, Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -13,3 +14,10 @@ class MonteCarloRunConfig(BaseConfig):
 
     # Snowflake data source account
     snowflake_account: Optional[str] = None
+
+    # Errors to be ignored, e.g. timeouts
+    ignored_errors: List[str] = field(
+        default_factory=lambda: [
+            "Monitor timed out",
+        ]
+    )
