@@ -9,6 +9,7 @@
 ![PyPI Downloads](https://img.shields.io/pypi/dm/metaphor-connectors)
 [![Docker Pulls](https://img.shields.io/docker/pulls/metaphordata/connectors)](https://hub.docker.com/r/metaphordata/connectors)
 [![License](https://img.shields.io/github/license/MetaphorData/connectors)](https://github.com/MetaphorData/connectors/blob/master/LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMetaphorData%2Fconnectors.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FMetaphorData%2Fconnectors?ref=badge_shield)
 
 This repository contains a collection of Python-based "connectors" that extract metadata from various sources to ingest into the [Metaphor](https://metaphor.io) platform.
 
@@ -92,3 +93,7 @@ See [Development Environment](docs/develop.md) for more instructions on how to s
 ## Custom Connectors
 
 See [Adding a Custom Connector](docs/custom.md) for instructions and a full example of creating your custom connectors.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMetaphorData%2Fconnectors.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMetaphorData%2Fconnectors?ref=badge_large)
