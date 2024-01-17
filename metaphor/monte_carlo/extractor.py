@@ -1,3 +1,4 @@
+import re
 import traceback
 from typing import Collection, Dict, List
 
@@ -71,6 +72,8 @@ class MonteCarloExtractor(BaseExtractor):
             if config.snowflake_account
             else None
         )
+        self._ignored_errors = config.ignored_errors
+
         self._client = Client(
             session=Session(mcd_id=config.api_key_id, mcd_token=config.api_key_secret)
         )
@@ -192,9 +195,7 @@ class MonteCarloExtractor(BaseExtractor):
                 title=monitor["name"],
                 description=monitor["description"],
                 owner=monitor["creatorId"],
-                status=monitor_status_map.get(
-                    monitor["monitorStatus"], DataMonitorStatus.UNKNOWN
-                ),
+                status=self._parse_monitor_status(monitor),
                 severity=monitor_severity,
                 url=f"{monitors_base_url}/{monitor['uuid']}",
                 last_run=parser.parse(monitor["prevExecutionTime"]),
@@ -219,6 +220,20 @@ class MonteCarloExtractor(BaseExtractor):
                 dataset = self._init_dataset(name, platform)
                 dataset.data_quality.url = f"{assets_base_url}/{mcon}/custom-monitors"
                 dataset.data_quality.monitors.append(data_monitor)
+
+    def _parse_monitor_status(self, monitor: Dict):
+        status = monitor_status_map.get(
+            monitor["monitorStatus"], DataMonitorStatus.UNKNOWN
+        )
+
+        # Change status to UNKNOWN if the error message is to be ignored
+        message = monitor.get("exceptions", "")
+        if status == DataMonitorStatus.ERROR:
+            for ignored_error in self._ignored_errors:
+                if re.match(ignored_error, message) is not None:
+                    return DataMonitorStatus.UNKNOWN
+
+        return status
 
     @staticmethod
     def _convert_dataset_name(entity: str) -> str:

@@ -77,5 +77,29 @@
       "name": "db.metaphor.test3",
       "platform": "SNOWFLAKE"
     }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "description": "Field Health for all fields in db:metaphor.test4",
+          "lastRun": "2023-06-23T03:54:35.817000+00:00",
+          "owner": "yi@metaphor.io",
+          "severity": "UNKNOWN",
+          "status": "UNKNOWN",
+          "targets": [],
+          "title": "auto_monitor_name_693b98e3-950d-472b-83fe-8c8e5b5979f9",
+          "url": "https://getmontecarlo.com/monitors/d14af7d8-6342-420a-bb09-5805fad677f1"
+        }
+      ],
+      "provider": "MONTE_CARLO",
+      "url": "https://getmontecarlo.com/assets/MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test4/custom-monitors"
+    },
+    "id": "DATASET~2F7E8D1674123BA74D3E64F1767550C6",
+    "logicalId": {
+      "account": "snow",
+      "name": "db.metaphor.test4",
+      "platform": "SNOWFLAKE"
+    }
   }
 ]

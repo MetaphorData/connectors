@@ -43,6 +43,12 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                             "warehouse": {"connection_type": "SNOWFLAKE"},
                         }
                     },
+                    {
+                        "node": {
+                            "mcon": "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test4",
+                            "warehouse": {"connection_type": "SNOWFLAKE"},
+                        }
+                    },
                 ],
                 "page_info": {
                     "end_corsor": "cursor",
@@ -94,11 +100,29 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
                 },
+                {
+                    "uuid": "d14af7d8-6342-420a-bb09-5805fad677f1",
+                    "name": "auto_monitor_name_693b98e3-950d-472b-83fe-8c8e5b5979f9",
+                    "description": "Field Health for all fields in db:metaphor.test4",
+                    "entities": ["db:metaphor.test4"],
+                    "entityMcons": [
+                        "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test4"
+                    ],
+                    "severity": None,
+                    "monitorStatus": "ERROR",
+                    "exceptions": "Ignore me",
+                    "monitorFields": None,
+                    "creatorId": "yi@metaphor.io",
+                    "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
+                },
             ]
         },
     ]
 
-    extractor = MonteCarloExtractor(dummy_config())
+    config = dummy_config()
+    config.ignored_errors = ["Ignore me"]
+
+    extractor = MonteCarloExtractor(config)
     extractor._client = mock_pycarlo_client
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
