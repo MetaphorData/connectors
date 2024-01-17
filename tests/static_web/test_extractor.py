@@ -35,19 +35,6 @@ class MockResponse:
         return
 
 
-class AsyncMockResponse:
-    def __init__(self, text):
-        self._text = text
-
-    async def text(self):
-        return self._text
-
-
-# Custom async mock function to return a list of mock responses
-def async_mock(*args, **kwargs):
-    return [AsyncMockResponse("Page Content") for _ in args[0]]
-
-
 # test get_page_subpages
 @patch("requests.get")
 def test_get_page_subpages(mock_get, static_web_extractor):
