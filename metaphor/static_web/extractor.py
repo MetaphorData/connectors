@@ -11,6 +11,7 @@ from requests.exceptions import HTTPError
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
+from metaphor.common.utils import md5_digest
 from metaphor.common.logger import get_logger
 from metaphor.static_web.config import StaticWebRunConfig
 
@@ -79,9 +80,11 @@ class StaticWebExtractor(BaseExtractor):
         The list includes the original URL followed by URLs of all found subpages.
         Subpage URLs are reconstructed to be absolute URLs.
         """
-        if input_URL.endswith("/"):
-            input_URL = input_URL[:-1]
-        pages = [input_URL]
+        input_URL.rstrip('/')
+
+        pages = []
+        pages.append(input_URL)
+
         try:
             r = requests.get(input_URL, timeout=5)
             r.raise_for_status()
@@ -110,7 +113,7 @@ class StaticWebExtractor(BaseExtractor):
         try:
             async with session.get(
                 input_URL, timeout=5
-            ) as response:  # Setting a 5-second timeout
+            ) as response:
                 response.raise_for_status()
                 return await response.text()
         except ClientResponseError:
@@ -158,7 +161,7 @@ class StaticWebExtractor(BaseExtractor):
                     "link": url,
                     "lastRefreshed": current_time,
                     # Create a pageId based on URL - is this necessary?
-                    "pageId": hash(url),
+                    "pageId": md5_digest(url),
                 },
             )
             docs.append(doc)
