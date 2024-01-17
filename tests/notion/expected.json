@@ -1,0 +1,24 @@
+[
+  {
+    "externalSearchDocument": {
+      "entityId": "EXTERNAL_DOCUMENT~ABCD1234",
+      "documentId": "EXTERNAL_DOCUMENT~ABCD1234",
+      "embedding_1": [
+        0.1,
+        0.2,
+        0.3,
+        0.4
+      ],
+      "pageId": "efgh5678",
+      "embeddedString_1": "Hello World!",
+      "lastRefreshed": "2023-12-11 00:00:00.000000",
+      "metadata": {
+        "dbId": "database1",
+        "platform": "notion",
+        "pageId": "efgh5678",
+        "link": "https://metaphor.io",
+        "lastRefreshed": "2023-12-11 00:00:00.000000"
+      }
+    }
+  }
+]

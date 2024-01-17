@@ -6,7 +6,7 @@ from typing import Any
 try:
     import google.cloud.bigquery as bigquery
     from google.cloud import logging_v2
-    from google.oauth2 import service_account
+    from google.oauth2 import service_account  # type: ignore[attr-defined]
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
