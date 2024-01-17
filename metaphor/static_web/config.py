@@ -9,6 +9,9 @@ class StaticWebRunConfig(BaseConfig):
     # Top-level URLs to scrape content from
     links: list
 
+    # Configurable scraping depth
+    depths: list
+
     # Azure OpenAI services configs
     azure_openAI_key: str
 

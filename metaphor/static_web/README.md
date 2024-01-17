@@ -6,6 +6,8 @@
 
 Create a YAML config file based on the following template.
 
+`depth = 1` corresponds to scraping the specified page and its subpages only. Higher configured depths will recursively perform the same action on subpages `n` times.
+
 ### Required Configurations
 
 ```yaml
