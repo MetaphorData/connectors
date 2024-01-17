@@ -98,16 +98,16 @@ class StaticWebExtractor(BaseExtractor):
         pages = [input_URL]
 
         try:
-            with requests.get(input_URL, timeout=5) as r:
-                r.raise_for_status()
-                html = etree.HTML(r.text)
+            r = requests.get(input_URL, timeout=5)
+            r.raise_for_status()
+            html = etree.HTML(r.text)
 
-                # Use urljoin for proper URL construction
-                pages.extend(
-                    urljoin(input_URL, a.split("#")[0])
-                    for a in html.xpath(".//a/@href")
-                    if a.startswith("/")
-                )
+            # Use urljoin for proper URL construction
+            pages.extend(
+                urljoin(input_URL, a.split("#")[0])
+                for a in html.xpath(".//a/@href")
+                if a.startswith("/")
+            )
 
         except HTTPError as e:
             logger.warning(f"Couldn't retrieve page {input_URL}: {e}")

@@ -1,6 +1,8 @@
 ---
 links:
   - https://metaphor.io/
+depths:
+  - 1
 azure_openAI_key: azure_openAI_key
 azure_openAI_version: azure_openAI_version
 azure_openAI_endpoint: azure_openAI_endpoint
