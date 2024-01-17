@@ -157,6 +157,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
 
         # This could include columns in views or stream tables.
         for row in cursor:
+            # See https://docs.snowflake.com/en/sql-reference/sql/show-columns#output
             (
                 table_name,
                 table_schema,
@@ -168,7 +169,7 @@ class SnowflakeProfileExtractor(BaseExtractor):
                 _,
                 _,
                 table_catalog,
-                _,
+                *_,
             ) = row
             column_info_map[Table(table_catalog, table_schema, table_name)].append(
                 (column_name, data_type)
