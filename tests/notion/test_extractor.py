@@ -113,9 +113,9 @@ async def test_get_databases(
 
     extractor = NotionExtractor(config=dummy_config)
 
-    dbs = extractor._get_databases()
+    extractor._get_databases()
 
-    assert dbs == [12345, 56789]
+    assert extractor.db_ids == [12345, 56789]
 
 
 # test for _get_all_documents

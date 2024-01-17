@@ -71,7 +71,7 @@ class NotionExtractor(BaseExtractor):
         # Each document dict has nodeId, embedding, lastRefreshed, metadata
         return embedded_nodes
 
-    def _get_databases(self) -> Collection[str]:
+    def _get_databases(self) -> None:
         """
         Returns a list of database IDs.
         """
@@ -102,8 +102,6 @@ class NotionExtractor(BaseExtractor):
         logger.info(f"Retrieved {len(dbs)} databases")
 
         self.db_ids = [dbs[i]["id"] for i in range(len(dbs))]
-
-        return self.db_ids
 
     def _get_all_documents(self) -> Sequence[Document]:
         """
