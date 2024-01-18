@@ -515,6 +515,13 @@ class ArtifactParser:
         if not model_unique_id.startswith("model."):
             return
 
+        # Skip test if it references an non-existing (most likely disabled) model
+        if model_unique_id not in self._virtual_views:
+            logger.warn(
+                f"Test {test.unique_id} references non-active model {model_unique_id}"
+            )
+            return
+
         columns = []
         if test.columns:
             columns = list(test.columns.keys())
