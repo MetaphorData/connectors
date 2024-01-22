@@ -48,43 +48,43 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 
 | Connector Name                                                    | Metadata                                 |
 |-------------------------------------------------------------------|------------------------------------------|  
-| [azure_data_factory](metaphor/azure_data_factory/README.md)       | Lineage, Pipeline                        |
-| [bigquery](metaphor/bigquery/README.md)                           | Schema, description, statistics, queries |
-| [bigquery.lineage](metaphor/bigquery/lineage/README.md)           | Lineage                                  |
-| [bigquery.profile](metaphor/bigquery/profile/README.md)           | Data profile                             |
-| [custom.data_quality](metaphor/custom/data_quality/README.md)     | Data quality                             |
-| [custom.governance](metaphor/custom/governance/README.md)         | Ownership, tags, description             |
-| [custom.lineage](metaphor/custom/lineage/README.md)               | Lineage                                  |
-| [custom.metadata](metaphor/custom/metadata/README.md)             | Custom metadata                          |
-| [custom.query_attributions](metaphor/custom/metadata/README.md)   | Query attritutions                       |
-| [datahub](metaphor/datahub/README.md)                             | Description, tag, ownership              |
-| [dbt](metaphor/dbt/README.md)                                     | dbt model, test, lineage                 |
-| [dbt.cloud](metaphor/dbt/cloud/README.md)                         | dbt model, test, lineage                 |
-| [fivetran](metaphor/fivetran/README.md)                           | Lineage, Pipeline                        |
-| [glue](metaphor/glue/README.md)                                   | Schema, description                      |
-| [looker](metaphor/looker/README.md)                               | Looker view, explore, dashboard, lineage |
-| [kafka](metaphor/kafka/README.md)                                 | Schema, description                      |
-| [metabase](metaphor/metabase/README.md)                           | Dashboard, lineage                       |
-| [monte_carlo](metaphor/monte_carlo/README.md)                     | Data monitor                             |
-| [mssql](metaphor/mssql/README.md)                                 | Schema                                   |
-| [mysql](metaphor/mysql/README.md)                                 | Schema, description                      |
-| [notion](metaphor/notion/README.md)                               | Document embeddings                      |
-| [postgresql](metaphor/postgresql/README.md)                       | Schema, description, statistics          |
-| [postgresql.profile](metaphor/postgresql/profile/README.md)       | Data profile                             |
-| [postgresql.usage](metaphor/postgresql/usage/README.md)           | Usage                                    |
-| [power_bi](metaphor/power_bi/README.md)                           | Dashboard, lineage                       |
-| [redshift](metaphor/redshift/README.md)                           | Schema, description, statistics, queries |
-| [redshift.lineage](metaphor/redshift/lineage/README.md)           | Lineage                                  |
-| [redshift.profile](metaphor/redshift/profile/README.md)           | Data profile                             |
-| [snowflake](metaphor/snowflake/README.md)                         | Schema, description, statistics, queries |
-| [snowflake.lineage](metaphor/snowflake/lineage/README.md)         | Lineage                                  |
-| [snowflake.profile](metaphor/snowflake/profile/README.md)         | Data profile                             |
-| [synapse](metaphor/synapse//README.md)                            | Schema, queries                          |
-| [tableau](metaphor/tableau/README.md)                             | Dashboard, lineage                       |
-| [thought_spot](metaphor/thought_spot/README.md)                   | Dashboard, lineage                       |
-| [trino](metaphor/trino/README.md)                                 | Schema, description, queries             |                       
-| [unity_catalog](metaphor/unity_catalog/README.md)                 | Schema, description                      |
-| [unity_catalog.profile](metaphor/unity_catalog/profile/README.md) | Statistics                               |
+| [azure_data_factory](metaphor/azure_data_factory/)                | Lineage, Pipeline                        |
+| [bigquery](metaphor/bigquery/)                                    | Schema, description, statistics, queries |
+| [bigquery.lineage](metaphor/bigquery/lineage/)                    | Lineage                                  |
+| [bigquery.profile](metaphor/bigquery/profile/)                    | Data profile                             |
+| [custom.data_quality](metaphor/custom/data_quality/)              | Data quality                             |
+| [custom.governance](metaphor/custom/governance/)                  | Ownership, tags, description             |
+| [custom.lineage](metaphor/custom/lineage/)                        | Lineage                                  |
+| [custom.metadata](metaphor/custom/metadata/)                      | Custom metadata                          |
+| [custom.query_attributions](metaphor/custom/query_attributions/)  | Query attritutions                       |
+| [datahub](metaphor/datahub/)                                      | Description, tag, ownership              |
+| [dbt](metaphor/dbt/)                                              | dbt model, test, lineage                 |
+| [dbt.cloud](metaphor/dbt/cloud/)                                  | dbt model, test, lineage                 |
+| [fivetran](metaphor/fivetran/)                                    | Lineage, Pipeline                        |
+| [glue](metaphor/glue/)                                            | Schema, description                      |
+| [looker](metaphor/looker/)                                        | Looker view, explore, dashboard, lineage |
+| [kafka](metaphor/kafka/)                                          | Schema, description                      |
+| [metabase](metaphor/metabase/)                                    | Dashboard, lineage                       |
+| [monte_carlo](metaphor/monte_carlo/)                              | Data monitor                             |
+| [mssql](metaphor/mssql/)                                          | Schema                                   |
+| [mysql](metaphor/mysql/)                                          | Schema, description                      |
+| [notion](metaphor/notion/)                                        | Document embeddings                      |
+| [postgresql](metaphor/postgresql/)                                | Schema, description, statistics          |
+| [postgresql.profile](metaphor/postgresql/profile/)                | Data profile                             |
+| [postgresql.usage](metaphor/postgresql/usage/)                    | Usage                                    |
+| [power_bi](metaphor/power_bi/)                                    | Dashboard, lineage                       |
+| [redshift](metaphor/redshift/)                                    | Schema, description, statistics, queries |
+| [redshift.lineage](metaphor/redshift/lineage/)                    | Lineage                                  |
+| [redshift.profile](metaphor/redshift/profile/)                    | Data profile                             |
+| [snowflake](metaphor/snowflake/)                                  | Schema, description, statistics, queries |
+| [snowflake.lineage](metaphor/snowflake/lineage/)                  | Lineage                                  |
+| [snowflake.profile](metaphor/snowflake/profile/)                  | Data profile                             |
+| [synapse](metaphor/synapse/)                                      | Schema, queries                          |
+| [tableau](metaphor/tableau/)                                      | Dashboard, lineage                       |
+| [thought_spot](metaphor/thought_spot/)                            | Dashboard, lineage                       |
+| [trino](metaphor/trino/)                                          | Schema, description, queries             |                       
+| [unity_catalog](metaphor/unity_catalog/)                          | Schema, description                      |
+| [unity_catalog.profile](metaphor/unity_catalog/profile/)          | Statistics                               |
 
 ## Development
 
