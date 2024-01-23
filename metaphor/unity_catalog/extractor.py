@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import re
@@ -52,6 +51,7 @@ from metaphor.unity_catalog.utils import (
     build_query_log_filter_by,
     create_api,
     create_connection,
+    from_timestamp_ms,
     list_column_lineage,
     list_table_lineage,
 )
@@ -226,7 +226,11 @@ class UnityCatalogExtractor(BaseExtractor):
         )
 
         main_url = self._get_source_url(database, schema_name, table_name)
-        dataset.source_info = SourceInfo(main_url=main_url)
+        dataset.source_info = SourceInfo(
+            main_url=main_url,
+            created_at_source=from_timestamp_ms(table_info.created_at),
+            last_updated=from_timestamp_ms(table_info.updated_at),
+        )
 
         dataset.unity_catalog = UnityCatalog(
             table_type=UnityCatalogTableType[table_info.table_type.value],
@@ -334,9 +338,7 @@ class UnityCatalogExtractor(BaseExtractor):
         ):
             start_time = None
             if query_info.query_start_time_ms is not None:
-                start_time = datetime.datetime.fromtimestamp(
-                    query_info.query_start_time_ms / 1000, tz=datetime.timezone.utc
-                )
+                start_time = from_timestamp_ms(query_info.query_start_time_ms)
 
             user_id, email = user_id_or_email(query_info.user_name)
 

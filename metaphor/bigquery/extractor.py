@@ -50,6 +50,7 @@ from metaphor.models.metadata_change_event import (
     QueryLog,
     SchemaField,
     SchemaType,
+    SourceInfo,
     SQLSchema,
     TypeEnum,
 )
@@ -198,6 +199,9 @@ class BigQueryExtractor(BaseExtractor):
             statistics=statistics,
             structure=DatasetStructure(
                 database=project_id, schema=bq_table.dataset_id, table=bq_table.table_id
+            ),
+            source_info=SourceInfo(
+                created_at_source=bq_table.created, last_updated=bq_table.modified
             ),
         )
 

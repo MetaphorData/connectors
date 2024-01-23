@@ -79,6 +79,7 @@ async def test_extractor(
                 properties={
                     "delta.lastCommitTimestamp": "1664444422000",
                 },
+                created_at=0,
             ),
             Table(
                 name="view",
@@ -115,6 +116,7 @@ async def test_extractor(
                     "view.referredTempFunctionsNames": "[]",
                     "view.catalogAndNamespace.part.1": "default",
                 },
+                created_at=0,
             ),
         ]
 
