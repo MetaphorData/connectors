@@ -115,9 +115,7 @@ def map_metadata(
         }
 
         if include_text:
-            embedding_dict[nodeid]["embeddedString_1"] = sanitize_text(
-                doc_store[nodeid]["__data__"]["text"]
-            )
+            embedding_dict[nodeid]["embeddedString_1"] = doc_store[nodeid]["__data__"]["text"]
 
         out.append({"externalSearchDocument": embedding_dict[nodeid]})
 
