@@ -1,0 +1,56 @@
+[
+  {
+    "descriptionAssignment": {
+      "assetDescriptions": [
+        {
+          "description": "some description"
+        }
+      ],
+      "columnDescriptionAssignments": [
+        {
+          "assetDescriptions": [
+            {
+              "description": "col1 description"
+            }
+          ],
+          "columnName": "col1"
+        },
+        {
+          "assetDescriptions": [
+            {
+              "description": "col2 description"
+            }
+          ],
+          "columnName": "col2"
+        }
+      ]
+    },
+    "entityType": "DATASET",
+    "logicalId": {
+      "name": "baz.bar.foo",
+      "platform": "SNOWFLAKE"
+    },
+    "tagAssignment": {
+      "columnTagAssignments": [
+        {
+          "columnName": "col1",
+          "tagNames": [
+            "col1 tag1"
+          ]
+        },
+        {
+          "columnName": "col2",
+          "tagNames": [
+            "col2 tag 1",
+            "col2 tag 2"
+          ]
+        }
+      ],
+      "tagNames": [
+        "table tag1",
+        "table tag2",
+        "table tag3"
+      ]
+    }
+  }
+]
