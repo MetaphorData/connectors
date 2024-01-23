@@ -71,6 +71,25 @@ class NotionExtractor(BaseExtractor):
         # Each document dict has nodeId, embedding, lastRefreshed, metadata
         return embedded_nodes
 
+    def _get_title(self, page: str) -> str:
+        headers = {
+            "Authorization": f"Bearer {self.notion_api_token}",
+            "Notion-Version": f"{self.notion_api_version}",
+        }
+
+        try:
+            r = requests.get(f"{baseURL}/pages/{page}", headers=headers, timeout=5)
+            r.raise_for_status()
+
+        except HTTPError as error:
+            traceback.print_exc()
+            logger.warn(f"Failed to get title for page {page}, err: {error}")
+
+        # Very specific extraction
+        title = list(r.json()["properties"].values())[0]["title"][0]["text"]["content"]
+
+        return title
+
     def _get_databases(self) -> None:
         """
         Returns a list of database IDs.
@@ -134,15 +153,20 @@ class NotionExtractor(BaseExtractor):
 
             # Update queried document metadata with db_id, platform info, link
             for q in queried:
-                # Clean the document text
+                # Reset page-id, remove hyphens
+                q.metadata["pageId"] = q.metadata.pop("page_id").replace("-", "")
+
+                # Add title to metadata
+                title = self._get_title(q.metadata["pageId"])
+                q.metadata["title"] = title
+
+                # Clean the document text and prepend title
                 q.text = sanitize_text(q.text)
+                q.text = f"Title: {title}\n{q.text}"
 
                 # Update db_id and platform
                 q.metadata["dbId"] = db_id.replace("-", "")  # remove hyphens
                 q.metadata["platform"] = "notion"
-
-                # Reset page-id, remove hyphens
-                q.metadata["pageId"] = q.metadata.pop("page_id").replace("-", "")
 
                 # Construct link
                 link = f'https://notion.so/{q.metadata["pageId"]}'

@@ -46,6 +46,7 @@ sample_raw_documents = [
             "page_id": "efgh5678",
             "link": "https://metaphor.io",
             "lastRefreshed": "2023-12-11 00:00:00.000000",
+            "title": "Hello World!",
         },
         hash="1111",
         text="Hello World!",
@@ -67,6 +68,7 @@ sample_documents = [
             "pageId": "efgh5678",
             "link": "https://metaphor.io",
             "lastRefreshed": "2023-12-11 00:00:00.000000",
+            "title": "Hello World!",
         },
         hash="1111",
         text="Hello World!",
@@ -119,7 +121,11 @@ async def test_get_databases(
 
 
 # test for _get_all_documents
-def test_get_all_documents(notion_extractor, mock_notion_reader):
+@patch("metaphor.notion.NotionExtractor._get_title")
+def test_get_all_documents(
+    mock_get_title: MagicMock, notion_extractor, mock_notion_reader
+):
+    mock_get_title.return_value = "Hello World!"
     # Set db_id
     notion_extractor.db_ids = ["db1"]
     notion_extractor.NotionReader = mock_notion_reader
@@ -141,25 +147,22 @@ def test_get_all_documents(notion_extractor, mock_notion_reader):
         assert (
             "lastRefreshed" in doc.metadata
         ), "Each document should have 'lastRefreshed' in metadata"
+        assert "title" in doc.metadata, "Each document should have 'title' in metadata"
 
 
 # test for extract
-@patch("metaphor.notion.extractor.embed_documents")
-@patch("metaphor.notion.NotionExtractor._get_databases")
+@patch("metaphor.notion.NotionExtractor._get_title")
 @patch("metaphor.notion.NotionExtractor._get_all_documents")
+@patch("metaphor.notion.NotionExtractor._get_databases")
+@patch("metaphor.notion.extractor.embed_documents")
 @pytest.mark.asyncio
 async def test_extractor(
+    mock_embed_docs: MagicMock,
     mock_get_dbs: MagicMock,
     mock_get_docs: MagicMock,
-    mock_embed_docs: MagicMock,
+    mock_get_title: MagicMock,
     test_root_dir: str,
 ) -> None:
-    # mock db retrieve
-    mock_get_dbs.return_value = ["database1"]
-
-    # mock doc retrieve
-    mock_get_docs.return_value = sample_documents
-
     # mock VectorStoreIndex creation
     mock_VSI = MagicMock()
 
@@ -169,6 +172,7 @@ async def test_extractor(
                 "embedding_dict": {"abcd1234": [0.1, 0.2, 0.3, 0.4]},
                 "metadata_dict": {
                     "abcd1234": {
+                        "title": "Hello World!",
                         "dbId": "database1",
                         "platform": "notion",
                         "pageId": "efgh5678",
@@ -179,12 +183,23 @@ async def test_extractor(
             }
         },
         "doc_store": {
-            "docstore/data": {"abcd1234": {"__data__": {"text": "Hello World!"}}}
+            "docstore/data": {
+                "abcd1234": {"__data__": {"text": "Title: Hello World!\nHello World!"}}
+            }
         },
     }
 
     # mock embed docs
     mock_embed_docs.return_value = mock_VSI
+
+    # mock db retrieve
+    mock_get_dbs.return_value = ["database1"]
+
+    # mock doc retrieve
+    mock_get_docs.return_value = sample_documents
+
+    # mock title retrieve
+    mock_get_title.return_value = "Hello World!"
 
     extractor = NotionExtractor(config=dummy_config)
 
