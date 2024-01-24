@@ -14,5 +14,5 @@ def cli_main(extractor_cls: Type[BaseExtractor], config_file: str):
         name=EventUtil.class_fqcn(extractor_cls),
         description=extractor_cls._description,
         platform=extractor_cls._platform,
-        file_sink_config=base_config.output.file,
+        file_sink_config=base_config.file_sink_config,
     )
