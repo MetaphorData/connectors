@@ -21,7 +21,7 @@ class MockClient:
     def __init__(self) -> None:
         pass
 
-    def get(self, path, params: Optional[Dict[str, Any]] = None):  # noqa: C901
+    def get(self, path: str, params: Optional[Dict[str, Any]] = None):  # noqa: C901
         if path == "integration/v2/table/":
             yield Table(
                 id=1,
@@ -53,6 +53,22 @@ class MockClient:
                     )
                 ],
             ).model_dump()
+            yield Table(
+                id=9,
+                name="quazz",
+                description="yet another description",
+                ds_id=2,
+                table_type="TABLE",
+                schema_id=3,
+            ).model_dump()
+            yield Table(
+                id=9,
+                name="ocf",
+                description="table from ocf datasource, should not be parsed",
+                ds_id=13,
+                table_type="TABLE",
+                schema_id=3,
+            ).model_dump()
 
             return
 
@@ -77,10 +93,17 @@ class MockClient:
             ).model_dump()
             return
 
-        if "integration/v1/datasource/" in path:
+        if "integration/v1/datasource/2" in path:
             yield Datasource(
                 dbtype="snowflake",
                 dbname="baz",
+            ).model_dump()
+            return
+
+        if "integration/v2/datasource/" in path:
+            yield Datasource(
+                dbtype="snowflake",
+                dbname="ocf",
             ).model_dump()
             return
 
