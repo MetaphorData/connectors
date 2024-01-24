@@ -37,7 +37,7 @@ def mock_notion_reader():
 
 
 sample_raw_documents = [
-    Document(
+    Document(  # type: ignore[call-arg]
         doc_id="abcd1234",
         embedding=None,
         extra_info={
@@ -59,7 +59,7 @@ sample_raw_documents = [
 ]
 
 sample_documents = [
-    Document(
+    Document(  # type: ignore[call-arg]
         doc_id="abcd1234",
         embedding=None,
         extra_info={
