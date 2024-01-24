@@ -203,7 +203,22 @@ async def test_extractor(mock_build_client: MagicMock, test_root_dir: str):
     mock_client.pipelines.list_by_factory.side_effect = mock_list_pipelines
 
     def mock_get_pipeline_runs(factory_name, resource_group_name, filter_parameters):
-        return DfModels.PipelineRunsQueryResponse(value=[])
+        return DfModels.PipelineRunsQueryResponse(
+            value=[
+                DfModels.PipelineRun.deserialize(
+                    {
+                        "runId": "run-id",
+                        "runGroupId": "run-group-id",
+                        "isLatest": True,
+                        "pipelineName": "pipeline-1",
+                        "invokedBy": {
+                            "name": "foo",
+                            "id": "test@foo.com",
+                        },
+                    }
+                )
+            ]
+        )
 
     mock_client.pipeline_runs.query_by_factory.side_effect = mock_get_pipeline_runs
     mock_client.pipeline_runs._serialize.body.side_effect = lambda _1, _2: {
