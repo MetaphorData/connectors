@@ -89,7 +89,7 @@ class NotionExtractor(BaseExtractor):
         except (HTTPError, KeyError) as error:
             traceback.print_exc()
             logger.warn(f"Failed to get title for page {page}, err: {error}")
-            title = "No title found"
+            title = ""
 
         return title
 
