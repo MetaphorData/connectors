@@ -9,6 +9,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import (
     ColumnTagAssignment,
+    DataPlatform,
     Dataset,
     DatasetLogicalID,
     EntityType,
@@ -59,7 +60,7 @@ class AlationExtractor(BaseExtractor):
                     is not None
                 ):
                     # TODO: support OCF datasources
-                    raise ValueError("OCF datasources are currently not supported")
+                    raise RuntimeError("OCF datasources are currently not supported")
 
                 raise ValueError(f"No datasource found with id = {ds_id}")
             datasource = Datasource.model_validate(ds_obj)
@@ -132,6 +133,8 @@ class AlationExtractor(BaseExtractor):
         table = Table.model_validate(table_obj)
         schema = self._get_schema(table.schema_id)
         datasource = self._get_datasource(table.ds_id)
+        if datasource.platform == DataPlatform.EXTERNAL:
+            raise RuntimeError(f"Unsupported datasource dbtype: {datasource.dbtype}")
         columns = self._get_table_columns(table.id)
         name = dataset_normalized_name(datasource.dbname, schema, table.name)
         dataset = Dataset(

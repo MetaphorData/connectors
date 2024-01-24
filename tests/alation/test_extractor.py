@@ -62,14 +62,21 @@ class MockClient:
                 schema_id=3,
             ).model_dump()
             yield Table(
-                id=9,
+                id=12,
                 name="ocf",
                 description="table from ocf datasource, should not be parsed",
                 ds_id=13,
                 table_type="TABLE",
                 schema_id=3,
             ).model_dump()
-
+            yield Table(
+                id=14,
+                name="teradata",
+                description="table from datasource with unsupported dbtype, should not be parsed",
+                ds_id=15,
+                table_type="TABLE",
+                schema_id=3,
+            ).model_dump()
             return
 
         if "integration/v1/group/" in path:
@@ -97,6 +104,13 @@ class MockClient:
             yield Datasource(
                 dbtype="snowflake",
                 dbname="baz",
+            ).model_dump()
+            return
+
+        if "integration/v1/datasource/15" in path:
+            yield Datasource(
+                dbtype="teradata",
+                dbname="teradata",
             ).model_dump()
             return
 
