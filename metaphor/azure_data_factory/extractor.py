@@ -29,7 +29,7 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.common.utils import unique_list
+from metaphor.common.utils import safe_float, unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     ActivityDependency,
@@ -539,7 +539,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 pipeline_name, df_client, factory
             )
             if last_pipeline_run:
-                last_duration_in_ms = float(last_pipeline_run.duration_in_ms)  # type: ignore
+                last_duration_in_ms = safe_float(last_pipeline_run.duration_in_ms)  # type: ignore
                 invoked_by: DfModels.PipelineRunInvokedBy = last_pipeline_run.invoked_by  # type: ignore
                 last_invoke_type = invoked_by.invoked_by_type
                 last_run_message = last_pipeline_run.message
