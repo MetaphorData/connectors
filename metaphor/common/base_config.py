@@ -28,7 +28,7 @@ class BaseConfig:
     All subclasses should add the @dataclass decorators
     """
 
-    output: Optional[OutputConfig]
+    output: OutputConfig
     """
     No default value here, otherwise dataclass inheritance would not work.
 
@@ -45,16 +45,11 @@ class BaseConfig:
 
             # So that user can just ignore this field in their config file.
             if "output" not in obj:
-                obj["output"] = None
-
+                obj["output"] = {
+                    "file": {
+                        "directory": Path.cwd()
+                        .absolute()
+                        .as_posix()  # timestamp is added in file sink
+                    }
+                }
             return TypeAdapter(cls).validate_python(variable_substitution(obj))
-
-    @property
-    def file_sink_config(self) -> Optional[FileSinkConfig]:
-        if self.output:
-            return self.output.file
-        return FileSinkConfig(
-            directory=Path.cwd()
-            .absolute()
-            .as_posix(),  # timestamp is added in file sink
-        )

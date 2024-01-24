@@ -23,10 +23,11 @@ def test_yaml_config(test_root_dir):
     )
 
 
-def test_yaml_config_with_missing_config(test_root_dir):
-    missing = BaseConfig.from_yaml_file(f"{test_root_dir}/common/configs/missing.yml")
-    assert not missing.output
-    assert missing.file_sink_config and missing.file_sink_config.directory
+def test_missing_output_config(test_root_dir):
+    missing_output = BaseConfig.from_yaml_file(
+        f"{test_root_dir}/common/configs/missing_output.yml"
+    )
+    assert missing_output.output.file and missing_output.output.file.directory
 
 
 @dataclass(config=ConnectorConfig)
@@ -38,7 +39,7 @@ def test_yaml_config_with_extra_config(test_root_dir):
     # BaseConfig allows extras
     config = BaseConfig.from_yaml_file(f"{test_root_dir}/common/configs/extend.yml")
     assert config == BaseConfig(output=OutputConfig())
-    assert not config.file_sink_config
+    assert not config.output.file
 
     # AnotherBaseConfig does not allow extras
     with pytest.raises(ValidationError):
