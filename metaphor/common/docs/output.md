@@ -4,7 +4,9 @@ You can configure the connector to output to files or API.
 
 ## Output to Local Files
 
-File-based output is the preferred way as it enables decoupling between the connector and ingestion pipeline. Add the following fragment to your config file:
+File-based output is the preferred way as it enables decoupling between the connector and ingestion pipeline. By default, the connector will write to the directory `${pwd}/${CURRENT_TIMESTAMP}`.
+
+To write the extracted data to a specific location, add the following fragment to your config file:
 
 ```yaml
 output:
