@@ -78,13 +78,13 @@ class NotionExtractor(BaseExtractor):
         }
 
         try:
-            r = requests.get(f"{baseURL}/pages/{page}", headers=headers, timeout=5)
+            r = requests.get(
+                baseURL + f"pages/{page}/properties/title", headers=headers, timeout=5
+            )
             r.raise_for_status()
 
-            # Very specific extraction
-            title = list(r.json()["properties"].values())[0]["title"][0]["text"][
-                "content"
-            ]
+            # Extract title
+            title = r.json()["results"][0]["title"]["plain_text"]
 
         except (HTTPError, KeyError) as error:
             traceback.print_exc()
