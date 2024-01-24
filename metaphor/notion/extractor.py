@@ -81,12 +81,15 @@ class NotionExtractor(BaseExtractor):
             r = requests.get(f"{baseURL}/pages/{page}", headers=headers, timeout=5)
             r.raise_for_status()
 
-        except HTTPError as error:
+            # Very specific extraction
+            title = list(r.json()["properties"].values())[0]["title"][0]["text"][
+                "content"
+            ]
+
+        except (HTTPError, KeyError) as error:
             traceback.print_exc()
             logger.warn(f"Failed to get title for page {page}, err: {error}")
-
-        # Very specific extraction
-        title = list(r.json()["properties"].values())[0]["title"][0]["text"]["content"]
+            title = "No title found"
 
         return title
 
@@ -160,9 +163,8 @@ class NotionExtractor(BaseExtractor):
                 title = self._get_title(q.metadata["pageId"])
                 q.metadata["title"] = title
 
-                # Clean the document text and prepend title
+                # Clean the document text
                 q.text = sanitize_text(q.text)
-                q.text = f"Title: {title}\n{q.text}"
 
                 # Update db_id and platform
                 q.metadata["dbId"] = db_id.replace("-", "")  # remove hyphens

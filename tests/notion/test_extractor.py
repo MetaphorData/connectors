@@ -41,6 +41,7 @@ sample_raw_documents = [
         doc_id="abcd1234",
         embedding=None,
         extra_info={
+            "title": "Hello World!",
             "db_id": "database1",
             "platform": "notion",
             "page_id": "efgh5678",
@@ -63,6 +64,7 @@ sample_documents = [
         doc_id="abcd1234",
         embedding=None,
         extra_info={
+            "title": "Hello World!",
             "dbId": "database1",
             "platform": "notion",
             "pageId": "efgh5678",
@@ -183,9 +185,7 @@ async def test_extractor(
             }
         },
         "doc_store": {
-            "docstore/data": {
-                "abcd1234": {"__data__": {"text": "Title: Hello World!\nHello World!"}}
-            }
+            "docstore/data": {"abcd1234": {"__data__": {"text": "Hello World!"}}}
         },
     }
 
