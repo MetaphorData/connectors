@@ -4,7 +4,14 @@ import pytest
 
 from metaphor.alation.config import AlationConfig
 from metaphor.alation.extractor import AlationExtractor
-from metaphor.alation.schema import Column, Datasource, Schema, Table
+from metaphor.alation.schema import (
+    Column,
+    CustomField,
+    Datasource,
+    Schema,
+    Steward,
+    Table,
+)
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from tests.test_utils import load_json
@@ -14,7 +21,7 @@ class MockClient:
     def __init__(self) -> None:
         pass
 
-    def get(self, path, params: Optional[Dict[str, Any]] = None):
+    def get(self, path, params: Optional[Dict[str, Any]] = None):  # noqa: C901
         if path == "integration/v2/table/":
             yield Table(
                 id=1,
@@ -23,7 +30,44 @@ class MockClient:
                 ds_id=2,
                 table_type="TABLE",
                 schema_id=3,
+                custom_fields=[
+                    CustomField(
+                        value=[Steward(oid=10, otype="user")],
+                        field_id=6,
+                        field_name="Steward",
+                    )
+                ],
             ).model_dump()
+            yield Table(
+                id=7,
+                name="quax",
+                description="some other description",
+                ds_id=2,
+                table_type="TABLE",
+                schema_id=3,
+                custom_fields=[
+                    CustomField(
+                        value=[Steward(oid=11, otype="groupprofile")],
+                        field_id=8,
+                        field_name="Steward",
+                    )
+                ],
+            ).model_dump()
+
+            return
+
+        if "integration/v1/group/" in path:
+            yield {
+                "display_name": "admin group",
+                "email": "admin@acme.com",
+            }
+            return
+
+        if "integration/v1/user/" in path:
+            yield {
+                "display_name": "john doe",
+                "email": "john.doe@acme.com",
+            }
             return
 
         if path == "integration/v2/schema/":

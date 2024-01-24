@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +16,11 @@ class CustomField(BaseModel):
     field_name: str
 
 
+class Steward(BaseModel):
+    oid: int
+    otype: Literal["user", "groupprofile"]
+
+
 class Column(BaseModel):
     id: int
     name: str
@@ -31,6 +36,16 @@ class Table(BaseModel):
     custom_fields: List[CustomField] = Field(default_factory=list)
     table_type: str
     schema_id: int
+
+    @property
+    def steward(self) -> Optional[Steward]:
+        steward_obj = next(
+            (f.value[0] for f in self.custom_fields if f.field_name == "Steward"), None
+        )
+        if steward_obj:
+            steward = Steward.model_validate(steward_obj)
+            return steward
+        return None
 
     def description_assignment(self, author: Optional[str], columns: List[Column]):
         asset_descriptions: Optional[List[AssetDescription]] = None

@@ -1,8 +1,8 @@
-from typing import Any, Collection, Dict, List, Literal
+from typing import Any, Collection, Dict, List, Literal, Optional
 
 from metaphor.alation.client import Client
 from metaphor.alation.config import AlationConfig
-from metaphor.alation.schema import Column, Datasource, Schema, Table
+from metaphor.alation.schema import Column, Datasource, Schema, Steward, Table
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
@@ -12,6 +12,8 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     EntityType,
+    Ownership,
+    OwnershipAssignment,
     TagAssignment,
 )
 
@@ -102,6 +104,30 @@ class AlationExtractor(BaseExtractor):
             )
         return tag_assignment
 
+    def _get_ownership_assignment(self, steward: Optional[Steward]):
+        if not steward:
+            return None
+
+        if steward.otype == "groupprofile":
+            path = f"integration/v1/group/{steward.oid}"
+        else:
+            path = f"integration/v1/user/{steward.oid}"
+
+        owner = next(self._client.get(path), None)
+        if not owner:
+            raise ValueError(
+                f"No owner found for this steward, steward id = {steward.oid}, type =- {steward.otype}"
+            )
+
+        return OwnershipAssignment(
+            ownerships=[
+                Ownership(
+                    contact_designation_name=owner["display_name"],
+                    person=owner["email"],
+                )
+            ]
+        )
+
     def _init_dataset(self, table_obj: Any) -> Dataset:
         table = Table.model_validate(table_obj)
         schema = self._get_schema(table.schema_id)
@@ -119,6 +145,7 @@ class AlationExtractor(BaseExtractor):
                 self._config.description_author_email, columns
             ),
             tag_assignment=self._get_tag_assignment(table, columns),
+            ownership_assignment=self._get_ownership_assignment(table.steward),
         )
         return dataset
 
