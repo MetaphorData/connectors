@@ -85,8 +85,26 @@ def test_fetch_tables(mock_connect: MagicMock):
 
     mock_cursor.__iter__.return_value = iter(
         [
-            (database, schema, table_name, table_type, "comment1", 10, 20000),
-            (database, schema, "foo.bar", table_type, "", 0, 0),
+            (
+                database,
+                schema,
+                table_name,
+                table_type,
+                "comment1",
+                10,
+                20000,
+                None,
+            ),
+            (
+                database,
+                schema,
+                "foo.bar",
+                table_type,
+                "",
+                0,
+                0,
+                datetime.fromisoformat("2024-01-01"),
+            ),
         ]
     )
 
@@ -176,7 +194,14 @@ def test_fetch_table_info_with_unknown_type(mock_connect: MagicMock):
 
     extractor._conn = mock_connect
     dataset = extractor._init_dataset(
-        "db", "schema", "table", "BAD_TYPE", "comment", None, None
+        "db",
+        "schema",
+        "table",
+        "BAD_TYPE",
+        "comment",
+        None,
+        None,
+        None,
     )
     assert dataset.schema.sql_schema.materialization is None
 
