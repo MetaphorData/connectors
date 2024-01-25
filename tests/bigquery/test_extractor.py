@@ -36,6 +36,7 @@ def mock_table_full(
     num_bytes=0,
     num_rows=0,
     modified=datetime.fromisoformat("2000-01-01"),
+    created=datetime.fromisoformat("2000-01-01"),
 ):
     table = MagicMock()
     table.dataset_id = dataset_id
@@ -48,6 +49,7 @@ def mock_table_full(
     table.num_bytes = num_bytes
     table.num_rows = num_rows
     table.modified = modified.replace(tzinfo=timezone.utc)
+    table.created = created.replace(tzinfo=timezone.utc)
     return table
 
 
@@ -126,6 +128,7 @@ async def test_extractor(
         mock_build_client,
         {
             ("dataset1", "table1"): mock_table_full(
+                created=datetime.fromisoformat("2000-01-01"),
                 dataset_id="dataset1",
                 table_id="table1",
                 table_type="TABLE",
@@ -149,6 +152,7 @@ async def test_extractor(
                 num_rows=100,
             ),
             ("dataset1", "table2"): mock_table_full(
+                created=datetime.fromisoformat("2000-01-01"),
                 dataset_id="dataset1",
                 table_id="table2",
                 table_type="VIEW",
