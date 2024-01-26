@@ -519,7 +519,8 @@ class SnowflakeExtractor(BaseExtractor):
 
             if object_type in {"DATABASE", "SCHEMA"}:
                 for dataset_key in self._datasets:
-                    if dataset_key.startswith(key_prefix):
+                    # Need to make sure key_prefix == `db`.`schema`
+                    if dataset_key.startswith(f"{key_prefix}."):
                         self._append_tag(dataset_key, key, value, None)
             else:
                 self._append_tag(
