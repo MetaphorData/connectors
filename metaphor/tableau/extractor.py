@@ -175,7 +175,7 @@ class TableauExtractor(BaseExtractor):
             f"\nThere are {len(workbooks)} workbooks on site: {[workbook.name for workbook in workbooks]}"
         )
         for workbook in workbooks:
-            if workbook.project_id:
+            if workbook.id is not None and workbook.project_id is not None:
                 self._workbook_project[workbook.id] = workbook.project_id
 
             server.workbooks.populate_views(workbook, usage=True)
