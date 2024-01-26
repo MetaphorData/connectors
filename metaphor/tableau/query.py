@@ -124,7 +124,6 @@ class WorkbookQueryResponse(BaseModel):
 
     luid: str
     name: str
-    projectLuid: Optional[str] = None
     projectName: str
     vizportalUrlId: str
     upstreamDatasources: List[PublishedDatasource]
