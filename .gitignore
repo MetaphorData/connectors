@@ -143,3 +143,6 @@ poetry.toml
 
 # Minio system files
 tests/s3/data/.minio.sys
+
+# pytest-testmon metadata
+.testmondata*
