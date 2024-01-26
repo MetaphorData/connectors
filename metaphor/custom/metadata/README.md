@@ -22,14 +22,15 @@ datasets:
       <key>: <value>
       ...
   ...
-output:
-  file:
-    directory: <output_directory>
 ```
 
 > Note: You only need to specify `account` if the platform is `SNOWFLAKE`.
 
-See [Output Config](../../common/docs/output.md) for more information on `output`.
+### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ### Examples
 

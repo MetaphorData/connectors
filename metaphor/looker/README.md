@@ -61,14 +61,9 @@ connections:
     default_schema: <schema_name>
     account: <snowflake_account>
     platform: SNOWFLAKE
-output:
-  file:
-    directory: <output_directory>
 ```
 
 Note that `connections` is a mapping of database connection names to connection settings. You can find these settings under `Admin` > `Connections`. For now, the only platform supported is `SNOWFLAKE` with `account` set to the matching [Snowflake Account Identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier.html).
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 The connector also needs to parse the LookML project to extract additional metadata. There are two ways to provide the project source code. If the source code is in local environment, we can set the path to the project root as following:
 
@@ -101,6 +96,8 @@ You can also disable SSL verify and change the request timeout if needed, e.g.
 verify_ssl: false 
 timeout: 30  # default 120 seconds
 ```
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 

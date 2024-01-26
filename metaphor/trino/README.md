@@ -24,18 +24,18 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 You must specify the host, port, and the user in order to connect to Trino.
+
 ```yaml
 host: <host>
 port: <port>
 username: <username>
-output:
-  file:
-    directory: <output_directory>
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 #### Authentication
 

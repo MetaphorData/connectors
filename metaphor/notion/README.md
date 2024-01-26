@@ -20,10 +20,6 @@ Create a YAML config file based on the following template.
 notion_api_token: <notion_api_token>
 
 azure_openAI_key: <azure_openAI_key>
-
-output:
-  file:
-    directory: <output_directory> 
 ```
 
 ### Optional Configurations
@@ -41,6 +37,8 @@ azure_openAI_model: <azure_openAI_model> # "text-embedding-ada-002"
 notion_api_version: <api_key_version> # "2022-06-08"
 include_text: <include_text> # False
 ```
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 

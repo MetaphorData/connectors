@@ -77,9 +77,6 @@ user: <snowflake_username>
 password: <snowflake_password>
 role: <snowflake_role> # Optional. Will use default role if not specified.
 default_database: <default_database_for_connections>
-output:
-  file:
-    directory: <output_directory>
 ```
 
 If using key pair authentication:
@@ -92,9 +89,6 @@ private_key:
   passphrase: <private_key_encoding_passphrase>
 role: <snowflake_role> # Optional. Will use default role if not specified.
 default_database: <default_database_for_connections>
-output:
-  file:
-    directory: <output_directory>
 ```
 
 The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.
@@ -109,9 +103,11 @@ private_key:
     -----END ENCRYPTED PRIVATE KEY-----
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 #### Filtering
 

@@ -16,12 +16,13 @@ Create a YAML config file based on the following template.
 api_key_id: <api_key_id>
 api_key_secret: <api_key_token>
 data_platform: <data_platform>  # SNOWFLAKE, BIGQUERY, REDSHIFT, etc.
-output:
-  file:
-    directory: <output_directory>
 ```
 
 ### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 #### Snowflake Account
 

@@ -31,12 +31,7 @@ host: <databse_hostname>
 user: <username>
 password: <password>
 database: <default_database_for_connections>
-output:
-  file:
-    directory: <output_directory>
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
@@ -47,6 +42,8 @@ port: <port_number>
 ```
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 

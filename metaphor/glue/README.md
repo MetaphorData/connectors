@@ -43,12 +43,13 @@ aws:
   secret_access_key: <aws_secret_access_key>
   region_name: <aws_region_name>
   assume_role_arn: <aws_role_arn>  # If using IAM role
-output:
-  file:
-    directory: <output_directory>
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
+### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 

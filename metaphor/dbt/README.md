@@ -17,14 +17,13 @@ Create a YAML config file based the following template.
 ```yaml
 manifest: <path_to_manifest_json>
 run_results: <path_to_run_results_json>
-output:
-  file:
-    directory: <output_directory>
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 #### Snowflake Account
 

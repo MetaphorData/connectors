@@ -26,14 +26,13 @@ Create a YAML config file based on the following template.
 host: <host>
 port: <port>
 token: <token> # This is the personal access token.
-output:
-  file:
-    directory: <output_directory>
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 #### Snowflake, MSSQL and Synapse Account
 

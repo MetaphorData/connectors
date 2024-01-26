@@ -75,12 +75,7 @@ Create a YAML config file based on the following template.
 ```yaml
 project_ids:
   - <bigquery_project_id>
-output:
-  file:
-    directory: <output_directory>
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 To connect to BigQuery, either the keyfile path or credentials from the JSON keyfile must be set in the config as following:
 
@@ -111,6 +106,10 @@ credentials:
 > ```
 
 ### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 #### Filtering
 

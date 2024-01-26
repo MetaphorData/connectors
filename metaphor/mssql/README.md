@@ -28,13 +28,7 @@ username: <username>  # The MSSQL server login username
 password: <password>  # The MSSQL server login password
 
 endpoint: <endpoint>  # The MSSQL server endpoint
-
-output:
-  file:
-    directory: <output_directory>  # the output result directory
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
@@ -47,6 +41,8 @@ tenant_id: <tenant_id>  # The azure directory (tenant) id
 ```
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 

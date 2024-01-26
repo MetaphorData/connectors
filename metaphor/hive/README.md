@@ -17,17 +17,15 @@ host: <host>
 port: <port>
 auth_user: <auth user for hiveserver>
 password: <password for the auth user>
-
-output:
-  file:
-    directory: <output_directory>
 ```
 
 For testing environments there could be no authentication. In that case, do not set `auth_user` and `password`
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 #### Column Statistics
 

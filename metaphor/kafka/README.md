@@ -19,16 +19,15 @@ bootstrap_servers:
   - host: <host>
     port: <port>
 schema_registry_url: <schema_registry_url>
-output:
-  file:
-    directory: <output_directory>
 ```
 
 To use HTTP basic authentication for the schema registry, specify the credentials in `schema_regitry_url` using the format `https://<username>:<password>@host:port`.
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 #### SASL Authentication
 

@@ -32,13 +32,7 @@ verify_ssl: <verify_ssl>
 # Whether or not to verify SSL certificates. By default SSL certificates are verified. You can provide the following            values:
 # * False - do not validate SSL certificates. SSL will still be used, but SSL certificates will not be verified.
 # * path/to/cert/bundle.pem - A filename of the CA cert bundle to use.  You can specify this argument if you want to use a different CA cert bundle than the one used by botocore.
-
-output:
-  file:
-    directory: <output_directory>
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 #### Path specifications
 
@@ -136,6 +130,12 @@ All other file types are automatically ignored. If not provided, all these file 
 ##### Excluded URIs
 
 The excluded URIs do not support labels.
+
+### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 

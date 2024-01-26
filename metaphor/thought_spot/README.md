@@ -28,11 +28,13 @@ secret_key: <secret>
 
 # If using password to authenticate
 password: <password>
-
-output:
-  file:
-    directory: <output_directory>
 ```
+
+### Optional Configurations
+
+#### Output Destination
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 

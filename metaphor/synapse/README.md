@@ -37,13 +37,7 @@ tenant_id: <tenant_id>  # Azure tenant ID
 server_name: <workspace_name>  # Synapse workspace name
 username: <username>
 password: <password>
-
-output:
-  file:
-    directory: <output_directory>  # the output result directory
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
@@ -55,6 +49,8 @@ query_log:
 ```
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+
+By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 
