@@ -104,6 +104,9 @@ class TableauExtractor(BaseExtractor):
 
         self._users: Dict[str, tableau.UserItem] = {}
 
+        # Map workbook id -> project_id
+        self._workbook_project: Dict[str, str] = {}
+
         # The base URL for dashboards, data sources, etc.
         # Use alternative_base_url if provided, otherwise, use server_url as the base
         self._base_url = TableauExtractor._build_base_url(
@@ -172,6 +175,9 @@ class TableauExtractor(BaseExtractor):
             f"\nThere are {len(workbooks)} workbooks on site: {[workbook.name for workbook in workbooks]}"
         )
         for workbook in workbooks:
+            if workbook.project_id:
+                self._workbook_project[workbook.id] = workbook.project_id
+
             server.workbooks.populate_views(workbook, usage=True)
 
             try:
@@ -444,7 +450,7 @@ class TableauExtractor(BaseExtractor):
 
             full_name, structure = self._build_asset_full_name_and_structure(
                 published_source.name,
-                workbook.projectLuid,
+                self._workbook_project.get(workbook.luid),
                 workbook.projectName,
             )
 
