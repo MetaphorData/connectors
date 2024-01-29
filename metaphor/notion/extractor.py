@@ -117,7 +117,7 @@ class NotionExtractor(BaseExtractor):
         except HTTPError as error:
             traceback.print_exc()
             logger.error(f"Failed to get Notion database IDs, error {error}")
-            raise HTTPError("Failed to get Notion database IDs")
+            raise error
 
         # Load JSON response
         dbs = json.loads(r.content)["results"]
