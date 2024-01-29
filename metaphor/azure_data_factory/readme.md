@@ -25,17 +25,13 @@ client_secret: <client_secret>  # The client secret value (not secret ID)
 
 subscription_id: <subscription_id>  # Azure subscription id
 
-output:
-  file:
-    directory: <output_directory>
 ```
-
 
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `datafactory` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor azure_data_factory <config_file>

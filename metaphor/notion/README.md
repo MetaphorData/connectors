@@ -38,13 +38,13 @@ notion_api_version: <api_key_version> # "2022-06-08"
 include_text: <include_text> # False
 ```
 
-By default, the connector writes the extracted metadatas to `${pwd}/${CURRENT_TIMESTAMP}`. To modify the location or disable writing altogether, see [Output Config](../common/docs/output.md) for more information.
+See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
 
 ## Testing
 
-Follow the [installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include the `notion` or `all` extra. 
+Follow the [installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include the `notion` or `all` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor notion <config_file>
