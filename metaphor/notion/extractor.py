@@ -88,7 +88,7 @@ class NotionExtractor(BaseExtractor):
 
         except (HTTPError, KeyError) as error:
             traceback.print_exc()
-            logger.warn(f"Failed to get title for page {page}, err: {error}")
+            logger.warning(f"Failed to get title for page {page}, err: {error}")
             title = ""
 
         return title
@@ -117,6 +117,7 @@ class NotionExtractor(BaseExtractor):
         except HTTPError as error:
             traceback.print_exc()
             logger.error(f"Failed to get Notion database IDs, error {error}")
+            raise HTTPError("Failed to get Notion database IDs")
 
         # Load JSON response
         dbs = json.loads(r.content)["results"]

@@ -2,6 +2,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 from llama_index import Document
 
 from metaphor.common.base_config import OutputConfig
@@ -93,11 +94,41 @@ class MockResponse:
         return
 
 
+# test for _get_title
+@patch("requests.get")
+@pytest.mark.asyncio
+async def test_get_title(
+    mock_get: MagicMock,
+    notion_extractor,
+    test_root_dir: str,
+) -> None:
+    fake_title = {"results": [{"title": {"plain_text": "Hello World!"}}]}
+
+    mock_response = MagicMock()
+
+    # Successful retrieval
+    mock_response.json.return_value = fake_title
+    mock_get.return_value = mock_response
+    title = notion_extractor._get_title("https://metaphor.io")
+    assert title == "Hello World!"
+
+    # KeyError
+    mock_get.side_effect = KeyError
+    title = notion_extractor._get_title("https://metaphor.io")
+    assert title == ""
+
+    # HTTPError
+    mock_get.side_effect = requests.HTTPError
+    title = notion_extractor._get_title("https://metaphor.io")
+    assert title == ""
+
+
 # test for _get_databases
 @patch("requests.post")
 @pytest.mark.asyncio
 async def test_get_databases(
     mock_post: MagicMock,
+    notion_extractor,
     test_root_dir: str,
 ) -> None:
     mock_post_val = MagicMock()
@@ -111,33 +142,17 @@ async def test_get_databases(
         }
     )
 
+    # Successful retrieval
     mock_post.return_value = mock_post_val
+    notion_extractor._get_databases()
+    assert notion_extractor.db_ids == [12345, 56789]
 
-    extractor = NotionExtractor(config=dummy_config)
-
-    extractor._get_databases()
-
-    assert extractor.db_ids == [12345, 56789]
-
-
-# test for _get_title
-@patch("requests.get")
-@pytest.mark.asyncio
-async def test_get_title(
-    mock_get: MagicMock,
-    notion_extractor,
-    test_root_dir: str,
-) -> None:
-    fake_title = {"results": [{"title": {"plain_text": "Hello World!"}}]}
-
-    mock_response = MagicMock()
-    mock_response.json.return_value = fake_title
-
-    mock_get.return_value = mock_response
-
-    title = notion_extractor._get_title("https://metaphor.io")
-
-    assert title == "Hello World!"
+    # HTTPError
+    mock_post.side_effect = requests.HTTPError
+    try:
+        notion_extractor._get_databases()
+    except requests.HTTPError:
+        assert True
 
 
 # test for _get_all_documents
