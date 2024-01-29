@@ -46,8 +46,8 @@ def test_get_page_subpages(mock_get, static_web_extractor):
     mock_get.return_value = mock_response
     static_web_extractor._current_parent_page = "https://example.com"
     result = static_web_extractor._get_page_subpages("https://example.com")
-    assert "https://example.com" in result
-    assert "https://example.com/subpage1" in result
+    assert "https://example.com" == result[0]
+    assert "https://example.com/subpage1" == result[1]
 
     # Exception handling case
     mock_get.side_effect = requests.exceptions.RequestException()
