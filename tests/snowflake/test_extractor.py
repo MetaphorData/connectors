@@ -85,8 +85,26 @@ def test_fetch_tables(mock_connect: MagicMock):
 
     mock_cursor.__iter__.return_value = iter(
         [
-            (database, schema, table_name, table_type, "comment1", 10, 20000),
-            (database, schema, "foo.bar", table_type, "", 0, 0),
+            (
+                database,
+                schema,
+                table_name,
+                table_type,
+                "comment1",
+                10,
+                20000,
+                None,
+            ),
+            (
+                database,
+                schema,
+                "foo.bar",
+                table_type,
+                "",
+                0,
+                0,
+                datetime.fromisoformat("2024-01-01"),
+            ),
         ]
     )
 
@@ -176,7 +194,14 @@ def test_fetch_table_info_with_unknown_type(mock_connect: MagicMock):
 
     extractor._conn = mock_connect
     dataset = extractor._init_dataset(
-        "db", "schema", "table", "BAD_TYPE", "comment", None, None
+        "db",
+        "schema",
+        "table",
+        "BAD_TYPE",
+        "comment",
+        None,
+        None,
+        None,
     )
     assert dataset.schema.sql_schema.materialization is None
 
@@ -260,6 +285,42 @@ def test_fetch_tags(mock_connect: MagicMock):
 
 
 @patch("metaphor.snowflake.auth.connect")
+def test_fetch_tags_for_similar_schema(mock_connect: MagicMock):
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            ("foo", "foo", "SCHEMA", "db", None, "foo", None),
+            ("foobar", "foo", "SCHEMA", "db", None, "foobar", None),
+            ("foobaz", "foo", "SCHEMA", "db", None, "foobaz", None),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    for i, schema in enumerate(["foo", "foobar", "foobaz"]):
+        extractor._datasets[
+            dataset_normalized_name("db", schema, f"table{i}")
+        ] = extractor._init_dataset(
+            "db", schema, f"table{i}", table_type, "", None, None
+        )
+
+    extractor._fetch_tags(mock_cursor)
+
+    assert "db.foo.table0" in extractor._datasets
+    assert extractor._datasets["db.foo.table0"].schema
+    assert extractor._datasets["db.foo.table0"].schema.tags == ["foo=foo"]
+
+    assert "db.foobar.table1" in extractor._datasets
+    assert extractor._datasets["db.foobar.table1"].schema
+    assert extractor._datasets["db.foobar.table1"].schema.tags == ["foobar=foo"]
+
+    assert "db.foobaz.table2" in extractor._datasets
+    assert extractor._datasets["db.foobaz.table2"].schema
+    assert extractor._datasets["db.foobaz.table2"].schema.tags == ["foobaz=foo"]
+
+
+@patch("metaphor.snowflake.auth.connect")
 def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
@@ -294,7 +355,7 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
 
     extractor._fetch_tags(mock_cursor)
 
-    assert dataset.schema.tags == ["bad=bad", "not=good"]
+    assert not dataset.schema.tags
     assert extractor._hierarchies.get(dataset_normalized_name(table_name)) is not None
     db_hierarchy = extractor._hierarchies[dataset_normalized_name(table_name)]
     assert db_hierarchy.logical_id == HierarchyLogicalID(
