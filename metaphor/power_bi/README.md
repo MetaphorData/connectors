@@ -63,6 +63,8 @@ When extracting lineages, the connector parses the snowflake account directly fr
 snowflake_account: <snowflake_account>
 ```
 
+#### Output Destination
+
 See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
 
 ## Testing

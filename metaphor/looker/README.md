@@ -97,6 +97,8 @@ verify_ssl: false
 timeout: 30  # default 120 seconds
 ```
 
+#### Output Destination
+
 See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
 
 ## Testing

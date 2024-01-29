@@ -27,6 +27,12 @@ subscription_id: <subscription_id>  # Azure subscription id
 
 ```
 
+### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `datafactory` extra.

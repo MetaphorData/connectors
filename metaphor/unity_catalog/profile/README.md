@@ -25,6 +25,8 @@ token: <access_token>
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
+#### Output Destination
+
 See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
 
 ## Testing

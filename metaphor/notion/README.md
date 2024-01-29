@@ -38,6 +38,8 @@ notion_api_version: <api_key_version> # "2022-06-08"
 include_text: <include_text> # False
 ```
 
+#### Output Destination
+
 See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
 
 ## Testing
