@@ -1,14 +1,15 @@
 import asyncio
 import datetime
-from typing import Collection, List
-from urllib.parse import urljoin
+from typing import Collection, List, Tuple
+from urllib.parse import urljoin, urlparse
 
 import aiohttp
 import requests
 from aiohttp.client_exceptions import ClientResponseError
+from bs4 import BeautifulSoup
+from bs4.element import Comment
 from llama_index import Document
-from lxml import etree
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
@@ -45,7 +46,6 @@ class StaticWebExtractor(BaseExtractor):
 
     async def extract(self) -> Collection[dict]:
         logger.info("Scraping provided URLs")
-
         docs = []
 
         # Retrieval for all pages
@@ -53,6 +53,7 @@ class StaticWebExtractor(BaseExtractor):
             logger.info(f"Processing {page}")
 
             if depth:
+                self._current_parent_page = page
                 subpages = self._get_page_subpages(page)
                 for _ in range(1, depth):
                     for subpage in subpages:
@@ -63,9 +64,9 @@ class StaticWebExtractor(BaseExtractor):
                 subpages = []
                 subpages.append(page)
 
-            page_contents = await self._get_urls_content(subpages)
+            page_titles, page_contents = await self._get_URLs_HTML(subpages)
 
-            p_docs = self._make_documents(subpages, page_contents)
+            p_docs = self._make_documents(subpages, page_titles, page_contents)
 
             docs.extend(p_docs)
 
@@ -89,35 +90,39 @@ class StaticWebExtractor(BaseExtractor):
     def _get_page_subpages(self, input_URL: str) -> List[str]:
         """
         Extracts and returns a list of subpage URLs from a given webpage URL.
-        The list includes the original URL followed by URLs of all found subpages.
         Subpage URLs are reconstructed to be absolute URLs and anchor links are trimmed.
         """
-        # Trim trailing slashes and anchor links
-        input_URL = input_URL.rstrip("/").split("#")[0]
-
-        pages = [input_URL]
-
+        # Retrieve input page
         try:
-            r = requests.get(input_URL, timeout=5)
-            r.raise_for_status()
-            html = etree.HTML(r.text)
+            response = requests.get(input_URL, timeout=5)
+            response.raise_for_status()
+        except (HTTPError, RequestException) as e:
+            logger.warning(f"Error in {input_URL} retrieval, error: {e}")
+            return [input_URL]
 
-            # Use urljoin for proper URL construction
-            pages.extend(
-                urljoin(input_URL, a.split("#")[0])
-                for a in html.xpath(".//a/@href")
-                if a.startswith("/")
-            )
+        soup = BeautifulSoup(response.text, "lxml")
+        links = soup.find_all("a", href=True)
 
-        except HTTPError as e:
-            logger.warning(f"Couldn't retrieve page {input_URL}: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error while retrieving page {input_URL}: {e}")
+        # Parse the domain of the input URL
+        input_domain = urlparse(self._current_parent_page).netloc
+        subpages = [input_URL]
 
-        return pages
+        # Find eligible links
+        for link in links:
+            href = link["href"]
+            full_url = urljoin(input_URL, href)
+
+            # Check if the domain of the full URL matches the input domain
+            if urlparse(full_url).netloc == input_domain:
+                # Remove any query parameters or fragments
+                full_url = urljoin(full_url, urlparse(full_url).path)
+                if full_url not in subpages:
+                    subpages.append(full_url)
+
+        return subpages
 
     # exponential backoff? or is it ok if things fail
-    async def _fetch_page_content(
+    async def _fetch_page_HTML(
         self, session: aiohttp.ClientSession, input_URL: str
     ) -> str:
         """
@@ -129,39 +134,83 @@ class StaticWebExtractor(BaseExtractor):
                 response.raise_for_status()
                 return await response.text()
         except ClientResponseError:
-            logger.warn(f"Error in retrieving {input_URL}")
+            logger.warning(f"Error in retrieving {input_URL}")
             return "ERROR IN PAGE RETRIEVAL"  # Error handling
 
-    def _get_text_from_html(self, html_content: str) -> str:
+    def _get_text_from_HTML(self, html_content: str) -> str:
         """
-        Extracts and returns text from given HTML content as a single string.
+        Extracts and returns visible text from given HTML content as a single string.
         Designed to handle output from fetch_page_content.
         """
         if html_content == "ERROR IN PAGE RETRIEVAL":
             return html_content  # Return the error message as is
 
-        tree = etree.HTML(html_content)
-        return "\n".join([element.text for element in tree.iter() if element.text])
+        def filter_visible(el):
+            if el.parent.name in [
+                "style",
+                "script",
+                "head",
+                "title",
+                "meta",
+                "[document]",
+            ]:
+                return False
+            elif isinstance(el, Comment):
+                return False
+            else:
+                return True
 
-    async def _get_urls_content(self, urls: List[str]) -> List[str]:
+        # Use bs4 to find visible text elements
+        soup = BeautifulSoup(html_content, "lxml")
+        visible_text = filter(filter_visible, soup.findAll(string=True))
+        return "\n".join(t.strip() for t in visible_text)
+
+    def _get_title_from_HTML(self, html_content: str) -> str:
+        """
+        Extracts the title of a webpage given HTML content as a single string.
+        Designed to handle output from fetch_page_content.
+        """
+
+        if html_content == "ERROR IN PAGE RETRIEVAL":
+            return ""  # Return no title
+
+        soup = BeautifulSoup(html_content, "lxml")
+        title_tag = soup.find("title")
+
+        if title_tag:
+            return title_tag.text
+
+        else:
+            return ""
+
+    async def _get_URLs_HTML(self, urls: List[str]) -> Tuple[List[str], List[str]]:
         """
         Asynchronously fetches and processes content from a list of URLs.
         Returns a list of text content or error messages for each URL.
         """
         async with aiohttp.ClientSession() as session:
-            tasks = [self._fetch_page_content(session, url) for url in urls]
+            tasks = [self._fetch_page_HTML(session, url) for url in urls]
             pages_content = await asyncio.gather(*tasks)
-            return [self._get_text_from_html(content) for content in pages_content]
+            page_texts = [
+                self._get_text_from_HTML(content) for content in pages_content
+            ]
+            page_titles = [
+                self._get_title_from_HTML(content) for content in pages_content
+            ]
 
-    def _make_documents(self, page_URLs, page_contents):
+            return page_titles, page_texts
+
+    def _make_documents(
+        self, page_URLs: List[str], page_titles: List[str], page_contents: List[str]
+    ):
         """
         Constructs Document objects from webpage URLs and their content, including extra metadata.
-        Cleans text content and includes data like platform URL, page link, refresh timestamp, and page ID.
+        Cleans text content and includes data like page title, platform URL, page link, refresh timestamp, and page ID.
         """
         docs = []
-        base_URL = "/".join(page_URLs[0].split("/")[0:3])
+        base_URL = urlparse(page_URLs[0]).netloc
         current_time = str(datetime.datetime.utcnow())
-        for url, content in zip(page_URLs, page_contents):
+        for url, title, content in zip(page_URLs, page_titles, page_contents):
             # Skip pages that weren't retrieved successfully
             if "ERROR IN PAGE RETRIEVAL" in content:
                 continue
@@ -169,6 +218,7 @@ class StaticWebExtractor(BaseExtractor):
             doc = Document(
                 text=sanitize_text(content),
                 extra_info={
+                    "title": title,
                     "platform": base_URL,
                     "link": url,
                     "lastRefreshed": current_time,
