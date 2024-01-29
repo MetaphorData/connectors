@@ -120,6 +120,26 @@ async def test_get_databases(
     assert extractor.db_ids == [12345, 56789]
 
 
+# test for _get_title
+@patch("requests.get")
+@pytest.mark.asyncio
+async def test_get_title(
+    mock_get: MagicMock,
+    notion_extractor,
+    test_root_dir: str,
+) -> None:
+    fake_title = {"results": [{"title": {"plain_text": "Hello World!"}}]}
+
+    mock_response = MagicMock()
+    mock_response.json.return_value = fake_title
+
+    mock_get.return_value = mock_response
+
+    title = notion_extractor._get_title("https://metaphor.io")
+
+    assert title == "Hello World!"
+
+
 # test for _get_all_documents
 @patch("metaphor.notion.NotionExtractor._get_title")
 def test_get_all_documents(
@@ -161,6 +181,7 @@ async def test_extractor(
     mock_get_dbs: MagicMock,
     mock_get_docs: MagicMock,
     mock_get_title: MagicMock,
+    notion_extractor,
     test_root_dir: str,
 ) -> None:
     # mock VectorStoreIndex creation
@@ -199,8 +220,6 @@ async def test_extractor(
     # mock title retrieve
     mock_get_title.return_value = "Hello World!"
 
-    extractor = NotionExtractor(config=dummy_config)
-
-    events = await extractor.extract()
+    events = await notion_extractor.extract()
 
     assert events == load_json(f"{test_root_dir}/notion/expected.json")
