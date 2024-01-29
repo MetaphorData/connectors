@@ -36,6 +36,10 @@
       "database": "project1",
       "schema": "dataset1",
       "table": "table1"
+    },
+    "sourceInfo": {
+      "createdAtSource": "2000-01-01T00:00:00+00:00",
+      "lastUpdated": "2000-01-02T00:00:00+00:00"
     }
   },
   {
@@ -92,6 +96,10 @@
       "database": "project1",
       "schema": "dataset1",
       "table": "table2"
+    },
+    "sourceInfo": {
+      "createdAtSource": "2000-01-01T00:00:00+00:00",
+      "lastUpdated": "2000-01-02T00:00:00+00:00"
     }
   },
   {

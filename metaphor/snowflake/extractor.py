@@ -174,7 +174,7 @@ class SnowflakeExtractor(BaseExtractor):
         return [db[3].lower() for db in cursor if db[1] == "INBOUND"]
 
     FETCH_TABLE_QUERY = """
-    SELECT table_catalog, table_schema, table_name, table_type, COMMENT, row_count, bytes
+    SELECT table_catalog, table_schema, table_name, table_type, COMMENT, row_count, bytes, created
     FROM information_schema.tables
     WHERE table_schema != 'INFORMATION_SCHEMA'
     ORDER BY table_schema, table_name
@@ -199,6 +199,7 @@ class SnowflakeExtractor(BaseExtractor):
             comment,
             row_count,
             table_bytes,
+            created,
         ) in cursor:
             normalized_name = dataset_normalized_name(database, schema, name)
             if not self._filter.include_table(database, schema, name):
@@ -213,7 +214,14 @@ class SnowflakeExtractor(BaseExtractor):
                 continue
 
             self._datasets[normalized_name] = self._init_dataset(
-                database, schema, name, table_type, comment, row_count, table_bytes
+                database,
+                schema,
+                name,
+                table_type,
+                comment,
+                row_count,
+                table_bytes,
+                created,
             )
             tables[normalized_name] = DatasetInfo(database, schema, name, table_type)
 
@@ -511,7 +519,8 @@ class SnowflakeExtractor(BaseExtractor):
 
             if object_type in {"DATABASE", "SCHEMA"}:
                 for dataset_key in self._datasets:
-                    if dataset_key.startswith(key_prefix):
+                    # Need to make sure key_prefix == `db`.`schema`
+                    if dataset_key.startswith(f"{key_prefix}."):
                         self._append_tag(dataset_key, key, value, None)
             else:
                 self._append_tag(
@@ -564,6 +573,7 @@ class SnowflakeExtractor(BaseExtractor):
         cursor.execute(f"SHOW STREAMS IN {schema}")
         for entry in cursor:
             (
+                create_on,
                 stream_name,
                 comment,
                 source_name,
@@ -572,6 +582,7 @@ class SnowflakeExtractor(BaseExtractor):
                 stream_type_str,
                 stale_after,
             ) = (
+                entry[0],
                 entry[1],
                 entry[5],
                 entry[6],
@@ -598,6 +609,7 @@ class SnowflakeExtractor(BaseExtractor):
                 comment=comment,
                 row_count=row_count,
                 table_bytes=None,  # Not applicable to streams
+                created=create_on,
             )
 
             def _to_dataset_eid(x: str) -> str:
@@ -784,6 +796,7 @@ class SnowflakeExtractor(BaseExtractor):
         comment: str,
         row_count: Optional[int],
         table_bytes: Optional[float],
+        created: Optional[datetime] = None,
     ) -> Dataset:
         normalized_name = dataset_normalized_name(database, schema, table)
         dataset = Dataset()
@@ -793,7 +806,8 @@ class SnowflakeExtractor(BaseExtractor):
         )
 
         dataset.source_info = SourceInfo(
-            main_url=SnowflakeExtractor.build_table_url(self._account, normalized_name)
+            main_url=SnowflakeExtractor.build_table_url(self._account, normalized_name),
+            created_at_source=created,
         )
 
         sql_schema = SQLSchema()
