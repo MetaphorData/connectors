@@ -7,6 +7,9 @@ env:
   NODE_VERSION: 16
   DOCKER_IMAGE: metaphordata/connectors
 
+permissions:
+  contents: read
+
 # Run this build workflow after a new PR is merged
 on:
   push:
