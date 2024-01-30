@@ -19,16 +19,15 @@ bootstrap_servers:
   - host: <host>
     port: <port>
 schema_registry_url: <schema_registry_url>
-output:
-  file:
-    directory: <output_directory>
 ```
 
 To use HTTP basic authentication for the schema registry, specify the credentials in `schema_regitry_url` using the format `https://<username>:<password>@host:port`.
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 #### SASL Authentication
 
@@ -148,7 +147,7 @@ The results in the following schemas
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `kafka` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor kafka <config_file>

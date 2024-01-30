@@ -5,6 +5,7 @@ This connector extracts metadata from Trino using [Trino Python Client](https://
 ## Setup
 
 To run a Trino db instance locally, create the docker container with:
+
 ```shell
 docker run --name trino -d -p 8080:8080 trinodb/trino
 ```
@@ -24,18 +25,18 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 You must specify the host, port, and the user in order to connect to Trino.
+
 ```yaml
 host: <host>
 port: <port>
 username: <username>
-output:
-  file:
-    directory: <output_directory>
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 #### Authentication
 
@@ -75,7 +76,7 @@ By default the following are excluded:
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `trino` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor trino <config_file>

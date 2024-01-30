@@ -45,10 +45,6 @@ tenant_id: <tenant_id>  # The Power BI tenant ID
 client_id: <client_id>  # The Azure Application client id
 
 secret: <secret>  # The client secret value (not secret ID)
-
-output:
-  file:
-    directory: <output_directory>
 ```
 
 ### Optional Configurations
@@ -67,12 +63,15 @@ When extracting lineages, the connector parses the snowflake account directly fr
 snowflake_account: <snowflake_account>
 ```
 
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
 
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `power_bi` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor power_bi <config_file>

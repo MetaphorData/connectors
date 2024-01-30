@@ -19,14 +19,13 @@ Create a YAML config file based on the following template.
 ```yaml
 host: <workspace_url>
 token: <access_token>
-output:
-  file:
-    directory: <output_directory>
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 #### Filtering
 
@@ -74,7 +73,7 @@ query_log:
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `unity_catalog` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor unity_catalog <config_file>

@@ -32,13 +32,7 @@ verify_ssl: <verify_ssl>
 # Whether or not to verify SSL certificates. By default SSL certificates are verified. You can provide the following            values:
 # * False - do not validate SSL certificates. SSL will still be used, but SSL certificates will not be verified.
 # * path/to/cert/bundle.pem - A filename of the CA cert bundle to use.  You can specify this argument if you want to use a different CA cert bundle than the one used by botocore.
-
-output:
-  file:
-    directory: <output_directory>
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 #### Path specifications
 
@@ -137,11 +131,17 @@ All other file types are automatically ignored. If not provided, all these file 
 
 The excluded URIs do not support labels.
 
+### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `s3` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command.
+Run the following command to test the connector locally:
 
 ```shell
 metaphor s3 <config_file>

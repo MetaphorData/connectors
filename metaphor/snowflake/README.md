@@ -77,9 +77,6 @@ user: <snowflake_username>
 password: <snowflake_password>
 role: <snowflake_role> # Optional. Will use default role if not specified.
 default_database: <default_database_for_connections>
-output:
-  file:
-    directory: <output_directory>
 ```
 
 If using key pair authentication:
@@ -92,9 +89,6 @@ private_key:
   passphrase: <private_key_encoding_passphrase>
 role: <snowflake_role> # Optional. Will use default role if not specified.
 default_database: <default_database_for_connections>
-output:
-  file:
-    directory: <output_directory>
 ```
 
 The `private_key.passphrase` is only needed if using encrypted version of the private key. Otherwise, it can be omitted from the config.
@@ -109,9 +103,11 @@ private_key:
     -----END ENCRYPTED PRIVATE KEY-----
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
-
 ### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 #### Filtering
 
@@ -160,7 +156,7 @@ query_tag: <query_taqg> # Default to 'MetaphorData'
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `snowflake` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor snowflake <config_file>

@@ -28,17 +28,19 @@ secret_key: <secret>
 
 # If using password to authenticate
 password: <password>
-
-output:
-  file:
-    directory: <output_directory>
 ```
+
+### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `thought_spot` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor thought_spot <config_file>
