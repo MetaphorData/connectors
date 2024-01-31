@@ -16,17 +16,19 @@ Create a YAML config file based on the following template.
 ```yaml
 api_key: <api_key>
 api_secret: <api_secret>
-
-output:
-  file:
-    directory: <output_directory>
 ```
+
+### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv).
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor fivetran <config_file>

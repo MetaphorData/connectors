@@ -24,7 +24,7 @@ See [Sampling Config](../../common/docs/sampling.md) for details.
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `bigquery` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```bash
 metaphor bigquery.profile <config_file>

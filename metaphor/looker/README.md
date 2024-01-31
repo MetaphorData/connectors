@@ -61,14 +61,9 @@ connections:
     default_schema: <schema_name>
     account: <snowflake_account>
     platform: SNOWFLAKE
-output:
-  file:
-    directory: <output_directory>
 ```
 
 Note that `connections` is a mapping of database connection names to connection settings. You can find these settings under `Admin` > `Connections`. For now, the only platform supported is `SNOWFLAKE` with `account` set to the matching [Snowflake Account Identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier.html).
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 The connector also needs to parse the LookML project to extract additional metadata. There are two ways to provide the project source code. If the source code is in local environment, we can set the path to the project root as following:
 
@@ -102,11 +97,15 @@ verify_ssl: false
 timeout: 30  # default 120 seconds
 ```
 
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `looker` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor looker <config_file>

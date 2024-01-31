@@ -12,7 +12,7 @@ Create and grant read-only permissions to a dedicated user in [Synapse workspace
     GRANT CONNECT ANY DATABASE TO <username>;
     GRANT VIEW ANY DEFINITION TO  <username>;
     ```
-    
+
 - For [dedicated pool](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-what-is):
     ```sql
     USE master;
@@ -25,7 +25,7 @@ Create and grant read-only permissions to a dedicated user in [Synapse workspace
     GRANT VIEW DEFINITION TO <username>;
     GRANT VIEW DATABASE STATE TO <username>;
     ```
-        
+
 ## Config File
 
 Create a YAML config file based on the following template.
@@ -37,13 +37,7 @@ tenant_id: <tenant_id>  # Azure tenant ID
 server_name: <workspace_name>  # Synapse workspace name
 username: <username>
 password: <password>
-
-output:
-  file:
-    directory: <output_directory>  # the output result directory
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
@@ -56,11 +50,15 @@ query_log:
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `synapse` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command.
+Run the following command to test the connector locally:
 
 ```shell
 metaphor synapse <config_file>

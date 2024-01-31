@@ -7,6 +7,9 @@ env:
   NODE_VERSION: 16
   DOCKER_IMAGE: metaphordata/connectors
 
+permissions:
+  contents: read
+
 # Run this build workflow after a new PR is merged
 on:
   push:
@@ -85,6 +88,8 @@ jobs:
     name: Publish to PyPI
     runs-on: ubuntu-latest
     needs: version
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
