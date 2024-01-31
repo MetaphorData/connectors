@@ -22,4 +22,4 @@ class NotionRunConfig(BaseConfig):
     include_text: bool = False
 
     # Notion API version
-    notion_api_version: str = "2022-06-08"
+    notion_api_version: str = "2022-06-28"
