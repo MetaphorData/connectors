@@ -11,6 +11,7 @@ from requests.exceptions import HTTPError
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
 from metaphor.common.logger import get_logger
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.notion.config import NotionRunConfig
 
 logger = get_logger()
@@ -23,6 +24,9 @@ embedding_overlap_size = 50
 
 class NotionExtractor(BaseExtractor):
     """Notion Document extractor."""
+
+    _description = "Notion document crawler"
+    _platform = Platform.UNKNOWN
 
     @staticmethod
     def from_config_file(config_file: str) -> "NotionExtractor":
@@ -71,6 +75,28 @@ class NotionExtractor(BaseExtractor):
         # Each document dict has nodeId, embedding, lastRefreshed, metadata
         return embedded_nodes
 
+    def _get_title(self, page: str) -> str:
+        headers = {
+            "Authorization": f"Bearer {self.notion_api_token}",
+            "Notion-Version": f"{self.notion_api_version}",
+        }
+
+        try:
+            r = requests.get(
+                f"{baseURL}/pages/{page}/properties/title", headers=headers, timeout=5
+            )
+            r.raise_for_status()
+
+            # Extract title
+            title = r.json()["results"][0]["title"]["plain_text"]
+
+        except (HTTPError, KeyError) as error:
+            traceback.print_exc()
+            logger.warning(f"Failed to get title for page {page}, err: {error}")
+            title = ""
+
+        return title
+
     def _get_databases(self) -> None:
         """
         Returns a list of database IDs.
@@ -95,6 +121,7 @@ class NotionExtractor(BaseExtractor):
         except HTTPError as error:
             traceback.print_exc()
             logger.error(f"Failed to get Notion database IDs, error {error}")
+            raise error
 
         # Load JSON response
         dbs = json.loads(r.content)["results"]
@@ -134,15 +161,19 @@ class NotionExtractor(BaseExtractor):
 
             # Update queried document metadata with db_id, platform info, link
             for q in queried:
+                # Reset page-id, remove hyphens
+                q.metadata["pageId"] = q.metadata.pop("page_id").replace("-", "")
+
+                # Add title to metadata
+                title = self._get_title(q.metadata["pageId"])
+                q.metadata["title"] = title
+
                 # Clean the document text
                 q.text = sanitize_text(q.text)
 
                 # Update db_id and platform
                 q.metadata["dbId"] = db_id.replace("-", "")  # remove hyphens
                 q.metadata["platform"] = "notion"
-
-                # Reset page-id, remove hyphens
-                q.metadata["pageId"] = q.metadata.pop("page_id").replace("-", "")
 
                 # Construct link
                 link = f'https://notion.so/{q.metadata["pageId"]}'

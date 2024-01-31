@@ -16,12 +16,13 @@ Create a YAML config file based on the following template.
 api_key_id: <api_key_id>
 api_key_secret: <api_key_token>
 data_platform: <data_platform>  # SNOWFLAKE, BIGQUERY, REDSHIFT, etc.
-output:
-  file:
-    directory: <output_directory>
 ```
 
 ### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 #### Snowflake Account
 
@@ -35,7 +36,7 @@ snowflake_account: <account_name>
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `monte_carlo` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command.
+Run the following command to test the connector locally:
 
 ```shell
 metaphor monte_carlo <config_file>

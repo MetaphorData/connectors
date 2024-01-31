@@ -15,8 +15,16 @@ def test_map_metadata_string():
     # Example mock data
     embedding_dict_example = {"node1": [0.1, 0.2, 0.3], "node2": [0.4, 0.5, 0.6]}
     metadata_dict_example = {
-        "node1": {"pageId": "page1", "lastRefreshed": "2023-01-01"},
-        "node2": {"pageId": "page2", "lastRefreshed": "2023-01-02"},
+        "node1": {
+            "title": "Hello World!",
+            "pageId": "page1",
+            "lastRefreshed": "2023-01-01",
+        },
+        "node2": {
+            "title": "Hello World!",
+            "pageId": "page2",
+            "lastRefreshed": "2023-01-02",
+        },
     }
     doc_store_example = {
         "node1": {"__data__": {"text": "Text for node1"}},
@@ -68,13 +76,14 @@ def test_map_metadata_string():
             "metadata" in external_document
         ), "Each item should have 'metadata' in its 'externalSearchDocument'"
 
-        # Additional checks for the 'include_text' condition
+        # Additional checks for 'include_text'
         if "embeddedString_1" in external_document:
-            text = doc_store_example[
-                external_document["entityId"].lower().split("~")[-1]
-            ]["__data__"]["text"]
+            nodeid = external_document["entityId"].lower().split("~")[-1]
+            text = doc_store_example[nodeid]["__data__"]["text"]
+            title = metadata_dict_example[nodeid]["title"]
+
             assert (
-                external_document["embeddedString_1"] == text
+                external_document["embeddedString_1"] == f"Title: {title}\n{text}"
             ), "embeddedString_1 should match the text in doc_store"
 
     # Call the function with the mock VSI and include_text as False

@@ -35,9 +35,6 @@ site_name: <site_name>  // The Tableau Server site you are authenticating with
 access_token:
   token_name: <token_name>
   token_value: <token_value>
-output:
-  file:
-    directory: <output_directory>
 ```
 
 If authenticate via user password:
@@ -48,9 +45,6 @@ site_name: <site_name>  // The Tableau Server site you are authenticating with
 user_password:
   username: <username>
   password: <password>
-output:
-  file:
-    directory: <output_directory>
 ```
 
 > When connecting to the [Default Site](https://help.tableau.com/current/server/en-us/sites_intro.htm#the-default-site) of a Tableau Server, set `site_name` to an empty string, i.e. `site_name: ''`.
@@ -58,6 +52,10 @@ output:
 > Remember to prepend the domain name to `username` if you're using Active Directory to authenticate, i.e. `domain_name\username`.
 
 ### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 #### Alternative Server URL
 
@@ -115,7 +113,7 @@ include_personal_space: True
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `tableau` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor tableau <config_file>

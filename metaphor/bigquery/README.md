@@ -75,12 +75,7 @@ Create a YAML config file based on the following template.
 ```yaml
 project_ids:
   - <bigquery_project_id>
-output:
-  file:
-    directory: <output_directory>
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 To connect to BigQuery, either the keyfile path or credentials from the JSON keyfile must be set in the config as following:
 
@@ -111,6 +106,10 @@ credentials:
 > ```
 
 ### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 #### Filtering
 
@@ -182,9 +181,9 @@ filter:
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `bigquery` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
-```
+```shell
 metaphor bigquery <config_file>
 ```
 

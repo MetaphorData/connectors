@@ -43,18 +43,19 @@ aws:
   secret_access_key: <aws_secret_access_key>
   region_name: <aws_region_name>
   assume_role_arn: <aws_role_arn>  # If using IAM role
-output:
-  file:
-    directory: <output_directory>
 ```
 
-See [Output Config](../common/docs/output.md) for more information on `output`.
+### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv).
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor glue <config_file>

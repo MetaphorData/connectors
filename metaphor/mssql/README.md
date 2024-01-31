@@ -28,13 +28,7 @@ username: <username>  # The MSSQL server login username
 password: <password>  # The MSSQL server login password
 
 endpoint: <endpoint>  # The MSSQL server endpoint
-
-output:
-  file:
-    directory: <output_directory>  # the output result directory
 ```
-
-See [Output Config](../common/docs/output.md) for more information on `output`.
 
 ### Optional Configurations
 
@@ -48,11 +42,15 @@ tenant_id: <tenant_id>  # The azure directory (tenant) id
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `mssql` extra.
 
-To test the connector locally, change the config file to output to a local path and run the following command.
+Run the following command to test the connector locally:
 
 ```shell
 metaphor mssql <config_file>

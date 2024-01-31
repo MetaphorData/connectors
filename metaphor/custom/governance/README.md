@@ -45,14 +45,15 @@ datasets:
           ...
       ...
   ...
-output:
-  file:
-    directory: <output_directory>
 ```
 
 > Note: You only need to specify `account` if the platform is `SNOWFLAKE`.
 
-See [Output Config](../../common/docs/output.md) for more information on `output`.
+### Optional Configurations
+
+#### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 ### Examples
 
@@ -68,9 +69,6 @@ datasets:
         email: bob@test.com
       - type: 
         email: alice@test.com
-output:
-  file:
-    directory: /output
 ```
 
 Here's another example showing how to tag a Snowflake table as `golden`, and the `email` column as `pii`.
@@ -87,9 +85,6 @@ datasets:
       - column: email
         tags:
           - pii
-output:
-  file:
-    directory: /output
 ```
 
 The following example shows how to add a description to a Redshift table.
@@ -102,16 +97,13 @@ datasets:
     descriptions:
       - description: A fancy description for the table
         email: charlie@test.com
-output:
-  file:
-    directory: /output
 ```
 
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv).
 
-To test the connector locally, change the config file to output to a local path and run the following command
+Run the following command to test the connector locally:
 
 ```shell
 metaphor custom.governance <config_file>
