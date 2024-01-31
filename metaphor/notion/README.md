@@ -20,6 +20,8 @@ Create a YAML config file based on the following template.
 notion_api_token: <notion_api_token>
 
 azure_openAI_key: <azure_openAI_key>
+
+azure_openAI_endpoint: <azure_openAI_endpoint>
 ```
 
 ### Optional Configurations
@@ -30,7 +32,6 @@ These defaults are provided; you don't have to manually configure them.
 
 ```yaml
 azure_openAI_version: <azure_openAI_version> # "2023-12-01-preview"
-azure_openAI_endpoint: <azure_openAI_endpoint> # "https://metaphorazureopenairesource.openai.azure.com/"
 azure_openAI_model_name: <azure_openAI_model_name> # "Embedding_ada002"
 azure_openAI_model: <azure_openAI_model> # "text-embedding-ada-002"
 
