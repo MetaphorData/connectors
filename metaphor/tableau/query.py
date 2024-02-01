@@ -19,7 +19,6 @@ query($first: Int, $offset: Int) {
     nodes {
       luid
       name
-      projectLuid
       projectName
       vizportalUrlId
       upstreamDatasources {
