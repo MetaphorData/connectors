@@ -179,7 +179,6 @@
       },
       "packageName": "trial",
       "rawSql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -251,7 +250,6 @@
       "sourceModels": [
         "VIRTUAL_VIEW~6792928812BBC200D2459741CFE02D9D"
       ],
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -351,9 +349,6 @@
         "DATASET~0A27263039022A2F145CAB8A63CB2D58"
       ],
       "sourceModels": [],
-      "tags": [
-        "trial"
-      ],
       "tests": [
         {
           "columns": [
@@ -420,6 +415,14 @@
         "trial"
       ],
       "name": "trial_model_1"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "trial"
+        }
+      ]
     }
   },
   {
@@ -474,9 +477,6 @@
         "DATASET~C931554DBA0604DA498A2E772F3D6FEF"
       ],
       "sourceModels": [],
-      "tags": [
-        "trial"
-      ],
       "tests": [
         {
           "columns": [
@@ -555,6 +555,14 @@
         "trial"
       ],
       "name": "trial_model_2"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "trial"
+        }
+      ]
     }
   },
   {
@@ -578,7 +586,6 @@
         "VIRTUAL_VIEW~B2A1F1A79091280F72E9B65C53786E52"
       ],
       "sql": "",
-      "tags": [],
       "timeGrains": [
         "year"
       ],

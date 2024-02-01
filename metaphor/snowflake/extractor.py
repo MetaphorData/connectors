@@ -391,7 +391,7 @@ class SnowflakeExtractor(BaseExtractor):
                 sql_schema.primary_key = []
             sql_schema.primary_key.append(column)
 
-    def _add_system_tag(
+    def _add_hierarchy_system_tag(
         self,
         database: Optional[str],
         object_name: Optional[str],
@@ -400,10 +400,10 @@ class SnowflakeExtractor(BaseExtractor):
         tag_value: str,
     ) -> None:
         """
-        Adds a system tag (i.e. a database-level or schema-level tag) to MCE.
-        If it's a database-level tag, the corresponding hierarchy's logical_id
-        will contain only the database name. Otherwise it will have both the
-        database name and schema name.
+        Adds a hierarchy system tag (i.e. a database-level or schema-level tag) to MCE.
+        If it's a database-level tag, the corresponding hierarchy's logical_id will contain
+        only the database name. Otherwise it will have both the database name and schema
+        name.
         """
         if not object_name:
             logger.error("Cannot extract tag without object name")
@@ -457,10 +457,14 @@ class SnowflakeExtractor(BaseExtractor):
             return
 
         if not column_name:
-            if not dataset.schema.tags:
-                dataset.schema.tags = []
-            other_tags = [t for t in dataset.schema.tags if t.split("=", 1)[0] != key]
-            dataset.schema.tags = other_tags + [tag]
+            if not dataset.system_tags:
+                dataset.system_tags = SystemTags(tags=[])
+            assert dataset.system_tags.tags is not None
+            dataset.system_tags.tags.append(
+                SystemTag(
+                    key=key, system_tag_source=SystemTagSource.SNOWFLAKE, value=value
+                )
+            )
 
         # When we get here the fields should already be populated.
         if dataset.schema.fields:
@@ -506,7 +510,9 @@ class SnowflakeExtractor(BaseExtractor):
 
         for key, value, object_type, database, schema, object_name, column in cursor:
             if object_type in {"DATABASE", "SCHEMA"}:
-                self._add_system_tag(database, object_name, object_type, key, value)
+                self._add_hierarchy_system_tag(
+                    database, object_name, object_type, key, value
+                )
 
             if object_type == "DATABASE":
                 key_prefix = dataset_normalized_name(db=object_name)

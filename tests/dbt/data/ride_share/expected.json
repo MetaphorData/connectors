@@ -42,7 +42,6 @@
         "VIRTUAL_VIEW~BEABE1FF13F4749A5287A0C3AB91A51C",
         "VIRTUAL_VIEW~E2AC9FA16880683393FEF02E8AE6F087"
       ],
-      "tags": [],
       "url": "https://github.com/MetaphorData/dbt/tree/main/ride_share/models/rides/rides_by_month_2017.sql"
     },
     "entityUpstream": {
@@ -121,7 +120,6 @@
       "sourceModels": [
         "VIRTUAL_VIEW~AB431420AAB09A0DC1E238C1D2A8A423"
       ],
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -251,7 +249,6 @@
       "sourceModels": [
         "VIRTUAL_VIEW~C7AD0F50959B4A41901E513EB19B2592"
       ],
-      "tags": [],
       "url": "https://github.com/MetaphorData/dbt/tree/main/ride_share/models/rides/rides_by_month_start_station_2017.sql"
     },
     "entityUpstream": {
@@ -286,7 +283,6 @@
         "DATASET~0BF8A8A87FD2B76DDAA0E3339E0C3D73"
       ],
       "sourceModels": [],
-      "tags": [],
       "tests": [
         {
           "columns": [],
@@ -340,7 +336,6 @@
         "DATASET~DC0498D11FBD059730F0454C60B616D2"
       ],
       "sourceModels": [],
-      "tags": [],
       "url": "https://github.com/MetaphorData/dbt/tree/main/ride_share/models/rides/raw_bike_stations.sql"
     },
     "entityUpstream": {
@@ -374,7 +369,6 @@
       "sourceModels": [
         "VIRTUAL_VIEW~FEE8405461EBC519C4D9B3A20C4E251C"
       ],
-      "tags": [],
       "url": "https://github.com/MetaphorData/dbt/tree/main/ride_share/models/rides/cleaned_bike_rides_from_snapshot.sql"
     },
     "entityUpstream": {
@@ -407,7 +401,6 @@
         "DATASET~0BF8A8A87FD2B76DDAA0E3339E0C3D73"
       ],
       "sourceModels": [],
-      "tags": [],
       "url": "https://github.com/MetaphorData/dbt/tree/main/ride_share/snapshots/cycle_hire_snapshot.sql"
     },
     "entityUpstream": {

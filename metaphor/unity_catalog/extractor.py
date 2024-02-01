@@ -469,15 +469,24 @@ class UnityCatalogExtractor(BaseExtractor):
                     logger.warn(f"Cannot find {normalized_dataset_name} table")
                     continue
 
-                tag = f"{tag_name}={tag_value}" if tag_value else tag_name
+                if not dataset.system_tags:
+                    dataset.system_tags = SystemTags(tags=[])
+                assert dataset.system_tags and dataset.system_tags.tags is not None
 
-                assert (
-                    dataset.schema is not None
-                )  # Can't be None, we initialized it at `init_dataset`
-                if not dataset.schema.tags:
-                    dataset.schema.tags = []
-                if tag not in dataset.schema.tags:
-                    dataset.schema.tags.append(tag)
+                tag = f"{tag_name}={tag_value}" if tag_value else tag_name
+                if tag_value:
+                    tag = SystemTag(
+                        key=tag_name,
+                        system_tag_source=SystemTagSource.UNITY_CATALOG,
+                        value=tag_value,
+                    )
+                else:
+                    tag = SystemTag(
+                        key=None,
+                        system_tag_source=SystemTagSource.UNITY_CATALOG,
+                        value=tag_name,
+                    )
+                dataset.system_tags.tags.append(tag)
 
     def _extract_column_tags(self, catalog: str) -> None:
         with self._connection.cursor() as cursor:

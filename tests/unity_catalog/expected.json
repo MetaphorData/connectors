@@ -43,16 +43,12 @@
       "schemaType": "SQL",
       "sqlSchema": {
         "materialization": "TABLE"
-      },
-      "tags": [
-        "tag=value",
-        "tag2"
-      ]
+      }
     },
     "sourceInfo": {
-      "mainUrl": "http://dummy.host/explore/data/catalog/schema/table",
       "createdAtSource": "1970-01-01T00:00:00+00:00",
-      "lastUpdated": "1970-01-01T00:00:00+00:00"
+      "lastUpdated": "1970-01-01T00:00:00+00:00",
+      "mainUrl": "http://dummy.host/explore/data/catalog/schema/table"
     },
     "structure": {
       "database": "catalog",
@@ -80,6 +76,15 @@
           "key": "schema_tag_key_2",
           "systemTagSource": "UNITY_CATALOG",
           "value": "schema_tag_value_2"
+        },
+        {
+          "key": "tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "value"
+        },
+        {
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "tag2"
         }
       ]
     },
@@ -118,9 +123,9 @@
       }
     },
     "sourceInfo": {
-      "mainUrl": "http://dummy.host/explore/data/catalog/schema/view",
       "createdAtSource": "1970-01-01T00:00:00+00:00",
-      "lastUpdated": "1970-01-01T00:00:00+00:00"
+      "lastUpdated": "1970-01-01T00:00:00+00:00",
+      "mainUrl": "http://dummy.host/explore/data/catalog/schema/view"
     },
     "structure": {
       "database": "catalog",

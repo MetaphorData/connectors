@@ -32,6 +32,9 @@ from metaphor.models.metadata_change_event import (
     FieldMapping,
     SourceField,
     SourceInfo,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     ThoughtSpotColumn,
     ThoughtSpotDashboardType,
     ThoughtSpotDataObject,
@@ -149,6 +152,7 @@ class ThoughtSpotExtractor(BaseExtractor):
             for column in table.columns:
                 field_mapping = FieldMapping(destination=column.header.name, sources=[])
 
+                assert field_mapping.sources is not None
                 if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
                     # the table upstream is external source, i.e. BigQuery
                     table_mapping_info = table.logicalTableContent.tableMappingInfo
@@ -184,6 +188,12 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ]
                 field_mappings.append(field_mapping)
 
+            tags = [
+                SystemTag(
+                    key=None, system_tag_source=SystemTagSource.THOUGHT_SPOT, value=name
+                )
+                for name in self._tag_names(table.header.tags)
+            ]
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
@@ -206,11 +216,11 @@ class ThoughtSpotExtractor(BaseExtractor):
                     description=table.header.description,
                     type=table_type,
                     url=f"{self._base_url}/#/data/tables/{table_id}",
-                    tags=self._tag_names(table.header.tags),
                 ),
                 entity_upstream=EntityUpstream(
                     field_mappings=field_mappings if field_mappings else None
                 ),
+                system_tags=SystemTags(tags=tags) if tags else None,
             )
             self._virtual_views[table_id] = view
 
@@ -495,12 +505,21 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ),
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.ANSWER,
-                        tags=self._tag_names(answer.header.tags),
                     ),
                     dashboard_type=DashboardType.THOUGHT_SPOT_ANSWER,
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
+                ),
+                system_tags=SystemTags(
+                    tags=[
+                        SystemTag(
+                            key=None,
+                            system_tag_source=SystemTagSource.THOUGHT_SPOT,
+                            value=name,
+                        )
+                        for name in self._tag_names(answer.header.tags)
+                    ]
                 ),
             )
 
@@ -624,7 +643,6 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ),
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.LIVEBOARD,
-                        tags=self._tag_names(board.header.tags),
                         embed_url=f"{self._base_url}/#/embed/viz/{board_id}",
                     ),
                     dashboard_type=DashboardType.THOUGHT_SPOT_LIVEBOARD,
@@ -637,6 +655,16 @@ class ThoughtSpotExtractor(BaseExtractor):
                     field_mappings=self._get_field_mapping_from_visualizations(
                         visualizations
                     ),
+                ),
+                system_tags=SystemTags(
+                    tags=[
+                        SystemTag(
+                            key=None,
+                            system_tag_source=SystemTagSource.THOUGHT_SPOT,
+                            value=name,
+                        )
+                        for name in self._tag_names(board.header.tags)
+                    ]
                 ),
             )
 
