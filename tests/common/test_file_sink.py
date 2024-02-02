@@ -212,8 +212,8 @@ def test_query_log_sink_chunk_by_size():
         with open(file) as f:
             obj = json.loads(f.read())
             print(obj)
-            # assert len(obj) == 1
-            # assert len(obj[0]["queryLogs"]["logs"]) == num
+            assert len(obj) == 1
+            assert len(obj[0]["queryLogs"]["logs"]) == num
 
     assert len(files) == 5
     assert_num_logs(files[0], 1)
