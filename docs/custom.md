@@ -101,11 +101,11 @@ run_connector(
     name="connector_name",  # name should contain only alphanumeric characters plus underscores
     platform=Platform.OTHER,  # use other unless there's a matching platform
     description="connector description",  # user-facing description for the connector
-    file_sink_config=local_file_sink_config("/path/to/output"),  
+    sink_config=local_sink_config("/path/to/output"),  
 )
 ```
 
-Once the output content has been verified, you can change [`local_file_sink_config`](../metaphor/common/runner.py) to [`metaphor_file_sink_config`](../metaphor/common/runner.py) to publish to S3 buckets.
+Once the output content has been verified, you can change [`local_sink_config`](../metaphor/common/runner.py) to [`metaphor_sink_config`](../metaphor/common/runner.py) to publish to S3 buckets.
 
 ## Logging
 

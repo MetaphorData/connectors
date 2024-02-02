@@ -3,11 +3,12 @@ from datetime import datetime
 from os import path
 from zipfile import ZipFile
 
+import pytest
 from freezegun import freeze_time
 
 from metaphor.common.event_util import EventUtil
-from metaphor.common.file_sink import FileSink, FileSinkConfig
 from metaphor.common.logger import add_debug_file
+from metaphor.common.sink import SinkConfig, StreamSink
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, RunStatus
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -23,7 +24,7 @@ def events_from_json(file):
 
 
 @freeze_time("2000-01-01")
-def test_file_sink_no_split(test_root_dir):
+def test_file_sink_no_split(test_root_dir: str):
     directory = tempfile.mkdtemp()
 
     messages = [
@@ -40,13 +41,14 @@ def test_file_sink_no_split(test_root_dir):
     ]
 
     # Set batch_size_bytes so large that all messages can fit in the same file
-    sink = FileSink(FileSinkConfig(directory=directory, batch_size_bytes=1000000))
-    assert sink.sink(messages) is True
+    with StreamSink(SinkConfig(directory=directory, batch_size_bytes=1000000)) as sink:
+        for event in messages:
+            assert sink.write_event(event)
     assert messages == events_from_json(f"{directory}/946684800/1-of-1.json")
 
 
 @freeze_time("2000-01-01")
-def test_file_sink_split(test_root_dir):
+def test_file_sink_split(test_root_dir: str):
     directory = tempfile.mkdtemp()
 
     messages = [
@@ -78,8 +80,9 @@ def test_file_sink_split(test_root_dir):
     ]
 
     # Set batch_size_bytes so small that only one message can be fit in each file
-    sink = FileSink(FileSinkConfig(directory=directory, batch_size_bytes=10))
-    assert sink.sink(messages) is True
+    with StreamSink(SinkConfig(directory=directory, batch_size_bytes=10)) as sink:
+        for message in messages:
+            assert sink.write_event(message) is True
     assert messages[0:1] == events_from_json(f"{directory}/946684800/1-of-5.json")
     assert messages[1:2] == events_from_json(f"{directory}/946684800/2-of-5.json")
     assert messages[2:3] == events_from_json(f"{directory}/946684800/3-of-5.json")
@@ -100,8 +103,9 @@ def test_sink_metadata(test_root_dir):
         entity_count=1.0,
     )
 
-    sink = FileSink(FileSinkConfig(directory=directory))
-    sink.sink_metadata(metadata)
+    with StreamSink(SinkConfig(directory=directory), metadata):
+        # It's gonna write it when exiting the context
+        pass
 
     assert EventUtil.clean_nones(metadata.to_dict()) == load_json(
         f"{directory}/946684800/run.metadata"
@@ -115,8 +119,9 @@ def test_sink_logs(test_root_dir):
 
     directory = tempfile.mkdtemp()
 
-    sink = FileSink(FileSinkConfig(directory=directory))
-    sink.sink_logs()
+    with StreamSink(SinkConfig(directory=directory)):
+        # It's gonna write it when exiting the context
+        pass
 
     zip_file = f"{directory}/946684800/log.zip"
 
@@ -128,20 +133,16 @@ def test_sink_logs(test_root_dir):
     assert path.basename(debug_file) in base_names
 
 
-@freeze_time("2000-01-01")
-def test_sink_file(test_root_dir):
+def test_stream_sink_not_in_context_manager():
     directory = tempfile.mkdtemp()
-
-    sink = FileSink(FileSinkConfig(directory=directory))
-    filename = "test.txt"
-    sink.write_file(filename, "the content")
-
-    full_path = f"{directory}/946684800/{filename}"
-    assert path.exists(full_path)
-
-    with open(full_path) as f:
-        content = f.read()
-    assert content == "the content"
-
-    sink.remove_file(filename)
-    assert path.exists(full_path) is False
+    with pytest.raises(ValueError):
+        sink = StreamSink(SinkConfig(directory=directory))
+        sink.write_event(
+            MetadataChangeEvent(
+                dataset=Dataset(
+                    logical_id=DatasetLogicalID(
+                        name="foo1", platform=DataPlatform.BIGQUERY
+                    )
+                )
+            )
+        )

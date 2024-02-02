@@ -4,8 +4,9 @@ from typing import Collection, List, Optional, Tuple
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES, EventUtil
-from metaphor.common.file_sink import FileSink, FileSinkConfig, S3StorageConfig
 from metaphor.common.logger import get_logger
+from metaphor.common.sink import SinkConfig, StreamSink
+from metaphor.common.storage import S3StorageConfig
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Platform, RunStatus
 from metaphor.models.metadata_change_event import MetadataChangeEvent
 
@@ -17,7 +18,7 @@ def run_connector(
     name: str,
     description: str,
     platform: Optional[Platform] = None,
-    file_sink_config: Optional[FileSinkConfig] = None,
+    sink_config: Optional[SinkConfig] = None,
 ) -> Tuple[List[MetadataChangeEvent], CrawlerRunMetadata]:
     """Run a connector and write the resulting events to files and/or API.
 
@@ -31,7 +32,7 @@ def run_connector(
         Textual description of the connector
     platform : Optional[Platform]
         Platform of the connector
-    file_sink_config : Optional[FileSinkConfig]
+    sink_config : Optional[SinkConfig]
         Optional configuration for outputting events to files or cloud storage
 
     Returns
@@ -80,22 +81,21 @@ def run_connector(
         stack_trace=stacktrace,
     )
 
-    if file_sink_config is not None:
-        file_sink = FileSink(file_sink_config)
-        file_sink.sink(events)
-        file_sink.sink_metadata(run_metadata)
-        file_sink.sink_logs()
+    if sink_config is not None:
+        with StreamSink(sink_config, run_metadata) as sink:
+            for event in events:
+                sink.write_event(event)
 
     return events, run_metadata
 
 
-def metaphor_file_sink_config(
+def metaphor_sink_config(
     tenant: str,
     connector_name: str,
     is_metaphor_cloud=False,
     s3_auth_config=S3StorageConfig(),
-) -> FileSinkConfig:
-    """Create a FileSinkConfig for outputting events to a Metaphor tenant's cloud storage
+) -> SinkConfig:
+    """Create a SinkConfig for outputting events to a Metaphor tenant's cloud storage
 
     Parameters
     ----------
@@ -108,7 +108,7 @@ def metaphor_file_sink_config(
 
     Returns
     -------
-    FileSinkConfig
+    SinkConfig
         the config created
     """
 
@@ -117,13 +117,13 @@ def metaphor_file_sink_config(
         if is_metaphor_cloud
         else f"metaphor-mce-{tenant}"
     )
-    return FileSinkConfig(
+    return SinkConfig(
         directory=f"s3://{bucket}/{connector_name}", s3_auth_config=s3_auth_config
     )
 
 
-def local_file_sink_config(directory: str) -> FileSinkConfig:
-    """Create a FileSinkConfig for outputting events to a local directory
+def local_sink_config(directory: str) -> SinkConfig:
+    """Create a SinkConfig for outputting events to a local directory
 
     Parameters
     ----------
@@ -132,8 +132,8 @@ def local_file_sink_config(directory: str) -> FileSinkConfig:
 
     Returns
     -------
-    FileSinkConfig
+    SinkConfig
         the config created
     """
 
-    return FileSinkConfig(directory=directory)
+    return SinkConfig(directory=directory)

@@ -8,6 +8,12 @@ from aws_assume_role_lib import assume_role
 from pydantic.dataclasses import dataclass
 from smart_open import open
 
+try:
+    from mypy_boto3_s3 import S3Client
+except ImportError:
+    # Ignore this since mypy plugins are dev dependencies
+    pass
+
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.logger import get_logger
 
@@ -28,7 +34,7 @@ class BaseStorage(ABC):
 
     @abstractmethod
     def write_file(
-        self, path: str, payload: Union[str, bytes], binary_mode=False
+        self, path: str, payload: Union[str, bytes], binary_mode=False, append=False
     ) -> None:
         """write a file to the given path"""
 
@@ -40,18 +46,25 @@ class BaseStorage(ABC):
     def delete_files(self, paths: List[str]) -> None:
         """delete the given file(s)"""
 
+    @abstractmethod
+    def rename_file(self, old_path: str, new_path: str) -> None:
+        """rename a file"""
+
 
 class LocalStorage(BaseStorage):
     """Storage implementation for local file system"""
 
     def write_file(
-        self, path: str, payload: Union[str, bytes], binary_mode=False
+        self, path: str, payload: Union[str, bytes], binary_mode=False, append=False
     ) -> None:
         os.makedirs(os.path.expanduser(os.path.dirname(path)), exist_ok=True)
 
-        mode = "wb" if binary_mode else "w"
+        mode = "a" if append else "w"
+        if binary_mode:
+            mode += "b"
+
         with open(path, mode) as fp:
-            fp.write(payload)
+            fp.write(payload)  # type: ignore
 
     def list_files(self, path: str, suffix: Optional[str]) -> List[str]:
         directory = os.path.expanduser(path)
@@ -68,6 +81,9 @@ class LocalStorage(BaseStorage):
     def delete_files(self, paths: List[str]) -> None:
         for path in paths:
             os.remove(path)
+
+    def rename_file(self, old_path: str, new_path: str) -> None:
+        os.rename(old_path, new_path)
 
 
 @dataclass(config=ConnectorConfig)
@@ -98,11 +114,11 @@ class S3Storage(BaseStorage):
         else:
             self._session = session
 
-        self._client = self._session.client("s3")
+        self._client: S3Client = self._session.client("s3")  # type: ignore
         logger.info("Created S3 client")
 
     def write_file(
-        self, path: str, payload: Union[str, bytes], binary_mode=False
+        self, path: str, payload: Union[str, bytes], binary_mode=False, append=False
     ) -> None:
         transport_params = {
             **OWNER_FULL_CONTROL_ACL,
@@ -111,9 +127,11 @@ class S3Storage(BaseStorage):
             "client": self._client,
         }
 
-        mode = "wb" if binary_mode else "w"
+        mode = "a" if append else "w"
+        if binary_mode:
+            mode += "b"
         with open(path, mode, transport_params=transport_params) as fp:
-            fp.write(payload)
+            fp.write(payload)  # type: ignore
 
     def list_files(self, path: str, suffix: Optional[str]) -> List[str]:
         bucket, key = S3Storage.parse_s3_uri(path)
@@ -133,9 +151,9 @@ class S3Storage(BaseStorage):
             objects.extend(resp.get("Contents", []))
 
         return [
-            f"s3://{bucket}/{file['Key']}"
+            f"s3://{bucket}/{file.get('Key', '')}"
             for file in objects
-            if suffix is None or file.get("Key").endswith(suffix)
+            if suffix is None or file.get("Key", "").endswith(suffix)
         ]
 
     def delete_files(self, paths: List[str]) -> None:
@@ -145,6 +163,16 @@ class S3Storage(BaseStorage):
                 Bucket=bucket,
                 Key=key,
             )
+
+    def rename_file(self, old_path: str, new_path: str) -> None:
+        old_bucket, old_key = S3Storage.parse_s3_uri(old_path)
+        new_bucket, new_key = S3Storage.parse_s3_uri(new_path)
+        self._client.copy_object(
+            Bucket=new_bucket,
+            CopySource=f"{old_bucket}/{old_key}",
+            Key=new_key,
+        )
+        self._client.delete_object(Bucket=old_bucket, Key=old_key)
 
     @staticmethod
     def parse_s3_uri(uri: str) -> Tuple[str, str]:

@@ -4,7 +4,7 @@ from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig, OutputConfig
 from metaphor.common.dataclass import ConnectorConfig
-from metaphor.common.file_sink import FileSinkConfig
+from metaphor.common.sink import SinkConfig
 
 
 def test_yaml_config(test_root_dir):
@@ -12,7 +12,7 @@ def test_yaml_config(test_root_dir):
 
     assert config == BaseConfig(
         output=OutputConfig(
-            file=FileSinkConfig(
+            file=SinkConfig(
                 directory="path",
                 assume_role_arn="arn",
                 write_logs=False,

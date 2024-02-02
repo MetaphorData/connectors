@@ -7,7 +7,7 @@ from pydantic.dataclasses import dataclass
 from smart_open import open
 
 from metaphor.common.dataclass import ConnectorConfig
-from metaphor.common.file_sink import FileSinkConfig
+from metaphor.common.sink import SinkConfig
 from metaphor.common.variable import variable_substitution
 
 # Create a generic variable that can be 'BaseConfig', or any subclass.
@@ -18,7 +18,7 @@ T = TypeVar("T", bound="BaseConfig")
 class OutputConfig:
     """Config for where to output the data"""
 
-    file: Optional[FileSinkConfig] = None
+    file: Optional[SinkConfig] = None
 
 
 @dataclass()
