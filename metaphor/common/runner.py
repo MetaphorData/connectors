@@ -82,9 +82,13 @@ def run_connector(
 
     if file_sink_config is not None:
         file_sink = FileSink(file_sink_config)
-        file_sink.sink(events)
-        file_sink.sink_metadata(run_metadata)
-        file_sink.sink_logs()
+        file_sink.write_events(events)
+        file_sink.write_metadata(run_metadata)
+        file_sink.write_execution_logs()
+
+        with file_sink.get_query_log_sink() as query_log_sink:
+            for query_log in connector.collect_query_logs():
+                query_log_sink.write_query_log(query_log)
 
     return events, run_metadata
 

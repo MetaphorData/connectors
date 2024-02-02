@@ -12,6 +12,7 @@ from pydantic.dataclasses import dataclass
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logger import LOG_FILE, debug_files, get_logger
+from metaphor.common.query_history import DEFAULT_QUERY_LOG_OUTPUT_SIZE
 from metaphor.common.sink import Sink
 from metaphor.common.storage import (
     BaseStorage,
@@ -21,6 +22,7 @@ from metaphor.common.storage import (
 )
 from metaphor.common.utils import chunk_by_size
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata
+from metaphor.models.metadata_change_event import QueryLog, QueryLogs
 
 logger = get_logger()
 
@@ -45,6 +47,79 @@ class FileSinkConfig:
 
     # IAM credential to access S3 bucket
     s3_auth_config: S3StorageConfig = field(default_factory=lambda: S3StorageConfig())
+
+
+class QueryLogSink:
+    def __init__(
+        self,
+        path: str,
+        storage: BaseStorage,
+        batch_size_count: int,
+        batch_size_bytes: int,
+        logs_per_mce: int,
+    ) -> None:
+        self.path = path
+        self.storage = storage
+        self.mces_per_batch = batch_size_count
+        self.bytes_per_batch = batch_size_bytes  # FIXME our logic for handling this isn't that precise, but should be close enough
+
+        self.logs: List[QueryLog] = []
+        self.mces: List[dict] = []
+        self.logs_count: int = 0
+        self.mces_count: int = 0
+        self.completed_batches = 0
+        self.logs_per_mce = logs_per_mce
+        self._entered = False
+
+        self.batch_bytes = 0
+
+    def __enter__(self):
+        self._entered = True
+        return self
+
+    def __exit__(self, _exception_type, _exception_value, _traceback):
+        if self.logs:
+            self._finalize_current_mce()
+        if self.mces:
+            self._finalize_current_batch()
+
+        self._entered = False
+        if self.completed_batches:
+            logger.info(f"Wrote {self.completed_batches} batches of QueryLogs MCE")
+
+    def _finalize_current_mce(self) -> None:
+        self.mces.append(EventUtil.build_then_trim(QueryLogs(logs=self.logs)))
+        self.logs_count = 0
+        self.logs.clear()
+        self.mces_count += 1
+
+    def _finalize_current_batch(self) -> None:
+        # No need to validate mce
+        self.storage.write_file(
+            f"{self.path}/query_logs-{self.completed_batches}.json",
+            json.dumps(self.mces),
+        )
+        self.completed_batches += 1
+        self.mces_count = 0
+        self.mces.clear()
+        self.batch_bytes = 0
+
+    def write_query_log(self, query_log: QueryLog) -> None:
+        if not self._entered:
+            raise ValueError()
+        if (
+            self.logs_count >= self.logs_per_mce
+            or self.batch_bytes >= self.bytes_per_batch
+        ):
+            self._finalize_current_mce()
+        if (
+            self.mces_count >= self.mces_per_batch
+            or self.batch_bytes >= self.bytes_per_batch
+        ):
+            self._finalize_current_batch()
+        self.logs.append(query_log)
+        self.logs_count += 1
+        self.batch_bytes += len(json.dumps(query_log.to_dict()))
 
 
 class FileSink(Sink):
@@ -87,7 +162,7 @@ class FileSink(Sink):
 
         return True
 
-    def sink_logs(self):
+    def write_execution_logs(self):
         if not self.write_logs:
             logger.info("Skip writing logs")
             return
@@ -108,7 +183,7 @@ class FileSink(Sink):
         with open(zip_file, "rb") as file:
             self._storage.write_file(f"{self.path}/log.zip", file.read(), True)
 
-    def sink_metadata(self, metadata: CrawlerRunMetadata):
+    def write_metadata(self, metadata: CrawlerRunMetadata):
         if not self.write_logs:
             logger.info("Skip writing metadata")
             return
@@ -138,3 +213,12 @@ class FileSink(Sink):
             The file to remove
         """
         self._storage.delete_files([f"{self.path}/{filename}"])
+
+    def get_query_log_sink(self, mce_size: int = DEFAULT_QUERY_LOG_OUTPUT_SIZE):
+        return QueryLogSink(
+            self.path,
+            self._storage,
+            self.batch_size_count,
+            self.batch_size_bytes,
+            mce_size,
+        )
