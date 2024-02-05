@@ -188,12 +188,6 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ]
                 field_mappings.append(field_mapping)
 
-            tags = [
-                SystemTag(
-                    key=None, system_tag_source=SystemTagSource.THOUGHT_SPOT, value=name
-                )
-                for name in self._tag_names(table.header.tags)
-            ]
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
@@ -220,7 +214,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 entity_upstream=EntityUpstream(
                     field_mappings=field_mappings if field_mappings else None
                 ),
-                system_tags=SystemTags(tags=tags) if tags else None,
+                system_tags=self._get_system_tags(table.header.tags),
             )
             self._virtual_views[table_id] = view
 
@@ -511,16 +505,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
-                system_tags=SystemTags(
-                    tags=[
-                        SystemTag(
-                            key=None,
-                            system_tag_source=SystemTagSource.THOUGHT_SPOT,
-                            value=name,
-                        )
-                        for name in self._tag_names(answer.header.tags)
-                    ]
-                ),
+                system_tags=self._get_system_tags(answer.header.tags),
             )
 
             self._dashboards[answer_id] = dashboard
@@ -656,16 +641,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         visualizations
                     ),
                 ),
-                system_tags=SystemTags(
-                    tags=[
-                        SystemTag(
-                            key=None,
-                            system_tag_source=SystemTagSource.THOUGHT_SPOT,
-                            value=name,
-                        )
-                        for name in self._tag_names(board.header.tags)
-                    ]
-                ),
+                system_tags=self._get_system_tags(board.header.tags),
             )
 
             self._dashboards[board_id] = dashboard
@@ -736,9 +712,15 @@ class ThoughtSpotExtractor(BaseExtractor):
         return [f for f in field_mappings if f.sources] or None
 
     @staticmethod
-    def _tag_names(tags: List[Tag]) -> List[str]:
-        return [
-            tag.name
+    def _get_system_tags(tags: List[Tag]) -> Optional[SystemTags]:
+        system_tags = [
+            SystemTag(
+                key=None,
+                system_tag_source=SystemTagSource.THOUGHT_SPOT,
+                value=tag.name,
+            )
             for tag in tags
             if not (tag.isDeleted or tag.isHidden or tag.isDeprecated)
         ]
+
+        return SystemTags(tags=system_tags) if system_tags else None
