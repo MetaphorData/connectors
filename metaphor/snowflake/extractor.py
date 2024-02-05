@@ -1,6 +1,16 @@
 import math
 from datetime import datetime, timezone
-from typing import Collection, Dict, List, Literal, Mapping, Optional, Tuple
+from typing import (
+    Collection,
+    Dict,
+    Generator,
+    Iterator,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Tuple,
+)
 
 from pydantic import TypeAdapter
 
@@ -21,7 +31,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.query_history import chunk_query_logs, user_id_or_email
+from metaphor.common.query_history import user_id_or_email
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import chunks, md5_digest, safe_float, start_of_day
@@ -54,7 +64,6 @@ from metaphor.snowflake.utils import (
     DatasetInfo,
     QueryWithParam,
     SnowflakeTableType,
-    async_execute,
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
@@ -104,7 +113,6 @@ class SnowflakeExtractor(BaseExtractor):
 
         self._datasets: Dict[str, Dataset] = {}
         self._hierarchies: Dict[str, Hierarchy] = {}
-        self._logs: List[QueryLog] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Snowflake")
@@ -149,17 +157,20 @@ class SnowflakeExtractor(BaseExtractor):
             self._fetch_unique_keys(cursor)
             self._fetch_tags(cursor)
 
-            if self._query_log_lookback_days > 0:
-                self._fetch_query_logs()
-
         datasets = list(self._datasets.values())
         tag_datasets(datasets, self._tag_matchers)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(datasets)
-        entities.extend(chunk_query_logs(self._logs))
         entities.extend(self._hierarchies.values())
         return entities
+
+    def collect_query_logs(self) -> Iterator[QueryLog]:
+        self._conn = auth.connect(self._config)
+
+        with self._conn:
+            if self._query_log_lookback_days > 0:
+                yield from self._fetch_query_logs()
 
     @staticmethod
     def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
@@ -533,7 +544,7 @@ class SnowflakeExtractor(BaseExtractor):
                     key_prefix, key, value, column if object_type == "COLUMN" else None
                 )
 
-    def _fetch_query_logs(self) -> None:
+    def _fetch_query_logs(self) -> Iterator[QueryLog]:
         logger.info("Fetching Snowflake query logs")
 
         start_date = start_of_day(self._query_log_lookback_days)
@@ -558,15 +569,15 @@ class SnowflakeExtractor(BaseExtractor):
             else self._batch_query_for_query_logs(start_date, end_date, batches)
         )
 
-        async_execute(
-            self._conn,
-            queries,
-            "fetch_query_logs",
-            self._max_concurrency,
-            self._parse_query_logs,
-        )
+        cursor = self._conn.cursor()
+        parsed_query_log_count = 0
+        for batch, query in queries.items():
+            cursor.execute(query.query, query.params)
+            for query_log in self._parse_query_logs(batch, cursor):
+                parsed_query_log_count += 1
+                yield query_log
 
-        logger.info(f"Fetched {len(self._logs)} query logs")
+        logger.info(f"Fetched {parsed_query_log_count} query logs")
 
     def _fetch_schemas(self, cursor: SnowflakeCursor) -> List[str]:
         cursor.execute(
@@ -726,8 +737,10 @@ class SnowflakeExtractor(BaseExtractor):
             for x in range(batches)
         }
 
-    def _parse_query_logs(self, batch_number: str, query_logs: List[Tuple]) -> None:
-        logger.info(f"query logs batch #{batch_number}")
+    def _parse_query_logs(
+        self, batch: int, cursor: SnowflakeCursor
+    ) -> Generator[QueryLog, None, None]:
+        logger.info(f"query logs batch #{batch}")
         for (
             query_id,
             username,
@@ -743,7 +756,7 @@ class SnowflakeExtractor(BaseExtractor):
             rows_inserted,
             rows_updated,
             *access_objects,
-        ) in query_logs:
+        ) in cursor:
             try:
                 sources = (
                     self._parse_accessed_objects(access_objects[0])
@@ -785,7 +798,7 @@ class SnowflakeExtractor(BaseExtractor):
                     sql_hash=md5_digest(query_text.encode("utf-8")),
                 )
 
-                self._logs.append(query_log)
+                yield query_log
             except Exception:
                 logger.exception(f"query log processing error, query id: {query_id}")
 
