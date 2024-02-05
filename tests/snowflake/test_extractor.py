@@ -279,7 +279,11 @@ def test_fetch_tags(mock_connect: MagicMock):
 
     extractor._fetch_tags(mock_cursor)
 
-    assert dataset.schema.tags == ["key1=value1"]
+    assert dataset.system_tags.tags == [
+        SystemTag(
+            key="key1", system_tag_source=SystemTagSource.SNOWFLAKE, value="value1"
+        )
+    ]
     assert dataset.schema.fields[0].field_path == "col1"
     assert dataset.schema.fields[0].tags == ["key1=col_tag1"]
 
@@ -308,16 +312,23 @@ def test_fetch_tags_for_similar_schema(mock_connect: MagicMock):
     extractor._fetch_tags(mock_cursor)
 
     assert "db.foo.table0" in extractor._datasets
-    assert extractor._datasets["db.foo.table0"].schema
-    assert extractor._datasets["db.foo.table0"].schema.tags == ["foo=foo"]
+    assert extractor._datasets["db.foo.table0"].system_tags.tags == [
+        SystemTag(key="foo", system_tag_source=SystemTagSource.SNOWFLAKE, value="foo")
+    ]
 
     assert "db.foobar.table1" in extractor._datasets
-    assert extractor._datasets["db.foobar.table1"].schema
-    assert extractor._datasets["db.foobar.table1"].schema.tags == ["foobar=foo"]
+    assert extractor._datasets["db.foobar.table1"].system_tags.tags == [
+        SystemTag(
+            key="foobar", system_tag_source=SystemTagSource.SNOWFLAKE, value="foo"
+        )
+    ]
 
     assert "db.foobaz.table2" in extractor._datasets
-    assert extractor._datasets["db.foobaz.table2"].schema
-    assert extractor._datasets["db.foobaz.table2"].schema.tags == ["foobaz=foo"]
+    assert extractor._datasets["db.foobaz.table2"].system_tags.tags == [
+        SystemTag(
+            key="foobaz", system_tag_source=SystemTagSource.SNOWFLAKE, value="foo"
+        )
+    ]
 
 
 @patch("metaphor.snowflake.auth.connect")
@@ -355,7 +366,7 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
 
     extractor._fetch_tags(mock_cursor)
 
-    assert not dataset.schema.tags
+    assert not dataset.system_tags
     assert extractor._hierarchies.get(dataset_normalized_name(table_name)) is not None
     db_hierarchy = extractor._hierarchies[dataset_normalized_name(table_name)]
     assert db_hierarchy.logical_id == HierarchyLogicalID(

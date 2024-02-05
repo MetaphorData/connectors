@@ -295,7 +295,6 @@
       },
       "packageName": "jaffle_shop",
       "rawSql": "with\n\nsource as (\n\n    select * from raw_products\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- properties\n        name as product_name,\n        type as product_type,\n        description as product_description,\n        (price / 100.0) as product_price,\n\n\n        ---------- derived\n        case\n            when type = 'jaffle' then 1\n            else 0\n        end as is_food_item,\n\n        case\n            when type = 'beverage' then 1\n            else 0\n        end as is_drink_item\n\n    from source\n\n)\n\nselect * from renamed",
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -355,7 +354,6 @@
       },
       "packageName": "jaffle_shop",
       "rawSql": "with\n\nsource as (\n\n    select * from raw_customers\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as customer_id,\n\n        ---------- properties\n        name as customer_name\n\n    from source\n\n)\n\nselect * from renamed",
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -428,7 +426,6 @@
       },
       "packageName": "jaffle_shop",
       "rawSql": "with\n\nsource as (\n\n    select * from raw_supplies\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\n        id as supply_id,\n        sku as product_id,\n\n        ---------- properties\n        name as supply_name,\n        (cost / 100.0) as supply_cost,\n        perishable as is_perishable_supply\n\n    from source\n\n)\n\nselect * from renamed",
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -501,7 +498,6 @@
       },
       "packageName": "jaffle_shop",
       "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_id'\n    )\n}}\n\nwith\n\nsource as (\n\n    select * from raw_orders\n\n    -- data runs to 2026, truncate timespan to desired range,\n    -- current time as default\n    -- where ordered_at <= {{ var('truncate_timespan_to') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_id,\n        store_id as location_id,\n        customer as customer_id,\n\n        ---------- properties\n        (order_total / 100.0) as order_total,\n        (tax_paid / 100.0) as tax_paid,\n\n        ---------- timestamps\n        ordered_at\n\n    from source\n\n)\n\nselect * from renamed",
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -561,7 +557,6 @@
       },
       "packageName": "jaffle_shop",
       "rawSql": "with\n\nsource as (\n\n    select * from raw_items\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_item_id,\n        order_id,\n\n        ---------- properties\n        sku as product_id\n\n    from source\n\n)\n\nselect * from renamed",
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -634,7 +629,6 @@
       },
       "packageName": "jaffle_shop",
       "rawSql": "with\n\nsource as (\n\n    select * from raw_stores\n\n    -- {# data runs to 2026, truncate timespan to desired range, \n    -- current time as default #}\n    -- where opened_at <= {{ var('truncate_timespan_to') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as location_id,\n\n        ---------- properties\n        name as location_name,\n        tax_rate,\n\n        ---------- timestamp\n        opened_at\n\n    from source\n\n)\n\nselect * from renamed",
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -749,7 +743,6 @@
         "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
         "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3"
       ],
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -940,7 +933,6 @@
         "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
         "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
       ],
-      "tags": [],
       "tests": [
         {
           "columns": [
@@ -1024,7 +1016,6 @@
       },
       "packageName": "jaffle_shop",
       "rawSql": "-- metricflow_time_spine.sql\nwith days as (\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n{{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\n),\n\nfinal as (\n    select cast(date_day as date) as date_day\n    from days\n)\n\nselect *\nfrom final",
-      "tags": [],
       "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/metricflow_time_spine.sql"
     },
     "logicalId": {
@@ -1055,7 +1046,6 @@
         "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
         "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
       ],
-      "tags": [],
       "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/order_items.sql"
     },
     "entityUpstream": {

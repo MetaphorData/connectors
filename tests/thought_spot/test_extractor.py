@@ -55,4 +55,5 @@ async def test_extractor(mock_post_method: MagicMock, test_root_dir: str):
     extractor = ThoughtSpotExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
-    assert events == load_json(f"{test_root_dir}/thought_spot/expected.json")
+    expected = f"{test_root_dir}/thought_spot/expected.json"
+    assert events == load_json(expected)

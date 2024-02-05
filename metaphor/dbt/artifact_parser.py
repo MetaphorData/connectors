@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.utils import filter_empty_strings, filter_none, unique_list
+from metaphor.common.utils import filter_none, unique_list
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import (
     add_data_quality_monitor,
@@ -44,6 +44,9 @@ from metaphor.models.metadata_change_event import (
     Metric,
     MetricFilter,
     OwnershipAssignment,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     TagAssignment,
     VirtualView,
 )
@@ -577,6 +580,21 @@ class ArtifactParser:
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
         add_data_quality_monitor(dataset, test.name, test.column_name, status)
 
+    def _get_system_tags(
+        self,
+        tag_names: List[str],
+    ) -> Optional[SystemTags]:
+        tags = [
+            SystemTag(
+                key=None,
+                system_tag_source=SystemTagSource.DBT,
+                value=name,
+            )
+            for name in tag_names
+            if name
+        ]
+        return SystemTags(tags=tags) if tags else None
+
     def _parse_virtual_view_node(
         self,
         node: VIRTUAL_VIEW_NODE_TYPE,
@@ -608,10 +626,11 @@ class ArtifactParser:
                 self._project_source_url, node.original_file_path
             ),
             docs_url=build_model_docs_url(self._docs_base_url, node.unique_id),
-            tags=filter_empty_strings(node.tags) if node.tags is not None else None,
             fields=[],
         )
         dbt_model = virtual_view.dbt_model
+        if node.tags:
+            virtual_view.system_tags = self._get_system_tags(node.tags)
 
         # raw_sql & complied_sql got renamed to raw_code & complied_code in V7
         if hasattr(node, "raw_sql"):
@@ -888,7 +907,6 @@ class ArtifactParser:
             package_name=metric.package_name,
             description=metric.description or None,
             label=metric.label,
-            tags=filter_empty_strings(metric.tags) if metric.tags is not None else None,
             timestamp=metric.timestamp,
             time_grains=metric.time_grains,
             dimensions=metric.dimensions,
@@ -899,6 +917,8 @@ class ArtifactParser:
             url=build_metric_docs_url(self._docs_base_url, metric.unique_id),
         )
         metric_entity.dbt_metric = dbt_metric
+        if metric.tags:
+            metric_entity.system_tags = self._get_system_tags(metric.tags)
 
         # V7 renamed sql & type to expression & calculation_method
         if hasattr(metric, "sql"):

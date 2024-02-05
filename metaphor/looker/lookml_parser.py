@@ -30,6 +30,9 @@ from metaphor.models.metadata_change_event import (
     LookerView,
     LookerViewDimension,
     LookerViewMeasure,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
@@ -263,12 +266,12 @@ def _build_looker_explore(
 ) -> VirtualView:
     name = raw_explore["name"]
     base_view_name = _get_base_view_name(raw_explore, raw_model)
+    tag_names: List[str] = raw_explore.get("tags", [])
 
     explore = LookerExplore(
         model_name=model,
         description=raw_explore.get("description"),
         label=raw_explore.get("label"),
-        tags=raw_explore.get("tags"),
         url=url,
         fields=raw_explore.get("fields"),
         base_view=str(
@@ -313,6 +316,10 @@ def _build_looker_explore(
         [explore.base_view] + [join.view for join in explore.joins or []]
     )
 
+    tags = [
+        SystemTag(key=None, system_tag_source=SystemTagSource.LOOKER, value=value)
+        for value in tag_names
+    ]
     return VirtualView(
         logical_id=VirtualViewLogicalID(
             name=fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
@@ -320,6 +327,7 @@ def _build_looker_explore(
         looker_explore=explore,
         structure=_get_model_asset_structure(model, name),
         entity_upstream=EntityUpstream(source_entities=source_entities),
+        system_tags=SystemTags(tags=tags) if tags else None,
     )
 
 
