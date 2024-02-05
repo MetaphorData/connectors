@@ -112,6 +112,11 @@ class EventUtil:
         return EventUtil.clean_nones(event.to_dict())
 
     @staticmethod
+    def build_then_trim(entity: ENTITY_TYPES) -> dict:
+        event = EventUtil.build_event(entity)
+        return EventUtil.trim_event(event)
+
+    @staticmethod
     def class_fqcn(clazz) -> str:
         """Get the fully qualified class name"""
         return f"{clazz.__module__}.{clazz.__qualname__}"

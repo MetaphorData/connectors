@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 class Sink(ABC):
     """Base class for metadata sinks"""
 
-    def sink(self, events: List[MetadataChangeEvent]) -> bool:
+    def write_events(self, events: List[MetadataChangeEvent]) -> bool:
         """Sink MCE messages to the destination"""
         event_util = EventUtil()
         records = [event_util.trim_event(e) for e in events]

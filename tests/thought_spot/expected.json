@@ -13,14 +13,19 @@
       ],
       "name": "Worksheet 1"
     },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "THOUGHT_SPOT",
+          "value": "tag1"
+        }
+      ]
+    },
     "thoughtSpot": {
       "columns": [],
       "description": "This is worksheet1",
       "name": "Worksheet 1",
       "sourceVirtualViews": [],
-      "tags": [
-        "tag1"
-      ],
       "type": "WORKSHEET",
       "url": "http://base.url/#/data/tables/worksheet1"
     }
@@ -52,6 +57,14 @@
       ],
       "name": "Table 1"
     },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "THOUGHT_SPOT",
+          "value": "table"
+        }
+      ]
+    },
     "thoughtSpot": {
       "columns": [
         {
@@ -63,9 +76,6 @@
       "name": "Table 1",
       "sourceDatasets": [
         "DATASET~29779E6A8F6548832D2305896A583002"
-      ],
-      "tags": [
-        "table"
       ],
       "type": "TABLE",
       "url": "http://base.url/#/data/tables/table1"
@@ -125,7 +135,6 @@
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ],
-      "tags": [],
       "type": "VIEW",
       "url": "http://base.url/#/data/tables/view1"
     }
@@ -170,7 +179,6 @@
       "sourceDatasets": [
         "DATASET~9A61719497E3AC013ACBCA83F9F732B7"
       ],
-      "tags": [],
       "type": "VIEW",
       "url": "http://base.url/#/data/tables/sql_view_1"
     }
@@ -215,7 +223,6 @@
       "sourceDatasets": [
         "DATASET~844586420073B959F7B75FED699C23E9"
       ],
-      "tags": [],
       "type": "VIEW",
       "url": "http://base.url/#/data/tables/sql_view_2"
     }
@@ -232,9 +239,6 @@
       "dashboardType": "THOUGHT_SPOT_ANSWER",
       "description": "This is answer1",
       "thoughtSpot": {
-        "tags": [
-          "tag2"
-        ],
         "type": "ANSWER"
       },
       "title": "Answer 1"
@@ -282,6 +286,14 @@
         "ANSWER"
       ],
       "name": "Answer 1"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "THOUGHT_SPOT",
+          "value": "tag2"
+        }
+      ]
     }
   },
   {
@@ -298,9 +310,6 @@
       "description": "This is board1",
       "thoughtSpot": {
         "embedUrl": "http://base.url/#/embed/viz/board1",
-        "tags": [
-          "tag3"
-        ],
         "type": "LIVEBOARD"
       },
       "title": "Board 1"
@@ -333,6 +342,14 @@
         "LIVEBOARD"
       ],
       "name": "Board 1"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "THOUGHT_SPOT",
+          "value": "tag3"
+        }
+      ]
     }
   }
 ]

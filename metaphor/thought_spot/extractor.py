@@ -32,6 +32,9 @@ from metaphor.models.metadata_change_event import (
     FieldMapping,
     SourceField,
     SourceInfo,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     ThoughtSpotColumn,
     ThoughtSpotDashboardType,
     ThoughtSpotDataObject,
@@ -149,6 +152,7 @@ class ThoughtSpotExtractor(BaseExtractor):
             for column in table.columns:
                 field_mapping = FieldMapping(destination=column.header.name, sources=[])
 
+                assert field_mapping.sources is not None
                 if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
                     # the table upstream is external source, i.e. BigQuery
                     table_mapping_info = table.logicalTableContent.tableMappingInfo
@@ -206,11 +210,11 @@ class ThoughtSpotExtractor(BaseExtractor):
                     description=table.header.description,
                     type=table_type,
                     url=f"{self._base_url}/#/data/tables/{table_id}",
-                    tags=self._tag_names(table.header.tags),
                 ),
                 entity_upstream=EntityUpstream(
                     field_mappings=field_mappings if field_mappings else None
                 ),
+                system_tags=self._get_system_tags(table.header.tags),
             )
             self._virtual_views[table_id] = view
 
@@ -495,13 +499,13 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ),
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.ANSWER,
-                        tags=self._tag_names(answer.header.tags),
                     ),
                     dashboard_type=DashboardType.THOUGHT_SPOT_ANSWER,
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
+                system_tags=self._get_system_tags(answer.header.tags),
             )
 
             self._dashboards[answer_id] = dashboard
@@ -624,7 +628,6 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ),
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.LIVEBOARD,
-                        tags=self._tag_names(board.header.tags),
                         embed_url=f"{self._base_url}/#/embed/viz/{board_id}",
                     ),
                     dashboard_type=DashboardType.THOUGHT_SPOT_LIVEBOARD,
@@ -638,6 +641,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         visualizations
                     ),
                 ),
+                system_tags=self._get_system_tags(board.header.tags),
             )
 
             self._dashboards[board_id] = dashboard
@@ -708,9 +712,15 @@ class ThoughtSpotExtractor(BaseExtractor):
         return [f for f in field_mappings if f.sources] or None
 
     @staticmethod
-    def _tag_names(tags: List[Tag]) -> List[str]:
-        return [
-            tag.name
+    def _get_system_tags(tags: List[Tag]) -> Optional[SystemTags]:
+        system_tags = [
+            SystemTag(
+                key=None,
+                system_tag_source=SystemTagSource.THOUGHT_SPOT,
+                value=tag.name,
+            )
             for tag in tags
             if not (tag.isDeleted or tag.isHidden or tag.isDeprecated)
         ]
+
+        return SystemTags(tags=system_tags) if system_tags else None

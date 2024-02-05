@@ -12,6 +12,9 @@ from metaphor.models.metadata_change_event import (
     LookerView,
     LookerViewDimension,
     LookerViewMeasure,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
@@ -108,6 +111,18 @@ def test_basic(test_root_dir):
             ),
             entity_upstream=EntityUpstream(
                 source_entities=[str(virtual_view_id)],
+            ),
+            system_tags=SystemTags(
+                tags=[
+                    SystemTag(
+                        system_tag_source=SystemTagSource.LOOKER,
+                        value="tag1",
+                    ),
+                    SystemTag(
+                        system_tag_source=SystemTagSource.LOOKER,
+                        value="tag2",
+                    ),
+                ]
             ),
         ),
     ]

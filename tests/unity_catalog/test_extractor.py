@@ -224,7 +224,8 @@ async def test_extractor(
     extractor = UnityCatalogExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
-    assert events == load_json(f"{test_root_dir}/unity_catalog/expected.json")
+    expected = f"{test_root_dir}/unity_catalog/expected.json"
+    assert events == load_json(expected)
 
 
 @patch("metaphor.unity_catalog.extractor.create_connection")

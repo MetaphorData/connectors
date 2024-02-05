@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timezone
-from typing import Any, List, Optional, Tuple
+from typing import Optional
 from unittest.mock import MagicMock, patch
 
 from metaphor.common.base_config import OutputConfig
@@ -279,7 +279,11 @@ def test_fetch_tags(mock_connect: MagicMock):
 
     extractor._fetch_tags(mock_cursor)
 
-    assert dataset.schema.tags == ["key1=value1"]
+    assert dataset.system_tags.tags == [
+        SystemTag(
+            key="key1", system_tag_source=SystemTagSource.SNOWFLAKE, value="value1"
+        )
+    ]
     assert dataset.schema.fields[0].field_path == "col1"
     assert dataset.schema.fields[0].tags == ["key1=col_tag1"]
 
@@ -308,16 +312,23 @@ def test_fetch_tags_for_similar_schema(mock_connect: MagicMock):
     extractor._fetch_tags(mock_cursor)
 
     assert "db.foo.table0" in extractor._datasets
-    assert extractor._datasets["db.foo.table0"].schema
-    assert extractor._datasets["db.foo.table0"].schema.tags == ["foo=foo"]
+    assert extractor._datasets["db.foo.table0"].system_tags.tags == [
+        SystemTag(key="foo", system_tag_source=SystemTagSource.SNOWFLAKE, value="foo")
+    ]
 
     assert "db.foobar.table1" in extractor._datasets
-    assert extractor._datasets["db.foobar.table1"].schema
-    assert extractor._datasets["db.foobar.table1"].schema.tags == ["foobar=foo"]
+    assert extractor._datasets["db.foobar.table1"].system_tags.tags == [
+        SystemTag(
+            key="foobar", system_tag_source=SystemTagSource.SNOWFLAKE, value="foo"
+        )
+    ]
 
     assert "db.foobaz.table2" in extractor._datasets
-    assert extractor._datasets["db.foobaz.table2"].schema
-    assert extractor._datasets["db.foobaz.table2"].schema.tags == ["foobaz=foo"]
+    assert extractor._datasets["db.foobaz.table2"].system_tags.tags == [
+        SystemTag(
+            key="foobaz", system_tag_source=SystemTagSource.SNOWFLAKE, value="foo"
+        )
+    ]
 
 
 @patch("metaphor.snowflake.auth.connect")
@@ -355,7 +366,7 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
 
     extractor._fetch_tags(mock_cursor)
 
-    assert not dataset.schema.tags
+    assert not dataset.system_tags
     assert extractor._hierarchies.get(dataset_normalized_name(table_name)) is not None
     db_hierarchy = extractor._hierarchies[dataset_normalized_name(table_name)]
     assert db_hierarchy.logical_id == HierarchyLogicalID(
@@ -405,348 +416,384 @@ def test_fetch_shared_databases(mock_connect: MagicMock):
     assert results == [database]
 
 
+@patch("metaphor.snowflake.extractor.check_access_history")
+@patch("metaphor.snowflake.extractor.fetch_query_history_count")
 @patch("metaphor.snowflake.auth.connect")
-def test_parse_query_logs(mock_connect: MagicMock):
-    query_logs: List[Tuple[Any, ...]] = [
-        (
-            "id1",  # QUERY_ID
-            "METAPHOR",  # USER_NAME
-            "short query text less than 40 chars",  # QUERY_TEXT
-            "2022-12-12 14:01:02.778 -0800",  # START_TIME
-            2514,  # TOTAL_ELAPSED_TIME
-            "0.000296",  # CREDITS_USED_CLOUD_SERVICES
-            "ACME",  # DATABASE_NAME
-            "RIDE_SHARE",  # SCHEMA_NAME
-            100,  # BYTES_SCANNED
-            200,  # BYTES_WRITTEN
-            10,  # ROWS_PRODUCED
-            20,  # ROWS_INSERTED
-            0,  # ROWS_UPDATED
-            json.dumps(
-                [
-                    {
-                        "columns": [
-                            {"columnId": 1485364, "columnName": "START_STATION_NAME"},
-                            {"columnId": 1485363, "columnName": "START_STATION_ID"},
-                            {"columnId": 1485357, "columnName": "TOTAL_MINUTES"},
+def test_collect_query_logs(
+    mock_connect: MagicMock,
+    mock_fetch_query_history_count: MagicMock,
+    mock_check_access_history: MagicMock,
+):
+    mock_check_access_history.return_value = True
+    mock_fetch_query_history_count.return_value = 1
+
+    class MockCursor:
+        def execute(self, _query, _params):
+            pass
+
+        def __iter__(self):
+            for obj in [
+                (
+                    "id1",  # QUERY_ID
+                    "METAPHOR",  # USER_NAME
+                    "short query text less than 40 chars",  # QUERY_TEXT
+                    "2022-12-12 14:01:02.778 -0800",  # START_TIME
+                    2514,  # TOTAL_ELAPSED_TIME
+                    "0.000296",  # CREDITS_USED_CLOUD_SERVICES
+                    "ACME",  # DATABASE_NAME
+                    "RIDE_SHARE",  # SCHEMA_NAME
+                    100,  # BYTES_SCANNED
+                    200,  # BYTES_WRITTEN
+                    10,  # ROWS_PRODUCED
+                    20,  # ROWS_INSERTED
+                    0,  # ROWS_UPDATED
+                    json.dumps(
+                        [
                             {
-                                "columnId": 1485365,
-                                "columnName": "START_STATION_BIKES_COUNT",
-                            },
-                            {"columnId": 1485360, "columnName": "MONTH"},
-                            {
-                                "columnId": 1485367,
-                                "columnName": "START_STATION_INSTALL_DATE",
-                            },
-                            {"columnId": 1485361, "columnName": "START_PEAK_TRAVEL"},
-                            {"columnId": 1485362, "columnName": "SAME_STATION_FLAG"},
-                            {
-                                "columnId": 1485366,
-                                "columnName": "START_STATION_DOCKS_COUNT",
-                            },
-                            {"columnId": 1485358, "columnName": "TOTAL_BIKE_HIRES"},
-                        ],
-                        "objectDomain": "Table",
-                        "objectId": 1471594,
-                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                    }
-                ]
-            ),
-            json.dumps(
-                [
-                    {
-                        "columns": [
-                            {
-                                "baseSources": [
+                                "columns": [
                                     {
-                                        "columnName": "MONTH",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485909,
-                                "columnName": "MONTH",
-                                "directSources": [
-                                    {
-                                        "columnName": "MONTH",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                            {
-                                "baseSources": [
-                                    {
-                                        "columnName": "START_STATION_INSTALL_DATE",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485916,
-                                "columnName": "START_STATION_INSTALL_DATE",
-                                "directSources": [
-                                    {
-                                        "columnName": "START_STATION_INSTALL_DATE",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                            {
-                                "baseSources": [
-                                    {
-                                        "columnName": "TOTAL_BIKE_HIRES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485907,
-                                "columnName": "TOTAL_BIKE_HIRES",
-                                "directSources": [
-                                    {
-                                        "columnName": "TOTAL_BIKE_HIRES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                            {
-                                "baseSources": [
-                                    {
-                                        "columnName": "START_STATION_DOCKS_COUNT",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485915,
-                                "columnName": "START_STATION_DOCKS_COUNT",
-                                "directSources": [
-                                    {
-                                        "columnName": "START_STATION_DOCKS_COUNT",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                            {
-                                "baseSources": [
-                                    {
+                                        "columnId": 1485364,
                                         "columnName": "START_STATION_NAME",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485913,
-                                "columnName": "START_STATION_NAME",
-                                "directSources": [
+                                    },
                                     {
+                                        "columnId": 1485363,
+                                        "columnName": "START_STATION_ID",
+                                    },
+                                    {
+                                        "columnId": 1485357,
+                                        "columnName": "TOTAL_MINUTES",
+                                    },
+                                    {
+                                        "columnId": 1485365,
+                                        "columnName": "START_STATION_BIKES_COUNT",
+                                    },
+                                    {"columnId": 1485360, "columnName": "MONTH"},
+                                    {
+                                        "columnId": 1485367,
+                                        "columnName": "START_STATION_INSTALL_DATE",
+                                    },
+                                    {
+                                        "columnId": 1485361,
+                                        "columnName": "START_PEAK_TRAVEL",
+                                    },
+                                    {
+                                        "columnId": 1485362,
+                                        "columnName": "SAME_STATION_FLAG",
+                                    },
+                                    {
+                                        "columnId": 1485366,
+                                        "columnName": "START_STATION_DOCKS_COUNT",
+                                    },
+                                    {
+                                        "columnId": 1485358,
+                                        "columnName": "TOTAL_BIKE_HIRES",
+                                    },
+                                ],
+                                "objectDomain": "Table",
+                                "objectId": 1471594,
+                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                            }
+                        ]
+                    ),
+                    json.dumps(
+                        [
+                            {
+                                "columns": [
+                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "MONTH",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485909,
+                                        "columnName": "MONTH",
+                                        "directSources": [
+                                            {
+                                                "columnName": "MONTH",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
+                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "START_STATION_INSTALL_DATE",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485916,
+                                        "columnName": "START_STATION_INSTALL_DATE",
+                                        "directSources": [
+                                            {
+                                                "columnName": "START_STATION_INSTALL_DATE",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
+                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "TOTAL_BIKE_HIRES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485907,
+                                        "columnName": "TOTAL_BIKE_HIRES",
+                                        "directSources": [
+                                            {
+                                                "columnName": "TOTAL_BIKE_HIRES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
+                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "START_STATION_DOCKS_COUNT",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485915,
+                                        "columnName": "START_STATION_DOCKS_COUNT",
+                                        "directSources": [
+                                            {
+                                                "columnName": "START_STATION_DOCKS_COUNT",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
+                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "START_STATION_NAME",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485913,
                                         "columnName": "START_STATION_NAME",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                            {
-                                "baseSources": [
+                                        "directSources": [
+                                            {
+                                                "columnName": "START_STATION_NAME",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
                                     {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "START_STATION_ID",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485912,
                                         "columnName": "START_STATION_ID",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485912,
-                                "columnName": "START_STATION_ID",
-                                "directSources": [
-                                    {
-                                        "columnName": "START_STATION_ID",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                            {
-                                "baseSources": [
-                                    {
-                                        "columnName": "TOTAL_BIKE_HIRES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                        "directSources": [
+                                            {
+                                                "columnName": "START_STATION_ID",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
                                     },
                                     {
-                                        "columnName": "TOTAL_MINUTES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                        "baseSources": [
+                                            {
+                                                "columnName": "TOTAL_BIKE_HIRES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            },
+                                            {
+                                                "columnName": "TOTAL_MINUTES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            },
+                                        ],
+                                        "columnId": 1485908,
+                                        "columnName": "AVERAGE_DURATION_IN_MINUTES",
+                                        "directSources": [
+                                            {
+                                                "columnName": "TOTAL_BIKE_HIRES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            },
+                                            {
+                                                "columnName": "TOTAL_MINUTES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            },
+                                        ],
                                     },
-                                ],
-                                "columnId": 1485908,
-                                "columnName": "AVERAGE_DURATION_IN_MINUTES",
-                                "directSources": [
                                     {
-                                        "columnName": "TOTAL_BIKE_HIRES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    },
-                                    {
-                                        "columnName": "TOTAL_MINUTES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    },
-                                ],
-                            },
-                            {
-                                "baseSources": [
-                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "START_STATION_BIKES_COUNT",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485914,
                                         "columnName": "START_STATION_BIKES_COUNT",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485914,
-                                "columnName": "START_STATION_BIKES_COUNT",
-                                "directSources": [
+                                        "directSources": [
+                                            {
+                                                "columnName": "START_STATION_BIKES_COUNT",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
                                     {
-                                        "columnName": "START_STATION_BIKES_COUNT",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                            {
-                                "baseSources": [
-                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "SAME_STATION_FLAG",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485911,
                                         "columnName": "SAME_STATION_FLAG",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485911,
-                                "columnName": "SAME_STATION_FLAG",
-                                "directSources": [
+                                        "directSources": [
+                                            {
+                                                "columnName": "SAME_STATION_FLAG",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
                                     {
-                                        "columnName": "SAME_STATION_FLAG",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                            {
-                                "baseSources": [
-                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "START_PEAK_TRAVEL",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485910,
                                         "columnName": "START_PEAK_TRAVEL",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485910,
-                                "columnName": "START_PEAK_TRAVEL",
-                                "directSources": [
+                                        "directSources": [
+                                            {
+                                                "columnName": "START_PEAK_TRAVEL",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
                                     {
-                                        "columnName": "START_PEAK_TRAVEL",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
+                                        "baseSources": [
+                                            {
+                                                "columnName": "TOTAL_MINUTES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485906,
+                                        "columnName": "TOTAL_HOURS",
+                                        "directSources": [
+                                            {
+                                                "columnName": "TOTAL_MINUTES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
+                                    {
+                                        "baseSources": [
+                                            {
+                                                "columnName": "TOTAL_MINUTES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                        "columnId": 1485905,
+                                        "columnName": "TOTAL_MINUTES",
+                                        "directSources": [
+                                            {
+                                                "columnName": "TOTAL_MINUTES",
+                                                "objectDomain": "Table",
+                                                "objectId": 1471594,
+                                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
+                                            }
+                                        ],
+                                    },
                                 ],
+                                "objectDomain": "Table",
+                                "objectId": 1472528,
+                                "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_START_STATION_2017",
                             },
                             {
-                                "baseSources": [
-                                    {
-                                        "columnName": "TOTAL_MINUTES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485906,
-                                "columnName": "TOTAL_HOURS",
-                                "directSources": [
-                                    {
-                                        "columnName": "TOTAL_MINUTES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
+                                "objectDomain": "Table",
+                                "objectId": 14725280,
+                                "objectName": "ACME.RIDE_SHARE.FOO.BAR",
                             },
-                            {
-                                "baseSources": [
-                                    {
-                                        "columnName": "TOTAL_MINUTES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                                "columnId": 1485905,
-                                "columnName": "TOTAL_MINUTES",
-                                "directSources": [
-                                    {
-                                        "columnName": "TOTAL_MINUTES",
-                                        "objectDomain": "Table",
-                                        "objectId": 1471594,
-                                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_2017",
-                                    }
-                                ],
-                            },
-                        ],
-                        "objectDomain": "Table",
-                        "objectId": 1472528,
-                        "objectName": "ACME.RIDE_SHARE.RIDES_BY_MONTH_START_STATION_2017",
-                    },
-                    {
-                        "objectDomain": "Table",
-                        "objectId": 14725280,
-                        "objectName": "ACME.RIDE_SHARE.FOO.BAR",
-                    },
-                ]
-            ),
-        ),
-        (
-            # Large query - expected to be ignored
-            "id1",  # QUERY_ID
-            "METAPHOR",  # USER_NAME
-            "a very very long query that exceeds 40 chars",  # QUERY_TEXT
-            "2022-12-12 14:01:02.778 -0800",  # START_TIME
-            2514,  # TOTAL_ELAPSED_TIME
-            "0.000296",  # CREDITS_USED_CLOUD_SERVICES
-            "ACME",  # DATABASE_NAME
-            "RIDE_SHARE",  # SCHEMA_NAME
-            100,  # BYTES_SCANNED
-            200,  # BYTES_WRITTEN
-            10,  # ROWS_PRODUCED
-            20,  # ROWS_INSERTED
-            0,  # ROWS_UPDATED
-        ),
-    ]
+                        ]
+                    ),
+                ),
+                (
+                    # Large query - expected to be ignored
+                    "id1",  # QUERY_ID
+                    "METAPHOR",  # USER_NAME
+                    "a very very long query that exceeds 40 chars",  # QUERY_TEXT
+                    "2022-12-12 14:01:02.778 -0800",  # START_TIME
+                    2514,  # TOTAL_ELAPSED_TIME
+                    "0.000296",  # CREDITS_USED_CLOUD_SERVICES
+                    "ACME",  # DATABASE_NAME
+                    "RIDE_SHARE",  # SCHEMA_NAME
+                    100,  # BYTES_SCANNED
+                    200,  # BYTES_WRITTEN
+                    10,  # ROWS_PRODUCED
+                    20,  # ROWS_INSERTED
+                    0,  # ROWS_UPDATED
+                ),
+            ]:
+                yield obj
 
     config = make_snowflake_config()
     config.query_log = SnowflakeQueryLogConfig(max_query_size=40)
 
     extractor = SnowflakeExtractor(config)
-    extractor._parse_query_logs("1", query_logs)
+    conn_instance = MagicMock()
+    conn_instance.cursor.return_value = MockCursor()
+    mock_connect.return_value = conn_instance
+    query_logs = list(extractor.collect_query_logs())
 
-    assert len(extractor._logs) == 1
-    log0 = extractor._logs[0]
+    assert len(query_logs) == 1
+    log0 = query_logs[0]
     assert log0.query_id == "id1"
     assert log0.bytes_read == 100
     assert log0.bytes_written == 200
