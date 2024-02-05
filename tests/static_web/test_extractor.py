@@ -46,8 +46,8 @@ def test_get_page_subpages(mock_get, static_web_extractor):
     mock_get.return_value = mock_response
     static_web_extractor._current_parent_page = "https://example.com"
     result = static_web_extractor._get_page_subpages("https://example.com")
-    assert "https://example.com" == result[0]
-    assert "https://example.com/subpage1" == result[1]
+    assert result[0] == "https://example.com"
+    assert result[1] == "https://example.com/subpage1"
 
     # Exception handling case
     mock_get.side_effect = requests.exceptions.RequestException()
@@ -127,5 +127,22 @@ def test_make_documents(static_web_extractor):
     assert len(result) == 1
     doc = result[0]
     assert doc.extra_info["link"] == "https://example.com"
+    assert doc.extra_info["platform"] == "example.com"
     assert doc.extra_info["title"] == "Title 1"
     assert doc.text == "Content 1"
+
+
+# test extract
+def test_extractor(
+    mock_embed_docs: MagicMock,
+    mock_get_subpages: MagicMock,
+    static_web_extractor,
+    test_root_dir: str,
+) -> None:
+    # mock VectorStoreIndex
+    mock_VSI = MagicMock()
+
+    mock_VSI.storage_context.to_dict.return_value = {}
+
+    # mock embed docs
+    mock_embed_docs.return_value = mock_VSI

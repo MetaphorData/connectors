@@ -1,11 +1,8 @@
-import asyncio
 import datetime
-from typing import Collection, List, Tuple
+from typing import Collection, List
 from urllib.parse import urljoin, urlparse
 
-import aiohttp
 import requests
-from aiohttp.client_exceptions import ClientResponseError
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from llama_index import Document
@@ -14,7 +11,7 @@ from requests.exceptions import HTTPError, RequestException
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import md5_digest, unique_list
+from metaphor.common.utils import md5_digest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.static_web.config import StaticWebRunConfig
 
@@ -50,34 +47,33 @@ class StaticWebExtractor(BaseExtractor):
 
     async def extract(self) -> Collection[dict]:
         logger.info("Scraping provided URLs")
-        docs = []
+        self.docs = []
+        self.visited_pages = set()
 
-        # Retrieval for all pages
         for page, depth in zip(self.target_URLs, self.target_depths):
-            logger.info(f"Processing {page}")
+            logger.info(f"Processing {page} with depth {depth}")
+            self.current_parent_page = page
 
-            if depth:
-                self._current_parent_page = page
-                subpages = self._get_page_subpages(page)
-                for _ in range(1, depth):
-                    for subpage in subpages:
-                        logger.info(f"Processing subpage {subpage}")
-                        subpages.extend(self._get_page_subpages(subpage))
-                        subpages = unique_list(subpages)
-            else:
-                subpages = []
-                subpages.append(page)
+            # Fetch target content
+            page_content = self._get_page_HTML(page)
+            self.visited_pages.add(page)
 
-            page_titles, page_contents = await self._get_URLs_HTML(subpages)
+            if page_content != "ERROR IN PAGE RETRIEVAL":  # proceed if successful
+                main_text = self._get_text_from_HTML(page_content)
+                main_title = self._get_title_from_HTML(page_content)
 
-            p_docs = self._make_documents(subpages, page_titles, page_contents)
+                doc = self._make_document(page, main_title, main_text)
+                self.docs.append(doc)
 
-            docs.extend(p_docs)
+                logger.info(f"Done with parent page {page}")
+
+                if depth:  # recursive subpage processing
+                    await self._process_subpages(page, main_title, depth)
 
         # Embedding process
         logger.info("Starting embedding process")
         vsi = embed_documents(
-            docs,
+            self.docs,
             self.azure_openAI_key,
             self.azure_openAI_version,
             self.azure_openAI_endpoint,
@@ -91,24 +87,61 @@ class StaticWebExtractor(BaseExtractor):
 
         return embedded_nodes
 
-    def _get_page_subpages(self, input_URL: str) -> List[str]:
+    async def _process_subpages(
+        self, parent_URL: str, parent_content: str, depth: int, current_depth: int = 1
+    ) -> None:
+        logger.info(f"Processing subpages of {parent_URL}")
+        subpages = self._get_subpages_from_HTML(parent_content, parent_URL)
+
+        for subpage in subpages:
+            if subpage in self.visited_pages:
+                continue
+
+            logger.info(f"Processing subpage {subpage}")
+            subpage_content = self._get_page_HTML(subpage)
+            self.visited_pages.add(subpage)
+
+            if subpage_content == "ERROR IN PAGE RETRIEVAL":
+                continue
+
+            subpage_text = self._get_text_from_HTML(subpage_content)
+            subpage_title = self._get_title_from_HTML(subpage_content)
+
+            subpage_doc = self._make_document(subpage, subpage_title, subpage_text)
+
+            self.docs.append(subpage_doc)
+
+            if current_depth < depth:
+                await self._process_subpages(
+                    subpage, subpage_content, depth, current_depth + 1
+                )
+
+    def _get_page_HTML(self, input_URL: str) -> str:
         """
-        Extracts and returns a list of subpage URLs from a given webpage URL.
+        Asynchronously fetches a webpage's content, returning an error message on failure.
+        """
+        try:
+            r = requests.get(input_URL, timeout=5)
+            r.raise_for_status()
+            return r.text
+        except (HTTPError, RequestException) as e:
+            logger.warning(
+                f"Error in retrieving {input_URL}, error {e}"
+            )
+            return "ERROR IN PAGE RETRIEVAL"
+
+    def _get_subpages_from_HTML(self, html_content: str, input_URL: str) -> List[str]:
+        """
+        Extracts and returns a list of subpage URLs from a given page's HTML and URL.
         Subpage URLs are reconstructed to be absolute URLs and anchor links are trimmed.
         """
         # Retrieve input page
-        try:
-            response = requests.get(input_URL, timeout=5)
-            response.raise_for_status()
-        except (HTTPError, RequestException) as e:
-            logger.warning(f"Error in {input_URL} retrieval, error: {e}")
-            return [input_URL]
 
-        soup = BeautifulSoup(response.text, "lxml")
+        soup = BeautifulSoup(html_content, "lxml")
         links = soup.find_all("a", href=True)
 
         # Parse the domain of the input URL
-        input_domain = urlparse(self._current_parent_page).netloc
+        input_domain = urlparse(self.current_parent_page).netloc
         subpages = [input_URL]
 
         # Find eligible links
@@ -125,29 +158,11 @@ class StaticWebExtractor(BaseExtractor):
 
         return subpages
 
-    # exponential backoff? or is it ok if things fail
-    async def _fetch_page_HTML(
-        self, session: aiohttp.ClientSession, input_URL: str
-    ) -> str:
-        """
-        Asynchronously fetches a webpage's content, returning an error message on failure.
-        Args: aiohttp.ClientSession and the webpage URL.
-        """
-        try:
-            async with session.get(input_URL, timeout=5) as response:
-                response.raise_for_status()
-                return await response.text()
-        except ClientResponseError:
-            logger.warning(f"Error in retrieving {input_URL}")
-            return "ERROR IN PAGE RETRIEVAL"  # Error handling
-
     def _get_text_from_HTML(self, html_content: str) -> str:
         """
         Extracts and returns visible text from given HTML content as a single string.
-        Designed to handle output from fetch_page_content.
+        Designed to handle output from fetch_page_HTML.
         """
-        if html_content == "ERROR IN PAGE RETRIEVAL":
-            return html_content  # Return the error message as is
 
         def filter_visible(el):
             if el.parent.name in [
@@ -172,11 +187,8 @@ class StaticWebExtractor(BaseExtractor):
     def _get_title_from_HTML(self, html_content: str) -> str:
         """
         Extracts the title of a webpage given HTML content as a single string.
-        Designed to handle output from fetch_page_content.
+        Designed to handle output from get_page_HTML.
         """
-
-        if html_content == "ERROR IN PAGE RETRIEVAL":
-            return ""  # Return no title
 
         soup = BeautifulSoup(html_content, "lxml")
         title_tag = soup.find("title")
@@ -187,49 +199,24 @@ class StaticWebExtractor(BaseExtractor):
         else:
             return ""
 
-    async def _get_URLs_HTML(self, urls: List[str]) -> Tuple[List[str], List[str]]:
-        """
-        Asynchronously fetches and processes content from a list of URLs.
-        Returns a list of text content or error messages for each URL.
-        """
-        async with aiohttp.ClientSession() as session:
-            tasks = [self._fetch_page_HTML(session, url) for url in urls]
-            pages_content = await asyncio.gather(*tasks)
-            page_texts = [
-                self._get_text_from_HTML(content) for content in pages_content
-            ]
-            page_titles = [
-                self._get_title_from_HTML(content) for content in pages_content
-            ]
-
-            return page_titles, page_texts
-
-    def _make_documents(
-        self, page_URLs: List[str], page_titles: List[str], page_contents: List[str]
-    ):
+    def _make_document(self, page_URL: str, page_title: str, page_text: str) -> None:
         """
         Constructs Document objects from webpage URLs and their content, including extra metadata.
         Cleans text content and includes data like page title, platform URL, page link, refresh timestamp, and page ID.
         """
-        docs = []
-        base_URL = urlparse(page_URLs[0]).netloc
+        base_URL = urlparse(page_URL).netloc
         current_time = str(datetime.datetime.utcnow())
-        for url, title, content in zip(page_URLs, page_titles, page_contents):
-            # Skip pages that weren't retrieved successfully
-            if "ERROR IN PAGE RETRIEVAL" in content:
-                continue
 
-            doc = Document(
-                text=sanitize_text(content),
-                extra_info={
-                    "title": title,
-                    "platform": base_URL,
-                    "link": url,
-                    "lastRefreshed": current_time,
-                    # Create a pageId based on URL - is this necessary?
-                    "pageId": md5_digest(url.encode()),
-                },
-            )
-            docs.append(doc)
+        doc = Document(
+            text=sanitize_text(page_text),
+            extra_info={
+                "title": page_title,
+                "platform": base_URL,
+                "link": page_URL,
+                "lastRefreshed": current_time,
+                # Create a pageId based on page_URL - is this necessary?
+                "pageId": md5_digest(page_URL.encode()),
+            },
+        )
 
-        return docs
+        return doc
