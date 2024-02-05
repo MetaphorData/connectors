@@ -106,7 +106,9 @@ class QueryLogSink:
 
     def write_query_log(self, query_log: QueryLog) -> None:
         if not self._entered:
-            raise ValueError()
+            raise ValueError(
+                "This method can only be called when QueryLogSink is in a managed context"
+            )
         if (
             self.logs_count >= self.logs_per_mce
             or self.batch_bytes >= self.bytes_per_batch

@@ -1,7 +1,7 @@
 import asyncio
 import traceback
 from abc import ABC, abstractmethod
-from typing import Collection, Generator, Optional
+from typing import Collection, Iterator, Optional
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.event_util import ENTITY_TYPES
@@ -38,7 +38,7 @@ class BaseExtractor(ABC):
     def run_async(self) -> Collection[ENTITY_TYPES]:
         return asyncio.run(self.extract())
 
-    def collect_query_logs(self) -> Generator[QueryLog, None, None]:
+    def collect_query_logs(self) -> Iterator[QueryLog]:
         """
         Collects only the query logs. By default collects nothing,
         crawler class needs to implement this method if it wishes

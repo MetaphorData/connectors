@@ -1,6 +1,16 @@
 import math
 from datetime import datetime, timezone
-from typing import Collection, Dict, Generator, List, Literal, Mapping, Optional, Tuple
+from typing import (
+    Collection,
+    Dict,
+    Generator,
+    Iterator,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Tuple,
+)
 
 from pydantic import TypeAdapter
 
@@ -155,7 +165,7 @@ class SnowflakeExtractor(BaseExtractor):
         entities.extend(self._hierarchies.values())
         return entities
 
-    def collect_query_logs(self):
+    def collect_query_logs(self) -> Iterator[QueryLog]:
         self._conn = auth.connect(self._config)
 
         with self._conn:
@@ -528,7 +538,7 @@ class SnowflakeExtractor(BaseExtractor):
                     key_prefix, key, value, column if object_type == "COLUMN" else None
                 )
 
-    def _fetch_query_logs(self):
+    def _fetch_query_logs(self) -> Iterator[QueryLog]:
         logger.info("Fetching Snowflake query logs")
 
         start_date = start_of_day(self._query_log_lookback_days)
