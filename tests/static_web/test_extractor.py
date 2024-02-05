@@ -1,12 +1,12 @@
 from unittest.mock import MagicMock, patch
 
-import aiohttp
 import pytest
 import requests
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.static_web.config import StaticWebRunConfig
 from metaphor.static_web.extractor import StaticWebExtractor
+from tests.test_utils import load_json
 
 
 @pytest.fixture
@@ -25,124 +25,140 @@ def static_web_extractor():
     return StaticWebExtractor(config)
 
 
-class MockResponse:
-    def __init__(self, json_data, status_code=200):
-        self.json_data = json_data
-        self.status_code = status_code
-
-    def json(self):
-        return self.json_data
-
-    def raise_for_status(self):
-        return
-
-
-# test get_page_subpages
+# Test for successful page HTML retrieval
 @patch("requests.get")
-def test_get_page_subpages(mock_get, static_web_extractor):
-    # Successful retrieval case
-    mock_response = MagicMock()
-    mock_response.text = '<html><body><a href="/subpage1">Subpage 1</a></body></html>'
-    mock_get.return_value = mock_response
-    static_web_extractor._current_parent_page = "https://example.com"
-    result = static_web_extractor._get_page_subpages("https://example.com")
-    assert result[0] == "https://example.com"
-    assert result[1] == "https://example.com/subpage1"
-
-    # Exception handling case
-    mock_get.side_effect = requests.exceptions.RequestException()
-    result = static_web_extractor._get_page_subpages("https://example.com")
-    assert result == ["https://example.com"]
-
-
-# test fetch_page_HTML
-@patch("aiohttp.ClientSession")
 @pytest.mark.asyncio
-async def test_fetch_page_HTML(mock_session, static_web_extractor):
-    # Successful retrieval case
-    mock_session.get.return_value.__aenter__.return_value.text.return_value = (
-        "Page Content"
-    )
-    content = await static_web_extractor._fetch_page_HTML(
-        mock_session, "https://example.com"
-    )
-    assert content == "Page Content"
+def test_get_page_HTML_success(mock_get, static_web_extractor):
+    mock_get_val = MagicMock()
+    mock_get_val.text = "<html><body>Test</body></html>"
 
-    # Exception handling case
-    mock_session.get.side_effect = aiohttp.ClientResponseError(None, None, status=500)
-    content = await static_web_extractor._fetch_page_HTML(
-        mock_session, "https://example.com"
-    )
+    mock_get.return_value = mock_get_val
+
+    content = static_web_extractor._get_page_HTML("https://example.com")
+    assert content == "<html><body>Test</body></html>"
+
+
+# Test for handling retrieval failure
+@patch("requests.get")
+@pytest.mark.asyncio
+def test_get_page_HTML_failure(mock_get, static_web_extractor):
+    mock_get_val = MagicMock()
+
+    mock_get.side_effect = requests.RequestException()
+    mock_get.return_value = mock_get_val
+
+    content = static_web_extractor._get_page_HTML("https://example.com")
     assert content == "ERROR IN PAGE RETRIEVAL"
 
 
-# test get_text_from_HTML
-def test_get_text_from_HTML(static_web_extractor):
-    # Normal content
-    html_content = "<html><body><p>Paragraph 1</p><p>Paragraph 2</p></body></html>"
-    result = static_web_extractor._get_text_from_HTML(html_content)
-    assert result == "Paragraph 1\nParagraph 2"
-
-    # Error message content
-    error_content = "ERROR IN PAGE RETRIEVAL"
-    result = static_web_extractor._get_text_from_HTML(error_content)
-    assert result == error_content
-
-
-# test get_URLs_HTML
-@patch("metaphor.static_web.StaticWebExtractor._fetch_page_HTML")
-@pytest.mark.asyncio
-async def test_get_URLs_HTML(mock_fetch, static_web_extractor):
-    # Mocking _fetch_page_HTML to return HTML content
-    mock_fetch.return_value = (
-        "<html><head><title>Title 1</title></head><body>Content 1</body></html>"
+# Test for extracting subpages from HTML
+def test_get_subpages_from_HTML(static_web_extractor):
+    html_content = '<html><body><a href="/test">Link</a></body></html>'
+    static_web_extractor.current_parent_page = "https://example.com"
+    result = static_web_extractor._get_subpages_from_HTML(
+        html_content, "https://example.com"
     )
-    # Test
-    page_titles, page_contents = await static_web_extractor._get_URLs_HTML(
-        ["https://example.com"]
+    assert "https://example.com/test" in result
+
+
+# Test for extracting visible text from HTML, with filtering
+def test_get_text_from_HTML_with_filtering(static_web_extractor):
+    html_content = """
+    <html>
+        <head>
+            <title>Test Title</title>
+            <style>Some style</style>
+            <script>Some script</script>
+            <meta name="description" content="Some meta">
+        </head>
+        <body>
+            <p>Visible paragraph 1.</p>
+            <div>
+                <p>Visible paragraph 2.</p>
+                <!-- Commented text -->
+                <script>Script text</script>
+                <style>Style text</style>
+            </div>
+        </body>
+    </html>
+    """
+    text = static_web_extractor._get_text_from_HTML(html_content)
+    assert "Visible paragraph 1." in text
+    assert "Visible paragraph 2." in text
+    assert "Test Title" not in text
+    assert "Some style" not in text
+    assert "Some script" not in text
+    assert "Some meta" not in text
+    assert "Commented text" not in text
+    assert "Script text" not in text
+    assert "Style text" not in text
+
+
+# Test for extracting title from HTML
+def test_get_title_from_HTML_success(static_web_extractor):
+    html_content = "<html><head><title>Test Title</title></head></html>"
+    title = static_web_extractor._get_title_from_HTML(html_content)
+    assert title == "Test Title"
+
+
+# Test for extracting empty title
+def test_get_title_from_HTML_failure(static_web_extractor):
+    html_content = "<html><head></head><body><h1>Hello World!</h1></body></html>"
+    title = static_web_extractor._get_title_from_HTML(html_content)
+    assert title == ""
+
+
+# Test for making a document
+def test_make_document(static_web_extractor):
+    doc = static_web_extractor._make_document(
+        "https://example.com", "Test Title", "Test Content"
     )
-    # Assertions
-    assert page_titles == ["Title 1"]
-    assert page_contents == ["Content 1"]
-
-    # Mocking _fetch_page_HTML to return error
-    mock_fetch.return_value = "ERROR IN PAGE RETRIEVAL"
-    # Test
-    page_titles, page_contents = await static_web_extractor._get_URLs_HTML(
-        ["https://example.com"]
-    )
-    # Assertions
-    assert page_titles == [""]
-    assert page_contents == ["ERROR IN PAGE RETRIEVAL"]
-
-
-# test make_documents
-def test_make_documents(static_web_extractor):
-    page_urls = ["https://example.com", "https://example.com/subpage1"]
-    page_titles = ["Title 1", "Title 2"]
-    page_contents = ["Content 1", "ERROR IN PAGE RETRIEVAL"]
-
-    result = static_web_extractor._make_documents(page_urls, page_titles, page_contents)
-
-    assert len(result) == 1
-    doc = result[0]
+    assert doc.text == "Test Content"
+    assert doc.extra_info["title"] == "Test Title"
     assert doc.extra_info["link"] == "https://example.com"
-    assert doc.extra_info["platform"] == "example.com"
-    assert doc.extra_info["title"] == "Title 1"
-    assert doc.text == "Content 1"
 
 
-# test extract
-def test_extractor(
+# Test extract
+@patch("metaphor.static_web.StaticWebExtractor._get_page_HTML")
+@patch("metaphor.static_web.StaticWebExtractor._process_subpages")
+@patch("metaphor.static_web.extractor.embed_documents")
+@pytest.mark.asyncio
+async def test_extractor(
     mock_embed_docs: MagicMock,
-    mock_get_subpages: MagicMock,
+    mock_process_subpages: MagicMock,
+    mock_get_HTML: MagicMock,
     static_web_extractor,
     test_root_dir: str,
-) -> None:
-    # mock VectorStoreIndex
+):
+    # mock VSI
     mock_VSI = MagicMock()
 
-    mock_VSI.storage_context.to_dict.return_value = {}
+    mock_VSI.storage_context.to_dict.return_value = {
+        "vector_store": {
+            "default": {
+                "embedding_dict": {"abcd1234": [0.1, 0.2, 0.3, 0.4]},
+                "metadata_dict": {
+                    "abcd1234": {
+                        "title": "Hello World!",
+                        "pageId": "e19d5cd5af0378da05f63f891c7467af",
+                        "platform": "example.com",
+                        "link": "https://example.com",
+                        "lastRefreshed": "2024-02-05 00:00:00.000000",
+                    }
+                },
+            }
+        },
+        "doc_store": {
+            "docstore/data": {"abcd1234": {"__data__": {"text": "Hello World!"}}}
+        },
+    }
 
-    # mock embed docs
     mock_embed_docs.return_value = mock_VSI
+
+    mock_process_subpages.return_value = None
+
+    mock_get_HTML.return_value = "<html><head></head><body><h1>Hello World!</h1><a href='/test'>Link</a></body></html>"
+
+    events = await static_web_extractor.extract()
+
+    assert events == load_json(f"{test_root_dir}/static_web/expected.json")

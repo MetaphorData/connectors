@@ -118,16 +118,14 @@ class StaticWebExtractor(BaseExtractor):
 
     def _get_page_HTML(self, input_URL: str) -> str:
         """
-        Asynchronously fetches a webpage's content, returning an error message on failure.
+        Fetches a webpage's content, returning an error message on failure.
         """
         try:
             r = requests.get(input_URL, timeout=5)
             r.raise_for_status()
             return r.text
         except (HTTPError, RequestException) as e:
-            logger.warning(
-                f"Error in retrieving {input_URL}, error {e}"
-            )
+            logger.warning(f"Error in retrieving {input_URL}, error {e}")
             return "ERROR IN PAGE RETRIEVAL"
 
     def _get_subpages_from_HTML(self, html_content: str, input_URL: str) -> List[str]:
@@ -161,7 +159,7 @@ class StaticWebExtractor(BaseExtractor):
     def _get_text_from_HTML(self, html_content: str) -> str:
         """
         Extracts and returns visible text from given HTML content as a single string.
-        Designed to handle output from fetch_page_HTML.
+        Designed to handle output from get_page_HTML.
         """
 
         def filter_visible(el):
@@ -199,19 +197,21 @@ class StaticWebExtractor(BaseExtractor):
         else:
             return ""
 
-    def _make_document(self, page_URL: str, page_title: str, page_text: str) -> None:
+    def _make_document(
+        self, page_URL: str, page_title: str, page_text: str
+    ) -> Document:
         """
         Constructs Document objects from webpage URLs and their content, including extra metadata.
         Cleans text content and includes data like page title, platform URL, page link, refresh timestamp, and page ID.
         """
-        base_URL = urlparse(page_URL).netloc
+        netloc = urlparse(page_URL).netloc
         current_time = str(datetime.datetime.utcnow())
 
         doc = Document(
             text=sanitize_text(page_text),
             extra_info={
                 "title": page_title,
-                "platform": base_URL,
+                "platform": netloc,
                 "link": page_URL,
                 "lastRefreshed": current_time,
                 # Create a pageId based on page_URL - is this necessary?
