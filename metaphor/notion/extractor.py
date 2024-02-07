@@ -83,7 +83,7 @@ class NotionExtractor(BaseExtractor):
 
         try:
             r = requests.get(
-                f"{baseURL}/pages/{page}/properties/title", headers=headers, timeout=5
+                f"{baseURL}/pages/{page}/properties/title", headers=headers, timeout=15
             )
             r.raise_for_status()
 
