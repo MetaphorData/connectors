@@ -53,7 +53,7 @@ def test_get_page_HTML_failure(mock_get, static_web_extractor):
 
 # Test for extracting subpages from HTML
 def test_get_subpages_from_HTML(static_web_extractor):
-    html_content = '<html><body><a href="/test">Link</a></body></html>'
+    html_content = "<html><body><a href='/test'>Link</a></body></html>"
     static_web_extractor.current_parent_page = "https://example.com"
     result = static_web_extractor._get_subpages_from_HTML(
         html_content, "https://example.com"
@@ -116,6 +116,42 @@ def test_make_document(static_web_extractor):
     assert doc.text == "Test Content"
     assert doc.extra_info["title"] == "Test Title"
     assert doc.extra_info["link"] == "https://example.com"
+
+
+# Test process subpages
+@patch("metaphor.static_web.StaticWebExtractor._get_page_HTML")
+@patch("metaphor.static_web.StaticWebExtractor._get_subpages_from_HTML")
+@pytest.mark.asyncio
+async def test_process_subpages(
+    mock_get_subpages_from_HTML, mock_get_page_HTML, static_web_extractor
+):
+    # Mocking the responses for page HTML and subpages
+    parent_html = "<html><body><a href='/subpage1'>Subpage 1</a></body></html>"
+    subpage1_html = "<html><body><p>Content of Subpage 1</p></body></html>"
+
+    mock_get_page_HTML.side_effect = [parent_html, subpage1_html]
+    mock_get_subpages_from_HTML.return_value = ["https://example.com/subpage1"]
+
+    # Call the _process_subpages method
+    static_web_extractor.visited_pages = set()
+    static_web_extractor.docs = list()
+    await static_web_extractor._process_subpages("https://example.com", parent_html, 2)
+
+    # Check if _get_page_HTML is called for subpages
+    mock_get_page_HTML.assert_any_call("https://example.com/subpage1")
+
+    # Verify that documents are added correctly
+    assert len(static_web_extractor.docs) > 0
+    assert (
+        static_web_extractor.docs[0].extra_info["link"]
+        == "https://example.com/subpage1"
+    )
+    # Further assertions can be made based on the structure of your Document objects
+
+    # Check if the depth limit is respected
+    assert not any(
+        "subpage2" in doc.extra_info["link"] for doc in static_web_extractor.docs
+    )
 
 
 # Test extract
