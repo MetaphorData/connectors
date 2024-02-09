@@ -177,6 +177,16 @@
         "targetDataset": "DATASET~95F35FDE6E7C3F9E556D701A1B00CA23",
         "type": "VIEW"
       },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "\"yi@metaphor.io\""
+        },
+        {
+          "key": "pii",
+          "value": "true"
+        }
+      ],
       "packageName": "trial",
       "rawSql": "/*\n    Welcome to your first dbt model!\n    Did you know that you can also configure models directly within SQL files?\n    This will override configurations stated in dbt_project.yml\n\n    Try changing \"table\" to \"view\" below\n*/\n\nwith source_data as (\n\n    select 1 as id\n    union all\n    select null as id\n\n)\n\nselect *\nfrom source_data\n\n/*\n    Uncomment the line below to remove records with null `id` values\n*/\n\n-- where id is not null",
       "tests": [
