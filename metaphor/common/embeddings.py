@@ -61,7 +61,7 @@ def embed_documents(
     )
 
     service_context = ServiceContext.from_defaults(
-        embed_model=embed_model, node_parser=node_parser
+        embed_model=embed_model, node_parser=node_parser, llm=None
     )
 
     vector_store = SimpleVectorStore()
