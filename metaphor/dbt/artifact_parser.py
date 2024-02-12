@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
@@ -37,6 +38,7 @@ from metaphor.models.metadata_change_event import (
     DbtMacroArgument,
     DbtMaterialization,
     DbtMaterializationType,
+    DbtMetadataItem,
     DbtMetric,
     DbtModel,
     DbtTest,
@@ -740,6 +742,13 @@ class ArtifactParser:
         tag_names = get_tags_from_meta(meta, self._meta_tags)
         if len(tag_names) > 0:
             get_dataset().tag_assignment = TagAssignment(tag_names=tag_names)
+
+        # Capture the whole "meta" field as key-value pairs
+        if len(meta) > 0:
+            virtual_view.dbt_model.meta = [
+                DbtMetadataItem(key=key, value=json.dumps(value))
+                for key, value in meta.items()
+            ]
 
     def _parse_node_materialization(
         self, node: VIRTUAL_VIEW_NODE_TYPE, dbt_model: DbtModel
