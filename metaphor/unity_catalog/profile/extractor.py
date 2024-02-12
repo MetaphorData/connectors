@@ -1,4 +1,3 @@
-import logging
 import re
 from typing import Collection, List, Optional, Tuple
 
@@ -32,8 +31,6 @@ from metaphor.models.metadata_change_event import (
 )
 
 logger = get_logger()
-
-logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 NON_MODIFICATION_OPERATIONS = {
     "SET TBLPROPERTIES",
