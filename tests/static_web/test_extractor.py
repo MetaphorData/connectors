@@ -138,12 +138,12 @@ async def test_process_subpages(
     )
 
 
-# Test recursion stopping
+# Test 1 layer recursion
 @patch("metaphor.static_web.StaticWebExtractor._get_page_HTML")
 @patch("metaphor.static_web.extractor.embed_documents")
 @patch("metaphor.static_web.extractor.map_metadata")
 @pytest.mark.asyncio
-async def test_no_infinite_recursion(
+async def test_shallow_recursion(
     mock_map_metadata: MagicMock,
     mock_embed_docs: MagicMock,
     mock_get_HTML: MagicMock,
@@ -164,7 +164,44 @@ async def test_no_infinite_recursion(
         load_text(f"{page_folder}/page4.html"),
     ]
 
-    # Initialize extractor attributes
+    # Initialize extractor attributes for shallow recursion test
+    static_web_extractor.target_URLs = ["https://example.com/main"]
+    static_web_extractor.target_depths = [1]
+
+    await static_web_extractor.extract()
+
+    assert len(static_web_extractor.visited_pages) == 3
+    assert len(static_web_extractor.docs) == 3
+
+
+# Test infinite
+@patch("metaphor.static_web.StaticWebExtractor._get_page_HTML")
+@patch("metaphor.static_web.extractor.embed_documents")
+@patch("metaphor.static_web.extractor.map_metadata")
+@pytest.mark.asyncio
+async def test_infinite_recursion(
+    mock_map_metadata: MagicMock,
+    mock_embed_docs: MagicMock,
+    mock_get_HTML: MagicMock,
+    static_web_extractor,
+    test_root_dir: str,
+):
+    mock_map_metadata.return_value = []
+    mock_embed_docs.return_value = []
+
+    # Mock pages appropriately
+    page_folder = f"{test_root_dir}/static_web/sample_pages"
+
+    mock_get_HTML.side_effect = [
+        load_text(f"{page_folder}/main.html"),
+        load_text(f"{page_folder}/page1.html"),
+        load_text(f"{page_folder}/page2.html"),
+        load_text(f"{page_folder}/page3.html"),
+        load_text(f"{page_folder}/page4.html"),
+    ]
+
+    # Initialize extractor attributes for infinite recursion test
+    # page1 has a backlink to main, so we should not see multiple instances
     static_web_extractor.target_URLs = ["https://example.com/main"]
     static_web_extractor.target_depths = [2]
 
