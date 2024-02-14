@@ -1,5 +1,5 @@
 import datetime
-from typing import Collection, List
+from typing import Collection, List, Tuple
 from urllib.parse import urljoin, urlparse
 
 import requests
@@ -55,24 +55,16 @@ class StaticWebExtractor(BaseExtractor):
             self.current_parent_page = page
 
             # Fetch target content
-            page_content = self._get_page_HTML(page)
-            self.visited_pages.add(page)
-
-            if page_content != "ERROR IN PAGE RETRIEVAL":  # proceed if successful
-                main_text = self._get_text_from_HTML(page_content)
-                main_title = self._get_title_from_HTML(page_content)
-
-                doc = self._make_document(page, main_title, main_text)
-                self.docs.append(doc)
-
+            success, content = self._check_page_make_document(page)
+            
+            if success:
                 logger.info(f"Done with parent page {page}")
-
                 if depth:  # recursive subpage processing
-                    await self._process_subpages(page, main_title, depth)
+                    await self._process_subpages(page, content, depth)
 
         # Embedding process
         logger.info("Starting embedding process")
-        vsi = embed_documents(
+        vector_store_index = embed_documents(
             self.docs,
             self.azure_openAI_key,
             self.azure_openAI_version,
@@ -83,7 +75,9 @@ class StaticWebExtractor(BaseExtractor):
             embedding_overlap_size,
         )
 
-        embedded_nodes = map_metadata(vsi, include_text=self.include_text)
+        embedded_nodes = map_metadata(
+            vector_store_index, include_text=self.include_text
+        )
 
         return embedded_nodes
 
@@ -101,22 +95,36 @@ class StaticWebExtractor(BaseExtractor):
                 continue
 
             logger.info(f"Processing subpage {subpage} of parent {parent_URL}")
-            subpage_content = self._get_page_HTML(subpage)
-            self.visited_pages.add(subpage)
+            success, content = self._check_page_make_document(subpage)
 
-            if subpage_content != "ERROR IN PAGE RETRIEVAL":
-                
-                subpage_text = self._get_text_from_HTML(subpage_content)
-                subpage_title = self._get_title_from_HTML(subpage_content)
+            if success:
+                logger.info(f"Done with subpage {subpage}")
+                await self._process_subpages(subpage, content, depth, current_depth + 1)
 
-                subpage_doc = self._make_document(subpage, subpage_title, subpage_text)
+    def _check_page_make_document(self, page: str) -> Tuple[bool, str]:
+        """
+        Gets a page's HTML and adds to the visited pages set.
+        If page has valid content, extracts the text and title and generates
+        a Document object for the page.
 
-                self.docs.append(subpage_doc)
+        Returns a bool and the page_content:
+            out[0]: False if the page content is invalid, True otherwise.
+            out[1]: "" if the page content is invalid, page_content otherwise
+        """
 
-                if current_depth < depth:
-                    await self._process_subpages(
-                        subpage, subpage_content, depth, current_depth + 1
-                    )
+        page_content = self._get_page_HTML(page)
+        self.visited_pages.add(page)
+
+        if page_content == "ERROR IN PAGE RETRIEVAL":
+            return (False, "")
+        else:
+            page_text = self._get_text_from_HTML(page_content)
+            page_title = self._get_title_from_HTML(page_content)
+
+            page_doc = self._make_document(page, page_title, page_text)
+            self.docs.append(page_doc)
+
+            return (True, page_content)
 
     def _get_page_HTML(self, input_URL: str) -> str:
         """
@@ -203,8 +211,11 @@ class StaticWebExtractor(BaseExtractor):
         self, page_URL: str, page_title: str, page_text: str
     ) -> Document:
         """
-        Constructs Document objects from webpage URLs and their content, including extra metadata.
-        Cleans text content and includes data like page title, platform URL, page link, refresh timestamp, and page ID.
+        Constructs Document objects from webpage URLs 
+        and their content, including extra metadata.
+
+        Cleans text content and includes data like page title, 
+        platform URL, page link, refresh timestamp, and page ID.
         """
         netloc = urlparse(page_URL).netloc
         current_time = str(datetime.datetime.utcnow())

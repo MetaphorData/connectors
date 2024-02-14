@@ -165,9 +165,9 @@ async def test_extractor(
     test_root_dir: str,
 ):
     # mock VSI
-    mock_VSI = MagicMock()
+    mock_vector_store_index = MagicMock()
 
-    mock_VSI.storage_context.to_dict.return_value = {
+    mock_vector_store_index.storage_context.to_dict.return_value = {
         "vector_store": {
             "default": {
                 "embedding_dict": {"abcd1234": [0.1, 0.2, 0.3, 0.4]},
@@ -187,7 +187,7 @@ async def test_extractor(
         },
     }
 
-    mock_embed_docs.return_value = mock_VSI
+    mock_embed_docs.return_value = mock_vector_store_index
 
     mock_process_subpages.return_value = None
 
