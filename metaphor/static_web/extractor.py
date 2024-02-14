@@ -93,28 +93,30 @@ class StaticWebExtractor(BaseExtractor):
         logger.info(f"Processing subpages of {parent_URL}")
         subpages = self._get_subpages_from_HTML(parent_content, parent_URL)
 
+        if current_depth == depth:  # on recursion depth reached
+            return
+
         for subpage in subpages:
             if subpage in self.visited_pages:
                 continue
 
-            logger.info(f"Processing subpage {subpage}")
+            logger.info(f"Processing subpage {subpage} of parent {parent_URL}")
             subpage_content = self._get_page_HTML(subpage)
             self.visited_pages.add(subpage)
 
-            if subpage_content == "ERROR IN PAGE RETRIEVAL":
-                continue
+            if subpage_content != "ERROR IN PAGE RETRIEVAL":
+                
+                subpage_text = self._get_text_from_HTML(subpage_content)
+                subpage_title = self._get_title_from_HTML(subpage_content)
 
-            subpage_text = self._get_text_from_HTML(subpage_content)
-            subpage_title = self._get_title_from_HTML(subpage_content)
+                subpage_doc = self._make_document(subpage, subpage_title, subpage_text)
 
-            subpage_doc = self._make_document(subpage, subpage_title, subpage_text)
+                self.docs.append(subpage_doc)
 
-            self.docs.append(subpage_doc)
-
-            if current_depth < depth:
-                await self._process_subpages(
-                    subpage, subpage_content, depth, current_depth + 1
-                )
+                if current_depth < depth:
+                    await self._process_subpages(
+                        subpage, subpage_content, depth, current_depth + 1
+                    )
 
     def _get_page_HTML(self, input_URL: str) -> str:
         """

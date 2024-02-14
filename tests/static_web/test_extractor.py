@@ -27,7 +27,6 @@ def static_web_extractor():
 
 # Test for successful page HTML retrieval
 @patch("requests.get")
-@pytest.mark.asyncio
 def test_get_page_HTML_success(mock_get, static_web_extractor):
     mock_get_val = MagicMock()
     mock_get_val.text = "<html><body>Test</body></html>"
@@ -40,7 +39,6 @@ def test_get_page_HTML_success(mock_get, static_web_extractor):
 
 # Test for handling retrieval failure
 @patch("requests.get")
-@pytest.mark.asyncio
 def test_get_page_HTML_failure(mock_get, static_web_extractor):
     mock_get_val = MagicMock()
 
