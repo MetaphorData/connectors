@@ -8,6 +8,11 @@ def load_json(path):
         return json.load(f)
 
 
+def load_text(path):
+    with open(path, "r") as f:
+        return f.read()
+
+
 def compare_list_ignore_order(a: list, b: list):
     t = list(b)  # make a mutable copy
     try:
