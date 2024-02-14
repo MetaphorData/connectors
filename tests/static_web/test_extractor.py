@@ -6,7 +6,7 @@ import requests
 from metaphor.common.base_config import OutputConfig
 from metaphor.static_web.config import StaticWebRunConfig
 from metaphor.static_web.extractor import StaticWebExtractor
-from tests.test_utils import load_json
+from tests.test_utils import load_json, load_text
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def static_web_extractor():
 
 # Test for successful page HTML retrieval
 @patch("requests.get")
-def test_get_page_HTML_success(mock_get, static_web_extractor):
+def test_get_page_HTML_success(mock_get: MagicMock, static_web_extractor):
     mock_get_val = MagicMock()
     mock_get_val.text = "<html><body>Test</body></html>"
 
@@ -39,7 +39,7 @@ def test_get_page_HTML_success(mock_get, static_web_extractor):
 
 # Test for handling retrieval failure
 @patch("requests.get")
-def test_get_page_HTML_failure(mock_get, static_web_extractor):
+def test_get_page_HTML_failure(mock_get: MagicMock, static_web_extractor):
     mock_get_val = MagicMock()
 
     mock_get.side_effect = requests.RequestException()
@@ -60,26 +60,10 @@ def test_get_subpages_from_HTML(static_web_extractor):
 
 
 # Test for extracting visible text from HTML, with filtering
-def test_get_text_from_HTML_with_filtering(static_web_extractor):
-    html_content = """
-    <html>
-        <head>
-            <title>Test Title</title>
-            <style>Some style</style>
-            <script>Some script</script>
-            <meta name="description" content="Some meta">
-        </head>
-        <body>
-            <p>Visible paragraph 1.</p>
-            <div>
-                <p>Visible paragraph 2.</p>
-                <!-- Commented text -->
-                <script>Script text</script>
-                <style>Style text</style>
-            </div>
-        </body>
-    </html>
-    """
+def test_get_text_from_HTML_with_filtering(static_web_extractor, test_root_dir: str):
+    html_content = load_text(
+        f"{test_root_dir}/static_web/sample_pages/titles_text.html"
+    )
     text = static_web_extractor._get_text_from_HTML(html_content)
     assert "Visible paragraph 1." in text
     assert "Visible paragraph 2." in text
@@ -121,7 +105,9 @@ def test_make_document(static_web_extractor):
 @patch("metaphor.static_web.StaticWebExtractor._get_subpages_from_HTML")
 @pytest.mark.asyncio
 async def test_process_subpages(
-    mock_get_subpages_from_HTML, mock_get_page_HTML, static_web_extractor
+    mock_get_subpages_from_HTML: MagicMock,
+    mock_get_page_HTML: MagicMock,
+    static_web_extractor,
 ):
     # Mocking the responses for page HTML and subpages
     parent_html = "<html><body><a href='/subpage1'>Subpage 1</a></body></html>"
@@ -150,6 +136,42 @@ async def test_process_subpages(
     assert not any(
         "subpage2" in doc.extra_info["link"] for doc in static_web_extractor.docs
     )
+
+
+# Test recursion stopping
+@patch("metaphor.static_web.StaticWebExtractor._get_page_HTML")
+@patch("metaphor.static_web.extractor.embed_documents")
+@patch("metaphor.static_web.extractor.map_metadata")
+@pytest.mark.asyncio
+async def test_no_infinite_recursion(
+    mock_map_metadata: MagicMock,
+    mock_embed_docs: MagicMock,
+    mock_get_HTML: MagicMock,
+    static_web_extractor,
+    test_root_dir: str,
+):
+    mock_map_metadata.return_value = []
+    mock_embed_docs.return_value = []
+
+    # Mock pages appropriately
+    page_folder = f"{test_root_dir}/static_web/sample_pages"
+
+    mock_get_HTML.side_effect = [
+        load_text(f"{page_folder}/main.html"),
+        load_text(f"{page_folder}/page1.html"),
+        load_text(f"{page_folder}/page2.html"),
+        load_text(f"{page_folder}/page3.html"),
+        load_text(f"{page_folder}/page4.html"),
+    ]
+
+    # Initialize extractor attributes
+    static_web_extractor.target_URLs = ["https://example.com/main"]
+    static_web_extractor.target_depths = [2]
+
+    await static_web_extractor.extract()
+
+    assert len(static_web_extractor.visited_pages) == 5
+    assert len(static_web_extractor.docs) == 5
 
 
 # Test extract

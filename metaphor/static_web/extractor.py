@@ -47,8 +47,8 @@ class StaticWebExtractor(BaseExtractor):
 
     async def extract(self) -> Collection[dict]:
         logger.info("Scraping provided URLs")
-        self.docs = []
-        self.visited_pages = set()
+        self.docs = list()  # type: List[Document]
+        self.visited_pages = set()  # type: set
 
         for page, depth in zip(self.target_URLs, self.target_depths):
             logger.info(f"Processing {page} with depth {depth}")
@@ -56,7 +56,7 @@ class StaticWebExtractor(BaseExtractor):
 
             # Fetch target content
             success, content = self._check_page_make_document(page)
-            
+
             if success:
                 logger.info(f"Done with parent page {page}")
                 if depth:  # recursive subpage processing
@@ -82,12 +82,16 @@ class StaticWebExtractor(BaseExtractor):
         return embedded_nodes
 
     async def _process_subpages(
-        self, parent_URL: str, parent_content: str, depth: int, current_depth: int = 1
+        self,
+        parent_URL: str,
+        parent_content: str,
+        target_depth: int,
+        current_depth: int = 1,
     ) -> None:
         logger.info(f"Processing subpages of {parent_URL}")
         subpages = self._get_subpages_from_HTML(parent_content, parent_URL)
 
-        if current_depth == depth:  # on recursion depth reached
+        if current_depth > target_depth:  # on recursion depth reached
             return
 
         for subpage in subpages:
@@ -99,7 +103,9 @@ class StaticWebExtractor(BaseExtractor):
 
             if success:
                 logger.info(f"Done with subpage {subpage}")
-                await self._process_subpages(subpage, content, depth, current_depth + 1)
+                await self._process_subpages(
+                    subpage, content, target_depth, current_depth + 1
+                )
 
     def _check_page_make_document(self, page: str) -> Tuple[bool, str]:
         """
@@ -211,10 +217,10 @@ class StaticWebExtractor(BaseExtractor):
         self, page_URL: str, page_title: str, page_text: str
     ) -> Document:
         """
-        Constructs Document objects from webpage URLs 
+        Constructs Document objects from webpage URLs
         and their content, including extra metadata.
 
-        Cleans text content and includes data like page title, 
+        Cleans text content and includes data like page title,
         platform URL, page link, refresh timestamp, and page ID.
         """
         netloc = urlparse(page_URL).netloc
