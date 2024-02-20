@@ -63,11 +63,17 @@ class QueryLogSink:
         self.mces_per_batch = batch_size_count
         self.bytes_per_batch = batch_size_bytes  # FIXME our logic for handling this isn't that precise, but should be close enough
 
-        self.logs: List[QueryLog] = []
-        self.mces: List[dict] = []
-        self.logs_count: int = 0
-        self.mces_count: int = 0
         self.completed_batches = 0
+        self.total_mces_wrote: int = 0
+        """
+        Total number of QueryLogs MCEs written.
+        """
+
+        # INTERNALS
+        self._logs: List[QueryLog] = []
+        self._mces: List[dict] = []
+        self._logs_count: int = 0
+        self._mces_count: int = 0
         self.logs_per_mce = logs_per_mce
         self._entered = False
 
@@ -78,30 +84,33 @@ class QueryLogSink:
         return self
 
     def __exit__(self, _exception_type, _exception_value, _traceback):
-        if self.logs:
+        if self._logs:
             self._finalize_current_mce()
-        if self.mces:
+        if self._mces:
             self._finalize_current_batch()
 
         self._entered = False
         if self.completed_batches:
-            logger.info(f"Wrote {self.completed_batches} batches of QueryLogs MCE")
+            logger.info(
+                f"Wrote {self.total_mces_wrote} QueryLogs MCEs into {self.completed_batches} batches"
+            )
 
     def _finalize_current_mce(self) -> None:
-        self.mces.append(EventUtil.build_then_trim(QueryLogs(logs=self.logs)))
-        self.logs_count = 0
-        self.logs.clear()
-        self.mces_count += 1
+        self._mces.append(EventUtil.build_then_trim(QueryLogs(logs=self._logs)))
+        self._logs_count = 0
+        self._logs.clear()
+        self._mces_count += 1
+        self.total_mces_wrote += 1
 
     def _finalize_current_batch(self) -> None:
         # No need to validate mce
         self.storage.write_file(
             f"{self.path}/query_logs-{self.completed_batches}.json",
-            json.dumps(self.mces),
+            json.dumps(self._mces),
         )
         self.completed_batches += 1
-        self.mces_count = 0
-        self.mces.clear()
+        self._mces_count = 0
+        self._mces.clear()
         self.batch_bytes = 0
 
     def write_query_log(self, query_log: QueryLog) -> None:
@@ -110,17 +119,17 @@ class QueryLogSink:
                 "This method can only be called when QueryLogSink is in a managed context"
             )
         if (
-            self.logs_count >= self.logs_per_mce
+            self._logs_count >= self.logs_per_mce
             or self.batch_bytes >= self.bytes_per_batch
         ):
             self._finalize_current_mce()
         if (
-            self.mces_count >= self.mces_per_batch
+            self._mces_count >= self.mces_per_batch
             or self.batch_bytes >= self.bytes_per_batch
         ):
             self._finalize_current_batch()
-        self.logs.append(query_log)
-        self.logs_count += 1
+        self._logs.append(query_log)
+        self._logs_count += 1
         self.batch_bytes += len(json.dumps(query_log.to_dict()))
 
 
