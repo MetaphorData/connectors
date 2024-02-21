@@ -122,5 +122,4 @@ def map_metadata(
             embedding_dict[nodeid]["embeddedString_1"] = f"Title: {title}\n{chunk_text}"
 
         out.append(ExternalSearchDocument.from_dict(embedding_dict[nodeid]))
-
     return out
