@@ -1,7 +1,7 @@
 import datetime
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Collection, Dict, List
+from typing import Collection, Dict, Iterator, List
 
 from trino.auth import BasicAuthentication, JWTAuthentication
 from trino.dbapi import connect
@@ -11,7 +11,6 @@ from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
-from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.utils import md5_digest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -88,15 +87,14 @@ class TrinoExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._extract_datasets())
         entities.extend(self._extract_materialized_views())
-        entities.extend(chunk_query_logs(self._extract_query_logs()))
         return entities
 
-    def _extract_query_logs(self) -> List[QueryLog]:
-        logs: List[QueryLog] = []
+    def collect_query_logs(self) -> Iterator[QueryLog]:
         cursor = self._conn.cursor()
         cursor.execute(
             'SELECT query_id, user, query, started, "end" FROM system.runtime.queries'
         )
+        query_log_count = 0
         for query_id, user, query, started, end in cursor.fetchall():
             log = QueryLog(
                 query_id=query_id,
@@ -108,8 +106,9 @@ class TrinoExtractor(BaseExtractor):
                 else None,
                 user_id=user,
             )
-            logs.append(log)
-        return logs
+            yield log
+            query_log_count += 1
+        logger.info(f"Wrote {query_log_count} QueryLog")
 
     def _extract_materialized_views(self) -> List[Dataset]:
         materialized_views: List[Dataset] = []

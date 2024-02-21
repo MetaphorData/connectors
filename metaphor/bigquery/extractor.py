@@ -5,6 +5,7 @@ from typing import (
     Collection,
     Dict,
     Iterable,
+    Iterator,
     List,
     Mapping,
     Optional,
@@ -14,7 +15,6 @@ from typing import (
 
 try:
     import google.cloud.bigquery as bigquery
-    from google.cloud import logging_v2
 except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
@@ -35,7 +35,6 @@ from metaphor.common.fieldpath import FieldDataType, build_field_path
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import md5_digest, safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
@@ -88,19 +87,21 @@ class BigQueryExtractor(BaseExtractor):
         )
 
         self._datasets: List[Dataset] = []
-        self._query_logs: List[QueryLog] = []
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         for project_id in self._project_ids:
             self._extract_project(project_id)
 
-        return [*self._datasets, *self._query_logs]
+        return self._datasets
 
-    def _extract_project(self, project_id) -> None:
+    def collect_query_logs(self) -> Iterator[QueryLog]:
+        for project_id in self._project_ids:
+            yield from self._fetch_query_logs(project_id)
+
+    def _extract_project(self, project_id: str) -> None:
         logger.info(f"Fetching metadata from BigQuery project {project_id}")
 
         client = build_client(project_id, self._credentials)
-        logging_client = build_logging_client(project_id, self._credentials)
 
         fetched_tables: List[Dataset] = []
         for dataset_ref in BigQueryExtractor._list_datasets_with_filter(
@@ -142,12 +143,10 @@ class BigQueryExtractor(BaseExtractor):
             fetched_tables.extend(tables.values())
 
         logger.info("Fetching BigQueryAuditMetadata")
-        query_logs = self._fetch_query_logs(logging_client, client)
 
         tag_datasets(fetched_tables, self._tag_matchers)
 
         self._datasets.extend(fetched_tables)
-        self._query_logs.extend(chunk_query_logs(query_logs))
 
     @staticmethod
     def _list_datasets_with_filter(
@@ -281,24 +280,22 @@ class BigQueryExtractor(BaseExtractor):
 
         return fields
 
-    def _fetch_query_logs(
-        self, logging_client: logging_v2.Client, client: bigquery.Client
-    ) -> List[QueryLog]:
-        logs: List[Optional[QueryLog]] = []
+    def _fetch_query_logs(self, project_id: str) -> Iterator[QueryLog]:
         log_filter = self._build_job_change_filter()
 
+        client = build_client(project_id, self._credentials)
+        logging_client = build_logging_client(project_id, self._credentials)
+        fetched_logs = 0
         for entry in logging_client.list_entries(
             page_size=self._query_log_fetch_size, filter_=log_filter
         ):
             if JobChangeEvent.can_parse(entry):
-                logs.append(self._parse_job_change_entry(entry, client))
+                log = self._parse_job_change_entry(entry, client)
+                if log:
+                    fetched_logs += 1
+                    yield log
 
-            if len(logs) % 1000 == 0:
-                logger.info(f"Fetched {len(logs)} audit logs")
-
-        logger.info(f"Number of audit log entries fetched: {len(logs)}")
-
-        return [log for log in logs if log is not None]
+        logger.info(f"Number of audit log entries fetched: {fetched_logs}")
 
     @staticmethod
     def _fetch_job_query(client: bigquery.Client, job_name: str) -> Optional[str]:

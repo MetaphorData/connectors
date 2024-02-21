@@ -29,7 +29,7 @@ ORDER BY ss.endtime DESC;
 """
 
 
-@dataclass
+@dataclass(frozen=True)
 class AccessEvent:
     userid: int
     query: int

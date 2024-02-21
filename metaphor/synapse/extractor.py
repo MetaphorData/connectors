@@ -1,8 +1,7 @@
-from typing import Collection, Dict, Iterable, List, Optional
+from typing import Collection, Dict, Iterable, Iterator, List, Optional, Set
 
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.utils import generate_querylog_id, md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -36,81 +35,95 @@ class SynapseExtractor(MssqlExtractor):
         self._config = config
         self._filter = config.filter.normalize()
         self._lookback_days = config.query_log.lookback_days if config.query_log else 0
+        sql_query_endpoint = f"{self._config.server_name}.sql.azuresynapse.net"
+        sql_on_demand_query_endpoint = (
+            f"{self._config.server_name}-ondemand.sql.azuresynapse.net"
+        )
+        self._serverless_client = MssqlClient(
+            sql_on_demand_query_endpoint, self._config.username, self._config.password
+        )
+        self._dedicated_client = MssqlClient(
+            sql_query_endpoint, self._config.username, self._config.password
+        )
+        self._dedicated_databases: Set[str] = set()
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(
             f"Fetching metadata from Synapse workspace: {self._config.server_name}"
         )
 
-        sql_query_endpoint = f"{self._config.server_name}.sql.azuresynapse.net"
-        sql_on_demand_query_endpoint = (
-            f"{self._config.server_name}-ondemand.sql.azuresynapse.net"
-        )
-        serverless_client = MssqlClient(
-            sql_on_demand_query_endpoint, self._config.username, self._config.password
-        )
-        dedicated_client = MssqlClient(
-            sql_query_endpoint, self._config.username, self._config.password
-        )
-        start_date = start_of_day(self._lookback_days)
-        end_date = start_of_day()
         entities: List[ENTITY_TYPES] = []
-        querylog_list: List[QueryLog] = []
 
         # Serverless sqlpool
         try:
-            for database in serverless_client.get_databases():
+            for database in self._serverless_client.get_databases():
                 if not self._filter.include_database(database.name):
                     continue
-                tables = serverless_client.get_tables(database.name)
+                tables = self._serverless_client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(
                     self._config.server_name, database, tables
                 )
                 self._set_foreign_keys_to_dataset(
-                    datasets, database.name, serverless_client
+                    datasets, database.name, self._serverless_client
                 )
                 entities.extend(datasets.values())
-            if self._lookback_days > 0:
-                querlogs = self._map_query_log(
-                    WorkspaceQuery.get_sql_pool_query_logs(
-                        serverless_client.config,
-                        start_date,
-                        end_date,
-                    )
-                )
-                querylog_list.extend(querlogs)
         except Exception as error:
             logger.exception(f"serverless sqlpool error: {error}")
 
         # Dedicated sqlpool
         try:
-            for database in dedicated_client.get_databases():
+            for database in self._dedicated_client.get_databases():
                 if not self._filter.include_database(database.name):
                     continue
-                tables = dedicated_client.get_tables(database.name)
+                self._dedicated_databases.add(database.name)
+                tables = self._dedicated_client.get_tables(database.name)
                 datasets = self._map_tables_to_dataset(
                     self._config.server_name, database, tables
                 )
                 self._set_foreign_keys_to_dataset(
-                    datasets, database.name, dedicated_client
+                    datasets, database.name, self._dedicated_client
                 )
                 entities.extend(datasets.values())
-                if self._lookback_days > 0:
-                    querlogs = self._map_query_log(
-                        WorkspaceQuery.get_dedicated_sql_pool_query_logs(
-                            dedicated_client.config,
-                            database.name,
-                            start_date,
-                            end_date,
-                        ),
-                        database.name,
-                    )
-                    querylog_list.extend(querlogs)
         except Exception as error:
             logger.exception(f"dedicated sqlpool error: {error}")
 
-        entities.extend(chunk_query_logs(querylog_list))
         return entities
+
+    def collect_query_logs(self) -> Iterator[QueryLog]:
+        """
+        Prerequisite: `extract` must be called before this method is called.
+        """
+        if self._lookback_days <= 0:
+            return
+
+        start_date = start_of_day(self._lookback_days)
+        end_date = start_of_day()
+        mapped_log_count = 0
+
+        for log in self._map_query_log(
+            WorkspaceQuery.get_sql_pool_query_logs(
+                self._serverless_client.config,
+                start_date,
+                end_date,
+            )
+        ):
+            yield log
+            mapped_log_count += 1
+
+        for database in self._dedicated_databases:
+            for log in self._map_query_log(
+                WorkspaceQuery.get_dedicated_sql_pool_query_logs(
+                    self._dedicated_client.config,
+                    database,
+                    start_date,
+                    end_date,
+                ),
+                database,
+            ):
+                yield log
+                mapped_log_count += 1
+
+        logger.info(f"Wrote {mapped_log_count} QueryLog")
 
     def _map_query_log(
         self, rows: Iterable[SynapseQueryLog], database: Optional[str] = None
