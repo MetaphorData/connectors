@@ -1,0 +1,20 @@
+[
+  {
+    "queryLogs": {
+      "logs": [
+        {
+          "_id": "SYNAPSE:mock_request_id",
+          "bytesRead": 10240.0,
+          "duration": 1.0,
+          "platform": "SYNAPSE",
+          "queryId": "mock_request_id",
+          "sql": "SELECT TOP 10(*) FROM mock_query_table",
+          "sqlHash": "b7c58ff046d625445d8fd387d5447f4e",
+          "startTime": "2022-11-15T13:10:10.922321+00:00",
+          "type": "SELECT",
+          "userId": "mock_user@gmail.com"
+        }
+      ]
+    }
+  }
+]

@@ -7,10 +7,10 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
-from metaphor.models.metadata_change_event import Dataset, QueryLogs
+from metaphor.models.metadata_change_event import Dataset
 from metaphor.trino.config import TrinoRunConfig
 from metaphor.trino.extractor import TrinoExtractor
-from tests.test_utils import load_json
+from tests.test_utils import load_json, wrap_query_log_stream_to_event
 
 logger = get_logger()
 
@@ -39,7 +39,8 @@ async def test_extractor(test_root_dir: str) -> None:
             filter=dataset_filter,
             username="metaphor-dev",
         )
-        entities = await TrinoExtractor(config).extract()
+        extractor = TrinoExtractor(config)
+        entities = await extractor.extract()
 
         datasets = [entity for entity in entities if isinstance(entity, Dataset)]
         dataset_events = [EventUtil.trim_event(dataset) for dataset in datasets]
@@ -49,15 +50,12 @@ async def test_extractor(test_root_dir: str) -> None:
             if obj.get("entityType") == "DATASET"
         ]
 
-        query_logs = [entity for entity in entities if isinstance(entity, QueryLogs)]
-        extracted_query_logs = [
-            EventUtil.trim_event(query_log) for query_log in query_logs
-        ][0]["logs"]
-        expected_query_logs = [
-            obj
-            for obj in load_json(f"{test_root_dir}/trino/expected.json")
-            if obj.get("logs")
-        ][0]["logs"]
+        extracted_query_logs = wrap_query_log_stream_to_event(
+            extractor.collect_query_logs()
+        )[0]["queryLogs"]["logs"]
+        expected_query_logs = load_json(f"{test_root_dir}/trino/query_logs.json")[0][
+            "queryLogs"
+        ]["logs"]
         for expected in expected_query_logs:
             extracted = next(
                 (

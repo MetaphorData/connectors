@@ -1,0 +1,71 @@
+[
+  {
+    "queryLogs": {
+      "logs": [
+        {
+          "duration": 0.032,
+          "queryId": "20240221_082503_00003_w99kw",
+          "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM memory.information_schema.columns",
+          "sqlHash": "ae7d12bf39b231f81f872d80fc0c8dd7",
+          "startTime": "2024-02-21T08:25:03.555000+00:00",
+          "userId": "metaphor-dev"
+        },
+        {
+          "duration": 0.232,
+          "queryId": "20240221_082503_00000_w99kw",
+          "sql": "SELECT catalog_name FROM system.metadata.catalogs",
+          "sqlHash": "d23c386aa4bbe876636af83276701e37",
+          "startTime": "2024-02-21T08:25:03.083000+00:00",
+          "userId": "metaphor-dev"
+        },
+        {
+          "duration": 0.024,
+          "queryId": "20240221_082503_00005_w99kw",
+          "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM tpch.information_schema.columns",
+          "sqlHash": "554f835ce092eece32ec858a372fd615",
+          "startTime": "2024-02-21T08:25:04.084000+00:00",
+          "userId": "metaphor-dev"
+        },
+        {
+          "duration": 0.086,
+          "queryId": "20240221_082503_00001_w99kw",
+          "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM tpcds.information_schema.columns",
+          "sqlHash": "b73fcc198246299405db1c89c4c972bf",
+          "startTime": "2024-02-21T08:25:03.348000+00:00",
+          "userId": "metaphor-dev"
+        },
+        {
+          "queryId": "20240221_082504_00007_w99kw",
+          "sql": "SELECT query_id, user, query, started, \"end\" FROM system.runtime.queries",
+          "sqlHash": "535f03cb16cd576769393dce38b792af",
+          "startTime": "2024-02-21T08:25:04.188000+00:00",
+          "userId": "metaphor-dev"
+        },
+        {
+          "duration": 0.289,
+          "queryId": "20240221_082503_00004_w99kw",
+          "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM jmx.information_schema.columns",
+          "sqlHash": "54e9f12c7f8b8dd9bca537526ce90047",
+          "startTime": "2024-02-21T08:25:03.613000+00:00",
+          "userId": "metaphor-dev"
+        },
+        {
+          "duration": 0.021,
+          "queryId": "20240221_082504_00006_w99kw",
+          "sql": "SELECT catalog_name, schema_name, name, storage_catalog, storage_schema, storage_table, definition FROM system.metadata.materialized_views",
+          "sqlHash": "559bd3f28aae4390d8e1a73f4c758766",
+          "startTime": "2024-02-21T08:25:04.151000+00:00",
+          "userId": "metaphor-dev"
+        },
+        {
+          "duration": 0.037,
+          "queryId": "20240221_082503_00002_w99kw",
+          "sql": "SELECT table_schema, table_name, column_name, is_nullable, data_type FROM system.information_schema.columns",
+          "sqlHash": "7acb73546d2fccad16ed84b98b15a90a",
+          "startTime": "2024-02-21T08:25:03.495000+00:00",
+          "userId": "metaphor-dev"
+        }
+      ]
+    }
+  }
+]

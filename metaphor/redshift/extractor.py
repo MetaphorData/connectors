@@ -1,11 +1,11 @@
-from typing import Collection, List
+import asyncio
+from typing import Collection, Iterator, List
 
 from metaphor.common.constants import BYTES_PER_MEGABYTES
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.query_history import chunk_query_logs
 from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
@@ -41,13 +41,13 @@ class RedshiftExtractor(PostgreSQLExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from redshift host {self._host}")
 
-        databases = (
+        self.databases = (
             await self._fetch_databases()
             if self._filter.includes is None
             else list(self._filter.includes.keys())
         )
 
-        for db in databases:
+        for db in self.databases:
             if not self._filter.include_database(db):
                 logger.info(f"Skipping database {db}")
                 continue
@@ -57,7 +57,6 @@ class RedshiftExtractor(PostgreSQLExtractor):
                 await self._fetch_tables(conn, db, True)
                 await self._fetch_columns(conn, db, True)
                 await self._fetch_redshift_table_stats(conn, db)
-                await self._fetch_query_logs(conn)
             except Exception as ex:
                 logger.exception(ex)
             finally:
@@ -68,8 +67,30 @@ class RedshiftExtractor(PostgreSQLExtractor):
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(datasets)
-        entities.extend(chunk_query_logs(self._logs))
         return entities
+
+    def collect_query_logs(self) -> Iterator[QueryLog]:
+        """
+        Prerequisite: `extract` must be called before this method is called.
+        """
+        loop = asyncio.get_event_loop()
+        for db in self.databases:
+            conn = loop.run_until_complete(self._connect_database(db))
+            aiter = self._fetch_query_logs(conn).__aiter__()
+
+            async def get_next():
+                try:
+                    query_log = await aiter.__anext__()
+                    return query_log
+                except StopAsyncIteration:
+                    return None
+
+            while True:
+                query_log = loop.run_until_complete(get_next())
+                if query_log:
+                    yield query_log
+                else:
+                    break
 
     async def _fetch_redshift_table_stats(self, conn, catalog: str) -> None:
         results = await conn.fetch(
@@ -96,14 +117,16 @@ class RedshiftExtractor(PostgreSQLExtractor):
             dataset.statistics.record_count = statistics.record_count
             dataset.statistics.data_size_bytes = statistics.data_size_bytes
 
-    async def _fetch_query_logs(self, conn) -> None:
+    async def _fetch_query_logs(self, conn):
         logger.info("Fetching query logs")
 
         start_date = start_of_day(self._query_log_lookback_days)
         end_date = start_of_day()
 
         async for record in AccessEvent.fetch_access_event(conn, start_date, end_date):
-            self._process_record(record)
+            query_log = self._process_record(record)
+            if query_log:
+                yield query_log
 
     def _process_record(self, access_event: AccessEvent):
         if not self._filter.include_table(
@@ -132,7 +155,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
             sql_hash=md5_digest(access_event.querytxt.encode("utf-8")),
         )
 
-        self._logs.append(query_log)
+        return query_log
 
     @staticmethod
     def _convert_resource_to_queried_dataset(event: AccessEvent) -> QueriedDataset:
