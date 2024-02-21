@@ -9,7 +9,7 @@ from metaphor.bigquery.extractor import BigQueryExtractor, BigQueryRunConfig
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from tests.bigquery.load_entries import load_entries
-from tests.test_utils import load_json
+from tests.test_utils import load_json, wrap_query_log_stream_to_event
 
 
 def mock_dataset(dataset_id):
@@ -196,5 +196,8 @@ async def test_extractor(
     mock_list_entries(mock_build_logging_client, entries)
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-
     assert events == load_json(f"{test_root_dir}/bigquery/expected.json")
+
+    query_logs = wrap_query_log_stream_to_event(extractor.collect_query_logs())
+    expected_query_logs = f"{test_root_dir}/bigquery/query_logs.json"
+    assert query_logs == load_json(expected_query_logs)

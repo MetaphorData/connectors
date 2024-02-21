@@ -16,7 +16,7 @@ from metaphor.mssql.model import (
 from metaphor.synapse.config import SynapseConfig, SynapseQueryLogConfig
 from metaphor.synapse.extractor import SynapseExtractor
 from metaphor.synapse.model import SynapseQueryLog
-from tests.test_utils import load_json
+from tests.test_utils import load_json, wrap_query_log_stream_to_event
 
 mock_tenant_id = "mock_tenant_id"
 
@@ -208,7 +208,11 @@ async def test_extractor_with_query_log(
     extractor = SynapseExtractor(config)
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    assert events == load_json(f"{test_root_dir}/synapse/expected_with_query_log.json")
+    assert events == load_json(f"{test_root_dir}/synapse/expected.json")
+
+    query_logs = wrap_query_log_stream_to_event(extractor.collect_query_logs())
+    expected_query_logs = f"{test_root_dir}/synapse/expected_query_logs.json"
+    assert query_logs == load_json(expected_query_logs)
 
 
 @patch("metaphor.synapse.extractor.MssqlClient")
@@ -258,7 +262,7 @@ async def test_dedicated_sql_pool_extractor_with_query_log(
         is_external=False,
     )
 
-    qyeryLogTable = SynapseQueryLog(
+    queryLogTable = SynapseQueryLog(
         request_id="mock_request_id",
         session_id="mock_session_id",
         sql_query="INSERT INTO mock_query_table VALUE('test_id', 'test_name', 10)",
@@ -280,16 +284,18 @@ async def test_dedicated_sql_pool_extractor_with_query_log(
 
     mock_client.return_value = mock_client_instance
     mock_serverless_query.return_value = []
-    mock_query.return_value = [qyeryLogTable]
+    mock_query.return_value = [queryLogTable]
 
     config = synapse_config
     config.query_log = SynapseQueryLogConfig(lookback_days=1)
     extractor = SynapseExtractor(config)
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    assert events == load_json(
-        f"{test_root_dir}/synapse/expected_sqlpool_with_query_log.json"
-    )
+    assert events == load_json(f"{test_root_dir}/synapse/expected_sqlpool.json")
+
+    query_logs = wrap_query_log_stream_to_event(extractor.collect_query_logs())
+    expected_query_logs = f"{test_root_dir}/synapse/expected_sqlpool_query_logs.json"
+    assert query_logs == load_json(expected_query_logs)
 
 
 @patch("metaphor.synapse.extractor.MssqlClient")

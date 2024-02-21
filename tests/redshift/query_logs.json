@@ -1,0 +1,48 @@
+[
+  {
+    "queryLogs": {
+      "logs": [
+        {
+          "_id": "REDSHIFT:7086",
+          "bytesRead": 6500.0,
+          "duration": -338161298.308308,
+          "platform": "REDSHIFT",
+          "queryId": "7086",
+          "rowsRead": 7155.0,
+          "sources": [
+            {
+              "database": "db1",
+              "id": "DATASET~27B3AE2BBE9685592A4EF54F0704BDAD",
+              "schema": "schema1",
+              "table": "table1"
+            }
+          ],
+          "sql": "UaEktANLgExavLlDcKmu",
+          "sqlHash": "b871153e9d0d386ce0355159f196f0ad",
+          "startTime": "2010-06-26T10:07:18.014673",
+          "userId": "aZUytYDMFTryuKyWtbEM"
+        },
+        {
+          "_id": "REDSHIFT:9910",
+          "bytesRead": 176.0,
+          "duration": -217012182.227927,
+          "platform": "REDSHIFT",
+          "queryId": "9910",
+          "rowsRead": 4617.0,
+          "sources": [
+            {
+              "database": "db2",
+              "id": "DATASET~5DC5AF7880A53EAD33C4078AB57B69EB",
+              "schema": "schema2",
+              "table": "table2"
+            }
+          ],
+          "sql": "qUKVJPZNJEmeMNSgnVkF",
+          "sqlHash": "2d1aea13de8a75a410b37c223246810f",
+          "startTime": "2003-10-01T10:15:51.904151",
+          "userId": "IevfvBUzEVUDrTbaIWKY"
+        }
+      ]
+    }
+  }
+]

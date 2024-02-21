@@ -3,7 +3,7 @@ import logging
 import re
 import urllib.parse
 from collections import defaultdict
-from typing import Collection, Dict, Generator, List, Tuple
+from typing import Collection, Dict, Generator, Iterator, List, Tuple
 
 from databricks.sdk.service.catalog import TableInfo, TableType
 
@@ -31,7 +31,6 @@ from metaphor.models.metadata_change_event import (
     KeyValuePair,
     MaterializationType,
     QueryLog,
-    QueryLogs,
     SchemaType,
     SourceField,
     SourceInfo,
@@ -148,9 +147,6 @@ class UnityCatalogExtractor(BaseExtractor):
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(list(self._datasets.values()))
-        if self._query_log_config.lookback_days > 0:
-            entities.append(self._get_query_logs())
-
         entities.extend(self._hierarchies)
         return entities
 
@@ -329,8 +325,9 @@ class UnityCatalogExtractor(BaseExtractor):
             source_entities=unique_datasets, field_mappings=field_mappings
         )
 
-    def _get_query_logs(self) -> QueryLogs:
-        logs: List[QueryLog] = []
+    def collect_query_logs(self) -> Iterator[QueryLog]:
+        if self._query_log_config.lookback_days <= 0:
+            return
         for query_info in self._api.query_history.list(
             filter_by=build_query_log_filter_by(self._query_log_config, self._api),
             include_metrics=True,
@@ -363,9 +360,7 @@ class UnityCatalogExtractor(BaseExtractor):
                     query_info.metrics.rows_produced_count
                 )
 
-            logs.append(query_log)
-
-        return QueryLogs(logs=logs)
+            yield query_log
 
     def _extract_hierarchies(self, catalog_system_tags: CatalogSystemTags) -> None:
         for catalog, (catalog_tags, schema_name_to_tag) in catalog_system_tags.items():
