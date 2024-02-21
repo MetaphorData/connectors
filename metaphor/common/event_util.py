@@ -10,6 +10,7 @@ from metaphor import models  # type: ignore
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
+    ExternalSearchDocument,
     Hierarchy,
     KnowledgeCard,
     MetadataChangeEvent,
@@ -27,6 +28,7 @@ logger.setLevel(logging.INFO)
 ENTITY_TYPES = Union[
     Dashboard,
     Dataset,
+    ExternalSearchDocument,
     Hierarchy,
     KnowledgeCard,
     Metric,
@@ -61,6 +63,8 @@ class EventUtil:
             return EventUtil._build_event(dashboard=entity)
         elif type(entity) is Dataset:
             return EventUtil._build_event(dataset=entity)
+        elif type(entity) is ExternalSearchDocument:
+            return EventUtil._build_event(external_search_document=entity)
         elif type(entity) is Metric:
             return EventUtil._build_event(metric=entity)
         elif type(entity) is Pipeline:
