@@ -1,5 +1,5 @@
 import asyncio
-from typing import Collection, Iterator, List
+from typing import Collection, Iterator, List, Set
 
 from metaphor.common.constants import BYTES_PER_MEGABYTES
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
@@ -37,20 +37,22 @@ class RedshiftExtractor(PostgreSQLExtractor):
         self._filter = exclude_system_databases(self._filter)
 
         self._logs: List[QueryLog] = []
+        self._included_databases: Set[str] = set()
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from redshift host {self._host}")
 
-        self.databases = (
+        databases = (
             await self._fetch_databases()
             if self._filter.includes is None
             else list(self._filter.includes.keys())
         )
 
-        for db in self.databases:
+        for db in databases:
             if not self._filter.include_database(db):
                 logger.info(f"Skipping database {db}")
                 continue
+            self._included_databases.add(db)
 
             conn = await self._connect_database(db)
             try:
@@ -73,8 +75,13 @@ class RedshiftExtractor(PostgreSQLExtractor):
         """
         Prerequisite: `extract` must be called before this method is called.
         """
-        loop = asyncio.get_event_loop()
-        for db in self.databases:
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        query_log_count = 0
+        for db in self._included_databases:
             conn = loop.run_until_complete(self._connect_database(db))
             aiter = self._fetch_query_logs(conn).__aiter__()
 
@@ -89,8 +96,10 @@ class RedshiftExtractor(PostgreSQLExtractor):
                 query_log = loop.run_until_complete(get_next())
                 if query_log:
                     yield query_log
+                    query_log_count += 1
                 else:
                     break
+        logger.info(f"Wrote {query_log_count} QueryLog")
 
     async def _fetch_redshift_table_stats(self, conn, catalog: str) -> None:
         results = await conn.fetch(

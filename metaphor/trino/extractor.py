@@ -94,6 +94,7 @@ class TrinoExtractor(BaseExtractor):
         cursor.execute(
             'SELECT query_id, user, query, started, "end" FROM system.runtime.queries'
         )
+        query_log_count = 0
         for query_id, user, query, started, end in cursor.fetchall():
             log = QueryLog(
                 query_id=query_id,
@@ -106,6 +107,8 @@ class TrinoExtractor(BaseExtractor):
                 user_id=user,
             )
             yield log
+            query_log_count += 1
+        logger.info(f"Wrote {query_log_count} QueryLog")
 
     def _extract_materialized_views(self) -> List[Dataset]:
         materialized_views: List[Dataset] = []
