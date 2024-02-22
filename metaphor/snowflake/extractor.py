@@ -588,7 +588,7 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_streams(self, cursor: SnowflakeCursor, database: str, schema: str):
         try:
             cursor.execute(f"SHOW STREAMS IN {schema}")
-        except Exception as e:
+        except Exception:
             # Most likely due to a permission issue
             logger.exception(f"Failed to show streams in '{schema}'")
             return
