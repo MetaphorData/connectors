@@ -590,7 +590,7 @@ class SnowflakeExtractor(BaseExtractor):
             cursor.execute(f"SHOW STREAMS IN {schema}")
         except Exception as e:
             # Most likely due to a permission issue
-            logger.error(f"Failed to show streams in '{schema}'\n{e}")
+            logger.exception(f"Failed to show streams in '{schema}'")
             return
 
         count = 0
