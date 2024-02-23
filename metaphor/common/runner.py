@@ -60,14 +60,39 @@ def run_connector(
         stacktrace = traceback.format_exc()
         logger.exception(ex)
 
-    end_time = datetime.now()
     entity_count = len(entities)
-    logger.info(
-        f"Ended running with {run_status} at {end_time}, fetched {entity_count} entities, took {format((end_time - start_time).total_seconds(), '.1f')}s"
-    )
 
     events = [EventUtil.build_event(entity) for entity in entities]
 
+    file_sink = None
+    if file_sink_config is not None:
+        file_sink = FileSink(file_sink_config)
+
+    if file_sink:
+        file_sink.write_events(events)
+        file_sink.write_execution_logs()
+
+        # Query logs are only collected when we have a destination to write to.
+        query_log_sink = file_sink.get_query_log_sink()
+        with query_log_sink:
+            try:
+                for query_log in connector.collect_query_logs():
+                    query_log_sink.write_query_log(query_log)
+            except Exception as ex:
+                run_status = RunStatus.FAILURE
+                error_message = str(ex)
+                stacktrace = traceback.format_exc()
+                logger.exception(ex)
+        entity_count += query_log_sink.total_mces_wrote
+    else:
+        logger.info("No output destination specified, will not collect query logs")
+
+    end_time = datetime.now()
+    logger.info(
+        f"Ended running with {run_status} at {end_time}, "
+        f"fetched {entity_count} entities, "
+        f"took {format((end_time - start_time).total_seconds(), '.1f')}s"
+    )
     run_metadata = CrawlerRunMetadata(
         crawler_name=name,
         platform=platform,
@@ -80,18 +105,9 @@ def run_connector(
         stack_trace=stacktrace,
     )
 
-    if file_sink_config is not None:
-        file_sink = FileSink(file_sink_config)
-        file_sink.write_events(events)
-        file_sink.write_execution_logs()
-
-        with file_sink.get_query_log_sink() as query_log_sink:
-            for query_log in connector.collect_query_logs():
-                query_log_sink.write_query_log(query_log)
-            if run_metadata.entity_count is not None:
-                run_metadata.entity_count += float(query_log_sink.total_mces_wrote)
-
+    if file_sink:
         file_sink.write_metadata(run_metadata)
+
     return events, run_metadata
 
 
