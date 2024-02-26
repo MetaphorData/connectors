@@ -147,35 +147,28 @@ class S3Extractor(BaseExtractor):
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         entities = []
-        buckets = [
-            bucket.get("Name")
-            for bucket in self._config.s3_client.list_buckets()["Buckets"]
-        ]
-        logger.debug(f"Exisiting buckets: {buckets}")
 
         for path_spec in self._path_specs:
-            if path_spec.bucket not in buckets:
-                logger.warning(
-                    f"Skipping {path_spec}: bucket {path_spec.bucket} does not exist"
-                )
-                continue
+            try:
+                # Browse through all valid files covered by this path_spec. If there are
+                # overlapping files (i.e. different files under a directory that's parsed
+                # as a single dataset), they are merged. See `TableData.merge` for the
+                # implementation.
+                tables: Dict[str, TableData] = defaultdict(lambda: TableData())
+                for file_object in self._browse_path_spec(path_spec):
+                    table_data = TableData.from_file_object(file_object)
+                    tables[table_data.guid] = tables[table_data.table_path].merge(
+                        table_data
+                    )
 
-            # Browse through all valid files covered by this path_spec. If there are
-            # overlapping files (i.e. different files under a directory that's parsed
-            # as a single dataset), they are merged. See `TableData.merge` for the
-            # implementation.
-            tables: Dict[str, TableData] = defaultdict(lambda: TableData())
-            for file_object in self._browse_path_spec(path_spec):
-                table_data = TableData.from_file_object(file_object)
-                tables[table_data.guid] = tables[table_data.table_path].merge(
-                    table_data
-                )
+                logger.debug(f"Tables: {tables}")
+                for table_data in tables.values():
+                    logger.debug(f"Initializing dataset with {table_data}")
+                    dataset = self._init_dataset(table_data)
+                    entities.append(dataset)
 
-            logger.debug(f"Tables: {tables}")
-            for table_data in tables.values():
-                logger.debug(f"Initializing dataset with {table_data}")
-                dataset = self._init_dataset(table_data)
-                entities.append(dataset)
+            except Exception:
+                logger.exception(f"Failed to process path_spec: {path_spec}")
 
         return entities
 
