@@ -1,12 +1,11 @@
 import re
 from typing import Collection, Sequence
 
-from llama_index import Document, ServiceContext
-from llama_index.embeddings import AzureOpenAIEmbedding
-from llama_index.indices.vector_store.base import VectorStoreIndex
-from llama_index.node_parser import SimpleNodeParser
-from llama_index.storage.storage_context import StorageContext
-from llama_index.vector_stores import SimpleVectorStore
+from llama_index.core import Document, Settings, StorageContext, VectorStoreIndex
+from llama_index.core.llms.mock import MockLLM
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.vector_stores import SimpleVectorStore
+from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 
 
 def sanitize_text(input_string: str) -> str:
@@ -56,13 +55,13 @@ def embed_documents(
         api_version=azure_openAI_ver,
     )
 
-    node_parser = SimpleNodeParser.from_defaults(
+    node_parser = SentenceSplitter.from_defaults(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
 
-    service_context = ServiceContext.from_defaults(
-        embed_model=embed_model, node_parser=node_parser, llm=None
-    )
+    Settings.llm = MockLLM()
+    Settings.embed_model = embed_model
+    Settings.node_parser = node_parser
 
     vector_store = SimpleVectorStore()
 
@@ -70,7 +69,6 @@ def embed_documents(
 
     vsi = VectorStoreIndex.from_documents(
         docs,
-        service_context=service_context,
         storage_context=storage_context,
         show_progress=True,
     )

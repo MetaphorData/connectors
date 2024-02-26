@@ -2816,6 +2816,22 @@ postgres = ["asyncpg (>=0.28.0,<0.29.0)", "pgvector (>=0.1.0,<0.2.0)", "psycopg2
 query-tools = ["guidance (>=0.0.64,<0.0.65)", "jsonpath-ng (>=1.6.0,<2.0.0)", "lm-format-enforcer (>=0.4.3,<0.5.0)", "rank-bm25 (>=0.2.2,<0.3.0)", "scikit-learn", "spacy (>=3.7.1,<4.0.0)"]
 
 [[package]]
+name = "llama-index-embeddings-azure-openai"
+version = "0.1.6"
+description = "llama-index embeddings azure openai integration"
+optional = true
+python-versions = ">=3.8.1,<4.0"
+files = [
+    {file = "llama_index_embeddings_azure_openai-0.1.6-py3-none-any.whl", hash = "sha256:a84a6d7d67296690e5d20070ce5d9920ec56b0d339338d276eae2a7b2f822b9e"},
+    {file = "llama_index_embeddings_azure_openai-0.1.6.tar.gz", hash = "sha256:05092b1b31bd0f45257d161f1e5a17261c60e688f4c6a4fe316557349ac2aebc"},
+]
+
+[package.dependencies]
+llama-index-core = ">=0.10.11.post1,<0.11.0"
+llama-index-embeddings-openai = ">=0.1.3,<0.2.0"
+llama-index-llms-azure-openai = ">=0.1.3,<0.2.0"
+
+[[package]]
 name = "llama-index-embeddings-openai"
 version = "0.1.6"
 description = "llama-index embeddings openai integration"
@@ -2882,6 +2898,23 @@ langchain = ["langchain (>=0.0.303)"]
 local-models = ["optimum[onnxruntime] (>=1.13.2,<2.0.0)", "sentencepiece (>=0.1.99,<0.2.0)", "transformers[torch] (>=4.33.1,<5.0.0)"]
 postgres = ["asyncpg (>=0.28.0,<0.29.0)", "pgvector (>=0.1.0,<0.2.0)", "psycopg2-binary (>=2.9.9,<3.0.0)"]
 query-tools = ["guidance (>=0.0.64,<0.0.65)", "jsonpath-ng (>=1.6.0,<2.0.0)", "lm-format-enforcer (>=0.4.3,<0.5.0)", "rank-bm25 (>=0.2.2,<0.3.0)", "scikit-learn", "spacy (>=3.7.1,<4.0.0)"]
+
+[[package]]
+name = "llama-index-llms-azure-openai"
+version = "0.1.4"
+description = "llama-index llms azure openai integration"
+optional = true
+python-versions = ">=3.8.1,<4.0"
+files = [
+    {file = "llama_index_llms_azure_openai-0.1.4-py3-none-any.whl", hash = "sha256:b63bea578051a11ea35a08acb4889f6ee907a6eb60b5786c11770d3741616f23"},
+    {file = "llama_index_llms_azure_openai-0.1.4.tar.gz", hash = "sha256:5384c3a7bfbca9dbe132c7bd46b2226ba1b2b6a38e2dcf8f1d090e12203e9d56"},
+]
+
+[package.dependencies]
+azure-identity = ">=1.15.0,<2.0.0"
+httpx = "*"
+llama-index-core = ">=0.10.11.post1,<0.11.0"
+llama-index-llms-openai = ">=0.1.1,<0.2.0"
 
 [[package]]
 name = "llama-index-llms-openai"
@@ -2976,6 +3009,20 @@ files = [
 [package.dependencies]
 llama-index-core = ">=0.10.7,<0.11.0"
 llama-parse = ">=0.3.3,<0.4.0"
+
+[[package]]
+name = "llama-index-readers-notion"
+version = "0.1.6"
+description = "llama-index readers notion integration"
+optional = true
+python-versions = ">=3.8.1,<4.0"
+files = [
+    {file = "llama_index_readers_notion-0.1.6-py3-none-any.whl", hash = "sha256:f5c8f915704a254c9e963cd32296b8f80c6aa365da10d0443b8b690aba0f9e9a"},
+    {file = "llama_index_readers_notion-0.1.6.tar.gz", hash = "sha256:b7546a160afbb2ea330047906116b2dc13aa8e3c4e4af35041586b97c8950591"},
+]
+
+[package.dependencies]
+llama-index-core = ">=0.10.1,<0.11.0"
 
 [[package]]
 name = "llama-index-vector-stores-chroma"
@@ -7333,7 +7380,7 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "llama-index", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pyhive", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pyhive", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
@@ -7345,13 +7392,13 @@ metabase = ["sql-metadata"]
 monte-carlo = ["pycarlo"]
 mssql = ["pymssql"]
 mysql = ["SQLAlchemy", "pymysql"]
-notion = ["llama-index"]
+notion = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-notion"]
 postgresql = ["asyncpg"]
 power-bi = ["msal", "msgraph-beta-sdk", "sql-metadata"]
 redshift = ["asyncpg", "sqllineage"]
 s3 = ["fastavro", "more-itertools", "parse"]
 snowflake = ["snowflake-connector-python", "sql-metadata"]
-static-web = ["beautifulsoup4", "llama-index", "lxml"]
+static-web = ["beautifulsoup4", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-notion", "lxml"]
 synapse = ["pymssql"]
 tableau = ["sqllineage", "tableauserverclient"]
 throughtspot = ["thoughtspot_rest_api_v1"]
@@ -7361,4 +7408,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "38680e95aa38bab6508dbac618246982fb6b53e14e1c2b71e2617562701d746c"
+content-hash = "6c5cbed69a43c9d637cd72ff600815843109e03779e2e5417e03d7d41312b611"
