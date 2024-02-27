@@ -254,4 +254,6 @@ async def test_extractor(
 
     events = await static_web_extractor.extract()
 
-    assert events == load_json(f"{test_root_dir}/static_web/expected.json")
+    assert [e.to_dict() for e in events] == load_json(
+        f"{test_root_dir}/static_web/expected.json"
+    )
