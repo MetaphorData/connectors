@@ -8,15 +8,14 @@
       0.3,
       0.4
     ],
-    "pageId": "efgh5678",
-    "lastRefreshed": "2023-12-11T00:00:00",
+    "pageId": "e19d5cd5af0378da05f63f891c7467af",
+    "lastRefreshed": "2024-02-05T00:00:00",
     "metadata": {
       "title": "Hello World!",
-      "dbId": "database1",
-      "platform": "notion",
-      "pageId": "efgh5678",
-      "link": "https://metaphor.io",
-      "lastRefreshed": "2023-12-11 00:00:00.000000"
+      "platform": "example.com",
+      "pageId": "e19d5cd5af0378da05f63f891c7467af",
+      "link": "https://example.com",
+      "lastRefreshed": "2024-02-05 00:00:00.000000"
     },
     "embeddedString_1": "Title: Hello World!\nHello World!"
   }

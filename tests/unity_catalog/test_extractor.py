@@ -25,7 +25,7 @@ from metaphor.unity_catalog.models import (
     TableInfo,
     TableLineage,
 )
-from tests.test_utils import load_json
+from tests.test_utils import load_json, wrap_query_log_stream_to_event
 
 
 def dummy_config():
@@ -226,6 +226,10 @@ async def test_extractor(
 
     expected = f"{test_root_dir}/unity_catalog/expected.json"
     assert events == load_json(expected)
+
+    query_logs = wrap_query_log_stream_to_event(extractor.collect_query_logs())
+    expected_query_logs = f"{test_root_dir}/unity_catalog/query_logs.json"
+    assert query_logs == load_json(expected_query_logs)
 
 
 @patch("metaphor.unity_catalog.extractor.create_connection")

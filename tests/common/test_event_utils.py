@@ -2,6 +2,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import (
     Dashboard,
     Dataset,
+    ExternalSearchDocument,
     Hierarchy,
     HierarchyLogicalID,
     KnowledgeCard,
@@ -22,6 +23,9 @@ def test_build_event():
         dashboard=Dashboard()
     )
     assert event_utils.build_event(Dataset()) == MetadataChangeEvent(dataset=Dataset())
+    assert event_utils.build_event(ExternalSearchDocument()) == MetadataChangeEvent(
+        external_search_document=ExternalSearchDocument()
+    )
     assert event_utils.build_event(Hierarchy()) == MetadataChangeEvent(
         hierarchy=Hierarchy()
     )
@@ -51,6 +55,7 @@ def test_trim_event():
 
     assert event_utils.trim_event(Dashboard()) == {}
     assert event_utils.trim_event(Dataset()) == {}
+    assert event_utils.trim_event(ExternalSearchDocument()) == {}
     assert event_utils.trim_event(Hierarchy()) == {}
     assert event_utils.trim_event(KnowledgeCard()) == {}
     assert event_utils.trim_event(Metric()) == {}

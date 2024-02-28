@@ -1,11 +1,19 @@
 import json
 from datetime import datetime
-from typing import Any
+from typing import Any, Iterator
+
+from metaphor.common.event_util import EventUtil
+from metaphor.models.metadata_change_event import QueryLog, QueryLogs
 
 
 def load_json(path):
     with open(path, "r") as f:
         return json.load(f)
+
+
+def load_text(path):
+    with open(path, "r") as f:
+        return f.read()
 
 
 def compare_list_ignore_order(a: list, b: list):
@@ -58,3 +66,7 @@ def ignore_datetime_values(  # noqa C901
     if isinstance(obj, (list, dict)) and not obj:
         return None  # Remove empty list or dict
     return obj
+
+
+def wrap_query_log_stream_to_event(logs: Iterator[QueryLog]):
+    return [EventUtil.build_then_trim(QueryLogs(logs=list(logs)))]

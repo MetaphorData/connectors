@@ -237,4 +237,6 @@ async def test_extractor(
 
     events = await notion_extractor.extract()
 
-    assert events == load_json(f"{test_root_dir}/notion/expected.json")
+    assert [e.to_dict() for e in events] == load_json(
+        f"{test_root_dir}/notion/expected.json"
+    )

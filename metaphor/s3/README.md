@@ -24,7 +24,6 @@ aws:
   assume_role_arn: <aws_role_arn>  # If using IAM role
   session_token: <aws_session_token>  # If using session token
   profile_name: <aws_profile_name>  # If using AWS profile
-endpoint_url: <endpoint_url>  # The URL for the S3 object storage
 path_specs:
   - <PATH_SPEC_1>
   - <PATH_SPEC_2>
@@ -136,6 +135,16 @@ The excluded URIs do not support labels.
 #### Output Destination
 
 See [Output Config](../common/docs/output.md) for more information.
+
+#### Endpoint URL
+
+If you're connecting to S3 compatible storage such as Minio, an endponint URL must be provided:
+
+```yaml
+endpoint_url: <endpoint_url>  # The URL for the S3 object storage
+```
+
+This is not needed for AWS S3.
 
 ## Testing
 

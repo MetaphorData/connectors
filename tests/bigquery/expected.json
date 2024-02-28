@@ -9,15 +9,15 @@
       "fields": [
         {
           "description": "d1",
-          "fieldPath": "f1",
           "fieldName": "f1",
+          "fieldPath": "f1",
           "nativeType": "STRING",
           "nullable": true
         },
         {
           "description": "d2",
-          "fieldPath": "f2",
           "fieldName": "f2",
+          "fieldPath": "f2",
           "nativeType": "INTEGER",
           "nullable": false
         }
@@ -27,19 +27,19 @@
         "materialization": "TABLE"
       }
     },
+    "sourceInfo": {
+      "createdAtSource": "2000-01-01T00:00:00+00:00",
+      "lastUpdated": "2000-01-02T00:00:00+00:00"
+    },
     "statistics": {
       "dataSizeBytes": 5242880.0,
-      "recordCount": 100.0,
-      "lastUpdated": "2000-01-02T00:00:00+00:00"
+      "lastUpdated": "2000-01-02T00:00:00+00:00",
+      "recordCount": 100.0
     },
     "structure": {
       "database": "project1",
       "schema": "dataset1",
       "table": "table1"
-    },
-    "sourceInfo": {
-      "createdAtSource": "2000-01-01T00:00:00+00:00",
-      "lastUpdated": "2000-01-02T00:00:00+00:00"
     }
   },
   {
@@ -52,8 +52,8 @@
       "fields": [
         {
           "description": "d1",
-          "fieldPath": "f1",
           "fieldName": "f1",
+          "fieldPath": "f1",
           "nativeType": "ARRAY<FLOAT>",
           "nullable": false
         },
@@ -87,89 +87,19 @@
         "tableSchema": "select * from FOO"
       }
     },
+    "sourceInfo": {
+      "createdAtSource": "2000-01-01T00:00:00+00:00",
+      "lastUpdated": "2000-01-02T00:00:00+00:00"
+    },
     "statistics": {
       "dataSizeBytes": 524288.0,
-      "recordCount": 1000.0,
-      "lastUpdated": "2000-01-02T00:00:00+00:00"
+      "lastUpdated": "2000-01-02T00:00:00+00:00",
+      "recordCount": 1000.0
     },
     "structure": {
       "database": "project1",
       "schema": "dataset1",
       "table": "table2"
-    },
-    "sourceInfo": {
-      "createdAtSource": "2000-01-01T00:00:00+00:00",
-      "lastUpdated": "2000-01-02T00:00:00+00:00"
     }
-  },
-  {
-    "logs": [
-      {
-        "_id": "BIGQUERY:projects/metaphor-data/jobs/bquxjob_70ddc06_17f574eca64",
-        "queryId": "projects/metaphor-data/jobs/bquxjob_70ddc06_17f574eca64",
-        "bytesRead": 216.0,
-        "duration": 0.26,
-        "email": "mars@metaphor.io",
-        "platform": "BIGQUERY",
-        "rowsWritten": 4.0,
-        "sources": [
-          {
-            "id": "DATASET~E16CCC1A55EE3E61C1CE8B0C47F67998",
-            "database": "metaphor-data",
-            "schema": "test",
-            "table": "yi_tests2"
-          }
-        ],
-        "sql": "select * from `metaphor-data.test.yi_tests2`",
-        "sqlHash": "3447da1c806a4a48356bbf81bbff6acb",
-        "startTime": "2022-03-04T23:40:56.330000+00:00",
-        "targets": [
-          {
-            "id": "DATASET~1AD442855DE3835B661C40E0446A5AE2",
-            "database": "metaphor-data",
-            "schema": "3198487640cceeb8e7d28d7c0f23e9f51ed519b1",
-            "table": "anon66e97db94a52893f2f3ee8e5c3d420963d37c90c"
-          }
-        ],
-        "defaultDatabase": "metaphor-data",
-        "defaultSchema": "test",
-        "type": "SELECT"
-      },
-      {
-        "_id": "BIGQUERY:projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
-        "queryId": "projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
-        "bytesRead": 72.0,
-        "duration": 0.376,
-        "email": "scott@metaphor.io",
-        "platform": "BIGQUERY",
-        "rowsWritten": 10.0,
-        "sources": [
-          {
-            "id": "DATASET~7A5B4FDA18918AE8CABBA5313BD67401",
-            "database": "metaphor-data",
-            "schema": "test",
-            "table": "yi_test3"
-          },
-          {
-            "id": "DATASET~F4B32B397DDF136A9578C62033BDDBDC",
-            "database": "metaphor-data",
-            "schema": "test",
-            "table": "yi_test_view1"
-          }
-        ],
-        "sql": "select `id`,\r\n    `name`\r\nfrom `metaphor-data`.`test`.`yi_test_view1`\r\nLIMIT 200 OFFSET 0",
-        "sqlHash": "da2942a2e043ff5194ea532e611dda72",
-        "startTime": "2022-03-07T10:29:01.241000+00:00",
-        "targets": [
-          {
-            "id": "DATASET~9ECCF48C782E2A6643B0F54D8F06178D",
-            "database": "metaphor-data",
-            "schema": "7920ed6988b5b158b0bcde435ea325d866993be9",
-            "table": "anon8d8bdc7387b1ebe499e35632b1dd94a6232badf3"
-          }
-        ],
-        "type": "SELECT"
-      }
-    ]
   }
 ]

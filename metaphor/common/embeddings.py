@@ -8,6 +8,8 @@ from llama_index.node_parser import SimpleNodeParser
 from llama_index.storage.storage_context import StorageContext
 from llama_index.vector_stores import SimpleVectorStore
 
+from metaphor.models.metadata_change_event import ExternalSearchDocument
+
 
 def sanitize_text(input_string: str) -> str:
     """
@@ -61,7 +63,7 @@ def embed_documents(
     )
 
     service_context = ServiceContext.from_defaults(
-        embed_model=embed_model, node_parser=node_parser
+        embed_model=embed_model, node_parser=node_parser, llm=None
     )
 
     vector_store = SimpleVectorStore()
@@ -81,7 +83,7 @@ def embed_documents(
 def map_metadata(
     vsi: VectorStoreIndex,
     include_text: bool,
-) -> Collection[dict]:
+) -> Collection[ExternalSearchDocument]:
     """
     Takes the embedding_dict, metadata_dict, and doc_store from
     a VectorStoreIndex's to_dict() method. Outputs a list of
@@ -119,6 +121,5 @@ def map_metadata(
             title = metadata_dict[nodeid]["title"]
             embedding_dict[nodeid]["embeddedString_1"] = f"Title: {title}\n{chunk_text}"
 
-        out.append({"externalSearchDocument": embedding_dict[nodeid]})
-
+        out.append(ExternalSearchDocument.from_dict(embedding_dict[nodeid]))
     return out
