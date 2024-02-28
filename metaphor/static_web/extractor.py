@@ -10,6 +10,7 @@ from requests.exceptions import HTTPError, RequestException
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import md5_digest
 from metaphor.models.crawler_run_metadata import Platform
@@ -45,7 +46,7 @@ class StaticWebExtractor(BaseExtractor):
 
         self.include_text = config.include_text
 
-    async def extract(self) -> Collection[dict]:
+    async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Scraping provided URLs")
         self.docs = list()  # type: List[Document]
         self.visited_pages = set()  # type: set

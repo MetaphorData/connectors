@@ -7,6 +7,8 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.vector_stores import SimpleVectorStore
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 
+from metaphor.models.metadata_change_event import ExternalSearchDocument
+
 
 def sanitize_text(input_string: str) -> str:
     """
@@ -79,7 +81,7 @@ def embed_documents(
 def map_metadata(
     vsi: VectorStoreIndex,
     include_text: bool,
-) -> Collection[dict]:
+) -> Collection[ExternalSearchDocument]:
     """
     Takes the embedding_dict, metadata_dict, and doc_store from
     a VectorStoreIndex's to_dict() method. Outputs a list of
@@ -117,6 +119,5 @@ def map_metadata(
             title = metadata_dict[nodeid]["title"]
             embedding_dict[nodeid]["embeddedString_1"] = f"Title: {title}\n{chunk_text}"
 
-        out.append({"externalSearchDocument": embedding_dict[nodeid]})
-
+        out.append(ExternalSearchDocument.from_dict(embedding_dict[nodeid]))
     return out

@@ -1,6 +1,6 @@
 from dataclasses import field
 from functools import cached_property
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pydantic.dataclasses import dataclass
 
@@ -23,7 +23,7 @@ logger = get_logger()
 @dataclass(config=ConnectorConfig)
 class S3RunConfig(BaseConfig):
     aws: AwsCredentials
-    endpoint_url: str
+    endpoint_url: Optional[str] = None
     path_specs: List[PathSpec] = field(default_factory=list)
     verify_ssl: Union[bool, str] = False
 
