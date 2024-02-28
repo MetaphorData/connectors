@@ -2775,13 +2775,13 @@ llama-index-vector-stores-chroma = ">=0.1.1,<0.2.0"
 
 [[package]]
 name = "llama-index-core"
-version = "0.10.13"
+version = "0.10.14"
 description = "Interface between LLMs and your data"
 optional = true
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "llama_index_core-0.10.13-py3-none-any.whl", hash = "sha256:40c76fc02be7cd948a333ca541f2ff38cf02774e1c960674e2b68c61943bac90"},
-    {file = "llama_index_core-0.10.13.tar.gz", hash = "sha256:826fded00767923fba8aca94f46c32b259e8879f517016ab7a3801b1b37187a1"},
+    {file = "llama_index_core-0.10.14-py3-none-any.whl", hash = "sha256:52e99ae101a32b2894477e49a0c4bc93de721a71d598fea61e4d9e8e68a35633"},
+    {file = "llama_index_core-0.10.14.tar.gz", hash = "sha256:db6c66948c51751545a73bb3acecfe401649e05296d8865d71d22bcb5a1e55e7"},
 ]
 
 [package.dependencies]
@@ -2902,13 +2902,13 @@ query-tools = ["guidance (>=0.0.64,<0.0.65)", "jsonpath-ng (>=1.6.0,<2.0.0)", "l
 
 [[package]]
 name = "llama-index-llms-azure-openai"
-version = "0.1.4"
+version = "0.1.5"
 description = "llama-index llms azure openai integration"
 optional = true
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "llama_index_llms_azure_openai-0.1.4-py3-none-any.whl", hash = "sha256:b63bea578051a11ea35a08acb4889f6ee907a6eb60b5786c11770d3741616f23"},
-    {file = "llama_index_llms_azure_openai-0.1.4.tar.gz", hash = "sha256:5384c3a7bfbca9dbe132c7bd46b2226ba1b2b6a38e2dcf8f1d090e12203e9d56"},
+    {file = "llama_index_llms_azure_openai-0.1.5-py3-none-any.whl", hash = "sha256:180805a7114198155aad7cc3abdf599142c59242d366b11ee8a9150de35b7773"},
+    {file = "llama_index_llms_azure_openai-0.1.5.tar.gz", hash = "sha256:5a1c3d1a6a4fe4d03acb50b61594e6775dc86a431738afa291f3708029299a92"},
 ]
 
 [package.dependencies]
@@ -3012,6 +3012,21 @@ llama-index-core = ">=0.10.7,<0.11.0"
 llama-parse = ">=0.3.3,<0.4.0"
 
 [[package]]
+name = "llama-index-readers-microsoft-sharepoint"
+version = "0.1.3"
+description = "llama-index readers microsoft_sharepoint integration"
+optional = true
+python-versions = ">=3.8.1,<4.0"
+files = [
+    {file = "llama_index_readers_microsoft_sharepoint-0.1.3-py3-none-any.whl", hash = "sha256:e2f6c041c0e95c45b651140c7067826b5b3460339498a55a3bc322700890f896"},
+    {file = "llama_index_readers_microsoft_sharepoint-0.1.3.tar.gz", hash = "sha256:86726fa467d8677f30667119ff9deb77249547e19542a3833aed88724c5830cb"},
+]
+
+[package.dependencies]
+llama-index-core = ">=0.10.1,<0.11.0"
+requests = ">=2.31.0,<3.0.0"
+
+[[package]]
 name = "llama-index-readers-notion"
 version = "0.1.6"
 description = "llama-index readers notion integration"
@@ -3027,13 +3042,13 @@ llama-index-core = ">=0.10.1,<0.11.0"
 
 [[package]]
 name = "llama-index-vector-stores-chroma"
-version = "0.1.4"
+version = "0.1.5"
 description = "llama-index vector_stores chroma integration"
 optional = true
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "llama_index_vector_stores_chroma-0.1.4-py3-none-any.whl", hash = "sha256:f475a450431ee4d9b2915ba9da2112dfdfacaee1ea220b8603720be1c116786c"},
-    {file = "llama_index_vector_stores_chroma-0.1.4.tar.gz", hash = "sha256:7364f2a3f8a51b83d350da39da7e7046704cfa9c848ebe8fd1c6cb39ad4878f9"},
+    {file = "llama_index_vector_stores_chroma-0.1.5-py3-none-any.whl", hash = "sha256:40692f8bcc4b44d4a28b6ed578bad71fbc33ce5d95220c29b00e5ba7ab00d8a0"},
+    {file = "llama_index_vector_stores_chroma-0.1.5.tar.gz", hash = "sha256:5e6ed1bc0b0e4c54a030b7ec95cc19015af4a8a22d3c37deb66f76b017d54b14"},
 ]
 
 [package.dependencies]
@@ -7408,4 +7423,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "6cd35182e43d828b352dd9f323a61ae1f3819325a4f0e83bce916b4ff52863be"
+content-hash = "de3d0ade1de0c829c2f271b92c39f51685eca40b69f51fb20a02c237eedf8cc1"
