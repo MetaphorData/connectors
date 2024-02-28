@@ -5,7 +5,7 @@ from urllib.parse import urljoin, urlparse
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-from llama_index import Document
+from llama_index.core import Document
 from requests.exceptions import HTTPError, RequestException
 
 from metaphor.common.base_extractor import BaseExtractor

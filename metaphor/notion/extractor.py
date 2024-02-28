@@ -4,8 +4,8 @@ import traceback
 from typing import Collection, Sequence
 
 import requests
-from llama_hub.notion import NotionPageReader
-from llama_index import Document
+from llama_index.core import Document
+from llama_index.readers.notion import NotionPageReader
 from requests.exceptions import HTTPError
 
 from metaphor.common.base_extractor import BaseExtractor
