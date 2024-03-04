@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
-from llama_index import Document
+from llama_index.core import Document
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.notion.config import NotionRunConfig
