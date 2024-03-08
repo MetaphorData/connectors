@@ -225,6 +225,37 @@ def test_fetch_table_info(mock_connect: MagicMock):
 
 
 @patch("metaphor.snowflake.auth.connect")
+def test_fetch_table_info_error_handling(mock_connect: MagicMock):
+    table_info = DatasetInfo(
+        database=database, schema=schema, name=table_name, type=table_type
+    )
+
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+
+    mock_conn.cursor.return_value = mock_cursor
+
+    def should_raise(_0, _1):
+        raise ValueError()
+
+    mock_cursor.execute.side_effect = should_raise
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    extractor._conn = mock_conn
+
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    extractor._datasets[normalized_name] = dataset
+
+    extractor._fetch_table_info({normalized_name: table_info}, False, set())
+
+    assert dataset.schema.sql_schema.table_schema is None
+    assert dataset.statistics.last_updated is None
+
+
+@patch("metaphor.snowflake.auth.connect")
 def test_fetch_table_info_with_unknown_type(mock_connect: MagicMock):
     extractor = SnowflakeExtractor(make_snowflake_config())
 
