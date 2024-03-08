@@ -156,6 +156,42 @@ def test_fetch_columns(mock_connect: MagicMock):
 
 
 @patch("metaphor.snowflake.auth.connect")
+def test_fetch_secure(mock_connect: MagicMock):
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            (
+                database,
+                schema,
+                table_name,
+                True,
+            ),
+            (
+                database,
+                schema,
+                "foo.bar",
+                False,
+            ),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(
+        make_snowflake_config(
+            DatasetFilter(
+                includes={"db": None},
+            )
+        )
+    )
+
+    secure_views = extractor._fetch_secure_views(mock_cursor)
+
+    assert len(secure_views) == 1
+    assert f"{database}.{schema}.{table_name}" in secure_views
+    assert f"{database}.{schema}.foo.bar" not in secure_views
+
+
+@patch("metaphor.snowflake.auth.connect")
 def test_fetch_table_info(mock_connect: MagicMock):
     table_info = DatasetInfo(
         database=database, schema=schema, name=table_name, type=table_type

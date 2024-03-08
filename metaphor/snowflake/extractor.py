@@ -203,7 +203,7 @@ class SnowflakeExtractor(BaseExtractor):
         for database, schema, table, is_secure in cursor:
             if not is_secure:
                 continue
-            fullname = to_quoted_identifier([database, schema, table])
+            fullname = f"{database}.{schema}.{table}".lower()
             set_of_secure_views.add(fullname)
         return set_of_secure_views
 
@@ -345,7 +345,7 @@ class SnowflakeExtractor(BaseExtractor):
             if (
                 table.type == SnowflakeTableType.BASE_TABLE.value
                 and not is_shared_database
-                and fullname not in secure_views
+                and normalized_name not in secure_views
             ):
                 queries.append(
                     f'SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as "UPDATED_{normalized_name}"'
