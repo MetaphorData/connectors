@@ -444,12 +444,30 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
 def test_fetch_shared_databases(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
-    mock_cursor.__iter__.return_value = iter([(None, "INBOUND", None, database)])
+    mock_cursor.__iter__.side_effect = [
+        iter(
+            [
+                (
+                    None,
+                    "INBOUND",
+                    None,
+                    "shared_1",
+                ),
+                (
+                    None,
+                    "UNKNOWN",
+                    None,
+                    "shared_2",
+                ),
+            ]
+        ),
+        iter([("shared_3",)]),
+    ]
 
     extractor = SnowflakeExtractor(make_snowflake_config())
     results = extractor._fetch_shared_databases(mock_cursor)
 
-    assert results == [database]
+    assert results == ["shared_1", "shared_3"]
 
 
 @patch("metaphor.snowflake.extractor.check_access_history")
