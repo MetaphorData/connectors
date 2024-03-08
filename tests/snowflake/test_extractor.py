@@ -180,7 +180,7 @@ def test_fetch_table_info(mock_connect: MagicMock):
     )
     extractor._datasets[normalized_name] = dataset
 
-    extractor._fetch_table_info({normalized_name: table_info}, False)
+    extractor._fetch_table_info({normalized_name: table_info}, False, set())
 
     assert dataset.schema.sql_schema.table_schema == "ddl"
     assert dataset.statistics.last_updated == datetime.utcfromtimestamp(0).replace(

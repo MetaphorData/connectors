@@ -9,6 +9,7 @@ from typing import (
     Literal,
     Mapping,
     Optional,
+    Set,
     Tuple,
 )
 
@@ -142,8 +143,12 @@ class SnowflakeExtractor(BaseExtractor):
 
                 self._fetch_columns(cursor, database)
 
+                secure_views = self._fetch_secure_views(cursor)
+
                 try:
-                    self._fetch_table_info(tables, database in shared_databases)
+                    self._fetch_table_info(
+                        tables, database in shared_databases, secure_views
+                    )
                 except Exception as e:
                     logger.exception(
                         f"Failed to fetch table extra info for '{database}'\n{e}"
@@ -175,14 +180,32 @@ class SnowflakeExtractor(BaseExtractor):
     @staticmethod
     def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
         cursor.execute(
-            "SELECT database_name FROM information_schema.databases ORDER BY database_name"
+            "SELECT database_name FROM information_schema.databases WHERE type != 'IMPORTED DATABASE' ORDER BY database_name"
         )
         return [db[0].lower() for db in cursor]
 
     @staticmethod
     def _fetch_shared_databases(cursor: SnowflakeCursor) -> List[str]:
         cursor.execute("SHOW SHARES")
-        return [db[3].lower() for db in cursor if db[1] == "INBOUND"]
+        shared_database = [db[3].lower() for db in cursor if db[1] == "INBOUND"]
+        cursor.execute(
+            "SELECT database_name FROM information_schema.databases WHERE type = 'IMPORTED DATABASE' ORDER BY database_name"
+        )
+        shared_database += [db[0].lower() for db in cursor]
+        return shared_database
+
+    @staticmethod
+    def _fetch_secure_views(cursor: SnowflakeCursor) -> Set[str]:
+        cursor.execute(
+            "select table_catalog, table_schema, table_name, is_secure from information_schema.views WHERE table_schema != 'INFORMATION_SCHEMA'"
+        )
+        set_of_secure_views = set()
+        for database, schema, table, is_secure in cursor:
+            if not is_secure:
+                continue
+            fullname = to_quoted_identifier([database, schema, table])
+            set_of_secure_views.add(fullname)
+        return set_of_secure_views
 
     FETCH_TABLE_QUERY = """
     SELECT table_catalog, table_schema, table_name, table_type, COMMENT, row_count, bytes, created
@@ -284,11 +307,26 @@ class SnowflakeExtractor(BaseExtractor):
             )
 
     def _fetch_table_info(
-        self, tables: Dict[str, DatasetInfo], is_shared_database: bool
+        self,
+        tables: Dict[str, DatasetInfo],
+        is_shared_database: bool,
+        secure_views: Set[str],
     ) -> None:
         dict_cursor: DictCursor = self._conn.cursor(DictCursor)  # type: ignore
-        for chunk in chunks(list(tables.items()), TABLE_INFO_FETCH_SIZE):
-            self._fetch_table_info_internal(dict_cursor, chunk, is_shared_database)
+
+        # Partition table by schema
+        schema_tables: Dict[str, List[Tuple[str, DatasetInfo]]] = {}
+        for table in tables.items():
+            schema_tables.setdefault(table[1].schema, []).append(table)
+
+        for partitioned_tables in schema_tables.values():
+            for chunk in chunks(partitioned_tables, TABLE_INFO_FETCH_SIZE):
+                try:
+                    self._fetch_table_info_internal(
+                        dict_cursor, chunk, is_shared_database, secure_views
+                    )
+                except Exception as error:
+                    logger.error(error)
 
         dict_cursor.close()
 
@@ -297,13 +335,18 @@ class SnowflakeExtractor(BaseExtractor):
         dict_cursor: DictCursor,
         tables: List[Tuple[str, DatasetInfo]],
         is_shared_database: bool,
+        secure_views: Set[str],
     ) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
         for normalized_name, table in tables:
             fullname = to_quoted_identifier([table.database, table.schema, table.name])
             # fetch last_update_time and DDL for tables, and fetch only DDL for views
-            if table.type == SnowflakeTableType.BASE_TABLE.value:
+            if (
+                table.type == SnowflakeTableType.BASE_TABLE.value
+                and not is_shared_database
+                and fullname not in secure_views
+            ):
                 queries.append(
                     f'SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as "UPDATED_{normalized_name}"'
                 )
@@ -319,7 +362,7 @@ class SnowflakeExtractor(BaseExtractor):
         if not queries:
             return
         query = f"SELECT {','.join(queries)}"
-        logger.debug(query)
+        logger.debug(f"{query}, params: {params}")
 
         dict_cursor.execute(query, tuple(params))
         results = dict_cursor.fetchone()
