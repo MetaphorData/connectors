@@ -37,7 +37,7 @@
           "_id": "BIGQUERY:projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
           "bytesRead": 72.0,
           "duration": 0.376,
-          "email": "scott@metaphor.io",
+          "userId": "robot@iam.gserviceaccount.com",
           "platform": "BIGQUERY",
           "queryId": "projects/metaphor-data/jobs/job_BSqXkGDLhaGKKQDJtesGJt3gjwG5",
           "rowsWritten": 10.0,

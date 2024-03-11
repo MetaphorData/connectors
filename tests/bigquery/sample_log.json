@@ -98,7 +98,7 @@
       "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
       "status": {},
       "authenticationInfo": {
-        "principalEmail": "scott@metaphor.io"
+        "principalEmail": "robot@iam.gserviceaccount.com"
       },
       "requestMetadata": {
         "callerIp": "1.1.1.1",
