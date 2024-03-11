@@ -6,6 +6,7 @@ import pytest
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.models.metadata_change_event import DataPlatform
 from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.config import RedshiftRunConfig
 from metaphor.redshift.extractor import RedshiftExtractor
@@ -35,6 +36,11 @@ async def test_extractor(
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == []
+
+
+def test_dataset_platform():
+    extractor = RedshiftExtractor(dummy_config())
+    assert extractor._dataset_platform == DataPlatform.REDSHIFT
 
 
 def test_collect_query_logs(test_root_dir: str) -> None:
