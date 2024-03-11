@@ -355,9 +355,9 @@ class BigQueryExtractor(BaseExtractor):
             else None
         )
 
-        # Assume service account always end in "gserviceaccount.com"
+        # Assume service accounts always end in ".gserviceaccount.com"
         # https://cloud.google.com/compute/docs/access/service-accounts
-        is_service_account = job_change.user_email.endswith("gserviceaccount.com")
+        is_service_account = job_change.user_email.endswith(".gserviceaccount.com")
 
         return QueryLog(
             id=f"{DataPlatform.BIGQUERY.name}:{job_change.job_name}",
