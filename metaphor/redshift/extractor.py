@@ -23,7 +23,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
 
     _description = "Redshift metadata crawler"
     _platform = Platform.REDSHIFT
-    _data_platform = DataPlatform.REDSHIFT
+    _dataset_platform = DataPlatform.REDSHIFT
 
     @staticmethod
     def from_config_file(config_file: str) -> "RedshiftExtractor":
