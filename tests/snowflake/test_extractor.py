@@ -156,6 +156,42 @@ def test_fetch_columns(mock_connect: MagicMock):
 
 
 @patch("metaphor.snowflake.auth.connect")
+def test_fetch_secure(mock_connect: MagicMock):
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            (
+                database,
+                schema,
+                table_name,
+                True,
+            ),
+            (
+                database,
+                schema,
+                "foo.bar",
+                False,
+            ),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(
+        make_snowflake_config(
+            DatasetFilter(
+                includes={"db": None},
+            )
+        )
+    )
+
+    secure_views = extractor._fetch_secure_views(mock_cursor)
+
+    assert len(secure_views) == 1
+    assert f"{database}.{schema}.{table_name}" in secure_views
+    assert f"{database}.{schema}.foo.bar" not in secure_views
+
+
+@patch("metaphor.snowflake.auth.connect")
 def test_fetch_table_info(mock_connect: MagicMock):
     table_info = DatasetInfo(
         database=database, schema=schema, name=table_name, type=table_type
@@ -180,12 +216,43 @@ def test_fetch_table_info(mock_connect: MagicMock):
     )
     extractor._datasets[normalized_name] = dataset
 
-    extractor._fetch_table_info({normalized_name: table_info}, False)
+    extractor._fetch_table_info({normalized_name: table_info}, False, set())
 
     assert dataset.schema.sql_schema.table_schema == "ddl"
     assert dataset.statistics.last_updated == datetime.utcfromtimestamp(0).replace(
         tzinfo=timezone.utc
     )
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_table_info_error_handling(mock_connect: MagicMock):
+    table_info = DatasetInfo(
+        database=database, schema=schema, name=table_name, type=table_type
+    )
+
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+
+    mock_conn.cursor.return_value = mock_cursor
+
+    def should_raise(_0, _1):
+        raise ValueError()
+
+    mock_cursor.execute.side_effect = should_raise
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    extractor._conn = mock_conn
+
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    extractor._datasets[normalized_name] = dataset
+
+    extractor._fetch_table_info({normalized_name: table_info}, False, set())
+
+    assert dataset.schema.sql_schema.table_schema is None
+    assert dataset.statistics.last_updated is None
 
 
 @patch("metaphor.snowflake.auth.connect")
@@ -408,12 +475,30 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
 def test_fetch_shared_databases(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
-    mock_cursor.__iter__.return_value = iter([(None, "INBOUND", None, database)])
+    mock_cursor.__iter__.side_effect = [
+        iter(
+            [
+                (
+                    None,
+                    "INBOUND",
+                    None,
+                    "shared_1",
+                ),
+                (
+                    None,
+                    "UNKNOWN",
+                    None,
+                    "shared_2",
+                ),
+            ]
+        ),
+        iter([("shared_3",)]),
+    ]
 
     extractor = SnowflakeExtractor(make_snowflake_config())
     results = extractor._fetch_shared_databases(mock_cursor)
 
-    assert results == [database]
+    assert results == ["shared_1", "shared_3"]
 
 
 @patch("metaphor.snowflake.extractor.check_access_history")
