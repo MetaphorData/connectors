@@ -8,6 +8,7 @@ except ImportError:
     print("Please install metaphor[postgresql] extra\n")
     raise
 
+from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
@@ -38,6 +39,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
     def __init__(self, config: PostgreSQLProfileRunConfig):
         super().__init__(config)
+        self._column_statistics = config.column_statistics
         self._max_concurrency = config.max_concurrency
         self._include_views = config.include_views
         self._sampling = config.sampling
@@ -82,14 +84,16 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
     async def _profile_dataset(self, pool: asyncpg.Pool, dataset: Dataset) -> None:
         async with pool.acquire() as conn:
-            queries = self._build_profiling_query(dataset, self._sampling)
+            queries = self._build_profiling_query(
+                dataset, self._column_statistics, self._sampling
+            )
             try:
                 results = []
                 for query in queries:
                     res = await conn.fetch(query)
                     assert len(res) == 1
                     results += res[0]
-                self._parse_result(results, dataset)
+                self._parse_result(results, dataset, self._column_statistics)
             except asyncpg.exceptions.PostgresError as ex:
                 logger.error(
                     f"Error when processing {dataset.logical_id.name}, err: {ex}"
@@ -101,6 +105,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
     @staticmethod
     def _build_profiling_query(
         dataset: Dataset,
+        column_statistics: ColumnStatistics,
         sampling: SamplingConfig,
         max_entities_per_query: int = 100,  # more than 400 will get sql compile error
     ) -> List[str]:
@@ -112,19 +117,19 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
             nullable = field.nullable
             is_numeric = field.precision is not None
 
-            entities.append(f"COUNT(DISTINCT {column})")
+            if column_statistics.unique_count:
+                entities.append(f"COUNT(DISTINCT {column})")
 
-            if nullable:
+            if nullable and column_statistics.null_count:
                 entities.append(f"COUNT({column})")
 
             if is_numeric:
-                entities.extend(
-                    [
-                        f"MIN({column})",
-                        f"MAX({column})",
-                        f"AVG({column}::double precision)",
-                    ]
-                )
+                if column_statistics.min_value:
+                    entities.append(f"MIN({column})")
+                if column_statistics.max_value:
+                    entities.append(f"MAX({column})")
+                if column_statistics.avg_value:
+                    entities.append(f"AVG({column}::double precision)")
 
         row_count = dataset.statistics.record_count
 
@@ -142,7 +147,9 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
         return queries
 
     @staticmethod
-    def _parse_result(results: List, dataset: Dataset):
+    def _parse_result(
+        results: List, dataset: Dataset, column_statistics: ColumnStatistics
+    ):
         row_count = int(results[0])
         index = 1
         for field in dataset.schema.fields:
@@ -150,24 +157,27 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
             nullable = field.nullable
             is_numeric = field.precision is not None
 
-            unique_values = safe_float(results[index])
-            index += 1
+            unique_values = None
+            if column_statistics.unique_count:
+                unique_values = safe_float(results[index])
+                index += 1
 
-            if nullable:
+            nulls = 0.0
+            if nullable and column_statistics.null_count:
                 nulls = float(results[index]) if results[index] else 0.0
                 index += 1
-            else:
-                nulls = 0.0
 
+            min_value, max_value, avg = None, None, None
             if is_numeric:
-                min_value = safe_float(results[index])
-                index += 1
-                max_value = safe_float(results[index])
-                index += 1
-                avg = safe_float(results[index])
-                index += 1
-            else:
-                min_value, max_value, avg = None, None, None
+                if column_statistics.min_value:
+                    min_value = safe_float(results[index])
+                    index += 1
+                if column_statistics.max_value:
+                    max_value = safe_float(results[index])
+                    index += 1
+                if column_statistics.avg_value:
+                    avg = safe_float(results[index])
+                    index += 1
 
             dataset.field_statistics.field_statistics.append(
                 FieldStatistics(
