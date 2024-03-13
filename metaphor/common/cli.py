@@ -9,7 +9,7 @@ from metaphor.common.runner import run_connector
 def cli_main(extractor_cls: Type[BaseExtractor], config_file: str):
     base_config = BaseConfig.from_yaml_file(config_file)
 
-    def connector_func():
+    def make_connector():
         """
         Function to create the actual connector
         """
@@ -17,7 +17,7 @@ def cli_main(extractor_cls: Type[BaseExtractor], config_file: str):
 
     return run_connector(
         # We can't pass the connector instance here or we won't catch any error in connector.__init__
-        connector_func=connector_func,
+        make_connector=make_connector,
         name=EventUtil.class_fqcn(extractor_cls),
         description=extractor_cls._description,
         platform=extractor_cls._platform,

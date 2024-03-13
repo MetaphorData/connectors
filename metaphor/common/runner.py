@@ -13,7 +13,7 @@ logger = get_logger()
 
 
 def run_connector(
-    connector_func: Callable[[], BaseExtractor],
+    make_connector: Callable[[], BaseExtractor],
     name: str,
     description: str,
     platform: Optional[Platform] = None,
@@ -23,7 +23,7 @@ def run_connector(
 
     Parameters
     ----------
-    connector_func : Callable[[], BaseExtractor]
+    make_connector : Callable[[], BaseExtractor]
         The function to create and return an instance of connector
     name : str
         Name of the connector
@@ -49,7 +49,7 @@ def run_connector(
     entities: Collection[ENTITY_TYPES] = []
     connector: Optional[BaseExtractor] = None
     try:
-        connector = connector_func()
+        connector = make_connector()
         entities = connector.run_async()
         if connector.status is RunStatus.FAILURE:
             logger.warning(f"Some of {name}'s entities cannot be parsed!")
