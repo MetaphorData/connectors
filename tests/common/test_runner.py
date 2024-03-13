@@ -61,7 +61,7 @@ def test_run_connector() -> None:
     file_sink_config = FileSinkConfig(directory=directory, batch_size_bytes=1000000)
     dummy_connector = DummyConnector(BaseConfig(output=OutputConfig()))
     events, run_metadata = run_connector(
-        dummy_connector,
+        lambda: dummy_connector,
         "dummy_connector",
         "dummy connector",
         file_sink_config=file_sink_config,
