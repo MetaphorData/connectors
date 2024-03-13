@@ -23,7 +23,7 @@ def run_connector(
 
     Parameters
     ----------
-    connector_func : Callable[[], Collection[ENTITY_TYPES]]
+    connector_func : Callable[[], BaseExtractor]
         The function to create and return an instance of connector
     name : str
         Name of the connector
