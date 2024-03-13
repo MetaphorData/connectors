@@ -1,4 +1,3 @@
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -41,13 +40,13 @@ def monday_extractor():
 
 sample_raw_documents = [
     Document(  # type: ignore[call-arg]
-        doc_id="abcd1234",
+        doc_id="5678",
         embedding=None,
         extra_info={
             "title": "Hello World!",
             "board": 1234,
             "link": "https://metaphor.io",
-            "page_id": 5678,
+            "page_id": "5678",
             "platform": "monday",
             "lastRefreshed": "2023-12-11 00:00:00.000000",
         },
@@ -76,7 +75,9 @@ class MockResponse:
 
 # test for _get_board_columns success
 @patch("requests.post")
-def test_get_board_columns_success(mock_post, monday_extractor, mock_responses):
+def test_get_board_columns_success(
+    mock_post: MagicMock, monday_extractor, mock_responses
+):
     mock_post.return_value.json.return_value = mock_responses["columns"]
 
     columns = monday_extractor._get_board_columns(1234)
@@ -89,8 +90,8 @@ def test_get_board_columns_success(mock_post, monday_extractor, mock_responses):
 
 # test for _get_board_columns exception
 @patch("requests.post")
-def test_get_board_columns_failure(mock_post, monday_extractor):
-    mock_post.side_effect = requests.HTTPError()
+def test_get_board_columns_failure(mock_post: MagicMock, monday_extractor):
+    mock_post.side_effect = requests.HTTPError
 
     with pytest.raises(Exception):  # HTTPError is handled correctly
         monday_extractor._get_board_columns(1234)
@@ -98,7 +99,9 @@ def test_get_board_columns_failure(mock_post, monday_extractor):
 
 # test for _get_board_items success
 @patch("requests.post")
-def test_get_board_items_success(mock_post, monday_extractor, mock_responses):
+def test_get_board_items_success(
+    mock_post: MagicMock, monday_extractor, mock_responses
+):
     mock_post.return_value.json.return_value = mock_responses["items"]
 
     items = monday_extractor._get_board_items(1234, columns=mock_responses["columns"])
@@ -137,8 +140,8 @@ def test_get_board_items_success(mock_post, monday_extractor, mock_responses):
 
 # test for _get_board_items exception
 @patch("requests.post")
-def test_get_board_items_failure(mock_post, monday_extractor):
-    mock_post.side_effect = requests.HTTPError()
+def test_get_board_items_failure(mock_post: MagicMock, monday_extractor):
+    mock_post.side_effect = requests.HTTPError
 
     with pytest.raises(Exception):  # HTTPError is handled correctly
         monday_extractor._get_board_items(1234)
@@ -146,7 +149,7 @@ def test_get_board_items_failure(mock_post, monday_extractor):
 
 # test for _get_monday_doc success
 @patch("requests.post")
-def test_get_monday_doc_success(mock_post, monday_extractor, mock_responses):
+def test_get_monday_doc_success(mock_post: MagicMock, monday_extractor, mock_responses):
     mock_post.return_value.json.return_value = mock_responses["document"]
 
     doc_text = monday_extractor._get_monday_doc(1234)
@@ -156,8 +159,8 @@ def test_get_monday_doc_success(mock_post, monday_extractor, mock_responses):
 
 # test for _get_monday_doc exception
 @patch("requests.post")
-def test_get_monday_doc_failure(mock_post, monday_extractor):
-    mock_post.side_effect = requests.HTTPError()
+def test_get_monday_doc_failure(mock_post: MagicMock, monday_extractor):
+    mock_post.side_effect = requests.HTTPError
 
     with pytest.raises(Exception):  # HTTPError is handled correctly
         monday_extractor._get_monday_doc(1234)
@@ -165,7 +168,9 @@ def test_get_monday_doc_failure(mock_post, monday_extractor):
 
 # test for _construct_items_documents
 @patch("requests.post")
-def test_construct_items_documents(mock_post, monday_extractor, mock_responses):
+def test_construct_items_documents(
+    mock_post: MagicMock, monday_extractor, mock_responses
+):
     mock_post.return_value.json.return_value = mock_responses["columns"]
     columns = monday_extractor._get_board_columns(1234)
 
@@ -183,3 +188,58 @@ def test_construct_items_documents(mock_post, monday_extractor, mock_responses):
     ), "All Documents have the correct platform"
     assert all([d.extra_info["title"] for d in documents]), "All Documents have a title"
     assert all([d.text for d in documents]), "All Documents have text"
+
+
+# test_extract for MondayExtractor
+@patch("metaphor.monday.extractor.MondayExtractor._construct_items_documents")
+@patch("metaphor.monday.extractor.MondayExtractor._get_monday_doc")
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.embed_documents")
+@pytest.mark.asyncio
+async def test_extract(
+    mock_embed_documents: MagicMock,
+    mock_get_board_columns: MagicMock,
+    mock_get_board_items: MagicMock,
+    mock_get_monday_doc: MagicMock,
+    mock_construct_items_documents: MagicMock,
+    monday_extractor,
+    mock_responses,
+    test_root_dir,
+):
+    # mock VectorStoreIndex creation
+    mock_VSI = MagicMock()
+
+    mock_VSI.storage_context.to_dict.return_value = {
+        "vector_store": {
+            "default": {
+                "embedding_dict": {"5678": [0.1, 0.2, 0.3, 0.4]},
+                "metadata_dict": {
+                    "5678": {
+                        "title": "Hello World!",
+                        "board": 1234,
+                        "link": "https://metaphor.io",
+                        "pageId": "5678",
+                        "platform": "monday",
+                        "lastRefreshed": "2023-12-11 00:00:00.000000",
+                    }
+                },
+            }
+        },
+        "doc_store": {
+            "docstore/data": {"5678": {"__data__": {"text": "Hello World!"}}}
+        },
+    }
+
+    # Mocking method responses
+    mock_embed_documents.return_value = mock_VSI
+    mock_get_board_columns.return_value = mock_responses["columns"]
+    mock_get_board_items.return_value = mock_responses["items"]
+    mock_get_monday_doc.return_value = "Document content"
+    mock_construct_items_documents.return_value = sample_raw_documents
+
+    events = await monday_extractor.extract()
+
+    assert [e.to_dict() for e in events] == load_json(
+        f"{test_root_dir}/monday/expected.json"
+    )
