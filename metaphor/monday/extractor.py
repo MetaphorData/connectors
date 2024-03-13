@@ -254,7 +254,7 @@ class MondayExtractor(BaseExtractor):
                     doc_content = self._get_monday_doc(object_id)
                     item_text_string += f"{column_name}: {sanitize_text(doc_content)}\n"
                 elif "file" in column["id"]:
-                    pass  # Implement file handling?
+                    pass  # Implement file handling? (TODO)
                 else:
                     if text:
                         item_text_string += f"{column_name}: {sanitize_text(text)}\n"
