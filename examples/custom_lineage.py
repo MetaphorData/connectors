@@ -66,7 +66,7 @@ class CustomLineageConnector(BaseExtractor):
 connector_name = "custom_lineage_connector"
 tenant_name = "tenant"
 run_connector(
-    connector=CustomLineageConnector.from_config_file(""),
+    make_connector=lambda: CustomLineageConnector.from_config_file(""),
     name=connector_name,
     platform=Platform.BIGQUERY,
     description="This is a custom connector made by Acme, Inc.",
