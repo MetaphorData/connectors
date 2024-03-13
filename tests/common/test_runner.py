@@ -75,3 +75,24 @@ def test_run_connector() -> None:
     assert dummy_connector.stacktrace
     assert "ValueError: 1" in dummy_connector.stacktrace
     assert "ValueError: 2" in dummy_connector.stacktrace
+
+
+def test_run_connector_with_exception_throwing_connector() -> None:
+    class FailToInitExtractor(BaseExtractor):
+        @staticmethod
+        def from_config_file(config_file: str) -> "FailToInitExtractor":
+            return FailToInitExtractor()
+
+        def __init__(self):
+            raise AttributeError
+
+        async def extract(self) -> Collection[ENTITY_TYPES]:
+            return []
+
+    events, _ = run_connector(
+        lambda: FailToInitExtractor(),
+        "fail to init connector",
+        "fail to init connector",
+    )
+
+    assert events == []  # The exception in the __init__ should be catch
