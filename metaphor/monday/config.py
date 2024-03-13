@@ -6,8 +6,8 @@ from metaphor.common.dataclass import ConnectorConfig
 
 @dataclass(config=ConnectorConfig)
 class MondayRunConfig(BaseConfig):
-    # Monday integration authorization token
-    monday_api_token: str
+    # Monday integration authorization key
+    monday_api_key: str
 
     # Monday API version
     monday_api_version: str

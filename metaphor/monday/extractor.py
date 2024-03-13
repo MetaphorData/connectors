@@ -11,9 +11,7 @@ from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_t
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
-from metaphor.monday.config import (
-    MondayRunConfig,
-)
+from metaphor.monday.config import MondayRunConfig
 
 logger = get_logger()
 
@@ -41,6 +39,12 @@ class MondayExtractor(BaseExtractor):
 
         self.boards = config.boards
 
+        self.azure_openAI_key = config.azure_openAI_key
+        self.azure_openAI_version = config.azure_openAI_version
+        self.azure_openAI_endpoint = config.azure_openAI_endpoint
+        self.azure_openAI_model = config.azure_openAI_model
+        self.azure_openAI_model_name = config.azure_openAI_model_name
+
         self.include_text = config.include_text
 
         # Set default headers for API requests
@@ -53,12 +57,34 @@ class MondayExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching items from Monday.com")
 
+        self.documents = []
+
         for board in self.boards:
+            self.current_board = board
             logger.info(f"Processing board {board}")
 
             board_columns = self._get_board_columns(board)
-
             board_items = self._get_board_items(board, board_columns)
+            board_docs = self._construct_items_documents(board_items, board_columns)
+
+            self.documents.extend(board_docs)
+
+        logger.info("Starting embedding process")
+
+        vsi = embed_documents(
+            self.documents,
+            self.azure_openAI_key,
+            self.azure_openAI_version,
+            self.azure_openAI_endpoint,
+            self.azure_openAI_model,
+            self.azure_openAI_model_name,
+            embedding_chunk_size,
+            embedding_overlap_size,
+        )
+
+        embedded_nodes = map_metadata(vsi, include_text=self.include_text)
+
+        return embedded_nodes
 
     def _get_board_columns(
         self,
@@ -86,7 +112,7 @@ class MondayExtractor(BaseExtractor):
 
         try:
             logger.info(f"Getting columns for board {board}")
-            r = requests.post(url=baseURL, json=data, headers=self.headers)
+            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=5)
             r.raise_for_status()
 
         except HTTPError as error:
@@ -135,7 +161,7 @@ class MondayExtractor(BaseExtractor):
                             }}
                             url
                         }}
-                        }}    
+                        }}
                     }}
                     }}
                 """
@@ -143,7 +169,7 @@ class MondayExtractor(BaseExtractor):
 
         try:
             logger.info(f"Getting items for board {board}")
-            r = requests.post(url=baseURL, json=data, headers=self.headers)
+            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=5)
             r.raise_for_status()
 
         except HTTPError as error:
@@ -161,7 +187,6 @@ class MondayExtractor(BaseExtractor):
         return items
 
     def _get_monday_doc(self, object_id: int) -> str:
-
         query = f"""
                     {{
                     docs (object_ids:{object_id}) {{
@@ -175,7 +200,7 @@ class MondayExtractor(BaseExtractor):
 
         try:
             logger.info(f"Retrieving Monday doc {object_id}")
-            r = requests.post(url=baseURL, json=data, headers=self.headers)
+            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=5)
             r.raise_for_status()
 
         except HTTPError as error:
@@ -216,7 +241,7 @@ class MondayExtractor(BaseExtractor):
 
             if updates_text:
                 for update in updates_text:
-                    item_text_string += f"Update: {update}\n"
+                    item_text_string += f"Update: {sanitize_text(update)}\n"
 
             for column in item["column_values"]:
                 column_name = columns[column["id"]]
@@ -227,15 +252,16 @@ class MondayExtractor(BaseExtractor):
                 ):  # Get content of embedded Monday doc
                     object_id = json.loads(column["value"])["files"][0]["objectId"]
                     doc_content = self._get_monday_doc(object_id)
-                    item_text_string += f"{column_name}: {doc_content}\n"
+                    item_text_string += f"{column_name}: {sanitize_text(doc_content)}\n"
                 elif "file" in column["id"]:
                     pass  # Implement file handling?
                 else:
                     if text:
-                        item_text_string += f"{column_name}: {text}\n"
+                        item_text_string += f"{column_name}: {sanitize_text(text)}\n"
 
             metadata = {
                 "title": item_name,
+                "board": self.current_board,
                 "link": item_url,
                 "pageId": item_id,
                 "platform": "monday",
