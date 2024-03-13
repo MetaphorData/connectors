@@ -24,7 +24,7 @@ def run_connector(
     Parameters
     ----------
     connector_func : Callable[[], Collection[ENTITY_TYPES]]
-        The function to create the instance of connector and exec run_async
+        The function to create and return an instance of connector
     name : str
         Name of the connector
     description : str
