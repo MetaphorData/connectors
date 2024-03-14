@@ -81,17 +81,17 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 cursor.execute(
                     """
                     SELECT COUNT(*)
-                    FROM
-                        SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q,
-                        SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
-                    WHERE q.QUERY_ID = a.QUERY_ID
-                        AND q.EXECUTION_STATUS = 'SUCCESS'
+                    FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
+                    JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+                        ON q.QUERY_ID = a.QUERY_ID
+                    WHERE q.EXECUTION_STATUS = 'SUCCESS'
                         AND ARRAY_SIZE(a.BASE_OBJECTS_ACCESSED) > 0
                         AND ARRAY_SIZE(a.OBJECTS_MODIFIED) > 0
                         AND a.QUERY_START_TIME > %s
+                        AND q.START_TIME > %s
                     ORDER BY a.QUERY_START_TIME ASC
                     """,
-                    (start_date,),
+                    (start_date, start_date),
                 )
                 res = cursor.fetchone()
                 assert res is not None, f"Missing count: {res}"
@@ -103,18 +103,19 @@ class SnowflakeLineageExtractor(BaseExtractor):
                     str(x): QueryWithParam(
                         f"""
                         SELECT a.BASE_OBJECTS_ACCESSED, a.OBJECTS_MODIFIED, q.QUERY_TEXT
-                        FROM
-                            SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q,
-                            SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
-                        WHERE q.QUERY_ID = a.QUERY_ID
-                            AND q.EXECUTION_STATUS = 'SUCCESS'
+                        FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
+                        JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+                            ON q.QUERY_ID = a.QUERY_ID
+                        WHERE q.EXECUTION_STATUS = 'SUCCESS'
                             AND ARRAY_SIZE(a.BASE_OBJECTS_ACCESSED) > 0
                             AND ARRAY_SIZE(a.OBJECTS_MODIFIED) > 0
                             AND a.QUERY_START_TIME > %s
+                            AND q.START_TIME > %s
                         ORDER BY a.QUERY_START_TIME ASC
                         LIMIT {self._batch_size} OFFSET %s
                         """,
                         (
+                            start_date,
                             start_date,
                             x * self._batch_size,
                         ),
