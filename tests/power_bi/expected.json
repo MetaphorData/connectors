@@ -7,6 +7,14 @@
     "powerBIDataset": {
       "description": "This is a dataset",
       "lastRefreshed": "2022-01-01T01:02:03.456000+00:00",
+      "parameters": [
+        {
+          "isRequired": false,
+          "name": "key",
+          "type": "text",
+          "value": "value"
+        }
+      ],
       "name": "Foo Dataset",
       "tables": [
         {
@@ -64,6 +72,14 @@
     "powerBIDataset": {
       "description": "This is another dataset",
       "name": "Bar Dataset",
+      "parameters": [
+        {
+          "isRequired": false,
+          "name": "key",
+          "type": "text",
+          "value": "value"
+        }
+      ],
       "tables": [
         {
           "columns": [
@@ -137,6 +153,14 @@
     "powerBIDataset": {
       "description": "Dataset from dataflow",
       "name": "Dataflow dataset",
+      "parameters": [
+        {
+          "isRequired": false,
+          "name": "key",
+          "type": "text",
+          "value": "value"
+        }
+      ],
       "tables": [
         {
           "columns": [
