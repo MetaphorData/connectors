@@ -142,7 +142,7 @@ class PowerBIClient:
             )
         except Exception:
             logger.exception(
-                f"Unable to get parameters for dataset {dataset_id} in group {group_id}"
+                f"Unable to get parameters for dataset {dataset_id} in group {group_id}, please add the service principal as a viewer to the workspace"
             )
             return []
 
