@@ -38,7 +38,10 @@ from metaphor.models.metadata_change_event import (
 from metaphor.models.metadata_change_event import (
     PowerBIDataset as VirtualViewPowerBIDataset,
 )
-from metaphor.models.metadata_change_event import PowerBIRefreshSchedule
+from metaphor.models.metadata_change_event import (
+    PowerBIDatasetParameter,
+    PowerBIRefreshSchedule,
+)
 from metaphor.models.metadata_change_event import PowerBISubscription as Subscription
 from metaphor.models.metadata_change_event import (
     PowerBISubscriptionUser as SubscriptionUser,
@@ -338,6 +341,21 @@ class PowerBIExtractor(BaseExtractor):
                 self._client, workspace.id, wds.id
             )
 
+            parameters = self._client.get_dataset_parameters(workspace.id, wds.id)
+            dataset_parameters = (
+                [
+                    PowerBIDatasetParameter(
+                        name=p.name,
+                        type=p.type,
+                        value=p.currentValue,
+                        is_required=p.isRequired,
+                    )
+                    for p in parameters
+                ]
+                if parameters
+                else None
+            )
+
             virtual_view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=wds.id, type=VirtualViewType.POWER_BI_DATASET
@@ -351,6 +369,7 @@ class PowerBIExtractor(BaseExtractor):
                     url=ds.webUrl,
                     description=wds.description,
                     workspace_id=workspace.id,
+                    parameters=dataset_parameters,
                     last_refreshed=last_refreshed,
                     refresh_schedule=refresh_schedule,
                     created_date=safe_parse_ISO8601(wds.createdDate),

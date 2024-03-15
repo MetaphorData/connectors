@@ -6,9 +6,9 @@ from metaphor.common.utils import generate_querylog_id, md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
+    LogType,
     Parsing,
     QueryLog,
-    TypeEnum,
 )
 from metaphor.mssql.extractor import MssqlExtractor
 from metaphor.mssql.mssql_client import MssqlClient
@@ -165,16 +165,16 @@ class SynapseExtractor(MssqlExtractor):
         return querylog_map.values()
 
     _query_type_map = {
-        "CREATE": TypeEnum.CREATE_TABLE,
-        "SELECT": TypeEnum.SELECT,
-        "UPDATE": TypeEnum.UPDATE,
-        "DROP": TypeEnum.DROP_TABLE,
-        "ALTER": TypeEnum.ALTER_TABLE,
-        "TRUNCATE": TypeEnum.TRUNCATE,
-        "INSERT": TypeEnum.INSERT,
-        "DELETE": TypeEnum.DELETE,
+        "CREATE": LogType.CREATE_TABLE,
+        "SELECT": LogType.SELECT,
+        "UPDATE": LogType.UPDATE,
+        "DROP": LogType.DROP_TABLE,
+        "ALTER": LogType.ALTER_TABLE,
+        "TRUNCATE": LogType.TRUNCATE,
+        "INSERT": LogType.INSERT,
+        "DELETE": LogType.DELETE,
     }
 
     @staticmethod
-    def _map_query_type(operation: str) -> TypeEnum:
-        return SynapseExtractor._query_type_map.get(operation.upper(), TypeEnum.OTHER)
+    def _map_query_type(operation: str) -> LogType:
+        return SynapseExtractor._query_type_map.get(operation.upper(), LogType.OTHER)

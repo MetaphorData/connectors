@@ -17,6 +17,7 @@ from metaphor.power_bi.models import (
     PowerBIApp,
     PowerBIDashboard,
     PowerBIDataset,
+    PowerBIDatasetParameter,
     PowerBIPage,
     PowerBIRefresh,
     PowerBiRefreshSchedule,
@@ -78,7 +79,6 @@ class PowerBIClient:
             authority=self.AUTHORITY.format(tenant_id=config.tenant_id),
             client_credential=config.secret,
         )
-        token = None
         token = app.acquire_token_silent(self.SCOPES, account=None)
         if not token:
             logger.info(
@@ -127,6 +127,24 @@ class PowerBIClient:
         return self._call_get(
             url, List[PowerBIDataset], transform_response=lambda r: r.json()["value"]
         )
+
+    def get_dataset_parameters(
+        self, group_id: str, dataset_id: str
+    ) -> List[PowerBIDatasetParameter]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/get-parameters-in-group
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}/parameters"
+
+        try:
+            return self._call_get(
+                url,
+                List[PowerBIDatasetParameter],
+                transform_response=lambda r: r.json()["value"],
+            )
+        except Exception:
+            logger.exception(
+                f"Unable to get parameters for dataset {dataset_id} in group {group_id}"
+            )
+            return []
 
     def get_dashboards(self, group_id: str) -> List[PowerBIDashboard]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-dashboards-in-group-as-admin

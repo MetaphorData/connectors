@@ -16,6 +16,7 @@ from metaphor.power_bi.models import (
     PowerBIApp,
     PowerBIDashboard,
     PowerBIDataset,
+    PowerBIDatasetParameter,
     PowerBIPage,
     PowerBIRefresh,
     PowerBiRefreshSchedule,
@@ -178,6 +179,19 @@ dataflow_id2 = "00000000-0000-0000-0002-00000000000A"
 
 def fake_get_datasets(workspace_id: str) -> List[PowerBIDataset]:
     return [dataset1, dataset2, dataset3]
+
+
+def fake_get_dataset_parameters(
+    workspace_id: str, dataset_id: str
+) -> List[PowerBIDatasetParameter]:
+    return [
+        PowerBIDatasetParameter(
+            name="key",
+            type="text",
+            currentValue="value",
+            isRequired=False,
+        )
+    ]
 
 
 def fake_get_reports(workspace_id: str) -> List[PowerBIReport]:
@@ -536,6 +550,9 @@ async def test_extractor(
 
     mocked_pbi_client_instance.get_workspace_info.side_effect = face_get_workspace_info
     mocked_pbi_client_instance.get_datasets.side_effect = fake_get_datasets
+    mocked_pbi_client_instance.get_dataset_parameters.side_effect = (
+        fake_get_dataset_parameters
+    )
     mocked_pbi_client_instance.get_reports.side_effect = fake_get_reports
     mocked_pbi_client_instance.get_dashboards.side_effect = fake_get_dashboards
     mocked_pbi_client_instance.get_tiles.side_effect = fake_get_tiles

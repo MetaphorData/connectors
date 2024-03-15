@@ -44,6 +44,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
+    LogType,
     MaterializationType,
     QueriedDataset,
     QueryLog,
@@ -51,7 +52,6 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SourceInfo,
     SQLSchema,
-    TypeEnum,
 )
 
 logger = get_logger()
@@ -389,26 +389,26 @@ class BigQueryExtractor(BaseExtractor):
 
     # https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata.QueryStatementType
     _query_type_map = {
-        "SELECT": TypeEnum.SELECT,
-        "INSERT": TypeEnum.INSERT,
-        "UPDATE": TypeEnum.UPDATE,
-        "DELETE": TypeEnum.DELETE,
-        "MERGE": TypeEnum.MERGE,
-        "CREATE_TABLE": TypeEnum.CREATE_TABLE,
-        "CREATE_TABLE_AS_SELECT": TypeEnum.CREATE_TABLE,
-        "CREATE_SNAPSHOT_TABLE": TypeEnum.CREATE_TABLE,
-        "CREATE_VIEW": TypeEnum.CREATE_VIEW,
-        "CREATE_MATERIALIZED_VIEW": TypeEnum.CREATE_VIEW,
-        "DROP_TABLE": TypeEnum.DROP_TABLE,
-        "DROP_EXTERNAL_TABLE": TypeEnum.DROP_TABLE,
-        "DROP_SNAPSHOT_TABLE": TypeEnum.DROP_TABLE,
-        "DROP_VIEW": TypeEnum.DROP_VIEW,
-        "DROP_MATERIALIZED_VIEW": TypeEnum.DROP_VIEW,
-        "ALTER_TABLE": TypeEnum.ALTER_TABLE,
-        "ALTER_VIEW": TypeEnum.ALTER_VIEW,
-        "ALTER_MATERIALIZED_VIEW": TypeEnum.ALTER_VIEW,
-        "TRUNCATE_TABLE": TypeEnum.TRUNCATE,
-        "EXPORT_DATA": TypeEnum.EXPORT,
+        "SELECT": LogType.SELECT,
+        "INSERT": LogType.INSERT,
+        "UPDATE": LogType.UPDATE,
+        "DELETE": LogType.DELETE,
+        "MERGE": LogType.MERGE,
+        "CREATE_TABLE": LogType.CREATE_TABLE,
+        "CREATE_TABLE_AS_SELECT": LogType.CREATE_TABLE,
+        "CREATE_SNAPSHOT_TABLE": LogType.CREATE_TABLE,
+        "CREATE_VIEW": LogType.CREATE_VIEW,
+        "CREATE_MATERIALIZED_VIEW": LogType.CREATE_VIEW,
+        "DROP_TABLE": LogType.DROP_TABLE,
+        "DROP_EXTERNAL_TABLE": LogType.DROP_TABLE,
+        "DROP_SNAPSHOT_TABLE": LogType.DROP_TABLE,
+        "DROP_VIEW": LogType.DROP_VIEW,
+        "DROP_MATERIALIZED_VIEW": LogType.DROP_VIEW,
+        "ALTER_TABLE": LogType.ALTER_TABLE,
+        "ALTER_VIEW": LogType.ALTER_VIEW,
+        "ALTER_MATERIALIZED_VIEW": LogType.ALTER_VIEW,
+        "TRUNCATE_TABLE": LogType.TRUNCATE,
+        "EXPORT_DATA": LogType.EXPORT,
     }
 
     @staticmethod
@@ -427,8 +427,8 @@ class BigQueryExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def _map_query_type(query_type: str) -> TypeEnum:
-        return BigQueryExtractor._query_type_map.get(query_type.upper(), TypeEnum.OTHER)
+    def _map_query_type(query_type: str) -> LogType:
+        return BigQueryExtractor._query_type_map.get(query_type.upper(), LogType.OTHER)
 
     def _build_job_change_filter(self) -> str:
         start_time = start_of_day(self._query_log_lookback_days).isoformat()
