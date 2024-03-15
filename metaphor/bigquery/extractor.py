@@ -256,9 +256,11 @@ class BigQueryExtractor(BaseExtractor):
             field_type = (
                 FieldDataType.ARRAY
                 if field.mode == "REPEATED"
-                else FieldDataType.RECORD
-                if field.field_type in ("RECORD", "STRUCT")
-                else FieldDataType.PRIMITIVE
+                else (
+                    FieldDataType.RECORD
+                    if field.field_type in ("RECORD", "STRUCT")
+                    else FieldDataType.PRIMITIVE
+                )
             )
 
             field_path = build_field_path(parent_field_path, field.name, field_type)
@@ -367,22 +369,24 @@ class BigQueryExtractor(BaseExtractor):
             duration=safe_float(elapsed_time),
             user_id=job_change.user_email if is_service_account else None,
             email=job_change.user_email if not is_service_account else None,
-            rows_written=float(job_change.output_rows)
-            if job_change.output_rows
-            else None,
-            bytes_read=float(job_change.input_bytes)
-            if job_change.input_bytes
-            else None,
-            bytes_written=float(job_change.output_bytes)
-            if job_change.output_bytes
-            else None,
+            rows_written=(
+                float(job_change.output_rows) if job_change.output_rows else None
+            ),
+            bytes_read=(
+                float(job_change.input_bytes) if job_change.input_bytes else None
+            ),
+            bytes_written=(
+                float(job_change.output_bytes) if job_change.output_bytes else None
+            ),
             sources=sources,
             targets=target_datasets,
             default_database=default_database,
             default_schema=default_schema,
-            type=self._map_query_type(job_change.statementType)
-            if job_change.statementType
-            else None,
+            type=(
+                self._map_query_type(job_change.statementType)
+                if job_change.statementType
+                else None
+            ),
             sql=query,
             sql_hash=md5_digest(job_change.query.encode("utf-8")),
         )

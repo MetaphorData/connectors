@@ -241,15 +241,17 @@ class PowerBIExtractor(BaseExtractor):
                     modified_date_time=safe_parse_ISO8601(wdf.modifiedDateTime),
                     content=json.dumps(dataflow) if dataflow else None,
                     name=wdf.name,
-                    refresh_schedule=PowerBIRefreshSchedule(
-                        days=wdf.refreshSchedule.days,
-                        times=wdf.refreshSchedule.times,
-                        enabled=wdf.refreshSchedule.enabled,
-                        local_time_zone_id=wdf.refreshSchedule.localTimeZoneId,
-                        notify_option=wdf.refreshSchedule.notifyOption,
-                    )
-                    if wdf.refreshSchedule
-                    else None,
+                    refresh_schedule=(
+                        PowerBIRefreshSchedule(
+                            days=wdf.refreshSchedule.days,
+                            times=wdf.refreshSchedule.times,
+                            enabled=wdf.refreshSchedule.enabled,
+                            local_time_zone_id=wdf.refreshSchedule.localTimeZoneId,
+                            notify_option=wdf.refreshSchedule.notifyOption,
+                        )
+                        if wdf.refreshSchedule
+                        else None
+                    ),
                     dataflow_url=f"https://app.powerbi.com/groups/{workspace.id}/dataflows/{data_flow_id}",
                     workspace_id=workspace.id,
                     last_refreshed=find_refresh_time_from_transaction(transactions),
