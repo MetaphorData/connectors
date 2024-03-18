@@ -169,9 +169,11 @@ class ThoughtSpotExtractor(BaseExtractor):
                     )
                     field_mapping.sources.append(
                         SourceField(
-                            field=column.columnMappingInfo.columnName
-                            if column.columnMappingInfo
-                            else None,
+                            field=(
+                                column.columnMappingInfo.columnName
+                                if column.columnMappingInfo
+                                else None
+                            ),
                             source_entity_id=source_entity_id,
                         )
                     )
@@ -654,12 +656,14 @@ class ThoughtSpotExtractor(BaseExtractor):
             Chart(
                 description=header.description,
                 title=header.name,
-                chart_type=mapping_chart_type(viz.vizContent.chartType)
-                if viz.vizContent.chartType
-                else None,
-                url=f"{base_url}#/embed/viz/{board_id}/{chart_id}"
-                if chart_id
-                else None,
+                chart_type=(
+                    mapping_chart_type(viz.vizContent.chartType)
+                    if viz.vizContent.chartType
+                    else None
+                ),
+                url=(
+                    f"{base_url}#/embed/viz/{board_id}/{chart_id}" if chart_id else None
+                ),
             )
             for viz, header, chart_id in charts
         ]

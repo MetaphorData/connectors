@@ -101,9 +101,11 @@ class TrinoExtractor(BaseExtractor):
                 sql=query,
                 sql_hash=md5_digest(query.encode("utf-8")),
                 start_time=started,
-                duration=(end - started).total_seconds()
-                if isinstance(end, datetime.datetime)
-                else None,
+                duration=(
+                    (end - started).total_seconds()
+                    if isinstance(end, datetime.datetime)
+                    else None
+                ),
                 user_id=user,
             )
             yield log

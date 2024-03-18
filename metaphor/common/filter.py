@@ -78,9 +78,9 @@ class DatasetFilter:
     def from_two_level_dataset_filter(filter: TwoLevelDatasetFilter) -> "DatasetFilter":
         return DatasetFilter(
             includes={DUMMY_DATABASE_NAME: filter.includes},
-            excludes={DUMMY_DATABASE_NAME: filter.excludes}
-            if filter.excludes
-            else None,
+            excludes=(
+                {DUMMY_DATABASE_NAME: filter.excludes} if filter.excludes else None
+            ),
         )
 
     def _accepted_by_schema_pattern(

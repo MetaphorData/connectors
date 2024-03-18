@@ -370,10 +370,10 @@ def test_fetch_tags_for_similar_schema(mock_connect: MagicMock):
     extractor = SnowflakeExtractor(make_snowflake_config())
 
     for i, schema in enumerate(["foo", "foobar", "foobaz"]):
-        extractor._datasets[
-            dataset_normalized_name("db", schema, f"table{i}")
-        ] = extractor._init_dataset(
-            "db", schema, f"table{i}", table_type, "", None, None
+        extractor._datasets[dataset_normalized_name("db", schema, f"table{i}")] = (
+            extractor._init_dataset(
+                "db", schema, f"table{i}", table_type, "", None, None
+            )
         )
 
     extractor._fetch_tags(mock_cursor)

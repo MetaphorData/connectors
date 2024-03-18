@@ -242,9 +242,11 @@ def _build_looker_view(
         ),
         looker_view=view,
         structure=_get_model_asset_structure(model, name),
-        entity_upstream=EntityUpstream(source_entities=view.source_datasets)
-        if view.source_datasets
-        else None,
+        entity_upstream=(
+            EntityUpstream(source_entities=view.source_datasets)
+            if view.source_datasets
+            else None
+        ),
     )
 
 

@@ -337,9 +337,11 @@ class PostgreSQLExtractor(BaseExtractor):
         dataset.schema.sql_schema.materialization = (
             MaterializationType.VIEW
             if table_type == "VIEW"
-            else MaterializationType.EXTERNAL
-            if table_type == "EXTERNAL"
-            else MaterializationType.TABLE
+            else (
+                MaterializationType.EXTERNAL
+                if table_type == "EXTERNAL"
+                else MaterializationType.TABLE
+            )
         )
 
         dataset.statistics = to_dataset_statistics(row_count, table_size)
