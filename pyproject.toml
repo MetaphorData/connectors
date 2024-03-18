@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.142"
+version = "0.13.143"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -119,6 +119,7 @@ hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["confluent-kafka", "avro", "grpcio-tools"]
 looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
 metabase = ["sql-metadata"]
+monday = ["llama-index", "llama-index-embeddings-azure-openai"]
 monte_carlo = ["pycarlo"]
 mssql = ["pymssql"]
 mysql = ["pymysql", "SQLAlchemy"]

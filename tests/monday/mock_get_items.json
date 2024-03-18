@@ -1,0 +1,50 @@
+{
+    "data": {
+      "boards": [
+        {
+          "items_page": {
+            "cursor": "cursor",
+            "items": [
+              {
+                "id": "1234",
+                "name": "Item Name",
+                "updates": [],
+                "column_values": [
+                  {
+                    "id": "columns_properties3",
+                    "text": "Hello World!",
+                    "value": "{\"ids\":[2],\"changed_at\":\"2024-03-11T21:11:31.582Z\"}"
+                  },
+                  {
+                    "id": "descriptions",
+                    "text": "text",
+                    "value": "value"
+                  }
+                ],
+                "url": "https://test-test.monday.com/boards/1234"
+              },
+              {
+                "id": "5678",
+                "name": "Item Name",
+                "updates": [],
+                "column_values": [
+                  {
+                    "id": "columns_properties3",
+                    "text": "text",
+                    "value": "{\"ids\":[5],\"changed_at\":\"2024-03-11T21:11:37.116Z\"}"
+                  },
+                  {
+                    "id": "descriptions",
+                    "text": "Hello World!",
+                    "value": null
+                  }
+                ],
+                "url": "https://test-test.monday.com/boards/1234"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "account_id": 1234
+  }
