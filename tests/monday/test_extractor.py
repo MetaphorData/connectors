@@ -190,6 +190,40 @@ def test_construct_items_documents(
     assert all([d.text for d in documents]), "All Documents have text"
 
 
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
+def test_construct_items_documents_with_updates(
+    mock_get_board_items, mock_get_board_columns, monday_extractor, mock_responses
+):
+    # Mock responses for columns and items to include updates
+    mock_get_board_columns.return_value = mock_responses["columns"]
+    mock_get_board_items.return_value = [
+        {
+            "id": "123",
+            "name": "Item Name",
+            "updates": [
+                {"text_body": "First \t update"},
+                {"text_body": "Second \t update"},
+            ],
+            "column_values": [],
+            "url": "https://example.com/item/123",
+        }
+    ]
+
+    columns = mock_responses["columns"]
+    monday_extractor.current_board = 1234
+    documents = monday_extractor._construct_items_documents(
+        mock_get_board_items.return_value, columns
+    )
+
+    assert len(documents) == 1, "One document should be constructed"
+    document_text = documents[0].text
+    expected_text = "Update: First update\nUpdate: Second update\n"
+    assert (
+        document_text == expected_text
+    ), f"Document text should include updates: {expected_text}"
+
+
 # test_extract for MondayExtractor
 @patch("metaphor.monday.extractor.MondayExtractor._construct_items_documents")
 @patch("metaphor.monday.extractor.MondayExtractor._get_monday_doc")
@@ -243,3 +277,47 @@ async def test_extract(
     assert [e.to_dict() for e in events] == load_json(
         f"{test_root_dir}/monday/expected.json"
     )
+
+
+@patch("metaphor.monday.extractor.MondayExtractor._construct_items_documents")
+@patch("metaphor.monday.extractor.MondayExtractor._get_monday_doc")
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.embed_documents")
+@pytest.mark.asyncio
+async def test_extract_multiple_boards(
+    mock_embed_documents,
+    mock_get_board_columns,
+    mock_get_board_items,
+    mock_get_monday_doc,
+    mock_construct_items_documents,
+    monday_extractor,
+    mock_responses,
+    test_root_dir,
+):
+    # Adjust the monday_extractor to have multiple boards for testing
+    monday_extractor.boards = [1234, 5678]
+
+    # Assuming each board has a different set of columns and items to be mocked
+    mock_get_board_columns.side_effect = [
+        mock_responses["columns"],
+        mock_responses["columns"],
+    ]
+    mock_get_board_items.side_effect = [
+        mock_responses["items"],
+        mock_responses["items"],
+    ]
+    mock_construct_items_documents.side_effect = [
+        sample_raw_documents,
+        sample_raw_documents,
+    ]
+
+    await monday_extractor.extract()
+
+    # Verify methods called with correct arguments for each board
+    assert mock_get_board_columns.call_args_list == [((1234,),), ((5678,),)]
+    assert mock_get_board_items.call_args_list == [
+        ((1234, mock_responses["columns"]),),
+        ((5678, mock_responses["columns"]),),
+    ]
+    assert mock_construct_items_documents.call_count == 2
