@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from typing import Collection, Dict, List, Optional, Set, Union
 
@@ -8,7 +7,7 @@ from sql_metadata import Parser
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.metabase.config import MetabaseRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -147,8 +146,7 @@ class MetabaseExtractor(BaseExtractor):
         logger.info(
             f"\nFound {len(resp_json)} {asset_type}s: {[d['name'] for d in resp_json]}"
         )
-        logger.debug(json.dumps(resp_json))
-
+        json_dump_to_debug_file(resp_json, f"{asset_type}.json")
         return resp_json
 
     def _fetch_asset(self, asset_type: str, asset_id: Union[str, int]) -> Dict:
@@ -156,7 +154,7 @@ class MetabaseExtractor(BaseExtractor):
         resp.raise_for_status()
         resp_json = resp.json()
 
-        logger.debug(json.dumps(resp_json))
+        json_dump_to_debug_file(resp_json, f"{asset_type}__{asset_id}.json")
         return resp_json
 
     def _parse_database(self, database: Dict) -> None:
