@@ -41,7 +41,7 @@ class DatabaseInfo:
 
 
 class MetabaseExtractor(BaseExtractor):
-    """Tableau metadata extractor"""
+    """Metabase metadata extractor"""
 
     _description = "Metabase metadata crawler"
     _platform = Platform.METABASE
@@ -186,7 +186,7 @@ class MetabaseExtractor(BaseExtractor):
         dashboard_details = self._fetch_asset("dashboard", dashboard_id)
         name = dashboard_details["name"]
 
-        cards = dashboard_details.get("ordered_cards", [])
+        cards = dashboard_details.get("dashcards", [])
         charts, upstream_datasets = [], set()
         for card in cards:
             card_id = card.get("card_id")
