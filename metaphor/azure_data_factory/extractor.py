@@ -310,7 +310,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 linked_service,
                 DfModels.AzureBlobStorageLinkedService,
             ):
-                service_endpoint = linked_service.service_endpoint
+                service_endpoint: Optional[str] = linked_service.service_endpoint  # type: ignore
                 result[linked_service_name] = LinkedService(account=service_endpoint)
 
             if isinstance(linked_service, DfModels.AzureBlobFSLinkedService):

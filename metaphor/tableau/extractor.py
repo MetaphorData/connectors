@@ -472,18 +472,20 @@ class TableauExtractor(BaseExtractor):
                     ],
                     embedded=False,
                     query=custom_sql_source.query if custom_sql_source else None,
-                    source_platform=custom_sql_source.platform
-                    if custom_sql_source
-                    else None,
-                    source_dataset_account=custom_sql_source.account
-                    if custom_sql_source
-                    else None,
+                    source_platform=(
+                        custom_sql_source.platform if custom_sql_source else None
+                    ),
+                    source_dataset_account=(
+                        custom_sql_source.account if custom_sql_source else None
+                    ),
                     url=f"{self._base_url}/datasources/{published_source.vizportalUrlId}",
                     source_datasets=source_datasets or None,
                 ),
-                entity_upstream=EntityUpstream(source_entities=source_datasets)
-                if source_datasets
-                else None,
+                entity_upstream=(
+                    EntityUpstream(source_entities=source_datasets)
+                    if source_datasets
+                    else None
+                ),
                 system_tags=system_tags,
                 system_contacts=system_contacts,
             )
@@ -528,17 +530,19 @@ class TableauExtractor(BaseExtractor):
                     ],
                     embedded=True,
                     query=custom_sql_source.query if custom_sql_source else None,
-                    source_platform=custom_sql_source.platform
-                    if custom_sql_source
-                    else None,
-                    source_dataset_account=custom_sql_source.account
-                    if custom_sql_source
-                    else None,
+                    source_platform=(
+                        custom_sql_source.platform if custom_sql_source else None
+                    ),
+                    source_dataset_account=(
+                        custom_sql_source.account if custom_sql_source else None
+                    ),
                     source_datasets=source_datasets or None,
                 ),
-                entity_upstream=EntityUpstream(source_entities=source_datasets)
-                if source_datasets
-                else None,
+                entity_upstream=(
+                    EntityUpstream(source_entities=source_datasets)
+                    if source_datasets
+                    else None
+                ),
                 system_tags=system_tags,
             )
             source_virtual_views.append(virtual_view_id)

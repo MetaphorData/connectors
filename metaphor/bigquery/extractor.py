@@ -44,6 +44,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStructure,
+    LogType,
     MaterializationType,
     QueriedDataset,
     QueryLog,
@@ -51,7 +52,6 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SourceInfo,
     SQLSchema,
-    TypeEnum,
 )
 
 logger = get_logger()
@@ -256,9 +256,11 @@ class BigQueryExtractor(BaseExtractor):
             field_type = (
                 FieldDataType.ARRAY
                 if field.mode == "REPEATED"
-                else FieldDataType.RECORD
-                if field.field_type in ("RECORD", "STRUCT")
-                else FieldDataType.PRIMITIVE
+                else (
+                    FieldDataType.RECORD
+                    if field.field_type in ("RECORD", "STRUCT")
+                    else FieldDataType.PRIMITIVE
+                )
             )
 
             field_path = build_field_path(parent_field_path, field.name, field_type)
@@ -367,48 +369,50 @@ class BigQueryExtractor(BaseExtractor):
             duration=safe_float(elapsed_time),
             user_id=job_change.user_email if is_service_account else None,
             email=job_change.user_email if not is_service_account else None,
-            rows_written=float(job_change.output_rows)
-            if job_change.output_rows
-            else None,
-            bytes_read=float(job_change.input_bytes)
-            if job_change.input_bytes
-            else None,
-            bytes_written=float(job_change.output_bytes)
-            if job_change.output_bytes
-            else None,
+            rows_written=(
+                float(job_change.output_rows) if job_change.output_rows else None
+            ),
+            bytes_read=(
+                float(job_change.input_bytes) if job_change.input_bytes else None
+            ),
+            bytes_written=(
+                float(job_change.output_bytes) if job_change.output_bytes else None
+            ),
             sources=sources,
             targets=target_datasets,
             default_database=default_database,
             default_schema=default_schema,
-            type=self._map_query_type(job_change.statementType)
-            if job_change.statementType
-            else None,
+            type=(
+                self._map_query_type(job_change.statementType)
+                if job_change.statementType
+                else None
+            ),
             sql=query,
             sql_hash=md5_digest(job_change.query.encode("utf-8")),
         )
 
     # https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata.QueryStatementType
     _query_type_map = {
-        "SELECT": TypeEnum.SELECT,
-        "INSERT": TypeEnum.INSERT,
-        "UPDATE": TypeEnum.UPDATE,
-        "DELETE": TypeEnum.DELETE,
-        "MERGE": TypeEnum.MERGE,
-        "CREATE_TABLE": TypeEnum.CREATE_TABLE,
-        "CREATE_TABLE_AS_SELECT": TypeEnum.CREATE_TABLE,
-        "CREATE_SNAPSHOT_TABLE": TypeEnum.CREATE_TABLE,
-        "CREATE_VIEW": TypeEnum.CREATE_VIEW,
-        "CREATE_MATERIALIZED_VIEW": TypeEnum.CREATE_VIEW,
-        "DROP_TABLE": TypeEnum.DROP_TABLE,
-        "DROP_EXTERNAL_TABLE": TypeEnum.DROP_TABLE,
-        "DROP_SNAPSHOT_TABLE": TypeEnum.DROP_TABLE,
-        "DROP_VIEW": TypeEnum.DROP_VIEW,
-        "DROP_MATERIALIZED_VIEW": TypeEnum.DROP_VIEW,
-        "ALTER_TABLE": TypeEnum.ALTER_TABLE,
-        "ALTER_VIEW": TypeEnum.ALTER_VIEW,
-        "ALTER_MATERIALIZED_VIEW": TypeEnum.ALTER_VIEW,
-        "TRUNCATE_TABLE": TypeEnum.TRUNCATE,
-        "EXPORT_DATA": TypeEnum.EXPORT,
+        "SELECT": LogType.SELECT,
+        "INSERT": LogType.INSERT,
+        "UPDATE": LogType.UPDATE,
+        "DELETE": LogType.DELETE,
+        "MERGE": LogType.MERGE,
+        "CREATE_TABLE": LogType.CREATE_TABLE,
+        "CREATE_TABLE_AS_SELECT": LogType.CREATE_TABLE,
+        "CREATE_SNAPSHOT_TABLE": LogType.CREATE_TABLE,
+        "CREATE_VIEW": LogType.CREATE_VIEW,
+        "CREATE_MATERIALIZED_VIEW": LogType.CREATE_VIEW,
+        "DROP_TABLE": LogType.DROP_TABLE,
+        "DROP_EXTERNAL_TABLE": LogType.DROP_TABLE,
+        "DROP_SNAPSHOT_TABLE": LogType.DROP_TABLE,
+        "DROP_VIEW": LogType.DROP_VIEW,
+        "DROP_MATERIALIZED_VIEW": LogType.DROP_VIEW,
+        "ALTER_TABLE": LogType.ALTER_TABLE,
+        "ALTER_VIEW": LogType.ALTER_VIEW,
+        "ALTER_MATERIALIZED_VIEW": LogType.ALTER_VIEW,
+        "TRUNCATE_TABLE": LogType.TRUNCATE,
+        "EXPORT_DATA": LogType.EXPORT,
     }
 
     @staticmethod
@@ -427,8 +431,8 @@ class BigQueryExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def _map_query_type(query_type: str) -> TypeEnum:
-        return BigQueryExtractor._query_type_map.get(query_type.upper(), TypeEnum.OTHER)
+    def _map_query_type(query_type: str) -> LogType:
+        return BigQueryExtractor._query_type_map.get(query_type.upper(), LogType.OTHER)
 
     def _build_job_change_filter(self) -> str:
         start_time = start_of_day(self._query_log_lookback_days).isoformat()

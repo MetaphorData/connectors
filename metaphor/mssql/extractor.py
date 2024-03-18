@@ -144,9 +144,11 @@ class MssqlExtractor(BaseExtractor):
             if fk.table_id in dataset_map:
                 foreign_key = ForeignKey(
                     field_path=fk.column_name,
-                    parent=dataset_map[fk.referenced_table_id].logical_id
-                    if fk.referenced_table_id in dataset_map
-                    else None,
+                    parent=(
+                        dataset_map[fk.referenced_table_id].logical_id
+                        if fk.referenced_table_id in dataset_map
+                        else None
+                    ),
                     parent_field=fk.referenced_column,
                 )
                 dataset_map[fk.table_id].schema.sql_schema.foreign_key.append(

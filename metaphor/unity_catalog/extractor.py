@@ -215,9 +215,9 @@ class UnityCatalogExtractor(BaseExtractor):
                 materialization=TABLE_TYPE_MATERIALIZATION_TYPE_MAP.get(
                     table_info.table_type, MaterializationType.TABLE
                 ),
-                table_schema=table_info.view_definition
-                if table_info.view_definition
-                else None,
+                table_schema=(
+                    table_info.view_definition if table_info.view_definition else None
+                ),
             ),
         )
 
@@ -230,17 +230,21 @@ class UnityCatalogExtractor(BaseExtractor):
 
         dataset.unity_catalog = UnityCatalog(
             table_type=UnityCatalogTableType[table_info.table_type.value],
-            data_source_format=table_info.data_source_format.value
-            if table_info.data_source_format is not None
-            else None,
+            data_source_format=(
+                table_info.data_source_format.value
+                if table_info.data_source_format is not None
+                else None
+            ),
             storage_location=table_info.storage_location,
             owner=table_info.owner,
-            properties=[
-                KeyValuePair(key=k, value=json.dumps(v))
-                for k, v in table_info.properties.items()
-            ]
-            if table_info.properties is not None
-            else [],
+            properties=(
+                [
+                    KeyValuePair(key=k, value=json.dumps(v))
+                    for k, v in table_info.properties.items()
+                ]
+                if table_info.properties is not None
+                else []
+            ),
         )
 
         self._datasets[normalized_name] = dataset

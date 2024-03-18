@@ -98,9 +98,9 @@ class AlationExtractor(BaseExtractor):
                 )
         if table_tags or column_tag_assignments:
             tag_assignment = TagAssignment(
-                column_tag_assignments=column_tag_assignments
-                if column_tag_assignments
-                else None,
+                column_tag_assignments=(
+                    column_tag_assignments if column_tag_assignments else None
+                ),
                 tag_names=table_tags,
             )
         return tag_assignment

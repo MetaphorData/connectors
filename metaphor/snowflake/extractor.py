@@ -743,8 +743,8 @@ class SnowflakeExtractor(BaseExtractor):
                 JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                   ON a.QUERY_ID = q.QUERY_ID
                 WHERE EXECUTION_STATUS = 'SUCCESS'
-                  AND START_TIME > %s AND START_TIME <= %s
-                  AND QUERY_START_TIME > %s AND QUERY_START_TIME <= %s
+                  AND q.START_TIME > %s AND q.START_TIME <= %s
+                  AND a.QUERY_START_TIME > %s AND a.QUERY_START_TIME <= %s
                   {exclude_username_clause(self._query_log_excluded_usernames)}
                 ORDER BY q.QUERY_ID
                 LIMIT {self._query_log_fetch_size} OFFSET %s
