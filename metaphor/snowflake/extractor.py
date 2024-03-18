@@ -35,7 +35,7 @@ from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import user_id_or_email
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import chunks, md5_digest, safe_float, start_of_day
+from metaphor.common.utils import chunks, safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -736,7 +736,8 @@ class SnowflakeExtractor(BaseExtractor):
         return {
             x: QueryWithParam(
                 f"""
-                SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
+                SELECT q.QUERY_ID, q.QUERY_PARAMETERIZED_HASH,
+                  q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED,
                   DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
@@ -767,7 +768,8 @@ class SnowflakeExtractor(BaseExtractor):
         return {
             x: QueryWithParam(
                 f"""
-                SELECT QUERY_ID, USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
+                SELECT QUERY_ID, QUERY_PARAMETERIZED_HASH,
+                  USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 WHERE EXECUTION_STATUS = 'SUCCESS'
@@ -792,6 +794,7 @@ class SnowflakeExtractor(BaseExtractor):
         logger.info(f"query logs batch #{batch}")
         for (
             query_id,
+            query_hash,
             username,
             query_text,
             start_time,
@@ -844,7 +847,7 @@ class SnowflakeExtractor(BaseExtractor):
                     sources=sources,
                     targets=targets,
                     sql=query_text,
-                    sql_hash=md5_digest(query_text.encode("utf-8")),
+                    sql_hash=query_hash,
                 )
 
                 yield query_log
