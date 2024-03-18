@@ -2,7 +2,7 @@
   "description": "This is Metabase dashboard for clean rides",
   "archived": false,
   "collection_position": null,
-  "ordered_cards": [
+  "dashcards": [
     {
       "size_x": 4,
       "series": [],
