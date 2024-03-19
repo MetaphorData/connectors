@@ -6,6 +6,7 @@
           "chartType": "BAR",
           "description": "Cleand bike rides count  and grouped by Total minutes",
           "title": "Cleaned Bike Rides, Count, Grouped by Total Minutes",
+          "id": "133",
           "url": "https://localhost/card/133"
         }
       ],
