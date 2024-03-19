@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Collection, Dict, List, Optional, Set, Union
+from typing import Collection, Dict, List, Optional, Set, Tuple, Union
 
 import requests
 from sql_metadata import Parser
@@ -13,6 +13,7 @@ from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetStructure,
     Chart,
+    ChartQuery,
     ChartType,
     Dashboard,
     DashboardInfo,
@@ -237,9 +238,10 @@ class MetabaseExtractor(BaseExtractor):
                 upstream_tables.add(dataset_id)
 
         elif query_type == "native":
-            chart.query = dataset_query["native"]["query"]
-            dataset_ids = self._parse_native_query(dataset_query)
-            upstream_tables.update(dataset_ids)
+            chart_query, dataset_ids = self._parse_native_query(dataset_query)
+            if chart_query is not None:
+                chart.query = chart_query
+                upstream_tables.update(dataset_ids)
 
         else:
             logger.error(f"Unsupported query type {query_type}")
@@ -279,7 +281,9 @@ class MetabaseExtractor(BaseExtractor):
         self._tables[table_id] = dataset_id
         return dataset_id
 
-    def _parse_native_query(self, dataset_query: Dict) -> Set[str]:
+    def _parse_native_query(
+        self, dataset_query: Dict
+    ) -> Tuple[Optional[ChartQuery], Set[str]]:
         try:
             native_query = dataset_query["native"]["query"]
             tables = Parser(native_query).tables
@@ -289,6 +293,16 @@ class MetabaseExtractor(BaseExtractor):
             if database is None:
                 raise ValueError(f"database {database_id} not found")
 
+            chart_query = ChartQuery(
+                query=native_query,
+                default_database=database.database,
+                default_schema=database.schema,
+            )
+        except Exception as e:
+            logger.error(f"Failed to get native query: {e}")
+            return None, set()
+
+        try:
             dataset_ids = set()
             for table in tables:
                 segments = table.count(".") + 1
@@ -311,7 +325,7 @@ class MetabaseExtractor(BaseExtractor):
                     )
                 )
 
-            return dataset_ids
+            return chart_query, dataset_ids
         except Exception as e:
             logger.error(f"SQL parsing error: {e}, query: {native_query}")
-            return set()
+            return chart_query, set()
