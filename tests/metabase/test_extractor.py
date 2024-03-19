@@ -42,14 +42,11 @@ async def test_extractor(
         MockResponse(
             load_json(f"{test_root_dir}/metabase/data/databases.json"),
         ),
-        MockResponse(
-            load_json(f"{test_root_dir}/metabase/data/cards.json"),
-        ),
-        MockResponse(load_json(f"{test_root_dir}/metabase/data/table86.json")),
         MockResponse(load_json(f"{test_root_dir}/metabase/data/dashboards.json")),
         MockResponse(
             load_json(f"{test_root_dir}/metabase/data/dashboard101.json"),
         ),
+        MockResponse(load_json(f"{test_root_dir}/metabase/data/table86.json")),
     ]
 
     extractor = MetabaseExtractor(dummy_config())

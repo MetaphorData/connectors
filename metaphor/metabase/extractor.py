@@ -81,12 +81,11 @@ class MetabaseExtractor(BaseExtractor):
         self._server_url = config.server_url.rstrip("/")
         self._username = config.username
         self._password = config.password
-
-        self._charts: Dict[int, ChartInfo] = {}
-        self._dashboards: Dict[int, Dashboard] = {}
-        self._databases: Dict[int, DatabaseInfo] = {}
-        self._tables: Dict[int, Optional[str]] = {}
         self._session = requests.session()
+
+        self._databases: Dict[int, DatabaseInfo] = {}
+        self._dashboards: Dict[int, Dashboard] = {}
+        self._tables: Dict[int, Optional[str]] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Metabase")
@@ -119,14 +118,6 @@ class MetabaseExtractor(BaseExtractor):
                 self._parse_database(database)
             except Exception as ex:
                 logger.error(f"error parsing database {database['id']}: {ex}")
-
-        # fetch all cards (charts)
-        cards = self._fetch_assets("card")
-        for card in cards:
-            try:
-                self._parse_chart(card)
-            except Exception as ex:
-                logger.error(f"error parsing card {card['id']}: {ex}")
 
         # fetch all dashboards
         dashboards = self._fetch_assets("dashboard")
@@ -189,14 +180,10 @@ class MetabaseExtractor(BaseExtractor):
         cards = dashboard_details.get("dashcards", [])
         charts, upstream_datasets = [], set()
         for card in cards:
-            card_id = card.get("card_id")
-            if card_id is None:
-                continue
-            if card_id not in self._charts:
-                logger.error(f"card {card_id} not found")
-            else:
-                charts.append(self._charts[card_id].chart)
-                upstream_datasets.update(self._charts[card_id].upstream)
+            chart_info = self._parse_chart(card["card"])
+            if chart_info is not None:
+                charts.append(chart_info.chart)
+                upstream_datasets.update(chart_info.upstream)
 
         dashboard_info = DashboardInfo(
             title=name,
@@ -226,10 +213,14 @@ class MetabaseExtractor(BaseExtractor):
 
         self._dashboards[dashboard_id] = dashboard
 
-    def _parse_chart(self, card: Dict) -> None:
+    def _parse_chart(self, card: Dict) -> Optional[ChartInfo]:
+        if "id" not in card or "name" not in card:
+            return None
+
         card_id = card["id"]
         chart = Chart(
             title=card["name"],
+            id=str(card_id),
             description=card["description"],
             chart_type=self._chart_type_mapping.get(card.get("display", "")),
             url=f"{self._server_url}/card/{card_id}",
@@ -246,13 +237,14 @@ class MetabaseExtractor(BaseExtractor):
                 upstream_tables.add(dataset_id)
 
         elif query_type == "native":
+            chart.query = dataset_query["native"]["query"]
             dataset_ids = self._parse_native_query(dataset_query)
             upstream_tables.update(dataset_ids)
 
         else:
             logger.error(f"Unsupported query type {query_type}")
 
-        self._charts[card_id] = ChartInfo(chart, list(upstream_tables))
+        return ChartInfo(chart, list(upstream_tables))
 
     def _get_table_by_id(self, table_id: int) -> Optional[str]:
         if table_id in self._tables:
