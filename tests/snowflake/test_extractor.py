@@ -520,6 +520,7 @@ def test_collect_query_logs(
             for obj in [
                 (
                     "id1",  # QUERY_ID
+                    "hash1",  # QUERY_PARAMETERIZED_HASH
                     "METAPHOR",  # USER_NAME
                     "short query text less than 40 chars",  # QUERY_TEXT
                     "2022-12-12 14:01:02.778 -0800",  # START_TIME
@@ -851,7 +852,8 @@ def test_collect_query_logs(
                 ),
                 (
                     # Large query - expected to be ignored
-                    "id1",  # QUERY_ID
+                    "id2",  # QUERY_ID
+                    "hash2",  # QUERY_PARAMETERIZED_HASH
                     "METAPHOR",  # USER_NAME
                     "a very very long query that exceeds 40 chars",  # QUERY_TEXT
                     "2022-12-12 14:01:02.778 -0800",  # START_TIME
@@ -884,6 +886,8 @@ def test_collect_query_logs(
     assert log0.bytes_written == 200
     assert log0.rows_read == 10
     assert log0.rows_written == 20
+    assert log0.sql == "short query text less than 40 chars"
+    assert log0.sql_hash == "hash1"
     assert log0.sources == [
         QueriedDataset(
             id="DATASET~965CB9D50FF7E59D766536D8ED07E862",
