@@ -295,6 +295,8 @@ class MetabaseExtractor(BaseExtractor):
 
             chart_query = ChartQuery(
                 query=native_query,
+                platform=database.platform,
+                account=database.account,
                 default_database=database.database,
                 default_schema=database.schema,
             )
