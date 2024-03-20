@@ -21,6 +21,7 @@ embedding_chunk_size = 512
 embedding_overlap_size = 50
 max_items_query = 500
 
+
 class MondayExtractor(BaseExtractor):
     """Monday.com Items extractor."""
 
