@@ -19,7 +19,7 @@ baseURL = "https://api.monday.com/v2"
 
 embedding_chunk_size = 512
 embedding_overlap_size = 50
-
+max_items_query = 500
 
 class MondayExtractor(BaseExtractor):
     """Monday.com Items extractor."""
@@ -136,13 +136,12 @@ class MondayExtractor(BaseExtractor):
         board: int,
         columns: dict,
         params: str = "{}",
-        max_items: int = 500,
         consume: bool = True,
     ) -> Collection[dict]:
         """
         Retrieves max_items items from specified board.
         If consume == True and a cursor is present,
-            uses consume_items_page() to get all remaining items available to the cursor. (TODO)
+            uses consume_items_page() to get all remaining items available to the cursor.
         """
 
         column_ids = list(columns.keys())
@@ -150,7 +149,7 @@ class MondayExtractor(BaseExtractor):
         query = f"""
                 {{
                     boards(ids: [{board}]) {{
-                        items_page(query_params:{params}, limit:{max_items}) {{
+                        items_page(query_params:{params}, limit:{max_items_query}) {{
                         cursor
                         items {{
                             id
@@ -194,7 +193,7 @@ class MondayExtractor(BaseExtractor):
     ) -> Collection[dict]:
         query = f"""
                 {{
-                    next_items_page (limit: 500, cursor: "{cursor}") {{
+                    next_items_page (limit: {max_items_query}, cursor: "{cursor}") {{
                         cursor
                         items {{
                             id
@@ -216,7 +215,7 @@ class MondayExtractor(BaseExtractor):
         data = {"query": query}
 
         try:
-            logger.info(f"Consuming cursor for board {self.current_board}")
+            logger.info(f"Consuming cursor {cursor} for board {self.current_board}")
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=30)
             r.raise_for_status()
 
@@ -227,8 +226,8 @@ class MondayExtractor(BaseExtractor):
 
         content = r.json()
 
-        cursor = content["data"]["boards"][0]["items_page"]["cursor"]
-        new_items = content["data"]["boards"][0]["items_page"]["items"]
+        cursor = content["data"]["next_items_page"]["cursor"]
+        new_items = content["data"]["next_items_page"]["items"]
 
         items.extend(new_items)  # type: ignore[attr-defined]
 
