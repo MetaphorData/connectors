@@ -4,7 +4,7 @@ from typing import Collection
 
 import requests
 from llama_index.core import Document
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
@@ -100,6 +100,7 @@ class MondayExtractor(BaseExtractor):
         query = f"""
                     query{{
                     boards(ids: [{board}]) {{
+                        name
                         columns {{
                         id
                         title
@@ -115,7 +116,7 @@ class MondayExtractor(BaseExtractor):
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=5)
             r.raise_for_status()
 
-        except HTTPError as error:
+        except (HTTPError, RequestException) as error:
             logger.warning(f"Failed to get columns for board {board}, err: {error}")
 
         content = r.json()
@@ -124,6 +125,9 @@ class MondayExtractor(BaseExtractor):
         for col in content["data"]["boards"][0]["columns"]:
             if col["type"] in set(valid_types):
                 columns[col["id"]] = col["title"]
+
+        # Extract board name from response
+        self.current_board_name = content["data"]["boards"][0]["name"]
 
         return columns
 
@@ -172,7 +176,7 @@ class MondayExtractor(BaseExtractor):
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=30)
             r.raise_for_status()
 
-        except HTTPError as error:
+        except (HTTPError, RequestException) as error:
             logger.warning(f"Failed to get items for board {board}, err: {error}")
 
         content = r.json()
@@ -203,7 +207,7 @@ class MondayExtractor(BaseExtractor):
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=5)
             r.raise_for_status()
 
-        except HTTPError as error:
+        except (HTTPError, RequestException) as error:
             logger.warning(f"Failed to get Monday doc {object_id}, err: {error}")
 
         content = r.json()
@@ -239,6 +243,8 @@ class MondayExtractor(BaseExtractor):
             updates = item["updates"]
             updates_text = [u["text_body"] for u in updates]
 
+            item_text_string += f"Board Name: {self.current_board_name}"
+
             if updates_text:
                 for update in updates_text:
                     item_text_string += f"Update: {sanitize_text(update)}\n"
@@ -262,6 +268,7 @@ class MondayExtractor(BaseExtractor):
             metadata = {
                 "title": item_name,
                 "board": self.current_board,
+                "boardName": self.current_board_name,
                 "link": item_url,
                 "pageId": item_id,
                 "platform": "monday",
