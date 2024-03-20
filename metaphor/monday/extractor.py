@@ -113,7 +113,7 @@ class MondayExtractor(BaseExtractor):
 
         try:
             logger.info(f"Getting columns for board {board}")
-            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=5)
+            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=15)
             r.raise_for_status()
 
         except (HTTPError, RequestException) as error:
@@ -204,7 +204,7 @@ class MondayExtractor(BaseExtractor):
 
         try:
             logger.info(f"Retrieving Monday doc {object_id}")
-            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=5)
+            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=15)
             r.raise_for_status()
 
         except (HTTPError, RequestException) as error:
