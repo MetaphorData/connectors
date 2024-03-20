@@ -67,7 +67,7 @@ class MondayExtractor(BaseExtractor):
             board_items = self._get_board_items(board, board_columns)
             board_docs = self._construct_items_documents(board_items, board_columns)
 
-            self.documents.extend(board_docs)
+            self.documents.extend(board_docs)  # type: ignore[call-arg]
 
         logger.info("Starting embedding process")
 
@@ -185,10 +185,57 @@ class MondayExtractor(BaseExtractor):
         items = content["data"]["boards"][0]["items_page"]["items"]
 
         if consume and cursor:
-            pass
-            # items = consume_items_page(cursor, items)
+            items = self._consume_items_cursor(cursor, items, column_ids)
 
         return items
+
+    def _consume_items_cursor(
+        self, cursor: str, items: Collection[dict], column_ids: list
+    ) -> Collection[dict]:
+        query = f"""
+                {{
+                    next_items_page (limit: 500, cursor: "{cursor}") {{
+                        cursor
+                        items {{
+                            id
+                            name
+                            updates {{
+                            text_body
+                            }}
+                            column_values(ids: {json.dumps(column_ids)}) {{
+                            id
+                            text
+                            value
+                            }}
+                            url
+                    }}
+                    }}
+                }}
+                """
+
+        data = {"query": query}
+
+        try:
+            logger.info(f"Consuming cursor for board {self.current_board}")
+            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=30)
+            r.raise_for_status()
+
+        except (HTTPError, RequestException) as error:
+            logger.warning(
+                f"Failed to get items for board {self.current_board} with cursor {cursor}, err: {error}"
+            )
+
+        content = r.json()
+
+        cursor = content["data"]["boards"][0]["items_page"]["cursor"]
+        new_items = content["data"]["boards"][0]["items_page"]["items"]
+
+        items.extend(new_items)  # type: ignore[attr-defined]
+
+        if cursor:
+            return self._consume_items_cursor(cursor, items, column_ids)
+        else:
+            return items
 
     def _get_monday_doc(self, object_id: int) -> str:
         query = f"""
@@ -243,7 +290,7 @@ class MondayExtractor(BaseExtractor):
             updates = item["updates"]
             updates_text = [u["text_body"] for u in updates]
 
-            item_text_string += f"Board Name: {self.current_board_name}"
+            item_text_string += f"Board Name: {self.current_board_name}\n"
 
             if updates_text:
                 for update in updates_text:

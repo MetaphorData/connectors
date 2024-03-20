@@ -45,13 +45,14 @@ sample_raw_documents = [
         extra_info={
             "title": "Hello World!",
             "board": 1234,
+            "boardName": "Hello World!",
             "link": "https://metaphor.io",
             "page_id": "5678",
             "platform": "monday",
             "lastRefreshed": "2023-12-11 00:00:00.000000",
         },
         hash="1111",
-        text="Hello World!",
+        text="Board Name: Hello World!\nTitle: Hello World!",
         start_char_idx=None,
         end_char_idx=None,
         text_template="{metadata_str}\n\n{content}",
@@ -79,6 +80,8 @@ def test_get_board_columns_success(
     mock_post: MagicMock, monday_extractor, mock_responses
 ):
     mock_post.return_value.json.return_value = mock_responses["columns"]
+    monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
 
     columns = monday_extractor._get_board_columns(1234)
     assert columns == {
@@ -103,6 +106,8 @@ def test_get_board_items_success(
     mock_post: MagicMock, monday_extractor, mock_responses
 ):
     mock_post.return_value.json.return_value = mock_responses["items"]
+    monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
 
     items = monday_extractor._get_board_items(1234, columns=mock_responses["columns"])
 
@@ -211,14 +216,19 @@ def test_construct_items_documents_with_updates(
     ]
 
     columns = mock_responses["columns"]
+
     monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
+
     documents = monday_extractor._construct_items_documents(
         mock_get_board_items.return_value, columns
     )
 
     assert len(documents) == 1, "One document should be constructed"
     document_text = documents[0].text
-    expected_text = "Update: First update\nUpdate: Second update\n"
+    expected_text = (
+        "Board Name: Hello World!\nUpdate: First update\nUpdate: Second update\n"
+    )
     assert (
         document_text == expected_text
     ), f"Document text should include updates: {expected_text}"
@@ -252,6 +262,7 @@ async def test_extract(
                     "5678": {
                         "title": "Hello World!",
                         "board": 1234,
+                        "boardName": "Hello World!",
                         "link": "https://metaphor.io",
                         "pageId": "5678",
                         "platform": "monday",
@@ -261,7 +272,9 @@ async def test_extract(
             }
         },
         "doc_store": {
-            "docstore/data": {"5678": {"__data__": {"text": "Hello World!"}}}
+            "docstore/data": {
+                "5678": {"__data__": {"text": "Board Name: Hello World!"}}
+            }
         },
     }
 
