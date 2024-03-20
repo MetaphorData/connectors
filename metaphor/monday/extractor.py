@@ -169,7 +169,7 @@ class MondayExtractor(BaseExtractor):
 
         try:
             logger.info(f"Getting items for board {board}")
-            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=5)
+            r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=30)
             r.raise_for_status()
 
         except HTTPError as error:
