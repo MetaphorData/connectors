@@ -27,9 +27,19 @@ dummy_config = MondayRunConfig(
 def mock_responses(test_root_dir):
     cols = load_json(f"{test_root_dir}/monday/mock_get_columns.json")
     items = load_json(f"{test_root_dir}/monday/mock_get_items.json")
+    items_with_cursor = load_json(
+        f"{test_root_dir}/monday/mock_get_items_with_cursor.json"
+    )
+    next_items_page = load_json(f"{test_root_dir}/monday/mock_get_next_items_page.json")
     doc = load_json(f"{test_root_dir}/monday/mock_get_doc.json")
 
-    return {"columns": cols, "items": items, "document": doc}
+    return {
+        "columns": cols,
+        "items": items,
+        "items_with_cursor": items_with_cursor,
+        "next_items_page": next_items_page,
+        "document": doc,
+    }
 
 
 @pytest.fixture
@@ -124,7 +134,7 @@ def test_get_board_items_success(
                 },
                 {"id": "descriptions", "text": "text", "value": "value"},
             ],
-            "url": "https://test-test.monday.com/boards/1234",
+            "url": "https://test-test.monday.com/boards/5678/pulses/1234",
         },
         {
             "id": "5678",
@@ -138,9 +148,26 @@ def test_get_board_items_success(
                 },
                 {"id": "descriptions", "text": "Hello World!", "value": None},
             ],
-            "url": "https://test-test.monday.com/boards/1234",
+            "url": "https://test-test.monday.com/boards/5678/pulses/5678",
         },
     ]
+
+
+# test for _consume_items_cursor
+@patch("requests.post")
+def test_consume_items_cursor(mock_post: MagicMock, monday_extractor, mock_responses):
+    mock_post.return_value.json.side_effect = [
+        mock_responses["items_with_cursor"],
+        mock_responses["next_items_page"],
+    ]
+    monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
+
+    items = monday_extractor._get_board_items(1234, columns=mock_responses["columns"])
+
+    assert (
+        len(items) == 4
+    ), "There should be 4 items (2 from original + 2 from next page)"
 
 
 # test for _get_board_items exception

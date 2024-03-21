@@ -3,7 +3,7 @@
     "boards": [
       {
         "items_page": {
-          "cursor": "",
+          "cursor": "cursor",
           "items": [
             {
               "id": "1234",
@@ -21,7 +21,7 @@
                   "value": "value"
                 }
               ],
-              "url": "https://test-test.monday.com/boards/5678/pulses/1234"
+              "url": "https://test-test.monday.com/boards/1234"
             },
             {
               "id": "5678",
@@ -39,7 +39,7 @@
                   "value": null
                 }
               ],
-              "url": "https://test-test.monday.com/boards/5678/pulses/5678"
+              "url": "https://test-test.monday.com/boards/1234"
             }
           ]
         }
