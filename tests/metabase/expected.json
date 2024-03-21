@@ -21,12 +21,46 @@
       "mainUrl": "https://localhost/dashboard/101"
     },
     "structure": {
-      "directories": [],
+      "directories": [
+        "2"
+      ],
       "name": "Clean rides"
     },
     "entityUpstream": {
       "sourceEntities": [
         "DATASET~8CDF81FE6B8050607E78C53E8B704B05"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "description": "Automatically generated cards.",
+      "metabaseCollection": {
+        "name": "A look at your Sample Sales Records table",
+        "url": "https://localhost/collection/34-a_look_at_your_sample_sales_records_table"
+      },
+      "type": "METABASE_COLLECTION"
+    },
+    "logicalId": {
+      "path": [
+        "METABASE",
+        "2",
+        "34"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "metabaseCollection": {
+        "name": "Automatically Generated Dashboards",
+        "url": "https://localhost/collection/2-automatically_generated_dashboards"
+      },
+      "type": "METABASE_COLLECTION"
+    },
+    "logicalId": {
+      "path": [
+        "METABASE",
+        "2"
       ]
     }
   }
