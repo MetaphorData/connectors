@@ -124,7 +124,6 @@ class MetabaseExtractor(BaseExtractor):
         collections = self._fetch_assets("collection")
         for collection in collections:
             try:
-                # Filter out personal collection
                 self._parse_collection(collection)
             except Exception as ex:
                 logger.error(f"error parsing collection {collection['id']}: {ex}")
