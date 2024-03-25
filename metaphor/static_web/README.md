@@ -1,6 +1,10 @@
 # Static Webpage Connector
 
+This connector extracts search documents from publically accessible webpages. It crawls pages by recursively visiting pages of the same domain with adjustable depth.
+
 ## Setup
+
+Specify a list of target pages that should be crawled along with desired recursion depths. Be careful with a recursion depth greater than 1.
 
 ## Config File
 
