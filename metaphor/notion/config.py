@@ -14,9 +14,9 @@ class NotionRunConfig(BaseConfig):
     azure_openAI_endpoint: str
 
     # Default Azure OpenAI services configs
-    azure_openAI_version: str = "2023-12-01-preview"
-    azure_openAI_model: str = "text-embedding-ada-002"
-    azure_openAI_model_name: str = "Embedding_ada002"
+    azure_openAI_version: str = "2024-03-01-preview"
+    azure_openAI_model: str = "text-embedding-3-small"
+    azure_openAI_model_name: str = "Embedding_3_small"
 
     # Store the document's content alongside embeddings
     include_text: bool = False
