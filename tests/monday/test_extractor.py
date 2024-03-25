@@ -26,7 +26,9 @@ dummy_config = MondayRunConfig(
 @pytest.fixture
 def mock_responses(test_root_dir):
     cols = load_json(f"{test_root_dir}/monday/mock_get_columns.json")
+    cols_with_doc = load_json(f"{test_root_dir}/monday/mock_columns_with_doc.json")
     items = load_json(f"{test_root_dir}/monday/mock_get_items.json")
+    items_with_doc = load_json(f"{test_root_dir}/monday/mock_items_with_doc.json")
     items_with_cursor = load_json(
         f"{test_root_dir}/monday/mock_get_items_with_cursor.json"
     )
@@ -35,7 +37,9 @@ def mock_responses(test_root_dir):
 
     return {
         "columns": cols,
+        "columns_with_doc": cols_with_doc,
         "items": items,
+        "items_with_doc": items_with_doc,
         "items_with_cursor": items_with_cursor,
         "next_items_page": next_items_page,
         "document": doc,
@@ -259,6 +263,39 @@ def test_construct_items_documents_with_updates(
     assert (
         document_text == expected_text
     ), f"Document text should include updates: {expected_text}"
+
+
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
+@patch("metaphor.monday.extractor.MondayExtractor._get_monday_doc")
+def test_construct_items_documents_with_doc(
+    mock_get_monday_doc,
+    mock_get_board_items,
+    mock_get_board_columns,
+    monday_extractor,
+    mock_responses,
+):
+    # Mock responses for get_doc, columns and items to include monday doc
+    mock_get_monday_doc.return_value = "Hello World!"
+    mock_get_board_columns.return_value = mock_responses["columns_with_doc"]
+    mock_get_board_items.return_value = mock_responses["items_with_doc"]
+
+    columns = mock_responses["columns_with_doc"]
+
+    monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
+
+    documents = monday_extractor._construct_items_documents(
+        mock_get_board_items.return_value, columns
+    )
+
+    assert mock_get_monday_doc.call_args[0] == (
+        31415,
+    ), "Ensure that documentId is called correctly"
+    assert (
+        documents[0].text
+        == "Board Name: Hello World!\nColumns/Properties: Hello World!\nDescriptions: text\nembedded doc: Hello World!\n"
+    ), "Ensure that document is unpacked and inserted into text string correctly"
 
 
 # test_extract for MondayExtractor
