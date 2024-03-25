@@ -1,4 +1,6 @@
+import json
 from dataclasses import dataclass
+from itertools import chain
 from typing import Collection, Dict, List, Optional, Set, Tuple, Union
 
 import requests
@@ -21,6 +23,11 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DataPlatform,
     EntityUpstream,
+    Hierarchy,
+    HierarchyInfo,
+    HierarchyLogicalID,
+    HierarchyType,
+    MetabaseCollection,
     SourceInfo,
 )
 
@@ -86,6 +93,7 @@ class MetabaseExtractor(BaseExtractor):
 
         self._databases: Dict[int, DatabaseInfo] = {}
         self._dashboards: Dict[int, Dashboard] = {}
+        self._collections: Dict[int, Hierarchy] = {}
         self._tables: Dict[int, Optional[str]] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -112,6 +120,14 @@ class MetabaseExtractor(BaseExtractor):
             }
         )
 
+        # fetch all collections
+        collections = self._fetch_assets("collection")
+        for collection in collections:
+            try:
+                self._parse_collection(collection)
+            except Exception as ex:
+                logger.error(f"error parsing collection {collection['id']}: {ex}")
+
         # fetch all databases
         databases = self._fetch_assets("database", True)
         for database in databases:
@@ -128,7 +144,7 @@ class MetabaseExtractor(BaseExtractor):
             except Exception as ex:
                 logger.error(f"error parsing dashboard {dashboard['id']}: {ex}")
 
-        return self._dashboards.values()
+        return list(chain(self._dashboards.values(), self._collections.values()))
 
     def _fetch_assets(self, asset_type: str, withData=False) -> List[Dict]:
         resp = self._session.get(f"{self._server_url}/api/{asset_type}")
@@ -148,6 +164,47 @@ class MetabaseExtractor(BaseExtractor):
 
         json_dump_to_debug_file(resp_json, f"{asset_type}__{asset_id}.json")
         return resp_json
+
+    def _parse_collection(self, collection: Dict) -> None:
+        collection_id = collection["id"]
+
+        if collection_id == "root":
+            return
+
+        slug = collection.get("slug")
+        name = collection.get("name")
+        description = collection.get("description")
+        location = collection.get("location")
+
+        if not location:
+            # We need location to build logical id
+            logger.warn(f"invalid collection, dict: {json.dumps(collection)}")
+            return
+
+        parent_path = location.split("/")[1:-1]
+
+        hierarchy = Hierarchy(
+            logical_id=HierarchyLogicalID(
+                path=list(
+                    map(
+                        str,
+                        [DashboardPlatform.METABASE.value]
+                        + parent_path
+                        + [collection_id],
+                    )
+                )
+            ),
+            hierarchy_info=HierarchyInfo(
+                description=description,
+                type=HierarchyType.METABASE_COLLECTION,
+                metabase_collection=MetabaseCollection(
+                    name=name,
+                    url=f"{self._server_url}/collection/{collection_id}-{slug}",
+                ),
+            ),
+        )
+
+        self._collections[collection_id] = hierarchy
 
     def _parse_database(self, database: Dict) -> None:
         database_id = database["id"]
@@ -202,11 +259,21 @@ class MetabaseExtractor(BaseExtractor):
             else None
         )
 
+        dashboard_collection = dashboard_details.get("collection")
+        collection = (
+            self._collections.get(dashboard_collection.get("id"))
+            if dashboard_collection
+            else None
+        )
+
         dashboard = Dashboard(
             logical_id=DashboardLogicalID(
                 dashboard_id=str(dashboard_id), platform=DashboardPlatform.METABASE
             ),
-            structure=AssetStructure(directories=[], name=name),
+            structure=AssetStructure(
+                directories=collection.logical_id.path[1:] if collection else [],
+                name=name,
+            ),
             dashboard_info=dashboard_info,
             source_info=source_info,
             entity_upstream=entity_upstream,
