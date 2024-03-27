@@ -262,7 +262,7 @@ def process_azure_sql_linked_service(
 
     server_host, database = None, None
     for kv_pair in connection_string.split(";"):
-        [key, value] = kv_pair.split("=") if "=" else ["", ""]
+        [key, value] = kv_pair.split("=") if "=" in kv_pair else ["", ""]
         if key == "Data Source":
             server_host = (
                 removesuffix(str(value), ".database.windows.net") if value else None
