@@ -26,10 +26,24 @@ dummy_config = MondayRunConfig(
 @pytest.fixture
 def mock_responses(test_root_dir):
     cols = load_json(f"{test_root_dir}/monday/mock_get_columns.json")
+    cols_with_doc = load_json(f"{test_root_dir}/monday/mock_columns_with_doc.json")
     items = load_json(f"{test_root_dir}/monday/mock_get_items.json")
+    items_with_doc = load_json(f"{test_root_dir}/monday/mock_items_with_doc.json")
+    items_with_cursor = load_json(
+        f"{test_root_dir}/monday/mock_get_items_with_cursor.json"
+    )
+    next_items_page = load_json(f"{test_root_dir}/monday/mock_get_next_items_page.json")
     doc = load_json(f"{test_root_dir}/monday/mock_get_doc.json")
 
-    return {"columns": cols, "items": items, "document": doc}
+    return {
+        "columns": cols,
+        "columns_with_doc": cols_with_doc,
+        "items": items,
+        "items_with_doc": items_with_doc,
+        "items_with_cursor": items_with_cursor,
+        "next_items_page": next_items_page,
+        "document": doc,
+    }
 
 
 @pytest.fixture
@@ -45,13 +59,14 @@ sample_raw_documents = [
         extra_info={
             "title": "Hello World!",
             "board": 1234,
+            "boardName": "Hello World!",
             "link": "https://metaphor.io",
             "page_id": "5678",
             "platform": "monday",
             "lastRefreshed": "2023-12-11 00:00:00.000000",
         },
         hash="1111",
-        text="Hello World!",
+        text="Board Name: Hello World!\nTitle: Hello World!",
         start_char_idx=None,
         end_char_idx=None,
         text_template="{metadata_str}\n\n{content}",
@@ -79,6 +94,8 @@ def test_get_board_columns_success(
     mock_post: MagicMock, monday_extractor, mock_responses
 ):
     mock_post.return_value.json.return_value = mock_responses["columns"]
+    monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
 
     columns = monday_extractor._get_board_columns(1234)
     assert columns == {
@@ -103,6 +120,8 @@ def test_get_board_items_success(
     mock_post: MagicMock, monday_extractor, mock_responses
 ):
     mock_post.return_value.json.return_value = mock_responses["items"]
+    monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
 
     items = monday_extractor._get_board_items(1234, columns=mock_responses["columns"])
 
@@ -119,7 +138,7 @@ def test_get_board_items_success(
                 },
                 {"id": "descriptions", "text": "text", "value": "value"},
             ],
-            "url": "https://test-test.monday.com/boards/1234",
+            "url": "https://test-test.monday.com/boards/5678/pulses/1234",
         },
         {
             "id": "5678",
@@ -133,9 +152,26 @@ def test_get_board_items_success(
                 },
                 {"id": "descriptions", "text": "Hello World!", "value": None},
             ],
-            "url": "https://test-test.monday.com/boards/1234",
+            "url": "https://test-test.monday.com/boards/5678/pulses/5678",
         },
     ]
+
+
+# test for _consume_items_cursor
+@patch("requests.post")
+def test_consume_items_cursor(mock_post: MagicMock, monday_extractor, mock_responses):
+    mock_post.return_value.json.side_effect = [
+        mock_responses["items_with_cursor"],
+        mock_responses["next_items_page"],
+    ]
+    monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
+
+    items = monday_extractor._get_board_items(1234, columns=mock_responses["columns"])
+
+    assert (
+        len(items) == 4
+    ), "There should be 4 items (2 from original + 2 from next page)"
 
 
 # test for _get_board_items exception
@@ -211,17 +247,55 @@ def test_construct_items_documents_with_updates(
     ]
 
     columns = mock_responses["columns"]
+
     monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
+
     documents = monday_extractor._construct_items_documents(
         mock_get_board_items.return_value, columns
     )
 
     assert len(documents) == 1, "One document should be constructed"
     document_text = documents[0].text
-    expected_text = "Update: First update\nUpdate: Second update\n"
+    expected_text = (
+        "Board Name: Hello World!\nUpdate: First update\nUpdate: Second update\n"
+    )
     assert (
         document_text == expected_text
     ), f"Document text should include updates: {expected_text}"
+
+
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
+@patch("metaphor.monday.extractor.MondayExtractor._get_monday_doc")
+def test_construct_items_documents_with_doc(
+    mock_get_monday_doc,
+    mock_get_board_items,
+    mock_get_board_columns,
+    monday_extractor,
+    mock_responses,
+):
+    # Mock responses for get_doc, columns and items to include monday doc
+    mock_get_monday_doc.return_value = "Hello World!"
+    mock_get_board_columns.return_value = mock_responses["columns_with_doc"]
+    mock_get_board_items.return_value = mock_responses["items_with_doc"]
+
+    columns = mock_responses["columns_with_doc"]
+
+    monday_extractor.current_board = 1234
+    monday_extractor.current_board_name = "Hello World!"
+
+    documents = monday_extractor._construct_items_documents(
+        mock_get_board_items.return_value, columns
+    )
+
+    assert mock_get_monday_doc.call_args[0] == (
+        31415,
+    ), "Ensure that documentId is called correctly"
+    assert (
+        documents[0].text
+        == "Board Name: Hello World!\nColumns/Properties: Hello World!\nDescriptions: text\nembedded doc: Hello World!\n"
+    ), "Ensure that document is unpacked and inserted into text string correctly"
 
 
 # test_extract for MondayExtractor
@@ -252,6 +326,7 @@ async def test_extract(
                     "5678": {
                         "title": "Hello World!",
                         "board": 1234,
+                        "boardName": "Hello World!",
                         "link": "https://metaphor.io",
                         "pageId": "5678",
                         "platform": "monday",
@@ -261,7 +336,9 @@ async def test_extract(
             }
         },
         "doc_store": {
-            "docstore/data": {"5678": {"__data__": {"text": "Hello World!"}}}
+            "docstore/data": {
+                "5678": {"__data__": {"text": "Board Name: Hello World!"}}
+            }
         },
     }
 

@@ -13,11 +13,12 @@
     "metadata": {
       "title": "Hello World!",
       "board": 1234,
+      "boardName": "Hello World!",
       "link": "https://metaphor.io",
       "pageId": "5678",
       "platform": "monday",
       "lastRefreshed": "2023-12-11 00:00:00.000000"
     },
-    "embeddedString_1": "Title: Hello World!\nHello World!"
+    "embeddedString_1": "Title: Hello World!\nBoard Name: Hello World!"
   }
 ]
