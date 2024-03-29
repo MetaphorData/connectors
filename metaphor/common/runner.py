@@ -69,10 +69,10 @@ def run_connector(
     file_sink = None
     if file_sink_config is not None:
         file_sink = FileSink(file_sink_config)
+        file_sink.write_execution_logs()
 
     if file_sink and connector:
         file_sink.write_events(events)
-        file_sink.write_execution_logs()
 
         # Query logs are only collected when we have a destination to write to.
         query_log_sink = file_sink.get_query_log_sink()
