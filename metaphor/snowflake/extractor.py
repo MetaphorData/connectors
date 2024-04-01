@@ -484,18 +484,20 @@ class SnowflakeExtractor(BaseExtractor):
             hierarchy_key = dataset_normalized_name(database, object_name)
         logical_id = HierarchyLogicalID(path=path)
 
-        self._hierarchies.setdefault(
+        system_tags = self._hierarchies.setdefault(
             hierarchy_key,
             Hierarchy(
                 logical_id=logical_id, system_tags=SystemTags(tags=[])
             ),  # SystemTags.tags should never be empty
-        ).system_tags.tags.append(
-            SystemTag(
-                key=tag_key,
-                system_tag_source=SystemTagSource.SNOWFLAKE,
-                value=tag_value,
-            )
+        ).system_tags
+        assert system_tags and system_tags.tags is not None
+        tag = SystemTag(
+            key=tag_key,
+            system_tag_source=SystemTagSource.SNOWFLAKE,
+            value=tag_value,
         )
+        if not system_tags.tags.count(tag):
+            system_tags.tags.append(tag)
 
     def _append_tag(
         self, dataset_key: str, key: str, value: str, column_name: Optional[str]
@@ -514,11 +516,13 @@ class SnowflakeExtractor(BaseExtractor):
             if not dataset.system_tags:
                 dataset.system_tags = SystemTags(tags=[])
             assert dataset.system_tags.tags is not None
-            dataset.system_tags.tags.append(
-                SystemTag(
-                    key=key, system_tag_source=SystemTagSource.SNOWFLAKE, value=value
-                )
+            system_tag = SystemTag(
+                key=key,
+                system_tag_source=SystemTagSource.SNOWFLAKE,
+                value=value,
             )
+            if not dataset.system_tags.tags.count(system_tag):
+                dataset.system_tags.tags.append(system_tag)
 
         # When we get here the fields should already be populated.
         if dataset.schema.fields:
@@ -546,21 +550,21 @@ class SnowflakeExtractor(BaseExtractor):
                 for field in dataset.schema.fields:
                     if not field.tags:
                         field.tags = []
-                    field.tags.append(tag)
+                    if not field.tags.count(tag):
+                        field.tags.append(tag)
 
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
-        cursor.execute(
-            """
-            SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
-            FROM snowflake.account_usage.tag_references
-            WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
-            ORDER BY case when DOMAIN = 'DATABASE' then 1
-                          when DOMAIN = 'SCHEMA' then 2
-                          when DOMAIN = 'TABLE' then 3
-                          when DOMAIN = 'COLUMN' then 4
-                          end asc;
-            """
-        )
+        query = """
+        SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
+        FROM snowflake.account_usage.tag_references
+        WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
+        ORDER BY case when DOMAIN = 'DATABASE' then 1
+                        when DOMAIN = 'SCHEMA' then 2
+                        when DOMAIN = 'TABLE' then 3
+                        when DOMAIN = 'COLUMN' then 4
+                        end asc;
+        """
+        cursor.execute(query)
 
         for key, value, object_type, database, schema, object_name, column in cursor:
             if object_type in {"DATABASE", "SCHEMA"}:

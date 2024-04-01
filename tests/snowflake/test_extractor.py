@@ -1020,3 +1020,33 @@ def test_fetch_streams(mock_connect: MagicMock) -> None:
         stale=True,
         stale_after=datetime.fromisoformat("2023-01-01 12:00:00+00:00"),
     )
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_tags_with_duplicates(mock_connect: MagicMock):
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            ("key", "value", "TABLE", database, schema, table_name, None),
+            ("key", "value", "TABLE", database, schema, table_name, None),
+            ("key", "value", "TABLE", database, schema, table_name, None),
+            ("key", "value", "COLUMN", database, schema, table_name, column),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    dataset = extractor._init_dataset(
+        database, schema, table_name, table_type, "", None, None
+    )
+    dataset.schema.fields.append(SchemaField(field_path=column, subfields=[]))
+    extractor._datasets[normalized_name] = dataset
+
+    extractor._fetch_tags(mock_cursor)
+
+    assert dataset.system_tags.tags == [
+        SystemTag(key="key", system_tag_source=SystemTagSource.SNOWFLAKE, value="value")
+    ]
+    assert dataset.schema.fields[0].field_path == "col1"
+    assert dataset.schema.fields[0].tags == ["key=value"]
