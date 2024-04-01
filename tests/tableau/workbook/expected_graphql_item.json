@@ -1,0 +1,65 @@
+{
+  "luid": "abc",
+  "name": "Snowflake test1",
+  "projectName": "default",
+  "projectVizportalUrlId": "123456",
+  "vizportalUrlId": "123",
+  "upstreamDatasources": [
+    {
+      "id": "sourceId1",
+      "luid": "sourceId1",
+      "vizportalUrlId": "777",
+      "name": "source1",
+      "fields": [],
+      "upstreamTables": [
+        {
+          "luid": "4ba4462e",
+          "name": "CYCLE",
+          "fullName": "[LONDON].[CYCLE]",
+          "schema_": "LONDON",
+          "database": {
+            "name": "DEV_DB",
+            "connectionType": "snowflake"
+          }
+        }
+      ],
+      "owner": {
+        "luid": "12345678"
+      }
+    }
+  ],
+  "embeddedDatasources": [
+    {
+      "id": "sourceId2",
+      "name": "source2",
+      "fields": [],
+      "upstreamTables": [
+        {
+          "luid": "5dca51d8",
+          "name": "CYCLE_HIRE",
+          "fullName": "[BERLIN_BICYCLES].[CYCLE_HIRE]",
+          "schema_": "BERLIN_BICYCLES",
+          "description": "",
+          "database": {
+            "name": "ACME",
+            "connectionType": "redshift"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sourceId3",
+      "name": "source3",
+      "fields": [],
+      "upstreamTables": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "foo"
+    },
+    {
+      "name": "bar"
+    }
+  ]
+}

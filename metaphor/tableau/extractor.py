@@ -1,8 +1,9 @@
 import base64
 import re
-import traceback
 from dataclasses import dataclass
 from typing import Collection, Dict, List, Optional, Set, Tuple, Union
+
+from metaphor.tableau.workbook import Workbook, get_all_workbooks
 
 try:
     import tableauserverclient as tableau
@@ -45,15 +46,13 @@ from metaphor.models.metadata_change_event import (
     VirtualViewLogicalID,
     VirtualViewType,
 )
-from metaphor.tableau.config import TableauRunConfig
-from metaphor.tableau.graphql_utils import paginate_connection
+from metaphor.tableau.config import PERSONAL_SPACE_PROJECT_NAME, TableauRunConfig
+from metaphor.tableau.graphql_utils import fetch_custom_sql_tables
 from metaphor.tableau.query import (
     CustomSqlTable,
     DatabaseTable,
     WorkbookQueryResponse,
     connection_type_map,
-    custom_sql_graphql_query,
-    workbooks_graphql_query,
 )
 
 logger = get_logger()
@@ -94,7 +93,8 @@ class TableauExtractor(BaseExtractor):
         self._snowflake_account = config.snowflake_account
         self._bigquery_project_name_to_id_map = config.bigquery_project_name_to_id_map
         self._disable_preview_image = config.disable_preview_image
-        self._excluded_projects = config.excluded_projects
+        self._include_personal_space = config.include_personal_space
+        self._projects_filter = config.projects_filter
 
         self._views: Dict[str, tableau.ViewItem] = {}
         self._projects: Dict[str, List[str]] = {}  # project id -> project hierarchy
@@ -136,8 +136,9 @@ class TableauExtractor(BaseExtractor):
 
         server = tableau.Server(self._server_url, use_server_version=True)
         with server.auth.sign_in(tableau_auth):
-            self._extract_dashboards(server)
-            self._extract_datasources(server)
+            workbooks = get_all_workbooks(server)
+            self._extract_dashboards(server, workbooks)
+            self._extract_datasources(server, workbooks)
 
         return [
             *self._dashboards.values(),
@@ -145,7 +146,9 @@ class TableauExtractor(BaseExtractor):
             *self._datasets.values(),
         ]
 
-    def _extract_dashboards(self, server: tableau.Server) -> None:
+    def _extract_dashboards(
+        self, server: tableau.Server, workbooks: List[Workbook]
+    ) -> None:
         # fetch all projects
         projects: List[tableau.ProjectItem] = list(tableau.Pager(server.projects))
         json_dump_to_debug_file([w.__dict__ for w in projects], "projects.json")
@@ -168,64 +171,47 @@ class TableauExtractor(BaseExtractor):
                 continue
             self._views[view.id] = view
 
-        # fetch all workbooks
-        workbooks: List[tableau.WorkbookItem] = list(tableau.Pager(server.workbooks))
-        json_dump_to_debug_file([w.__dict__ for w in workbooks], "workbooks.json")
-        logger.info(
-            f"\nThere are {len(workbooks)} workbooks on site: {[workbook.name for workbook in workbooks]}"
-        )
         for workbook in workbooks:
             if workbook.id is not None and workbook.project_id is not None:
-                self._workbook_project[workbook.id] = workbook.project_id
+                self._workbook_project[workbook.id] = str(workbook.project_id)
 
-            server.workbooks.populate_views(workbook, usage=True)
+            server.workbooks.populate_views(workbook.rest_item, usage=True)
 
             try:
                 self._parse_dashboard(
-                    workbook, self._get_system_contacts(server, workbook.owner_id)
+                    workbook,
+                    self._get_system_contacts(server, workbook.rest_item.owner_id),
                 )
-            except Exception as error:
-                traceback.print_exc()
-                logger.error(f"failed to parse workbook {workbook.name}, error {error}")
+            except Exception:
+                logger.exception(f"failed to parse workbook {workbook.rest_item.name}")
 
-    def _extract_datasources(self, server: tableau.Server) -> None:
-        # fetch custom SQL tables from Metadata GraphQL API
-        custom_sql_tables = paginate_connection(
-            server, custom_sql_graphql_query, "customSQLTablesConnection"
-        )
-
-        json_dump_to_debug_file(custom_sql_tables, "graphql_custom_sql_tables.json")
-        logger.info(f"Found {len(custom_sql_tables)} custom SQL tables.")
+    def _extract_datasources(
+        self, server: tableau.Server, workbooks: List[Workbook]
+    ) -> None:
+        custom_sql_tables = fetch_custom_sql_tables(server)
 
         # mapping of datasource to (query, list of upstream dataset IDs)
-        datasource_upstream_datasets = {}
-        for item in custom_sql_tables:
-            custom_sql_table = CustomSqlTable.model_validate(item)
-            datasource_upstream_datasets.update(
-                self._parse_custom_sql_table(custom_sql_table)
-            )
+        datasource_upstream_datasets = {
+            datasource_id: custom_sql_source
+            for table in custom_sql_tables
+            for datasource_id, custom_sql_source in self._parse_custom_sql_table(
+                table
+            ).items()
+        }
 
-        # fetch workbook related info from Metadata GraphQL API
-        workbooks = paginate_connection(
-            server, workbooks_graphql_query, "workbooksConnection"
-        )
-        json_dump_to_debug_file(workbooks, "graphql_workbooks.json")
-        logger.info(f"Found {len(workbooks)} workbooks.")
-
-        for item in workbooks:
+        for workbook in workbooks:
             try:
-                workbook = WorkbookQueryResponse.model_validate(item)
-                if workbook.projectName in self._excluded_projects:
+                if not self._should_include_workbook(workbook):
                     logger.info(
-                        f"Ignoring datasources from workbook in excluded project: {workbook.projectName}"
+                        f"Ignoring datasources from workbook in excluded project: {workbook.project_name}"
                     )
                     continue
                 self._parse_workbook_query_response(
-                    server, workbook, datasource_upstream_datasets
+                    server, workbook.graphql_item, datasource_upstream_datasets
                 )
-            except Exception as error:
+            except Exception:
                 logger.exception(
-                    f"failed to parse workbook {item['vizportalUrlId']}, error {error}"
+                    f"failed to parse workbook {workbook.graphql_item.vizportalUrlId}"
                 )
 
     def _get_system_contacts(
@@ -286,31 +272,32 @@ class TableauExtractor(BaseExtractor):
         return full_name, structure
 
     def _parse_dashboard(
-        self, workbook: tableau.WorkbookItem, system_contacts: Optional[SystemContacts]
+        self, workbook: Workbook, system_contacts: Optional[SystemContacts]
     ) -> None:
-        if not workbook.webpage_url:
-            logger.exception(f"workbook {workbook.name} missing webpage_url")
-            return
-
-        if workbook.project_name in self._excluded_projects:
+        if not self._should_include_workbook(workbook):
             logger.info(
                 f"Ignoring dashboard from workbook in excluded project: {workbook.project_name}"
             )
             return
 
-        workbook_id = TableauExtractor._extract_workbook_id(workbook.webpage_url)
+        rest_workbook = workbook.rest_item
+        if not rest_workbook.webpage_url:
+            logger.exception(f"workbook {rest_workbook.name} missing webpage_url")
+            return
 
-        views: List[tableau.ViewItem] = workbook.views
+        workbook_id = TableauExtractor._extract_workbook_id(rest_workbook.webpage_url)
+
+        views: List[tableau.ViewItem] = rest_workbook.views
         charts = [self._parse_chart(self._views[view.id]) for view in views if view.id]
         total_views = sum([view.total_views for view in views])
 
         full_name, structure = self._build_asset_full_name_and_structure(
-            workbook.name, workbook.project_id, workbook.project_name
+            rest_workbook.name, rest_workbook.project_id, rest_workbook.project_name
         )
 
         dashboard_info = DashboardInfo(
             title=full_name,
-            description=workbook.description,
+            description=rest_workbook.description,
             charts=charts,
             view_count=float(total_views),
         )
@@ -331,11 +318,11 @@ class TableauExtractor(BaseExtractor):
 
         self._dashboards[workbook_id] = dashboard
 
-        if workbook.tags:
+        if rest_workbook.tags:
             dashboard.system_tags = SystemTags(
                 tags=[
                     SystemTag(value=tag, system_tag_source=SystemTagSource.TABLEAU)
-                    for tag in sorted(workbook.tags)
+                    for tag in sorted(rest_workbook.tags)
                 ]
             )
 
@@ -681,3 +668,11 @@ class TableauExtractor(BaseExtractor):
     @staticmethod
     def _build_preview_data_url(preview: bytes) -> str:
         return f"data:image/png;base64,{base64.b64encode(preview).decode('ascii')}"
+
+    def _should_include_workbook(self, workbook: Workbook) -> bool:
+        if (
+            not self._include_personal_space
+            and workbook.project_name == PERSONAL_SPACE_PROJECT_NAME
+        ):
+            return False
+        return self._projects_filter.include_project(workbook.project_id)

@@ -20,6 +20,7 @@ query($first: Int, $offset: Int) {
       luid
       name
       projectName
+      projectVizportalUrlId
       vizportalUrlId
       upstreamDatasources {
         id
@@ -124,6 +125,7 @@ class WorkbookQueryResponse(BaseModel):
     luid: str
     name: str
     projectName: str
+    projectVizportalUrlId: str
     vizportalUrlId: str
     upstreamDatasources: List[PublishedDatasource]
     embeddedDatasources: List[EmbeddedDatasource]

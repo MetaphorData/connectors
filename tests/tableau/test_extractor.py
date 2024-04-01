@@ -7,22 +7,7 @@ from tableauserverclient import ProjectItem, UserItem, ViewItem, WorkbookItem
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import EventUtil
-from metaphor.models.metadata_change_event import (
-    AssetStructure,
-    Chart,
-    Dashboard,
-    DashboardInfo,
-    DashboardLogicalID,
-    DashboardPlatform,
-    DataPlatform,
-    SourceInfo,
-    SystemContact,
-    SystemContacts,
-    SystemContactSource,
-    SystemTag,
-    SystemTags,
-    SystemTagSource,
-)
+from metaphor.models.metadata_change_event import AssetStructure, DataPlatform
 from metaphor.tableau.config import TableauRunConfig, TableauTokenAuthConfig
 from metaphor.tableau.extractor import TableauExtractor
 from metaphor.tableau.query import Database, DatabaseTable
@@ -238,7 +223,7 @@ def test_parse_database_table():
 
 
 @patch("tableauserverclient.Server")
-@patch("metaphor.tableau.extractor.paginate_connection")
+@patch("metaphor.tableau.graphql_utils._paginate_connection")
 @patch("tableauserverclient.Pager")
 @pytest.mark.asyncio
 async def test_extractor(
@@ -281,18 +266,12 @@ async def test_extractor(
     )
     workbook._set_views(lambda: [view])
 
-    system_contact = SystemContact(
-        email="user1@test.io",
-        system_contact_source=SystemContactSource.TABLEAU,
-    )
-
     extractor._views = {"vid": view}
-    extractor._parse_dashboard(workbook, SystemContacts(contacts=[system_contact]))
 
     ignored_workbook = WorkbookItem("Personal Space")
     ignored_workbook._set_values(
         id="dont_care",
-        name="wb",
+        name="we dont care",
         content_url="wb",
         webpage_url="https://hostname/#/site/dont_care/workbooks/123",
         created_at=None,
@@ -300,56 +279,12 @@ async def test_extractor(
         updated_at=None,
         size=1,
         show_tabs=True,
-        project_id="child_project_id",
-        project_name="Personal Space",
+        project_id="ignored",
+        project_name=None,
         owner_id=None,
         tags=None,
         views=[],
         data_acceleration_config=None,
-    )
-    extractor._parse_dashboard(ignored_workbook, None)
-
-    assert len(extractor._dashboards) == 1
-    assert extractor._dashboards["123"] == Dashboard(
-        logical_id=DashboardLogicalID(
-            dashboard_id="123", platform=DashboardPlatform.TABLEAU
-        ),
-        structure=AssetStructure(directories=["project1"], name="wb"),
-        dashboard_info=DashboardInfo(
-            charts=[
-                Chart(
-                    title="name",
-                    url="https://10ax.online.tableau.com/#/site/abc/views/workbook/view",
-                    preview="data:image/png;base64,AA==",
-                )
-            ],
-            description="d",
-            title="project1.wb",
-            view_count=100.0,
-        ),
-        source_info=SourceInfo(
-            main_url="https://10ax.online.tableau.com/#/site/abc/workbooks/123",
-        ),
-        system_tags=SystemTags(
-            tags=[
-                SystemTag(
-                    value="tag1",
-                    system_tag_source=SystemTagSource.TABLEAU,
-                ),
-                SystemTag(
-                    value="tag2",
-                    system_tag_source=SystemTagSource.TABLEAU,
-                ),
-            ]
-        ),
-        system_contacts=SystemContacts(
-            contacts=[
-                SystemContact(
-                    email="user1@test.io",
-                    system_contact_source=SystemContactSource.TABLEAU,
-                )
-            ]
-        ),
     )
 
     graphql_custom_sql_tables_response = [
@@ -372,6 +307,7 @@ async def test_extractor(
             "luid": "abc",
             "name": "Snowflake test1",
             "projectName": "default",
+            "projectVizportalUrlId": "child_project_id",
             "vizportalUrlId": "123",
             "upstreamDatasources": [
                 {
@@ -436,6 +372,7 @@ async def test_extractor(
             "luid": "dont_care",
             "name": "we dont care",
             "projectName": "Personal Space",
+            "projectVizportalUrlId": "9487",
             "vizportalUrlId": "5566",
             "upstreamDatasources": [
                 {
@@ -492,7 +429,7 @@ async def test_extractor(
     mock_server.auth = mock_auth
     mock_server.projects = ProjectsWrapper([project1, project2])
     mock_server.views = ViewsWrapper([view])
-    mock_server.workbooks = WorkbooksWrapper([workbook])
+    mock_server.workbooks = WorkbooksWrapper([workbook, ignored_workbook])
     mock_server.users = MagicMock()
     mock_server.users.get_by_id = lambda _: user
     mock_server_cls.return_value = mock_server
@@ -500,8 +437,8 @@ async def test_extractor(
     mock_pager_cls.side_effect = MockPager
 
     mock_paginate_connection.side_effect = [
-        graphql_custom_sql_tables_response,
         graphql_workbooks_response,
+        graphql_custom_sql_tables_response,
     ]
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]

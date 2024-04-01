@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from metaphor.tableau.graphql_utils import paginate_connection
+from metaphor.tableau.graphql_utils import _paginate_connection
 
 
 def test_paginate_connection():
@@ -12,7 +12,7 @@ def test_paginate_connection():
     server.metadata = MagicMock()
     server.metadata.query.side_effect = [batch1, batch2]
 
-    assert paginate_connection(server, "query", "someConnection", batch_size=2) == [
+    assert _paginate_connection(server, "query", "someConnection", batch_size=2) == [
         {"val": 1},
         {"val": 2},
         {"val": 3},
