@@ -9,6 +9,7 @@ from metaphor.common.entity_id import to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
+from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -26,6 +27,8 @@ class RedshiftLineageExtractor(PostgreSQLExtractor):
     """Redshift lineage metadata extractor"""
 
     _description = "Redshift data lineage crawler"
+    _platform = Platform.REDSHIFT
+    _dataset_platform = DataPlatform.REDSHIFT
 
     @staticmethod
     def from_config_file(config_file: str) -> "RedshiftLineageExtractor":

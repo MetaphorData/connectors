@@ -121,7 +121,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
                 entities.append(f"COUNT(DISTINCT {column})")
 
             if nullable and column_statistics.null_count:
-                entities.append(f"COUNT({column})")
+                entities.append(f"COUNT(1) - COUNT({column})")
 
             if is_numeric:
                 if column_statistics.min_value:
