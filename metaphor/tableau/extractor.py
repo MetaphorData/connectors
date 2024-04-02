@@ -203,7 +203,7 @@ class TableauExtractor(BaseExtractor):
             try:
                 if not self._should_include_workbook(workbook):
                     logger.info(
-                        f"Ignoring datasources from workbook in excluded project: {workbook.project_name}"
+                        f"Ignoring datasources from workbook in excluded project: {workbook.project_name}, workbook id = {workbook.id}"
                     )
                     continue
                 self._parse_workbook_query_response(
@@ -276,7 +276,7 @@ class TableauExtractor(BaseExtractor):
     ) -> None:
         if not self._should_include_workbook(workbook):
             logger.info(
-                f"Ignoring dashboard from workbook in excluded project: {workbook.project_name}"
+                f"Ignoring dashboard from workbook in excluded project: {workbook.project_name}, workbook id = {workbook.id}"
             )
             return
 
