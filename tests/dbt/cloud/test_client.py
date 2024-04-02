@@ -42,6 +42,7 @@ def test_get_last_successful_run(mock_requests):
     )
 
     run = client.get_last_successful_run(2222)
+    assert run
     assert run.project_id == 222
     assert run.run_id == 2
     assert run.job_id == 8888
@@ -60,6 +61,83 @@ def test_get_last_successful_run(mock_requests):
         },
         timeout=600,
     )
+
+
+@patch("metaphor.dbt.cloud.client.requests")
+def test_no_successful_runs(mock_requests):
+    client = DbtAdminAPIClient(
+        base_url="http://base.url",
+        account_id=1111,
+        service_token="service_token",
+    )
+
+    mock_requests.get.return_value = Response(
+        200,
+        {"data": []},
+    )
+
+    run = client.get_last_successful_run(2222)
+    assert not run
+
+    mock_requests.get.assert_called_once_with(
+        "http://base.url/api/v2/accounts/1111/runs/",
+        params={
+            "job_definition_id": 2222,
+            "order_by": "-id",
+            "limit": 50,
+            "offset": 0,
+        },
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Token service_token",
+        },
+        timeout=600,
+    )
+
+
+@patch("metaphor.dbt.cloud.client.requests")
+def test_get_last_successful_run_pagination(mock_requests):
+    client = DbtAdminAPIClient(
+        base_url="http://base.url",
+        account_id=1111,
+        service_token="service_token",
+    )
+
+    mock_requests.get.side_effect = [
+        Response(
+            200,
+            {
+                "data": [
+                    {
+                        "id": 1,
+                        "project_id": 111,
+                        "job_definition_id": 9999,
+                        "status": 20,
+                    },
+                ]
+            },
+        ),
+        Response(
+            200,
+            {
+                "data": [
+                    {
+                        "id": 2,
+                        "project_id": 222,
+                        "job_definition_id": 8888,
+                        "status": 10,
+                    },
+                ]
+            },
+        ),
+    ]
+    run = client.get_last_successful_run(2222, page_size=1)
+    assert run
+    assert run.project_id == 222
+    assert run.run_id == 2
+    assert run.job_id == 8888
+
+    assert mock_requests.get.call_count == 2
 
 
 @patch("metaphor.dbt.cloud.client.requests")

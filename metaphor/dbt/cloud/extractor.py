@@ -61,6 +61,9 @@ class DbtCloudExtractor(BaseExtractor):
         logger.info(f"Fetching metadata for job ID: {job_id}")
 
         run = self._client.get_last_successful_run(job_id)
+        if not run:
+            logger.warning(f"Cannot find any successful run for job ID: {job_id}")
+            return
 
         if run.run_id in self._entities:
             logger.info(f"Found already extracted run: {run}")
