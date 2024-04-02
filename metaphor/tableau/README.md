@@ -95,19 +95,29 @@ disable_preview_image: true
 
 #### Excluding Projects
 
-You can specify the project to be ignored by the connector. By default the project `Personal Space` is ignored. To specify more ignored projects, add the following configuration:
-
-```yaml
-exclude_extra_projects:
-  - <excluded_project_name_1>
-  - <excluded_project_name_2>
-```
+You can specify the project to be included / excluded by the connector. By default the project `Personal Space` is ignored.
 
 To override the default behavior and include `Personal Space` in the connector, use the following configuration:
 
 ```yaml
 include_personal_space: True
 ```
+
+To specify the projects to include / exclude, use the following field:
+
+```yaml
+projects_filter:
+  includes:
+    - project_id_1
+    - project_id_2
+    ...
+  excludes:
+    - project_id_1
+    - project_id_2
+    ...
+```
+
+To only include specific projects, use `includes` field. To only exclude certain projects, use `excludes` field.
 
 ## Testing
 
