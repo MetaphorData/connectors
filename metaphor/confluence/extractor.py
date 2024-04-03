@@ -1,9 +1,11 @@
 import datetime
 import json
-from typing import Collection
+from typing import Collection, List
+import os
 
 import requests
 from llama_index.core import Document
+from llama_index.readers.confluence import ConfluenceReader
 from requests.exceptions import HTTPError, RequestException
 
 from metaphor.common.base_extractor import BaseExtractor
@@ -18,6 +20,7 @@ logger = get_logger()
 embedding_chunk_size = 512
 embedding_overlap_size = 50
 
+
 class ConfluenceExtractor(BaseExtractor):
     """Confluence Page Extractor."""
 
@@ -27,7 +30,7 @@ class ConfluenceExtractor(BaseExtractor):
     @staticmethod
     def from_config_file(config_file: str) -> "ConfluenceExtractor":
         return ConfluenceExtractor(ConfluenceRunConfig.from_yaml_file(config_file))
-    
+
     def __init__(self, config: ConfluenceRunConfig):
         super().__init__(config=config)  # type: ignore[call-arg]
 
@@ -60,16 +63,77 @@ class ConfluenceExtractor(BaseExtractor):
         self.azure_openAI_model = config.azure_openAI_model
         self.azure_openAI_model_name = config.azure_openAI_model_name
 
+        # Replace empty configs for validation
+        self.space_key = self.space_key if self.space_key else None
+        self.page_ids = self.page_ids if self.page_ids else None
+        self.label = self.label if self.label else None
+        self.cql = self.cql if self.cql else None
+
+        # Set appropriate environment variables
+        if self.confluence_cloud:
+            os.environ["CONFLUENCE_USERNAME"] = self.confluence_username
+            os.environ["CONFLUENCE_PASSWORD"] = self.confluence_password
+        else:
+            os.environ["CONFLUENCE_API_TOKEN"] = self.confluence_PAT
+
+        # Initialize Reader; will read appropriate environment variables.
+        self.confluence_reader = ConfluenceReader(
+            base_url=self.confluence_base_URL, cloud=self.confluence_cloud
+        )
+
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching pages from Confluence: {self.confluence_base_URL}")
-        self._check_configs()
-        pass
 
-    def _check_configs(self) -> None:
-        # check that only one of space_key, page_ids, label, cql are present
-        # check that the one that is present matches select_method
-        # check that only one authentication method is present
-        # check that authentication method matches the confluence_cloud option
+        documents = self._load_confluence_data()
 
-        # check that the baseURL does not end in "/", fix
-        pass
+        logger.info("Starting embedding process")
+
+        vsi = embed_documents(
+            documents,
+            self.azure_openAI_key,
+            self.azure_openAI_version,
+            self.azure_openAI_endpoint,
+            self.azure_openAI_model,
+            self.azure_openAI_model_name,
+            embedding_chunk_size,
+            embedding_overlap_size,
+        )
+
+        embedded_nodes = map_metadata(vsi, include_text=self.include_text)
+
+        return embedded_nodes
+
+    def _load_confluence_data(self) -> List[Document]:
+        # Use ConfluenceReader to extract Documents.
+        # ConfluenceReader validates that only one input type is present.
+        docs = self.confluence_reader.load_data(
+            space_key=self.space_key,
+            page_ids=self.page_ids,
+            page_status=self.page_status,
+            label=self.label,
+            cql=self.cql,
+            include_attachments=self.include_attachments,
+            include_children=self.include_children,
+        )
+
+        current_time = str(datetime.datetime.now(datetime.UTC))
+
+        for doc in docs:
+            # Reset page_id
+            doc.metadata["pageId"] = doc.metadata.pop("page_id")
+
+            # Clean the document text
+            doc.text = sanitize_text(doc.text)
+
+            # Update platform
+            doc.metadata["platform"] = "confluence"
+
+            # Reset link
+            doc.metadata["link"] = doc.metadata.pop("url")
+
+            # Add timestamp
+            doc.metadata["lastRefreshed"] = current_time
+
+        logger.info(f"Successfully retrieved {len(docs)} documents.")
+
+        return docs
