@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.161"
+version = "0.13.162"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -114,7 +114,7 @@ all = [
   "trino",
 ]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
-confluence = ["llama-index", "llama-indx-embeddings-azure-openai", "llama-index-readers-notion"]
+confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
 dbt = []
