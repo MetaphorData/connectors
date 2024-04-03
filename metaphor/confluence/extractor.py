@@ -1,19 +1,16 @@
-from datetime import datetime, timezone
-import json
-from typing import Collection, List
 import os
+from datetime import datetime, timezone
+from typing import Collection, List
 
-import requests
 from llama_index.core import Document
 from llama_index.readers.confluence import ConfluenceReader
-from requests.exceptions import HTTPError, RequestException
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.models.crawler_run_metadata import Platform
 from metaphor.confluence.config import ConfluenceRunConfig
+from metaphor.models.crawler_run_metadata import Platform
 
 logger = get_logger()
 
@@ -64,10 +61,10 @@ class ConfluenceExtractor(BaseExtractor):
         self.azure_openAI_model_name = config.azure_openAI_model_name
 
         # Replace empty configs for validation
-        self.space_key = self.space_key if self.space_key else None
-        self.page_ids = self.page_ids if self.page_ids else None
-        self.label = self.label if self.label else None
-        self.cql = self.cql if self.cql else None
+        self.space_key = self.space_key if self.space_key else None  # type: ignore[assignment]
+        self.page_ids = self.page_ids if self.page_ids else None  # type: ignore[assignment]
+        self.label = self.label if self.label else None  # type: ignore[assignment]
+        self.cql = self.cql if self.cql else None  # type: ignore[assignment]
 
         # Set appropriate environment variables
         if self.confluence_cloud:

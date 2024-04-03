@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-import requests
 from llama_index.core import Document
 
 from metaphor.common.base_config import OutputConfig
@@ -60,7 +59,7 @@ sample_raw_documents = [
 ]
 
 sample_formatted_documents = [
-    Document(
+    Document(  # type: ignore[call-arg]
         id_="5678",
         embedding=None,
         metadata={
@@ -147,7 +146,7 @@ async def test_extract(
 
     # mock embed docs
     mock_embed_docs.return_value = mock_VSI
-    
+
     # mock return value of load_data
     mock_load_data.return_value = sample_formatted_documents
 

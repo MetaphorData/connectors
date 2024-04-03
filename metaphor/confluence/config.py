@@ -16,7 +16,7 @@ class ConfluenceRunConfig(BaseConfig):
     # Azure OpenAI configs
     azure_openAI_key: str
     azure_openAI_endpoint: str
-    
+
     # Confluence username / token (Cloud)
     confluence_username: str = ""
     confluence_token: str = ""
@@ -40,7 +40,7 @@ class ConfluenceRunConfig(BaseConfig):
 
     # Parse document attachments
     include_attachments: bool = False
-    
+
     # Parse page children (when page_ids used)
     include_children: bool = False
 
