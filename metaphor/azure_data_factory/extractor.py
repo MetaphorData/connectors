@@ -58,7 +58,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
     """Azure Data Factory metadata extractor"""
 
     _description = "Azure Data Factory metadata crawler"
-    _platform = Platform.GLUE
+    _platform = Platform.AZURE_DATA_FACTORY_PIPELINE
 
     @staticmethod
     def from_config_file(config_file: str) -> "AzureDataFactoryExtractor":
