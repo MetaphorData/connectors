@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 import json
 from typing import Collection, List
 import os
@@ -116,7 +116,7 @@ class ConfluenceExtractor(BaseExtractor):
             include_children=self.include_children,
         )
 
-        current_time = str(datetime.datetime.utcnow())
+        current_time = str(datetime.now(timezone.utc))
 
         for doc in docs:
             # Reset page_id
