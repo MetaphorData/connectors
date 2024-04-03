@@ -1,3 +1,5 @@
+from dataclasses import field
+
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -24,7 +26,7 @@ class ConfluenceRunConfig(BaseConfig):
 
     # Selection method
     space_key: str = ""
-    page_ids: list = []
+    page_ids: list = field(default_factory=list)
     label: str = ""
     cql: str = ""
 
@@ -43,4 +45,4 @@ class ConfluenceRunConfig(BaseConfig):
     include_children: bool = False
 
     # Filter by page status (when space_key used)
-    page_status: str = "current"
+    page_status: str = ""

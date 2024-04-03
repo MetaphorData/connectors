@@ -116,7 +116,7 @@ class ConfluenceExtractor(BaseExtractor):
             include_children=self.include_children,
         )
 
-        current_time = str(datetime.datetime.now(datetime.UTC))
+        current_time = str(datetime.datetime.utcnow())
 
         for doc in docs:
             # Reset page_id
