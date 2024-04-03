@@ -472,7 +472,6 @@ class UnityCatalogExtractor(BaseExtractor):
                     dataset.system_tags = SystemTags(tags=[])
                 assert dataset.system_tags and dataset.system_tags.tags is not None
 
-                tag = f"{tag_name}={tag_value}" if tag_value else tag_name
                 if tag_value:
                     tag = SystemTag(
                         key=tag_name,
