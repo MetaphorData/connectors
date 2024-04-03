@@ -10,6 +10,7 @@ bigquery_project_name_to_id_map:
   bq_name: bq_id
 disable_preview_image: true
 output: {}
-exclude_extra_projects:
-  - foo
-  - bar
+projects_filter:
+  excludes:
+    - '111'
+    - '222'

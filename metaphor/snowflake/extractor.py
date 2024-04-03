@@ -549,18 +549,18 @@ class SnowflakeExtractor(BaseExtractor):
                     field.tags.append(tag)
 
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
-        cursor.execute(
-            """
-            SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
-            FROM snowflake.account_usage.tag_references
-            WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
-            ORDER BY case when DOMAIN = 'DATABASE' then 1
-                          when DOMAIN = 'SCHEMA' then 2
-                          when DOMAIN = 'TABLE' then 3
-                          when DOMAIN = 'COLUMN' then 4
-                          end asc;
-            """
-        )
+        query = """
+        SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
+        FROM snowflake.account_usage.tag_references
+        WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
+        AND OBJECT_DELETED IS NULL
+        ORDER BY case when DOMAIN = 'DATABASE' then 1
+                        when DOMAIN = 'SCHEMA' then 2
+                        when DOMAIN = 'TABLE' then 3
+                        when DOMAIN = 'COLUMN' then 4
+                        end asc;
+        """
+        cursor.execute(query)
 
         for key, value, object_type, database, schema, object_name, column in cursor:
             if object_type in {"DATABASE", "SCHEMA"}:

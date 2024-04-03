@@ -77,6 +77,7 @@ class DbtAdminAPIClient:
 
             jobs |= new_jobs
             offset += page_size
+            payload["offset"] = offset
 
     def is_job_included(self, job_id: int) -> bool:
         if len(self.included_env_ids) == 0:
@@ -87,11 +88,12 @@ class DbtAdminAPIClient:
         data = resp.get("data")
         return int(data.get("environment_id", -1)) in self.included_env_ids
 
-    def get_last_successful_run(self, job_id: int) -> DbtRun:
+    def get_last_successful_run(
+        self, job_id: int, page_size: int = 50
+    ) -> Optional[DbtRun]:
         """Get the run ID of the last successful run for a job"""
 
         offset = 0
-        page_size = 50
         payload = {
             "order_by": "-id",
             "limit": page_size,
@@ -104,7 +106,8 @@ class DbtAdminAPIClient:
             resp = self._get("runs/", payload)
 
             data = resp.get("data")
-            assert len(data) > 0, "Unable to find any successful run"
+            if len(data) == 0:
+                return None
 
             for run in data:
                 if run.get("status") == 10:
@@ -115,6 +118,7 @@ class DbtAdminAPIClient:
                     )
 
             offset += page_size
+            payload["offset"] = offset
 
     def get_snowflake_account(self, project_id: int) -> Optional[str]:
         """Get the Snowflake account name for a particular project

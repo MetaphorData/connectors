@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
 from pydantic import model_validator
 from pydantic.dataclasses import dataclass
@@ -28,6 +28,19 @@ class TableauPasswordAuthConfig:
 
 
 @dataclass(config=ConnectorConfig)
+class TableauProjectConfig:
+    includes: List[str] = dataclasses.field(default_factory=list)
+    excludes: List[str] = dataclasses.field(default_factory=list)
+
+    def include_project(self, project_id: str):
+        if self.includes and project_id not in self.includes:
+            return False
+        if self.excludes and project_id in self.excludes:
+            return False
+        return True
+
+
+@dataclass(config=ConnectorConfig)
 class TableauRunConfig(BaseConfig):
     server_url: str
     site_name: str
@@ -44,8 +57,9 @@ class TableauRunConfig(BaseConfig):
         default_factory=dict
     )
 
-    exclude_extra_projects: List[str] = dataclasses.field(default_factory=list)
     include_personal_space: bool = False
+
+    projects_filter: TableauProjectConfig = TableauProjectConfig()
 
     # whether to disable Chart preview image
     disable_preview_image: bool = False
@@ -54,10 +68,3 @@ class TableauRunConfig(BaseConfig):
     def have_access_token_or_user_password(self):
         must_set_exactly_one(self.__dict__, ["access_token", "user_password"])
         return self
-
-    @property
-    def excluded_projects(self) -> Set[str]:
-        return set(
-            self.exclude_extra_projects
-            + ([] if self.include_personal_space else [PERSONAL_SPACE_PROJECT_NAME])
-        )
