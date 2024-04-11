@@ -13,7 +13,6 @@ from metaphor.common.entity_id import (
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import is_email
 from metaphor.dbt.config import MetaOwnership, MetaTag
-from metaphor.dbt.generated.dbt_run_results_v4 import DbtRunResults, RunResultOutput
 from metaphor.models.metadata_change_event import (
     DataMonitor,
     DataMonitorStatus,
@@ -241,19 +240,6 @@ def build_source_code_url(
     project_source_url: Optional[str], file_path: str
 ) -> Optional[str]:
     return f"{project_source_url}/{file_path}" if project_source_url else None
-
-
-def find_run_result_ouptput_by_id(
-    run_results: DbtRunResults, unique_id: str
-) -> Optional[RunResultOutput]:
-    return next(
-        (
-            run_result
-            for run_result in run_results.results
-            if run_result.unique_id == unique_id
-        ),
-        None,
-    )
 
 
 def add_data_quality_monitor(
