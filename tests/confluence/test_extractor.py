@@ -105,8 +105,6 @@ def test_load_confluence_data(
 
     documents = confluence_extractor._load_confluence_data()
 
-    print(documents)
-
     assert documents == sample_formatted_documents
 
 
