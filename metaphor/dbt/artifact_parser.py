@@ -13,7 +13,6 @@ from metaphor.dbt.util import (
     build_model_docs_url,
     build_source_code_url,
     dataset_normalized_name,
-    find_run_result_ouptput_by_id,
     get_model_name_from_unique_id,
     get_ownerships_from_meta,
     get_snapshot_name_from_unique_id,
@@ -124,8 +123,20 @@ from .generated.dbt_manifest_v11 import ModelNode as ModelNodeV11
 from .generated.dbt_manifest_v11 import SnapshotNode as SnapshotNodeV11
 from .generated.dbt_manifest_v11 import SourceDefinition as SourceDefinitionV11
 from .generated.dbt_manifest_v11 import WritableManifest as DbtManifestV11
+from .generated.dbt_manifest_v12 import DependsOn as DependsOnV12
+from .generated.dbt_manifest_v12 import GenericTestNode as GenericTestNodeV12
+from .generated.dbt_manifest_v12 import Macro as MacroV12
+from .generated.dbt_manifest_v12 import Metric as MetricV12
+from .generated.dbt_manifest_v12 import ModelNode as ModelNodeV12
+from .generated.dbt_manifest_v12 import SnapshotNode as SnapshotNodeV12
+from .generated.dbt_manifest_v12 import SourceDefinition as SourceDefinitionV12
+from .generated.dbt_manifest_v12 import WritableManifest as DbtManifestV12
 from .generated.dbt_run_results_v4 import DbtRunResults as DbtRunResultsV4
-from .generated.dbt_run_results_v4 import DbtRunResults as DbtRunResultsV5
+from .generated.dbt_run_results_v4 import RunResultOutput as RunResultOutputV4
+from .generated.dbt_run_results_v5 import RunResultOutput as RunResultOutputV5
+from .generated.dbt_run_results_v5 import RunResultsArtifact as DbtRunResultsV5
+from .generated.dbt_run_results_v6 import RunResultOutput as RunResultOutputV6
+from .generated.dbt_run_results_v6 import RunResultsArtifact as DbtRunResultsV6
 
 logger = get_logger()
 
@@ -141,6 +152,7 @@ MODEL_NODE_TYPE = Union[
     ModelNodeV9,
     ModelNodeV10,
     ModelNodeV11,
+    ModelNodeV12,
 ]
 
 TEST_NODE_TYPE = Union[
@@ -151,6 +163,7 @@ TEST_NODE_TYPE = Union[
     GenericTestNodeV9,
     GenericTestNodeV10,
     GenericTestNodeV11,
+    GenericTestNodeV12,
     ParsedTestNodeV5,
     ParsedTestNodeV6,
     ParsedTestNodeV7,
@@ -167,6 +180,7 @@ SNAPSHOT_NODE_TYPES = [
     SnapshotNodeV9,
     SnapshotNodeV10,
     SnapshotNodeV11,
+    SnapshotNodeV12,
 ]
 
 SNAPSHOT_NODE_TYPE = Union[
@@ -180,6 +194,7 @@ SNAPSHOT_NODE_TYPE = Union[
     SnapshotNodeV9,
     SnapshotNodeV10,
     SnapshotNodeV11,
+    SnapshotNodeV12,
 ]
 
 VIRTUAL_VIEW_NODE_TYPE = Union[
@@ -204,6 +219,7 @@ SOURCE_DEFINITION_TYPE = Union[
     SourceDefinitionV9,
     SourceDefinitionV10,
     SourceDefinitionV11,
+    SourceDefinitionV12,
 ]
 
 SOURCE_DEFINITION_MAP = Union[
@@ -214,6 +230,7 @@ SOURCE_DEFINITION_MAP = Union[
     Dict[str, SourceDefinitionV9],
     Dict[str, SourceDefinitionV10],
     Dict[str, SourceDefinitionV11],
+    Dict[str, SourceDefinitionV12],
 ]
 
 METRIC_TYPE = Union[
@@ -224,6 +241,7 @@ METRIC_TYPE = Union[
     MetricV9,
     MetricV10,
     MetricV11,
+    MetricV12,
 ]
 
 DEPENDS_ON_TYPE = Union[
@@ -234,6 +252,7 @@ DEPENDS_ON_TYPE = Union[
     DependsOnV9,
     DependsOnV10,
     DependsOnV11,
+    DependsOnV12,
 ]
 
 MACRO_MAP = Union[
@@ -244,6 +263,7 @@ MACRO_MAP = Union[
     Dict[str, MacroV9],
     Dict[str, MacroV10],
     Dict[str, MacroV11],
+    Dict[str, MacroV12],
 ]
 
 MANIFEST_CLASS_TYPE = Union[
@@ -254,6 +274,7 @@ MANIFEST_CLASS_TYPE = Union[
     Type[DbtManifestV9],
     Type[DbtManifestV10],
     Type[DbtManifestV11],
+    Type[DbtManifestV12],
 ]
 
 # Maps dbt schema version to manifest class
@@ -266,22 +287,32 @@ dbt_version_manifest_class_map: Dict[str, MANIFEST_CLASS_TYPE] = {
     "v9": DbtManifestV9,
     "v10": DbtManifestV10,
     "v11": DbtManifestV11,
+    "v12": DbtManifestV12,
 }
 
 RUN_RESULTS_TYPE = Union[
     DbtRunResultsV4,
     DbtRunResultsV5,
+    DbtRunResultsV6,
 ]
 
 RUN_RESULTS_CLASS_TYPE = Union[
     Type[DbtRunResultsV4],
     Type[DbtRunResultsV5],
+    Type[DbtRunResultsV6],
+]
+
+RUN_RESULT_OUTPUT_TYPE = Union[
+    RunResultOutputV4,
+    RunResultOutputV5,
+    RunResultOutputV6,
 ]
 
 # Maps dbt schema version to run_results class
 dbt_version_run_results_class_map: Dict[str, RUN_RESULTS_CLASS_TYPE] = {
     "v4": DbtRunResultsV4,
     "v5": DbtRunResultsV5,
+    "v6": DbtRunResultsV6,
 }
 
 dbt_run_result_output_data_monitor_status_map: Dict[str, DataMonitorStatus] = {
@@ -431,6 +462,7 @@ class ArtifactParser:
                     ModelNodeV9,
                     ModelNodeV10,
                     ModelNodeV11,
+                    ModelNodeV12,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(MODEL_NODE_TYPE)
@@ -451,6 +483,7 @@ class ArtifactParser:
                     GenericTestNodeV9,
                     GenericTestNodeV10,
                     GenericTestNodeV11,
+                    GenericTestNodeV12,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(TEST_NODE_TYPE)
@@ -472,6 +505,7 @@ class ArtifactParser:
                     SnapshotNodeV9,
                     SnapshotNodeV10,
                     SnapshotNodeV11,
+                    SnapshotNodeV12,
                 ),
             )
             # if upgraded to python 3.8+, can use get_args(SNAPSHOT_NODE_TYPE)
@@ -563,6 +597,18 @@ class ArtifactParser:
                 f"Skipping model without config or database, {model.unique_id}"
             )
             return
+
+        def find_run_result_ouptput_by_id(
+            run_results: RUN_RESULTS_TYPE, unique_id: str
+        ) -> Optional[RUN_RESULT_OUTPUT_TYPE]:
+            return next(
+                (
+                    run_result
+                    for run_result in run_results.results
+                    if run_result.unique_id == unique_id
+                ),
+                None,
+            )
 
         run_result = find_run_result_ouptput_by_id(run_results, test.unique_id)
         if run_result is None:
@@ -908,7 +954,7 @@ class ArtifactParser:
         macro_map: Dict[str, DbtMacro],
     ) -> None:
         # TODO: Add support for v10+ Metric
-        if isinstance(metric, (MetricV10, MetricV11)):
+        if isinstance(metric, (MetricV10, MetricV11, MetricV12)):
             return
 
         metric_entity = init_metric(self._metrics, metric.unique_id)

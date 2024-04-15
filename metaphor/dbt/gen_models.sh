@@ -34,9 +34,12 @@ echo $URL
 echo $OUTPUT
 poetry run datamodel-codegen \
   --url ${URL} \
+  --disable-timestamp \
   --class-name ${CLASS_NAME} \
   --enum-field-as-literal all \
   --input-file-type jsonschema \
+  --use-title-as-name \
+  --reuse-model \
   --output ${OUTPUT} \
   --output-model-type pydantic_v2.BaseModel
 

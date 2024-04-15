@@ -1,0 +1,1069 @@
+[
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~3D44F77933D66A9899B09FD9F69288C7"
+            }
+          ],
+          "title": "not_null_stg_customers_customer_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~3D44F77933D66A9899B09FD9F69288C7"
+            }
+          ],
+          "title": "unique_stg_customers_customer_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "location_id",
+              "dataset": "DATASET~0C87812C070E8F24832122F91B33973A"
+            }
+          ],
+          "title": "not_null_stg_locations_location_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "location_id",
+              "dataset": "DATASET~0C87812C070E8F24832122F91B33973A"
+            }
+          ],
+          "title": "unique_stg_locations_location_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_locations",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_item_id",
+              "dataset": "DATASET~4078A2BB213110BA4676D3DDD0570785"
+            }
+          ],
+          "title": "not_null_stg_order_items_order_item_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_item_id",
+              "dataset": "DATASET~4078A2BB213110BA4676D3DDD0570785"
+            }
+          ],
+          "title": "unique_stg_order_items_order_item_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_order_items",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~F920F1D5CD99C02F5736012A6525C1C7"
+            }
+          ],
+          "title": "not_null_stg_orders_order_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~F920F1D5CD99C02F5736012A6525C1C7"
+            }
+          ],
+          "title": "unique_stg_orders_order_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_orders",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "product_id",
+              "dataset": "DATASET~4859DF95A843307D9024D6BD1FC7A6C2"
+            }
+          ],
+          "title": "not_null_stg_products_product_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "product_id",
+              "dataset": "DATASET~4859DF95A843307D9024D6BD1FC7A6C2"
+            }
+          ],
+          "title": "unique_stg_products_product_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_products",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "supply_uuid",
+              "dataset": "DATASET~D9A64FC8FAAF471F555387204C357B71"
+            }
+          ],
+          "title": "not_null_stg_supplies_supply_uuid"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "supply_uuid",
+              "dataset": "DATASET~D9A64FC8FAAF471F555387204C357B71"
+            }
+          ],
+          "title": "unique_stg_supplies_supply_uuid"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.stg_supplies",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~38A45C65369F8DD4B9BFC79001060257"
+            }
+          ],
+          "title": "not_null_customers_customer_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~38A45C65369F8DD4B9BFC79001060257"
+            }
+          ],
+          "title": "unique_customers_customer_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_type",
+              "dataset": "DATASET~38A45C65369F8DD4B9BFC79001060257"
+            }
+          ],
+          "title": "accepted_values_customers_customer_type__new__returning"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~3BDE29A8EF7A35DF649798D1C09EF61B"
+            }
+          ],
+          "title": "not_null_orders_order_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~3BDE29A8EF7A35DF649798D1C09EF61B"
+            }
+          ],
+          "title": "unique_orders_order_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~3BDE29A8EF7A35DF649798D1C09EF61B"
+            }
+          ],
+          "title": "relationships_orders_customer_id__customer_id__ref_stg_customers_"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor",
+      "name": "dev_db.dbt_dev.orders",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_products\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- properties\n        name as product_name,\n        type as product_type,\n        description as product_description,\n        (price / 100.0) as product_price,\n\n\n        ---------- derived\n        case\n            when type = 'jaffle' then 1\n            else 0\n        end as is_food_item,\n\n        case\n            when type = 'beverage' then 1\n            else 0\n        end as is_drink_item\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product.",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.stg_products",
+      "fields": [
+        {
+          "description": "The unique key for each product.",
+          "fieldName": "product_id",
+          "fieldPath": "product_id",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~4859DF95A843307D9024D6BD1FC7A6C2",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_products\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- properties\n        name as product_name,\n        type as product_type,\n        description as product_description,\n        (price / 100.0) as product_price,\n\n\n        ---------- derived\n        case\n            when type = 'jaffle' then 1\n            else 0\n        end as is_food_item,\n\n        case\n            when type = 'beverage' then 1\n            else 0\n        end as is_drink_item\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "product_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_stg_products_product_id",
+          "sql": "\n    \n    \n\n\n\nselect product_id\nfrom DEV_DB.DBT_DEV.stg_products\nwhere product_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_products_product_id.6373b0acf3"
+        },
+        {
+          "columns": [
+            "product_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_stg_products_product_id",
+          "sql": "\n    \n    \n\nselect\n    product_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_products\nwhere product_id is not null\ngroup by product_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_products_product_id.7d950a1467"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/staging/stg_products.sql"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_products",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_products"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_customers\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as customer_id,\n\n        ---------- properties\n        name as customer_name\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "Customer data with basic cleaning and transformation applied, one row per customer.",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.stg_customers",
+      "fields": [
+        {
+          "description": "The unique key for each customer.",
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~3D44F77933D66A9899B09FD9F69288C7",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_customers\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as customer_id,\n\n        ---------- properties\n        name as customer_name\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_stg_customers_customer_id",
+          "sql": "\n    \n    \n\n\n\nselect customer_id\nfrom DEV_DB.DBT_DEV.stg_customers\nwhere customer_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_customers_customer_id.e2cfb1f9aa"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_stg_customers_customer_id",
+          "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_customers_customer_id.c7614daada"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/staging/stg_customers.sql"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_customers",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_customers"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_supplies\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        \n    \nmd5(cast(coalesce(cast(id as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(sku as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as supply_uuid,\n        id as supply_id,\n        sku as product_id,\n\n        ---------- properties\n        name as supply_name,\n        (cost / 100.0) as supply_cost,\n        perishable as is_perishable_supply\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "List of our supply expenses data with basic cleaning and transformation applied.\nOne row per supply cost, not per supply. As supply costs fluctuate they receive a new row with a new UUID. Thus there can be multiple rows per supply_id.\n",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.stg_supplies",
+      "fields": [
+        {
+          "description": "The unique key of our supplies per cost.",
+          "fieldName": "supply_uuid",
+          "fieldPath": "supply_uuid",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_utils.default__generate_surrogate_key"
+          ],
+          "description": "",
+          "name": "generate_surrogate_key",
+          "packageName": "dbt_utils",
+          "sql": "{%- macro generate_surrogate_key(field_list) -%}\n    {{ return(adapter.dispatch('generate_surrogate_key', 'dbt_utils')(field_list)) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_utils.generate_surrogate_key"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~D9A64FC8FAAF471F555387204C357B71",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_supplies\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\n        id as supply_id,\n        sku as product_id,\n\n        ---------- properties\n        name as supply_name,\n        (cost / 100.0) as supply_cost,\n        perishable as is_perishable_supply\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "supply_uuid"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_stg_supplies_supply_uuid",
+          "sql": "\n    \n    \n\n\n\nselect supply_uuid\nfrom DEV_DB.DBT_DEV.stg_supplies\nwhere supply_uuid is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_supplies_supply_uuid.515c6eda6d"
+        },
+        {
+          "columns": [
+            "supply_uuid"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_stg_supplies_supply_uuid",
+          "sql": "\n    \n    \n\nselect\n    supply_uuid as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_supplies\nwhere supply_uuid is not null\ngroup by supply_uuid\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_supplies_supply_uuid.c9e3edcfed"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/staging/stg_supplies.sql"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_supplies",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_supplies"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\nwith\n\nsource as (\n\n    select * from raw_orders\n\n    -- data runs to 2026, truncate timespan to desired range,\n    -- current time as default\n    -- where ordered_at <= convert_timezone('UTC', current_timestamp())\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_id,\n        store_id as location_id,\n        customer as customer_id,\n\n        ---------- properties\n        (order_total / 100.0) as order_total,\n        (tax_paid / 100.0) as tax_paid,\n\n        ---------- timestamps\n        ordered_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "Order data with basic cleaning and transformation applied, one row per order.",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.stg_orders",
+      "fields": [
+        {
+          "description": "The unique key for each order.",
+          "fieldName": "order_id",
+          "fieldPath": "order_id",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_snowflake.snowflake__current_timestamp"
+          ],
+          "description": "",
+          "name": "current_timestamp",
+          "packageName": "dbt",
+          "sql": "{%- macro current_timestamp() -%}\n    {{ adapter.dispatch('current_timestamp', 'dbt')() }}\n{%- endmacro -%}\n\n",
+          "uniqueId": "macro.dbt.current_timestamp"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~F920F1D5CD99C02F5736012A6525C1C7",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_id'\n    )\n}}\n\nwith\n\nsource as (\n\n    select * from raw_orders\n\n    -- data runs to 2026, truncate timespan to desired range,\n    -- current time as default\n    -- where ordered_at <= {{ var('truncate_timespan_to') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_id,\n        store_id as location_id,\n        customer as customer_id,\n\n        ---------- properties\n        (order_total / 100.0) as order_total,\n        (tax_paid / 100.0) as tax_paid,\n\n        ---------- timestamps\n        ordered_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_stg_orders_order_id",
+          "sql": "\n    \n    \n\n\n\nselect order_id\nfrom DEV_DB.DBT_DEV.stg_orders\nwhere order_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_orders_order_id.81cfe2fe64"
+        },
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_stg_orders_order_id",
+          "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_orders_order_id.e3b841c71a"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/staging/stg_orders.sql"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_orders",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_orders"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_items\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_item_id,\n        order_id,\n\n        ---------- properties\n        sku as product_id\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "Individual food and drink items that make up our orders, one row per item.",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.stg_order_items",
+      "fields": [
+        {
+          "description": "The unique key for each order item.",
+          "fieldName": "order_item_id",
+          "fieldPath": "order_item_id",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~4078A2BB213110BA4676D3DDD0570785",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_items\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_item_id,\n        order_id,\n\n        ---------- properties\n        sku as product_id\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "order_item_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_stg_order_items_order_item_id",
+          "sql": "\n    \n    \n\n\n\nselect order_item_id\nfrom DEV_DB.DBT_DEV.stg_order_items\nwhere order_item_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_order_items_order_item_id.26a7e2bc35"
+        },
+        {
+          "columns": [
+            "order_item_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_stg_order_items_order_item_id",
+          "sql": "\n    \n    \n\nselect\n    order_item_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_order_items\nwhere order_item_id is not null\ngroup by order_item_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_order_items_order_item_id.90e333a108"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/staging/stg_order_items.sql"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_order_items",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_order_items"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_stores\n\n    -- \n    -- where opened_at <= convert_timezone('UTC', current_timestamp())\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as location_id,\n\n        ---------- properties\n        name as location_name,\n        tax_rate,\n\n        ---------- timestamp\n        opened_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "List of open locations with basic cleaning and transformation applied, one row per location.",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.stg_locations",
+      "fields": [
+        {
+          "description": "The unique key for each location.",
+          "fieldName": "location_id",
+          "fieldPath": "location_id",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_snowflake.snowflake__current_timestamp"
+          ],
+          "description": "",
+          "name": "current_timestamp",
+          "packageName": "dbt",
+          "sql": "{%- macro current_timestamp() -%}\n    {{ adapter.dispatch('current_timestamp', 'dbt')() }}\n{%- endmacro -%}\n\n",
+          "uniqueId": "macro.dbt.current_timestamp"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~0C87812C070E8F24832122F91B33973A",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_stores\n\n    -- {# data runs to 2026, truncate timespan to desired range, \n    -- current time as default #}\n    -- where opened_at <= {{ var('truncate_timespan_to') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as location_id,\n\n        ---------- properties\n        name as location_name,\n        tax_rate,\n\n        ---------- timestamp\n        opened_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "location_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_stg_locations_location_id",
+          "sql": "\n    \n    \n\n\n\nselect location_id\nfrom DEV_DB.DBT_DEV.stg_locations\nwhere location_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_locations_location_id.3d237927d2"
+        },
+        {
+          "columns": [
+            "location_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_stg_locations_location_id",
+          "sql": "\n    \n    \n\nselect\n    location_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.stg_locations\nwhere location_id is not null\ngroup by location_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_locations_location_id.2e2fc58ecc"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/staging/stg_locations.sql"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_locations",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_locations"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\nwith\n\ncustomers as (\n\n    select * from DEV_DB.DBT_DEV.stg_customers\n\n),\n\norders_mart as (\n\n    select * from DEV_DB.DBT_DEV.orders\n\n),\n\norder_items_mart as (\n\n    select * from DEV_DB.DBT_DEV.order_items\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct om.order_id) as count_lifetime_orders,\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\n        min(om.ordered_at) as first_ordered_at,\n        max(om.ordered_at) as last_ordered_at,\n        sum(oi.subtotal) as lifetime_spend_pretax,\n        sum(om.order_total) as lifetime_spend\n\n    from orders_mart om\n    \n    left join order_items_mart oi on om.order_id = oi.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+      "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.customers",
+      "fields": [
+        {
+          "description": "The unique key of the orders mart.",
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Customers' full name.",
+          "fieldName": "customer_name",
+          "fieldPath": "customer_name",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Total number of orders a customer has ever placed.",
+          "fieldName": "count_lifetime_orders",
+          "fieldPath": "count_lifetime_orders",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The timestamp when a customer placed their first order.",
+          "fieldName": "first_ordered_at",
+          "fieldPath": "first_ordered_at",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The timestamp of a customer's most recent order.",
+          "fieldName": "last_ordered_at",
+          "fieldPath": "last_ordered_at",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The sum of all the pre-tax subtotals of every order a customer has placed.",
+          "fieldName": "lifetime_spend_pretax",
+          "fieldPath": "lifetime_spend_pretax",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The sum of all the order totals (including tax) that a customer has ever placed.",
+          "fieldName": "lifetime_spend",
+          "fieldPath": "lifetime_spend",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "Options are 'new' or 'returning', indicating if a customer has ordered more than once or has only placed their first order to date.",
+          "fieldName": "customer_type",
+          "fieldPath": "customer_type",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~38A45C65369F8DD4B9BFC79001060257",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\n    config(\n        materialized='table'\n    )\n}}\n\nwith\n\ncustomers as (\n\n    select * from {{ ref('stg_customers') }}\n\n),\n\norders_mart as (\n\n    select * from {{ ref('orders') }}\n\n),\n\norder_items_mart as (\n\n    select * from {{ ref('order_items') }}\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct om.order_id) as count_lifetime_orders,\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\n        min(om.ordered_at) as first_ordered_at,\n        max(om.ordered_at) as last_ordered_at,\n        sum(oi.subtotal) as lifetime_spend_pretax,\n        sum(om.order_total) as lifetime_spend\n\n    from orders_mart om\n    \n    left join order_items_mart oi on om.order_id = oi.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~F3CAA2D12722D7A5CB634D3277D91846",
+        "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
+        "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_customers_customer_id",
+          "sql": "\n    \n    \n\n\n\nselect customer_id\nfrom DEV_DB.DBT_DEV.customers\nwhere customer_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_customers_customer_id.5c9bf9911d"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_customers_customer_id",
+          "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_customers_customer_id.c5af1ff4b1"
+        },
+        {
+          "columns": [
+            "customer_type"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_accepted_values",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "accepted_values_customers_customer_type__new__returning",
+          "sql": "\n    \n    \n\nwith all_values as (\n\n    select\n        customer_type as value_field,\n        count(*) as n_records\n\n    from DEV_DB.DBT_DEV.customers\n    group by customer_type\n\n)\n\nselect *\nfrom all_values\nwhere value_field not in (\n    'new','returning'\n)\n\n\n",
+          "uniqueId": "test.jaffle_shop.accepted_values_customers_customer_type__new__returning.d12f0947c8"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/customers.sql"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~F3CAA2D12722D7A5CB634D3277D91846",
+        "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
+        "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.customers",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "customers"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\n\nwith orders as (\n    \n    select * from DEV_DB.DBT_DEV.stg_orders\n\n),\n\norder_items as (\n    \n    select * from DEV_DB.DBT_DEV.stg_order_items\n\n),\n\nproducts as (\n\n    select * from DEV_DB.DBT_DEV.stg_products\n),\n\nsupplies as (\n\n    select * from DEV_DB.DBT_DEV.stg_supplies\n\n),\n\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supplies.supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items\n\n    left join supplies on order_items.product_id = supplies.product_id\n    left join products on order_items.product_id = products.product_id\n\n    group by 1\n\n),\n\n\nfinal as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from final",
+      "description": "Order overview data mart, offering key details for each order inlcluding if it's a customer's first order and a food vs. drink item breakdown. One row per order.",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.orders",
+      "fields": [
+        {
+          "description": "The unique key of the orders mart.",
+          "fieldName": "order_id",
+          "fieldPath": "order_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The foreign key relating to the customer who placed the order.",
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The foreign key relating to the location the order was placed at.",
+          "fieldName": "location_id",
+          "fieldPath": "location_id",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The total amount of the order in USD including tax.",
+          "fieldName": "order_total",
+          "fieldPath": "order_total",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The timestamp the order was placed at.",
+          "fieldName": "ordered_at",
+          "fieldPath": "ordered_at",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The number of individual food items ordered.",
+          "fieldName": "count_food_items",
+          "fieldPath": "count_food_items",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The number of individual drink items ordered.",
+          "fieldName": "count_drink_items",
+          "fieldPath": "count_drink_items",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The total number of both food and drink items ordered.",
+          "fieldName": "count_items",
+          "fieldPath": "count_items",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The sum of all the food item prices without tax.",
+          "fieldName": "subtotal_food_items",
+          "fieldPath": "subtotal_food_items",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The sum of all the drink item prices without tax.",
+          "fieldName": "subtotal_drink_items",
+          "fieldPath": "subtotal_drink_items",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The sum total of both food and drink item prices without tax.",
+          "fieldName": "subtotal",
+          "fieldPath": "subtotal",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The sum of supply expenses to fulfill the order.",
+          "fieldName": "order_cost",
+          "fieldPath": "order_cost",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "The full location name of where this order was placed. Denormalized from `stg_locations`.",
+          "fieldName": "location_name",
+          "fieldPath": "location_name",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "A boolean indicating if this order is from a new customer placing their first order.",
+          "fieldName": "is_first_order",
+          "fieldPath": "is_first_order",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "A boolean indicating if this order included any food items.",
+          "fieldName": "is_food_order",
+          "fieldPath": "is_food_order",
+          "nativeType": "Not Set",
+          "tags": []
+        },
+        {
+          "description": "A boolean indicating if this order included any drink items.",
+          "fieldName": "is_drink_order",
+          "fieldPath": "is_drink_order",
+          "nativeType": "Not Set",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~3BDE29A8EF7A35DF649798D1C09EF61B",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_id'\n    )\n}}\n\n\nwith orders as (\n    \n    select * from {{ ref('stg_orders')}}\n\n),\n\norder_items as (\n    \n    select * from {{ ref('stg_order_items')}}\n\n),\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n),\n\nsupplies as (\n\n    select * from {{ ref('stg_supplies') }}\n\n),\n\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supplies.supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items\n\n    left join supplies on order_items.product_id = supplies.product_id\n    left join products on order_items.product_id = products.product_id\n\n    group by 1\n\n),\n\n\nfinal as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from final",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
+        "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_not_null",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "not_null_orders_order_id",
+          "sql": "\n    \n    \n\n\n\nselect order_id\nfrom DEV_DB.DBT_DEV.orders\nwhere order_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_orders_order_id.cf6c17daed"
+        },
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_unique",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "unique_orders_order_id",
+          "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom DEV_DB.DBT_DEV.orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_orders_order_id.fed79b3a6e"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.test_relationships",
+            "macro.dbt.get_where_subquery"
+          ],
+          "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
+          "sql": "\n    \n    \n\nwith child as (\n    select customer_id as from_field\n    from DEV_DB.DBT_DEV.orders\n    where customer_id is not null\n),\n\nparent as (\n    select customer_id as to_field\n    from DEV_DB.DBT_DEV.stg_customers\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16"
+        }
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/orders.sql"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
+        "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.orders",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "orders"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "-- metricflow_time_spine.sql\nwith days as (\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n\n    with date_spine as\n(\n\n    \n\n\n\n\n\nwith rawdata as (\n\n    \n\n    \n\n    with p as (\n        select 0 as generated_number union all select 1\n    ), unioned as (\n\n    select\n\n    \n    p0.generated_number * power(2, 0)\n     + \n    \n    p1.generated_number * power(2, 1)\n     + \n    \n    p2.generated_number * power(2, 2)\n     + \n    \n    p3.generated_number * power(2, 3)\n     + \n    \n    p4.generated_number * power(2, 4)\n     + \n    \n    p5.generated_number * power(2, 5)\n     + \n    \n    p6.generated_number * power(2, 6)\n     + \n    \n    p7.generated_number * power(2, 7)\n     + \n    \n    p8.generated_number * power(2, 8)\n     + \n    \n    p9.generated_number * power(2, 9)\n     + \n    \n    p10.generated_number * power(2, 10)\n     + \n    \n    p11.generated_number * power(2, 11)\n    \n    \n    + 1\n    as generated_number\n\n    from\n\n    \n    p as p0\n     cross join \n    \n    p as p1\n     cross join \n    \n    p as p2\n     cross join \n    \n    p as p3\n     cross join \n    \n    p as p4\n     cross join \n    \n    p as p5\n     cross join \n    \n    p as p6\n     cross join \n    \n    p as p7\n     cross join \n    \n    p as p8\n     cross join \n    \n    p as p9\n     cross join \n    \n    p as p10\n     cross join \n    \n    p as p11\n    \n    \n\n    )\n\n    select *\n    from unioned\n    where generated_number <= 3651\n    order by generated_number\n\n\n\n),\n\nall_periods as (\n\n    select (\n        \n\n    dateadd(\n        day,\n        row_number() over (order by 1) - 1,\n        \n\n    dateadd(\n        day,\n        -3650,\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\n) as date)\n        )\n\n\n        )\n\n\n    ) as date_day\n    from rawdata\n\n),\n\nfiltered as (\n\n    select *\n    from all_periods\n    where date_day <= cast(\n\n    dateadd(\n        day,\n        1,\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\n) as date)\n        )\n\n as date)\n\n)\n\nselect * from filtered\n\n\n\n)\nselect\n    cast(d.date_day as timestamp) as date_day\nfrom\n    date_spine d\n\n\n),\n\nfinal as (\n    select cast(date_day as date) as date_day\n    from days\n)\n\nselect *\nfrom final",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.metricflow_time_spine",
+      "fields": [],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_date.default__get_base_dates"
+          ],
+          "description": "",
+          "name": "get_base_dates",
+          "packageName": "dbt_date",
+          "sql": "{% macro get_base_dates(start_date=None, end_date=None, n_dateparts=None, datepart=\"day\") %}\n    {{ adapter.dispatch('get_base_dates', 'dbt_date') (start_date, end_date, n_dateparts, datepart) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_date.get_base_dates"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~EA1ED6684EF3832EED103DE74E3CF654",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "-- metricflow_time_spine.sql\nwith days as (\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n{{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\n),\n\nfinal as (\n    select cast(date_day as date) as date_day\n    from days\n)\n\nselect *\nfrom final",
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/metricflow_time_spine.sql"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.metricflow_time_spine",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "metricflow_time_spine"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\nwith order_items as (\n\n    select * from DEV_DB.DBT_DEV.stg_order_items\n\n),\n\n\norders as (\n    \n    select * from DEV_DB.DBT_DEV.stg_orders\n),\n\nproducts as (\n\n    select * from DEV_DB.DBT_DEV.stg_products\n\n),\n\n\nfinal as (\n    select\n        order_items.*,\n        orders.ordered_at,\n        products.product_price as subtotal,\n        products.is_food_item,\n        products.is_drink_item\n    from order_items\n\n    left join products on order_items.product_id = products.product_id\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\n    left join orders on order_items.order_id  = orders.order_id\n)\n\nselect * from final",
+      "docsUrl": "http://localhost:8080/#!/model/model.jaffle_shop.order_items",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~55396415030BBAC0D3ACF876B548133C",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_item_id'\n    )\n}}\n\nwith order_items as (\n\n    select * from {{ ref('stg_order_items') }}\n\n),\n\n\norders as (\n    \n    select * from {{ ref('stg_orders')}}\n),\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n\n),\n\n\nfinal as (\n    select\n        order_items.*,\n        orders.ordered_at,\n        products.product_price as subtotal,\n        products.is_food_item,\n        products.is_drink_item\n    from order_items\n\n    left join products on order_items.product_id = products.product_id\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\n    left join orders on order_items.order_id  = orders.order_id\n)\n\nselect * from final",
+      "sourceDatasets": [],
+      "sourceModels": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
+      ],
+      "url": "https://github.com/MetaphorData/dbt/tree/main/jaffle-sl-template/models/marts/order_items.sql"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.order_items",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "order_items"
+    }
+  }
+]
