@@ -60,13 +60,13 @@ azure_openAI_endpoint: <azure_openAI_endpoint>
 ```
 
 ### Optional Configurations
-`include_attachments` refers to if you'd like to parse files attached to pages that are retrieved by the connector. Supported filetypes are PDF, PNG, JPEG/JPG, SVG, Word and Excel.
+`include_attachments` specifies whether to parse files attached to pages that are retrieved by the connector. Supported filetypes are PDF, PNG, JPEG/JPG, SVG, Word and Excel.
 
 `include_children` works when `page_ids` are configured above, refers to if you'd like to parse  child pages.
 
 `page_status` works when `space_key` is configured above, refers to choosing only a specific page type
 
-`include_text` refers to if you'd like to include the original document text alongside the embedded content.
+`include_text` specifies whether to include the original document text alongside the embedded content.
 ```yaml
 include_attachments: <include_attachments> # False
 

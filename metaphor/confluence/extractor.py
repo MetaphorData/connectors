@@ -85,7 +85,7 @@ class ConfluenceExtractor(BaseExtractor):
 
         logger.info("Starting embedding process")
 
-        vsi = embed_documents(
+        vector_store_index = embed_documents(
             documents,
             self.azure_openAI_key,
             self.azure_openAI_version,
@@ -96,7 +96,9 @@ class ConfluenceExtractor(BaseExtractor):
             embedding_overlap_size,
         )
 
-        embedded_nodes = map_metadata(vsi, include_text=self.include_text)
+        embedded_nodes = map_metadata(
+            vector_store_index, include_text=self.include_text
+        )
 
         return embedded_nodes
 
