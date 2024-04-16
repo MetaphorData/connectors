@@ -14,7 +14,7 @@ def test_yaml_config(test_root_dir):
         password="password",
         enable_view_lineage=True,
         enable_lineage_from_history=True,
-        include_self_lineage=True,
+        include_self_lineage=False,
         filter=DatasetFilter(),
         lookback_days=7,
         output=OutputConfig(),

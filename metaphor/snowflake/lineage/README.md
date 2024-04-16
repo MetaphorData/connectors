@@ -17,7 +17,7 @@ enable_view_lineage: bool = True
 # (Optional) Whether to enable finding table lineage information from access history and query history, default True.
 enable_lineage_from_history: bool = True
 
-# (Optional) Whether to include self-referencing loops in lineage, default True
+# (Optional) Whether to include self-referencing loops in lineage, default False (exclude self loop)
 include_self_lineage: <boolean>
 
 # (Optional) Number of days to include in the usage analysis. Default to 7.
