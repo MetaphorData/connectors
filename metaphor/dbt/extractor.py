@@ -75,13 +75,9 @@ class DbtExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
         entities.extend(
-            map(
-                lambda item: item[1],
-                filter(
-                    lambda item: item[0] not in self._referenced_virtual_views,
-                    self._virtual_views.items(),
-                ),
-            )
+            v
+            for k, v in self._virtual_views.items()
+            if k not in self._referenced_virtual_views
         )
         entities.extend(self._metrics.values())
         return entities
