@@ -1,5 +1,5 @@
 import json
-from typing import Collection, Dict, List
+from typing import Collection, Dict, List, Set
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
@@ -40,6 +40,7 @@ class DbtExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._metrics: Dict[str, Metric] = {}
+        self._referenced_virtual_views: Set[str] = set()
 
         add_debug_file(config.manifest)
         if config.run_results:
@@ -67,11 +68,16 @@ class DbtExtractor(BaseExtractor):
             self._datasets,
             self._virtual_views,
             self._metrics,
+            self._referenced_virtual_views,
         )
         artifact_parser.parse(manifest_json, run_results_json)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
-        entities.extend(self._virtual_views.values())
+        entities.extend(
+            v
+            for k, v in self._virtual_views.items()
+            if k not in self._referenced_virtual_views
+        )
         entities.extend(self._metrics.values())
         return entities

@@ -58,7 +58,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
     """Azure Data Factory metadata extractor"""
 
     _description = "Azure Data Factory metadata crawler"
-    _platform = Platform.GLUE
+    _platform = Platform.AZURE_DATA_FACTORY_PIPELINE
 
     @staticmethod
     def from_config_file(config_file: str) -> "AzureDataFactoryExtractor":
@@ -310,7 +310,7 @@ class AzureDataFactoryExtractor(BaseExtractor):
                 linked_service,
                 DfModels.AzureBlobStorageLinkedService,
             ):
-                service_endpoint = linked_service.service_endpoint
+                service_endpoint: Optional[str] = linked_service.service_endpoint  # type: ignore
                 result[linked_service_name] = LinkedService(account=service_endpoint)
 
             if isinstance(linked_service, DfModels.AzureBlobFSLinkedService):

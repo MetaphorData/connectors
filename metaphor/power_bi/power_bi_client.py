@@ -17,6 +17,7 @@ from metaphor.power_bi.models import (
     PowerBIApp,
     PowerBIDashboard,
     PowerBIDataset,
+    PowerBIDatasetParameter,
     PowerBIPage,
     PowerBIRefresh,
     PowerBiRefreshSchedule,
@@ -70,7 +71,10 @@ class PowerBIClient:
     MAX_WORKSPACES_PER_SCAN = 100
 
     def __init__(self, config: PowerBIRunConfig):
-        self._headers = {"Authorization": self.retrieve_access_token(config)}
+        self.config = config
+
+    def get_headers(self):
+        return {"Authorization": self.retrieve_access_token(self.config)}
 
     def retrieve_access_token(self, config: PowerBIRunConfig) -> str:
         app = msal.ConfidentialClientApplication(
@@ -78,14 +82,8 @@ class PowerBIClient:
             authority=self.AUTHORITY.format(tenant_id=config.tenant_id),
             client_credential=config.secret,
         )
-        token = None
-        token = app.acquire_token_silent(self.SCOPES, account=None)
-        if not token:
-            logger.info(
-                "No suitable token exists in cache. Let's get a new one from AAD."
-            )
-            token = app.acquire_token_for_client(scopes=self.SCOPES)
 
+        token = app.acquire_token_for_client(scopes=self.SCOPES)
         access_token = token.get("access_token")
         if access_token is None:
             raise AccessTokenError(token.get("error_description", "unknown error"))
@@ -127,6 +125,24 @@ class PowerBIClient:
         return self._call_get(
             url, List[PowerBIDataset], transform_response=lambda r: r.json()["value"]
         )
+
+    def get_dataset_parameters(
+        self, group_id: str, dataset_id: str
+    ) -> List[PowerBIDatasetParameter]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/get-parameters-in-group
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}/parameters"
+
+        try:
+            return self._call_get(
+                url,
+                List[PowerBIDatasetParameter],
+                transform_response=lambda r: r.json()["value"],
+            )
+        except Exception:
+            logger.exception(
+                f"Unable to get parameters for dataset {dataset_id} in group {group_id}, please add the service principal as a viewer to the workspace"
+            )
+            return []
 
     def get_dashboards(self, group_id: str) -> List[PowerBIDashboard]:
         # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-dashboards-in-group-as-admin
@@ -299,7 +315,7 @@ class PowerBIClient:
             request_body = {"workspaces": workspace_ids}
             result = requests.post(
                 url,
-                headers=self._headers,
+                headers=self.get_headers(),
                 params={
                     "datasetExpressions": True,
                     "datasetSchema": True,
@@ -329,7 +345,7 @@ class PowerBIClient:
             waiting_time = 0
             sleep_time = 1
             while True:
-                result = requests.get(url, headers=self._headers, timeout=600)
+                result = requests.get(url, headers=self.get_headers(), timeout=600)
                 if result.status_code != 200:
                     return False
                 if result.json()["status"] == "Succeeded":
@@ -427,7 +443,7 @@ class PowerBIClient:
         try:
             return get_request(
                 url,
-                self._headers,
+                self.get_headers(),
                 type_,
                 transform_response,
             )

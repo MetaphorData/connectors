@@ -19,7 +19,7 @@ from metaphor.common.entity_id import (
     to_dataset_entity_id,
     to_virtual_view_entity_id,
 )
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.utils import unique_list
 from metaphor.looker.config import LookerConnectionConfig
 from metaphor.models.metadata_change_event import (
@@ -80,6 +80,23 @@ class Model:
         ]
 
         return Model(explores=dict((e.name, e) for e in explores))
+
+
+_parsed_files: Dict[str, Dict] = {}
+
+
+def _parse_lookml_file(path, base_dir) -> Dict:
+
+    if path in _parsed_files:
+        return _parsed_files[path]
+
+    with open(path) as f:
+        model = lkml.load(f)
+        _parsed_files[path] = model
+
+        sanitized = os.path.relpath(path, base_dir).replace("/", "__")
+        json_dump_to_debug_file(model, f"{sanitized}.json")
+        return model
 
 
 def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> EntityId:
@@ -242,9 +259,11 @@ def _build_looker_view(
         ),
         looker_view=view,
         structure=_get_model_asset_structure(model, name),
-        entity_upstream=EntityUpstream(source_entities=view.source_datasets)
-        if view.source_datasets
-        else None,
+        entity_upstream=(
+            EntityUpstream(source_entities=view.source_datasets)
+            if view.source_datasets
+            else None
+        ),
     )
 
 
@@ -501,33 +520,32 @@ def _load_included_file(
         processed_files.add(normpath)
 
         url = _get_entity_url(file_path, base_dir, projectSourceUrl)
-        with open(file_path) as f:
-            logger.info(f"Processing view file {normpath}")
+        logger.info(f"Processing view file {normpath}")
 
-            root = lkml.load(f)
-            for view in root.get("views", []):
-                raw_views[view["name"]] = view
-                entity_urls[view["name"]] = url
+        root = _parse_lookml_file(file_path, base_dir)
+        for view in root.get("views", []):
+            raw_views[view["name"]] = view
+            entity_urls[view["name"]] = url
 
-            for explore in root.get("explores", []):
-                raw_explores[explore["name"]] = explore
-                entity_urls[explore["name"]] = url
+        for explore in root.get("explores", []):
+            raw_explores[explore["name"]] = explore
+            entity_urls[explore["name"]] = url
 
-            # A file can further include other files
-            # https://docs.looker.com/reference/model-params/include#using_include_in_a_view_file
-            for include_path in root.get("includes", []):
-                # Convert to absolute include
-                include_path = _to_absolute_include(include_path, file_path, base_dir)
+        # A file can further include other files
+        # https://docs.looker.com/reference/model-params/include#using_include_in_a_view_file
+        for include_path in root.get("includes", []):
+            # Convert to absolute include
+            include_path = _to_absolute_include(include_path, file_path, base_dir)
 
-                _load_included_file(
-                    include_path,
-                    base_dir,
-                    projectSourceUrl,
-                    raw_views,
-                    raw_explores,
-                    entity_urls,
-                    processed_files,
-                )
+            _load_included_file(
+                include_path,
+                base_dir,
+                projectSourceUrl,
+                raw_views,
+                raw_explores,
+                entity_urls,
+                processed_files,
+            )
 
 
 def _load_model(
@@ -539,9 +557,7 @@ def _load_model(
     """
     Loads model file and extract raw Views and Explores
     """
-    with open(model_path) as f:
-        model = lkml.load(f)
-
+    model = _parse_lookml_file(model_path, base_dir)
     logger.info(f"Processing model {model_path}")
 
     raw_views: Dict[str, Dict] = {}

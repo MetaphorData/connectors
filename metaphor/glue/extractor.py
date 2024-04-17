@@ -157,9 +157,11 @@ class GlueExtractor(BaseExtractor):
         dataset.schema.sql_schema.materialization = (
             MaterializationType.VIEW
             if table_type == "VIEW"
-            else MaterializationType.EXTERNAL
-            if table_type == "EXTERNAL"
-            else MaterializationType.TABLE
+            else (
+                MaterializationType.EXTERNAL
+                if table_type == "EXTERNAL"
+                else MaterializationType.TABLE
+            )
         )
 
         dataset.statistics = DatasetStatistics()

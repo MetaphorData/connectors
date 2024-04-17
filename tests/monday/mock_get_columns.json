@@ -1,0 +1,32 @@
+{
+  "data": {
+    "boards": [
+      {
+        "name": "Hello World!",
+        "columns": [
+          {
+            "id": "name",
+            "title": "Name",
+            "type": "name"
+          },
+          {
+            "id": "columns_properties3",
+            "title": "Columns/Properties",
+            "type": "dropdown"
+          },
+          {
+            "id": "descriptions",
+            "title": "Descriptions",
+            "type": "text"
+          },
+          {
+            "id": "person",
+            "title": "Person",
+            "type": "people"
+          }
+        ]
+      }
+    ]
+  },
+  "account_id": 1234
+}

@@ -1,0 +1,45 @@
+{
+  "data": {
+    "next_items_page": {
+      "cursor": "",
+      "items": [
+        {
+          "id": "9101112",
+          "name": "Item Name",
+          "updates": [],
+          "column_values": [
+            {
+              "id": "columns_properties3",
+              "text": "Foo",
+              "value": "{\"ids\":[5],\"changed_at\":\"2024-03-11T21:11:34.960Z\"}"
+            },
+            {
+              "id": "descriptions",
+              "text": "Lorem Ipsum",
+              "value": "\"Lorem Ipsum\""
+            }
+          ],
+          "url": "https://test-test.monday.com/boards/5678/pulses/9101112"
+        },
+        {
+          "id": "13141516",
+          "name": "Item Name",
+          "updates": [],
+          "column_values": [
+            {
+              "id": "columns_properties3",
+              "text": "Bar",
+              "value": "{\"ids\":[12],\"changed_at\":\"2024-03-11T21:11:34.430Z\"}"
+            },
+            {
+              "id": "descriptions",
+              "text": "Lorem Ipsum",
+              "value": "\"Lorem Ipsum\""
+            }
+          ],
+          "url": "https://test-test.monday.com/boards/5678/pulses/13141516"
+        }
+      ]
+    }
+  }
+}

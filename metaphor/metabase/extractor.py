@@ -1,6 +1,7 @@
 import json
 from dataclasses import dataclass
-from typing import Collection, Dict, List, Optional, Set, Union
+from itertools import chain
+from typing import Collection, Dict, List, Optional, Set, Tuple, Union
 
 import requests
 from sql_metadata import Parser
@@ -8,12 +9,13 @@ from sql_metadata import Parser
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.metabase.config import MetabaseRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetStructure,
     Chart,
+    ChartQuery,
     ChartType,
     Dashboard,
     DashboardInfo,
@@ -21,6 +23,11 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     DataPlatform,
     EntityUpstream,
+    Hierarchy,
+    HierarchyInfo,
+    HierarchyLogicalID,
+    HierarchyType,
+    MetabaseCollection,
     SourceInfo,
 )
 
@@ -42,7 +49,7 @@ class DatabaseInfo:
 
 
 class MetabaseExtractor(BaseExtractor):
-    """Tableau metadata extractor"""
+    """Metabase metadata extractor"""
 
     _description = "Metabase metadata crawler"
     _platform = Platform.METABASE
@@ -82,12 +89,12 @@ class MetabaseExtractor(BaseExtractor):
         self._server_url = config.server_url.rstrip("/")
         self._username = config.username
         self._password = config.password
-
-        self._charts: Dict[int, ChartInfo] = {}
-        self._dashboards: Dict[int, Dashboard] = {}
-        self._databases: Dict[int, DatabaseInfo] = {}
-        self._tables: Dict[int, Optional[str]] = {}
         self._session = requests.session()
+
+        self._databases: Dict[int, DatabaseInfo] = {}
+        self._dashboards: Dict[int, Dashboard] = {}
+        self._collections: Dict[int, Hierarchy] = {}
+        self._tables: Dict[int, Optional[str]] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Metabase")
@@ -113,6 +120,14 @@ class MetabaseExtractor(BaseExtractor):
             }
         )
 
+        # fetch all collections
+        collections = self._fetch_assets("collection")
+        for collection in collections:
+            try:
+                self._parse_collection(collection)
+            except Exception as ex:
+                logger.error(f"error parsing collection {collection['id']}: {ex}")
+
         # fetch all databases
         databases = self._fetch_assets("database", True)
         for database in databases:
@@ -120,14 +135,6 @@ class MetabaseExtractor(BaseExtractor):
                 self._parse_database(database)
             except Exception as ex:
                 logger.error(f"error parsing database {database['id']}: {ex}")
-
-        # fetch all cards (charts)
-        cards = self._fetch_assets("card")
-        for card in cards:
-            try:
-                self._parse_chart(card)
-            except Exception as ex:
-                logger.error(f"error parsing card {card['id']}: {ex}")
 
         # fetch all dashboards
         dashboards = self._fetch_assets("dashboard")
@@ -137,7 +144,7 @@ class MetabaseExtractor(BaseExtractor):
             except Exception as ex:
                 logger.error(f"error parsing dashboard {dashboard['id']}: {ex}")
 
-        return self._dashboards.values()
+        return list(chain(self._dashboards.values(), self._collections.values()))
 
     def _fetch_assets(self, asset_type: str, withData=False) -> List[Dict]:
         resp = self._session.get(f"{self._server_url}/api/{asset_type}")
@@ -147,8 +154,7 @@ class MetabaseExtractor(BaseExtractor):
         logger.info(
             f"\nFound {len(resp_json)} {asset_type}s: {[d['name'] for d in resp_json]}"
         )
-        logger.debug(json.dumps(resp_json))
-
+        json_dump_to_debug_file(resp_json, f"{asset_type}.json")
         return resp_json
 
     def _fetch_asset(self, asset_type: str, asset_id: Union[str, int]) -> Dict:
@@ -156,8 +162,49 @@ class MetabaseExtractor(BaseExtractor):
         resp.raise_for_status()
         resp_json = resp.json()
 
-        logger.debug(json.dumps(resp_json))
+        json_dump_to_debug_file(resp_json, f"{asset_type}__{asset_id}.json")
         return resp_json
+
+    def _parse_collection(self, collection: Dict) -> None:
+        collection_id = collection["id"]
+
+        if collection_id == "root":
+            return
+
+        slug = collection.get("slug")
+        name = collection.get("name")
+        description = collection.get("description")
+        location = collection.get("location")
+
+        if not location:
+            # We need location to build logical id
+            logger.warn(f"invalid collection, dict: {json.dumps(collection)}")
+            return
+
+        parent_path = location.split("/")[1:-1]
+
+        hierarchy = Hierarchy(
+            logical_id=HierarchyLogicalID(
+                path=list(
+                    map(
+                        str,
+                        [DashboardPlatform.METABASE.value]
+                        + parent_path
+                        + [collection_id],
+                    )
+                )
+            ),
+            hierarchy_info=HierarchyInfo(
+                description=description,
+                type=HierarchyType.METABASE_COLLECTION,
+                metabase_collection=MetabaseCollection(
+                    name=name,
+                    url=f"{self._server_url}/collection/{collection_id}-{slug}",
+                ),
+            ),
+        )
+
+        self._collections[collection_id] = hierarchy
 
     def _parse_database(self, database: Dict) -> None:
         database_id = database["id"]
@@ -188,17 +235,13 @@ class MetabaseExtractor(BaseExtractor):
         dashboard_details = self._fetch_asset("dashboard", dashboard_id)
         name = dashboard_details["name"]
 
-        cards = dashboard_details.get("ordered_cards", [])
+        cards = dashboard_details.get("dashcards", [])
         charts, upstream_datasets = [], set()
         for card in cards:
-            card_id = card.get("card_id")
-            if card_id is None:
-                continue
-            if card_id not in self._charts:
-                logger.error(f"card {card_id} not found")
-            else:
-                charts.append(self._charts[card_id].chart)
-                upstream_datasets.update(self._charts[card_id].upstream)
+            chart_info = self._parse_chart(card["card"])
+            if chart_info is not None:
+                charts.append(chart_info.chart)
+                upstream_datasets.update(chart_info.upstream)
 
         dashboard_info = DashboardInfo(
             title=name,
@@ -216,11 +259,21 @@ class MetabaseExtractor(BaseExtractor):
             else None
         )
 
+        dashboard_collection = dashboard_details.get("collection")
+        collection = (
+            self._collections.get(dashboard_collection.get("id"))
+            if dashboard_collection
+            else None
+        )
+
         dashboard = Dashboard(
             logical_id=DashboardLogicalID(
                 dashboard_id=str(dashboard_id), platform=DashboardPlatform.METABASE
             ),
-            structure=AssetStructure(directories=[], name=name),
+            structure=AssetStructure(
+                directories=collection.logical_id.path[1:] if collection else [],
+                name=name,
+            ),
             dashboard_info=dashboard_info,
             source_info=source_info,
             entity_upstream=entity_upstream,
@@ -228,10 +281,14 @@ class MetabaseExtractor(BaseExtractor):
 
         self._dashboards[dashboard_id] = dashboard
 
-    def _parse_chart(self, card: Dict) -> None:
+    def _parse_chart(self, card: Dict) -> Optional[ChartInfo]:
+        if "id" not in card or "name" not in card:
+            return None
+
         card_id = card["id"]
         chart = Chart(
             title=card["name"],
+            id=str(card_id),
             description=card["description"],
             chart_type=self._chart_type_mapping.get(card.get("display", "")),
             url=f"{self._server_url}/card/{card_id}",
@@ -248,13 +305,15 @@ class MetabaseExtractor(BaseExtractor):
                 upstream_tables.add(dataset_id)
 
         elif query_type == "native":
-            dataset_ids = self._parse_native_query(dataset_query)
-            upstream_tables.update(dataset_ids)
+            chart_query, dataset_ids = self._parse_native_query(dataset_query)
+            if chart_query is not None:
+                chart.query = chart_query
+                upstream_tables.update(dataset_ids)
 
         else:
             logger.error(f"Unsupported query type {query_type}")
 
-        self._charts[card_id] = ChartInfo(chart, list(upstream_tables))
+        return ChartInfo(chart, list(upstream_tables))
 
     def _get_table_by_id(self, table_id: int) -> Optional[str]:
         if table_id in self._tables:
@@ -289,7 +348,9 @@ class MetabaseExtractor(BaseExtractor):
         self._tables[table_id] = dataset_id
         return dataset_id
 
-    def _parse_native_query(self, dataset_query: Dict) -> Set[str]:
+    def _parse_native_query(
+        self, dataset_query: Dict
+    ) -> Tuple[Optional[ChartQuery], Set[str]]:
         try:
             native_query = dataset_query["native"]["query"]
             tables = Parser(native_query).tables
@@ -299,6 +360,18 @@ class MetabaseExtractor(BaseExtractor):
             if database is None:
                 raise ValueError(f"database {database_id} not found")
 
+            chart_query = ChartQuery(
+                query=native_query,
+                platform=database.platform,
+                account=database.account,
+                default_database=database.database,
+                default_schema=database.schema,
+            )
+        except Exception as e:
+            logger.error(f"Failed to get native query: {e}")
+            return None, set()
+
+        try:
             dataset_ids = set()
             for table in tables:
                 segments = table.count(".") + 1
@@ -321,7 +394,7 @@ class MetabaseExtractor(BaseExtractor):
                     )
                 )
 
-            return dataset_ids
+            return chart_query, dataset_ids
         except Exception as e:
             logger.error(f"SQL parsing error: {e}, query: {native_query}")
-            return set()
+            return chart_query, set()

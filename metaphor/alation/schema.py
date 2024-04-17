@@ -72,9 +72,11 @@ class Table(BaseModel):
         if asset_descriptions or column_description_assignments:
             description_assignment = DescriptionAssignment(
                 asset_descriptions=asset_descriptions,
-                column_description_assignments=column_description_assignments
-                if column_description_assignments
-                else None,
+                column_description_assignments=(
+                    column_description_assignments
+                    if column_description_assignments
+                    else None
+                ),
             )
 
         return description_assignment

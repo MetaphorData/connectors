@@ -45,9 +45,11 @@ def get_pbi_dataset_tables(wds: WorkspaceInfoDataset) -> List[PowerBIDatasetTabl
                 for m in table.measures
             ],
             name=table.name,
-            expression=table.source[0].get("expression", None)
-            if len(table.source) > 0
-            else None,
+            expression=(
+                table.source[0].get("expression", None)
+                if len(table.source) > 0
+                else None
+            ),
         )
         for table in wds.tables
     ]

@@ -2,7 +2,7 @@
   "description": "This is Metabase dashboard for clean rides",
   "archived": false,
   "collection_position": null,
-  "ordered_cards": [
+  "dashcards": [
     {
       "size_x": 4,
       "series": [],
@@ -176,5 +176,20 @@
   "parameters": [],
   "created_at": "2022-05-06T15:47:21.693289Z",
   "public_uuid": null,
-  "points_of_interest": null
+  "points_of_interest": null,
+  "collection": {
+    "authority_level": null,
+    "description": null,
+    "archived": false,
+    "slug": "automatically_generated_dashboards",
+    "name": "Automatically Generated Dashboards",
+    "personal_owner_id": null,
+    "type": null,
+    "id": 2,
+    "entity_id": null,
+    "location": "/",
+    "namespace": null,
+    "is_personal": false,
+    "created_at": "2022-05-06T15:47:21.693289Z"
+  }
 }

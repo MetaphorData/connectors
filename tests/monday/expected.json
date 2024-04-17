@@ -1,0 +1,24 @@
+[
+  {
+    "entityId": "EXTERNAL_DOCUMENT~5678",
+    "documentId": "EXTERNAL_DOCUMENT~5678",
+    "embedding_1": [
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "pageId": "5678",
+    "lastRefreshed": "2023-12-11T00:00:00",
+    "metadata": {
+      "title": "Hello World!",
+      "board": 1234,
+      "boardName": "Hello World!",
+      "link": "https://metaphor.io",
+      "pageId": "5678",
+      "platform": "monday",
+      "lastRefreshed": "2023-12-11 00:00:00.000000"
+    },
+    "embeddedString_1": "Title: Hello World!\nBoard Name: Hello World!"
+  }
+]

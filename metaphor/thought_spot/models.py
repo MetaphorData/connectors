@@ -1,6 +1,7 @@
 """
 This module models the ThoughtSpot SDK complex return objects.
 """
+
 from enum import Enum
 from typing import Dict, List, Optional
 

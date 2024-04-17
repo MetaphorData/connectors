@@ -25,6 +25,14 @@ class PowerBIDataset(BaseModel):
     webUrl: Optional[str] = None
 
 
+class PowerBIDatasetParameter(BaseModel):
+    name: str
+    type: str
+    currentValue: str
+    isRequired: bool = True
+    suggestedValues: List[str] = []
+
+
 class PowerBIDashboard(BaseModel):
     id: str
     displayName: str

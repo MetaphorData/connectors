@@ -45,12 +45,6 @@ def test_excluded_projects(test_root_dir) -> None:
     config = TableauRunConfig.from_yaml_file(
         f"{test_root_dir}/tableau/config_extra_excluded_projects.yml"
     )
-    assert config.excluded_projects == {"foo", "bar", "Personal Space"}
-
-    config = TableauRunConfig.from_yaml_file(
-        f"{test_root_dir}/tableau/config_include_personal_space.yml"
-    )
-    assert config.excluded_projects == set()
-
-    config = TableauRunConfig.from_yaml_file(f"{test_root_dir}/tableau/config.yml")
-    assert config.excluded_projects == {"Personal Space"}
+    assert not config.projects_filter.include_project("111")
+    assert not config.projects_filter.include_project("222")
+    assert config.projects_filter.include_project("333")

@@ -56,7 +56,7 @@ class CustomDQConnector(BaseExtractor):
 connector_name = "custom_dq_connector"
 tenant_name = "tenant"
 run_connector(
-    connector=CustomDQConnector.from_config_file(""),
+    make_connector=lambda: CustomDQConnector.from_config_file(""),
     name=connector_name,
     platform=Platform.BIGQUERY,
     description="This is a custom connector made by Acme, Inc.",

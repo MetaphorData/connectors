@@ -96,7 +96,7 @@ def test_parse_access_log(mock_connect: MagicMock, test_root_dir: str):
     )
 
     # Include self-lineage
-    extractor = SnowflakeLineageExtractor(dummy_config())
+    extractor = SnowflakeLineageExtractor(dummy_config(include_self_lineage=True))
     extractor._parse_access_log(accessed_objects, modified_objects, "query")
 
     results = {}
@@ -109,7 +109,7 @@ def test_parse_access_log(mock_connect: MagicMock, test_root_dir: str):
     )
 
     # Exclude self-lineage
-    extractor = SnowflakeLineageExtractor(dummy_config(include_self_lineage=False))
+    extractor = SnowflakeLineageExtractor(dummy_config())
     extractor._parse_access_log(accessed_objects, modified_objects, "query")
 
     results = {}

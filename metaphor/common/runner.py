@@ -1,6 +1,6 @@
 import traceback
 from datetime import datetime
-from typing import Collection, List, Optional, Tuple
+from typing import Callable, Collection, List, Optional, Tuple
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES, EventUtil
@@ -13,7 +13,7 @@ logger = get_logger()
 
 
 def run_connector(
-    connector: BaseExtractor,
+    make_connector: Callable[[], BaseExtractor],
     name: str,
     description: str,
     platform: Optional[Platform] = None,
@@ -23,8 +23,8 @@ def run_connector(
 
     Parameters
     ----------
-    connector: BaseExtractor
-        The connector instance to run
+    make_connector : Callable[[], BaseExtractor]
+        The function to create and return an instance of connector
     name : str
         Name of the connector
     description : str
@@ -47,7 +47,9 @@ def run_connector(
     stacktrace = None
 
     entities: Collection[ENTITY_TYPES] = []
+    connector: Optional[BaseExtractor] = None
     try:
+        connector = make_connector()
         entities = connector.run_async()
         if connector.status is RunStatus.FAILURE:
             logger.warning(f"Some of {name}'s entities cannot be parsed!")
@@ -67,10 +69,10 @@ def run_connector(
     file_sink = None
     if file_sink_config is not None:
         file_sink = FileSink(file_sink_config)
-
-    if file_sink:
-        file_sink.write_events(events)
         file_sink.write_execution_logs()
+
+    if file_sink and connector:
+        file_sink.write_events(events)
 
         # Query logs are only collected when we have a destination to write to.
         query_log_sink = file_sink.get_query_log_sink()

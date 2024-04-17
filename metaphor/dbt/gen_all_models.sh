@@ -12,6 +12,7 @@ MANIFEST_VERSIONS=" \
   v9 \
   v10 \
   v11 \
+  v12 \
 "
 
 for version in ${MANIFEST_VERSIONS}; do
@@ -21,6 +22,7 @@ done
 RUN_RESULTS_VERSIONS="\
   v4 \
   v5 \
+  v6 \
 "
 
 for version in ${RUN_RESULTS_VERSIONS}; do

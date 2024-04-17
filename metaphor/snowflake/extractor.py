@@ -9,6 +9,7 @@ from typing import (
     Literal,
     Mapping,
     Optional,
+    Set,
     Tuple,
 )
 
@@ -34,7 +35,7 @@ from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import user_id_or_email
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import chunks, md5_digest, safe_float, start_of_day
+from metaphor.common.utils import chunks, safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -142,8 +143,12 @@ class SnowflakeExtractor(BaseExtractor):
 
                 self._fetch_columns(cursor, database)
 
+                secure_views = self._fetch_secure_views(cursor)
+
                 try:
-                    self._fetch_table_info(tables, database in shared_databases)
+                    self._fetch_table_info(
+                        tables, database in shared_databases, secure_views
+                    )
                 except Exception as e:
                     logger.exception(
                         f"Failed to fetch table extra info for '{database}'\n{e}"
@@ -175,14 +180,32 @@ class SnowflakeExtractor(BaseExtractor):
     @staticmethod
     def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
         cursor.execute(
-            "SELECT database_name FROM information_schema.databases ORDER BY database_name"
+            "SELECT database_name FROM information_schema.databases WHERE type != 'IMPORTED DATABASE' ORDER BY database_name"
         )
         return [db[0].lower() for db in cursor]
 
     @staticmethod
     def _fetch_shared_databases(cursor: SnowflakeCursor) -> List[str]:
         cursor.execute("SHOW SHARES")
-        return [db[3].lower() for db in cursor if db[1] == "INBOUND"]
+        shared_database = [db[3].lower() for db in cursor if db[1] == "INBOUND"]
+        cursor.execute(
+            "SELECT database_name FROM information_schema.databases WHERE type = 'IMPORTED DATABASE' ORDER BY database_name"
+        )
+        shared_database += [db[0].lower() for db in cursor]
+        return shared_database
+
+    @staticmethod
+    def _fetch_secure_views(cursor: SnowflakeCursor) -> Set[str]:
+        cursor.execute(
+            "select table_catalog, table_schema, table_name, is_secure from information_schema.views WHERE table_schema != 'INFORMATION_SCHEMA'"
+        )
+        set_of_secure_views = set()
+        for database, schema, table, is_secure in cursor:
+            if not is_secure:
+                continue
+            fullname = f"{database}.{schema}.{table}".lower()
+            set_of_secure_views.add(fullname)
+        return set_of_secure_views
 
     FETCH_TABLE_QUERY = """
     SELECT table_catalog, table_schema, table_name, table_type, COMMENT, row_count, bytes, created
@@ -284,11 +307,26 @@ class SnowflakeExtractor(BaseExtractor):
             )
 
     def _fetch_table_info(
-        self, tables: Dict[str, DatasetInfo], is_shared_database: bool
+        self,
+        tables: Dict[str, DatasetInfo],
+        is_shared_database: bool,
+        secure_views: Set[str],
     ) -> None:
         dict_cursor: DictCursor = self._conn.cursor(DictCursor)  # type: ignore
-        for chunk in chunks(list(tables.items()), TABLE_INFO_FETCH_SIZE):
-            self._fetch_table_info_internal(dict_cursor, chunk, is_shared_database)
+
+        # Partition table by schema
+        schema_tables: Dict[str, List[Tuple[str, DatasetInfo]]] = {}
+        for table in tables.items():
+            schema_tables.setdefault(table[1].schema, []).append(table)
+
+        for partitioned_tables in schema_tables.values():
+            for chunk in chunks(partitioned_tables, TABLE_INFO_FETCH_SIZE):
+                try:
+                    self._fetch_table_info_internal(
+                        dict_cursor, chunk, is_shared_database, secure_views
+                    )
+                except Exception as error:
+                    logger.error(error)
 
         dict_cursor.close()
 
@@ -297,13 +335,18 @@ class SnowflakeExtractor(BaseExtractor):
         dict_cursor: DictCursor,
         tables: List[Tuple[str, DatasetInfo]],
         is_shared_database: bool,
+        secure_views: Set[str],
     ) -> None:
         queries, params = [], []
         ddl_tables, updated_time_tables = [], []
         for normalized_name, table in tables:
             fullname = to_quoted_identifier([table.database, table.schema, table.name])
             # fetch last_update_time and DDL for tables, and fetch only DDL for views
-            if table.type == SnowflakeTableType.BASE_TABLE.value:
+            if (
+                table.type == SnowflakeTableType.BASE_TABLE.value
+                and not is_shared_database
+                and normalized_name not in secure_views
+            ):
                 queries.append(
                     f'SYSTEM$LAST_CHANGE_COMMIT_TIME(%s) as "UPDATED_{normalized_name}"'
                 )
@@ -319,7 +362,7 @@ class SnowflakeExtractor(BaseExtractor):
         if not queries:
             return
         query = f"SELECT {','.join(queries)}"
-        logger.debug(query)
+        logger.debug(f"{query}, params: {params}")
 
         dict_cursor.execute(query, tuple(params))
         results = dict_cursor.fetchone()
@@ -506,18 +549,18 @@ class SnowflakeExtractor(BaseExtractor):
                     field.tags.append(tag)
 
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
-        cursor.execute(
-            """
-            SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
-            FROM snowflake.account_usage.tag_references
-            WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
-            ORDER BY case when DOMAIN = 'DATABASE' then 1
-                          when DOMAIN = 'SCHEMA' then 2
-                          when DOMAIN = 'TABLE' then 3
-                          when DOMAIN = 'COLUMN' then 4
-                          end asc;
-            """
-        )
+        query = """
+        SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
+        FROM snowflake.account_usage.tag_references
+        WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
+        AND OBJECT_DELETED IS NULL
+        ORDER BY case when DOMAIN = 'DATABASE' then 1
+                        when DOMAIN = 'SCHEMA' then 2
+                        when DOMAIN = 'TABLE' then 3
+                        when DOMAIN = 'COLUMN' then 4
+                        end asc;
+        """
+        cursor.execute(query)
 
         for key, value, object_type, database, schema, object_name, column in cursor:
             if object_type in {"DATABASE", "SCHEMA"}:
@@ -693,15 +736,16 @@ class SnowflakeExtractor(BaseExtractor):
         return {
             x: QueryWithParam(
                 f"""
-                SELECT q.QUERY_ID, q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
+                SELECT q.QUERY_ID, q.QUERY_PARAMETERIZED_HASH,
+                  q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED,
                   DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                   ON a.QUERY_ID = q.QUERY_ID
                 WHERE EXECUTION_STATUS = 'SUCCESS'
-                  AND START_TIME > %s AND START_TIME <= %s
-                  AND QUERY_START_TIME > %s AND QUERY_START_TIME <= %s
+                  AND q.START_TIME > %s AND q.START_TIME <= %s
+                  AND a.QUERY_START_TIME > %s AND a.QUERY_START_TIME <= %s
                   {exclude_username_clause(self._query_log_excluded_usernames)}
                 ORDER BY q.QUERY_ID
                 LIMIT {self._query_log_fetch_size} OFFSET %s
@@ -724,7 +768,8 @@ class SnowflakeExtractor(BaseExtractor):
         return {
             x: QueryWithParam(
                 f"""
-                SELECT QUERY_ID, USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
+                SELECT QUERY_ID, QUERY_PARAMETERIZED_HASH,
+                  USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED
                 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                 WHERE EXECUTION_STATUS = 'SUCCESS'
@@ -749,6 +794,7 @@ class SnowflakeExtractor(BaseExtractor):
         logger.info(f"query logs batch #{batch}")
         for (
             query_id,
+            query_hash,
             username,
             query_text,
             start_time,
@@ -801,7 +847,7 @@ class SnowflakeExtractor(BaseExtractor):
                     sources=sources,
                     targets=targets,
                     sql=query_text,
-                    sql_hash=md5_digest(query_text.encode("utf-8")),
+                    sql_hash=query_hash,
                 )
 
                 yield query_log

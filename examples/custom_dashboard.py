@@ -81,7 +81,7 @@ class CustomDashboardConnector(BaseExtractor):
 connector_name = "custom_dashboard_connector"
 tenant_name = "<tenant>"
 run_connector(
-    connector=CustomDashboardConnector.from_config_file(""),
+    make_connector=lambda: CustomDashboardConnector.from_config_file(""),
     name=connector_name,
     platform=Platform.CUSTOM_DASHBOARD,
     description="This is a custom connector made by Acme, Inc.",

@@ -1,3 +1,4 @@
+from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.sampling import SamplingConfig
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -10,6 +11,8 @@ from metaphor.models.metadata_change_event import (
     SchemaField,
 )
 from metaphor.postgresql.profile.extractor import PostgreSQLProfileExtractor
+
+column_statistics = ColumnStatistics(unique_count=True, avg_value=True)
 
 
 def init_dataset(name: str, row_count) -> Dataset:
@@ -49,14 +52,16 @@ def test_build_profiling_query():
     expected = [
         (
             'SELECT COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-            'COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision), '
-            'COUNT(DISTINCT "year"), COUNT("year"), MIN("year"), MAX("year"), AVG("year"::double precision) '
+            'COUNT(1) - COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision), '
+            'COUNT(DISTINCT "year"), COUNT(1) - COUNT("year"), MIN("year"), MAX("year"), AVG("year"::double precision) '
             "FROM foo"
         )
     ]
 
     assert (
-        PostgreSQLProfileExtractor._build_profiling_query(dataset, SamplingConfig())
+        PostgreSQLProfileExtractor._build_profiling_query(
+            dataset, column_statistics, SamplingConfig()
+        )
         == expected
     )
 
@@ -88,25 +93,25 @@ def test_build_profiling_query_multiple_sql():
         (
             "SELECT "
             'COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-            'COUNT("price"), MIN("price") '
+            'COUNT(1) - COUNT("price"), MIN("price") '
             "FROM foo"
         ),
         (
             "SELECT "
             'MAX("price"), AVG("price"::double precision), COUNT(DISTINCT "year"), '
-            'COUNT("year"), MIN("year") '
+            'COUNT(1) - COUNT("year"), MIN("year") '
             "FROM foo"
         ),
         (
             "SELECT "
-            'MAX("year"), AVG("year"::double precision), COUNT(DISTINCT "name"), COUNT("name") '
+            'MAX("year"), AVG("year"::double precision), COUNT(DISTINCT "name"), COUNT(1) - COUNT("name") '
             "FROM foo"
         ),
     ]
 
     assert (
         PostgreSQLProfileExtractor._build_profiling_query(
-            dataset, SamplingConfig(), max_entities_per_query=5
+            dataset, column_statistics, SamplingConfig(), max_entities_per_query=5
         )
         == expected
     )
@@ -128,7 +133,7 @@ def test_build_profiling_query_with_sampling():
     expected = [
         (
             'SELECT COUNT(1), COUNT(DISTINCT "id"), COUNT(DISTINCT "price"), '
-            'COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision) '
+            'COUNT(1) - COUNT("price"), MIN("price"), MAX("price"), AVG("price"::double precision) '
             "FROM foo WHERE random() < 0.01"
         )
     ]
@@ -136,6 +141,7 @@ def test_build_profiling_query_with_sampling():
     assert (
         PostgreSQLProfileExtractor._build_profiling_query(
             dataset,
+            column_statistics,
             SamplingConfig(percentage=1, threshold=100000000),
         )
         == expected
@@ -165,7 +171,7 @@ def test_parse_profiling_result():
 
     results = [5, 5, 4, 0, 3, 8, 5, 2, 1, 2000, 2020, 2015]
 
-    PostgreSQLProfileExtractor._parse_result(results, dataset)
+    PostgreSQLProfileExtractor._parse_result(results, dataset, column_statistics)
     dataset.schema = None
     dataset.statistics = None
 
