@@ -1,6 +1,6 @@
 import json
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
@@ -335,6 +335,7 @@ class ArtifactParser:
         datasets: Dict[str, Dataset],
         virtual_views: Dict[str, VirtualView],
         metrics: Dict[str, Metric],
+        referenced_virtual_views: Set[str],
     ):
         self._platform = platform
         self._docs_base_url = config.docs_base_url
@@ -344,6 +345,7 @@ class ArtifactParser:
         self._datasets = datasets
         self._virtual_views = virtual_views
         self._metrics = metrics
+        self._referenced_virtual_views = referenced_virtual_views
 
         self._account = config.account
         if self._account and platform == DataPlatform.SNOWFLAKE:
@@ -427,6 +429,8 @@ class ArtifactParser:
             .rsplit("/", 1)[-1]
             .split(".")[0]
         )
+        project_name = manifest_metadata.get("project_name", "")
+
         logger.info(f"parsing manifest.json {schema_version} ...")
 
         manifest_json = ArtifactParser.sanitize_manifest(manifest_json, schema_version)
@@ -528,6 +532,8 @@ class ArtifactParser:
                 node.unique_id,
                 node_name_getter(node),
             )
+            if project_name and node.package_name != project_name:
+                self._referenced_virtual_views.add(node.unique_id)
 
         for node in virtual_view_nodes:
             self._parse_virtual_view_node(node, source_map, macro_map)
