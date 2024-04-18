@@ -187,12 +187,12 @@ class SnowflakeExtractor(BaseExtractor):
     @staticmethod
     def _fetch_shared_databases(cursor: SnowflakeCursor) -> List[str]:
         cursor.execute("SHOW SHARES")
-        shared_database = [db[3].lower() for db in cursor if db[1] == "INBOUND"]
+        shared_database = [db[4].lower() for db in cursor if db[1] == "INBOUND"]
         cursor.execute(
             "SELECT database_name FROM information_schema.databases WHERE type = 'IMPORTED DATABASE' ORDER BY database_name"
         )
         shared_database += [db[0].lower() for db in cursor]
-        return shared_database
+        return list(set(shared_database))
 
     @staticmethod
     def _fetch_secure_views(cursor: SnowflakeCursor) -> Set[str]:
