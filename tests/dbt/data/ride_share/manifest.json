@@ -616,6 +616,96 @@
       "latest_version": null,
       "deprecation_date": null
     },
+    "model.london_bike_analysis.reference_model": {
+      "database": "DEMO_DB",
+      "schema": "METAPHOR",
+      "name": "reference_model",
+      "resource_type": "model",
+      "package_name": "other_project",
+      "path": "",
+      "original_file_path": "",
+      "unique_id": "model.london_bike_analysis.reference_model",
+      "fqn": [
+        "london_bike_analysis",
+        "rides",
+        "reference_model"
+      ],
+      "alias": "reference_model",
+      "checksum": {
+        "name": "sha256",
+        "checksum": "f2fddc3c490d40e45314567be849c98f9db701319fe3c60c43a2bc442557925f"
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": null,
+        "database": null,
+        "tags": [],
+        "meta": {},
+        "group": null,
+        "materialized": "view",
+        "incremental_strategy": null,
+        "persist_docs": {},
+        "post-hook": [],
+        "pre-hook": [],
+        "quoting": {},
+        "column_types": {},
+        "full_refresh": null,
+        "unique_key": null,
+        "on_schema_change": "ignore",
+        "on_configuration_change": "apply",
+        "grants": {},
+        "packages": [],
+        "docs": {
+          "show": true,
+          "node_color": null
+        },
+        "contract": {
+          "enforced": false,
+          "alias_types": true
+        },
+        "access": "protected"
+      },
+      "tags": [],
+      "description": "",
+      "columns": {},
+      "meta": {},
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": null,
+      "build_path": null,
+      "deferred": false,
+      "unrendered_config": {
+        "alias": "",
+        "schema": "",
+        "database": ""
+      },
+      "created_at": 1713186099.1519442,
+      "relation_name": "",
+      "raw_code": "",
+      "language": "sql",
+      "refs": [],
+      "sources": [],
+      "metrics": [],
+      "depends_on": {
+        "macros": [],
+        "nodes": []
+      },
+      "compiled_path": null,
+      "contract": {
+        "enforced": false,
+        "alias_types": true,
+        "checksum": null
+      },
+      "access": "public",
+      "constraints": [],
+      "version": null,
+      "latest_version": null,
+      "deprecation_date": null
+    },
     "snapshot.london_bike_analysis.cycle_hire_snapshot": {
       "database": "DEMO_DB",
       "schema": "snapshots",
