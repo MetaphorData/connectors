@@ -28,12 +28,9 @@ grant usage on warehouse identifier($warehouse) to role identifier($role);
 
 -- Grant privilege to access Snowflake Account Usage views:
 grant imported privileges on database snowflake to role identifier($role);
-
--- (Optional) Grant privilege to "show shares" for inbound shared databases
-grant import share on account to identifier($role);
 ```
 
-For each database, run the following statements to grant the required privileges:
+For each database, including the inbound shared databases, run the following statements to grant the required privileges:
 
 ```sql
 set db = '<database>';

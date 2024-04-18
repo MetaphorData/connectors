@@ -476,31 +476,13 @@ def test_fetch_shared_databases(mock_connect: MagicMock):
     mock_cursor = MagicMock()
 
     mock_cursor.__iter__.side_effect = [
-        iter(
-            [
-                (
-                    None,
-                    "INBOUND",
-                    None,
-                    None,
-                    "shared_1",
-                ),
-                (
-                    None,
-                    "UNKNOWN",
-                    None,
-                    None,
-                    "shared_2",
-                ),
-            ]
-        ),
         iter([("shared_1",), ("shared_3",)]),
     ]
 
     extractor = SnowflakeExtractor(make_snowflake_config())
     results = extractor._fetch_shared_databases(mock_cursor)
 
-    assert set(results) == {"shared_1", "shared_3"}
+    assert results == ["shared_1", "shared_3"]
 
 
 @patch("metaphor.snowflake.extractor.check_access_history")
