@@ -149,7 +149,7 @@ max_concurrency: <max_number_of_queries> # Default to 10
 Each query issued by snowflake connectors can be tagged with a query tag. It can be configured as follows,
 
 ```yaml
-query_tag: <query_taqg> # Default to 'MetaphorData'
+query_tag: <query_taq> # Default to 'MetaphorData'
 ```
 
 ## Testing
