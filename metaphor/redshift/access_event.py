@@ -5,13 +5,14 @@ from typing import AsyncIterator
 from asyncpg import Connection, Record
 
 REDSHIFT_USAGE_SQL_TEMPLATE = """
-SELECT DISTINCT ss.userid,
+SELECT DISTINCT
+    ss.userid,
     ss.query,
     sui.usename,
     ss.rows,
     ss.bytes,
     ss.tbl,
-    sq.querytxt,
+    LISTAGG(CASE WHEN LEN(RTRIM(sqt.text)) = 0 THEN sqt.text ELSE RTRIM(sqt.text) END, '') within group (order by sqt.sequence) AS querytxt,
     sti.database,
     sti.schema,
     sti.table,
@@ -21,10 +22,25 @@ SELECT DISTINCT ss.userid,
 FROM stl_scan ss
     JOIN svv_table_info sti ON ss.tbl = sti.table_id
     JOIN stl_query sq ON ss.query = sq.query
+    JOIN stl_querytext sqt ON ss.query = sqt.query
     JOIN svl_user_info sui ON sq.userid = sui.usesysid
 WHERE ss.starttime >= '{start_time}'
     AND ss.starttime < '{end_time}'
     AND sq.aborted = 0
+GROUP BY
+    ss.userid,
+    ss.query,
+    sui.usename,
+    ss.rows,
+    ss.bytes,
+    ss.tbl,
+    sti.database,
+    sti.schema,
+    sti.table,
+    sq.starttime,
+    sq.endtime,
+    sq.aborted,
+    ss.endtime
 ORDER BY ss.endtime DESC;
 """
 
@@ -59,6 +75,8 @@ class AccessEvent:
 
         record["starttime"] = record["starttime"].replace(tzinfo=timezone.utc)
         record["endtime"] = record["endtime"].replace(tzinfo=timezone.utc)
+
+        record["querytxt"] = record["querytxt"].replace("\\n", "\n")
 
         return AccessEvent(**record)
 
