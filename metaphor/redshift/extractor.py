@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 from typing import Collection, Iterator, List, Set
 
 from metaphor.common.constants import BYTES_PER_MEGABYTES
@@ -130,7 +131,7 @@ class RedshiftExtractor(PostgreSQLExtractor):
         logger.info("Fetching query logs")
 
         start_date = start_of_day(self._query_log_lookback_days)
-        end_date = start_of_day()
+        end_date = datetime.datetime.now(tz=datetime.timezone.utc)
 
         async for record in AccessEvent.fetch_access_event(conn, start_date, end_date):
             query_log = self._process_record(record)
