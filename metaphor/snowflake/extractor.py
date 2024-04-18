@@ -179,8 +179,11 @@ class SnowflakeExtractor(BaseExtractor):
 
     @staticmethod
     def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
+        """
+        Fetch all databases from Snowflake, including shared/imported databases.
+        """
         cursor.execute(
-            "SELECT database_name FROM information_schema.databases WHERE type != 'IMPORTED DATABASE' ORDER BY database_name"
+            "SELECT database_name FROM information_schema.databases ORDER BY database_name"
         )
         return [db[0].lower() for db in cursor]
 
