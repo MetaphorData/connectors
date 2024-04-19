@@ -25,4 +25,6 @@ class RedshiftRunConfig(PostgreSQLRunConfig):
     tag_matchers: List[TagMatcher] = field(default_factory=lambda: [])
 
     # configs for fetching query logs
-    query_log: RedshiftQueryLogConfig = RedshiftQueryLogConfig()
+    query_log: RedshiftQueryLogConfig = field(
+        default_factory=lambda: RedshiftQueryLogConfig()
+    )
