@@ -59,7 +59,9 @@ class TableauRunConfig(BaseConfig):
 
     include_personal_space: bool = False
 
-    projects_filter: TableauProjectConfig = TableauProjectConfig()
+    projects_filter: TableauProjectConfig = dataclasses.field(
+        default_factory=lambda: TableauProjectConfig()
+    )
 
     # whether to disable Chart preview image
     disable_preview_image: bool = False
