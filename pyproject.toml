@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.170"
+version = "0.13.171"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -128,14 +128,14 @@ mssql = ["pymssql"]
 mysql = ["pymysql", "SQLAlchemy"]
 notion = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-notion"]
 postgresql = ["asyncpg"]
-power_bi = ["msal", "msgraph-beta-sdk", "sql-metadata"]
+power_bi = ["msal", "msgraph-beta-sdk"]
 redshift = ["asyncpg", "sqllineage"]
 s3 = ["fastavro", "more-itertools", "parse"]
-snowflake = ["snowflake-connector-python", "sql-metadata"]
+snowflake = ["snowflake-connector-python"]
 static_web = ["beautifulsoup4", "llama-index", "llama-index-embeddings-azure-openai", "lxml"]
 synapse = ["pymssql"]
 tableau = ["tableauserverclient", "sqllineage"]
-throughtspot = ["thoughtspot-rest-api-v1"]
+thought_spot = ["thoughtspot-rest-api-v1", "sqllineage"]
 trino = ["trino"]
 unity_catalog = ["databricks-sdk", "databricks-sql-connector"]
 

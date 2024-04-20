@@ -1,4 +1,3 @@
-import logging
 import math
 from typing import Collection, Dict, List, Tuple, Union
 
@@ -28,9 +27,6 @@ from metaphor.snowflake.lineage.config import SnowflakeLineageRunConfig
 from metaphor.snowflake.utils import QueryWithParam, async_execute
 
 logger = get_logger()
-
-# disable logging from sql_metadata
-logging.getLogger("Parser").setLevel(logging.CRITICAL)
 
 
 SUPPORTED_OBJECT_DOMAIN_TYPES = (
