@@ -180,8 +180,10 @@ class SnowflakeProfileExtractor(BaseExtractor):
             dataset_info = tables.get(
                 normalize_full_dataset_name(table.full_name)
             )  # FIXME normalized name is case insensitive, make it case sensitive so that this logic works properly
-            if dataset_info:
-                row_count = dataset_info.row_count
+            if dataset_info is None:
+                continue
+
+            row_count = dataset_info.row_count
 
             profile_queries[table.full_name] = QueryWithParam(
                 SnowflakeProfileExtractor._build_profiling_query(
