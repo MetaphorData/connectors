@@ -355,6 +355,7 @@
   {
     "logicalId": {
       "path": [
+        "THOUGHT_SPOT",
         "ANSWER"
       ]
     },
@@ -366,6 +367,7 @@
   {
     "logicalId": {
       "path": [
+        "THOUGHT_SPOT",
         "LIVEBOARD"
       ]
     },
@@ -377,6 +379,7 @@
   {
     "logicalId": {
       "path": [
+        "THOUGHT_SPOT",
         "TABLE"
       ]
     },
@@ -388,6 +391,7 @@
   {
     "logicalId": {
       "path": [
+        "THOUGHT_SPOT",
         "VIEW"
       ]
     },
@@ -399,6 +403,7 @@
   {
     "logicalId": {
       "path": [
+        "THOUGHT_SPOT",
         "WORKSHEET"
       ]
     },
