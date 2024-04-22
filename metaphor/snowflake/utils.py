@@ -126,6 +126,7 @@ def async_execute(
             key = future_map[future]
             try:
                 results = future.result().fetchall()
+                logger.info(f"Executed {query_name} for {key}")
             except Exception:
                 logger.exception(f"Error executing {query_name} for {key}")
                 continue
