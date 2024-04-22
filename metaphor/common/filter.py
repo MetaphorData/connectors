@@ -32,12 +32,45 @@ class DatasetFilter:
     def merge(self, filter: "DatasetFilter") -> "DatasetFilter":
         """Merge with another filter and return a shallow copy"""
 
-        def merge_filters(f1: Optional[DatabaseFilter], f2: Optional[DatabaseFilter]):
-            return f1 if f2 is None else f2 if f1 is None else {**f1, **f2}
+        def _merge_table_filters(
+            f1: Optional[TableFilter], f2: Optional[TableFilter]
+        ) -> Optional[TableFilter]:
+            return f1 if f2 is None else f2 if f1 is None else f1.union(f2)
+
+        def _merge_schema_filters(
+            f1: Optional[SchemaFilter], f2: Optional[SchemaFilter]
+        ) -> Optional[SchemaFilter]:
+            if f1 is None:
+                return f2
+            if f2 is None:
+                return f1
+
+            result = f1.copy()  # shallow copy of f1
+            for key, val in f2.items():
+                result[key] = _merge_table_filters(f1.get(key, None), val)
+
+            return result
+
+        def _merge_database_filters(
+            f1: Optional[DatabaseFilter], f2: Optional[DatabaseFilter]
+        ) -> Optional[DatabaseFilter]:
+            """
+            Merge two database filters, if same key, then merge the schema filters
+            """
+            if f1 is None:
+                return f2
+            if f2 is None:
+                return f1
+
+            result = f1.copy()  # shallow copy of f1
+            for key, val in f2.items():
+                result[key] = _merge_schema_filters(f1.get(key, None), val)
+
+            return result
 
         return DatasetFilter(
-            includes=merge_filters(self.includes, filter.includes),
-            excludes=merge_filters(self.excludes, filter.excludes),
+            includes=_merge_database_filters(self.includes, filter.includes),
+            excludes=_merge_database_filters(self.excludes, filter.excludes),
         )
 
     def normalize(self) -> "DatasetFilter":
