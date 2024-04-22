@@ -38,6 +38,7 @@ from metaphor.models.metadata_change_event import (
     ThoughtSpotColumn,
     ThoughtSpotDashboardType,
     ThoughtSpotDataObject,
+    ThoughtSpotDataObjectType,
     ThoughtSpotInfo,
     VirtualView,
     VirtualViewLogicalID,
@@ -58,6 +59,7 @@ from metaphor.thought_spot.models import (
 )
 from metaphor.thought_spot.utils import (
     ThoughtSpot,
+    create_virtual_hierarchy,
     from_list,
     getColumnTransformation,
     mapping_chart_type,
@@ -101,7 +103,31 @@ class ThoughtSpotExtractor(BaseExtractor):
         self.fetch_virtual_views()
         self.fetch_dashboards()
 
-        return list(chain(self._virtual_views.values(), self._dashboards.values()))
+        virtual_hierarchies = [
+            create_virtual_hierarchy(
+                name="Answer", path=[ThoughtSpotDashboardType.ANSWER.name]
+            ),
+            create_virtual_hierarchy(
+                name="Liveboard", path=[ThoughtSpotDashboardType.LIVEBOARD.name]
+            ),
+            create_virtual_hierarchy(
+                name="Table", path=[ThoughtSpotDataObjectType.TABLE.name]
+            ),
+            create_virtual_hierarchy(
+                name="View", path=[ThoughtSpotDataObjectType.VIEW.name]
+            ),
+            create_virtual_hierarchy(
+                name="Worksheet", path=[ThoughtSpotDataObjectType.WORKSHEET.name]
+            ),
+        ]
+
+        return list(
+            chain(
+                self._virtual_views.values(),
+                self._dashboards.values(),
+                virtual_hierarchies,
+            ),
+        )
 
     def fetch_virtual_views(self):
         connections = from_list(ThoughtSpot.fetch_connections(self._client))

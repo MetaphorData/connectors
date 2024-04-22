@@ -81,7 +81,9 @@ class BigQueryRunConfig(BaseConfig):
     tag_matchers: List[TagMatcher] = field(default_factory=lambda: [])
 
     # configs for fetching query logs
-    query_log: BigQueryQueryLogConfig = BigQueryQueryLogConfig()
+    query_log: BigQueryQueryLogConfig = field(
+        default_factory=lambda: BigQueryQueryLogConfig()
+    )
 
     @model_validator(mode="after")
     def have_key_path_or_credentials(self) -> "BigQueryRunConfig":

@@ -9,6 +9,10 @@ from metaphor.common.utils import chunks
 from metaphor.models.metadata_change_event import (
     ChartType,
     DataPlatform,
+    Hierarchy,
+    HierarchyInfo,
+    HierarchyLogicalID,
+    HierarchyType,
     ThoughtSpotDataObjectType,
 )
 from metaphor.thought_spot.config import ThoughtSpotRunConfig
@@ -273,3 +277,12 @@ def getColumnTransformation(target_column: Column) -> Optional[str]:
     if target_column.expression is None or target_column.expression.token is None:
         return None
     return str(target_column.expression.token)
+
+
+def create_virtual_hierarchy(name: str, path: List[str]) -> Hierarchy:
+    return Hierarchy(
+        logical_id=HierarchyLogicalID(path=path),
+        hierarchy_info=HierarchyInfo(
+            name=name, type=HierarchyType.THOUGHT_SPOT_VIRTUAL_HIERARCHY
+        ),
+    )

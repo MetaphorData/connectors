@@ -351,5 +351,60 @@
         }
       ]
     }
+  },
+  {
+    "logicalId": {
+      "path": [
+        "ANSWER"
+      ]
+    },
+    "hierarchyInfo": {
+      "name": "Answer",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    }
+  },
+  {
+    "logicalId": {
+      "path": [
+        "LIVEBOARD"
+      ]
+    },
+    "hierarchyInfo": {
+      "name": "Liveboard",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    }
+  },
+  {
+    "logicalId": {
+      "path": [
+        "TABLE"
+      ]
+    },
+    "hierarchyInfo": {
+      "name": "Table",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    }
+  },
+  {
+    "logicalId": {
+      "path": [
+        "VIEW"
+      ]
+    },
+    "hierarchyInfo": {
+      "name": "View",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    }
+  },
+  {
+    "logicalId": {
+      "path": [
+        "WORKSHEET"
+      ]
+    },
+    "hierarchyInfo": {
+      "name": "Worksheet",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    }
   }
 ]

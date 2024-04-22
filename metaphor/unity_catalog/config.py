@@ -35,4 +35,6 @@ class UnityCatalogRunConfig(BaseConfig):
     warehouse_id: Optional[str] = None
 
     # configs for fetching query logs
-    query_log: UnityCatalogQueryLogConfig = UnityCatalogQueryLogConfig()
+    query_log: UnityCatalogQueryLogConfig = field(
+        default_factory=lambda: UnityCatalogQueryLogConfig()
+    )

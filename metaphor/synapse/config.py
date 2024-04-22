@@ -1,3 +1,4 @@
+from dataclasses import field
 from typing import Optional
 
 from pydantic.dataclasses import dataclass
@@ -14,4 +15,6 @@ class SynapseQueryLogConfig:
 
 @dataclass(config=ConnectorConfig)
 class SynapseConfig(MssqlConfig):
-    query_log: Optional[SynapseQueryLogConfig] = SynapseQueryLogConfig()
+    query_log: Optional[SynapseQueryLogConfig] = field(
+        default_factory=lambda: SynapseQueryLogConfig()
+    )
