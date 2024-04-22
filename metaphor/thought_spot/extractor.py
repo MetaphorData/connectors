@@ -114,6 +114,9 @@ class ThoughtSpotExtractor(BaseExtractor):
                 name="Table", path=[ThoughtSpotDataObjectType.TABLE.name]
             ),
             create_virtual_hierarchy(
+                name="View", path=[ThoughtSpotDataObjectType.VIEW.name]
+            ),
+            create_virtual_hierarchy(
                 name="Worksheet", path=[ThoughtSpotDataObjectType.WORKSHEET.name]
             ),
         ]
