@@ -252,13 +252,13 @@ def test_merge():
 
     f1 = DatasetFilter(
         excludes={
-            "*": {"foo": {"f1", "f2"}, "bar": None},
+            "x": {"foo": {"f1", "f2"}, "bar": None},
         }
     )
-    f2 = DatasetFilter(excludes={"*": {"foo": {"f1", "f3"}, "bar": {"b1"}}})
+    f2 = DatasetFilter(excludes={"x": {"foo": {"f1", "f3"}, "bar": {"b1"}}})
     assert f1.merge(f2) == DatasetFilter(
         excludes={
-            "*": {
+            "x": {
                 "foo": {"f1", "f2", "f3"},
                 "bar": {"b1"},
             },
