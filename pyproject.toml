@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.13.177"
+version = "0.13.178"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -129,7 +129,7 @@ mysql = ["pymysql", "SQLAlchemy"]
 notion = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-notion"]
 postgresql = ["asyncpg"]
 power_bi = ["msal", "msgraph-beta-sdk"]
-redshift = ["asyncpg", "sqllineage"]
+redshift = ["asyncpg"]
 s3 = ["fastavro", "more-itertools", "parse"]
 snowflake = ["snowflake-connector-python"]
 static_web = ["beautifulsoup4", "llama-index", "llama-index-embeddings-azure-openai", "lxml"]
