@@ -8,6 +8,7 @@ from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.utils import chunks
 from metaphor.models.metadata_change_event import (
     ChartType,
+    DashboardPlatform,
     DataPlatform,
     Hierarchy,
     HierarchyInfo,
@@ -281,7 +282,9 @@ def getColumnTransformation(target_column: Column) -> Optional[str]:
 
 def create_virtual_hierarchy(name: str, path: List[str]) -> Hierarchy:
     return Hierarchy(
-        logical_id=HierarchyLogicalID(path=path),
+        logical_id=HierarchyLogicalID(
+            path=[DashboardPlatform.THOUGHT_SPOT.name] + path
+        ),
         hierarchy_info=HierarchyInfo(
             name=name, type=HierarchyType.THOUGHT_SPOT_VIRTUAL_HIERARCHY
         ),
