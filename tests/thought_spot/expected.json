@@ -388,6 +388,17 @@
   {
     "logicalId": {
       "path": [
+        "VIEW"
+      ]
+    },
+    "hierarchyInfo": {
+      "name": "View",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    }
+  },
+  {
+    "logicalId": {
+      "path": [
         "WORKSHEET"
       ]
     },
