@@ -87,7 +87,7 @@ See [Output Config](../common/docs/output.md) for more information on the option
 
 ## Testing
 
-Follow the [installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include the `confluence` or `all` extra (and the `confluence-attachments` extra if desired).
+Follow the [installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include the `confluence` or `all` extra.
 
 Run the following command to test the connector locally:
 
