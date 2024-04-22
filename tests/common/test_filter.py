@@ -207,6 +207,34 @@ def test_merge():
     f2 = DatasetFilter(excludes={"foo": {"bar": None}})
     assert f1.merge(f2) == DatasetFilter(excludes={"foo": {"bar": None}})
 
+    f1 = DatasetFilter(
+        includes={
+            "SNOWFLAKE": None,
+            "*": {"foo": None},
+        }
+    )
+    f2 = DatasetFilter(includes={"*": {"bar": None}})
+    assert f1.merge(f2) == DatasetFilter(
+        includes={
+            "SNOWFLAKE": None,
+            "*": {"foo": None, "bar": None},
+        }
+    )
+
+    f1 = DatasetFilter(
+        excludes={
+            "SNOWFLAKE": None,
+            "*": {"foo": None},
+        }
+    )
+    f2 = DatasetFilter(excludes={"*": {"bar": None}})
+    assert f1.merge(f2) == DatasetFilter(
+        excludes={
+            "SNOWFLAKE": None,
+            "*": {"foo": None, "bar": None},
+        }
+    )
+
 
 def test_include_database():
     # Includes only

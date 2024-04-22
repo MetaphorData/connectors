@@ -33,7 +33,28 @@ class DatasetFilter:
         """Merge with another filter and return a shallow copy"""
 
         def merge_filters(f1: Optional[DatabaseFilter], f2: Optional[DatabaseFilter]):
-            return f1 if f2 is None else f2 if f1 is None else {**f1, **f2}
+            """
+            Merge two database filters, if same key, then merge the schema filters
+            """
+            if f1 is None:
+                return f2
+            if f2 is None:
+                return f1
+
+            result = f1.copy()  # shallow copy of f1
+            for key, f2val in f2.items():
+                if key in result:
+                    f1val = result[key]
+                    # merge schema filters with overwrite if same key
+                    result[key] = (
+                        f1val
+                        if f2val is None
+                        else f2val if f1val is None else {**f1val, **f2val}
+                    )
+                else:
+                    result[key] = f2val
+
+            return result
 
         return DatasetFilter(
             includes=merge_filters(self.includes, filter.includes),
