@@ -3,13 +3,11 @@ import glob
 import logging
 import operator
 import os
-import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
 
 try:
     import lkml
-    import sql_metadata
 except ImportError:
     print("Please install metaphor[looker] extra\n")
     raise
@@ -30,6 +28,7 @@ from metaphor.models.metadata_change_event import (
     LookerView,
     LookerViewDimension,
     LookerViewMeasure,
+    LookerViewQuery,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -124,29 +123,32 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
     return to_dataset_entity_id(full_name, connection.platform, connection.account)
 
 
-def _get_upstream_datasets(
+def _get_upstream_and_query(
     view_name, raw_model: RawModel, connection: LookerConnectionConfig
-) -> Set[EntityId]:
+) -> Tuple[Set[EntityId], Optional[LookerViewQuery]]:
     raw_views = raw_model.raw_views
     raw_view = raw_views.get(view_name)
     if raw_view is None:
         logger.error(f"Refer to non-existing view {view_name}")
-        return set()
+        return set(), None
 
     if "upstream_dataset_ids" in raw_view:
-        return raw_view["upstream_dataset_ids"]
+        return raw_view["upstream_dataset_ids"], raw_view["query"]
 
     upstreams = set()
+    query = None
 
     # Set upstream via derived_table
     # https://docs.looker.com/reference/view-params/derived_table
-    derived_table = raw_view.get("derived_table", None)
+    derived_table: Optional[Dict] = raw_view.get("derived_table", None)
     if derived_table is not None:
         if "sql" in derived_table:
-            upstreams = set(
-                _extract_upstream_datasets_from_sql(
-                    derived_table["sql"], raw_model, connection
-                )
+            query = LookerViewQuery(
+                query=derived_table["sql"],
+                source_platform=connection.platform,
+                source_dataset_account=connection.account,
+                default_database=connection.database,
+                default_schema=connection.default_schema,
             )
 
         # https://docs.looker.com/data-modeling/learning-lookml/creating-ndts
@@ -159,49 +161,28 @@ def _get_upstream_datasets(
             if base_view_name is None:
                 base_view_name = explore_name
 
-            upstreams.update(
-                _get_upstream_datasets(base_view_name, raw_model, connection)
+            query = LookerViewQuery(
+                source_platform=connection.platform,
+                source_dataset_account=connection.account,
+                default_database=connection.database,
+                default_schema=connection.default_schema,
+                referenced_views=[base_view_name],
             )
 
     # Set upstream via sql_table_name
     # https://docs.looker.com/reference/view-params/sql_table_name-for-view
-    sql_table_name = raw_view.get("sql_table_name", None)
+    sql_table_name: Optional[str] = raw_view.get("sql_table_name", None)
     if sql_table_name is not None:
-        upstreams = set([_to_dataset_id(sql_table_name, connection)])
+        upstreams = {_to_dataset_id(sql_table_name, connection)}
 
     # If none of the above was triggered, assume upstream is a table with the same name
     # https://docs.looker.com/reference/view-params/sql_table_name-for-view
-    if len(upstreams) == 0:
+    if query is None and len(upstreams) == 0:
         upstreams.add(_to_dataset_id(view_name, connection))
 
     raw_view["upstream_dataset_ids"] = upstreams
-    return upstreams
-
-
-def _extract_upstream_datasets_from_sql(
-    sql: str, raw_model: RawModel, connection: LookerConnectionConfig
-) -> Set[EntityId]:
-    upstreams: Set[EntityId] = set()
-    try:
-        # strip the brackets around referenced view name
-        sql = re.sub(r"\${(.+\.SQL_TABLE_NAME)}", r"\1", sql)
-
-        # parse SQL tables
-        tables = sql_metadata.Parser(sql).tables
-        for table in tables:
-            if table.endswith(".SQL_TABLE_NAME"):
-                # Selecting from another derived table
-                # https://docs.looker.com/data-modeling/learning-lookml/sql-and-referring-to-lookml
-                view_name = table.split(".")[0]
-                upstreams.update(
-                    _get_upstream_datasets(view_name, raw_model, connection)
-                )
-            else:
-                upstreams.add(_to_dataset_id(table, connection))
-    except Exception as e:
-        logger.warning(f"Failed to parse SQL:\n{sql}\n\nError:{e}")
-
-    return upstreams
+    raw_view["query"] = query
+    return upstreams, query
 
 
 def fullname(model: str, name: str) -> str:
@@ -229,11 +210,15 @@ def _build_looker_view(
     )
 
     try:
-        view.source_datasets = [
-            str(ds) for ds in _get_upstream_datasets(name, raw_model, connection)
-        ]
+        upstream_dataset_ids, query = _get_upstream_and_query(
+            name, raw_model, connection
+        )
+        if upstream_dataset_ids:
+            view.source_datasets = [str(ds) for ds in upstream_dataset_ids]
+        if query is not None:
+            view.query = query
     except Exception:
-        logger.exception(f"Can't determine upstream datasets for view {name}")
+        logger.exception(f"Can't determine upstream for view {name}")
 
     if "dimensions" in raw_view:
         view.dimensions = [

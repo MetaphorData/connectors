@@ -607,8 +607,8 @@ files = [
 jmespath = ">=0.7.1,<2.0.0"
 python-dateutil = ">=2.1,<3.0.0"
 urllib3 = [
-    {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""},
     {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""},
+    {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""},
 ]
 
 [package.extras]
@@ -1095,8 +1095,8 @@ files = [
 [package.dependencies]
 lz4 = ">=4.0.2,<5.0.0"
 numpy = [
-    {version = ">=1.16.6", markers = "python_version >= \"3.8\" and python_version < \"3.11\""},
     {version = ">=1.23.4", markers = "python_version >= \"3.11\""},
+    {version = ">=1.16.6", markers = "python_version >= \"3.8\" and python_version < \"3.11\""},
 ]
 oauthlib = ">=3.1.0,<4.0.0"
 openpyxl = ">=3.0.10,<4.0.0"
@@ -1146,8 +1146,8 @@ isort = ">=4.3.21,<6.0"
 jinja2 = ">=2.10.1,<4.0"
 packaging = "*"
 pydantic = [
-    {version = ">=1.5.1,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version < \"3.10\""},
     {version = ">=1.10.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.11\" and python_version < \"4.0\""},
+    {version = ">=1.5.1,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version < \"3.10\""},
     {version = ">=1.9.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
 ]
 pyyaml = ">=6.0.1"
@@ -1610,12 +1610,12 @@ files = [
 google-auth = ">=2.14.1,<3.0.dev0"
 googleapis-common-protos = ">=1.56.2,<2.0.dev0"
 grpcio = [
-    {version = ">=1.33.2,<2.0dev", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
     {version = ">=1.49.1,<2.0dev", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
+    {version = ">=1.33.2,<2.0dev", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
 ]
 grpcio-status = [
-    {version = ">=1.33.2,<2.0.dev0", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
     {version = ">=1.49.1,<2.0.dev0", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
+    {version = ">=1.33.2,<2.0.dev0", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
 ]
 proto-plus = ">=1.22.3,<2.0.0dev"
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0.dev0"
@@ -1749,8 +1749,8 @@ google-cloud-audit-log = ">=0.1.0,<1.0.0dev"
 google-cloud-core = ">=2.0.0,<3.0.0dev"
 grpc-google-iam-v1 = ">=0.12.4,<1.0.0dev"
 proto-plus = [
-    {version = ">=1.22.0,<2.0.0dev", markers = "python_version < \"3.11\""},
     {version = ">=1.22.2,<2.0.0dev", markers = "python_version >= \"3.11\""},
+    {version = ">=1.22.0,<2.0.0dev", markers = "python_version < \"3.11\""},
 ]
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0dev"
 
@@ -2809,13 +2809,13 @@ pydantic = ">=1.10"
 
 [[package]]
 name = "looker-sdk"
-version = "23.20.1"
+version = "24.4.0"
 description = "Looker REST API"
 optional = true
 python-versions = ">=3.6"
 files = [
-    {file = "looker_sdk-23.20.1-py3-none-any.whl", hash = "sha256:88b2723eca901e2c2c42e22bf8cd60ea3b9c67139b6a5886d7386fbf26072477"},
-    {file = "looker_sdk-23.20.1.tar.gz", hash = "sha256:92487c7cfaed7e064c4c082fb62252232322a7b4e0ed299410623ca5de6a316b"},
+    {file = "looker_sdk-24.4.0-py3-none-any.whl", hash = "sha256:b86fe7c7531af82cd0bbeb1621217bd697e3d4e5239d9e5ef3319139fd1a8d1c"},
+    {file = "looker_sdk-24.4.0.tar.gz", hash = "sha256:0c5ae8d6e8c72f51d24a78b7fe5971a84a42dac8130da1c4ae7a3578a7022420"},
 ]
 
 [package.dependencies]
@@ -3106,13 +3106,13 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.33.3"
+version = "0.33.5"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "metaphor_models-0.33.3-py3-none-any.whl", hash = "sha256:db33a0cad47c9a6b7ceac21b3e6acab8d62974136436a8ddfb1b81d571e8b910"},
-    {file = "metaphor_models-0.33.3.tar.gz", hash = "sha256:09bd0020d901d11dbccde78df11d97e3cd199b1fa6ca30d1a40a30e79a2ad297"},
+    {file = "metaphor_models-0.33.5-py3-none-any.whl", hash = "sha256:4db2ef94b2ac8ecdde4d2d16e1e9a9a46e6b5a53bfffb944c30f2dd7cb8ad2d2"},
+    {file = "metaphor_models-0.33.5.tar.gz", hash = "sha256:2e200c779c47dcc32ee58f82ca30518f600f20c5e251495d1f4d66fc66e697f5"},
 ]
 
 [[package]]
@@ -3754,8 +3754,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.20.3", markers = "python_version < \"3.10\""},
     {version = ">=1.23.2", markers = "python_version >= \"3.11\""},
+    {version = ">=1.20.3", markers = "python_version < \"3.10\""},
     {version = ">=1.21.0", markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
 ]
 python-dateutil = ">=2.8.2"
@@ -6296,8 +6296,8 @@ datahub = ["gql"]
 dbt = []
 hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["avro", "confluent-kafka", "grpcio-tools"]
-looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
-metabase = ["sql-metadata"]
+looker = ["GitPython", "lkml", "looker-sdk"]
+metabase = []
 monday = ["llama-index", "llama-index-embeddings-azure-openai"]
 monte-carlo = ["pycarlo"]
 mssql = ["pymssql"]
@@ -6305,7 +6305,7 @@ mysql = ["SQLAlchemy", "pymysql"]
 notion = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-notion"]
 postgresql = ["asyncpg"]
 power-bi = ["msal", "msgraph-beta-sdk"]
-redshift = ["asyncpg", "sqllineage"]
+redshift = ["asyncpg"]
 s3 = ["fastavro", "more-itertools", "parse"]
 snowflake = ["snowflake-connector-python"]
 static-web = ["beautifulsoup4", "llama-index", "llama-index-embeddings-azure-openai", "lxml"]
@@ -6318,4 +6318,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "da50acd1aa32b5df711f21522c4ff5f604aae22953e7fbf054fb60559d6a883b"
+content-hash = "6cc6d8afd6847b4a58cc41b357fc2a43e00bacc07684c105b871fcd7e6833b62"
