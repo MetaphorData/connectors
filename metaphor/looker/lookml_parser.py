@@ -162,7 +162,6 @@ def _get_upstream_and_query(
                 base_view_name = explore_name
 
             query = LookerViewQuery(
-                query="_",
                 source_platform=connection.platform,
                 source_dataset_account=connection.account,
                 default_database=connection.database,

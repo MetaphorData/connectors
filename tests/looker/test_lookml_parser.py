@@ -402,7 +402,6 @@ def test_derived_table(test_root_dir):
                 query=LookerViewQuery(
                     default_database="db",
                     default_schema="schema",
-                    query="_",
                     referenced_views=["view1"],
                     source_dataset_account="account",
                     source_platform=DataPlatform.SNOWFLAKE,

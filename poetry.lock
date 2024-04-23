@@ -3106,13 +3106,13 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.33.4"
+version = "0.33.5"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "metaphor_models-0.33.4-py3-none-any.whl", hash = "sha256:59bfad80b34be57a141cd765f646076a7d99c3ce0692decacca922c13464e890"},
-    {file = "metaphor_models-0.33.4.tar.gz", hash = "sha256:a9b3d389da15ad1357b774e182b190f053e7d02c430b044ded31546992abeeae"},
+    {file = "metaphor_models-0.33.5-py3-none-any.whl", hash = "sha256:4db2ef94b2ac8ecdde4d2d16e1e9a9a46e6b5a53bfffb944c30f2dd7cb8ad2d2"},
+    {file = "metaphor_models-0.33.5.tar.gz", hash = "sha256:2e200c779c47dcc32ee58f82ca30518f600f20c5e251495d1f4d66fc66e697f5"},
 ]
 
 [[package]]
@@ -6296,7 +6296,7 @@ datahub = ["gql"]
 dbt = []
 hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["avro", "confluent-kafka", "grpcio-tools"]
-looker = ["GitPython", "lkml", "looker-sdk", "sql-metadata"]
+looker = ["GitPython", "lkml", "looker-sdk"]
 metabase = []
 monday = ["llama-index", "llama-index-embeddings-azure-openai"]
 monte-carlo = ["pycarlo"]
@@ -6318,4 +6318,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "e535fd799ff8e78569e4ac0abec59fddb0e291d3023b52f67f9a316a1ad1c7ce"
+content-hash = "6cc6d8afd6847b4a58cc41b357fc2a43e00bacc07684c105b871fcd7e6833b62"
