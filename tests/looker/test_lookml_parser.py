@@ -398,15 +398,8 @@ def test_derived_table(test_root_dir):
                 directories=["model"],
                 name="view3",
             ),
-            looker_view=LookerView(
-                query=LookerViewQuery(
-                    default_database="db",
-                    default_schema="schema",
-                    referenced_views=["view1"],
-                    source_dataset_account="account",
-                    source_platform=DataPlatform.SNOWFLAKE,
-                )
-            ),
+            looker_view=LookerView(),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
