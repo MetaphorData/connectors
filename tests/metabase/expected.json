@@ -35,6 +35,7 @@
   {
     "hierarchyInfo": {
       "description": "Automatically generated cards.",
+      "name": "A look at your Sample Sales Records table",
       "metabaseCollection": {
         "name": "A look at your Sample Sales Records table",
         "url": "https://localhost/collection/34-a_look_at_your_sample_sales_records_table"
@@ -51,6 +52,7 @@
   },
   {
     "hierarchyInfo": {
+      "name": "Automatically Generated Dashboards",
       "metabaseCollection": {
         "name": "Automatically Generated Dashboards",
         "url": "https://localhost/collection/2-automatically_generated_dashboards"

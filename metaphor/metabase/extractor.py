@@ -196,6 +196,7 @@ class MetabaseExtractor(BaseExtractor):
             hierarchy_info=HierarchyInfo(
                 description=description,
                 type=HierarchyType.METABASE_COLLECTION,
+                name=name,
                 metabase_collection=MetabaseCollection(
                     name=name,
                     url=f"{self._server_url}/collection/{collection_id}-{slug}",
