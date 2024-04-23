@@ -178,7 +178,7 @@ def _get_upstream_and_query(
 
     # If none of the above was triggered, assume upstream is a table with the same name
     # https://docs.looker.com/reference/view-params/sql_table_name-for-view
-    if len(upstreams) == 0:
+    if query is None and len(upstreams) == 0:
         upstreams.add(_to_dataset_id(view_name, connection))
 
     raw_view["upstream_dataset_ids"] = upstreams
