@@ -185,6 +185,7 @@ class PowerBIExtractor(BaseExtractor):
         hierarchy_info = HierarchyInfo(
             description=workspace.description,
             type=HierarchyType.POWER_BI_WORKSPACE,
+            name=workspace.name,
             power_bi_workspace=pbi_workspace,
         )
         self._hierarchies.append(
