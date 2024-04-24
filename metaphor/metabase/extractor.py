@@ -89,6 +89,7 @@ class MetabaseExtractor(BaseExtractor):
         self._username = config.username
         self._password = config.password
         self._session = requests.session()
+        self._database_defaults = config.database_defaults
 
         self._databases: Dict[int, DatabaseInfo] = {}
         self._dashboards: Dict[int, Dashboard] = {}
@@ -210,21 +211,36 @@ class MetabaseExtractor(BaseExtractor):
         database_id = database["id"]
         platform = self._db_engine_mapping.get(database["engine"])
         details = database.get("details")
+        default_schema = next(
+            (
+                dd.default_schema
+                for dd in self._database_defaults
+                if dd.id == database["id"]
+            ),
+            None,
+        )
+
         if details is None:
             # not able to get connection details, possibly due to lack of Admin permission
             return
 
         if platform == DataPlatform.SNOWFLAKE:
             self._databases[database_id] = DatabaseInfo(
-                platform, details.get("db"), None, details.get("account")
+                platform,
+                details.get("db"),
+                default_schema,
+                details.get("account"),
             )
         elif platform == DataPlatform.BIGQUERY:
             self._databases[database_id] = DatabaseInfo(
-                platform, details.get("project-id"), details.get("dataset-id"), None
+                platform,
+                details.get("project-id"),
+                default_schema or details.get("dataset-id"),
+                None,
             )
         elif platform == DataPlatform.REDSHIFT:
             self._databases[database_id] = DatabaseInfo(
-                platform, details.get("db"), None, None
+                platform, details.get("db"), default_schema, None
             )
         # platform not in _db_engine_mapping are not supported
 
