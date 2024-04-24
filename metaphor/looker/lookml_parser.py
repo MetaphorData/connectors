@@ -22,6 +22,7 @@ from metaphor.common.utils import unique_list
 from metaphor.looker.config import LookerConnectionConfig
 from metaphor.models.metadata_change_event import (
     AssetStructure,
+    EntityType,
     EntityUpstream,
     LookerExplore,
     LookerExploreJoin,
@@ -124,7 +125,10 @@ def _to_dataset_id(source_name: str, connection: LookerConnectionConfig) -> Enti
 
 
 def _get_upstream_and_query(
-    view_name, raw_model: RawModel, connection: LookerConnectionConfig
+    model_name: str,
+    view_name: str,
+    raw_model: RawModel,
+    connection: LookerConnectionConfig,
 ) -> Tuple[Set[EntityId], Optional[LookerViewQuery]]:
     raw_views = raw_model.raw_views
     raw_view = raw_views.get(view_name)
@@ -132,15 +136,15 @@ def _get_upstream_and_query(
         logger.error(f"Refer to non-existing view {view_name}")
         return set(), None
 
-    if "upstream_dataset_ids" in raw_view:
-        return raw_view["upstream_dataset_ids"], raw_view["query"]
+    if "upstream_entity_ids" in raw_view:
+        return raw_view["upstream_entity_ids"], raw_view["query"]
 
-    upstreams = set()
+    upstreams = set()  # upstream dataset id or virtual view id
     query = None
 
     # Set upstream via derived_table
     # https://docs.looker.com/reference/view-params/derived_table
-    derived_table: Optional[Dict] = raw_view.get("derived_table", None)
+    derived_table: Optional[Dict] = raw_view.get("derived_table")
     if derived_table is not None:
         if "sql" in derived_table:
             query = LookerViewQuery(
@@ -154,24 +158,26 @@ def _get_upstream_and_query(
         # https://docs.looker.com/data-modeling/learning-lookml/creating-ndts
         if "explore_source" in derived_table:
             explore_name = derived_table["explore_source"]["name"]
-            raw_explore = raw_model.raw_explores.get(explore_name, None)
+            raw_explore = raw_model.raw_explores.get(explore_name)
             assert raw_explore is not None, f"Invalid explore_source: {explore_name}"
 
             base_view_name = _get_base_view_name(raw_explore, raw_model)
             if base_view_name is None:
                 base_view_name = explore_name
 
-            query = LookerViewQuery(
-                source_platform=connection.platform,
-                source_dataset_account=connection.account,
-                default_database=connection.database,
-                default_schema=connection.default_schema,
-                referenced_views=[base_view_name],
+            assert base_view_name in raw_views, f"Invalid base view {base_view_name}"
+
+            # TODO: handle field mapping
+
+            upstreams.add(
+                to_virtual_view_entity_id(
+                    fullname(model_name, base_view_name), VirtualViewType.LOOKER_VIEW
+                )
             )
 
     # Set upstream via sql_table_name
     # https://docs.looker.com/reference/view-params/sql_table_name-for-view
-    sql_table_name: Optional[str] = raw_view.get("sql_table_name", None)
+    sql_table_name: Optional[str] = raw_view.get("sql_table_name")
     if sql_table_name is not None:
         upstreams = {_to_dataset_id(sql_table_name, connection)}
 
@@ -180,7 +186,7 @@ def _get_upstream_and_query(
     if query is None and len(upstreams) == 0:
         upstreams.add(_to_dataset_id(view_name, connection))
 
-    raw_view["upstream_dataset_ids"] = upstreams
+    raw_view["upstream_entity_ids"] = upstreams
     raw_view["query"] = query
     return upstreams, query
 
@@ -209,12 +215,18 @@ def _build_looker_view(
         url=url,
     )
 
+    source_entities = []
     try:
-        upstream_dataset_ids, query = _get_upstream_and_query(
-            name, raw_model, connection
+        upstream_entity_ids, query = _get_upstream_and_query(
+            model, name, raw_model, connection
         )
-        if upstream_dataset_ids:
-            view.source_datasets = [str(ds) for ds in upstream_dataset_ids]
+        if upstream_entity_ids:
+            source_entities = [str(entity_id) for entity_id in upstream_entity_ids]
+            view.source_datasets = [
+                str(entity_id)
+                for entity_id in upstream_entity_ids
+                if entity_id.type == EntityType.DATASET
+            ] or None
         if query is not None:
             view.query = query
     except Exception:
@@ -245,9 +257,7 @@ def _build_looker_view(
         looker_view=view,
         structure=_get_model_asset_structure(model, name),
         entity_upstream=(
-            EntityUpstream(source_entities=view.source_datasets)
-            if view.source_datasets
-            else None
+            EntityUpstream(source_entities=source_entities) if source_entities else None
         ),
     )
 
