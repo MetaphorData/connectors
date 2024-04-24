@@ -27,7 +27,7 @@ password: <password>
 
 #### Database Defaults
 
-Metabase parses the SQL queries executed on Redshift, Snowflake and BigQuery, but it is unaware of a query's default schema during its execution. Metaphor's in-app SQL lineage parser will not be able to locate the correct dataset if the query's schema is not provided. To set the SQL platform's default schema, set the `database_defaults` configuration:
+Metabase's API does not provide information on the default schema used to execute [native queries](https://www.metabase.com/glossary/native_query). This makes it difficult to parse the lineage precisely. When this happens, use `database_defaults` to manually set the [database](https://www.metabase.com/docs/latest/databases/start)'s default schema:
 
 ```yaml
 database_defaults:
