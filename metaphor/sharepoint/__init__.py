@@ -1,6 +1,6 @@
 from metaphor.common.cli import cli_main
-from metaphor.notion.extractor import NotionExtractor
+from metaphor.sharepoint.extractor import SharepointExtractor
 
 
 def main(config_file: str):
-    cli_main(NotionExtractor, config_file)
+    cli_main(SharepointExtractor, config_file)
