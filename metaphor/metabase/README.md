@@ -32,7 +32,7 @@ Metabase's API does not provide information on the default schema used to execut
 ```yaml
 database_defaults:
     - id: <id of the database in Metabase>
-      default_schema: <default schema in the SQL platform>
+      default_schema: <default schema for the database>
 ```
 
 #### Output Destination
