@@ -9,7 +9,7 @@ from databricks.sdk.service.catalog import (
     SchemaInfo,
 )
 from databricks.sdk.service.catalog import TableInfo as Table
-from databricks.sdk.service.catalog import TableType
+from databricks.sdk.service.catalog import TableType, VolumeInfo, VolumeType
 from databricks.sdk.service.sql import QueryInfo, QueryMetrics
 
 from metaphor.common.base_config import OutputConfig
@@ -118,6 +118,31 @@ async def test_extractor(
                 },
                 created_at=0,
             ),
+            Table(
+                name="table2",
+                catalog_name="catalog2",
+                schema_name="schema",
+                table_type=TableType.MANAGED,
+                data_source_format=DataSourceFormat.DELTA,
+                columns=[
+                    ColumnInfo(
+                        name="col1",
+                        type_name=ColumnTypeName.INT,
+                        type_precision=32,
+                        nullable=True,
+                        comment="some description",
+                    )
+                ],
+                storage_location="s3://path",
+                owner="foo@bar.com",
+                comment="example",
+                updated_at=0,
+                updated_by="foo@bar.com",
+                properties={
+                    "delta.lastCommitTimestamp": "1664444422000",
+                },
+                created_at=0,
+            ),
         ]
 
     def mock_list_query_history(
@@ -141,6 +166,28 @@ async def test_extractor(
             )
         ]
 
+    def mock_list_volumes(catalog, schema):
+        return [
+            VolumeInfo(
+                access_point=None,
+                catalog_name="catalog2",
+                comment=None,
+                created_at=1714034378658,
+                created_by="foo@bar.com",
+                encryption_details=None,
+                full_name="catalog2.schema.volume",
+                metastore_id="ashjkdhaskd",
+                name="volume",
+                owner="foo@bar.com",
+                schema_name="schema",
+                storage_location="s3://path",
+                updated_at=1714034378658,
+                updated_by="foo@bar.com",
+                volume_id="volume-id",
+                volume_type=VolumeType.EXTERNAL,
+            )
+        ]
+
     mock_client = MagicMock()
     mock_client.catalogs = MagicMock()
     mock_client.catalogs.list = mock_list_catalogs
@@ -150,6 +197,8 @@ async def test_extractor(
     mock_client.tables.list = mock_list_tables
     mock_client.query_history = MagicMock()
     mock_client.query_history.list = mock_list_query_history
+    mock_client.volumes = MagicMock()
+    mock_client.volumes.list = mock_list_volumes
     mock_list_table_lineage.side_effect = [
         TableLineage(
             upstreams=[
@@ -176,6 +225,32 @@ async def test_extractor(
             ],
         ),
         TableLineage(),
+        TableLineage(
+            upstreams=[
+                LineageInfo(
+                    tableInfo=None,
+                    fileInfo=FileInfo(
+                        path="s3://path/input.csv",
+                        securable_name="catalog2.schema.volume",
+                        securable_type="VOLUME",
+                        storage_location="s3://path",
+                        has_permission=True,
+                    ),
+                ),
+            ],
+            downstreams=[
+                LineageInfo(
+                    tableInfo=None,
+                    fileInfo=FileInfo(
+                        path="s3://path/output.csv",
+                        securable_name="catalog2.schema.volume",
+                        securable_type="VOLUME",
+                        storage_location="s3://path",
+                        has_permission=True,
+                    ),
+                ),
+            ],
+        ),
     ]
     mock_list_column_lineage.side_effect = [
         ColumnLineage(
@@ -187,7 +262,8 @@ async def test_extractor(
                     table_name="upstream",
                 )
             ]
-        )
+        ),
+        ColumnLineage(upstream_cols=[]),
     ]
     mock_create_api.return_value = mock_client
 

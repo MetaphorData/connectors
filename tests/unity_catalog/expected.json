@@ -224,6 +224,111 @@
     }
   },
   {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "col1",
+          "sources": []
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~8316CF8E20BB7C020D9505D87408823A"
+      ]
+    },
+    "logicalId": {
+      "name": "catalog2.schema.table2",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "description": "example",
+      "fields": [
+        {
+          "description": "some description",
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "int",
+          "precision": 32.0
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
+      }
+    },
+    "sourceInfo": {
+      "createdAtSource": "1970-01-01T00:00:00+00:00",
+      "lastUpdated": "1970-01-01T00:00:00+00:00",
+      "mainUrl": "http://dummy.host/explore/data/catalog2/schema/table2"
+    },
+    "structure": {
+      "database": "catalog2",
+      "schema": "schema",
+      "table": "table2"
+    },
+    "unityCatalog": {
+      "dataSourceFormat": "DELTA",
+      "owner": "foo@bar.com",
+      "properties": [
+        {
+          "key": "delta.lastCommitTimestamp",
+          "value": "\"1664444422000\""
+        }
+      ],
+      "storageLocation": "s3://path",
+      "tableType": "MANAGED"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "s3://path/input.csv",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "sqlSchema": {
+        "materialization": "EXTERNAL"
+      }
+    },
+    "sourceInfo": {
+      "mainUrl": "http://dummy.host/explore/volume/catalog2/schema/volume"
+    },
+    "structure": {
+      "database": "catalog2",
+      "schema": "schema",
+      "table": "volume"
+    },
+    "unityCatalog": {
+      "storageLocation": "s3://path"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "s3://path/output.csv",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {
+      "sqlSchema": {
+        "materialization": "EXTERNAL"
+      }
+    },
+    "sourceInfo": {
+      "mainUrl": "http://dummy.host/explore/volume/catalog2/schema/volume"
+    },
+    "structure": {
+      "database": "catalog2",
+      "schema": "schema",
+      "table": "volume"
+    },
+    "unityCatalog": {
+      "storageLocation": "s3://path"
+    }
+  },
+  {
     "logicalId": {
       "path": [
         "UNITY_CATALOG",
