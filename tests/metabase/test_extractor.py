@@ -56,3 +56,37 @@ async def test_extractor(
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/metabase/expected.json")
+
+
+def test_parse_database(test_root_dir: str):
+    config = MetabaseRunConfig.from_yaml_file(f"{test_root_dir}/metabase/config.yml")
+    extractor = MetabaseExtractor(config)
+    bq_database = {
+        "details": {
+            "project-id": "bq_db",
+        },
+        "id": 1,
+        "engine": "bigquery-cloud-sdk",
+    }
+
+    redshift_database = {
+        "details": {
+            "db": "redshift_db",
+        },
+        "id": 2,
+        "engine": "redshift",
+    }
+
+    snowflake_database = {
+        "details": {"db": "snowflake_db", "account": "john.doe@metaphor.io"},
+        "id": 3,
+        "engine": "snowflake",
+    }
+
+    for database in [bq_database, redshift_database, snowflake_database]:
+        extractor._parse_database(database)
+
+    assert len(extractor._databases) == 3
+    assert extractor._databases[1].schema == "SCH"
+    assert extractor._databases[2].schema == "SCH2"
+    assert not extractor._databases[3].schema
