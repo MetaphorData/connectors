@@ -320,6 +320,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
         dataset.unity_catalog = UnityCatalog(
             storage_location=file_info.storage_location,
+            table_type=UnityCatalogTableType.EXTERNAL,
         )
 
         dataset.entity_upstream = EntityUpstream(source_entities=[])

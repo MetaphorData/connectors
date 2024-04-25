@@ -300,7 +300,8 @@
       "table": "volume"
     },
     "unityCatalog": {
-      "storageLocation": "s3://path"
+      "storageLocation": "s3://path",
+      "tableType": "EXTERNAL"
     }
   },
   {
@@ -325,7 +326,8 @@
       "table": "volume"
     },
     "unityCatalog": {
-      "storageLocation": "s3://path"
+      "storageLocation": "s3://path",
+      "tableType": "EXTERNAL"
     }
   },
   {
