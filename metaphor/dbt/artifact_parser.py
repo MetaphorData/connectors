@@ -647,7 +647,7 @@ class ArtifactParser:
             for name in tag_names
             if name
         ]
-        return SystemTags(tags=tags) if tags else None
+        return SystemTags(tags=tags)
 
     def _parse_virtual_view_node(
         self,

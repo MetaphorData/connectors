@@ -245,6 +245,7 @@ def test_join(test_root_dir):
                 entity_upstream=EntityUpstream(
                     source_entities=[str(virtual_view_id1), str(virtual_view_id2)]
                 ),
+                system_tags=SystemTags(tags=[]),
             ),
         ],
     )
@@ -317,6 +318,7 @@ def test_explore_in_view(test_root_dir):
                     name="explore1",
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id)]),
+                system_tags=SystemTags(tags=[]),
             ),
         ],
     )
@@ -414,6 +416,7 @@ def test_derived_table(test_root_dir):
                 name="explore1",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -428,6 +431,7 @@ def test_derived_table(test_root_dir):
                 name="explore2",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id2)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -442,6 +446,7 @@ def test_derived_table(test_root_dir):
                 name="explore3",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id3)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
 
@@ -501,6 +506,7 @@ def test_sql_table_name(test_root_dir):
                 name="explore1",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
 
@@ -674,6 +680,7 @@ def test_complex_includes(test_root_dir):
                 name="explore1",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
 
@@ -824,6 +831,7 @@ def test_view_extension(test_root_dir):
                 base_view=str(virtual_view_id1),
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
 
@@ -939,6 +947,7 @@ def test_explore_extension(test_root_dir):
                 name="explore1",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -953,6 +962,7 @@ def test_explore_extension(test_root_dir):
                 name="explore2",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -967,6 +977,7 @@ def test_explore_extension(test_root_dir):
                 name="explore3",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -981,6 +992,7 @@ def test_explore_extension(test_root_dir):
                 name="explore4",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -995,6 +1007,7 @@ def test_explore_extension(test_root_dir):
                 name="base_explore2",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -1009,5 +1022,6 @@ def test_explore_extension(test_root_dir):
                 name="view3",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]

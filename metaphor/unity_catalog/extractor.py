@@ -247,6 +247,8 @@ class UnityCatalogExtractor(BaseExtractor):
             ),
         )
 
+        dataset.system_tags = SystemTags(tags=[])
+
         self._datasets[normalized_name] = dataset
 
         return dataset
@@ -432,13 +434,11 @@ class UnityCatalogExtractor(BaseExtractor):
                     )
                     dataset = self._datasets.get(normalized_dataset_name)
                     if dataset is not None:
-                        tags = (
+                        assert dataset.system_tags
+                        dataset.system_tags.tags = (
                             catalog_system_tags[catalog][0]
                             + catalog_system_tags[catalog][1][schema.name]
                         )
-                        if tags and not dataset.system_tags:
-                            # We do not need to append to system tags once it's been assigned
-                            dataset.system_tags = SystemTags(tags=tags)
 
     def _extract_table_tags(self, catalog: str) -> None:
         with self._connection.cursor() as cursor:
@@ -468,8 +468,6 @@ class UnityCatalogExtractor(BaseExtractor):
                     logger.warn(f"Cannot find {normalized_dataset_name} table")
                     continue
 
-                if not dataset.system_tags:
-                    dataset.system_tags = SystemTags(tags=[])
                 assert dataset.system_tags and dataset.system_tags.tags is not None
 
                 if tag_value:
