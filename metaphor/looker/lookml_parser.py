@@ -341,7 +341,7 @@ def _build_looker_explore(
         looker_explore=explore,
         structure=_get_model_asset_structure(model, name),
         entity_upstream=EntityUpstream(source_entities=source_entities),
-        system_tags=SystemTags(tags=tags) if tags else None,
+        system_tags=SystemTags(tags=tags),
     )
 
 

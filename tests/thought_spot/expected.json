@@ -117,6 +117,9 @@
       ],
       "name": "View 1"
     },
+    "systemTags": {
+      "tags": []
+    },
     "thoughtSpot": {
       "columns": [
         {
@@ -168,6 +171,9 @@
       ],
       "name": "JOIN SQL view"
     },
+    "systemTags": {
+      "tags": []
+    },
     "thoughtSpot": {
       "columns": [
         {
@@ -211,6 +217,9 @@
         "VIEW"
       ],
       "name": "JOIN SQL view"
+    },
+    "systemTags": {
+      "tags": []
     },
     "thoughtSpot": {
       "columns": [
@@ -353,63 +362,63 @@
     }
   },
   {
+    "hierarchyInfo": {
+      "name": "Answer",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    },
     "logicalId": {
       "path": [
         "THOUGHT_SPOT",
         "ANSWER"
       ]
-    },
-    "hierarchyInfo": {
-      "name": "Answer",
-      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
     }
   },
   {
+    "hierarchyInfo": {
+      "name": "Liveboard",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    },
     "logicalId": {
       "path": [
         "THOUGHT_SPOT",
         "LIVEBOARD"
       ]
-    },
-    "hierarchyInfo": {
-      "name": "Liveboard",
-      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
     }
   },
   {
+    "hierarchyInfo": {
+      "name": "Table",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    },
     "logicalId": {
       "path": [
         "THOUGHT_SPOT",
         "TABLE"
       ]
-    },
-    "hierarchyInfo": {
-      "name": "Table",
-      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
     }
   },
   {
+    "hierarchyInfo": {
+      "name": "View",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    },
     "logicalId": {
       "path": [
         "THOUGHT_SPOT",
         "VIEW"
       ]
-    },
-    "hierarchyInfo": {
-      "name": "View",
-      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
     }
   },
   {
+    "hierarchyInfo": {
+      "name": "Worksheet",
+      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
+    },
     "logicalId": {
       "path": [
         "THOUGHT_SPOT",
         "WORKSHEET"
       ]
-    },
-    "hierarchyInfo": {
-      "name": "Worksheet",
-      "type": "THOUGHT_SPOT_VIRTUAL_HIERARCHY"
     }
   }
 ]

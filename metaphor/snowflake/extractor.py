@@ -165,6 +165,11 @@ class SnowflakeExtractor(BaseExtractor):
         datasets = list(self._datasets.values())
         tag_datasets(datasets, self._tag_matchers)
 
+        # Dedup system tags
+        for dataset in datasets:
+            assert dataset.system_tags and dataset.system_tags.tags is not None
+            dataset.system_tags.tags = list(set(dataset.system_tags.tags))
+
         entities: List[ENTITY_TYPES] = []
         entities.extend(datasets)
         entities.extend(self._hierarchies.values())
@@ -511,12 +516,12 @@ class SnowflakeExtractor(BaseExtractor):
             return
 
         if not column_name:
-            if not dataset.system_tags:
-                dataset.system_tags = SystemTags(tags=[])
-            assert dataset.system_tags.tags is not None
+            assert dataset.system_tags and dataset.system_tags.tags is not None
             dataset.system_tags.tags.append(
                 SystemTag(
-                    key=key, system_tag_source=SystemTagSource.SNOWFLAKE, value=value
+                    key=key,
+                    system_tag_source=SystemTagSource.SNOWFLAKE,
+                    value=value,
                 )
             )
 
@@ -901,6 +906,8 @@ class SnowflakeExtractor(BaseExtractor):
         dataset.structure = DatasetStructure(
             database=database, schema=schema, table=table
         )
+
+        dataset.system_tags = SystemTags(tags=[])
 
         return dataset
 

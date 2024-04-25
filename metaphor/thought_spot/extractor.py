@@ -753,4 +753,4 @@ class ThoughtSpotExtractor(BaseExtractor):
             if not (tag.isDeleted or tag.isHidden or tag.isDeprecated)
         ]
 
-        return SystemTags(tags=system_tags) if system_tags else None
+        return SystemTags(tags=system_tags)
