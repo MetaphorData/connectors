@@ -53,6 +53,9 @@ class ColumnLineage(BaseModel):
 class FileInfo(BaseModel):
     path: str
     has_permission: bool
+    securable_name: Optional[str] = None
+    securable_type: Optional[str] = None
+    storage_location: Optional[str] = None
 
 
 class TableInfo(BaseModel):

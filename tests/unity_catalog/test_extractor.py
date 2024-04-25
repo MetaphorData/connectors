@@ -167,7 +167,10 @@ async def test_extractor(
                 ),
                 LineageInfo(
                     tableInfo=None,
-                    fileInfo=FileInfo(path="s3://path", has_permission=True),
+                    fileInfo=FileInfo(
+                        path="s3://path",
+                        has_permission=True,
+                    ),
                 ),
                 LineageInfo(tableInfo=NoPermission(), fileInfo=None),
             ],
@@ -245,15 +248,19 @@ def test_source_url(
     config = dummy_config()
     extractor = UnityCatalogExtractor(config)
     assert (
-        extractor._get_source_url("db", "schema", "table")
+        extractor._get_table_source_url("db", "schema", "table")
         == "http://dummy.host/explore/data/db/schema/table"
+    )
+    assert (
+        extractor._get_volume_source_url("db", "schema", "table")
+        == "http://dummy.host/explore/volume/db/schema/table"
     )
 
     # Manual override with escaped characters
     config.source_url = "http://metaphor.io/{catalog}/{schema}/{table}"
     extractor = UnityCatalogExtractor(config)
     assert (
-        extractor._get_source_url("d b", "<schema>", "{table}")
+        extractor._get_table_source_url("d b", "<schema>", "{table}")
         == "http://metaphor.io/d%20b/%3Cschema%3E/%7Btable%7D"
     )
 

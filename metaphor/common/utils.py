@@ -1,7 +1,7 @@
 import math
 from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
 from dateutil.parser import isoparse
 from pydantic import validate_email
@@ -18,7 +18,7 @@ def start_of_day(daysAgo=0) -> datetime:
     ) - timedelta(days=daysAgo)
 
 
-def unique_list(non_unique_list: list) -> list:
+def unique_list(non_unique_list: Iterable) -> list:
     """Returns an order-preserving list with no duplicate elements"""
     return list(dict.fromkeys(non_unique_list))
 
