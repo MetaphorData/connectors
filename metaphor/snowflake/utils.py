@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from concurrent import futures
@@ -10,9 +11,11 @@ from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
 
 from metaphor.models.metadata_change_event import (
+    Dataset,
     MaterializationType,
     SnowflakeStreamSourceType,
     SnowflakeStreamType,
+    SystemTag,
 )
 
 logger = logging.getLogger(__name__)
@@ -220,3 +223,11 @@ def fetch_query_history_count(
     if result is not None:
         return result[0]
     return 0
+
+
+def dedup_dataset_system_tags(dataset: Dataset) -> None:
+    assert dataset.system_tags and dataset.system_tags.tags is not None
+    dataset.system_tags.tags = [
+        SystemTag.from_dict(json.loads(x))
+        for x in set(json.dumps(tag.to_dict()) for tag in dataset.system_tags.tags)
+    ]

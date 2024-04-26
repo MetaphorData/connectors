@@ -66,6 +66,7 @@ from metaphor.snowflake.utils import (
     QueryWithParam,
     SnowflakeTableType,
     check_access_history,
+    dedup_dataset_system_tags,
     exclude_username_clause,
     fetch_query_history_count,
     str_to_source_type,
@@ -167,8 +168,7 @@ class SnowflakeExtractor(BaseExtractor):
 
         # Dedup system tags
         for dataset in datasets:
-            assert dataset.system_tags and dataset.system_tags.tags is not None
-            dataset.system_tags.tags = list(set(dataset.system_tags.tags))
+            dedup_dataset_system_tags(dataset)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(datasets)
