@@ -1004,3 +1004,136 @@ def test_fetch_streams(mock_connect: MagicMock) -> None:
         stale=True,
         stale_after=datetime.fromisoformat("2023-01-01 12:00:00+00:00"),
     )
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_tags_override(mock_connect: MagicMock) -> None:
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            ("TEST_TAG", "db_tag", "DATABASE", None, None, "DEMO_DB", None),
+            ("TEST_TAG", "schema_tag", "SCHEMA", "DEMO_DB", None, "METAPHOR", None),
+            (
+                "TEST_TAG",
+                "table_tag",
+                "TABLE",
+                "DEMO_DB",
+                "METAPHOR",
+                "TABLE2",
+                None,
+            ),
+            (
+                "PRIVACY_CATEGORY",
+                "SENSITIVE",
+                "TABLE",
+                "ACME",
+                "RIDE_SHARE",
+                "BIKES_AT_STATION",
+                None,
+            ),
+            (
+                "TEST_TAG",
+                "column_3_tag",
+                "COLUMN",
+                "DEMO_DB",
+                "METAPHOR",
+                "TABLE2",
+                "COL3",
+            ),
+            (
+                "TEST_TAG",
+                "column_2_tag",
+                "COLUMN",
+                "DEMO_DB",
+                "METAPHOR",
+                "TABLE1",
+                "COL2",
+            ),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    for (schema, table), columns in {
+        ("metaphor", "table1"): {"col1", "col2"},
+        ("metaphor", "table2"): {"col3", "col4", "col5"},
+        ("another", "table3"): {"col6"},
+    }.items():
+        dataset = extractor._init_dataset(
+            "demo_db", schema, table, table_type, "", None, None
+        )
+        for column in columns:
+            dataset.schema.fields.append(SchemaField(field_path=column, subfields=[]))
+        extractor._datasets[dataset_normalized_name("demo_db", schema, table)] = dataset
+
+    extractor._fetch_tags(mock_cursor)
+    table1 = extractor._datasets.get("demo_db.metaphor.table1")
+    table2 = extractor._datasets.get("demo_db.metaphor.table2")
+    table3 = extractor._datasets.get("demo_db.another.table3")
+    assert (
+        table1
+        and table1.system_tags
+        and table1.system_tags.tags
+        == [
+            SystemTag(
+                key="TEST_TAG",
+                value="schema_tag",
+                system_tag_source=SystemTagSource.SNOWFLAKE,
+            )
+        ]
+    )
+    assert (
+        table2
+        and table2.system_tags
+        and table2.system_tags.tags
+        == [
+            SystemTag(
+                key="TEST_TAG",
+                value="table_tag",
+                system_tag_source=SystemTagSource.SNOWFLAKE,
+            )
+        ]
+    )
+    assert (
+        table3
+        and table3.system_tags
+        and table3.system_tags.tags
+        == [
+            SystemTag(
+                key="TEST_TAG",
+                value="db_tag",
+                system_tag_source=SystemTagSource.SNOWFLAKE,
+            )
+        ]
+    )
+
+    assert table1.schema and table1.schema.fields
+    for i in range(1, 3):
+        field = next(
+            (f for f in table1.schema.fields if f.field_path == f"col{i}"), None
+        )
+        assert field
+        if i == 2:
+            assert field.tags == ["TEST_TAG=column_2_tag"]
+        else:
+            assert field.tags == ["TEST_TAG=schema_tag"]
+
+    assert table2.schema and table2.schema.fields
+    for i in range(3, 6):
+        field = next(
+            (f for f in table2.schema.fields if f.field_path == f"col{i}"), None
+        )
+        assert field
+        if i == 3:
+            assert field.tags == ["TEST_TAG=column_3_tag"]
+        else:
+            assert field.tags == ["TEST_TAG=table_tag"]
+
+    assert table3.schema and table3.schema.fields
+    for i in range(6, 7):
+        field = next(
+            (f for f in table3.schema.fields if f.field_path == f"col{i}"), None
+        )
+        assert field
+        assert field.tags == ["TEST_TAG=db_tag"]
