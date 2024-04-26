@@ -227,7 +227,11 @@ def fetch_query_history_count(
 
 def dedup_dataset_system_tags(dataset: Dataset) -> None:
     assert dataset.system_tags and dataset.system_tags.tags is not None
-    dataset.system_tags.tags = [
-        SystemTag.from_dict(json.loads(x))
-        for x in set(json.dumps(tag.to_dict()) for tag in dataset.system_tags.tags)
-    ]
+    deduped: List[SystemTag] = list()
+    for tag in dataset.system_tags.tags:
+        # Check if the tag is already in deduped, only append if it does not
+        if not next(
+            (x for x in deduped if x.key == tag.key and x.value == tag.value), None
+        ):
+            deduped.append(tag)
+    dataset.system_tags.tags = deduped
