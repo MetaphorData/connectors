@@ -513,7 +513,6 @@ class SnowflakeExtractor(BaseExtractor):
         """
         cursor.execute(query)
 
-        qq = list()
         for (
             key,
             value,
@@ -523,9 +522,6 @@ class SnowflakeExtractor(BaseExtractor):
             object_name,
             column_name,
         ) in cursor:
-            qq.append(
-                (key, value, object_type, database, schema, object_name, column_name)
-            )
             if object_type in {"DATABASE", "SCHEMA"}:
                 self._add_hierarchy_system_tag(
                     database, object_name, object_type, key, value
@@ -571,7 +567,6 @@ class SnowflakeExtractor(BaseExtractor):
                     )
             else:
                 logger.error(f"Unknown object_type: {object_type}")
-        print("qq")
 
     def _fetch_query_logs(self) -> Iterator[QueryLog]:
         logger.info("Fetching Snowflake query logs")
