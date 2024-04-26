@@ -65,6 +65,8 @@ from metaphor.snowflake.utils import (
     DatasetInfo,
     QueryWithParam,
     SnowflakeTableType,
+    append_column_system_tag,
+    append_dataset_system_tag,
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
@@ -164,11 +166,6 @@ class SnowflakeExtractor(BaseExtractor):
 
         datasets = list(self._datasets.values())
         tag_datasets(datasets, self._tag_matchers)
-
-        # Dedup system tags
-        for dataset in datasets:
-            assert dataset.system_tags and dataset.system_tags.tags is not None
-            dataset.system_tags.tags = list(set(dataset.system_tags.tags))
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(datasets)
@@ -502,57 +499,6 @@ class SnowflakeExtractor(BaseExtractor):
             )
         )
 
-    def _append_tag(
-        self, dataset_key: str, key: str, value: str, column_name: Optional[str]
-    ):
-        """
-        Appends a tag to the dataset. If column_name is provided, it is a column tag.
-        """
-        dataset = self._datasets.get(dataset_key)
-        tag = SnowflakeExtractor._build_tag_string(key, value)
-
-        if dataset is None or dataset.schema is None:
-            logger.error(f"Table {dataset_key} not found for tag {tag}")
-            return
-
-        if not column_name:
-            assert dataset.system_tags and dataset.system_tags.tags is not None
-            dataset.system_tags.tags.append(
-                SystemTag(
-                    key=key,
-                    system_tag_source=SystemTagSource.SNOWFLAKE,
-                    value=value,
-                )
-            )
-
-        # When we get here the fields should already be populated.
-        if dataset.schema.fields:
-            if column_name:
-                field = next(
-                    (
-                        fd
-                        for fd in dataset.schema.fields
-                        if fd.field_path
-                        and fd.field_path.upper() == column_name.upper()
-                    ),
-                    None,
-                )
-                if not field:
-                    logger.error(
-                        f"Field {column_name} not found in {dataset_key} for tag {tag}"
-                    )
-                    return
-                if not field.tags:
-                    field.tags = []
-                other_field_tags = [t for t in field.tags if t.split("=", 1)[0] != key]
-                field.tags = other_field_tags + [tag]
-
-            else:
-                for field in dataset.schema.fields:
-                    if not field.tags:
-                        field.tags = []
-                    field.tags.append(tag)
-
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
         query = """
         SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
@@ -567,30 +513,60 @@ class SnowflakeExtractor(BaseExtractor):
         """
         cursor.execute(query)
 
-        for key, value, object_type, database, schema, object_name, column in cursor:
+        for (
+            key,
+            value,
+            object_type,
+            database,
+            schema,
+            object_name,
+            column_name,
+        ) in cursor:
             if object_type in {"DATABASE", "SCHEMA"}:
                 self._add_hierarchy_system_tag(
                     database, object_name, object_type, key, value
                 )
 
-            if object_type == "DATABASE":
-                key_prefix = dataset_normalized_name(db=object_name)
-            elif object_type == "SCHEMA":
-                key_prefix = dataset_normalized_name(db=database, schema=object_name)
-            else:
-                key_prefix = dataset_normalized_name(
-                    db=database, schema=schema, table=object_name
-                )
+            system_tag = SystemTag(
+                key=key, value=value, system_tag_source=SystemTagSource.SNOWFLAKE
+            )
 
             if object_type in {"DATABASE", "SCHEMA"}:
+                db = object_name if object_type == "DATABASE" else database
+                sch = None if object_type == "DATABASE" else object_name
+                prefix = f"{dataset_normalized_name(db=db, schema=sch)}."
                 for dataset_key in self._datasets:
                     # Need to make sure key_prefix == `db`.`schema`
-                    if dataset_key.startswith(f"{key_prefix}."):
-                        self._append_tag(dataset_key, key, value, None)
-            else:
-                self._append_tag(
-                    key_prefix, key, value, column if object_type == "COLUMN" else None
+                    if dataset_key.startswith(prefix):
+                        append_dataset_system_tag(
+                            self._datasets[dataset_key], system_tag
+                        )
+
+            elif object_type == "TABLE":
+                dataset_key = dataset_normalized_name(
+                    db=database, schema=schema, table=object_name
                 )
+                if dataset_key not in self._datasets:
+                    logger.warning(
+                        f"Ignoring tag {system_tag} for excluded dataset {dataset_key}"
+                    )
+                else:
+                    append_dataset_system_tag(self._datasets[dataset_key], system_tag)
+
+            elif object_type == "COLUMN":
+                dataset_key = dataset_normalized_name(
+                    db=database, schema=schema, table=object_name
+                )
+                if dataset_key not in self._datasets:
+                    logger.warning(
+                        f"Ignoring tag {system_tag} for excluded dataset {dataset_key}"
+                    )
+                else:
+                    append_column_system_tag(
+                        self._datasets[dataset_key], system_tag, column_name
+                    )
+            else:
+                logger.error(f"Unknown object_type: {object_type}")
 
     def _fetch_query_logs(self) -> Iterator[QueryLog]:
         logger.info("Fetching Snowflake query logs")

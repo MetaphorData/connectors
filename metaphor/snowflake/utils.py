@@ -10,9 +10,12 @@ from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
 
 from metaphor.models.metadata_change_event import (
+    Dataset,
     MaterializationType,
+    SchemaField,
     SnowflakeStreamSourceType,
     SnowflakeStreamType,
+    SystemTag,
 )
 
 logger = logging.getLogger(__name__)
@@ -220,3 +223,50 @@ def fetch_query_history_count(
     if result is not None:
         return result[0]
     return 0
+
+
+def _stringify_system_tag(system_tag: SystemTag) -> str:
+    return f"{system_tag.key}={system_tag.value}"
+
+
+def _update_field_system_tag(field: SchemaField, system_tag: SystemTag) -> None:
+    if not field.tags:
+        field.tags = []
+    other_field_tags = [t for t in field.tags if t.split("=", 1)[0] != system_tag.key]
+    field.tags = other_field_tags + [_stringify_system_tag(system_tag)]
+
+
+def append_dataset_system_tag(dataset: Dataset, system_tag: SystemTag) -> None:
+    assert (
+        dataset.schema is not None
+        and dataset.system_tags
+        and dataset.system_tags.tags is not None
+    )
+    # Always override exisiting tag, since we process database tags first, then schema tags and
+    # then finally table tags
+    other_tags = [t for t in dataset.system_tags.tags if t.key != system_tag.key]
+    dataset.system_tags.tags = other_tags + [system_tag]
+
+    if not dataset.schema.fields:
+        return
+
+    for field in dataset.schema.fields:
+        _update_field_system_tag(field, system_tag)
+
+
+def append_column_system_tag(
+    dataset: Dataset, system_tag: SystemTag, column_name: str
+) -> None:
+    if not dataset.schema or not dataset.schema.fields:
+        return
+    fields = dataset.schema.fields
+
+    def is_target_field(field: SchemaField) -> bool:
+        return (
+            field.field_path is not None
+            and field.field_path.upper() == column_name.upper()
+        )
+
+    field = next((f for f in fields if is_target_field(f)), None)
+    if field:
+        _update_field_system_tag(field, system_tag)
