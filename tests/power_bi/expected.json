@@ -435,6 +435,7 @@
   },
   {
     "hierarchyInfo": {
+      "name": "Workspace",
       "powerBiWorkspace": {
         "name": "Workspace",
         "url": "https://app.powerbi.com/groups/workspace-1",
@@ -472,6 +473,7 @@
   },
   {
     "hierarchyInfo": {
+      "name": "Workspace",
       "powerBiWorkspace": {
         "name": "Workspace",
         "url": "https://app.powerbi.com/groups/workspace-1",
@@ -509,6 +511,7 @@
   },
   {
     "hierarchyInfo": {
+      "name": "Workspace",
       "powerBiWorkspace": {
         "name": "Workspace",
         "url": "https://app.powerbi.com/groups/workspace-1",

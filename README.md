@@ -52,6 +52,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [bigquery](metaphor/bigquery/)                                    | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/)                    | Lineage                                  |
 | [bigquery.profile](metaphor/bigquery/profile/)                    | Data profile                             |
+| [confluence](metaphor/confluence/)                                | Document embeddings                      |
 | [custom.data_quality](metaphor/custom/data_quality/)              | Data quality                             |
 | [custom.governance](metaphor/custom/governance/)                  | Ownership, tags, description             |
 | [custom.lineage](metaphor/custom/lineage/)                        | Lineage                                  |
@@ -79,6 +80,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [snowflake](metaphor/snowflake/)                                  | Schema, description, statistics, queries |
 | [snowflake.lineage](metaphor/snowflake/lineage/)                  | Lineage                                  |
 | [snowflake.profile](metaphor/snowflake/profile/)                  | Data profile                             |
+| [static_web](metaphor/static_web/)                                | Document embeddings                      |
 | [synapse](metaphor/synapse/)                                      | Schema, queries                          |
 | [tableau](metaphor/tableau/)                                      | Dashboard, lineage                       |
 | [thought_spot](metaphor/thought_spot/)                            | Dashboard, lineage                       |

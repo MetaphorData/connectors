@@ -25,6 +25,16 @@ password: <password>
 
 ### Optional Configurations
 
+#### Database Defaults
+
+Metabase's API does not provide information on the default schema used to execute [native queries](https://www.metabase.com/glossary/native_query). This makes it difficult to parse the lineage precisely. When this happens, use `database_defaults` to manually set the [database](https://www.metabase.com/docs/latest/databases/start)'s default schema:
+
+```yaml
+database_defaults:
+    - id: <id of the database in Metabase>
+      default_schema: <default schema for the database>
+```
+
 #### Output Destination
 
 See [Output Config](../common/docs/output.md) for more information.

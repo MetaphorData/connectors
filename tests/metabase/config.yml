@@ -2,4 +2,9 @@
 server_url: https://metaphor.metabaseapp.com
 username: foo
 password: bar
+database_defaults:
+  - id: 1
+    default_schema: SCH
+  - id: 2
+    default_schema: SCH2
 output: {}

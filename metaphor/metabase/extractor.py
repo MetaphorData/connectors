@@ -1,10 +1,9 @@
 import json
 from dataclasses import dataclass
 from itertools import chain
-from typing import Collection, Dict, List, Optional, Set, Tuple, Union
+from typing import Collection, Dict, List, Optional, Union
 
 import requests
-from sql_metadata import Parser
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
@@ -90,6 +89,7 @@ class MetabaseExtractor(BaseExtractor):
         self._username = config.username
         self._password = config.password
         self._session = requests.session()
+        self._database_defaults = config.database_defaults
 
         self._databases: Dict[int, DatabaseInfo] = {}
         self._dashboards: Dict[int, Dashboard] = {}
@@ -197,6 +197,7 @@ class MetabaseExtractor(BaseExtractor):
             hierarchy_info=HierarchyInfo(
                 description=description,
                 type=HierarchyType.METABASE_COLLECTION,
+                name=name,
                 metabase_collection=MetabaseCollection(
                     name=name,
                     url=f"{self._server_url}/collection/{collection_id}-{slug}",
@@ -210,21 +211,36 @@ class MetabaseExtractor(BaseExtractor):
         database_id = database["id"]
         platform = self._db_engine_mapping.get(database["engine"])
         details = database.get("details")
+        default_schema = next(
+            (
+                dd.default_schema
+                for dd in self._database_defaults
+                if dd.id == database["id"]
+            ),
+            None,
+        )
+
         if details is None:
             # not able to get connection details, possibly due to lack of Admin permission
             return
 
         if platform == DataPlatform.SNOWFLAKE:
             self._databases[database_id] = DatabaseInfo(
-                platform, details.get("db"), None, details.get("account")
+                platform,
+                details.get("db"),
+                default_schema,
+                details.get("account"),
             )
         elif platform == DataPlatform.BIGQUERY:
             self._databases[database_id] = DatabaseInfo(
-                platform, details.get("project-id"), details.get("dataset-id"), None
+                platform,
+                details.get("project-id"),
+                default_schema or details.get("dataset-id"),
+                None,
             )
         elif platform == DataPlatform.REDSHIFT:
             self._databases[database_id] = DatabaseInfo(
-                platform, details.get("db"), None, None
+                platform, details.get("db"), default_schema, None
             )
         # platform not in _db_engine_mapping are not supported
 
@@ -305,10 +321,7 @@ class MetabaseExtractor(BaseExtractor):
                 upstream_tables.add(dataset_id)
 
         elif query_type == "native":
-            chart_query, dataset_ids = self._parse_native_query(dataset_query)
-            if chart_query is not None:
-                chart.query = chart_query
-                upstream_tables.update(dataset_ids)
+            chart.query = self._parse_native_query(dataset_query)
 
         else:
             logger.error(f"Unsupported query type {query_type}")
@@ -348,53 +361,18 @@ class MetabaseExtractor(BaseExtractor):
         self._tables[table_id] = dataset_id
         return dataset_id
 
-    def _parse_native_query(
-        self, dataset_query: Dict
-    ) -> Tuple[Optional[ChartQuery], Set[str]]:
-        try:
-            native_query = dataset_query["native"]["query"]
-            tables = Parser(native_query).tables
+    def _parse_native_query(self, dataset_query: Dict) -> ChartQuery:
+        native_query = dataset_query["native"]["query"]
 
-            database_id = dataset_query.get("database", 0)
-            database = self._databases.get(database_id)
-            if database is None:
-                raise ValueError(f"database {database_id} not found")
+        database_id = dataset_query.get("database", 0)
+        database = self._databases.get(database_id)
+        if database is None:
+            raise ValueError(f"database {database_id} not found")
 
-            chart_query = ChartQuery(
-                query=native_query,
-                platform=database.platform,
-                account=database.account,
-                default_database=database.database,
-                default_schema=database.schema,
-            )
-        except Exception as e:
-            logger.error(f"Failed to get native query: {e}")
-            return None, set()
-
-        try:
-            dataset_ids = set()
-            for table in tables:
-                segments = table.count(".") + 1
-                if segments == 3:
-                    dataset_name = table
-                elif segments == 2:
-                    dataset_name = f"{database.database}.{table}"
-                elif segments == 1:
-                    dataset_name = f"{database.database}.{database.schema}.{table}"
-                else:
-                    raise ValueError(f"invalid table name {table}")
-
-                dataset_ids.add(
-                    str(
-                        to_dataset_entity_id(
-                            dataset_name.replace("`", "").lower(),
-                            database.platform,
-                            database.account,
-                        )
-                    )
-                )
-
-            return chart_query, dataset_ids
-        except Exception as e:
-            logger.error(f"SQL parsing error: {e}, query: {native_query}")
-            return chart_query, set()
+        return ChartQuery(
+            query=native_query,
+            platform=database.platform,
+            account=database.account,
+            default_database=database.database,
+            default_schema=database.schema,
+        )

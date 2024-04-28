@@ -12,6 +12,7 @@ from metaphor.models.metadata_change_event import (
     LookerView,
     LookerViewDimension,
     LookerViewMeasure,
+    LookerViewQuery,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -244,6 +245,7 @@ def test_join(test_root_dir):
                 entity_upstream=EntityUpstream(
                     source_entities=[str(virtual_view_id1), str(virtual_view_id2)]
                 ),
+                system_tags=SystemTags(tags=[]),
             ),
         ],
     )
@@ -316,6 +318,7 @@ def test_explore_in_view(test_root_dir):
                     name="explore1",
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id)]),
+                system_tags=SystemTags(tags=[]),
             ),
         ],
     )
@@ -324,15 +327,6 @@ def test_explore_in_view(test_root_dir):
 def test_derived_table(test_root_dir):
     models_map, virtual_views = parse_project(
         f"{test_root_dir}/looker/derived_table", connection_map
-    )
-
-    dataset_id = EntityId(
-        EntityType.DATASET,
-        DatasetLogicalID(
-            name="db.schema.table1",
-            platform=DataPlatform.SNOWFLAKE,
-            account="account",
-        ),
     )
 
     virtual_view_id1 = EntityId(
@@ -366,40 +360,48 @@ def test_derived_table(test_root_dir):
             logical_id=VirtualViewLogicalID(
                 name="model.view1", type=VirtualViewType.LOOKER_VIEW
             ),
-            looker_view=LookerView(
-                source_datasets=[str(dataset_id)],
-            ),
-            entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
             structure=AssetStructure(
                 directories=["model"],
                 name="view1",
+            ),
+            looker_view=LookerView(
+                query=LookerViewQuery(
+                    default_database="db",
+                    default_schema="schema",
+                    query="SELECT * FROM table1",
+                    source_dataset_account="account",
+                    source_platform=DataPlatform.SNOWFLAKE,
+                )
             ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
                 name="model.view2", type=VirtualViewType.LOOKER_VIEW
             ),
-            looker_view=LookerView(
-                source_datasets=[str(dataset_id)],
-            ),
-            entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
             structure=AssetStructure(
                 directories=["model"],
                 name="view2",
+            ),
+            looker_view=LookerView(
+                query=LookerViewQuery(
+                    default_database="db",
+                    default_schema="schema",
+                    query="SELECT * FROM ${view1.SQL_TABLE_NAME}",
+                    source_dataset_account="account",
+                    source_platform=DataPlatform.SNOWFLAKE,
+                ),
             ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
                 name="model.view3", type=VirtualViewType.LOOKER_VIEW
             ),
-            looker_view=LookerView(
-                source_datasets=[str(dataset_id)],
-            ),
-            entity_upstream=EntityUpstream(source_entities=[str(dataset_id)]),
             structure=AssetStructure(
                 directories=["model"],
                 name="view3",
             ),
+            looker_view=LookerView(),
+            entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -414,6 +416,7 @@ def test_derived_table(test_root_dir):
                 name="explore1",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -428,6 +431,7 @@ def test_derived_table(test_root_dir):
                 name="explore2",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id2)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -442,6 +446,7 @@ def test_derived_table(test_root_dir):
                 name="explore3",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id3)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
 
@@ -501,6 +506,7 @@ def test_sql_table_name(test_root_dir):
                 name="explore1",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
 
@@ -674,6 +680,7 @@ def test_complex_includes(test_root_dir):
                 name="explore1",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
 
@@ -692,14 +699,6 @@ def test_view_extension(test_root_dir):
         EntityType.DATASET,
         DatasetLogicalID(
             name="db.schema.table1",
-            platform=DataPlatform.BIGQUERY,
-        ),
-    )
-
-    dataset_table2 = EntityId(
-        EntityType.DATASET,
-        DatasetLogicalID(
-            name="db.schema.table2",
             platform=DataPlatform.BIGQUERY,
         ),
     )
@@ -733,39 +732,47 @@ def test_view_extension(test_root_dir):
             logical_id=VirtualViewLogicalID(
                 name="model.view1", type=VirtualViewType.LOOKER_VIEW
             ),
-            looker_view=LookerView(
-                source_datasets=[str(dataset_table1)],
-            ),
-            entity_upstream=EntityUpstream(source_entities=[str(dataset_table1)]),
             structure=AssetStructure(
                 directories=["model"],
                 name="view1",
             ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_table1)],
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_table1)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
                 name="model.view2", type=VirtualViewType.LOOKER_VIEW
             ),
-            looker_view=LookerView(
-                source_datasets=[str(dataset_table2)],
-            ),
-            entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
             structure=AssetStructure(
                 directories=["model"],
                 name="view2",
+            ),
+            looker_view=LookerView(
+                query=LookerViewQuery(
+                    default_database="db",
+                    default_schema="schema",
+                    query="SELECT * FROM table2",
+                    source_platform=DataPlatform.BIGQUERY,
+                )
             ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
                 name="model.view3", type=VirtualViewType.LOOKER_VIEW
             ),
-            looker_view=LookerView(
-                source_datasets=[str(dataset_table2)],
-            ),
-            entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
             structure=AssetStructure(
                 directories=["model"],
                 name="view3",
+            ),
+            looker_view=LookerView(
+                query=LookerViewQuery(
+                    default_database="db",
+                    default_schema="schema",
+                    query="SELECT * FROM table2",
+                    source_platform=DataPlatform.BIGQUERY,
+                )
             ),
         ),
         VirtualView(
@@ -785,41 +792,46 @@ def test_view_extension(test_root_dir):
             logical_id=VirtualViewLogicalID(
                 name="model.base_view2", type=VirtualViewType.LOOKER_VIEW
             ),
-            looker_view=LookerView(
-                source_datasets=[str(dataset_table2)],
-            ),
-            entity_upstream=EntityUpstream(source_entities=[str(dataset_table2)]),
             structure=AssetStructure(
                 directories=["model"],
                 name="base_view2",
+            ),
+            looker_view=LookerView(
+                query=LookerViewQuery(
+                    default_database="db",
+                    default_schema="schema",
+                    query="SELECT * FROM table2",
+                    source_platform=DataPlatform.BIGQUERY,
+                )
             ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
                 name="model.base_view3", type=VirtualViewType.LOOKER_VIEW
             ),
-            looker_view=LookerView(
-                source_datasets=[str(dataset_base_view3)],
-            ),
-            entity_upstream=EntityUpstream(source_entities=[str(dataset_base_view3)]),
             structure=AssetStructure(
                 directories=["model"],
                 name="base_view3",
             ),
+            looker_view=LookerView(
+                source_datasets=[str(dataset_base_view3)],
+            ),
+            entity_upstream=EntityUpstream(source_entities=[str(dataset_base_view3)]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
                 name="model.explore1", type=VirtualViewType.LOOKER_EXPLORE
             ),
-            looker_explore=LookerExplore(
-                model_name="model",
-                base_view=str(virtual_view_id1),
-            ),
             structure=AssetStructure(
                 directories=["model"],
                 name="explore1",
             ),
+            looker_explore=LookerExplore(
+                model_name="model",
+                base_view=str(virtual_view_id1),
+            ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
 
@@ -935,6 +947,7 @@ def test_explore_extension(test_root_dir):
                 name="explore1",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -949,6 +962,7 @@ def test_explore_extension(test_root_dir):
                 name="explore2",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -963,6 +977,7 @@ def test_explore_extension(test_root_dir):
                 name="explore3",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -977,6 +992,7 @@ def test_explore_extension(test_root_dir):
                 name="explore4",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -991,6 +1007,7 @@ def test_explore_extension(test_root_dir):
                 name="base_explore2",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
+            system_tags=SystemTags(tags=[]),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -1005,5 +1022,6 @@ def test_explore_extension(test_root_dir):
                 name="view3",
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
+            system_tags=SystemTags(tags=[]),
         ),
     ]
