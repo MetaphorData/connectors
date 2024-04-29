@@ -222,7 +222,8 @@ class SnowflakeExtractor(BaseExtractor):
         try:
             cursor.execute("USE " + database_name)
         except ProgrammingError:
-            raise ValueError(f"Invalid or inaccessible database {database_name}")
+            logger.exception(f"Invalid or inaccessible database {database_name}")
+            return {}
 
         cursor.execute(self.FETCH_TABLE_QUERY)
 
