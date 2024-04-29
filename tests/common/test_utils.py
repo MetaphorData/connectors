@@ -176,11 +176,10 @@ def test_is_email():
     assert not is_email("foo")
     assert not is_email("foo@127.0.0.1")
 
+
 # Test for extracting visible text from HTML, with filtering
 def test_text_from_HTML(test_root_dir: str):
-    html_content = load_text(
-        f"{test_root_dir}/common/samples/titles_text.html"
-    )
+    html_content = load_text(f"{test_root_dir}/common/samples/titles_text.html")
     text = text_from_HTML(html_content)
     assert "Visible paragraph 1." in text
     assert "Visible paragraph 2." in text
