@@ -177,26 +177,26 @@ def is_email(email: str) -> bool:
 
 
 def text_from_HTML(html_content: str) -> str:
-        """
-        Extracts and returns visible text from given HTML content as a single string.
-        """
+    """
+    Extracts and returns visible text from given HTML content as a single string.
+    """
 
-        def filter_visible(el):
-            if el.parent.name in [
-                "style",
-                "script",
-                "head",
-                "title",
-                "meta",
-                "[document]",
-            ]:
-                return False
-            elif isinstance(el, Comment):
-                return False
-            else:
-                return True
+    def filter_visible(el):
+        if el.parent.name in [
+            "style",
+            "script",
+            "head",
+            "title",
+            "meta",
+            "[document]",
+        ]:
+            return False
+        elif isinstance(el, Comment):
+            return False
+        else:
+            return True
 
-        # Use bs4 to find visible text elements
-        soup = BeautifulSoup(html_content, "lxml")
-        visible_text = filter(filter_visible, soup.findAll(string=True))
-        return "\n".join(t.strip() for t in visible_text)
+    # Use bs4 to find visible text elements
+    soup = BeautifulSoup(html_content, "lxml")
+    visible_text = filter(filter_visible, soup.findAll(string=True))
+    return "\n".join(t.strip() for t in visible_text)

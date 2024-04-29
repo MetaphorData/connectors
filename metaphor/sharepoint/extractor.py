@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Collection, Dict, Tuple
 
 from azure.identity.aio import ClientSecretCredential
-from llama_index import Document
+from llama_index.core import Document
 
 # from llama_index.readers.microsoft_sharepoint import SharePointReader
 from msgraph_beta import GraphServiceClient
@@ -36,9 +36,9 @@ class SharepointExtractor(BaseExtractor):
         super().__init__(config=config)  # type: ignore[call-arg]
 
         # Authorization configs
-        self.client_id = config.client_id
-        self.client_secret = config.client_secret
-        self.tenant_id = config.tenant_id
+        self.sharepoint_client_id = config.sharepoint_client_id
+        self.sharepoint_client_secret = config.sharepoint_client_secret
+        self.sharepoint_tenant_id = config.sharepoint_tenant_id
 
         # Azure OpenAI
         self.azure_openAI_key = config.azure_openAI_key
@@ -51,9 +51,9 @@ class SharepointExtractor(BaseExtractor):
         self.include_text = config.include_text
 
         self.ClientSecretCredential = ClientSecretCredential(
-            tenant_id=self.tenant_id,
-            client_id=self.client_id,
-            client_secret=self.client_secret,
+            tenant_id=self.sharepoint_tenant_id,
+            client_id=self.sharepoint_client_id,
+            client_secret=self.sharepoint_client_secret,
         )
 
         self.GraphServiceClient = GraphServiceClient(
@@ -74,7 +74,7 @@ class SharepointExtractor(BaseExtractor):
 
             for page_title, page_id, page_URL in pages:
                 current_time = str(datetime.now(timezone.utc))
-                logger.info(f"Processing page {page_title}")
+                logger.info(f"\tProcessing page {page_title}")
                 page_body = await self._get_webParts_HTML(site_id, page_id)
                 documents.append(
                     Document(

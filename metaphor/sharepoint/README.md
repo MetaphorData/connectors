@@ -1,10 +1,12 @@
 # Sharepoint Connector
 
-
+This connector extracts search documents from pages on Sharepoint sites. It retrieves all pages on all sites that it has access to.
 
 ## Setup
 
+This connector makes use of a Microsoft Azure [App Registration](https://learn.microsoft.com/en-us/security/zero-trust/develop/app-registration). Ensure that you apply either the `Microsoft Graph / Sites.Read.All` permission or configure `Microsoft Graph / Sites.Selected` appropriately to allow access to the desired site(s).
 
+Configure the client ID, client secret, and tenant ID using the information from the registered App.
 
 Additionally, this connector requires [Azure OpenAI services](https://azure.microsoft.com/en-us/products/ai-services/openai-service) to generate embedding vectors for documents.
 
@@ -15,7 +17,9 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 ```yaml
-
+sharepoint_client_id: sharepoint_client_id
+sharepoint_client_secret: sharepoint_client_secret
+sharepoint_tenant_id: sharepoint_tenant_id
 
 azure_openAI_key: <azure_openAI_key>
 

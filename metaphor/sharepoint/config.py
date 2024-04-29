@@ -6,10 +6,10 @@ from metaphor.common.dataclass import ConnectorConfig
 
 @dataclass(config=ConnectorConfig)
 class SharepointRunConfig(BaseConfig):
-    # General MS Entra auth configs
-    client_id: str
-    client_secret: str
-    tenant_id: str
+    # General Azure API auth configs
+    sharepoint_client_id: str
+    sharepoint_client_secret: str
+    sharepoint_tenant_id: str
 
     # Azure OpenAI configs
     azure_openAI_key: str
