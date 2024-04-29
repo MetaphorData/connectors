@@ -575,17 +575,17 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.34.93"
+version = "1.34.94"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.34.93-py3-none-any.whl", hash = "sha256:b59355bf4a1408563969526f314611dbeacc151cf90ecb22af295dcc4fe18def"},
-    {file = "boto3-1.34.93.tar.gz", hash = "sha256:e39516e4ca21612932599819662759c04485d53ca457996a913163da11f052a4"},
+    {file = "boto3-1.34.94-py3-none-any.whl", hash = "sha256:bbb87d641c73462e53b1777083b55c8f13921618ad08757478a8122985c56c13"},
+    {file = "boto3-1.34.94.tar.gz", hash = "sha256:22f65b3c9b7a419f8f39c2dddc421e14fab8cbb3bd8a9d467e874237d39f59b1"},
 ]
 
 [package.dependencies]
-botocore = ">=1.34.93,<1.35.0"
+botocore = ">=1.34.94,<1.35.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.10.0,<0.11.0"
 
@@ -594,13 +594,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.34.93"
+version = "1.34.94"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.34.93-py3-none-any.whl", hash = "sha256:6fbd5a53a2adc9b3d4ebd90ae0ede83a91a41d96231f8a5984051f75495f246d"},
-    {file = "botocore-1.34.93.tar.gz", hash = "sha256:79d39b0b87e962991c6dd55e78ce15155099f6fb741be88b1b8a456a702cc150"},
+    {file = "botocore-1.34.94-py3-none-any.whl", hash = "sha256:f00a79002e0cb9d6895ecd0919c506402850177d7b6c4d2634fa2da362d95bcb"},
+    {file = "botocore-1.34.94.tar.gz", hash = "sha256:99b11be9a28f9051af4c96fa121e9c3f22a86d499abd773c9e868b2a38961bae"},
 ]
 
 [package.dependencies]
@@ -1112,13 +1112,13 @@ sqlalchemy = ["sqlalchemy (>=2.0.21)"]
 
 [[package]]
 name = "dataclasses-json"
-version = "0.6.4"
+version = "0.6.5"
 description = "Easily serialize dataclasses to and from JSON."
 optional = true
-python-versions = ">=3.7,<4.0"
+python-versions = "<4.0,>=3.7"
 files = [
-    {file = "dataclasses_json-0.6.4-py3-none-any.whl", hash = "sha256:f90578b8a3177f7552f4e1a6e535e84293cd5da421fcce0642d49c0d7bdf8df2"},
-    {file = "dataclasses_json-0.6.4.tar.gz", hash = "sha256:73696ebf24936560cca79a2430cbc4f3dd23ac7bf46ed17f38e5e5e7657a6377"},
+    {file = "dataclasses_json-0.6.5-py3-none-any.whl", hash = "sha256:f49c77aa3a85cac5bf5b7f65f4790ca0d2be8ef4d92c75e91ba0103072788a39"},
+    {file = "dataclasses_json-0.6.5.tar.gz", hash = "sha256:1c287594d9fcea72dc42d6d3836cf14848c2dc5ce88f65ed61b36b57f515fe26"},
 ]
 
 [package.dependencies]
@@ -1316,18 +1316,17 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "faker"
-version = "24.14.1"
+version = "25.0.0"
 description = "Faker is a Python package that generates fake data for you."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "Faker-24.14.1-py3-none-any.whl", hash = "sha256:a5edba3aa17a1d689c8907e5b0cd1653079c2466a4807f083aa7b5f80a00225d"},
-    {file = "Faker-24.14.1.tar.gz", hash = "sha256:380a3697e696ae4fcf50a93a3d9e0286fab7dfbf05a9caa4421fa4727c6b1e89"},
+    {file = "Faker-25.0.0-py3-none-any.whl", hash = "sha256:e23a2b74888885c3d23a9237bacb823041291c03d609a39acb9ebe6c123f3986"},
+    {file = "Faker-25.0.0.tar.gz", hash = "sha256:87ef41e24b39a5be66ecd874af86f77eebd26782a2681200e86c5326340a95d3"},
 ]
 
 [package.dependencies]
 python-dateutil = ">=2.4"
-typing-extensions = {version = ">=3.10.0.1", markers = "python_version <= \"3.8\""}
 
 [[package]]
 name = "fastavro"
@@ -1377,13 +1376,13 @@ zstandard = ["zstandard"]
 
 [[package]]
 name = "filelock"
-version = "3.13.4"
+version = "3.14.0"
 description = "A platform independent file lock."
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "filelock-3.13.4-py3-none-any.whl", hash = "sha256:404e5e9253aa60ad457cae1be07c0f0ca90a63931200a47d9b6a6af84fd7b45f"},
-    {file = "filelock-3.13.4.tar.gz", hash = "sha256:d13f466618bfde72bd2c18255e269f72542c6e70e7bac83a0232d6b1cc5c8cf4"},
+    {file = "filelock-3.14.0-py3-none-any.whl", hash = "sha256:43339835842f110ca7ae60f1e1c160714c5a6afd15a2873419ab185334975c0f"},
+    {file = "filelock-3.14.0.tar.gz", hash = "sha256:6ea72da3be9b8c82afd3edcf99f2fffbb5076335a5ae4d03248bb5b6c3eae78a"},
 ]
 
 [package.extras]
@@ -4639,17 +4638,17 @@ test = ["pretend", "pytest (>=3.0.1)", "pytest-rerunfailures"]
 
 [[package]]
 name = "pypdf"
-version = "4.0.2"
+version = "4.2.0"
 description = "A pure-python PDF library capable of splitting, merging, cropping, and transforming PDF files"
 optional = true
 python-versions = ">=3.6"
 files = [
-    {file = "pypdf-4.0.2-py3-none-any.whl", hash = "sha256:a62daa2a24d5a608ba1b6284dde185317ce3644f89b9ebe5314d0c5d1c9f257d"},
-    {file = "pypdf-4.0.2.tar.gz", hash = "sha256:3316d9ddfcff5df67ae3cdfe8b945c432aa43e7f970bae7c2a4ab4fe129cd937"},
+    {file = "pypdf-4.2.0-py3-none-any.whl", hash = "sha256:dc035581664e0ad717e3492acebc1a5fc23dba759e788e3d4a9fc9b1a32e72c1"},
+    {file = "pypdf-4.2.0.tar.gz", hash = "sha256:fe63f3f7d1dcda1c9374421a94c1bba6c6f8c4a62173a59b64ffd52058f846b1"},
 ]
 
 [package.dependencies]
-typing_extensions = {version = ">=3.7.4.3", markers = "python_version < \"3.10\""}
+typing_extensions = {version = ">=4.0", markers = "python_version < \"3.11\""}
 
 [package.extras]
 crypto = ["PyCryptodome", "cryptography"]
@@ -4791,22 +4790,6 @@ files = [
 
 [package.dependencies]
 six = ">=1.5"
-
-[[package]]
-name = "python-pptx"
-version = "0.6.23"
-description = "Generate and manipulate Open XML PowerPoint (.pptx) files"
-optional = true
-python-versions = "*"
-files = [
-    {file = "python-pptx-0.6.23.tar.gz", hash = "sha256:587497ff28e779ab18dbb074f6d4052893c85dedc95ed75df319364f331fedee"},
-    {file = "python_pptx-0.6.23-py3-none-any.whl", hash = "sha256:dd0527194627a2b7cc05f3ba23ecaa2d9a0d5ac9b6193a28ed1b7a716f4217d4"},
-]
-
-[package.dependencies]
-lxml = ">=3.1.0"
-Pillow = ">=3.3.2"
-XlsxWriter = ">=0.5.7"
 
 [[package]]
 name = "pytz"
@@ -6186,17 +6169,6 @@ docs = ["sphinx"]
 test = ["pytest", "pytest-cov"]
 
 [[package]]
-name = "xlsxwriter"
-version = "3.2.0"
-description = "A Python module for creating Excel XLSX files."
-optional = true
-python-versions = ">=3.6"
-files = [
-    {file = "XlsxWriter-3.2.0-py3-none-any.whl", hash = "sha256:ecfd5405b3e0e228219bcaf24c2ca0915e012ca9464a14048021d21a995d490e"},
-    {file = "XlsxWriter-3.2.0.tar.gz", hash = "sha256:9977d0c661a72866a61f9f7a809e25ebbb0fb7036baa3b9fe74afcfca6b3cb8c"},
-]
-
-[[package]]
 name = "yarl"
 version = "1.9.4"
 description = "Yet another URL library"
@@ -6315,7 +6287,7 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "docx2txt", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "llama-index-readers-microsoft-sharepoint", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pyhive", "pymssql", "pymysql", "pypdf", "python-pptx", "sasl", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "llama-index-readers-microsoft-sharepoint", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pyhive", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
@@ -6334,7 +6306,7 @@ postgresql = ["asyncpg"]
 power-bi = ["msal", "msgraph-beta-sdk"]
 redshift = ["asyncpg"]
 s3 = ["fastavro", "more-itertools", "parse"]
-sharepoint = ["azure-identity", "beautifulsoup4", "docx2txt", "llama-index", "llama-index-readers-microsoft-sharepoint", "lxml", "msgraph-beta-sdk", "pypdf", "python-pptx"]
+sharepoint = ["azure-identity", "beautifulsoup4", "llama-index", "lxml", "msgraph-beta-sdk"]
 snowflake = ["snowflake-connector-python"]
 static-web = ["beautifulsoup4", "llama-index", "llama-index-embeddings-azure-openai", "lxml"]
 synapse = ["pymssql"]
@@ -6346,4 +6318,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "6654a8af2538412039acf5a18c6dd8e4383dc540e62cb71ecaee9c0f23e88134"
+content-hash = "23acb70d5b0877f274ba26c01bdb72554de8d70a24abb5c6001f4fe0ccfd4fdc"
