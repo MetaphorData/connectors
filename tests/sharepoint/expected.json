@@ -1,0 +1,23 @@
+[
+  {
+    "entityId": "EXTERNAL_DOCUMENT~5678",
+    "documentId": "EXTERNAL_DOCUMENT~5678",
+    "embedding_1": [
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "pageId": "5678",
+    "lastRefreshed": "2024-04-03T00:00:00",
+    "metadata": {
+      "title": "Hello World!",
+      "status": "current",
+      "pageId": "5678",
+      "platform": "confluence",
+      "link": "https://metaphor.io",
+      "lastRefreshed": "2024-04-03 00:00:00.000000"
+    },
+    "embeddedString_1": "Title: Hello World!\nHello World!"
+  }
+]
