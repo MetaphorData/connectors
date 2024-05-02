@@ -39,7 +39,17 @@ To run the queries using a specific warehouse, simply add its ID in the configur
 warehouse_id: <warehouse_id>
 ```
 
-If no warehouse id is provided, the connector automatically uses the first discovered warehouse.
+If no warehouse id nor cluster path is provided, the connector automatically uses the first discovered warehouse.
+
+#### Cluster Path
+
+To run the queries using a compute cluster, add its cluster path in the configuration file:
+
+```yaml
+cluster_path: <cluster_path>
+```
+
+You can find the cluster path in your Databricks workspace by following the [Databricks documentation](https://docs.databricks.com/en/integrations/compute-details.html) instructions.
 
 #### Source URL
 
