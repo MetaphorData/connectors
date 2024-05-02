@@ -5,7 +5,7 @@ from typing import Optional
 from databricks import sql
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.core import ApiClient
-from databricks.sdk.service.sql import EndpointInfo, QueryFilter, TimeRange
+from databricks.sdk.service.sql import QueryFilter, TimeRange
 from databricks.sql.client import Connection
 from requests import HTTPError
 
@@ -101,20 +101,36 @@ def escape_special_characters(name: str) -> str:
 
 
 def create_connection(
-    client: WorkspaceClient, token: str, warehouse_id: Optional[str] = None
+    client: WorkspaceClient,
+    token: str,
+    warehouse_id: Optional[str] = None,
+    cluster_url: Optional[str] = None,
+    cluster_path: Optional[str] = None,
 ) -> Connection:
     endpoints = list(client.warehouses.list())
-    if not endpoints:
-        raise ValueError("No valid warehouse found")
-    endpoint_info: EndpointInfo = endpoints[0]
+    if not endpoints and cluster_url is None and cluster_path is None:
+        raise ValueError(
+            "No valid warehouse nor valid cluster configuration is provided"
+        )
+
+    endpoint_info = endpoints[0]
+    server_hostname = cluster_url
+    http_path = cluster_path
+
     if warehouse_id:
         try:
             endpoint_info = client.warehouses.get(warehouse_id)
         except Exception:
             raise ValueError(f"Invalid warehouse id: {warehouse_id}")
+
+    # Use warehouse if cluster_url and cluster_path are not set
+    if server_hostname is None or http_path is None:
+        server_hostname = endpoint_info.odbc_params.hostname
+        http_path = endpoint_info.odbc_params.path
+
     return sql.connect(
-        server_hostname=endpoint_info.odbc_params.hostname,
-        http_path=endpoint_info.odbc_params.path,
+        server_hostname=server_hostname,
+        http_path=http_path,
         access_token=token,
     )
 

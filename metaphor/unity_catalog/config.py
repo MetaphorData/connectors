@@ -34,6 +34,9 @@ class UnityCatalogRunConfig(BaseConfig):
     # The id of warehouse which will run the sql
     warehouse_id: Optional[str] = None
 
+    # cluster http path
+    cluster_path: Optional[str] = None
+
     # configs for fetching query logs
     query_log: UnityCatalogQueryLogConfig = field(
         default_factory=lambda: UnityCatalogQueryLogConfig()
