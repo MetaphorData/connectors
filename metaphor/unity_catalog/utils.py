@@ -9,9 +9,11 @@ from databricks.sdk.service.sql import QueryFilter, TimeRange
 from databricks.sql.client import Connection
 from requests import HTTPError
 
-from metaphor.common.logger import json_dump_to_debug_file
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
 from metaphor.unity_catalog.models import ColumnLineage, TableLineage
+
+logger = get_logger()
 
 
 def list_table_lineage(client: ApiClient, table_name: str) -> TableLineage:
@@ -104,27 +106,29 @@ def create_connection(
     client: WorkspaceClient,
     token: str,
     warehouse_id: Optional[str] = None,
-    cluster_url: Optional[str] = None,
+    cluster_hostname: Optional[str] = None,
     cluster_path: Optional[str] = None,
 ) -> Connection:
-    endpoints = list(client.warehouses.list())
-    if not endpoints and cluster_url is None and cluster_path is None:
-        raise ValueError(
-            "No valid warehouse nor valid cluster configuration is provided"
-        )
-
-    endpoint_info = endpoints[0]
-    server_hostname = cluster_url
+    server_hostname = cluster_hostname
     http_path = cluster_path
 
-    if warehouse_id:
-        try:
-            endpoint_info = client.warehouses.get(warehouse_id)
-        except Exception:
-            raise ValueError(f"Invalid warehouse id: {warehouse_id}")
+    if cluster_hostname is None and cluster_path is None:
+        logger.warning("No cluster configuration is found, fallback to SQL warehouse")
 
-    # Use warehouse if cluster_url and cluster_path are not set
-    if server_hostname is None or http_path is None:
+        endpoints = list(client.warehouses.list())
+        if not endpoints:
+            raise ValueError(
+                "No valid warehouse nor valid cluster configuration is provided"
+            )
+
+        endpoint_info = endpoints[0]
+
+        if warehouse_id:
+            try:
+                endpoint_info = client.warehouses.get(warehouse_id)
+            except Exception:
+                raise ValueError(f"Invalid warehouse id: {warehouse_id}")
+
         server_hostname = endpoint_info.odbc_params.hostname
         http_path = endpoint_info.odbc_params.path
 

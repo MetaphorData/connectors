@@ -110,7 +110,7 @@ class UnityCatalogExtractor(BaseExtractor):
             self._api,
             self._token,
             config.warehouse_id,
-            cluster_url=config.host,
+            cluster_hostname=config.host,
             cluster_path=config.cluster_path,
         )
 
