@@ -5,8 +5,9 @@ import urllib.parse
 from collections import defaultdict
 from itertools import chain
 from typing import Collection, Dict, Generator, Iterator, List, Optional, Tuple
+from datetime import datetime
 
-from databricks.sdk.service.catalog import TableInfo, TableType, VolumeInfo
+from databricks.sdk.service.catalog import TableInfo, TableType, VolumeInfo, VolumeType
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -23,6 +24,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
+    DatasetStatistics,
     DatasetSchema,
     DatasetStructure,
     EntityUpstream,
@@ -40,7 +42,8 @@ from metaphor.models.metadata_change_event import (
     SystemTags,
     SystemTagSource,
     UnityCatalog,
-    UnityCatalogTableType,
+    UnityCatalogDatasetType,
+    VolumeFile,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.models import (
@@ -142,6 +145,8 @@ class UnityCatalogExtractor(BaseExtractor):
 
                 for volume in self._get_volume_infos(catalog, schema):
                     self._volumes[volume.full_name] = volume
+                    self._init_volume(volume)
+                    self._extract_volume_files(volume)
 
                 for table_info in self._get_table_infos(catalog, schema):
                     table_name = f"{catalog}.{schema}.{table_info.name}"
@@ -259,7 +264,7 @@ class UnityCatalogExtractor(BaseExtractor):
         )
 
         dataset.unity_catalog = UnityCatalog(
-            table_type=UnityCatalogTableType[table_info.table_type.value],
+            dataset_type=UnityCatalogDatasetType[table_info.table_type.value],
             data_source_format=(
                 table_info.data_source_format.value
                 if table_info.data_source_format is not None
@@ -283,51 +288,9 @@ class UnityCatalogExtractor(BaseExtractor):
 
         return dataset
 
-    def _init_file(self, file_info: FileInfo) -> Optional[Dataset]:
-        volume = self._volumes.get(file_info.securable_name or "")
-        if not volume:
-            return None
-
-        name = volume.name
-        schema_name = volume.schema_name
-        database = volume.catalog_name
-        path = file_info.path
-
-        if path in self._datasets:
-            return self._datasets.get(path)
-
-        dataset = Dataset()
-        dataset.logical_id = DatasetLogicalID(
-            # We use path as ID for file
-            name=path,
-            platform=DataPlatform.UNITY_CATALOG,
-        )
-
-        dataset.structure = DatasetStructure(
-            database=database, schema=schema_name, table=name
-        )
-
-        dataset.schema = DatasetSchema(
-            sql_schema=SQLSchema(
-                materialization=MaterializationType.EXTERNAL,
-            ),
-        )
-
-        main_url = self._get_volume_source_url(database, schema_name, name)
-        dataset.source_info = SourceInfo(
-            main_url=main_url,
-        )
-
-        dataset.unity_catalog = UnityCatalog(
-            storage_location=file_info.storage_location,
-            table_type=UnityCatalogTableType.EXTERNAL,
-        )
-
-        dataset.entity_upstream = EntityUpstream(source_entities=[])
-
-        self._datasets[path] = dataset
-
-        return dataset
+    def _get_location_url(self, location_name: str):
+        url = f"{self._host}/explore/location/{location_name}/browse"
+        return url
 
     def _table_logical_id(
         self, catalog_name: str, schema_name: str, table_name: str
@@ -369,12 +332,12 @@ class UnityCatalogExtractor(BaseExtractor):
                 )
                 source_datasets.append(entity_id)
             file_info = upstream.fileInfo
-            if (
-                file_info is not None
-                and file_info.has_permission
-                and file_info.securable_type == "VOLUME"
-            ):
-                upstream_file = self._init_file(file_info)
+            if file_info is not None and file_info.has_permission:
+                upstream_file = (
+                    self._init_file(file_info)
+                    if file_info.securable_type == "EXTERNAL_LOCATION"
+                    else self._datasets.get(file_info.securable_name.lower())
+                )
                 if not upstream_file:
                     logger.warning(
                         f"cannot parse upstream volume file, {file_info.path}"
@@ -386,12 +349,12 @@ class UnityCatalogExtractor(BaseExtractor):
 
         for downstream in lineage.downstreams:
             file_info = downstream.fileInfo
-            if (
-                file_info is not None
-                and file_info.has_permission
-                and file_info.securable_type == "VOLUME"
-            ):
-                downstream_file = self._init_file(file_info)
+            if file_info is not None and file_info.has_permission:
+                downstream_file = (
+                    self._init_file(file_info)
+                    if file_info.securable_type == "EXTERNAL_LOCATION"
+                    else self._datasets.get(file_info.securable_name.lower())
+                )
                 if not downstream_file:
                     logger.warning(
                         f"cannot parse downstream volume file, {file_info.path}"
@@ -663,3 +626,131 @@ class UnityCatalogExtractor(BaseExtractor):
                 self._assign_dataset_system_tags(catalog, catalog_system_tags)
                 self._extract_table_tags(catalog)
                 self._extract_column_tags(catalog)
+
+    def _extract_volume_files(self, volume: VolumeInfo):
+        volume_dataset = self._datasets.get(
+            dataset_normalized_name(
+                volume.catalog_name, volume.schema_name, volume.name
+            )
+        )
+        with self._connection.cursor() as cursor:
+            query = f"LIST '/Volumes/{volume.catalog_name}/{volume.schema_name}/{volume.name}'"
+
+            cursor.execute(query)
+            for path, name, size, modification_time in cursor.fetchall():
+                print(path, name, size, modification_time, volume_dataset)
+                last_updated = from_timestamp_ms(modification_time)
+                self._init_volume_file(volume, path, size, last_updated)
+
+                if (
+                    volume_dataset
+                    and volume_dataset.unity_catalog
+                    and volume_dataset.unity_catalog.volume_files is not None
+                ):
+                    volume_dataset.unity_catalog.volume_files.append(
+                        VolumeFile(
+                            modification_time=last_updated,
+                            name=name,
+                            path=path,
+                            size=float(size),
+                        )
+                    )
+
+    def _init_file(self, file_info: FileInfo) -> Optional[Dataset]:
+        if file_info.securable_type != "EXTERNAL_LOCATION":
+            return None
+        path = file_info.path
+        dataset = Dataset()
+        dataset.logical_id = DatasetLogicalID(
+            name=path,
+            platform=DataPlatform.UNITY_CATALOG,
+        )
+
+        dataset.schema = DatasetSchema(
+            sql_schema=SQLSchema(
+                materialization=MaterializationType.EXTERNAL,
+            ),
+        )
+
+        main_url = self._get_location_url(file_info.securable_name)
+        dataset.source_info = SourceInfo(
+            main_url=main_url,
+        )
+
+        dataset.unity_catalog = UnityCatalog(
+            storage_location=file_info.storage_location,
+            dataset_type=UnityCatalogDatasetType.EXTERNAL_LOCATION,
+        )
+
+        dataset.entity_upstream = EntityUpstream(source_entities=[])
+
+        self._datasets[path] = dataset
+
+        return dataset
+
+    def _init_volume(self, volume: VolumeInfo):
+        schema_name = volume.schema_name
+        catalog_name = volume.catalog_name
+        name = volume.name
+        name = dataset_normalized_name(catalog_name, schema_name, name)
+
+        dataset = Dataset()
+        dataset.logical_id = DatasetLogicalID(
+            name=name,
+            platform=DataPlatform.UNITY_CATALOG,
+        )
+        dataset.unity_catalog = UnityCatalog(
+            storage_location=volume.storage_location,
+            dataset_type=(
+                UnityCatalogDatasetType.EXTERNAL_VOLUME
+                if volume.volume_type == VolumeType.EXTERNAL
+                else UnityCatalogDatasetType.MANAGED_VOLUME
+            ),
+            volume_files=[],
+        )
+        dataset.entity_upstream = EntityUpstream(source_entities=[])
+        self._datasets[name] = dataset
+
+        return dataset
+
+    def _init_volume_file(
+        self, volume: VolumeFile, path: str, size: int, last_updated: datetime
+    ) -> Optional[Dataset]:
+        name = volume.name
+        schema_name = volume.schema_name
+        catalog_name = volume.catalog_name
+
+        dataset = Dataset()
+        dataset.logical_id = DatasetLogicalID(
+            # We use path as ID for file
+            name=path,
+            platform=DataPlatform.UNITY_CATALOG,
+        )
+
+        dataset.structure = DatasetStructure(
+            database=catalog_name, schema=schema_name, table=name
+        )
+
+        dataset.schema = DatasetSchema(
+            sql_schema=SQLSchema(
+                materialization=MaterializationType.EXTERNAL,
+            ),
+        )
+
+        main_url = self._get_volume_source_url(catalog_name, schema_name, name)
+        dataset.source_info = SourceInfo(main_url=main_url, last_updated=last_updated)
+
+        dataset.unity_catalog = UnityCatalog(
+            storage_location=volume.storage_location,
+            dataset_type=UnityCatalogDatasetType.VOLUME_FILE,
+        )
+
+        dataset.statistics = DatasetStatistics(
+            data_size_bytes=float(size),
+        )
+
+        dataset.entity_upstream = EntityUpstream(source_entities=[])
+
+        self._datasets[path] = dataset
+
+        return dataset
