@@ -1,23 +1,23 @@
 [
   {
-    "entityId": "EXTERNAL_DOCUMENT~5678",
-    "documentId": "EXTERNAL_DOCUMENT~5678",
+    "entityId": "EXTERNAL_DOCUMENT~PAGE123",
+    "documentId": "EXTERNAL_DOCUMENT~PAGE123",
     "embedding_1": [
       0.1,
       0.2,
       0.3,
       0.4
     ],
-    "pageId": "5678",
+    "pageId": "page123",
     "lastRefreshed": "2024-04-03T00:00:00",
     "metadata": {
-      "title": "Hello World!",
+      "title": "Sample Document",
       "status": "current",
-      "pageId": "5678",
-      "platform": "confluence",
-      "link": "https://metaphor.io",
+      "pageId": "page123",
+      "platform": "sharepoint/SampleSite",
+      "link": "https://sharepoint.sample.com/pages/sample-document",
       "lastRefreshed": "2024-04-03 00:00:00.000000"
     },
-    "embeddedString_1": "Title: Hello World!\nHello World!"
+    "embeddedString_1": "Title: Sample Document\nSample document text"
   }
 ]

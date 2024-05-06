@@ -140,3 +140,73 @@ async def test_get_webParts_HTML(sharepoint_extractor: SharepointExtractor):
 
 
 # test for extract
+@patch("metaphor.sharepoint.extractor.SharepointExtractor._get_sites")
+@patch("metaphor.sharepoint.extractor.embed_documents")
+@pytest.mark.asyncio
+async def test_extract(
+    mock_embed_docs: MagicMock,
+    mock_get_sites: MagicMock,
+    sharepoint_extractor,
+    test_root_dir: str,
+):
+    mock_VSI = MagicMock()
+
+    # Simulating the output of the embedding process
+    mock_VSI.storage_context.to_dict.return_value = {
+        "vector_store": {
+            "default": {
+                "embedding_dict": {"page123": [0.1, 0.2, 0.3, 0.4]},
+                "metadata_dict": {
+                    "page123": {
+                        "title": "Sample Document",
+                        "status": "current",
+                        "platform": "sharepoint/SampleSite",
+                        "pageId": "page123",
+                        "link": "https://sharepoint.sample.com/pages/sample-document",
+                        "lastRefreshed": "2024-04-03 00:00:00.000000",
+                    }
+                },
+            }
+        },
+        "doc_store": {
+            "docstore/data": {"page123": {"__data__": {"text": "Sample document text"}}}
+        },
+    }
+
+    # mock embed_documents to return the simulated vector store index
+    mock_embed_docs.return_value = mock_VSI
+
+    # Simulate _get_sites returning a dictionary of site names and IDs
+    mock_get_sites.return_value = {"SampleSite": "site123"}
+
+    # Mock _get_site_pages to simulate fetching pages from a SharePoint site
+    sharepoint_extractor._get_site_pages = AsyncMock(
+        return_value=[
+            (
+                "Sample Document",
+                "page123",
+                "https://sharepoint.sample.com/pages/sample-document",
+            )
+        ]
+    )
+
+    # Mock _get_webParts_HTML to return HTML content of the page
+    sharepoint_extractor._get_webParts_HTML = AsyncMock(
+        return_value="Sample document text"
+    )
+
+    # Execute the extract method
+    events = await sharepoint_extractor.extract()
+
+    # Load the expected result for comparison
+    expected_events = load_json(f"{test_root_dir}/sharepoint/expected.json")
+
+    # Verify that the extracted data matches the expected output
+    assert [e.to_dict() for e in events] == expected_events
+
+    # Verify that each mocked method was called correctly
+    mock_get_sites.assert_called_once()
+    sharepoint_extractor._get_site_pages.assert_called_once_with("site123")
+    sharepoint_extractor._get_webParts_HTML.assert_called_once_with(
+        "site123", "page123"
+    )
