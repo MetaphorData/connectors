@@ -1,10 +1,11 @@
 from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
+from llama_index.core import Document
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.sharepoint.config import SharepointRunConfig
 from metaphor.sharepoint.extractor import SharepointExtractor
-from llama_index.core import Document
 from tests.test_utils import load_json
 
 dummy_config = SharepointRunConfig(
@@ -67,10 +68,16 @@ def mock_graph_client() -> AsyncMock:
     mock_GraphServiceClient.sites.by_site_id = MagicMock(return_value=mock_by_site_id)
 
     # Mock for _get_webParts_HTML
-    web_parts_details = [
-        MagicMock(inner_html="<div>Hello</div>"),
-        MagicMock(inner_html="<div>World</div>"),
-    ]
+    web_parts_details = MagicMock(
+        value=[
+            MagicMock(inner_html="<div>Hello</div>"),
+            MagicMock(inner_html="<div>World</div>"),
+        ]
+    )
+
+    mock_return = AsyncMock()
+    mock_return.graph_site_page.web_parts.get.return_value = web_parts_details
+    mock_by_site_id.pages.by_base_site_page_id.return_value = mock_return
 
     return mock_GraphServiceClient
 
@@ -128,7 +135,7 @@ async def test_get_site_pages(sharepoint_extractor: SharepointExtractor):
 @pytest.mark.asyncio
 async def test_get_webParts_HTML(sharepoint_extractor: SharepointExtractor):
     html_content = await sharepoint_extractor._get_webParts_HTML("siteId_1", "page1")
-    expected_html = "<div>Hello</div>\n<div>World</div>"
+    expected_html = "Hello\n\nWorld"
     assert html_content == expected_html
 
 
