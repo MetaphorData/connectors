@@ -1,9 +1,0 @@
----
-host: host
-database: database
-user: user
-password: password
-enable_view_lineage: false
-enable_lineage_from_sql: false
-include_self_lineage: false
-output: {}
