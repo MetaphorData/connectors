@@ -5,13 +5,15 @@ from typing import Optional
 from databricks import sql
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.core import ApiClient
-from databricks.sdk.service.sql import EndpointInfo, QueryFilter, TimeRange
+from databricks.sdk.service.sql import QueryFilter, TimeRange
 from databricks.sql.client import Connection
 from requests import HTTPError
 
-from metaphor.common.logger import json_dump_to_debug_file
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
 from metaphor.unity_catalog.models import ColumnLineage, TableLineage
+
+logger = get_logger()
 
 
 def list_table_lineage(client: ApiClient, table_name: str) -> TableLineage:
@@ -101,20 +103,38 @@ def escape_special_characters(name: str) -> str:
 
 
 def create_connection(
-    client: WorkspaceClient, token: str, warehouse_id: Optional[str] = None
+    client: WorkspaceClient,
+    token: str,
+    warehouse_id: Optional[str] = None,
+    cluster_hostname: Optional[str] = None,
+    cluster_path: Optional[str] = None,
 ) -> Connection:
-    endpoints = list(client.warehouses.list())
-    if not endpoints:
-        raise ValueError("No valid warehouse found")
-    endpoint_info: EndpointInfo = endpoints[0]
-    if warehouse_id:
-        try:
-            endpoint_info = client.warehouses.get(warehouse_id)
-        except Exception:
-            raise ValueError(f"Invalid warehouse id: {warehouse_id}")
+    server_hostname = cluster_hostname
+    http_path = cluster_path
+
+    if cluster_hostname is None and cluster_path is None:
+        logger.warning("No cluster configuration is found, fallback to SQL warehouse")
+
+        endpoints = list(client.warehouses.list())
+        if not endpoints:
+            raise ValueError(
+                "No valid warehouse nor valid cluster configuration is provided"
+            )
+
+        endpoint_info = endpoints[0]
+
+        if warehouse_id:
+            try:
+                endpoint_info = client.warehouses.get(warehouse_id)
+            except Exception:
+                raise ValueError(f"Invalid warehouse id: {warehouse_id}")
+
+        server_hostname = endpoint_info.odbc_params.hostname
+        http_path = endpoint_info.odbc_params.path
+
     return sql.connect(
-        server_hostname=endpoint_info.odbc_params.hostname,
-        http_path=endpoint_info.odbc_params.path,
+        server_hostname=server_hostname,
+        http_path=http_path,
         access_token=token,
     )
 

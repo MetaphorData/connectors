@@ -31,15 +31,15 @@ See [Output Config](../common/docs/output.md) for more information.
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
-#### Warehouse ID
+#### Cluster Path
 
-To run the queries using a specific warehouse, simply add its ID in the configuration file:
+To run the queries using a compute cluster, add its cluster path in the configuration file:
 
 ```yaml
-warehouse_id: <warehouse_id>
+cluster_path: <cluster_path>
 ```
 
-If no warehouse id is provided, the connector automatically uses the first discovered warehouse.
+You can find the cluster path in your Databricks workspace by following the [Databricks documentation](https://docs.databricks.com/en/integrations/compute-details.html) instructions.
 
 #### Source URL
 
@@ -68,6 +68,18 @@ query_log:
   # (Optional) Limit the number of results returned in one page of query log history. The default is 100.
   max_results: <count>
 ```
+
+#### Warehouse ID
+
+Note: we encourage using cluster, this connector will deprecate the SQL warehouse support.
+
+To run the queries using a specific warehouse, simply add its ID in the configuration file:
+
+```yaml
+warehouse_id: <warehouse_id>
+```
+
+If no warehouse id nor cluster path is provided, the connector automatically uses the first discovered warehouse.
 
 ## Testing
 
