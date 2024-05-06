@@ -103,7 +103,7 @@ class UnityCatalogExtractor(BaseExtractor):
     def __init__(self, config: UnityCatalogRunConfig):
         super().__init__(config)
         self._source_url = (
-            f"https://{config.hostname}" + "/explore/data/{catalog}/{schema}/{table}"
+            f"https://{config.hostname}/explore/data/{{catalog}}/{{schema}}/{{table}}"
             if config.source_url is None
             else config.source_url
         )
