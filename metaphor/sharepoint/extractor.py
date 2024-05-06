@@ -144,9 +144,7 @@ class SharepointExtractor(BaseExtractor):
             request_configuration=config
         )
 
-        sites = dict(
-            [(site.name.replace(" ", ""), site.id) for site in all_sites.value]
-        )
+        sites = {site.name.replace(" ", ""): site.id for site in all_sites.value}
 
         return sites
 

@@ -21,57 +21,56 @@ dummy_config = SharepointRunConfig(
 )
 
 
-def mock_graph_client(mock_GraphServiceClient: AsyncMock) -> AsyncMock:
-    # endpoints that need to be mocked
-    # gsc.sites.get()
-    # gsc.sites.get_all_sites.get()
-    # gsc.sites.by_site_id.pages.graph_site_page.get()
-    # gsc.sites.by_site_id.pages.by_base_site_page_id.graph_site_page.web_parts.get()
+def mock_graph_client() -> AsyncMock:
+    mock_GraphServiceClient = AsyncMock()
 
-    # mock for _get_site_collections
-    return_value = [MagicMock(web_url="https://sharepoint.sample.com/")]
-    mock_GraphServiceClient.sites.get.return_value = MagicMock(value=return_value)
+    # Mock for _get_site_collections()
+    # Mock the get() for sites to return site collections
+    mock_GraphServiceClient.sites.get.return_value = MagicMock(
+        return_value=MagicMock(
+            value=[MagicMock(web_url="https://sharepoint.sample.com/")]
+        )
+    )
 
-    # mock for _get_sites
-    return_value = [
+    # Mock for _get_sites
+    # Mock the get_all_sites.get() to return site details
+    site_details = [
         MagicMock(id="siteId_1"),
         MagicMock(id="siteId_2"),
     ]
-
-    # manually set name attribute
-    return_value[0].configure_mock(name="TestSharePointSite")
-    return_value[1].configure_mock(name="TestSite2")
+    # Manually setting the name attribute post-creation
+    site_details[0].configure_mock(name="TestSharePointSite")
+    site_details[1].configure_mock(name="TestSite2")
 
     mock_GraphServiceClient.sites.get_all_sites.get.return_value = MagicMock(
-        value=return_value
+        value=site_details
     )
 
-    # mock for _get_site_pages
-    return_value = [
-        MagicMock(
-            title="Welcome Page",
-            id="page1",
-            web_url="https://sharepoint.sample.com/pages/page1",
-        ),
-        MagicMock(
-            title="Frequently Asked Questions",
-            id="page2",
-            web_url="https://sharepoint.sample.com/pages/page2",
-        ),
-    ]
-    mock_GraphServiceClient.by_site_id.return_value.pages.graph_site_page.get.return_value = MagicMock(
-        value=return_value
+    # Mock for _get_site_pages
+    page_details = MagicMock(
+        value=[
+            MagicMock(
+                title="Welcome Page",
+                id="page1",
+                web_url="https://sharepoint.sample.com/pages/page1",
+            ),
+            MagicMock(
+                title="Frequently Asked Questions",
+                id="page2",
+                web_url="https://sharepoint.sample.com/pages/page2",
+            ),
+        ]
     )
 
-    # mock for _get_webParts_HTML
-    return_value = [
+    mock_by_site_id = MagicMock()
+    mock_by_site_id.pages.graph_site_page.get = AsyncMock(return_value=page_details)
+    mock_GraphServiceClient.sites.by_site_id = MagicMock(return_value=mock_by_site_id)
+
+    # Mock for _get_webParts_HTML
+    web_parts_details = [
         MagicMock(inner_html="<div>Hello</div>"),
-        MagicMock(value="<div>Hello</div>"),  # test for not inner_html
         MagicMock(inner_html="<div>World</div>"),
     ]
-    mock_GraphServiceClient.by_site_id.return_value.pages.by_base_site_page_id.graph_site_page.web_parts.get.return_value = MagicMock(
-        value=return_value
-    )
 
     return mock_GraphServiceClient
 
@@ -81,7 +80,7 @@ def mock_graph_client(mock_GraphServiceClient: AsyncMock) -> AsyncMock:
 @patch("metaphor.sharepoint.extractor.GraphServiceClient")
 def sharepoint_extractor(mock_ClientSecretCredential, mock_GraphServiceClient):
     mock_ClientSecretCredential = MagicMock()
-    mock_GraphServiceClient = mock_graph_client(AsyncMock())
+    mock_GraphServiceClient = mock_graph_client()
     extractor = SharepointExtractor(config=dummy_config)
     extractor.ClientSecretCredential = mock_ClientSecretCredential
     extractor.GraphServiceClient = mock_GraphServiceClient
@@ -104,7 +103,7 @@ sample_documents = [
 
 # test for _get_sites
 @pytest.mark.asyncio
-async def test_get_sites(sharepoint_extractor):
+async def test_get_sites(sharepoint_extractor: SharepointExtractor):
     sites = await sharepoint_extractor._get_sites()
     expected_sites = {"TestSharePointSite": "siteId_1", "TestSite2": "siteId_2"}
     assert sites == expected_sites
@@ -112,7 +111,7 @@ async def test_get_sites(sharepoint_extractor):
 
 # test for _get_site_pages
 @pytest.mark.asyncio
-async def test_get_site_pages(sharepoint_extractor):
+async def test_get_site_pages(sharepoint_extractor: SharepointExtractor):
     pages = await sharepoint_extractor._get_site_pages("siteId_1")
     expected_pages = [
         ("Welcome Page", "page1", "https://sharepoint.sample.com/pages/page1"),
@@ -127,7 +126,7 @@ async def test_get_site_pages(sharepoint_extractor):
 
 # test for _get_webParts_HTML
 @pytest.mark.asyncio
-async def test_get_webParts_HTML(sharepoint_extractor):
+async def test_get_webParts_HTML(sharepoint_extractor: SharepointExtractor):
     html_content = await sharepoint_extractor._get_webParts_HTML("siteId_1", "page1")
     expected_html = "<div>Hello</div>\n<div>World</div>"
     assert html_content == expected_html
