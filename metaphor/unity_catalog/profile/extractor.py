@@ -62,7 +62,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
 
     def __init__(self, config: UnityCatalogRunConfig):
         super().__init__(config)
-        self._api = create_api(config.hostname, config.token)
+        self._api = create_api(f"https://{config.hostname}", config.token)
         self._connection = create_connection(
             config.token, config.hostname, config.http_path
         )

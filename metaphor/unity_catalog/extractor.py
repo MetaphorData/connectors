@@ -108,7 +108,7 @@ class UnityCatalogExtractor(BaseExtractor):
             else config.source_url
         )
 
-        self._api = create_api(config.hostname, config.token)
+        self._api = create_api(f"https://{config.hostname}", config.token)
         self._connection = create_connection(
             token=config.token,
             server_hostname=config.hostname,
