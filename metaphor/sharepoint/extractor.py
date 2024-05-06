@@ -3,8 +3,6 @@ from typing import Collection, Dict, Tuple
 
 from azure.identity.aio import ClientSecretCredential
 from llama_index.core import Document
-
-# from llama_index.readers.microsoft_sharepoint import SharePointReader
 from msgraph_beta import GraphServiceClient
 from msgraph_beta.generated.sites.sites_request_builder import SitesRequestBuilder
 
@@ -59,8 +57,6 @@ class SharepointExtractor(BaseExtractor):
         self.GraphServiceClient = GraphServiceClient(
             credentials=self.ClientSecretCredential
         )
-
-        # TODO: Initialize SharePointReader if dependencies are OK
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Getting documents from Sharepoint instance.")

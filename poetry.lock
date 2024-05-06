@@ -2756,21 +2756,6 @@ llama-index-core = ">=0.10.7,<0.11.0"
 llama-parse = ">=0.4.0,<0.5.0"
 
 [[package]]
-name = "llama-index-readers-microsoft-sharepoint"
-version = "0.1.7"
-description = "llama-index readers microsoft_sharepoint integration"
-optional = true
-python-versions = "<4.0,>=3.8.1"
-files = [
-    {file = "llama_index_readers_microsoft_sharepoint-0.1.7-py3-none-any.whl", hash = "sha256:9dfd540faa789d596a6dd564d0375109647f1f4f5cefdc05bb4d400f84c6b5ec"},
-    {file = "llama_index_readers_microsoft_sharepoint-0.1.7.tar.gz", hash = "sha256:f4599379445926672e6769c49c0749f473ad8f7c9680cf2f7251b71d5d41bad6"},
-]
-
-[package.dependencies]
-llama-index-core = ">=0.10.1,<0.11.0"
-requests = ">=2.31.0,<3.0.0"
-
-[[package]]
 name = "llama-index-readers-notion"
 version = "0.1.6"
 description = "llama-index readers notion integration"
@@ -6278,7 +6263,7 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "llama-index-readers-microsoft-sharepoint", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pyhive", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "grpcio-tools", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "parse", "pycarlo", "pyhive", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "sql-metadata", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
@@ -6309,4 +6294,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "3fd331dc5ac4739e392b48a1e066559a1bec7e33e588366beba06d2c4a655faa"
+content-hash = "f2912e405a4e7703fbfdd38bccb8c78d352a6e754ae1941ce16c815d54a49e8e"
