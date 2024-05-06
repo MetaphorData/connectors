@@ -22,7 +22,11 @@ class UnityCatalogQueryLogConfig:
 
 @dataclass(config=ConnectorConfig)
 class UnityCatalogRunConfig(BaseConfig):
-    host: str
+    # cluster/warehouse hostname & HTTP path
+    hostname: str
+    http_path: str
+
+    # API token
     token: str
 
     # Override the URL for each dataset
@@ -30,12 +34,6 @@ class UnityCatalogRunConfig(BaseConfig):
 
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
-
-    # The id of warehouse which will run the sql
-    warehouse_id: Optional[str] = None
-
-    # cluster http path
-    cluster_path: Optional[str] = None
 
     # configs for fetching query logs
     query_log: UnityCatalogQueryLogConfig = field(

@@ -30,7 +30,8 @@ from tests.test_utils import load_json, wrap_query_log_stream_to_event
 
 def dummy_config():
     return UnityCatalogRunConfig(
-        host="http://dummy.host",
+        hostname="dummy.host",
+        http_path="path",
         token="",
         output=OutputConfig(),
     )
@@ -246,7 +247,7 @@ def test_source_url(
     extractor = UnityCatalogExtractor(config)
     assert (
         extractor._get_source_url("db", "schema", "table")
-        == "http://dummy.host/explore/data/db/schema/table"
+        == "https://dummy.host/explore/data/db/schema/table"
     )
 
     # Manual override with escaped characters

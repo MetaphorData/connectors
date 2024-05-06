@@ -102,16 +102,17 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def __init__(self, config: UnityCatalogRunConfig):
         super().__init__(config)
-        self._host = config.host
-        self._token = config.token
-        self._source_url = config.source_url
-        self._api = create_api(self._host, self._token)
+        self._source_url = (
+            f"https://{config.hostname}" + "/explore/data/{catalog}/{schema}/{table}"
+            if config.source_url is None
+            else config.source_url
+        )
+
+        self._api = create_api(config.hostname, config.token)
         self._connection = create_connection(
-            self._api,
-            self._token,
-            config.warehouse_id,
-            cluster_hostname=config.host,
-            cluster_path=config.cluster_path,
+            token=config.token,
+            server_hostname=config.hostname,
+            http_path=config.http_path,
         )
 
         self._datasets: Dict[str, Dataset] = {}
@@ -173,12 +174,7 @@ class UnityCatalogExtractor(BaseExtractor):
             yield table
 
     def _get_source_url(self, database: str, schema_name: str, table_name: str):
-        url = (
-            f"{self._host}/explore/data/{{catalog}}/{{schema}}/{{table}}"
-            if self._source_url is None
-            else self._source_url
-        )
-
+        url = self._source_url
         url = URL_DATABASE_RE.sub(urllib.parse.quote(database), url)
         url = URL_SCHEMA_RE.sub(urllib.parse.quote(schema_name), url)
         url = URL_TABLE_RE.sub(urllib.parse.quote(table_name), url)
