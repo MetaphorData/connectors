@@ -7,13 +7,10 @@ from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.tag_matcher import TagMatcher
 from metaphor.snowflake.auth import SnowflakeAuthConfig
-from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE
+from metaphor.snowflake.utils import DEFAULT_MAX_QUERY_SIZE, DEFAULT_THREAD_POOL_SIZE
 
 # number of query logs to fetch from Snowflake in one batch
 DEFAULT_QUERY_LOG_FETCH_SIZE = 100000
-
-# By default ignore queries larger than 512KiB
-DEFAULT_MAX_QUERY_SIZE = 512 * 1024
 
 
 @dataclass(config=ConnectorConfig)

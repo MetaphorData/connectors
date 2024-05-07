@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 from concurrent import futures
 from dataclasses import dataclass
@@ -23,6 +24,11 @@ logger.setLevel(logging.INFO)
 
 DEFAULT_THREAD_POOL_SIZE = 10
 DEFAULT_SLEEP_TIME = 0.1  # 0.1 s
+
+DEFAULT_MAX_QUERY_SIZE = 1000000
+"""
+By default ignore queries longer than 100K characters
+"""
 
 
 class SnowflakeTableType(Enum):
@@ -270,3 +276,28 @@ def append_column_system_tag(
     field = next((f for f in fields if is_target_field(f)), None)
     if field:
         _update_field_system_tag(field, system_tag)
+
+
+def truncate_query_text(
+    sql: str, max_query_length: int = DEFAULT_MAX_QUERY_SIZE
+) -> str:
+    """
+    If we encounter an `INSERT INTO` query that's longer than Snowflake's allowed query length in
+    `QUERY_HISTORY` view, we drop the actual values and add a single all-null row into the table
+    definition expression. E.g. the truncated query becomes
+    ```sql
+    INSERT INTO table (col1, col2, ...) VALUES (NULL, NULL, ...)
+    ```
+    """
+    if len(sql) < max_query_length:
+        return sql
+
+    pattern = r"insert into [^\(]+ \((?P<columns>[^\)]+)\) values"
+    matched = next((re.finditer(pattern, sql, re.IGNORECASE)), None)
+    if matched is None or matched.span()[0] != 0:
+        return sql
+
+    column_count = len(matched["columns"].split(","))
+    return (
+        f"{sql[:matched.span()[-1]]} ({', '.join('NULL' for _ in range(column_count))})"
+    )
