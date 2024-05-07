@@ -4,7 +4,7 @@
 
 Breaking changes: https://github.com/MetaphorData/connectors/issues/621
 
-A deprecate connector has been dropped:
+A deprecated connector has been dropped:
 - [Drop redshift.lineage connector](https://github.com/MetaphorData/connectors/pull/854)
 
 We have also introduced [breaking changes](https://github.com/MetaphorData/connectors/pull/857) to the configs for `unity_catalog` & `unity_catalog.profile` connectors. Please replace `host`, `warehouse_id`, and `cluster_path` with `hostname` & `http_path`. Use [this page](https://docs.databricks.com/en/integrations/compute-details.html) to find the values for the new configs.
