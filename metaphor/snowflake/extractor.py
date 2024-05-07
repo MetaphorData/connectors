@@ -70,11 +70,11 @@ from metaphor.snowflake.utils import (
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
+    fix_truncated_query_text,
     str_to_source_type,
     str_to_stream_type,
     table_type_to_materialization_type,
     to_quoted_identifier,
-    truncate_query_text,
 )
 
 logger = get_logger()
@@ -805,8 +805,7 @@ class SnowflakeExtractor(BaseExtractor):
                 )
 
                 # Skip large queries
-                sql_length = len(query_text)
-                if sql_length > self._query_log_max_query_size:
+                if len(query_text) > self._query_log_max_query_size:
                     continue
 
                 # User IDs can be an email address
@@ -830,7 +829,7 @@ class SnowflakeExtractor(BaseExtractor):
                     bytes_written=safe_float(bytes_written),
                     sources=sources,
                     targets=targets,
-                    sql=truncate_query_text(query_text),
+                    sql=fix_truncated_query_text(query_text),
                     sql_hash=query_hash,
                 )
 

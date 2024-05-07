@@ -25,11 +25,6 @@ logger.setLevel(logging.INFO)
 DEFAULT_THREAD_POOL_SIZE = 10
 DEFAULT_SLEEP_TIME = 0.1  # 0.1 s
 
-DEFAULT_MAX_QUERY_SIZE = 1000000
-"""
-By default ignore queries longer than 100K characters
-"""
-
 
 class SnowflakeTableType(Enum):
     """
@@ -278,11 +273,15 @@ def append_column_system_tag(
         _update_field_system_tag(field, system_tag)
 
 
-def truncate_query_text(sql: str) -> str:
+def fix_truncated_query_text(sql: str) -> str:
     """
     If we encounter an `INSERT INTO` query that has been truncated when we fetch it from
     `QUERY_HISTORY` view, we drop the actual values and add a single all-null row into
-    the table definition expression. E.g. the truncated query becomes
+    the table definition expression. E.g. for a truncated, unterminated query
+    ```sql
+    INSERT INTO table (col1, col2, ...) VALUE (v1, v2, ...), ..., (vn1, vn2
+    ```
+    our logic turns it into
     ```sql
     INSERT INTO table (col1, col2, ...) VALUES (NULL, NULL, ...)
     ```
