@@ -278,23 +278,19 @@ def append_column_system_tag(
         _update_field_system_tag(field, system_tag)
 
 
-def truncate_query_text(
-    sql: str, max_query_length: int = DEFAULT_MAX_QUERY_SIZE
-) -> str:
+def truncate_query_text(sql: str) -> str:
     """
-    If we encounter an `INSERT INTO` query that's longer than Snowflake's allowed query length in
-    `QUERY_HISTORY` view, we drop the actual values and add a single all-null row into the table
-    definition expression. E.g. the truncated query becomes
+    If we encounter an `INSERT INTO` query that has been truncated when we fetch it from
+    `QUERY_HISTORY` view, we drop the actual values and add a single all-null row into
+    the table definition expression. E.g. the truncated query becomes
     ```sql
     INSERT INTO table (col1, col2, ...) VALUES (NULL, NULL, ...)
     ```
     """
-    if len(sql) < max_query_length:
-        return sql
 
     pattern = r"insert into [^\(]+ \((?P<columns>[^\)]+)\) values"
     matched = next((re.finditer(pattern, sql, re.IGNORECASE)), None)
-    if matched is None or matched.span()[0] != 0:
+    if matched is None or matched.span()[0] != 0 or sql[-1] == ")":
         return sql
 
     column_count = len(matched["columns"].split(","))

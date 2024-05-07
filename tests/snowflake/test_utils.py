@@ -9,8 +9,7 @@ def test_to_quoted_identifier():
 
 def test_truncate_query_text():
     truncated = truncate_query_text(
-        'INSERT INTO tb (col1, col2, col3, col4) VALUES ("Hey, I just met you,", "And this is crazy,", "But here\'s my number,", "So call me, maybe?")',  # Some joke I saw some time ago: https://stackoverflow.com/questions/2139812/what-is-a-callback
-        max_query_length=50,
+        'INSERT INTO tb (col1, col2, col3, col4) VALUES ("Hey, I just met you,", "And this is crazy,", "But here\'s my number,", "So call me, maybe',  # Some joke I saw some time ago: https://stackoverflow.com/questions/2139812/what-is-a-callback
     )
 
     assert (
