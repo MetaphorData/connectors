@@ -12,8 +12,8 @@ from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE
 # number of query logs to fetch from Snowflake in one batch
 DEFAULT_QUERY_LOG_FETCH_SIZE = 100000
 
-# By default ignore queries larger than 512KiB
-DEFAULT_MAX_QUERY_SIZE = 512 * 1024
+# By default ignore queries longer than 100K characters
+DEFAULT_MAX_QUERY_SIZE = 100_000
 
 
 @dataclass(config=ConnectorConfig)

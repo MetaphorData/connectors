@@ -1,5 +1,4 @@
 import logging
-import re
 import time
 from concurrent import futures
 from dataclasses import dataclass
@@ -271,28 +270,3 @@ def append_column_system_tag(
     field = next((f for f in fields if is_target_field(f)), None)
     if field:
         _update_field_system_tag(field, system_tag)
-
-
-def fix_truncated_query_text(sql: str) -> str:
-    """
-    If we encounter an `INSERT INTO` query that has been truncated when we fetch it from
-    `QUERY_HISTORY` view, we drop the actual values and add a single all-null row into
-    the table definition expression. E.g. for a truncated, unterminated query
-    ```sql
-    INSERT INTO table (col1, col2, ...) VALUE (v1, v2, ...), ..., (vn1, vn2
-    ```
-    our logic turns it into
-    ```sql
-    INSERT INTO table (col1, col2, ...) VALUES (NULL, NULL, ...)
-    ```
-    """
-
-    pattern = r"insert into [^\(]+ \((?P<columns>[^\)]+)\) values"
-    matched = next((re.finditer(pattern, sql, re.IGNORECASE)), None)
-    if matched is None or matched.span()[0] != 0 or sql[-1] == ")":
-        return sql
-
-    column_count = len(matched["columns"].split(","))
-    return (
-        f"{sql[:matched.span()[-1]]} ({', '.join('NULL' for _ in range(column_count))})"
-    )
