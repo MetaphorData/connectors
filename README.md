@@ -85,7 +85,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [thought_spot](metaphor/thought_spot/)                            | Dashboard, lineage                       |
 | [trino](metaphor/trino/)                                          | Schema, description, queries             |
 | [unity_catalog](metaphor/unity_catalog/)                          | Schema, description                      |
-| [unity_catalog.profile](metaphor/unity_catalog/profile/)          | Statistics                               |
+| [unity_catalog.profile](metaphor/unity_catalog/profile/)          | Data profile, statistics                 |
 
 ## Development
 
