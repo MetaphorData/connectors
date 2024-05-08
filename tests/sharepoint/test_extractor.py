@@ -87,7 +87,9 @@ def mock_graph_client() -> AsyncMock:
 @pytest.fixture
 @patch("metaphor.sharepoint.extractor.ClientSecretCredential")
 @patch("metaphor.sharepoint.extractor.GraphServiceClient")
-def sharepoint_extractor(mock_ClientSecretCredential, mock_GraphServiceClient, include_text: bool = True):
+def sharepoint_extractor(
+    mock_ClientSecretCredential, mock_GraphServiceClient, include_text: bool = True
+):
     mock_ClientSecretCredential = MagicMock()
     mock_GraphServiceClient = mock_graph_client()
     extractor = SharepointExtractor(config=get_dummy_config(include_text))
@@ -213,8 +215,11 @@ async def test_extract(
         "site123", "page123"
     )
 
+
 # test for extract with include_text=False
-@pytest.mark.parametrize('sharepoint_extractor', [False], indirect=['sharepoint_extractor'])
+@pytest.mark.parametrize(
+    "sharepoint_extractor", [False], indirect=["sharepoint_extractor"]
+)
 @patch("metaphor.sharepoint.extractor.SharepointExtractor._get_sites")
 @patch("metaphor.sharepoint.extractor.embed_documents")
 @pytest.mark.asyncio
@@ -243,9 +248,7 @@ async def test_extract_no_include(
                 },
             }
         },
-        "doc_store": {
-            "docstore/data": {"page123": {"__data__": {"text": ""}}}
-        },
+        "doc_store": {"docstore/data": {"page123": {"__data__": {"text": ""}}}},
     }
 
     # mock embed_documents to return the simulated vector store index
