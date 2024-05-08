@@ -76,6 +76,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [power_bi](metaphor/power_bi/)                                    | Dashboard, lineage                       |
 | [redshift](metaphor/redshift/)                                    | Schema, description, statistics, queries |
 | [redshift.profile](metaphor/redshift/profile/)                    | Data profile                             |
+| [sharepoint](metaphor/sharepoint/)                                | Document embeddings                      |
 | [snowflake](metaphor/snowflake/)                                  | Schema, description, statistics, queries |
 | [snowflake.lineage](metaphor/snowflake/lineage/)                  | Lineage                                  |
 | [snowflake.profile](metaphor/snowflake/profile/)                  | Data profile                             |

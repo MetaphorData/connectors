@@ -3,6 +3,8 @@ from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
 from typing import Any, Callable, Dict, List, Optional, Union
 
+from bs4 import BeautifulSoup
+from bs4.element import Comment
 from dateutil.parser import isoparse
 from pydantic import validate_email
 
@@ -172,3 +174,29 @@ def is_email(email: str) -> bool:
     except (ValueError, AssertionError):
         return False
     return True
+
+
+def text_from_HTML(html_content: str) -> str:
+    """
+    Extracts and returns visible text from given HTML content as a single string.
+    """
+
+    def filter_visible(el):
+        if el.parent.name in [
+            "style",
+            "script",
+            "head",
+            "title",
+            "meta",
+            "[document]",
+        ]:
+            return False
+        elif isinstance(el, Comment):
+            return False
+        else:
+            return True
+
+    # Use bs4 to find visible text elements
+    soup = BeautifulSoup(html_content, "lxml")
+    visible_text = filter(filter_visible, soup.findAll(string=True))
+    return "\n".join(t.strip() for t in visible_text)
