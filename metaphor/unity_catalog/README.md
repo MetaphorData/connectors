@@ -17,9 +17,12 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 ```yaml
-host: <workspace_url>
+hostname: <cluster_or_warehouse_hostname>
+http_path: <http_path>
 token: <access_token>
 ```
+
+See [this page](https://docs.databricks.com/en/integrations/compute-details.html) for details on how to set the values for `hostname` and `http_path`.
 
 ### Optional Configurations
 
@@ -31,19 +34,10 @@ See [Output Config](../common/docs/output.md) for more information.
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
-#### Cluster Path
-
-To run the queries using a compute cluster, add its cluster path in the configuration file:
-
-```yaml
-cluster_path: <cluster_path>
-```
-
-You can find the cluster path in your Databricks workspace by following the [Databricks documentation](https://docs.databricks.com/en/integrations/compute-details.html) instructions.
-
 #### Source URL
 
-By default, each table is associated with a Unity Catalog URL derived from the `host` config.
+By default, each table is associated with a Unity Catalog URL derived from the `hostname` config.
+
 You can override this by specifying your own URL built from the catalog, schema, and table names:
 
 ```yaml
