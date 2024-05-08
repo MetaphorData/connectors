@@ -30,12 +30,12 @@ azure_openAI_endpoint: <azure_openAI_endpoint>
 
 These defaults are provided; you don't have to manually configure them.
 
-`include_text` refers to if you'd like to include the original document text alongside the embedded content.
+`include_text` specifies whether to include the original document text alongside the embedded content.
 
 ```yaml
-azure_openAI_version: <azure_openAI_version> # "2023-12-01-preview"
-azure_openAI_model_name: <azure_openAI_model_name> # "Embedding_ada002"
-azure_openAI_model: <azure_openAI_model> # "text-embedding-ada-002"
+azure_openAI_version: <azure_openAI_version> # "2024-03-01-preview"
+azure_openAI_model_name: <azure_openAI_model_name> # "Embedding_3_small"
+azure_openAI_model: <azure_openAI_model> # "text-embedding-3-small"
 
 include_text: <include_text> # False
 ```
