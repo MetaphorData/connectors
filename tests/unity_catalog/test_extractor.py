@@ -271,6 +271,9 @@ async def test_extractor(
     mock_cursor.fetchall = MagicMock()
     mock_cursor.fetchall.side_effect = [
         [
+            ("/Volumes/catalog2/schema/volume", "volume", "100000", 1715273354000)
+        ],
+        [
             ("catalog_tag_key_1", "catalog_tag_value_1"),
             ("catalog_tag_key_2", "catalog_tag_value_2"),
         ],
@@ -329,7 +332,7 @@ def test_source_url(
     )
     assert (
         extractor._get_volume_source_url("db", "schema", "table")
-        == "http://dummy.host/explore/volume/db/schema/table"
+        == "http://dummy.host/explore/data/volumes/db/schema/table"
     )
 
     # Manual override with escaped characters
