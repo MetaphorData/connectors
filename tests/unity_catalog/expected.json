@@ -1,6 +1,61 @@
 [
   {
     "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "catalog2.schema.volume",
+      "platform": "UNITY_CATALOG"
+    },
+    "schema": {},
+    "sourceInfo": {
+      "createdAtSource": "2024-04-25T08:39:38.658000+00:00",
+      "lastUpdated": "2024-04-25T08:39:38.658000+00:00",
+      "mainUrl": "https://dummy.host/explore/data/volumes/catalog2/schema/volume"
+    },
+    "structure": {
+      "database": "catalog2",
+      "schema": "schema",
+      "table": "volume"
+    },
+    "unityCatalog": {
+      "datasetType": "UNITY_CATALOG_VOLUME",
+      "volumeInfo": {
+        "storageLocation": "s3://path",
+        "type": "EXTERNAL",
+        "volumeFiles": [
+          {
+            "entityId": "DATASET~9BFB3B2FECEE25FA058A5B643DC23763",
+            "modification_time": "2024-05-09T16:49:14+00:00",
+            "name": "volume",
+            "path": "/Volumes/catalog2/schema/volume",
+            "size": 100000.0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "/Volumes/catalog2/schema/volume",
+      "platform": "UNITY_CATALOG_VOLUME_FILE"
+    },
+    "sourceInfo": {
+      "lastUpdated": "2024-05-09T16:49:14+00:00"
+    },
+    "statistics": {
+      "dataSizeBytes": 100000.0
+    },
+    "unityCatalog": {
+      "datasetType": "UNITY_CATALOG_VOLUME_FILE",
+      "volumeEntityId": "DATASET~092AF608159B9AFA42056BE8EFFFED25"
+    }
+  },
+  {
+    "entityUpstream": {
       "fieldMappings": [
         {
           "destination": "col1",
@@ -89,16 +144,19 @@
       ]
     },
     "unityCatalog": {
-      "dataSourceFormat": "CSV",
-      "owner": "foo@bar.com",
-      "properties": [
-        {
-          "key": "delta.lastCommitTimestamp",
-          "value": "\"1664444422000\""
-        }
-      ],
-      "storageLocation": "s3://path",
-      "tableType": "MANAGED"
+      "datasetType": "UNITY_CATALOG_TABLE",
+      "tableInfo": {
+        "dataSourceFormat": "CSV",
+        "owner": "foo@bar.com",
+        "properties": [
+          {
+            "key": "delta.lastCommitTimestamp",
+            "value": "\"1664444422000\""
+          }
+        ],
+        "storageLocation": "s3://path",
+        "type": "MANAGED"
+      }
     }
   },
   {
@@ -157,70 +215,73 @@
       ]
     },
     "unityCatalog": {
-      "owner": "foo@bar.com",
-      "properties": [
-        {
-          "key": "view.catalogAndNamespace.numParts",
-          "value": "\"2\""
-        },
-        {
-          "key": "view.sqlConfig.spark.sql.hive.convertCTAS",
-          "value": "\"true\""
-        },
-        {
-          "key": "view.query.out.col.0",
-          "value": "\"key\""
-        },
-        {
-          "key": "view.sqlConfig.spark.sql.parquet.compression.codec",
-          "value": "\"snappy\""
-        },
-        {
-          "key": "view.query.out.numCols",
-          "value": "\"3\""
-        },
-        {
-          "key": "view.referredTempViewNames",
-          "value": "\"[]\""
-        },
-        {
-          "key": "view.query.out.col.1",
-          "value": "\"values\""
-        },
-        {
-          "key": "view.sqlConfig.spark.sql.streaming.stopTimeout",
-          "value": "\"15s\""
-        },
-        {
-          "key": "view.catalogAndNamespace.part.0",
-          "value": "\"catalog\""
-        },
-        {
-          "key": "view.sqlConfig.spark.sql.sources.commitProtocolClass",
-          "value": "\"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\""
-        },
-        {
-          "key": "view.sqlConfig.spark.sql.sources.default",
-          "value": "\"delta\""
-        },
-        {
-          "key": "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault",
-          "value": "\"false\""
-        },
-        {
-          "key": "view.query.out.col.2",
-          "value": "\"nested_values\""
-        },
-        {
-          "key": "view.referredTempFunctionsNames",
-          "value": "\"[]\""
-        },
-        {
-          "key": "view.catalogAndNamespace.part.1",
-          "value": "\"default\""
-        }
-      ],
-      "tableType": "VIEW"
+      "datasetType": "UNITY_CATALOG_TABLE",
+      "tableInfo": {
+        "owner": "foo@bar.com",
+        "properties": [
+          {
+            "key": "view.catalogAndNamespace.numParts",
+            "value": "\"2\""
+          },
+          {
+            "key": "view.sqlConfig.spark.sql.hive.convertCTAS",
+            "value": "\"true\""
+          },
+          {
+            "key": "view.query.out.col.0",
+            "value": "\"key\""
+          },
+          {
+            "key": "view.sqlConfig.spark.sql.parquet.compression.codec",
+            "value": "\"snappy\""
+          },
+          {
+            "key": "view.query.out.numCols",
+            "value": "\"3\""
+          },
+          {
+            "key": "view.referredTempViewNames",
+            "value": "\"[]\""
+          },
+          {
+            "key": "view.query.out.col.1",
+            "value": "\"values\""
+          },
+          {
+            "key": "view.sqlConfig.spark.sql.streaming.stopTimeout",
+            "value": "\"15s\""
+          },
+          {
+            "key": "view.catalogAndNamespace.part.0",
+            "value": "\"catalog\""
+          },
+          {
+            "key": "view.sqlConfig.spark.sql.sources.commitProtocolClass",
+            "value": "\"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\""
+          },
+          {
+            "key": "view.sqlConfig.spark.sql.sources.default",
+            "value": "\"delta\""
+          },
+          {
+            "key": "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault",
+            "value": "\"false\""
+          },
+          {
+            "key": "view.query.out.col.2",
+            "value": "\"nested_values\""
+          },
+          {
+            "key": "view.referredTempFunctionsNames",
+            "value": "\"[]\""
+          },
+          {
+            "key": "view.catalogAndNamespace.part.1",
+            "value": "\"default\""
+          }
+        ],
+        "type": "VIEW"
+      }
     }
   },
   {
@@ -231,9 +292,7 @@
           "sources": []
         }
       ],
-      "sourceEntities": [
-        "DATASET~8316CF8E20BB7C020D9505D87408823A"
-      ]
+      "sourceEntities": []
     },
     "logicalId": {
       "name": "catalog2.schema.table2",
@@ -258,76 +317,30 @@
     "sourceInfo": {
       "createdAtSource": "1970-01-01T00:00:00+00:00",
       "lastUpdated": "1970-01-01T00:00:00+00:00",
-      "mainUrl": "http://dummy.host/explore/data/catalog2/schema/table2"
+      "mainUrl": "https://dummy.host/explore/data/catalog2/schema/table2"
     },
     "structure": {
       "database": "catalog2",
       "schema": "schema",
       "table": "table2"
     },
+    "systemTags": {
+      "tags": []
+    },
     "unityCatalog": {
-      "dataSourceFormat": "DELTA",
-      "owner": "foo@bar.com",
-      "properties": [
-        {
-          "key": "delta.lastCommitTimestamp",
-          "value": "\"1664444422000\""
-        }
-      ],
-      "storageLocation": "s3://path",
-      "tableType": "MANAGED"
-    }
-  },
-  {
-    "entityUpstream": {
-      "sourceEntities": []
-    },
-    "logicalId": {
-      "name": "s3://path/input.csv",
-      "platform": "UNITY_CATALOG"
-    },
-    "schema": {
-      "sqlSchema": {
-        "materialization": "EXTERNAL"
+      "datasetType": "UNITY_CATALOG_TABLE",
+      "tableInfo": {
+        "dataSourceFormat": "DELTA",
+        "owner": "foo@bar.com",
+        "properties": [
+          {
+            "key": "delta.lastCommitTimestamp",
+            "value": "\"1664444422000\""
+          }
+        ],
+        "storageLocation": "s3://path",
+        "type": "MANAGED"
       }
-    },
-    "sourceInfo": {
-      "mainUrl": "http://dummy.host/explore/volume/catalog2/schema/volume"
-    },
-    "structure": {
-      "database": "catalog2",
-      "schema": "schema",
-      "table": "volume"
-    },
-    "unityCatalog": {
-      "storageLocation": "s3://path",
-      "tableType": "EXTERNAL"
-    }
-  },
-  {
-    "entityUpstream": {
-      "sourceEntities": []
-    },
-    "logicalId": {
-      "name": "s3://path/output.csv",
-      "platform": "UNITY_CATALOG"
-    },
-    "schema": {
-      "sqlSchema": {
-        "materialization": "EXTERNAL"
-      }
-    },
-    "sourceInfo": {
-      "mainUrl": "http://dummy.host/explore/volume/catalog2/schema/volume"
-    },
-    "structure": {
-      "database": "catalog2",
-      "schema": "schema",
-      "table": "volume"
-    },
-    "unityCatalog": {
-      "storageLocation": "s3://path",
-      "tableType": "EXTERNAL"
     }
   },
   {

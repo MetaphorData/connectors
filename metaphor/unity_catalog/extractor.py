@@ -812,8 +812,6 @@ class UnityCatalogExtractor(BaseExtractor):
 
         dataset.entity_upstream = EntityUpstream(source_entities=[])
 
-        dataset.structure = DatasetStructure()
-
         self._datasets[path] = dataset
 
         return dataset
