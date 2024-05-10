@@ -298,7 +298,7 @@ class UnityCatalogExtractor(BaseExtractor):
         return dataset
 
     def _get_location_url(self, location_name: str):
-        url = f"{self._hostname}/explore/location/{location_name}/browse"
+        url = f"https://{self._hostname}/explore/location/{location_name}/browse"
         return url
 
     def _table_logical_id(
