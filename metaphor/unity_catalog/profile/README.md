@@ -17,9 +17,12 @@ Create a YAML config file based on the following template.
 ### Required Configurations
 
 ```yaml
-host: <workspace_url>
+hostname: <cluster_or_warehouse_hostname>
+http_path: <http_path>
 token: <access_token>
 ```
+
+See [this page](https://docs.databricks.com/en/integrations/compute-details.html) for details on how to set the values for `hostname` and `http_path`.
 
 ### Optional Configurations
 

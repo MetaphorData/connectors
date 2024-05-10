@@ -75,8 +75,8 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [postgresql.usage](metaphor/postgresql/usage/)                    | Usage                                    |
 | [power_bi](metaphor/power_bi/)                                    | Dashboard, lineage                       |
 | [redshift](metaphor/redshift/)                                    | Schema, description, statistics, queries |
-| [redshift.lineage](metaphor/redshift/lineage/)                    | Lineage                                  |
 | [redshift.profile](metaphor/redshift/profile/)                    | Data profile                             |
+| [sharepoint](metaphor/sharepoint/)                                | Document embeddings                      |
 | [snowflake](metaphor/snowflake/)                                  | Schema, description, statistics, queries |
 | [snowflake.lineage](metaphor/snowflake/lineage/)                  | Lineage                                  |
 | [snowflake.profile](metaphor/snowflake/profile/)                  | Data profile                             |
@@ -84,9 +84,9 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [synapse](metaphor/synapse/)                                      | Schema, queries                          |
 | [tableau](metaphor/tableau/)                                      | Dashboard, lineage                       |
 | [thought_spot](metaphor/thought_spot/)                            | Dashboard, lineage                       |
-| [trino](metaphor/trino/)                                          | Schema, description, queries             |                       
+| [trino](metaphor/trino/)                                          | Schema, description, queries             |
 | [unity_catalog](metaphor/unity_catalog/)                          | Schema, description                      |
-| [unity_catalog.profile](metaphor/unity_catalog/profile/)          | Statistics                               |
+| [unity_catalog.profile](metaphor/unity_catalog/profile/)          | Data profile, statistics                 |
 
 ## Development
 

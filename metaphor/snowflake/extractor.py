@@ -804,7 +804,7 @@ class SnowflakeExtractor(BaseExtractor):
                 )
 
                 # Skip large queries
-                if len(query_text) >= self._query_log_max_query_size:
+                if len(query_text) > self._query_log_max_query_size:
                     continue
 
                 # User IDs can be an email address

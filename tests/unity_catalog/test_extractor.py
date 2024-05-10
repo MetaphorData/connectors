@@ -30,7 +30,8 @@ from tests.test_utils import load_json, wrap_query_log_stream_to_event
 
 def dummy_config():
     return UnityCatalogRunConfig(
-        host="http://dummy.host",
+        hostname="dummy.host",
+        http_path="path",
         token="",
         output=OutputConfig(),
     )
@@ -270,9 +271,7 @@ async def test_extractor(
     mock_cursor = MagicMock()
     mock_cursor.fetchall = MagicMock()
     mock_cursor.fetchall.side_effect = [
-        [
-            ("/Volumes/catalog2/schema/volume", "volume", "100000", 1715273354000)
-        ],
+        [("/Volumes/catalog2/schema/volume", "volume", "100000", 1715273354000)],
         [
             ("catalog_tag_key_1", "catalog_tag_value_1"),
             ("catalog_tag_key_2", "catalog_tag_value_2"),
@@ -328,11 +327,11 @@ def test_source_url(
     extractor = UnityCatalogExtractor(config)
     assert (
         extractor._get_table_source_url("db", "schema", "table")
-        == "http://dummy.host/explore/data/db/schema/table"
+        == "https://dummy.host/explore/data/db/schema/table"
     )
     assert (
         extractor._get_volume_source_url("db", "schema", "table")
-        == "http://dummy.host/explore/data/volumes/db/schema/table"
+        == "https://dummy.host/explore/data/volumes/db/schema/table"
     )
 
     # Manual override with escaped characters

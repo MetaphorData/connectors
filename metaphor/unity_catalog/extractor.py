@@ -3,11 +3,11 @@ import logging
 import re
 import urllib.parse
 from collections import defaultdict
+from datetime import datetime
 from itertools import chain
 from typing import Collection, Dict, Generator, Iterator, List, Optional, Tuple
-from datetime import datetime
 
-from databricks.sdk.service.catalog import TableInfo, TableType, VolumeInfo, VolumeType
+from databricks.sdk.service.catalog import TableInfo, TableType, VolumeInfo
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -24,8 +24,8 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DatasetStatistics,
     DatasetSchema,
+    DatasetStatistics,
     DatasetStructure,
     EntityUpstream,
     FieldMapping,
@@ -42,11 +42,11 @@ from metaphor.models.metadata_change_event import (
     SystemTags,
     SystemTagSource,
     UnityCatalog,
+    UnityCatalogDatasetType,
     UnityCatalogTableInfo,
+    UnityCatalogTableType,
     UnityCatalogVolumeInfo,
     UnityCatalogVolumeType,
-    UnityCatalogTableType,
-    UnityCatalogDatasetType,
     VolumeFile,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
@@ -83,6 +83,7 @@ TABLE_TYPE_MATERIALIZATION_TYPE_MAP = {
 }
 
 # For variable substitution in source URLs
+URL_PATH_RE = re.compile(r"{path}")
 URL_DATABASE_RE = re.compile(r"{catalog}")
 URL_SCHEMA_RE = re.compile(r"{schema}")
 URL_TABLE_RE = re.compile(r"{table}")
@@ -112,16 +113,18 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def __init__(self, config: UnityCatalogRunConfig):
         super().__init__(config)
-        self._host = config.host
-        self._token = config.token
-        self._source_url = config.source_url
-        self._api = create_api(self._host, self._token)
+        self._hostname = config.hostname
+        self._source_url = (
+            f"https://{config.hostname}/{{path}}/{{catalog}}/{{schema}}/{{table}}"
+            if config.source_url is None
+            else config.source_url
+        )
+
+        self._api = create_api(f"https://{config.hostname}", config.token)
         self._connection = create_connection(
-            self._api,
-            self._token,
-            config.warehouse_id,
-            cluster_hostname=config.host,
-            cluster_path=config.cluster_path,
+            token=config.token,
+            server_hostname=config.hostname,
+            http_path=config.http_path,
         )
 
         # Map fullname or volume path to a dataset
@@ -200,22 +203,20 @@ class UnityCatalogExtractor(BaseExtractor):
     def _get_table_source_url(
         self, database: str, schema_name: str, table_name: str
     ) -> str:
-        return self._get_source_url("data", database, schema_name, table_name)
+        return self._get_source_url("explore/data", database, schema_name, table_name)
 
     def _get_volume_source_url(
         self, database: str, schema_name: str, volume_name: str
     ) -> str:
-        return self._get_source_url("data/volumes", database, schema_name, volume_name)
-
-    def _get_source_url(
-        self, source_type: str, database: str, schema_name: str, table_name: str
-    ):
-        url = (
-            f"{self._host}/explore/{source_type}/{{catalog}}/{{schema}}/{{table}}"
-            if self._source_url is None
-            else self._source_url
+        return self._get_source_url(
+            "explore/data/volumes", database, schema_name, volume_name
         )
 
+    def _get_source_url(
+        self, path: str, database: str, schema_name: str, table_name: str
+    ):
+        url = self._source_url
+        url = URL_PATH_RE.sub(urllib.parse.quote(path), url)
         url = URL_DATABASE_RE.sub(urllib.parse.quote(database), url)
         url = URL_SCHEMA_RE.sub(urllib.parse.quote(schema_name), url)
         url = URL_TABLE_RE.sub(urllib.parse.quote(table_name), url)
@@ -297,7 +298,7 @@ class UnityCatalogExtractor(BaseExtractor):
         return dataset
 
     def _get_location_url(self, location_name: str):
-        url = f"{self._host}/explore/location/{location_name}/browse"
+        url = f"{self._hostname}/explore/location/{location_name}/browse"
         return url
 
     def _table_logical_id(
@@ -334,7 +335,7 @@ class UnityCatalogExtractor(BaseExtractor):
             return self._init_file(file_info)
 
         # if upstream is a volume file
-        if file_info.securable_type == "VOLUME":
+        if file_info.securable_name and file_info.securable_type == "VOLUME":
             volume_dataset = self._datasets.get(file_info.securable_name)
 
             if volume_dataset:
@@ -348,6 +349,7 @@ class UnityCatalogExtractor(BaseExtractor):
                     volume_info.storage_location, volume_prefix
                 )
                 return self._datasets.get(path)
+        return None
 
     def _process_table_lineage(
         self, dataset: Dataset, lineage: TableLineage
@@ -655,6 +657,10 @@ class UnityCatalogExtractor(BaseExtractor):
                 volume.catalog_name, volume.schema_name, volume.name
             )
         )
+
+        if not volume_dataset:
+            return
+
         with self._connection.cursor() as cursor:
             query = f"LIST '/Volumes/{volume.catalog_name}/{volume.schema_name}/{volume.name}'"
 
@@ -670,7 +676,7 @@ class UnityCatalogExtractor(BaseExtractor):
                     ),
                 )
 
-                if volume_dataset:
+                if volume_dataset and volume_file:
                     assert (
                         volume_dataset.unity_catalog.volume_info.volume_files
                         is not None
@@ -713,7 +719,11 @@ class UnityCatalogExtractor(BaseExtractor):
             platform=platform,
         )
 
-        main_url = self._get_location_url(file_info.securable_name)
+        main_url = (
+            self._get_location_url(file_info.securable_name)
+            if file_info.securable_name
+            else None
+        )
         dataset.source_info = SourceInfo(
             main_url=main_url,
         )
