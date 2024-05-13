@@ -25,11 +25,18 @@
         "type": "EXTERNAL",
         "volumeFiles": [
           {
-            "entityId": "DATASET~9BFB3B2FECEE25FA058A5B643DC23763",
+            "entityId": "DATASET~C109145C4035631CA68E19687464C80A",
             "modification_time": "2024-05-09T16:49:14+00:00",
-            "name": "volume",
-            "path": "/Volumes/catalog2/schema/volume",
+            "name": "input.csv",
+            "path": "/Volumes/catalog2/schema/volume/input.csv",
             "size": 100000.0
+          },
+          {
+            "entityId": "DATASET~3AC713F58F40836DEA91AF59F2AE4D7A",
+            "modification_time": "2024-05-09T18:12:34+00:00",
+            "name": "output.csv",
+            "path": "/Volumes/catalog2/schema/volume/output.csv",
+            "size": 200000.0
           }
         ]
       }
@@ -40,7 +47,7 @@
       "sourceEntities": []
     },
     "logicalId": {
-      "name": "/Volumes/catalog2/schema/volume",
+      "name": "/Volumes/catalog2/schema/volume/input.csv",
       "platform": "UNITY_CATALOG_VOLUME_FILE"
     },
     "sourceInfo": {
@@ -48,6 +55,27 @@
     },
     "statistics": {
       "dataSizeBytes": 100000.0
+    },
+    "unityCatalog": {
+      "datasetType": "UNITY_CATALOG_VOLUME_FILE",
+      "volumeEntityId": "DATASET~092AF608159B9AFA42056BE8EFFFED25"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~FDF012DB00302C39651E2FF173405230"
+      ]
+    },
+    "logicalId": {
+      "name": "/Volumes/catalog2/schema/volume/output.csv",
+      "platform": "UNITY_CATALOG_VOLUME_FILE"
+    },
+    "sourceInfo": {
+      "lastUpdated": "2024-05-09T18:12:34+00:00"
+    },
+    "statistics": {
+      "dataSizeBytes": 200000.0
     },
     "unityCatalog": {
       "datasetType": "UNITY_CATALOG_VOLUME_FILE",
@@ -292,7 +320,10 @@
           "sources": []
         }
       ],
-      "sourceEntities": []
+      "sourceEntities": [
+        "DATASET~C109145C4035631CA68E19687464C80A",
+        "DATASET~7027DB17D7A88FC1442608A7E5F79984"
+      ]
     },
     "logicalId": {
       "name": "catalog2.schema.table2",
@@ -341,6 +372,21 @@
         "storageLocation": "s3://path",
         "type": "MANAGED"
       }
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "s3://path/input2.csv",
+      "platform": "S3"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://dummy.host/explore/location/input2/browse"
+    },
+    "unityCatalog": {
+      "datasetType": "UNITY_CATALOG_EXTERNAL_LOCATION"
     }
   },
   {

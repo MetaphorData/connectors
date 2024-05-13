@@ -238,6 +238,16 @@ async def test_extractor(
                         has_permission=True,
                     ),
                 ),
+                LineageInfo(
+                    tableInfo=None,
+                    fileInfo=FileInfo(
+                        path="s3://path/input2.csv",
+                        securable_name="input2",
+                        securable_type="EXTERNAL_LOCATION",
+                        storage_location="s3://path",
+                        has_permission=True,
+                    ),
+                ),
             ],
             downstreams=[
                 LineageInfo(
@@ -271,7 +281,20 @@ async def test_extractor(
     mock_cursor = MagicMock()
     mock_cursor.fetchall = MagicMock()
     mock_cursor.fetchall.side_effect = [
-        [("/Volumes/catalog2/schema/volume", "volume", "100000", 1715273354000)],
+        [
+            (
+                "/Volumes/catalog2/schema/volume/input.csv",
+                "input.csv",
+                "100000",
+                1715273354000,
+            ),
+            (
+                "/Volumes/catalog2/schema/volume/output.csv",
+                "output.csv",
+                "200000",
+                1715278354000,
+            ),
+        ],
         [
             ("catalog_tag_key_1", "catalog_tag_value_1"),
             ("catalog_tag_key_2", "catalog_tag_value_2"),
@@ -340,6 +363,11 @@ def test_source_url(
     assert (
         extractor._get_table_source_url("d b", "<schema>", "{table}")
         == "http://metaphor.io/d%20b/%3Cschema%3E/%7Btable%7D"
+    )
+
+    assert (
+        extractor._get_location_url("foo")
+        == "https://dummy.host/explore/location/foo/browse"
     )
 
 

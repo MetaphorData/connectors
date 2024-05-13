@@ -384,12 +384,9 @@ class UnityCatalogExtractor(BaseExtractor):
                         f"cannot parse downstream volume file, {file_info.path}"
                     )
                     continue
-                downstream_sources_entities = (
-                    downstream_file.entity_upstream.source_entities
-                )
-                downstream_sources_entities = unique_list(
+                downstream_file.entity_upstream.source_entities = unique_list(
                     chain(
-                        downstream_sources_entities,
+                        downstream_file.entity_upstream.source_entities,
                         [str(to_dataset_entity_id_from_logical_id(dataset.logical_id))],
                     )
                 )
