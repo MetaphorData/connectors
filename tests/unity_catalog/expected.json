@@ -313,6 +313,10 @@
     }
   },
   {
+    "logicalId": {
+      "name": "catalog2.schema.table2",
+      "platform": "UNITY_CATALOG"
+    },
     "entityUpstream": {
       "fieldMappings": [
         {
@@ -324,10 +328,6 @@
         "DATASET~C109145C4035631CA68E19687464C80A",
         "DATASET~7027DB17D7A88FC1442608A7E5F79984"
       ]
-    },
-    "logicalId": {
-      "name": "catalog2.schema.table2",
-      "platform": "UNITY_CATALOG"
     },
     "schema": {
       "description": "example",
