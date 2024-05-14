@@ -36,15 +36,27 @@ def test_list_table_lineage():
                 {"fileInfo": {"path": "s3://path", "has_permission": True}},
                 {"tableInfo": {"has_permission": False}},
             ],
-            "downstreams": [],
+            "downstreams": [
+                {
+                    "fileInfo": {
+                        "path": "s3://path/file.csv",
+                        "has_permission": True,
+                        "securable_name": "db.schema.volume",
+                        "securable_type": "VOLUME",
+                        "storage_location": "s3://path",
+                    }
+                },
+                {"tableInfo": {"has_permission": False}},
+            ],
         }
     )
 
     result = list_table_lineage(client, "table")
 
-    assert not result.downstreams
     for upstream in result.upstreams:
         assert (upstream.fileInfo is not None) != (upstream.tableInfo is not None)
+    for downstream in result.downstreams:
+        assert (downstream.fileInfo is not None) != (downstream.tableInfo is not None)
 
 
 def test_list_table_lineage_unavailable_service():

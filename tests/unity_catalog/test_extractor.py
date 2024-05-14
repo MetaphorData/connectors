@@ -9,7 +9,7 @@ from databricks.sdk.service.catalog import (
     SchemaInfo,
 )
 from databricks.sdk.service.catalog import TableInfo as Table
-from databricks.sdk.service.catalog import TableType
+from databricks.sdk.service.catalog import TableType, VolumeInfo, VolumeType
 from databricks.sdk.service.sql import QueryInfo, QueryMetrics
 
 from metaphor.common.base_config import OutputConfig
@@ -119,6 +119,31 @@ async def test_extractor(
                 },
                 created_at=0,
             ),
+            Table(
+                name="table2",
+                catalog_name="catalog2",
+                schema_name="schema",
+                table_type=TableType.MANAGED,
+                data_source_format=DataSourceFormat.DELTA,
+                columns=[
+                    ColumnInfo(
+                        name="col1",
+                        type_name=ColumnTypeName.INT,
+                        type_precision=32,
+                        nullable=True,
+                        comment="some description",
+                    )
+                ],
+                storage_location="s3://path",
+                owner="foo@bar.com",
+                comment="example",
+                updated_at=0,
+                updated_by="foo@bar.com",
+                properties={
+                    "delta.lastCommitTimestamp": "1664444422000",
+                },
+                created_at=0,
+            ),
         ]
 
     def mock_list_query_history(
@@ -142,6 +167,28 @@ async def test_extractor(
             )
         ]
 
+    def mock_list_volumes(catalog, schema):
+        return [
+            VolumeInfo(
+                access_point=None,
+                catalog_name="catalog2",
+                comment=None,
+                created_at=1714034378658,
+                created_by="foo@bar.com",
+                encryption_details=None,
+                full_name="catalog2.schema.volume",
+                metastore_id="ashjkdhaskd",
+                name="volume",
+                owner="foo@bar.com",
+                schema_name="schema",
+                storage_location="s3://path",
+                updated_at=1714034378658,
+                updated_by="foo@bar.com",
+                volume_id="volume-id",
+                volume_type=VolumeType.EXTERNAL,
+            )
+        ]
+
     mock_client = MagicMock()
     mock_client.catalogs = MagicMock()
     mock_client.catalogs.list = mock_list_catalogs
@@ -151,6 +198,8 @@ async def test_extractor(
     mock_client.tables.list = mock_list_tables
     mock_client.query_history = MagicMock()
     mock_client.query_history.list = mock_list_query_history
+    mock_client.volumes = MagicMock()
+    mock_client.volumes.list = mock_list_volumes
     mock_list_table_lineage.side_effect = [
         TableLineage(
             upstreams=[
@@ -168,12 +217,51 @@ async def test_extractor(
                 ),
                 LineageInfo(
                     tableInfo=None,
-                    fileInfo=FileInfo(path="s3://path", has_permission=True),
+                    fileInfo=FileInfo(
+                        path="s3://path",
+                        has_permission=True,
+                    ),
                 ),
                 LineageInfo(tableInfo=NoPermission(), fileInfo=None),
             ],
         ),
         TableLineage(),
+        TableLineage(
+            upstreams=[
+                LineageInfo(
+                    tableInfo=None,
+                    fileInfo=FileInfo(
+                        path="s3://path/input.csv",
+                        securable_name="catalog2.schema.volume",
+                        securable_type="VOLUME",
+                        storage_location="s3://path",
+                        has_permission=True,
+                    ),
+                ),
+                LineageInfo(
+                    tableInfo=None,
+                    fileInfo=FileInfo(
+                        path="s3://path/input2.csv",
+                        securable_name="input2",
+                        securable_type="EXTERNAL_LOCATION",
+                        storage_location="s3://path",
+                        has_permission=True,
+                    ),
+                ),
+            ],
+            downstreams=[
+                LineageInfo(
+                    tableInfo=None,
+                    fileInfo=FileInfo(
+                        path="s3://path/output.csv",
+                        securable_name="catalog2.schema.volume",
+                        securable_type="VOLUME",
+                        storage_location="s3://path",
+                        has_permission=True,
+                    ),
+                ),
+            ],
+        ),
     ]
     mock_list_column_lineage.side_effect = [
         ColumnLineage(
@@ -185,13 +273,28 @@ async def test_extractor(
                     table_name="upstream",
                 )
             ]
-        )
+        ),
+        ColumnLineage(upstream_cols=[]),
     ]
     mock_create_api.return_value = mock_client
 
     mock_cursor = MagicMock()
     mock_cursor.fetchall = MagicMock()
     mock_cursor.fetchall.side_effect = [
+        [
+            (
+                "/Volumes/catalog2/schema/volume/input.csv",
+                "input.csv",
+                "100000",
+                1715273354000,
+            ),
+            (
+                "/Volumes/catalog2/schema/volume/output.csv",
+                "output.csv",
+                "200000",
+                1715278354000,
+            ),
+        ],
         [
             ("catalog_tag_key_1", "catalog_tag_value_1"),
             ("catalog_tag_key_2", "catalog_tag_value_2"),
@@ -246,16 +349,25 @@ def test_source_url(
     config = dummy_config()
     extractor = UnityCatalogExtractor(config)
     assert (
-        extractor._get_source_url("db", "schema", "table")
+        extractor._get_table_source_url("db", "schema", "table")
         == "https://dummy.host/explore/data/db/schema/table"
+    )
+    assert (
+        extractor._get_volume_source_url("db", "schema", "table")
+        == "https://dummy.host/explore/data/volumes/db/schema/table"
     )
 
     # Manual override with escaped characters
     config.source_url = "http://metaphor.io/{catalog}/{schema}/{table}"
     extractor = UnityCatalogExtractor(config)
     assert (
-        extractor._get_source_url("d b", "<schema>", "{table}")
+        extractor._get_table_source_url("d b", "<schema>", "{table}")
         == "http://metaphor.io/d%20b/%3Cschema%3E/%7Btable%7D"
+    )
+
+    assert (
+        extractor._get_location_url("foo")
+        == "https://dummy.host/explore/location/foo/browse"
     )
 
 
