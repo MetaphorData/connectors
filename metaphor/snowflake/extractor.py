@@ -38,6 +38,7 @@ from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import chunks, safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetPlatform,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -54,6 +55,7 @@ from metaphor.models.metadata_change_event import (
     SnowflakeStreamInfo,
     SourceInfo,
     SQLSchema,
+    SystemDescription,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -140,6 +142,9 @@ class SnowflakeExtractor(BaseExtractor):
                 if len(tables) == 0:
                     logger.info(f"Skip empty database {database}")
                     continue
+
+                self._fetch_database_comment(cursor)
+                self._fetch_schemas_comment(cursor)
 
                 logger.info(f"Include {len(tables)} tables from {database}")
 
@@ -487,18 +492,22 @@ class SnowflakeExtractor(BaseExtractor):
             hierarchy_key = dataset_normalized_name(database, object_name)
         logical_id = HierarchyLogicalID(path=path)
 
-        self._hierarchies.setdefault(
+        hierarchy = self._hierarchies.setdefault(
             hierarchy_key,
             Hierarchy(
-                logical_id=logical_id, system_tags=SystemTags(tags=[])
-            ),  # SystemTags.tags should never be empty
-        ).system_tags.tags.append(
-            SystemTag(
-                key=tag_key,
-                system_tag_source=SystemTagSource.SNOWFLAKE,
-                value=tag_value,
-            )
+                logical_id=logical_id,
+            ),
         )
+
+        system_tag = SystemTag(
+            key=tag_key,
+            system_tag_source=SystemTagSource.SNOWFLAKE,
+            value=tag_value,
+        )
+        if hierarchy.system_tags:
+            hierarchy.system_tags.tags.append(system_tag)
+        else:
+            hierarchy.system_tags = SystemTags(tags=[system_tag])
 
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
         query = """
@@ -949,3 +958,49 @@ class SnowflakeExtractor(BaseExtractor):
             )
 
         return queried_datasets
+
+    def _add_hierarchy_comment(
+        self,
+        database: str,
+        comment: str,
+        schema: Optional[str] = None,
+    ) -> None:
+        """
+        Adds a hierarchy description (i.e. a database-level or schema-level tag) to MCE.
+        """
+
+        if not comment:
+            return
+
+        # Set hierarchy key and logical_id
+        path = [DataPlatform.SNOWFLAKE.value, database.lower()] + (
+            [schema.lower()] if schema else []
+        )
+        logical_id = HierarchyLogicalID(path=path)
+        hierarchy_key = dataset_normalized_name(database, schema)
+
+        hierarchy = self._hierarchies.setdefault(
+            hierarchy_key,
+            Hierarchy(
+                logical_id=logical_id,
+            ),
+        )
+        hierarchy.system_description = SystemDescription(
+            platform=AssetPlatform.SNOWFLAKE, description=comment
+        )
+
+    def _fetch_database_comment(self, cursor: SnowflakeCursor) -> None:
+        cursor.execute(
+            "SELECT database_name, comment FROM information_schema.databases"
+        )
+
+        for database_name, comment in cursor:
+            self._add_hierarchy_comment(database_name, comment)
+
+    def _fetch_schemas_comment(self, cursor: SnowflakeCursor) -> None:
+        cursor.execute(
+            "SELECT catalog_name, schema_name, comment FROM information_schema.schemata WHERE schema_name != 'INFORMATION_SCHEMA'"
+        )
+
+        for database, schema, comment in cursor:
+            self._add_hierarchy_comment(database, schema=schema, comment=comment)
