@@ -33,6 +33,7 @@ SUPPORTED_OBJECT_DOMAIN_TYPES = (
     "TABLE",
     "VIEW",
     "MATERIALIZED VIEW",
+    "STREAM",
 )
 
 
@@ -81,7 +82,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
                     JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                         ON q.QUERY_ID = a.QUERY_ID
                     WHERE q.EXECUTION_STATUS = 'SUCCESS'
-                        AND ARRAY_SIZE(a.BASE_OBJECTS_ACCESSED) > 0
+                        AND ARRAY_SIZE(a.DIRECT_OBJECTS_ACCESSED) > 0
                         AND ARRAY_SIZE(a.OBJECTS_MODIFIED) > 0
                         AND a.QUERY_START_TIME > %s
                         AND q.START_TIME > %s
@@ -98,12 +99,12 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 queries = {
                     str(x): QueryWithParam(
                         f"""
-                        SELECT a.BASE_OBJECTS_ACCESSED, a.OBJECTS_MODIFIED, q.QUERY_TEXT
+                        SELECT a.DIRECT_OBJECTS_ACCESSED, a.OBJECTS_MODIFIED, q.QUERY_TEXT
                         FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
                         JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
                             ON q.QUERY_ID = a.QUERY_ID
                         WHERE q.EXECUTION_STATUS = 'SUCCESS'
-                            AND ARRAY_SIZE(a.BASE_OBJECTS_ACCESSED) > 0
+                            AND ARRAY_SIZE(a.DIRECT_OBJECTS_ACCESSED) > 0
                             AND ARRAY_SIZE(a.OBJECTS_MODIFIED) > 0
                             AND a.QUERY_START_TIME > %s
                             AND q.START_TIME > %s
@@ -142,13 +143,13 @@ class SnowflakeLineageExtractor(BaseExtractor):
 
     def _parse_access_logs(self, batch_number: str, access_logs: List[Tuple]) -> None:
         logger.info(f"access logs batch #{batch_number}")
-        for base_objects_accessed, objects_modified, query in access_logs:
+        for direct_objects_accessed, objects_modified, query in access_logs:
             try:
-                self._parse_access_log(base_objects_accessed, objects_modified, query)
+                self._parse_access_log(direct_objects_accessed, objects_modified, query)
             except Exception:
                 logger.exception(
                     "Failed to parse access log.\n"
-                    f"BASE_OBJECTS_ACCESSED: {base_objects_accessed}\n"
+                    f"DIRECT_OBJECTS_ACCESSED: {direct_objects_accessed}\n"
                     f"OBJECTS_MODIFIED: {objects_modified}"
                 )
 
