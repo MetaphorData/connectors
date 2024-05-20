@@ -17,7 +17,7 @@ class ManifestMetadata(BaseModel):
         extra='forbid',
     )
     dbt_schema_version: Optional[str] = None
-    dbt_version: Optional[str] = '1.8.0a1'
+    dbt_version: Optional[str] = '1.9.0a1'
     generated_at: Optional[str] = None
     invocation_id: Optional[str] = None
     env: Optional[Dict[str, str]] = None
@@ -70,6 +70,69 @@ class ContractConfig(BaseModel):
     alias_types: Optional[bool] = True
 
 
+class SeedConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    field_extra: Optional[Dict[str, Any]] = Field(None, alias='_extra')
+    enabled: Optional[bool] = True
+    alias: Optional[str] = None
+    schema_: Optional[str] = Field(None, alias='schema')
+    database: Optional[str] = None
+    tags: Optional[Union[List[str], str]] = None
+    meta: Optional[Dict[str, Any]] = None
+    group: Optional[str] = None
+    materialized: Optional[str] = 'seed'
+    incremental_strategy: Optional[str] = None
+    persist_docs: Optional[Dict[str, Any]] = None
+    post_hook: Optional[List[Hook]] = Field(None, alias='post-hook')
+    pre_hook: Optional[List[Hook]] = Field(None, alias='pre-hook')
+    quoting: Optional[Dict[str, Any]] = None
+    column_types: Optional[Dict[str, Any]] = None
+    full_refresh: Optional[bool] = None
+    unique_key: Optional[Union[str, List[str]]] = None
+    on_schema_change: Optional[str] = 'ignore'
+    on_configuration_change: Optional[Literal['apply', 'continue', 'fail']] = None
+    grants: Optional[Dict[str, Any]] = None
+    packages: Optional[List[str]] = None
+    docs: Optional[Docs] = Field(None, title='Docs')
+    contract: Optional[ContractConfig] = Field(None, title='ContractConfig')
+    delimiter: Optional[str] = ','
+    quote_columns: Optional[bool] = None
+
+
+class ColumnLevelConstraint(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    type: Literal['check', 'not_null', 'unique', 'primary_key', 'foreign_key', 'custom']
+    name: Optional[str] = None
+    expression: Optional[str] = None
+    warn_unenforced: Optional[bool] = True
+    warn_unsupported: Optional[bool] = True
+
+
+class ColumnInfo(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str
+    description: Optional[str] = ''
+    meta: Optional[Dict[str, Any]] = None
+    data_type: Optional[str] = None
+    constraints: Optional[List[ColumnLevelConstraint]] = None
+    quote: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    field_extra: Optional[Dict[str, Any]] = Field(None, alias='_extra')
+
+
+class MacroDependsOn(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    macros: Optional[List[str]] = None
+
+
 class NodeConfig(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -99,29 +162,82 @@ class NodeConfig(BaseModel):
     contract: Optional[ContractConfig] = Field(None, title='ContractConfig')
 
 
-class ColumnLevelConstraint(BaseModel):
+class DeferRelation(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    type: Literal['check', 'not_null', 'unique', 'primary_key', 'foreign_key', 'custom']
-    name: Optional[str] = None
-    expression: Optional[str] = None
-    warn_unenforced: Optional[bool] = True
-    warn_unsupported: Optional[bool] = True
-
-
-class ColumnInfo(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
+    database: Optional[str] = None
+    schema_: str = Field(..., alias='schema')
+    alias: str
+    relation_name: Optional[str] = None
+    resource_type: Literal[
+        'model',
+        'analysis',
+        'test',
+        'snapshot',
+        'operation',
+        'seed',
+        'rpc',
+        'sql_operation',
+        'doc',
+        'source',
+        'macro',
+        'exposure',
+        'metric',
+        'group',
+        'saved_query',
+        'semantic_model',
+        'unit_test',
+        'fixture',
+    ]
     name: str
-    description: Optional[str] = ''
-    meta: Optional[Dict[str, Any]] = None
-    data_type: Optional[str] = None
-    constraints: Optional[List[ColumnLevelConstraint]] = None
-    quote: Optional[bool] = None
+    description: str
+    compiled_code: Optional[str] = None
+    meta: Dict[str, Any]
+    tags: List[str]
+    config: Optional[NodeConfig] = None
+
+
+class Seed(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    database: Optional[str] = None
+    schema_: str = Field(..., alias='schema')
+    name: str
+    resource_type: Literal['seed']
+    package_name: str
+    path: str
+    original_file_path: str
+    unique_id: str
+    fqn: List[str]
+    alias: str
+    checksum: FileHash = Field(..., title='FileHash')
+    config: Optional[SeedConfig] = Field(None, title='SeedConfig')
     tags: Optional[List[str]] = None
-    field_extra: Optional[Dict[str, Any]] = Field(None, alias='_extra')
+    description: Optional[str] = ''
+    columns: Optional[Dict[str, ColumnInfo]] = None
+    meta: Optional[Dict[str, Any]] = None
+    group: Optional[str] = None
+    docs: Optional[Docs] = Field(None, title='Docs')
+    patch_path: Optional[str] = None
+    build_path: Optional[str] = None
+    unrendered_config: Optional[Dict[str, Any]] = None
+    created_at: Optional[float] = None
+    config_call_dict: Optional[Dict[str, Any]] = None
+    relation_name: Optional[str] = None
+    raw_code: Optional[str] = ''
+    root_path: Optional[str] = None
+    depends_on: Optional[MacroDependsOn] = Field(None, title='MacroDependsOn')
+    defer_relation: Optional[DeferRelation] = None
+
+
+class NodeConfig1(NodeConfig):
+    pass
+
+
+class ColumnInfo1(ColumnInfo):
+    pass
 
 
 class RefArgs(BaseModel):
@@ -158,7 +274,7 @@ class Contract(BaseModel):
     checksum: Optional[str] = None
 
 
-class AnalysisNode(BaseModel):
+class Analysis(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -173,17 +289,15 @@ class AnalysisNode(BaseModel):
     fqn: List[str]
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[NodeConfig] = Field(None, title='NodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
+    config: Optional[NodeConfig1] = Field(None, title='NodeConfig')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo]] = None
+    columns: Optional[Dict[str, ColumnInfo1]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -228,11 +342,11 @@ class TestConfig(BaseModel):
     error_if: Optional[str] = '!= 0'
 
 
-class ColumnInfo1(ColumnInfo):
+class ColumnInfo2(ColumnInfo):
     pass
 
 
-class SingularTestNode(BaseModel):
+class SingularTest(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -248,16 +362,14 @@ class SingularTestNode(BaseModel):
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
     config: Optional[TestConfig] = Field(None, title='TestConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo1]] = None
+    columns: Optional[Dict[str, ColumnInfo2]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -277,11 +389,11 @@ class SingularTestNode(BaseModel):
     contract: Optional[Contract] = Field(None, title='Contract')
 
 
-class NodeConfig1(NodeConfig):
+class NodeConfig2(NodeConfig):
     pass
 
 
-class ColumnInfo2(ColumnInfo):
+class ColumnInfo3(ColumnInfo):
     pass
 
 
@@ -300,17 +412,15 @@ class HookNode(BaseModel):
     fqn: List[str]
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[NodeConfig1] = Field(None, title='NodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
+    config: Optional[NodeConfig2] = Field(None, title='NodeConfig')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo2]] = None
+    columns: Optional[Dict[str, ColumnInfo3]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -361,7 +471,7 @@ class ModelConfig(BaseModel):
     access: Optional[Literal['private', 'protected', 'public']] = 'protected'
 
 
-class ColumnInfo3(ColumnInfo):
+class ColumnInfo4(ColumnInfo):
     pass
 
 
@@ -377,7 +487,11 @@ class ModelLevelConstraint(BaseModel):
     columns: Optional[List[str]] = None
 
 
-class DeferRelation(BaseModel):
+class NodeConfig3(NodeConfig):
+    pass
+
+
+class DeferRelation1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -385,9 +499,35 @@ class DeferRelation(BaseModel):
     schema_: str = Field(..., alias='schema')
     alias: str
     relation_name: Optional[str] = None
+    resource_type: Literal[
+        'model',
+        'analysis',
+        'test',
+        'snapshot',
+        'operation',
+        'seed',
+        'rpc',
+        'sql_operation',
+        'doc',
+        'source',
+        'macro',
+        'exposure',
+        'metric',
+        'group',
+        'saved_query',
+        'semantic_model',
+        'unit_test',
+        'fixture',
+    ]
+    name: str
+    description: str
+    compiled_code: Optional[str] = None
+    meta: Dict[str, Any]
+    tags: List[str]
+    config: Optional[NodeConfig3] = None
 
 
-class ModelNode(BaseModel):
+class Model(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -403,16 +543,14 @@ class ModelNode(BaseModel):
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
     config: Optional[ModelConfig] = Field(None, title='ModelConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo3]] = None
+    columns: Optional[Dict[str, ColumnInfo4]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -435,63 +573,11 @@ class ModelNode(BaseModel):
     version: Optional[Union[str, float]] = None
     latest_version: Optional[Union[str, float]] = None
     deprecation_date: Optional[str] = None
-    defer_relation: Optional[DeferRelation] = None
+    defer_relation: Optional[DeferRelation1] = None
+    primary_key: Optional[List[str]] = None
 
 
-class NodeConfig2(NodeConfig):
-    pass
-
-
-class ColumnInfo4(ColumnInfo):
-    pass
-
-
-class RPCNode(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    database: Optional[str] = None
-    schema_: str = Field(..., alias='schema')
-    name: str
-    resource_type: Literal['rpc']
-    package_name: str
-    path: str
-    original_file_path: str
-    unique_id: str
-    fqn: List[str]
-    alias: str
-    checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[NodeConfig2] = Field(None, title='NodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
-    tags: Optional[List[str]] = None
-    description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo4]] = None
-    meta: Optional[Dict[str, Any]] = None
-    group: Optional[str] = None
-    docs: Optional[Docs] = Field(None, title='Docs')
-    patch_path: Optional[str] = None
-    build_path: Optional[str] = None
-    deferred: Optional[bool] = False
-    unrendered_config: Optional[Dict[str, Any]] = None
-    created_at: Optional[float] = None
-    config_call_dict: Optional[Dict[str, Any]] = None
-    relation_name: Optional[str] = None
-    raw_code: Optional[str] = ''
-    language: Optional[str] = 'sql'
-    refs: Optional[List[RefArgs]] = None
-    sources: Optional[List[List[str]]] = None
-    metrics: Optional[List[List[str]]] = None
-    depends_on: Optional[DependsOn] = Field(None, title='DependsOn')
-    compiled_path: Optional[str] = None
-    compiled: Optional[bool] = False
-    compiled_code: Optional[str] = None
-    extra_ctes_injected: Optional[bool] = False
-    extra_ctes: Optional[List[InjectedCTE]] = None
-    field_pre_injected_sql: Optional[str] = Field(None, alias='_pre_injected_sql')
-    contract: Optional[Contract] = Field(None, title='Contract')
-
-
-class NodeConfig3(NodeConfig):
+class NodeConfig4(NodeConfig):
     pass
 
 
@@ -499,7 +585,7 @@ class ColumnInfo5(ColumnInfo):
     pass
 
 
-class SqlNode(BaseModel):
+class SqlOperation(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -514,8 +600,7 @@ class SqlNode(BaseModel):
     fqn: List[str]
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[NodeConfig3] = Field(None, title='NodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
+    config: Optional[NodeConfig4] = Field(None, title='NodeConfig')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
     columns: Optional[Dict[str, ColumnInfo5]] = None
@@ -524,7 +609,6 @@ class SqlNode(BaseModel):
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -544,24 +628,23 @@ class SqlNode(BaseModel):
     contract: Optional[Contract] = Field(None, title='Contract')
 
 
-class TestMetadata(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    name: str
-    kwargs: Optional[Dict[str, Any]] = None
-    namespace: Optional[str] = None
-
-
 class ColumnInfo6(ColumnInfo):
     pass
 
 
-class GenericTestNode(BaseModel):
+class TestMetadata(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    test_metadata: TestMetadata = Field(..., title='TestMetadata')
+    name: Optional[str] = 'test'
+    kwargs: Optional[Dict[str, Any]] = None
+    namespace: Optional[str] = None
+
+
+class GenericTest(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
     database: Optional[str] = None
     schema_: str = Field(..., alias='schema')
     name: str
@@ -574,7 +657,6 @@ class GenericTestNode(BaseModel):
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
     config: Optional[TestConfig] = Field(None, title='TestConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
     columns: Optional[Dict[str, ColumnInfo6]] = None
@@ -583,7 +665,6 @@ class GenericTestNode(BaseModel):
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -604,6 +685,7 @@ class GenericTestNode(BaseModel):
     column_name: Optional[str] = None
     file_key_name: Optional[str] = None
     attached_node: Optional[str] = None
+    test_metadata: Optional[TestMetadata] = Field(None, title='TestMetadata')
 
 
 class SnapshotConfig(BaseModel):
@@ -644,7 +726,47 @@ class ColumnInfo7(ColumnInfo):
     pass
 
 
-class SnapshotNode(BaseModel):
+class NodeConfig5(NodeConfig):
+    pass
+
+
+class DeferRelation2(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    database: Optional[str] = None
+    schema_: str = Field(..., alias='schema')
+    alias: str
+    relation_name: Optional[str] = None
+    resource_type: Literal[
+        'model',
+        'analysis',
+        'test',
+        'snapshot',
+        'operation',
+        'seed',
+        'rpc',
+        'sql_operation',
+        'doc',
+        'source',
+        'macro',
+        'exposure',
+        'metric',
+        'group',
+        'saved_query',
+        'semantic_model',
+        'unit_test',
+        'fixture',
+    ]
+    name: str
+    description: str
+    compiled_code: Optional[str] = None
+    meta: Dict[str, Any]
+    tags: List[str]
+    config: Optional[NodeConfig5] = None
+
+
+class Snapshot(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -660,7 +782,6 @@ class SnapshotNode(BaseModel):
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
     config: SnapshotConfig = Field(..., title='SnapshotConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
     columns: Optional[Dict[str, ColumnInfo7]] = None
@@ -669,7 +790,6 @@ class SnapshotNode(BaseModel):
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -687,176 +807,7 @@ class SnapshotNode(BaseModel):
     extra_ctes: Optional[List[InjectedCTE]] = None
     field_pre_injected_sql: Optional[str] = Field(None, alias='_pre_injected_sql')
     contract: Optional[Contract] = Field(None, title='Contract')
-    defer_relation: Optional[DeferRelation] = None
-
-
-class UnitTestNodeConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    field_extra: Optional[Dict[str, Any]] = Field(None, alias='_extra')
-    enabled: Optional[bool] = True
-    alias: Optional[str] = None
-    schema_: Optional[str] = Field(None, alias='schema')
-    database: Optional[str] = None
-    tags: Optional[Union[List[str], str]] = None
-    meta: Optional[Dict[str, Any]] = None
-    group: Optional[str] = None
-    materialized: Optional[str] = 'view'
-    incremental_strategy: Optional[str] = None
-    persist_docs: Optional[Dict[str, Any]] = None
-    post_hook: Optional[List[Hook]] = Field(None, alias='post-hook')
-    pre_hook: Optional[List[Hook]] = Field(None, alias='pre-hook')
-    quoting: Optional[Dict[str, Any]] = None
-    column_types: Optional[Dict[str, Any]] = None
-    full_refresh: Optional[bool] = None
-    unique_key: Optional[Union[str, List[str]]] = None
-    on_schema_change: Optional[str] = 'ignore'
-    on_configuration_change: Optional[Literal['apply', 'continue', 'fail']] = None
-    grants: Optional[Dict[str, Any]] = None
-    packages: Optional[List[str]] = None
-    docs: Optional[Docs] = Field(None, title='Docs')
-    contract: Optional[ContractConfig] = Field(None, title='ContractConfig')
-    expected_rows: Optional[List[Dict[str, Any]]] = None
-
-
-class ColumnInfo8(ColumnInfo):
-    pass
-
-
-class UnitTestOverrides(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    macros: Optional[Dict[str, Any]] = None
-    vars: Optional[Dict[str, Any]] = None
-    env_vars: Optional[Dict[str, Any]] = None
-
-
-class UnitTestNode(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    database: Optional[str] = None
-    schema_: str = Field(..., alias='schema')
-    name: str
-    resource_type: Literal['unit_test']
-    package_name: str
-    path: str
-    original_file_path: str
-    unique_id: str
-    fqn: List[str]
-    alias: str
-    checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[UnitTestNodeConfig] = Field(None, title='UnitTestNodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
-    tags: Optional[List[str]] = None
-    description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo8]] = None
-    meta: Optional[Dict[str, Any]] = None
-    group: Optional[str] = None
-    docs: Optional[Docs] = Field(None, title='Docs')
-    patch_path: Optional[str] = None
-    build_path: Optional[str] = None
-    deferred: Optional[bool] = False
-    unrendered_config: Optional[Dict[str, Any]] = None
-    created_at: Optional[float] = None
-    config_call_dict: Optional[Dict[str, Any]] = None
-    relation_name: Optional[str] = None
-    raw_code: Optional[str] = ''
-    language: Optional[str] = 'sql'
-    refs: Optional[List[RefArgs]] = None
-    sources: Optional[List[List[str]]] = None
-    metrics: Optional[List[List[str]]] = None
-    depends_on: Optional[DependsOn] = Field(None, title='DependsOn')
-    compiled_path: Optional[str] = None
-    compiled: Optional[bool] = False
-    compiled_code: Optional[str] = None
-    extra_ctes_injected: Optional[bool] = False
-    extra_ctes: Optional[List[InjectedCTE]] = None
-    field_pre_injected_sql: Optional[str] = Field(None, alias='_pre_injected_sql')
-    contract: Optional[Contract] = Field(None, title='Contract')
-    tested_node_unique_id: Optional[str] = None
-    this_input_node_unique_id: Optional[str] = None
-    overrides: Optional[UnitTestOverrides] = None
-
-
-class SeedConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    field_extra: Optional[Dict[str, Any]] = Field(None, alias='_extra')
-    enabled: Optional[bool] = True
-    alias: Optional[str] = None
-    schema_: Optional[str] = Field(None, alias='schema')
-    database: Optional[str] = None
-    tags: Optional[Union[List[str], str]] = None
-    meta: Optional[Dict[str, Any]] = None
-    group: Optional[str] = None
-    materialized: Optional[str] = 'seed'
-    incremental_strategy: Optional[str] = None
-    persist_docs: Optional[Dict[str, Any]] = None
-    post_hook: Optional[List[Hook]] = Field(None, alias='post-hook')
-    pre_hook: Optional[List[Hook]] = Field(None, alias='pre-hook')
-    quoting: Optional[Dict[str, Any]] = None
-    column_types: Optional[Dict[str, Any]] = None
-    full_refresh: Optional[bool] = None
-    unique_key: Optional[Union[str, List[str]]] = None
-    on_schema_change: Optional[str] = 'ignore'
-    on_configuration_change: Optional[Literal['apply', 'continue', 'fail']] = None
-    grants: Optional[Dict[str, Any]] = None
-    packages: Optional[List[str]] = None
-    docs: Optional[Docs] = Field(None, title='Docs')
-    contract: Optional[ContractConfig] = Field(None, title='ContractConfig')
-    delimiter: Optional[str] = ','
-    quote_columns: Optional[bool] = None
-
-
-class ColumnInfo9(ColumnInfo):
-    pass
-
-
-class MacroDependsOn(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    macros: Optional[List[str]] = None
-
-
-class SeedNode(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    database: Optional[str] = None
-    schema_: str = Field(..., alias='schema')
-    name: str
-    resource_type: Literal['seed']
-    package_name: str
-    path: str
-    original_file_path: str
-    unique_id: str
-    fqn: List[str]
-    alias: str
-    checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[SeedConfig] = Field(None, title='SeedConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
-    tags: Optional[List[str]] = None
-    description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo9]] = None
-    meta: Optional[Dict[str, Any]] = None
-    group: Optional[str] = None
-    docs: Optional[Docs] = Field(None, title='Docs')
-    patch_path: Optional[str] = None
-    build_path: Optional[str] = None
-    deferred: Optional[bool] = False
-    unrendered_config: Optional[Dict[str, Any]] = None
-    created_at: Optional[float] = None
-    config_call_dict: Optional[Dict[str, Any]] = None
-    relation_name: Optional[str] = None
-    raw_code: Optional[str] = ''
-    root_path: Optional[str] = None
-    depends_on: Optional[MacroDependsOn] = Field(None, title='MacroDependsOn')
-    defer_relation: Optional[DeferRelation] = None
+    defer_relation: Optional[DeferRelation2] = None
 
 
 class Quoting(BaseModel):
@@ -909,7 +860,7 @@ class ExternalTable(BaseModel):
     partitions: Optional[Union[List[str], List[ExternalPartition]]] = None
 
 
-class ColumnInfo10(ColumnInfo):
+class ColumnInfo8(ColumnInfo):
     pass
 
 
@@ -938,13 +889,12 @@ class SourceDefinition(BaseModel):
     source_description: str
     loader: str
     identifier: str
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     quoting: Optional[Quoting] = Field(None, title='Quoting')
     loaded_at_field: Optional[str] = None
     freshness: Optional[FreshnessThreshold] = None
     external: Optional[ExternalTable] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo10]] = None
+    columns: Optional[Dict[str, ColumnInfo8]] = None
     meta: Optional[Dict[str, Any]] = None
     source_meta: Optional[Dict[str, Any]] = None
     tags: Optional[List[str]] = None
@@ -1226,6 +1176,7 @@ class MetricConfig(BaseModel):
     field_extra: Optional[Dict[str, Any]] = Field(None, alias='_extra')
     enabled: Optional[bool] = True
     group: Optional[str] = None
+    meta: Optional[Dict[str, Any]] = None
 
 
 class Metric(BaseModel):
@@ -1270,15 +1221,97 @@ class Group(BaseModel):
     owner: Owner = Field(..., title='Owner')
 
 
-class NodeConfig4(NodeConfig):
+class SeedConfig1(SeedConfig):
     pass
 
 
-class ColumnInfo11(ColumnInfo):
+class ColumnInfo9(ColumnInfo):
     pass
 
 
-class AnalysisNode1(BaseModel):
+class NodeConfig6(NodeConfig):
+    pass
+
+
+class DeferRelation3(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    database: Optional[str] = None
+    schema_: str = Field(..., alias='schema')
+    alias: str
+    relation_name: Optional[str] = None
+    resource_type: Literal[
+        'model',
+        'analysis',
+        'test',
+        'snapshot',
+        'operation',
+        'seed',
+        'rpc',
+        'sql_operation',
+        'doc',
+        'source',
+        'macro',
+        'exposure',
+        'metric',
+        'group',
+        'saved_query',
+        'semantic_model',
+        'unit_test',
+        'fixture',
+    ]
+    name: str
+    description: str
+    compiled_code: Optional[str] = None
+    meta: Dict[str, Any]
+    tags: List[str]
+    config: Optional[NodeConfig6] = None
+
+
+class Seed1(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    database: Optional[str] = None
+    schema_: str = Field(..., alias='schema')
+    name: str
+    resource_type: Literal['seed']
+    package_name: str
+    path: str
+    original_file_path: str
+    unique_id: str
+    fqn: List[str]
+    alias: str
+    checksum: FileHash = Field(..., title='FileHash')
+    config: Optional[SeedConfig1] = Field(None, title='SeedConfig')
+    tags: Optional[List[str]] = None
+    description: Optional[str] = ''
+    columns: Optional[Dict[str, ColumnInfo9]] = None
+    meta: Optional[Dict[str, Any]] = None
+    group: Optional[str] = None
+    docs: Optional[Docs] = Field(None, title='Docs')
+    patch_path: Optional[str] = None
+    build_path: Optional[str] = None
+    unrendered_config: Optional[Dict[str, Any]] = None
+    created_at: Optional[float] = None
+    config_call_dict: Optional[Dict[str, Any]] = None
+    relation_name: Optional[str] = None
+    raw_code: Optional[str] = ''
+    root_path: Optional[str] = None
+    depends_on: Optional[MacroDependsOn] = Field(None, title='MacroDependsOn')
+    defer_relation: Optional[DeferRelation3] = None
+
+
+class NodeConfig7(NodeConfig):
+    pass
+
+
+class ColumnInfo10(ColumnInfo):
+    pass
+
+
+class Analysis1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -1293,17 +1326,15 @@ class AnalysisNode1(BaseModel):
     fqn: List[str]
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[NodeConfig4] = Field(None, title='NodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
+    config: Optional[NodeConfig7] = Field(None, title='NodeConfig')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo11]] = None
+    columns: Optional[Dict[str, ColumnInfo10]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -1323,11 +1354,11 @@ class AnalysisNode1(BaseModel):
     contract: Optional[Contract] = Field(None, title='Contract')
 
 
-class ColumnInfo12(ColumnInfo):
+class ColumnInfo11(ColumnInfo):
     pass
 
 
-class SingularTestNode1(BaseModel):
+class SingularTest1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -1343,16 +1374,14 @@ class SingularTestNode1(BaseModel):
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
     config: Optional[TestConfig] = Field(None, title='TestConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo12]] = None
+    columns: Optional[Dict[str, ColumnInfo11]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -1372,11 +1401,11 @@ class SingularTestNode1(BaseModel):
     contract: Optional[Contract] = Field(None, title='Contract')
 
 
-class NodeConfig5(NodeConfig):
+class NodeConfig8(NodeConfig):
     pass
 
 
-class ColumnInfo13(ColumnInfo):
+class ColumnInfo12(ColumnInfo):
     pass
 
 
@@ -1395,17 +1424,15 @@ class HookNode1(BaseModel):
     fqn: List[str]
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[NodeConfig5] = Field(None, title='NodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
+    config: Optional[NodeConfig8] = Field(None, title='NodeConfig')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo13]] = None
+    columns: Optional[Dict[str, ColumnInfo12]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -1430,11 +1457,51 @@ class ModelConfig1(ModelConfig):
     pass
 
 
-class ColumnInfo14(ColumnInfo):
+class ColumnInfo13(ColumnInfo):
     pass
 
 
-class ModelNode1(BaseModel):
+class NodeConfig9(NodeConfig):
+    pass
+
+
+class DeferRelation4(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    database: Optional[str] = None
+    schema_: str = Field(..., alias='schema')
+    alias: str
+    relation_name: Optional[str] = None
+    resource_type: Literal[
+        'model',
+        'analysis',
+        'test',
+        'snapshot',
+        'operation',
+        'seed',
+        'rpc',
+        'sql_operation',
+        'doc',
+        'source',
+        'macro',
+        'exposure',
+        'metric',
+        'group',
+        'saved_query',
+        'semantic_model',
+        'unit_test',
+        'fixture',
+    ]
+    name: str
+    description: str
+    compiled_code: Optional[str] = None
+    meta: Dict[str, Any]
+    tags: List[str]
+    config: Optional[NodeConfig9] = None
+
+
+class Model1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -1450,16 +1517,14 @@ class ModelNode1(BaseModel):
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
     config: Optional[ModelConfig1] = Field(None, title='ModelConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo14]] = None
+    columns: Optional[Dict[str, ColumnInfo13]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -1482,71 +1547,19 @@ class ModelNode1(BaseModel):
     version: Optional[Union[str, float]] = None
     latest_version: Optional[Union[str, float]] = None
     deprecation_date: Optional[str] = None
-    defer_relation: Optional[DeferRelation] = None
+    defer_relation: Optional[DeferRelation4] = None
+    primary_key: Optional[List[str]] = None
 
 
-class NodeConfig6(NodeConfig):
+class NodeConfig10(NodeConfig):
     pass
 
 
-class ColumnInfo15(ColumnInfo):
+class ColumnInfo14(ColumnInfo):
     pass
 
 
-class RPCNode1(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    database: Optional[str] = None
-    schema_: str = Field(..., alias='schema')
-    name: str
-    resource_type: Literal['rpc']
-    package_name: str
-    path: str
-    original_file_path: str
-    unique_id: str
-    fqn: List[str]
-    alias: str
-    checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[NodeConfig6] = Field(None, title='NodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
-    tags: Optional[List[str]] = None
-    description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo15]] = None
-    meta: Optional[Dict[str, Any]] = None
-    group: Optional[str] = None
-    docs: Optional[Docs] = Field(None, title='Docs')
-    patch_path: Optional[str] = None
-    build_path: Optional[str] = None
-    deferred: Optional[bool] = False
-    unrendered_config: Optional[Dict[str, Any]] = None
-    created_at: Optional[float] = None
-    config_call_dict: Optional[Dict[str, Any]] = None
-    relation_name: Optional[str] = None
-    raw_code: Optional[str] = ''
-    language: Optional[str] = 'sql'
-    refs: Optional[List[RefArgs]] = None
-    sources: Optional[List[List[str]]] = None
-    metrics: Optional[List[List[str]]] = None
-    depends_on: Optional[DependsOn] = Field(None, title='DependsOn')
-    compiled_path: Optional[str] = None
-    compiled: Optional[bool] = False
-    compiled_code: Optional[str] = None
-    extra_ctes_injected: Optional[bool] = False
-    extra_ctes: Optional[List[InjectedCTE]] = None
-    field_pre_injected_sql: Optional[str] = Field(None, alias='_pre_injected_sql')
-    contract: Optional[Contract] = Field(None, title='Contract')
-
-
-class NodeConfig7(NodeConfig):
-    pass
-
-
-class ColumnInfo16(ColumnInfo):
-    pass
-
-
-class SqlNode1(BaseModel):
+class SqlOperation1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -1561,17 +1574,15 @@ class SqlNode1(BaseModel):
     fqn: List[str]
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[NodeConfig7] = Field(None, title='NodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
+    config: Optional[NodeConfig10] = Field(None, title='NodeConfig')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo16]] = None
+    columns: Optional[Dict[str, ColumnInfo14]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -1591,15 +1602,14 @@ class SqlNode1(BaseModel):
     contract: Optional[Contract] = Field(None, title='Contract')
 
 
-class ColumnInfo17(ColumnInfo):
+class ColumnInfo15(ColumnInfo):
     pass
 
 
-class GenericTestNode1(BaseModel):
+class GenericTest1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    test_metadata: TestMetadata = Field(..., title='TestMetadata')
     database: Optional[str] = None
     schema_: str = Field(..., alias='schema')
     name: str
@@ -1612,16 +1622,14 @@ class GenericTestNode1(BaseModel):
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
     config: Optional[TestConfig] = Field(None, title='TestConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo17]] = None
+    columns: Optional[Dict[str, ColumnInfo15]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -1642,17 +1650,58 @@ class GenericTestNode1(BaseModel):
     column_name: Optional[str] = None
     file_key_name: Optional[str] = None
     attached_node: Optional[str] = None
+    test_metadata: Optional[TestMetadata] = Field(None, title='TestMetadata')
 
 
 class SnapshotConfig1(SnapshotConfig):
     pass
 
 
-class ColumnInfo18(ColumnInfo):
+class ColumnInfo16(ColumnInfo):
     pass
 
 
-class SnapshotNode1(BaseModel):
+class NodeConfig11(NodeConfig):
+    pass
+
+
+class DeferRelation5(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    database: Optional[str] = None
+    schema_: str = Field(..., alias='schema')
+    alias: str
+    relation_name: Optional[str] = None
+    resource_type: Literal[
+        'model',
+        'analysis',
+        'test',
+        'snapshot',
+        'operation',
+        'seed',
+        'rpc',
+        'sql_operation',
+        'doc',
+        'source',
+        'macro',
+        'exposure',
+        'metric',
+        'group',
+        'saved_query',
+        'semantic_model',
+        'unit_test',
+        'fixture',
+    ]
+    name: str
+    description: str
+    compiled_code: Optional[str] = None
+    meta: Dict[str, Any]
+    tags: List[str]
+    config: Optional[NodeConfig11] = None
+
+
+class Snapshot1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -1668,16 +1717,14 @@ class SnapshotNode1(BaseModel):
     alias: str
     checksum: FileHash = Field(..., title='FileHash')
     config: SnapshotConfig1 = Field(..., title='SnapshotConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     tags: Optional[List[str]] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo18]] = None
+    columns: Optional[Dict[str, ColumnInfo16]] = None
     meta: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     docs: Optional[Docs] = Field(None, title='Docs')
     patch_path: Optional[str] = None
     build_path: Optional[str] = None
-    deferred: Optional[bool] = False
     unrendered_config: Optional[Dict[str, Any]] = None
     created_at: Optional[float] = None
     config_call_dict: Optional[Dict[str, Any]] = None
@@ -1695,107 +1742,7 @@ class SnapshotNode1(BaseModel):
     extra_ctes: Optional[List[InjectedCTE]] = None
     field_pre_injected_sql: Optional[str] = Field(None, alias='_pre_injected_sql')
     contract: Optional[Contract] = Field(None, title='Contract')
-    defer_relation: Optional[DeferRelation] = None
-
-
-class UnitTestNodeConfig1(UnitTestNodeConfig):
-    pass
-
-
-class ColumnInfo19(ColumnInfo):
-    pass
-
-
-class UnitTestNode1(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    database: Optional[str] = None
-    schema_: str = Field(..., alias='schema')
-    name: str
-    resource_type: Literal['unit_test']
-    package_name: str
-    path: str
-    original_file_path: str
-    unique_id: str
-    fqn: List[str]
-    alias: str
-    checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[UnitTestNodeConfig1] = Field(None, title='UnitTestNodeConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
-    tags: Optional[List[str]] = None
-    description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo19]] = None
-    meta: Optional[Dict[str, Any]] = None
-    group: Optional[str] = None
-    docs: Optional[Docs] = Field(None, title='Docs')
-    patch_path: Optional[str] = None
-    build_path: Optional[str] = None
-    deferred: Optional[bool] = False
-    unrendered_config: Optional[Dict[str, Any]] = None
-    created_at: Optional[float] = None
-    config_call_dict: Optional[Dict[str, Any]] = None
-    relation_name: Optional[str] = None
-    raw_code: Optional[str] = ''
-    language: Optional[str] = 'sql'
-    refs: Optional[List[RefArgs]] = None
-    sources: Optional[List[List[str]]] = None
-    metrics: Optional[List[List[str]]] = None
-    depends_on: Optional[DependsOn] = Field(None, title='DependsOn')
-    compiled_path: Optional[str] = None
-    compiled: Optional[bool] = False
-    compiled_code: Optional[str] = None
-    extra_ctes_injected: Optional[bool] = False
-    extra_ctes: Optional[List[InjectedCTE]] = None
-    field_pre_injected_sql: Optional[str] = Field(None, alias='_pre_injected_sql')
-    contract: Optional[Contract] = Field(None, title='Contract')
-    tested_node_unique_id: Optional[str] = None
-    this_input_node_unique_id: Optional[str] = None
-    overrides: Optional[UnitTestOverrides] = None
-
-
-class SeedConfig1(SeedConfig):
-    pass
-
-
-class ColumnInfo20(ColumnInfo):
-    pass
-
-
-class SeedNode1(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    database: Optional[str] = None
-    schema_: str = Field(..., alias='schema')
-    name: str
-    resource_type: Literal['seed']
-    package_name: str
-    path: str
-    original_file_path: str
-    unique_id: str
-    fqn: List[str]
-    alias: str
-    checksum: FileHash = Field(..., title='FileHash')
-    config: Optional[SeedConfig1] = Field(None, title='SeedConfig')
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
-    tags: Optional[List[str]] = None
-    description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo20]] = None
-    meta: Optional[Dict[str, Any]] = None
-    group: Optional[str] = None
-    docs: Optional[Docs] = Field(None, title='Docs')
-    patch_path: Optional[str] = None
-    build_path: Optional[str] = None
-    deferred: Optional[bool] = False
-    unrendered_config: Optional[Dict[str, Any]] = None
-    created_at: Optional[float] = None
-    config_call_dict: Optional[Dict[str, Any]] = None
-    relation_name: Optional[str] = None
-    raw_code: Optional[str] = ''
-    root_path: Optional[str] = None
-    depends_on: Optional[MacroDependsOn] = Field(None, title='MacroDependsOn')
-    defer_relation: Optional[DeferRelation] = None
+    defer_relation: Optional[DeferRelation5] = None
 
 
 class FreshnessThreshold1(FreshnessThreshold):
@@ -1806,7 +1753,7 @@ class ExternalTable1(ExternalTable):
     pass
 
 
-class ColumnInfo21(ColumnInfo):
+class ColumnInfo17(ColumnInfo):
     pass
 
 
@@ -1827,13 +1774,12 @@ class SourceDefinition1(BaseModel):
     source_description: str
     loader: str
     identifier: str
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     quoting: Optional[Quoting] = Field(None, title='Quoting')
     loaded_at_field: Optional[str] = None
     freshness: Optional[FreshnessThreshold1] = None
     external: Optional[ExternalTable1] = None
     description: Optional[str] = ''
-    columns: Optional[Dict[str, ColumnInfo21]] = None
+    columns: Optional[Dict[str, ColumnInfo17]] = None
     meta: Optional[Dict[str, Any]] = None
     source_meta: Optional[Dict[str, Any]] = None
     tags: Optional[List[str]] = None
@@ -2037,6 +1983,7 @@ class ExportConfig(BaseModel):
     export_as: Literal['table', 'view']
     schema_name: Optional[str] = None
     alias: Optional[str] = None
+    database: Optional[str] = None
 
 
 class Export(BaseModel):
@@ -2051,6 +1998,13 @@ class SourceFileMetadata2(SourceFileMetadata):
     pass
 
 
+class SavedQueryCache(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    enabled: Optional[bool] = False
+
+
 class SavedQueryConfig(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -2061,6 +2015,7 @@ class SavedQueryConfig(BaseModel):
     meta: Optional[Dict[str, Any]] = None
     export_as: Optional[Literal['table', 'view']] = None
     schema_: Optional[str] = Field(None, alias='schema')
+    cache: Optional[SavedQueryCache] = Field(None, title='SavedQueryCache')
 
 
 class SavedQuery(BaseModel):
@@ -2104,7 +2059,6 @@ class SavedQuery(BaseModel):
     depends_on: Optional[DependsOn] = Field(None, title='DependsOn')
     created_at: Optional[float] = None
     refs: Optional[List[RefArgs]] = None
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
 
 
 class NodeRelation(BaseModel):
@@ -2114,7 +2068,7 @@ class NodeRelation(BaseModel):
     alias: str
     schema_name: str
     database: Optional[str] = None
-    relation_name: Optional[str] = None
+    relation_name: Optional[str] = ''
 
 
 class Defaults(BaseModel):
@@ -2227,14 +2181,8 @@ class SourceFileMetadata4(SourceFileMetadata):
     pass
 
 
-class SemanticModelConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    field_extra: Optional[Dict[str, Any]] = Field(None, alias='_extra')
-    enabled: Optional[bool] = True
-    group: Optional[str] = None
-    meta: Optional[Dict[str, Any]] = None
+class SemanticModelConfig(MetricConfig):
+    pass
 
 
 class SemanticModel(BaseModel):
@@ -2291,7 +2239,7 @@ class UnitTestInputFixture(BaseModel):
     )
     input: str
     rows: Optional[Union[str, List[Dict[str, Any]]]] = None
-    format: Optional[Literal['csv', 'dict']] = 'dict'
+    format: Optional[Literal['csv', 'dict', 'sql']] = 'dict'
     fixture: Optional[str] = None
 
 
@@ -2300,8 +2248,17 @@ class UnitTestOutputFixture(BaseModel):
         extra='forbid',
     )
     rows: Optional[Union[str, List[Dict[str, Any]]]] = None
-    format: Optional[Literal['csv', 'dict']] = 'dict'
+    format: Optional[Literal['csv', 'dict', 'sql']] = 'dict'
     fixture: Optional[str] = None
+
+
+class UnitTestOverrides(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    macros: Optional[Dict[str, Any]] = None
+    vars: Optional[Dict[str, Any]] = None
+    env_vars: Optional[Dict[str, Any]] = None
 
 
 class UnitTestConfig(BaseModel):
@@ -2354,7 +2311,6 @@ class UnitTestDefinition(BaseModel):
     original_file_path: str
     unique_id: str
     fqn: List[str]
-    field_event_status: Optional[Dict[str, Any]] = Field(None, alias='_event_status')
     description: Optional[str] = ''
     overrides: Optional[UnitTestOverrides] = None
     depends_on: Optional[DependsOn] = Field(None, title='DependsOn')
@@ -2384,6 +2340,10 @@ class Export1(Export):
 
 
 class SourceFileMetadata5(SourceFileMetadata):
+    pass
+
+
+class SavedQueryConfig1(SavedQueryConfig):
     pass
 
 
@@ -2422,7 +2382,7 @@ class SavedQuery1(BaseModel):
     description: Optional[str] = None
     label: Optional[str] = None
     metadata: Optional[SourceFileMetadata5] = None
-    config: Optional[SavedQueryConfig] = Field(None, title='SavedQueryConfig')
+    config: Optional[SavedQueryConfig1] = Field(None, title='SavedQueryConfig')
     unrendered_config: Optional[Dict[str, Any]] = None
     group: Optional[str] = None
     depends_on: Optional[DependsOn] = Field(None, title='DependsOn')
@@ -2522,16 +2482,14 @@ class WritableManifest(BaseModel):
     nodes: Dict[
         str,
         Union[
-            AnalysisNode,
-            SingularTestNode,
+            Seed,
+            Analysis,
+            SingularTest,
             HookNode,
-            ModelNode,
-            RPCNode,
-            SqlNode,
-            GenericTestNode,
-            SnapshotNode,
-            UnitTestNode,
-            SeedNode,
+            Model,
+            SqlOperation,
+            GenericTest,
+            Snapshot,
         ],
     ] = Field(
         ..., description='The nodes defined in the dbt project and its dependencies'
@@ -2562,16 +2520,14 @@ class WritableManifest(BaseModel):
             str,
             List[
                 Union[
-                    AnalysisNode1,
-                    SingularTestNode1,
+                    Seed1,
+                    Analysis1,
+                    SingularTest1,
                     HookNode1,
-                    ModelNode1,
-                    RPCNode1,
-                    SqlNode1,
-                    GenericTestNode1,
-                    SnapshotNode1,
-                    UnitTestNode1,
-                    SeedNode1,
+                    Model1,
+                    SqlOperation1,
+                    GenericTest1,
+                    Snapshot1,
                     SourceDefinition1,
                     Exposure1,
                     Metric1,
