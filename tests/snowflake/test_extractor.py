@@ -7,6 +7,7 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.filter import DatasetFilter
 from metaphor.models.metadata_change_event import (
+    AssetPlatform,
     DataPlatform,
     DatasetLogicalID,
     HierarchyLogicalID,
@@ -1137,3 +1138,43 @@ def test_fetch_tags_override(mock_connect: MagicMock) -> None:
         )
         assert field
         assert field.tags == ["TEST_TAG=db_tag"]
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_database_comment(mock_connect: MagicMock) -> None:
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            ("DATABASE", "desc"),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    extractor._fetch_database_comment(mock_cursor)
+    assert len(extractor._hierarchies) == 1
+    hierarchy = extractor._hierarchies.get("database")
+    assert hierarchy
+    assert hierarchy.system_description.description == "desc"
+    assert hierarchy.system_description.platform == AssetPlatform.SNOWFLAKE
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_schema_comment(mock_connect: MagicMock) -> None:
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            ("DATABASE", "SCHEMA", "desc"),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+
+    extractor._fetch_schemas_comment(mock_cursor)
+    assert len(extractor._hierarchies) == 1
+    hierarchy = extractor._hierarchies.get("database.schema")
+    assert hierarchy
+    assert hierarchy.system_description.description == "desc"
+    assert hierarchy.system_description.platform == AssetPlatform.SNOWFLAKE
