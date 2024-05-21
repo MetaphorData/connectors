@@ -4,9 +4,7 @@ from typing import List
 from pydantic import TypeAdapter
 
 from metaphor.models.metadata_change_event import QueriedDataset
-from metaphor.snowflake import SnowflakeExtractor
-from metaphor.snowflake.accessed_object import AccessedObject
-from metaphor.snowflake.config import SnowflakeConfig
+from metaphor.snowflake.accessed_object import AccessedObject, parse_accessed_objects
 
 
 def test_pydantic_dataclass():
@@ -34,7 +32,7 @@ def test_pydantic_dataclass():
     assert len(result) == 3
 
 
-def test_parse_access_logs(test_root_dir):
+def test_parse_access_objects(test_root_dir):
     data = [
         {
             "objectDomain": "Stage",
@@ -48,11 +46,15 @@ def test_parse_access_logs(test_root_dir):
             "objectId": 111,
             "objectName": "DEV.GO.GATORS",
         },
+        {
+            "columns": [{"columnId": 12, "columnName": "FOO"}],
+            "objectDomain": "Stream",
+            "objectId": 111,
+            "objectName": "DEV.GO.STREAM",
+        },
     ]
 
-    config = SnowflakeConfig.from_yaml_file(f"{test_root_dir}/snowflake/config.yml")
-    extractor = SnowflakeExtractor(config)
-    result = extractor._parse_accessed_objects(json.dumps(data))
+    result = parse_accessed_objects(json.dumps(data), "account")
     assert result == [
         QueriedDataset(
             id="DATASET~3825E6820162DA51607B2362F5C3A89F",
@@ -60,5 +62,12 @@ def test_parse_access_logs(test_root_dir):
             schema="go",
             table="gators",
             columns=["BAR"],
-        )
+        ),
+        QueriedDataset(
+            id="DATASET~CFEF093A43258AB45A1D226F26060F08",
+            database="dev",
+            schema="go",
+            table="stream",
+            columns=["FOO"],
+        ),
     ]
