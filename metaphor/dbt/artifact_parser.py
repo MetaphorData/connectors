@@ -124,11 +124,11 @@ from .generated.dbt_manifest_v11 import SnapshotNode as SnapshotNodeV11
 from .generated.dbt_manifest_v11 import SourceDefinition as SourceDefinitionV11
 from .generated.dbt_manifest_v11 import WritableManifest as DbtManifestV11
 from .generated.dbt_manifest_v12 import DependsOn as DependsOnV12
-from .generated.dbt_manifest_v12 import GenericTestNode as GenericTestNodeV12
+from .generated.dbt_manifest_v12 import GenericTest as GenericTestNodeV12
 from .generated.dbt_manifest_v12 import Macro as MacroV12
 from .generated.dbt_manifest_v12 import Metric as MetricV12
-from .generated.dbt_manifest_v12 import ModelNode as ModelNodeV12
-from .generated.dbt_manifest_v12 import SnapshotNode as SnapshotNodeV12
+from .generated.dbt_manifest_v12 import Model as ModelNodeV12
+from .generated.dbt_manifest_v12 import Snapshot as SnapshotNodeV12
 from .generated.dbt_manifest_v12 import SourceDefinition as SourceDefinitionV12
 from .generated.dbt_manifest_v12 import WritableManifest as DbtManifestV12
 from .generated.dbt_run_results_v4 import DbtRunResults as DbtRunResultsV4
