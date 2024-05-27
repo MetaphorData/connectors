@@ -137,18 +137,17 @@ class SnowflakeExtractor(BaseExtractor):
             shared_databases = self._fetch_shared_databases(cursor)
             logger.info(f"Shared inbound databases: {shared_databases}")
 
+            self._fetch_database_comment(cursor)
             for database in databases:
                 tables = self._fetch_tables(cursor, database)
                 if len(tables) == 0:
                     logger.info(f"Skip empty database {database}")
                     continue
 
-                self._fetch_database_comment(cursor)
-                self._fetch_schemas_comment(cursor)
-
                 logger.info(f"Include {len(tables)} tables from {database}")
 
                 self._fetch_columns(cursor, database)
+                self._fetch_schemas_comment(cursor, database)
 
                 secure_views = self._fetch_secure_views(cursor)
 
@@ -994,13 +993,29 @@ class SnowflakeExtractor(BaseExtractor):
             "SELECT database_name, comment FROM information_schema.databases"
         )
 
+        database_count, comment_count = 0, 0
         for database_name, comment in cursor:
+            database_count += 1
+            if comment:
+                comment_count += 1
             self._add_hierarchy_comment(database_name, comment)
 
-    def _fetch_schemas_comment(self, cursor: SnowflakeCursor) -> None:
+        logger.debug(f"Fetch {comment_count}/{database_count} database comment")
+
+    def _fetch_schemas_comment(self, cursor: SnowflakeCursor, database: str) -> None:
         cursor.execute(
             "SELECT catalog_name, schema_name, comment FROM information_schema.schemata WHERE schema_name != 'INFORMATION_SCHEMA'"
         )
 
-        for database, schema, comment in cursor:
-            self._add_hierarchy_comment(database, schema=schema, comment=comment)
+        schema_count, comment_count = 0, 0
+        for catalog_name, schema, comment in cursor:
+            schema_count += 1
+            if comment:
+                comment_count += 1
+            self._add_hierarchy_comment(
+                database=catalog_name, schema=schema, comment=comment
+            )
+
+        logger.debug(
+            f"Fetch {comment_count}/{schema_count} schema comment in database: {database}"
+        )
