@@ -13,8 +13,6 @@ from typing import (
     Tuple,
 )
 
-from pydantic import TypeAdapter
-
 try:
     from snowflake.connector.cursor import DictCursor, SnowflakeCursor
     from snowflake.connector.errors import ProgrammingError
@@ -48,7 +46,6 @@ from metaphor.models.metadata_change_event import (
     EntityUpstream,
     Hierarchy,
     HierarchyLogicalID,
-    QueriedDataset,
     QueryLog,
     SchemaField,
     SchemaType,
@@ -61,7 +58,7 @@ from metaphor.models.metadata_change_event import (
     SystemTagSource,
 )
 from metaphor.snowflake import auth
-from metaphor.snowflake.accessed_object import AccessedObject
+from metaphor.snowflake.accessed_object import parse_accessed_objects
 from metaphor.snowflake.config import SnowflakeConfig
 from metaphor.snowflake.utils import (
     DatasetInfo,
@@ -801,12 +798,12 @@ class SnowflakeExtractor(BaseExtractor):
         ) in cursor:
             try:
                 sources = (
-                    self._parse_accessed_objects(access_objects[0])
+                    parse_accessed_objects(access_objects[0], self._account)
                     if len(access_objects) == 2
                     else None
                 )
                 targets = (
-                    self._parse_accessed_objects(access_objects[1])
+                    parse_accessed_objects(access_objects[1], self._account)
                     if len(access_objects) == 2
                     else None
                 )
@@ -923,40 +920,6 @@ class SnowflakeExtractor(BaseExtractor):
             f"https://app.snowflake.com/{org_name}/{account_name}/#/data/"
             f"databases/{db}/schemas/{schema}/table/{table}"
         )
-
-    def _parse_accessed_objects(self, raw_objects: str) -> List[QueriedDataset]:
-        objects = TypeAdapter(List[AccessedObject]).validate_json(raw_objects)
-        queried_datasets: List[QueriedDataset] = []
-        for obj in objects:
-            if not obj.objectDomain or obj.objectDomain.upper() not in (
-                "TABLE",
-                "VIEW",
-                "MATERIALIZED VIEW",
-            ):
-                continue
-
-            table_name = obj.objectName.lower()
-            parts = table_name.split(".")
-            if len(parts) != 3:
-                logger.debug(f"Invalid table name {table_name}, skip")
-                continue
-
-            dataset_id = str(
-                to_dataset_entity_id(table_name, DataPlatform.SNOWFLAKE, self._account)
-            )
-            db, schema, table = parts
-
-            queried_datasets.append(
-                QueriedDataset(
-                    id=dataset_id,
-                    database=db,
-                    schema=schema,
-                    table=table,
-                    columns=[col.columnName for col in obj.columns] or None,
-                )
-            )
-
-        return queried_datasets
 
     def _add_hierarchy_comment(
         self,
