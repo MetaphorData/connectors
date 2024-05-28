@@ -961,9 +961,10 @@ class SnowflakeExtractor(BaseExtractor):
             database_count += 1
             if comment:
                 comment_count += 1
+                logger.debug(f"Fetched comment for {database_name}")
             self._add_hierarchy_comment(database_name, comment)
 
-        logger.debug(f"Fetch {comment_count}/{database_count} database comment")
+        logger.debug(f"Fetched {comment_count}/{database_count} database comment")
 
     def _fetch_schemas_comment(self, cursor: SnowflakeCursor, database: str) -> None:
         cursor.execute(
@@ -975,10 +976,11 @@ class SnowflakeExtractor(BaseExtractor):
             schema_count += 1
             if comment:
                 comment_count += 1
+                logger.debug(f"Fetched comment for {catalog_name}.{schema}")
             self._add_hierarchy_comment(
                 database=catalog_name, schema=schema, comment=comment
             )
 
         logger.debug(
-            f"Fetch {comment_count}/{schema_count} schema comment in database: {database}"
+            f"Fetched {comment_count}/{schema_count} schema comment in database: {database}"
         )
