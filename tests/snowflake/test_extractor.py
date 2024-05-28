@@ -1172,7 +1172,7 @@ def test_fetch_schema_comment(mock_connect: MagicMock) -> None:
 
     extractor = SnowflakeExtractor(make_snowflake_config())
 
-    extractor._fetch_schemas_comment(mock_cursor)
+    extractor._fetch_schemas_comment(mock_cursor, "db")
     assert len(extractor._hierarchies) == 1
     hierarchy = extractor._hierarchies.get("database.schema")
     assert hierarchy
