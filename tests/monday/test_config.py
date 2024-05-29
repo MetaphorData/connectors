@@ -8,7 +8,6 @@ def test_config(test_root_dir):
     assert config == MondayRunConfig(
         monday_api_key="monday_api_key",
         monday_api_version="monday_api_version",
-        boards=[],
         azure_openAI_key="azure_openAI_key",
         azure_openAI_version="azure_openAI_version",
         azure_openAI_endpoint="azure_openAI_endpoint",

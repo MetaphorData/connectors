@@ -1,6 +1,6 @@
 import datetime
 import json
-from typing import Collection
+from typing import Collection, Dict, List, Tuple
 
 import requests
 from llama_index.core import Document
@@ -38,8 +38,6 @@ class MondayExtractor(BaseExtractor):
         self.monday_api_key = config.monday_api_key
         self.monday_api_version = config.monday_api_version
 
-        self.boards = config.boards
-
         self.azure_openAI_key = config.azure_openAI_key
         self.azure_openAI_version = config.azure_openAI_version
         self.azure_openAI_endpoint = config.azure_openAI_endpoint
@@ -61,16 +59,15 @@ class MondayExtractor(BaseExtractor):
         self.documents = []
 
         self.boards = self._get_available_boards()
-        self.board_columns = self._parse_board_columns(self.boards_metadata)
+        self.board_columns = self._parse_board_columns(self.boards_metadata)  # type: ignore[assignment]
 
         for board_id, board_name in self.boards:
             self.current_board = board_id
             self.current_board_name = board_name
             board_columns = self.board_columns[board_id]
-            
+
             logger.info(f"Processing board {board_id}:{board_name}")
 
-            board_columns = self._parse_board_columns(self.boards_metadata)  ## FIX
             board_items = self._get_board_items(board_id, board_columns)
             board_docs = self._construct_items_documents(board_items, board_columns)
 
@@ -95,7 +92,7 @@ class MondayExtractor(BaseExtractor):
 
     def _get_available_boards(
         self,
-    ) -> tuple:
+    ) -> List[Tuple[str, str]]:
         """
         Discovers all available Monday.com boards to minimize manual configuration.
         """
@@ -117,43 +114,44 @@ class MondayExtractor(BaseExtractor):
         data = {"query": query}
 
         try:
-            logger.info(f"Retrieving all available boards")
+            logger.info("Retrieving all available boards")
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=15)
             r.raise_for_status()
 
         except (HTTPError, RequestException) as error:
-            logger.warning(f"Failed to get boards.")
+            logger.warning("Failed to get boards.")
             raise error
 
         self.boards_metadata = r.json()["data"]["boards"]
 
         # Return board ids and names only, preserve content
-        return [(board["id"], board["name"]) for board in data]
+        return [(board["id"], board["name"]) for board in self.boards_metadata]
 
     def _parse_board_columns(
         self,
-        boards_metadata: dict,
+        boards_metadata: list,
         valid_types: list = ["file", "doc", "dropdown", "longtext", "text", "name"],
-    ) -> dict:
+    ) -> Dict[str, Dict[str, str]]:
         """
         Parses column metadata from boards metadata query response.
         Returns a dictionary of form {board_id: {col1_id: col1_title, col2_id: col2_title}}
         """
 
-        board_columns = dict()
+        board_columns = dict()  # type: ignore[var-annotated]
 
         for board in boards_metadata:
-            board_columns[board] = dict()
+            # set board id as key, empty dict for columns as value
+            board_columns[board["id"]] = dict()
 
             for col in board["columns"]:
                 if col["type"] in set(valid_types):
-                    board_columns[board][col["id"]] = col["title"]
+                    board_columns[board["id"]][col["id"]] = col["title"]
 
         return board_columns
 
     def _get_board_items(
         self,
-        board_id: int,
+        board_id: str,
         columns: dict,
         params: str = "{}",
         consume: bool = True,
