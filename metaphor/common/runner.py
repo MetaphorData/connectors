@@ -1,9 +1,10 @@
+import tempfile
 import traceback
 from datetime import datetime
-from typing import Callable, Collection, List, Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.event_util import ENTITY_TYPES, EventUtil
+from metaphor.common.event_util import EventUtil
 from metaphor.common.file_sink import FileSink, FileSinkConfig, S3StorageConfig
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import CrawlerRunMetadata, Platform, RunStatus
@@ -42,15 +43,29 @@ def run_connector(
     start_time = datetime.now()
     logger.info(f"Starting running {name} at {start_time}")
 
+    # Write to a temp directory if not specified
+    if file_sink_config is None:
+        file_sink_config = FileSinkConfig(tempfile.mkdtemp())
+
+    file_sink = FileSink(file_sink_config)
+    query_log_sink = file_sink.get_query_log_sink()
+
     run_status = RunStatus.SUCCESS
     error_message = None
     stacktrace = None
 
-    entities: Collection[ENTITY_TYPES] = []
+    events: List[MetadataChangeEvent] = []
     connector: Optional[BaseExtractor] = None
     try:
         connector = make_connector()
         entities = connector.run_async()
+        events = [EventUtil.build_event(entity) for entity in entities]
+        file_sink.write_events(events)
+
+        with query_log_sink:
+            for query_log in connector.collect_query_logs():
+                query_log_sink.write_query_log(query_log)
+
         if connector.status is RunStatus.FAILURE:
             logger.warning(f"Some of {name}'s entities cannot be parsed!")
             run_status = connector.status
@@ -62,39 +77,14 @@ def run_connector(
         stacktrace = traceback.format_exc()
         logger.exception(ex)
 
-    entity_count = len(entities)
-
-    events = [EventUtil.build_event(entity) for entity in entities]
-
-    file_sink = None
-    if file_sink_config is not None:
-        file_sink = FileSink(file_sink_config)
-        file_sink.write_execution_logs()
-
-    if file_sink and connector:
-        file_sink.write_events(events)
-
-        # Query logs are only collected when we have a destination to write to.
-        query_log_sink = file_sink.get_query_log_sink()
-        with query_log_sink:
-            try:
-                for query_log in connector.collect_query_logs():
-                    query_log_sink.write_query_log(query_log)
-            except Exception as ex:
-                run_status = RunStatus.FAILURE
-                error_message = str(ex)
-                stacktrace = traceback.format_exc()
-                logger.exception(ex)
-        entity_count += query_log_sink.total_mces_wrote
-    else:
-        logger.info("No output destination specified, will not collect query logs")
-
+    entity_count = len(events) + query_log_sink.total_mces_wrote
     end_time = datetime.now()
     logger.info(
         f"Ended running with {run_status} at {end_time}, "
         f"fetched {entity_count} entities, "
         f"took {format((end_time - start_time).total_seconds(), '.1f')}s"
     )
+
     run_metadata = CrawlerRunMetadata(
         crawler_name=name,
         platform=platform,
@@ -107,8 +97,8 @@ def run_connector(
         stack_trace=stacktrace,
     )
 
-    if file_sink:
-        file_sink.write_metadata(run_metadata)
+    file_sink.write_metadata(run_metadata)
+    file_sink.write_execution_logs()
 
     return events, run_metadata
 
