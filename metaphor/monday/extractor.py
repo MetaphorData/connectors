@@ -59,17 +59,17 @@ class MondayExtractor(BaseExtractor):
         self.documents = []
 
         self.boards = self._get_available_boards()
-        self.board_columns = self._parse_board_columns(self.boards_metadata)  # type: ignore[assignment]
+        self.board_columns = self._parse_board_columns()  # type: ignore[assignment]
 
         for board_id, board_name in self.boards:
-            self.current_board = board_id
-            self.current_board_name = board_name
             board_columns = self.board_columns[board_id]
 
             logger.info(f"Processing board {board_id}:{board_name}")
 
             board_items = self._get_board_items(board_id, board_columns)
-            board_docs = self._construct_items_documents(board_items, board_columns)
+            board_docs = self._construct_items_documents(
+                board_items, board_columns, board_id, board_name
+            )
 
             self.documents.extend(board_docs)  # type: ignore[call-arg]
 
@@ -129,7 +129,6 @@ class MondayExtractor(BaseExtractor):
 
     def _parse_board_columns(
         self,
-        boards_metadata: list,
         valid_types: list = ["file", "doc", "dropdown", "longtext", "text", "name"],
     ) -> Dict[str, Dict[str, str]]:
         """
@@ -139,7 +138,7 @@ class MondayExtractor(BaseExtractor):
 
         board_columns = dict()  # type: ignore[var-annotated]
 
-        for board in boards_metadata:
+        for board in self.boards_metadata:
             # set board id as key, empty dict for columns as value
             board_columns[board["id"]] = dict()
 
@@ -202,12 +201,12 @@ class MondayExtractor(BaseExtractor):
         items = content["items_page"]["items"]
 
         if consume and cursor:
-            items = self._consume_items_cursor(cursor, items, column_ids)
+            items = self._consume_items_cursor(cursor, items, column_ids, board_id)
 
         return items
 
     def _consume_items_cursor(
-        self, cursor: str, items: Collection[dict], column_ids: list
+        self, cursor: str, items: Collection[dict], column_ids: list, board_id: str
     ) -> Collection[dict]:
         query = f"""
                 query {{
@@ -233,13 +232,13 @@ class MondayExtractor(BaseExtractor):
         data = {"query": query}
 
         try:
-            logger.info(f"Consuming cursor {cursor} for board {self.current_board}")
+            logger.info(f"Consuming cursor {cursor} for board {board_id}")
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=30)
             r.raise_for_status()
 
         except (HTTPError, RequestException) as error:
             logger.warning(
-                f"Failed to get items for board {self.current_board} with cursor {cursor}, err: {error}"
+                f"Failed to get items for board {board_id} with cursor {cursor}, err: {error}"
             )
 
         content = r.json()["data"]["next_items_page"]
@@ -250,7 +249,7 @@ class MondayExtractor(BaseExtractor):
         items.extend(new_items)  # type: ignore[attr-defined]
 
         if cursor:
-            return self._consume_items_cursor(cursor, items, column_ids)
+            return self._consume_items_cursor(cursor, items, column_ids, board_id)
         else:
             return items
 
@@ -288,7 +287,9 @@ class MondayExtractor(BaseExtractor):
 
         return document_string
 
-    def _construct_items_documents(self, items: Collection[dict], columns: dict):
+    def _construct_items_documents(
+        self, items: Collection[dict], columns: dict, board_id: str, board_name: str
+    ):
         """
         Constructs Document objects from a list of items and column metadata.
         If a column contains a Monday document, calls get_monday_doc() to
@@ -307,7 +308,7 @@ class MondayExtractor(BaseExtractor):
             updates = item["updates"]
             updates_text = [u["text_body"] for u in updates]
 
-            item_text_string += f"Board Name: {self.current_board_name}\n"
+            item_text_string += f"Board Name: {board_name}\n"
 
             if updates_text:
                 for update in updates_text:
@@ -331,8 +332,8 @@ class MondayExtractor(BaseExtractor):
 
             metadata = {
                 "title": item_name,
-                "board": self.current_board,
-                "boardName": self.current_board_name,
+                "board": board_id,
+                "boardName": board_name,
                 "link": item_url,
                 "pageId": item_id,
                 "platform": "monday",
