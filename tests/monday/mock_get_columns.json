@@ -2,6 +2,33 @@
   "data": {
     "boards": [
       {
+        "id": "1234",
+        "name": "Hello World!",
+        "columns": [
+          {
+            "id": "name",
+            "title": "Name",
+            "type": "name"
+          },
+          {
+            "id": "columns_properties3",
+            "title": "Columns/Properties",
+            "type": "dropdown"
+          },
+          {
+            "id": "descriptions",
+            "title": "Descriptions",
+            "type": "text"
+          },
+          {
+            "id": "person",
+            "title": "Person",
+            "type": "people"
+          }
+        ]
+      },
+      {
+        "id": "5678",
         "name": "Hello World!",
         "columns": [
           {

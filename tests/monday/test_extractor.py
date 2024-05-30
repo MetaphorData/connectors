@@ -12,7 +12,6 @@ from tests.test_utils import load_json
 dummy_config = MondayRunConfig(
     monday_api_key="monday_api_key",
     monday_api_version="monday_api_version",
-    boards=[],
     azure_openAI_key="azure_openAI_key",
     azure_openAI_version="azure_openAI_version",
     azure_openAI_endpoint="azure_openAI_endpoint",
@@ -25,8 +24,8 @@ dummy_config = MondayRunConfig(
 
 @pytest.fixture
 def mock_responses(test_root_dir):
-    cols = load_json(f"{test_root_dir}/monday/mock_get_columns.json")
-    cols_with_doc = load_json(f"{test_root_dir}/monday/mock_columns_with_doc.json")
+    columns = load_json(f"{test_root_dir}/monday/mock_get_columns.json")
+    columns_with_doc = load_json(f"{test_root_dir}/monday/mock_columns_with_doc.json")
     items = load_json(f"{test_root_dir}/monday/mock_get_items.json")
     items_with_doc = load_json(f"{test_root_dir}/monday/mock_items_with_doc.json")
     items_with_cursor = load_json(
@@ -36,8 +35,8 @@ def mock_responses(test_root_dir):
     doc = load_json(f"{test_root_dir}/monday/mock_get_doc.json")
 
     return {
-        "columns": cols,
-        "columns_with_doc": cols_with_doc,
+        "columns": columns,
+        "columns_with_doc": columns_with_doc,
         "items": items,
         "items_with_doc": items_with_doc,
         "items_with_cursor": items_with_cursor,
@@ -53,25 +52,17 @@ def monday_extractor():
 
 
 sample_raw_documents = [
-    Document(  # type: ignore[call-arg]
-        doc_id="5678",
-        embedding=None,
+    Document(
+        text="Board Name: Hello World!\nUpdate: First update\nUpdate: Second update\nTitle: Hello World!",
         extra_info={
             "title": "Hello World!",
-            "board": 1234,
+            "board": "1234",
             "boardName": "Hello World!",
             "link": "https://metaphor.io",
-            "page_id": "5678",
+            "pageId": "5678",
             "platform": "monday",
             "lastRefreshed": "2023-12-11 00:00:00.000000",
         },
-        hash="1111",
-        text="Board Name: Hello World!\nTitle: Hello World!",
-        start_char_idx=None,
-        end_char_idx=None,
-        text_template="{metadata_str}\n\n{content}",
-        metadata_template="{key}: {value}",
-        metadata_seperator="\n",
     )
 ]
 
@@ -88,30 +79,26 @@ class MockResponse:
         return
 
 
-# test for _get_board_columns success
+# test for _get_available_boards success
 @patch("requests.post")
-def test_get_board_columns_success(
+def test_get_available_boards_success(
     mock_post: MagicMock, monday_extractor, mock_responses
 ):
     mock_post.return_value.json.return_value = mock_responses["columns"]
-    monday_extractor.current_board = 1234
-    monday_extractor.current_board_name = "Hello World!"
-
-    columns = monday_extractor._get_board_columns(1234)
-    assert columns == {
-        "name": "Name",
-        "columns_properties3": "Columns/Properties",
-        "descriptions": "Descriptions",
-    }, "Column names and types should be correct, and ignores person column"
+    boards = monday_extractor._get_available_boards()
+    assert boards == [
+        ("1234", "Hello World!"),
+        ("5678", "Hello World!"),
+    ], "Board ids and names should be correct"
 
 
-# test for _get_board_columns exception
+# test for _get_available_boards exception
 @patch("requests.post")
-def test_get_board_columns_failure(mock_post: MagicMock, monday_extractor):
+def test_get_available_boards_failure(mock_post: MagicMock, monday_extractor):
     mock_post.side_effect = requests.HTTPError
 
     with pytest.raises(Exception):  # HTTPError is handled correctly
-        monday_extractor._get_board_columns(1234)
+        monday_extractor._get_available_boards()
 
 
 # test for _get_board_items success
@@ -119,11 +106,12 @@ def test_get_board_columns_failure(mock_post: MagicMock, monday_extractor):
 def test_get_board_items_success(
     mock_post: MagicMock, monday_extractor, mock_responses
 ):
-    mock_post.return_value.json.return_value = mock_responses["items"]
-    monday_extractor.current_board = 1234
-    monday_extractor.current_board_name = "Hello World!"
+    mock_post.return_value.json.return_value = mock_responses["columns"]
+    _ = monday_extractor._get_available_boards()
+    board_columns = monday_extractor._parse_board_columns()
 
-    items = monday_extractor._get_board_items(1234, columns=mock_responses["columns"])
+    mock_post.return_value.json.return_value = mock_responses["items"]
+    items = monday_extractor._get_board_items("1234", columns=board_columns["1234"])
 
     assert items == [
         {
@@ -164,10 +152,8 @@ def test_consume_items_cursor(mock_post: MagicMock, monday_extractor, mock_respo
         mock_responses["items_with_cursor"],
         mock_responses["next_items_page"],
     ]
-    monday_extractor.current_board = 1234
-    monday_extractor.current_board_name = "Hello World!"
 
-    items = monday_extractor._get_board_items(1234, columns=mock_responses["columns"])
+    items = monday_extractor._get_board_items("1234", columns=mock_responses["columns"])
 
     assert (
         len(items) == 4
@@ -180,7 +166,7 @@ def test_get_board_items_failure(mock_post: MagicMock, monday_extractor):
     mock_post.side_effect = requests.HTTPError
 
     with pytest.raises(Exception):  # HTTPError is handled correctly
-        monday_extractor._get_board_items(1234)
+        monday_extractor._get_board_items("1234", columns={})
 
 
 # test for _get_monday_doc success
@@ -188,7 +174,7 @@ def test_get_board_items_failure(mock_post: MagicMock, monday_extractor):
 def test_get_monday_doc_success(mock_post: MagicMock, monday_extractor, mock_responses):
     mock_post.return_value.json.return_value = mock_responses["document"]
 
-    doc_text = monday_extractor._get_monday_doc(1234)
+    doc_text = monday_extractor._get_monday_doc("1234")
 
     assert doc_text == "Hello\nWorld!\n"
 
@@ -199,7 +185,7 @@ def test_get_monday_doc_failure(mock_post: MagicMock, monday_extractor):
     mock_post.side_effect = requests.HTTPError
 
     with pytest.raises(Exception):  # HTTPError is handled correctly
-        monday_extractor._get_monday_doc(1234)
+        monday_extractor._get_monday_doc("1234")
 
 
 # test for _construct_items_documents
@@ -208,16 +194,18 @@ def test_construct_items_documents(
     mock_post: MagicMock, monday_extractor, mock_responses
 ):
     mock_post.return_value.json.return_value = mock_responses["columns"]
-    columns = monday_extractor._get_board_columns(1234)
+    _ = monday_extractor._get_available_boards()
+    board_columns = monday_extractor._parse_board_columns()
 
     mock_post.return_value.json.return_value = mock_responses["items"]
-    items = monday_extractor._get_board_items(1234, columns=mock_responses["columns"])
-    monday_extractor.current_board = 1234
-    documents = monday_extractor._construct_items_documents(items, columns)
+    items = monday_extractor._get_board_items("1234", columns=board_columns["1234"])
+    documents = monday_extractor._construct_items_documents(
+        items, board_columns["1234"], "1234", "Hello World!"
+    )
 
     assert len(documents) == 2, "Appropriate number of Documents constructed"
     assert all(
-        [d.extra_info["board"] == 1234 for d in documents]
+        [d.extra_info["board"] == "1234" for d in documents]
     ), "All Documents have the correct board number"
     assert all(
         [d.extra_info["platform"] == "monday" for d in documents]
@@ -226,13 +214,13 @@ def test_construct_items_documents(
     assert all([d.text for d in documents]), "All Documents have text"
 
 
-@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.MondayExtractor._parse_board_columns")
 @patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
 def test_construct_items_documents_with_updates(
-    mock_get_board_items, mock_get_board_columns, monday_extractor, mock_responses
+    mock_get_board_items, mock_parse_board_columns, monday_extractor, mock_responses
 ):
     # Mock responses for columns and items to include updates
-    mock_get_board_columns.return_value = mock_responses["columns"]
+    mock_parse_board_columns.return_value = mock_responses["columns"]
     mock_get_board_items.return_value = [
         {
             "id": "123",
@@ -248,11 +236,8 @@ def test_construct_items_documents_with_updates(
 
     columns = mock_responses["columns"]
 
-    monday_extractor.current_board = 1234
-    monday_extractor.current_board_name = "Hello World!"
-
     documents = monday_extractor._construct_items_documents(
-        mock_get_board_items.return_value, columns
+        mock_get_board_items.return_value, columns, "1234", "Hello World!"
     )
 
     assert len(documents) == 1, "One document should be constructed"
@@ -265,28 +250,25 @@ def test_construct_items_documents_with_updates(
     ), f"Document text should include updates: {expected_text}"
 
 
-@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.MondayExtractor._parse_board_columns")
 @patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
 @patch("metaphor.monday.extractor.MondayExtractor._get_monday_doc")
 def test_construct_items_documents_with_doc(
     mock_get_monday_doc,
     mock_get_board_items,
-    mock_get_board_columns,
+    mock_parse_board_columns,
     monday_extractor,
     mock_responses,
 ):
     # Mock responses for get_doc, columns and items to include monday doc
     mock_get_monday_doc.return_value = "Hello World!"
-    mock_get_board_columns.return_value = mock_responses["columns_with_doc"]
+    mock_parse_board_columns.return_value = mock_responses["columns_with_doc"]
     mock_get_board_items.return_value = mock_responses["items_with_doc"]
 
     columns = mock_responses["columns_with_doc"]
 
-    monday_extractor.current_board = 1234
-    monday_extractor.current_board_name = "Hello World!"
-
     documents = monday_extractor._construct_items_documents(
-        mock_get_board_items.return_value, columns
+        mock_get_board_items.return_value, columns, "1234", "Hello World!"
     )
 
     assert mock_get_monday_doc.call_args[0] == (
@@ -300,16 +282,14 @@ def test_construct_items_documents_with_doc(
 
 # test_extract for MondayExtractor
 @patch("metaphor.monday.extractor.MondayExtractor._construct_items_documents")
-@patch("metaphor.monday.extractor.MondayExtractor._get_monday_doc")
 @patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
-@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.MondayExtractor._get_available_boards")
 @patch("metaphor.monday.extractor.embed_documents")
 @pytest.mark.asyncio
 async def test_extract(
     mock_embed_documents: MagicMock,
-    mock_get_board_columns: MagicMock,
+    mock_get_available_boards: MagicMock,
     mock_get_board_items: MagicMock,
-    mock_get_monday_doc: MagicMock,
     mock_construct_items_documents: MagicMock,
     monday_extractor,
     mock_responses,
@@ -325,7 +305,7 @@ async def test_extract(
                 "metadata_dict": {
                     "5678": {
                         "title": "Hello World!",
-                        "board": 1234,
+                        "board": "1234",
                         "boardName": "Hello World!",
                         "link": "https://metaphor.io",
                         "pageId": "5678",
@@ -344,10 +324,11 @@ async def test_extract(
 
     # Mocking method responses
     mock_embed_documents.return_value = mock_VSI
-    mock_get_board_columns.return_value = mock_responses["columns"]
+    mock_get_available_boards.return_value = [("1234", "Hello World!")]
     mock_get_board_items.return_value = mock_responses["items"]
-    mock_get_monday_doc.return_value = "Document content"
     mock_construct_items_documents.return_value = sample_raw_documents
+
+    monday_extractor.boards_metadata = mock_responses["columns"]["data"]["boards"]
 
     events = await monday_extractor.extract()
 
@@ -357,29 +338,26 @@ async def test_extract(
 
 
 @patch("metaphor.monday.extractor.MondayExtractor._construct_items_documents")
-@patch("metaphor.monday.extractor.MondayExtractor._get_monday_doc")
 @patch("metaphor.monday.extractor.MondayExtractor._get_board_items")
-@patch("metaphor.monday.extractor.MondayExtractor._get_board_columns")
+@patch("metaphor.monday.extractor.MondayExtractor._get_available_boards")
 @patch("metaphor.monday.extractor.embed_documents")
 @pytest.mark.asyncio
 async def test_extract_multiple_boards(
     mock_embed_documents,
-    mock_get_board_columns,
+    mock_get_available_boards,
     mock_get_board_items,
-    mock_get_monday_doc,
     mock_construct_items_documents,
     monday_extractor,
     mock_responses,
     test_root_dir,
 ):
     # Adjust the monday_extractor to have multiple boards for testing
-    monday_extractor.boards = [1234, 5678]
+    mock_get_available_boards.return_value = [
+        ("1234", "Hello World!"),
+        ("5678", "Test Board"),
+    ]
 
     # Assuming each board has a different set of columns and items to be mocked
-    mock_get_board_columns.side_effect = [
-        mock_responses["columns"],
-        mock_responses["columns"],
-    ]
     mock_get_board_items.side_effect = [
         mock_responses["items"],
         mock_responses["items"],
@@ -389,12 +367,10 @@ async def test_extract_multiple_boards(
         sample_raw_documents,
     ]
 
+    monday_extractor.boards_metadata = mock_responses["columns"]["data"]["boards"]
+
     await monday_extractor.extract()
 
     # Verify methods called with correct arguments for each board
-    assert mock_get_board_columns.call_args_list == [((1234,),), ((5678,),)]
-    assert mock_get_board_items.call_args_list == [
-        ((1234, mock_responses["columns"]),),
-        ((5678, mock_responses["columns"]),),
-    ]
+    assert mock_get_available_boards.call_count == 1
     assert mock_construct_items_documents.call_count == 2

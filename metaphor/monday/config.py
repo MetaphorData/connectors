@@ -12,9 +12,6 @@ class MondayRunConfig(BaseConfig):
     # Monday API version
     monday_api_version: str
 
-    # Monday.com Boards to extract items from
-    boards: list
-
     # Azure OpenAI services configs
     azure_openAI_key: str
     azure_openAI_endpoint: str

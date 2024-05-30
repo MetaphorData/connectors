@@ -1,12 +1,12 @@
 # Monday Connector
 
-This connector extracts documents from [Monday.com](https://monday.com/) boards. It requires an appropriately configured API key that can access the configured boards.
+This connector extracts documents from [Monday.com](https://monday.com/) boards. It requires an appropriately configured API key.
 
 ## Setup
 
 A service account's or personal account's API key is required for this connector. Follow [these instructions](https://support.monday.com/hc/en-us/articles/360005144659-Does-monday-com-have-an-API) to create and retrieve the key.
 
-Ensure that the service acccount whose API key is being used has the appropriate access to the boards that you want to extract documents from.
+Ensure that the service acccount whose API key is being used has the appropriate access to the boards that you want to extract documents from. This connector will discover and retrieve items from boards its associated API key has access to.
 
 Additionally, this connector requires [Azure OpenAI services](https://azure.microsoft.com/en-us/products/ai-services/openai-service) to generate embedding vectors for documents.
 

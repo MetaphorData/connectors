@@ -1,6 +1,6 @@
 import datetime
 import json
-from typing import Collection
+from typing import Collection, Dict, List, Tuple
 
 import requests
 from llama_index.core import Document
@@ -38,8 +38,6 @@ class MondayExtractor(BaseExtractor):
         self.monday_api_key = config.monday_api_key
         self.monday_api_version = config.monday_api_version
 
-        self.boards = config.boards
-
         self.azure_openAI_key = config.azure_openAI_key
         self.azure_openAI_version = config.azure_openAI_version
         self.azure_openAI_endpoint = config.azure_openAI_endpoint
@@ -60,13 +58,18 @@ class MondayExtractor(BaseExtractor):
 
         self.documents = []
 
-        for board in self.boards:
-            self.current_board = board
-            logger.info(f"Processing board {board}")
+        self.boards = self._get_available_boards()
+        self.board_columns = self._parse_board_columns()  # type: ignore[assignment]
 
-            board_columns = self._get_board_columns(board)
-            board_items = self._get_board_items(board, board_columns)
-            board_docs = self._construct_items_documents(board_items, board_columns)
+        for board_id, board_name in self.boards:
+            board_columns = self.board_columns[board_id]
+
+            logger.info(f"Processing board {board_id}:{board_name}")
+
+            board_items = self._get_board_items(board_id, board_columns)
+            board_docs = self._construct_items_documents(
+                board_items, board_columns, board_id, board_name
+            )
 
             self.documents.extend(board_docs)  # type: ignore[call-arg]
 
@@ -87,54 +90,67 @@ class MondayExtractor(BaseExtractor):
 
         return embedded_nodes
 
-    def _get_board_columns(
+    def _get_available_boards(
         self,
-        board: int,
-        valid_types: list = ["file", "doc", "dropdown", "longtext", "text", "name"],
-    ) -> dict:
+    ) -> List[Tuple[str, str]]:
         """
-        Gets column metadata from a specified board.
-        Returns a dictionary of form (column_id, column_title)
+        Discovers all available Monday.com boards to minimize manual configuration.
         """
 
-        # Retrieve column data for a specified board
-        query = f"""
-                    query{{
-                    boards(ids: [{board}]) {{
-                        name
-                        columns {{
+        # Retrieve all accessible boards and board metadata
+        query = """
+                    query {
+                    boards {
                         id
-                        title
-                        type
-                        }}
-                    }}
-                    }}
+                        name
+                        columns {
+                            id
+                            title
+                            type
+                            }
+                        }
+                    }
                 """
         data = {"query": query}
 
         try:
-            logger.info(f"Getting columns for board {board}")
+            logger.info("Retrieving all available boards")
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=15)
             r.raise_for_status()
 
         except (HTTPError, RequestException) as error:
-            logger.warning(f"Failed to get columns for board {board}, err: {error}")
+            logger.warning("Failed to get boards.")
+            raise error
 
-        content = r.json()
+        self.boards_metadata = r.json()["data"]["boards"]
 
-        columns = dict()
-        for col in content["data"]["boards"][0]["columns"]:
-            if col["type"] in set(valid_types):
-                columns[col["id"]] = col["title"]
+        # Return board ids and names only, preserve content
+        return [(board["id"], board["name"]) for board in self.boards_metadata]
 
-        # Extract board name from response
-        self.current_board_name = content["data"]["boards"][0]["name"]
+    def _parse_board_columns(
+        self,
+        valid_types: list = ["file", "doc", "dropdown", "longtext", "text", "name"],
+    ) -> Dict[str, Dict[str, str]]:
+        """
+        Parses column metadata from boards metadata query response.
+        Returns a dictionary of form {board_id: {col1_id: col1_title, col2_id: col2_title}}
+        """
 
-        return columns
+        board_columns = dict()  # type: ignore[var-annotated]
+
+        for board in self.boards_metadata:
+            # set board id as key, empty dict for columns as value
+            board_columns[board["id"]] = dict()
+
+            for col in board["columns"]:
+                if col["type"] in set(valid_types):
+                    board_columns[board["id"]][col["id"]] = col["title"]
+
+        return board_columns
 
     def _get_board_items(
         self,
-        board: int,
+        board_id: str,
         columns: dict,
         params: str = "{}",
         consume: bool = True,
@@ -148,67 +164,67 @@ class MondayExtractor(BaseExtractor):
         column_ids = list(columns.keys())
 
         query = f"""
-                {{
-                    boards(ids: [{board}]) {{
+                query {{
+                    boards(ids: [{board_id}]) {{
                         items_page(query_params:{params}, limit:{max_items_query}) {{
-                        cursor
-                        items {{
-                            id
-                            name
-                            updates {{
-                            text_body
+                            cursor
+                            items {{
+                                id
+                                name
+                                updates {{
+                                    text_body
+                                }}
+                                column_values(ids: {json.dumps(column_ids)}) {{
+                                    id
+                                    text
+                                    value
+                                }}
+                                url
                             }}
-                            column_values(ids: {json.dumps(column_ids)}) {{
-                            id
-                            text
-                            value
-                            }}
-                            url
-                        }}
                         }}
                     }}
-                    }}
+                }}
                 """
         data = {"query": query}
 
         try:
-            logger.info(f"Getting items for board {board}")
+            logger.info(f"Getting items for board {board_id}")
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=30)
             r.raise_for_status()
 
         except (HTTPError, RequestException) as error:
-            logger.warning(f"Failed to get items for board {board}, err: {error}")
+            logger.warning(f"Failed to get items for board {board_id}, err: {error}")
 
-        content = r.json()
+        content = r.json()["data"]["boards"][0]
 
-        cursor = content["data"]["boards"][0]["items_page"]["cursor"]
-        items = content["data"]["boards"][0]["items_page"]["items"]
+        cursor = content["items_page"]["cursor"]
+        items = content["items_page"]["items"]
 
         if consume and cursor:
-            items = self._consume_items_cursor(cursor, items, column_ids)
+            items = self._consume_items_cursor(cursor, items, column_ids, board_id)
 
         return items
 
     def _consume_items_cursor(
-        self, cursor: str, items: Collection[dict], column_ids: list
+        self, cursor: str, items: Collection[dict], column_ids: list, board_id: str
     ) -> Collection[dict]:
         query = f"""
-                {{
+                query {{
                     next_items_page (limit: {max_items_query}, cursor: "{cursor}") {{
                         cursor
                         items {{
-                            id
-                            name
-                            updates {{
-                            text_body
-                            }}
-                            column_values(ids: {json.dumps(column_ids)}) {{
-                            id
-                            text
-                            value
-                            }}
-                            url
-                    }}
+                                id
+                                name
+                                updates {{
+                                    text_body
+                                }}
+                                column_values(ids: {json.dumps(column_ids)}) {{
+                                    id
+                                    text
+                                    value
+                                }}
+                                url
+                        }}
                     }}
                 }}
                 """
@@ -216,24 +232,24 @@ class MondayExtractor(BaseExtractor):
         data = {"query": query}
 
         try:
-            logger.info(f"Consuming cursor {cursor} for board {self.current_board}")
+            logger.info(f"Consuming cursor {cursor} for board {board_id}")
             r = requests.post(url=baseURL, json=data, headers=self.headers, timeout=30)
             r.raise_for_status()
 
         except (HTTPError, RequestException) as error:
             logger.warning(
-                f"Failed to get items for board {self.current_board} with cursor {cursor}, err: {error}"
+                f"Failed to get items for board {board_id} with cursor {cursor}, err: {error}"
             )
 
-        content = r.json()
+        content = r.json()["data"]["next_items_page"]
 
-        cursor = content["data"]["next_items_page"]["cursor"]
-        new_items = content["data"]["next_items_page"]["items"]
+        cursor = content["cursor"]
+        new_items = content["items"]
 
         items.extend(new_items)  # type: ignore[attr-defined]
 
         if cursor:
-            return self._consume_items_cursor(cursor, items, column_ids)
+            return self._consume_items_cursor(cursor, items, column_ids, board_id)
         else:
             return items
 
@@ -257,9 +273,9 @@ class MondayExtractor(BaseExtractor):
         except (HTTPError, RequestException) as error:
             logger.warning(f"Failed to get Monday doc {object_id}, err: {error}")
 
-        content = r.json()
+        content = r.json()["data"]["docs"][0]
 
-        blocks = content["data"]["docs"][0]["blocks"]
+        blocks = content["blocks"]
 
         document_string = ""
 
@@ -271,7 +287,9 @@ class MondayExtractor(BaseExtractor):
 
         return document_string
 
-    def _construct_items_documents(self, items: Collection[dict], columns: dict):
+    def _construct_items_documents(
+        self, items: Collection[dict], columns: dict, board_id: str, board_name: str
+    ):
         """
         Constructs Document objects from a list of items and column metadata.
         If a column contains a Monday document, calls get_monday_doc() to
@@ -290,7 +308,7 @@ class MondayExtractor(BaseExtractor):
             updates = item["updates"]
             updates_text = [u["text_body"] for u in updates]
 
-            item_text_string += f"Board Name: {self.current_board_name}\n"
+            item_text_string += f"Board Name: {board_name}\n"
 
             if updates_text:
                 for update in updates_text:
@@ -314,8 +332,8 @@ class MondayExtractor(BaseExtractor):
 
             metadata = {
                 "title": item_name,
-                "board": self.current_board,
-                "boardName": self.current_board_name,
+                "board": board_id,
+                "boardName": board_name,
                 "link": item_url,
                 "pageId": item_id,
                 "platform": "monday",
