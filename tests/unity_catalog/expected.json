@@ -10,13 +10,32 @@
     "schema": {},
     "sourceInfo": {
       "createdAtSource": "2024-04-25T08:39:38.658000+00:00",
+      "createdBy": "foo@bar.com",
       "lastUpdated": "2024-04-25T08:39:38.658000+00:00",
-      "mainUrl": "https://dummy.host/explore/data/volumes/catalog2/schema/volume"
+      "mainUrl": "https://dummy.host/explore/data/volumes/catalog2/schema/volume",
+      "updatedBy": "foo@bar.com"
     },
     "structure": {
       "database": "catalog2",
       "schema": "schema",
       "table": "volume"
+    },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "foo@bar.com",
+          "systemContactSource": "UNITY_CATALOG"
+        }
+      ]
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "key": "tag",
+          "systemTagSource": "UNITY_CATALOG",
+          "value": "value"
+        }
+      ]
     },
     "unityCatalog": {
       "datasetType": "UNITY_CATALOG_VOLUME",

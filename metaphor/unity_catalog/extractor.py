@@ -38,6 +38,9 @@ from metaphor.models.metadata_change_event import (
     SourceField,
     SourceInfo,
     SQLSchema,
+    SystemContact,
+    SystemContacts,
+    SystemContactSource,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -545,32 +548,27 @@ class UnityCatalogExtractor(BaseExtractor):
                             + catalog_system_tags[catalog][1][schema.name]
                         )
 
-    def _extract_table_tags(self, catalog: str) -> None:
+    def _extract_object_tags(
+        self, catalog, columns: List[str], tag_schema_name: str
+    ) -> None:
         with self._connection.cursor() as cursor:
-            columns = [
-                "catalog_name",
-                "schema_name",
-                "table_name",
-                "tag_name",
-                "tag_value",
-            ]
-            query = f"SELECT {', '.join(columns)} FROM {catalog}.information_schema.table_tags"
+            query = f"SELECT {', '.join(columns)} FROM {catalog}.information_schema.{tag_schema_name}"
 
             cursor.execute(query)
             for (
                 catalog_name,
                 schema_name,
-                table_name,
+                dataset_name,
                 tag_name,
                 tag_value,
             ) in cursor.fetchall():
                 normalized_dataset_name = dataset_normalized_name(
-                    catalog_name, schema_name, table_name
+                    catalog_name, schema_name, dataset_name
                 )
                 dataset = self._datasets.get(normalized_dataset_name)
 
                 if dataset is None:
-                    logger.warn(f"Cannot find {normalized_dataset_name} table")
+                    logger.warn(f"Cannot find {normalized_dataset_name} dataset")
                     continue
 
                 assert dataset.system_tags and dataset.system_tags.tags is not None
@@ -588,6 +586,32 @@ class UnityCatalogExtractor(BaseExtractor):
                         value=tag_name,
                     )
                 dataset.system_tags.tags.append(tag)
+
+    def _extract_table_tags(self, catalog: str) -> None:
+        self._extract_object_tags(
+            catalog,
+            columns=[
+                "catalog_name",
+                "schema_name",
+                "table_name",
+                "tag_name",
+                "tag_value",
+            ],
+            tag_schema_name="table_tags",
+        )
+
+    def _extract_volume_tags(self, catalog: str) -> None:
+        self._extract_object_tags(
+            catalog,
+            columns=[
+                "catalog_name",
+                "schema_name",
+                "volume_name",
+                "tag_name",
+                "tag_value",
+            ],
+            tag_schema_name="volume_tags",
+        )
 
     def _extract_column_tags(self, catalog: str) -> None:
         with self._connection.cursor() as cursor:
@@ -646,6 +670,7 @@ class UnityCatalogExtractor(BaseExtractor):
                 self._extract_hierarchies(catalog_system_tags)
                 self._assign_dataset_system_tags(catalog, catalog_system_tags)
                 self._extract_table_tags(catalog)
+                self._extract_volume_tags(catalog)
                 self._extract_column_tags(catalog)
 
     def _extract_volume_files(self, volume: VolumeInfo):
@@ -762,11 +787,23 @@ class UnityCatalogExtractor(BaseExtractor):
             created_at_source=(
                 from_timestamp_ms(volume.created_at) if volume.created_at else None
             ),
+            created_by=volume.created_by,
+            updated_by=volume.updated_by,
         )
 
         dataset.schema = DatasetSchema(
             description=volume.comment,
         )
+
+        if volume.owner:
+            dataset.system_contacts = SystemContacts(
+                contacts=[
+                    SystemContact(
+                        email=volume.owner,
+                        system_contact_source=SystemContactSource.UNITY_CATALOG,
+                    )
+                ]
+            )
 
         dataset.unity_catalog = UnityCatalog(
             dataset_type=UnityCatalogDatasetType.UNITY_CATALOG_VOLUME,
@@ -777,6 +814,8 @@ class UnityCatalogExtractor(BaseExtractor):
             ),
         )
         dataset.entity_upstream = EntityUpstream(source_entities=[])
+
+        dataset.system_tags = SystemTags(tags=[])
 
         self._datasets[full_name] = dataset
 
