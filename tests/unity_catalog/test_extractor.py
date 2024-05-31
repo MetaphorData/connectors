@@ -309,6 +309,9 @@ async def test_extractor(
             ("does", "not", "exist", "also", "doesn't exist"),
         ],
         [
+            ("catalog2", "schema", "volume", "tag", "value"),
+        ],
+        [
             ("catalog", "schema", "table", "col1", "col_tag", "col_value"),
             ("catalog", "schema", "table", "col1", "col_tag2", "tag_value_2"),
             ("does", "not", "exist", "also", "doesn't", "exist"),
