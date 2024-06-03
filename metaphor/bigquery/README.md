@@ -27,8 +27,6 @@ We recommend creating a dedicated GCP service account with limited permissions f
 > - bigquery.datasets.getIamPolicy
 > - bigquery.jobs.create
 > - bigquery.jobs.get
-> - bigquery.datasets.get
-> - bigquery.datasets.getIamPolicy
 > - bigquery.models.getMetadata
 > - bigquery.models.list
 > - bigquery.routines.get
