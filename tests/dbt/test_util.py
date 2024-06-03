@@ -1,6 +1,10 @@
 from metaphor.common.entity_id import to_person_entity_id
 from metaphor.dbt.config import MetaOwnership, MetaTag
-from metaphor.dbt.util import get_ownerships_from_meta, get_tags_from_meta
+from metaphor.dbt.util import (
+    get_dbt_tags_from_meta,
+    get_metaphor_tags_from_meta,
+    get_ownerships_from_meta,
+)
 from metaphor.models.metadata_change_event import Ownership
 
 
@@ -114,7 +118,7 @@ def test_get_ownerships_with_assignment_targets(test_root_dir):
     assert ownerships.materialized_table == expected_materialized_table_ownerships
 
 
-def test_get_tags_from_meta(test_root_dir):
+def test_get_metaphor_tags_from_meta(test_root_dir):
     meta = {
         "pii": True,
         "prod": False,
@@ -144,4 +148,18 @@ def test_get_tags_from_meta(test_root_dir):
 
     expected_tags = ["pii", "sales"]
 
-    assert get_tags_from_meta(meta, meta_tags) == expected_tags
+    assert get_metaphor_tags_from_meta(meta, meta_tags) == expected_tags
+
+
+def test_get_dbt_tags_from_meta(test_root_dir):
+
+    assert get_dbt_tags_from_meta(None, None) == []
+
+    assert get_dbt_tags_from_meta({"other_key": "val"}, "dbt_tag") == []
+
+    assert get_dbt_tags_from_meta({"dbt_tag": "foo"}, "dbt_tag") == ["foo"]
+
+    assert get_dbt_tags_from_meta({"dbt_tags": ["foo", "bar"]}, "dbt_tags") == [
+        "foo",
+        "bar",
+    ]

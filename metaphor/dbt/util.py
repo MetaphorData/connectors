@@ -32,6 +32,9 @@ from metaphor.models.metadata_change_event import (
     Ownership,
     SchemaField,
     SchemaType,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
@@ -111,8 +114,8 @@ def get_ownerships_from_meta(
     return ownerships
 
 
-def get_tags_from_meta(meta: Dict, meta_tags: List[MetaTag]) -> List[str]:
-    """Extracts tag info from models' meta field"""
+def get_metaphor_tags_from_meta(meta: Dict, meta_tags: List[MetaTag]) -> List[str]:
+    """Extracts metaphor tag info from models' meta field"""
 
     tags: List[str] = []
     for meta_tag in meta_tags:
@@ -121,6 +124,29 @@ def get_tags_from_meta(meta: Dict, meta_tags: List[MetaTag]) -> List[str]:
             tags.append(meta_tag.tag_type)
 
     return tags
+
+
+def get_dbt_tags_from_meta(
+    meta: Optional[Dict], meta_key_tags: Optional[str]
+) -> List[str]:
+    """Extracts dbt tags from models' meta field"""
+
+    if meta is None or meta_key_tags is None:
+        return []
+
+    value = meta.get(meta_key_tags)
+    if value is None:
+        return []
+
+    # Value is list of string
+    if isinstance(value, list):
+        return [str(item) for item in value]
+
+    # Value is a single string
+    if isinstance(value, str):
+        return [value]
+
+    raise ValueError(f"Unexpected type for meta.{meta_key_tags}: {type(value)}")
 
 
 def init_dataset(
@@ -240,6 +266,19 @@ def build_source_code_url(
     project_source_url: Optional[str], file_path: str
 ) -> Optional[str]:
     return f"{project_source_url}/{file_path}" if project_source_url else None
+
+
+def build_system_tags(tag_names: List[str]) -> Optional[SystemTags]:
+    tags = [
+        SystemTag(
+            key=None,
+            system_tag_source=SystemTagSource.DBT,
+            value=name,
+        )
+        for name in tag_names
+        if name
+    ]
+    return SystemTags(tags=tags)
 
 
 def add_data_quality_monitor(
