@@ -12,11 +12,13 @@ from metaphor.dbt.util import (
     build_metric_docs_url,
     build_model_docs_url,
     build_source_code_url,
+    build_system_tags,
     dataset_normalized_name,
+    get_dbt_tags_from_meta,
+    get_metaphor_tags_from_meta,
     get_model_name_from_unique_id,
     get_ownerships_from_meta,
     get_snapshot_name_from_unique_id,
-    get_tags_from_meta,
     get_virtual_view_id,
     init_dataset,
     init_dbt_tests,
@@ -45,9 +47,6 @@ from metaphor.models.metadata_change_event import (
     Metric,
     MetricFilter,
     OwnershipAssignment,
-    SystemTag,
-    SystemTags,
-    SystemTagSource,
     TagAssignment,
     VirtualView,
 )
@@ -342,6 +341,7 @@ class ArtifactParser:
         self._project_source_url = config.project_source_url
         self._meta_ownerships = config.meta_ownerships
         self._meta_tags = config.meta_tags
+        self._meta_key_tags = config.meta_key_tags
         self._datasets = datasets
         self._virtual_views = virtual_views
         self._metrics = metrics
@@ -634,21 +634,6 @@ class ArtifactParser:
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
         add_data_quality_monitor(dataset, test.name, test.column_name, status)
 
-    def _get_system_tags(
-        self,
-        tag_names: List[str],
-    ) -> Optional[SystemTags]:
-        tags = [
-            SystemTag(
-                key=None,
-                system_tag_source=SystemTagSource.DBT,
-                value=name,
-            )
-            for name in tag_names
-            if name
-        ]
-        return SystemTags(tags=tags)
-
     def _parse_virtual_view_node(
         self,
         node: VIRTUAL_VIEW_NODE_TYPE,
@@ -683,8 +668,15 @@ class ArtifactParser:
             fields=[],
         )
         dbt_model = virtual_view.dbt_model
+
+        # Treat dbt tags as system tags
+        tags = get_dbt_tags_from_meta(node.meta, self._meta_key_tags)
         if node.tags:
-            virtual_view.system_tags = self._get_system_tags(node.tags)
+            tags.extend(node.tags)
+            tags = unique_list(tags)
+
+        if len(tags) > 0:
+            virtual_view.system_tags = build_system_tags(tags)
 
         # raw_sql & complied_sql got renamed to raw_code & complied_code in V7
         if hasattr(node, "raw_sql"):
@@ -791,7 +783,7 @@ class ArtifactParser:
                 ownerships=ownerships.dbt_model
             )
 
-        tag_names = get_tags_from_meta(meta, self._meta_tags)
+        tag_names = get_metaphor_tags_from_meta(meta, self._meta_tags)
         if len(tag_names) > 0:
             get_dataset().tag_assignment = TagAssignment(tag_names=tag_names)
 
@@ -859,7 +851,7 @@ class ArtifactParser:
             )
             return
 
-        tag_names = get_tags_from_meta(meta, self._meta_tags)
+        tag_names = get_metaphor_tags_from_meta(meta, self._meta_tags)
         if len(tag_names) == 0:
             return
 
@@ -979,7 +971,7 @@ class ArtifactParser:
         )
         metric_entity.dbt_metric = dbt_metric
         if metric.tags:
-            metric_entity.system_tags = self._get_system_tags(metric.tags)
+            metric_entity.system_tags = build_system_tags(metric.tags)
 
         # V7 renamed sql & type to expression & calculation_method
         if hasattr(metric, "sql"):

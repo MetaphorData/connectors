@@ -55,5 +55,8 @@ class DbtRunConfig(BaseConfig):
     # map meta field to ownerships
     meta_ownerships: List[MetaOwnership] = dataclass_field(default_factory=lambda: [])
 
-    # map meta field to tags
+    # Deprecated. Use meta_key_tags instead
     meta_tags: List[MetaTag] = dataclass_field(default_factory=lambda: [])
+
+    # Maps meta field to additional dbt tags
+    meta_key_tags: Optional[str] = None

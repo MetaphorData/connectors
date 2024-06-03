@@ -114,6 +114,7 @@ async def _test_project(
         project_source_url=project_source_url,
         meta_ownerships=[MetaOwnership(meta_key="owner", ownership_type="Maintainer")],
         meta_tags=[MetaTag(meta_key="pii", tag_type="PII")],
+        meta_key_tags="dbt_tags",
     )
     extractor = DbtExtractor(config)
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
