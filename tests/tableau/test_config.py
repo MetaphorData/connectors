@@ -17,6 +17,7 @@ def test_yaml_config(test_root_dir):
         snowflake_account="snow",
         bigquery_project_name_to_id_map={"bq_name": "bq_id"},
         disable_preview_image=True,
+        graphql_pagination_size=30,
         output=OutputConfig(),
     )
 
@@ -37,6 +38,7 @@ def test_yaml_config_no_optional(test_root_dir):
         snowflake_account=None,
         bigquery_project_name_to_id_map=dict(),
         disable_preview_image=False,
+        graphql_pagination_size=20,
         output=OutputConfig(),
     )
 

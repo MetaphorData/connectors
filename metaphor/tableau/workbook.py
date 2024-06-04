@@ -28,8 +28,8 @@ class Workbook:
         return self.graphql_item.projectName
 
 
-def get_all_workbooks(server: tableau.Server):
-    graphql_items = fetch_workbooks(server)
+def get_all_workbooks(server: tableau.Server, batch_size: int):
+    graphql_items = fetch_workbooks(server, batch_size)
     rest_items: List[tableau.WorkbookItem] = list(tableau.Pager(server.workbooks))
     workbooks: List[Workbook] = list()
     for rest_item in rest_items:

@@ -14,7 +14,7 @@ logger = get_logger()
 
 
 def _paginate_connection(
-    server: tableau.Server, query: str, connection_name: str, batch_size=50
+    server: tableau.Server, query: str, connection_name: str, batch_size
 ) -> List[Dict]:
     """Return all the nodes from GraphQL connection through pagination"""
 
@@ -36,7 +36,7 @@ def _paginate_connection(
         offset += batch_size
 
 
-def fetch_workbooks(server: tableau.Server, batch_size: int = 50):
+def fetch_workbooks(server: tableau.Server, batch_size):
     # fetch workbook related info from Metadata GraphQL API
     workbooks = _paginate_connection(
         server, workbooks_graphql_query, "workbooksConnection", batch_size
@@ -46,7 +46,7 @@ def fetch_workbooks(server: tableau.Server, batch_size: int = 50):
     return [WorkbookQueryResponse.model_validate(workbook) for workbook in workbooks]
 
 
-def fetch_custom_sql_tables(server: tableau.Server, batch_size: int = 50):
+def fetch_custom_sql_tables(server: tableau.Server, batch_size):
     # fetch custom SQL tables from Metadata GraphQL API
     custom_sql_tables = _paginate_connection(
         server, custom_sql_graphql_query, "customSQLTablesConnection", batch_size

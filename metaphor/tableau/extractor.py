@@ -95,6 +95,7 @@ class TableauExtractor(BaseExtractor):
         self._disable_preview_image = config.disable_preview_image
         self._include_personal_space = config.include_personal_space
         self._projects_filter = config.projects_filter
+        self._graphql_pagination_size = config.graphql_pagination_size
 
         self._views: Dict[str, tableau.ViewItem] = {}
         self._projects: Dict[str, List[str]] = {}  # project id -> project hierarchy
@@ -136,7 +137,7 @@ class TableauExtractor(BaseExtractor):
 
         server = tableau.Server(self._server_url, use_server_version=True)
         with server.auth.sign_in(tableau_auth):
-            workbooks = get_all_workbooks(server)
+            workbooks = get_all_workbooks(server, self._graphql_pagination_size)
             self._extract_dashboards(server, workbooks)
             self._extract_datasources(server, workbooks)
 
@@ -188,7 +189,9 @@ class TableauExtractor(BaseExtractor):
     def _extract_datasources(
         self, server: tableau.Server, workbooks: List[Workbook]
     ) -> None:
-        custom_sql_tables = fetch_custom_sql_tables(server)
+        custom_sql_tables = fetch_custom_sql_tables(
+            server, self._graphql_pagination_size
+        )
 
         # mapping of datasource to (query, list of upstream dataset IDs)
         datasource_upstream_datasets = {
