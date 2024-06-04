@@ -111,7 +111,7 @@ def test_workbook(
         graphql_workbooks_response,
     ]
 
-    workbooks = get_all_workbooks(mock_server)
+    workbooks = get_all_workbooks(mock_server, 20)
     assert len(workbooks) == 1
     with open(f"{test_root_dir}/tableau/workbook/expected_graphql_item.json") as f:
         assert workbooks[0].graphql_item.model_dump(exclude_none=True) == json.loads(
