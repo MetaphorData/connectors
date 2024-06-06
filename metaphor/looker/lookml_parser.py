@@ -82,6 +82,9 @@ class Model:
         return Model(explores=dict((e.name, e) for e in explores))
 
 
+ModelMap = Dict[str, Model]
+
+
 _parsed_files: Dict[str, Dict] = {}
 
 
@@ -602,7 +605,7 @@ def parse_project(
     base_dir: str,
     connections: Dict[str, LookerConnectionConfig],
     projectSourceUrl: Optional[str] = None,
-) -> Tuple[Dict[str, Model], List[VirtualView]]:
+) -> Tuple[ModelMap, List[VirtualView]]:
     """
     parse the project under base_dir, returning a Model map and a list of virtual views including
     Looker Explores and Views

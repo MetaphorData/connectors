@@ -12,4 +12,5 @@ connections:
     default_schema: schema1
     platform: SNOWFLAKE
     account: account1
+include_personal_folders: true
 output: {}

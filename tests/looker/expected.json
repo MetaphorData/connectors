@@ -16,17 +16,18 @@
       ]
     },
     "logicalId": {
-      "dashboardId": "model1::1",
+      "dashboardId": "1",
       "platform": "LOOKER"
     },
     "sourceInfo": {
-      "mainUrl": "http://test/me/model1::1"
+      "mainUrl": "http://test/me/1"
     },
     "structure": {
       "directories": [
-        "model1"
+        "shared",
+        "folder1"
       ],
-      "name": "1"
+      "name": "first"
     }
   }
 ]
