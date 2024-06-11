@@ -4,7 +4,6 @@ from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
-from bs4.element import Comment
 from llama_index.core import Document
 from requests.exceptions import HTTPError, RequestException
 
@@ -15,6 +14,7 @@ from metaphor.common.logger import get_logger
 from metaphor.common.utils import md5_digest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.static_web.config import StaticWebRunConfig
+from metaphor.static_web.utils import text_from_HTML, title_from_HTML
 
 logger = get_logger()
 
@@ -125,8 +125,8 @@ class StaticWebExtractor(BaseExtractor):
         if page_content == "ERROR IN PAGE RETRIEVAL":
             return (False, "")
         else:
-            page_text = self._get_text_from_HTML(page_content)
-            page_title = self._get_title_from_HTML(page_content)
+            page_text = text_from_HTML(page_content)
+            page_title = title_from_HTML(page_content)
 
             page_doc = self._make_document(page, page_title, page_text)
             self.docs.append(page_doc)
@@ -172,47 +172,6 @@ class StaticWebExtractor(BaseExtractor):
                     subpages.append(full_url)
 
         return subpages
-
-    def _get_text_from_HTML(self, html_content: str) -> str:
-        """
-        Extracts and returns visible text from given HTML content as a single string.
-        Designed to handle output from get_page_HTML.
-        """
-
-        def filter_visible(el):
-            if el.parent.name in [
-                "style",
-                "script",
-                "head",
-                "title",
-                "meta",
-                "[document]",
-            ]:
-                return False
-            elif isinstance(el, Comment):
-                return False
-            else:
-                return True
-
-        # Use bs4 to find visible text elements
-        soup = BeautifulSoup(html_content, "lxml")
-        visible_text = filter(filter_visible, soup.findAll(string=True))
-        return "\n".join(t.strip() for t in visible_text)
-
-    def _get_title_from_HTML(self, html_content: str) -> str:
-        """
-        Extracts the title of a webpage given HTML content as a single string.
-        Designed to handle output from get_page_HTML.
-        """
-
-        soup = BeautifulSoup(html_content, "lxml")
-        title_tag = soup.find("title")
-
-        if title_tag:
-            return title_tag.text
-
-        else:
-            return ""
 
     def _make_document(
         self, page_URL: str, page_title: str, page_text: str
