@@ -17,10 +17,8 @@ from metaphor.common.utils import (
     safe_parse_ISO8601,
     safe_str,
     start_of_day,
-    text_from_HTML,
     unique_list,
 )
-from tests.test_utils import load_text
 
 
 @freeze_time("2020-01-10")
@@ -175,18 +173,3 @@ def test_is_email():
     assert is_email("a+c@b.c")
     assert not is_email("foo")
     assert not is_email("foo@127.0.0.1")
-
-
-# Test for extracting visible text from HTML, with filtering
-def test_text_from_HTML(test_root_dir: str):
-    html_content = load_text(f"{test_root_dir}/common/samples/titles_text.html")
-    text = text_from_HTML(html_content)
-    assert "Visible paragraph 1." in text
-    assert "Visible paragraph 2." in text
-    assert "Test Title" not in text
-    assert "Some style" not in text
-    assert "Some script" not in text
-    assert "Some meta" not in text
-    assert "Commented text" not in text
-    assert "Script text" not in text
-    assert "Style text" not in text

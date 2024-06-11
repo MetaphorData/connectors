@@ -10,9 +10,9 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.embeddings import embed_documents, map_metadata, sanitize_text
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import text_from_HTML
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.sharepoint.config import SharepointRunConfig
+from metaphor.static_web.utils import text_from_HTML
 
 logger = get_logger()
 
