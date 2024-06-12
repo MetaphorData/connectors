@@ -6,6 +6,10 @@ from metaphor.common.entity_id import dataset_normalized_name
 
 
 class DiscoveryAPI:
+    """
+    A wrapper around dbt cloud's discovery API.
+    """
+
     def __init__(self, url: str, token: str) -> None:
         self.url = url
         self.token = token
@@ -49,6 +53,9 @@ query Model($uniqueId: String!, $jobId: BigInt!) {
         return dataset_normalized_name(database, schema, name)
 
     def get_test_status(self, job_id: int, test_unique_id: str):
+        """
+        If the test cannot be found, we consider it as `skipped`.
+        """
         query = """
 query Test($uniqueId: String!, $jobId: BigInt!) {
   job(id: $jobId) {

@@ -287,28 +287,36 @@ def add_data_quality_monitor(
     name: str,
     column_name: Optional[str],
     status: DataMonitorStatus,
+    check_monitor_exists: bool = False,
 ) -> None:
     if dataset.data_quality is None:
         dataset.data_quality = DatasetDataQuality(
             monitors=[], provider=DataQualityProvider.DBT
         )
-    dataset.data_quality.monitors.append(
-        # For `DataMonitorTarget`:
-        # column: Name of the target column. Not set if the monitor performs dataset-level tests, e.g. row count.
-        # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the data quality metadata is attached to.
-        DataMonitor(
-            title=name,
-            targets=[
-                DataMonitorTarget(
-                    dataset=str(
-                        to_dataset_entity_id_from_logical_id(dataset.logical_id)
-                    ),
-                    column=column_name,
-                )
-            ],
-            status=status,
+
+    assert dataset.data_quality.monitors is not None
+    assert dataset.logical_id
+
+    if not check_monitor_exists or not any(
+        monitor.title == name for monitor in dataset.data_quality.monitors
+    ):
+        dataset.data_quality.monitors.append(
+            # For `DataMonitorTarget`:
+            # column: Name of the target column. Not set if the monitor performs dataset-level tests, e.g. row count.
+            # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the data quality metadata is attached to.
+            DataMonitor(
+                title=name,
+                targets=[
+                    DataMonitorTarget(
+                        dataset=str(
+                            to_dataset_entity_id_from_logical_id(dataset.logical_id)
+                        ),
+                        column=column_name,
+                    )
+                ],
+                status=status,
+            )
         )
-    )
 
 
 def get_data_platform_from_manifest(

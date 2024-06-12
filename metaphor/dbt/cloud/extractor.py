@@ -1,6 +1,7 @@
 from typing import Collection, Dict, List, Optional
 
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.entity_id import EntityId, to_dataset_entity_id_from_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.dbt.artifact_parser import dbt_run_result_output_data_monitor_status_map
@@ -129,14 +130,22 @@ class DbtCloudExtractor(BaseExtractor):
         job_id: int,
         entities: Collection[ENTITY_TYPES],
     ):
-
         logger.info("Parsing test run results")
 
         discovery_api = DiscoveryAPI(self._discovery_api_url, self._service_token)
 
-        # This overwrite the data monitor datasets in `entities` if the names match.
-        datasets_with_monitor: List[Dataset] = list()
+        new_monitor_datasets: List[Dataset] = list()
 
+        # Collect all datasets we've found so far, they're the data monitors.
+        # We do this because we don't really want to override previously collected
+        # data monitors.
+        datasets: Dict[EntityId, Dataset] = {}
+        for entity in entities:
+            if not isinstance(entity, Dataset) or not entity.logical_id:
+                continue
+            datasets[to_dataset_entity_id_from_logical_id(entity.logical_id)] = entity
+
+        # Go thru the virtual views
         for entity in entities:
             if not isinstance(entity, VirtualView):
                 continue
@@ -149,15 +158,21 @@ class DbtCloudExtractor(BaseExtractor):
                 continue
 
             model_unique_id = f"model.{entity.logical_id.name}"
-
-            dataset = Dataset(
-                logical_id=DatasetLogicalID(
-                    name=discovery_api.get_model_dataset_name(job_id, model_unique_id),
-                    platform=platform,
-                    account=account,
-                ),
+            dataset_logical_id = DatasetLogicalID(
+                name=discovery_api.get_model_dataset_name(job_id, model_unique_id),
+                platform=platform,
+                account=account,
             )
-            datasets_with_monitor.append(dataset)
+
+            # Get the existing data monitor, if it does not exist then we make one
+            dataset = datasets.get(
+                to_dataset_entity_id_from_logical_id(dataset_logical_id)
+            )
+            if not dataset:
+                dataset = Dataset(
+                    logical_id=dataset_logical_id,
+                )
+                new_monitor_datasets.append(dataset)
 
             for test in entity.dbt_model.tests:
                 if not test.unique_id or not test.name:
@@ -172,7 +187,7 @@ class DbtCloudExtractor(BaseExtractor):
                     test.name,
                     test.columns[0] if test.columns else None,
                     status,
+                    check_monitor_exists=True,  # If this monitor is already collected, we don't want to duplicate or overwrite it
                 )
 
-        # No need to dedup, ingester will upsert on duplicate entities
-        return list(entities) + datasets_with_monitor
+        return list(entities) + new_monitor_datasets

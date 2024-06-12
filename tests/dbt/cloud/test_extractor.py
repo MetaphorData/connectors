@@ -11,6 +11,7 @@ from metaphor.models.metadata_change_event import (
     DataMonitorTarget,
     DataPlatform,
     Dataset,
+    DatasetLogicalID,
     DbtModel,
     DbtTest,
     VirtualView,
@@ -159,7 +160,12 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
                 ]
             ),
         ),
-        Dataset(),
+        Dataset(
+            logical_id=DatasetLogicalID(
+                name="a.b.c",
+                platform=DataPlatform.UNKNOWN,
+            )
+        ),
         VirtualView(),
     ]
 
