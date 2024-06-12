@@ -140,10 +140,12 @@ class DbtCloudExtractor(BaseExtractor):
         for entity in entities:
             if not isinstance(entity, VirtualView):
                 continue
-            if not entity.dbt_model or not entity.dbt_model.tests:
-                continue
-
-            if not entity.logical_id or not entity.logical_id.name:
+            if (
+                not entity.dbt_model
+                or not entity.dbt_model.tests
+                or not entity.logical_id
+                or not entity.logical_id.name
+            ):
                 continue
 
             model_unique_id = f"model.{entity.logical_id.name}"

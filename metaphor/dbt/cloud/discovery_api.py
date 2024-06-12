@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from requests import post
+import requests
 
 from metaphor.common.entity_id import dataset_normalized_name
 
@@ -11,7 +11,7 @@ class DiscoveryAPI:
         self.token = token
 
     def _send(self, query: str, variables: Dict[str, Any]):
-        resp = post(
+        resp = requests.post(
             url=self.url,
             headers={
                 "authorization": f"Bearer {self.token}",

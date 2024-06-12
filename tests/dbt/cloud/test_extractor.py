@@ -158,14 +158,18 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
                     ),
                 ]
             ),
-        )
+        ),
+        Dataset(),
+        VirtualView(),
     ]
 
     res = extractor._extend_test_run_results_entities(
         DataPlatform.UNKNOWN, None, 2222, entities
     )
-    assert len(res) == 2
-    dataset = next(x for x in res if isinstance(x, Dataset))
+    assert len(res) == 4
+    dataset = next(
+        x for x in res if isinstance(x, Dataset) and x.data_quality is not None
+    )
     assert dataset.data_quality and dataset.data_quality.monitors
     assert dataset.data_quality.monitors[0].status == DataMonitorStatus.PASSED
     assert dataset.data_quality.monitors[0].targets == [
