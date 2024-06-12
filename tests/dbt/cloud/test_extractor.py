@@ -6,13 +6,27 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.extractor import DbtCloudExtractor
+from metaphor.models.metadata_change_event import (
+    DataMonitorStatus,
+    DataMonitorTarget,
+    DataPlatform,
+    Dataset,
+    DbtModel,
+    DbtTest,
+    VirtualView,
+    VirtualViewLogicalID,
+    VirtualViewType,
+)
 
 
+@patch("metaphor.dbt.cloud.extractor.get_data_platform_from_manifest")
 @patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
 @patch("metaphor.dbt.cloud.extractor.DbtExtractor")
 @pytest.mark.asyncio
 async def test_extractor(
-    mock_dbt_extractor_class: MagicMock, mock_client_class: MagicMock
+    mock_dbt_extractor_class: MagicMock,
+    mock_client_class: MagicMock,
+    mock_get_data_platform_from_manifest: MagicMock,
 ):
     mock_client = MagicMock()
     mock_client.get_last_successful_run = MagicMock(
@@ -30,6 +44,8 @@ async def test_extractor(
     mock_client.is_job_included = mock_is_job_included
     mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
     mock_client.get_run_artifact = MagicMock(return_value="tempfile")
+
+    mock_get_data_platform_from_manifest.return_value = DataPlatform.UNKNOWN
 
     mock_dbt_extractor = MagicMock()
 
@@ -55,11 +71,14 @@ async def test_extractor(
     assert sorted(extractor._entities.keys()) == [3333, 7777]
 
 
+@patch("metaphor.dbt.cloud.extractor.get_data_platform_from_manifest")
 @patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
 @patch("metaphor.dbt.cloud.extractor.DbtExtractor")
 @pytest.mark.asyncio
 async def test_extractor_bad_source(
-    mock_dbt_extractor_class: MagicMock, mock_client_class: MagicMock
+    mock_dbt_extractor_class: MagicMock,
+    mock_client_class: MagicMock,
+    mock_get_data_platform_from_manifest: MagicMock,
 ):
     mock_client = MagicMock()
     mock_client.get_last_successful_run = MagicMock(
@@ -72,6 +91,8 @@ async def test_extractor_bad_source(
     mock_client.get_project_jobs = MagicMock(side_effect=[[8888], [2222]])
     mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
     mock_client.get_run_artifact = MagicMock(return_value="tempfile")
+
+    mock_get_data_platform_from_manifest.return_value = DataPlatform.UNKNOWN
 
     mock_dbt_extractor = MagicMock()
 
@@ -94,3 +115,67 @@ async def test_extractor_bad_source(
     extractor = DbtCloudExtractor(config)
     await extractor.extract()
     assert not extractor._entities
+
+
+@patch("metaphor.dbt.cloud.extractor.DiscoveryAPI")
+def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
+    config = DbtCloudConfig(
+        output=OutputConfig(),
+        account_id=1111,
+        job_ids={2222},
+        project_ids={6666, 4444},
+        base_url="https://cloud.metaphor.getdbt.com",
+        service_token="service_token",
+    )
+    extractor = DbtCloudExtractor(config)
+    mock_discovery_api = MagicMock()
+    mock_discovery_api.get_model_dataset_name.return_value = "db.sch.tab"
+
+    def fake_get_test_status(_job_id: int, test_unique_id: str):
+        if test_unique_id == "1":
+            return "pass"
+        return "error"
+
+    mock_discovery_api.get_test_status.side_effect = fake_get_test_status
+    mock_discovery_api_class.return_value = mock_discovery_api
+    entities = [
+        VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name="foo",
+                type=VirtualViewType.DBT_MODEL,
+            ),
+            dbt_model=DbtModel(
+                tests=[
+                    DbtTest(
+                        columns=["col1"],
+                        name="1",
+                        unique_id="1",
+                    ),
+                    DbtTest(
+                        columns=["col2"],
+                        name="2",
+                        unique_id="2",
+                    ),
+                ]
+            ),
+        )
+    ]
+
+    res = extractor._extend_test_run_results_entities(
+        DataPlatform.UNKNOWN, None, 2222, entities
+    )
+    assert len(res) == 2
+    dataset = next(x for x in res if isinstance(x, Dataset))
+    assert dataset.data_quality and dataset.data_quality.monitors
+    assert dataset.data_quality.monitors[0].status == DataMonitorStatus.PASSED
+    assert dataset.data_quality.monitors[0].targets == [
+        DataMonitorTarget(
+            column="col1", dataset="DATASET~083603875008F6D0B4981A524F67A549"
+        )
+    ]
+    assert dataset.data_quality.monitors[1].status == DataMonitorStatus.ERROR
+    assert dataset.data_quality.monitors[1].targets == [
+        DataMonitorTarget(
+            column="col2", dataset="DATASET~083603875008F6D0B4981A524F67A549"
+        )
+    ]

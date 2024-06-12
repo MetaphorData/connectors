@@ -6,6 +6,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import add_debug_file, get_logger
 from metaphor.dbt.artifact_parser import ArtifactParser
 from metaphor.dbt.config import DbtRunConfig
+from metaphor.dbt.util import get_data_platform_from_manifest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -49,13 +50,10 @@ class DbtExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from DBT repo")
 
-        with open(self._manifest) as file:
-            manifest_json = json.load(file)
+        self._data_platform = get_data_platform_from_manifest(self._manifest)
 
-        manifest_metadata = manifest_json.get("metadata", {})
-        platform = manifest_metadata.get("adapter_type", "").upper()
-        assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
-        self._data_platform = DataPlatform[platform]
+        with open(self._manifest) as f:
+            manifest_json = json.load(f)
 
         run_results_json = None
         if self._run_results is not None:

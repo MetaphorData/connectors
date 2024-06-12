@@ -1,13 +1,22 @@
-from typing import Collection, Dict
+from typing import Collection, Dict, List, Optional
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.dbt.artifact_parser import dbt_run_result_output_data_monitor_status_map
 from metaphor.dbt.cloud.client import DbtAdminAPIClient
 from metaphor.dbt.cloud.config import DbtCloudConfig
+from metaphor.dbt.cloud.discovery_api import DiscoveryAPI
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.extractor import DbtExtractor
+from metaphor.dbt.util import add_data_quality_monitor, get_data_platform_from_manifest
 from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetLogicalID,
+    VirtualView,
+)
 
 logger = get_logger()
 
@@ -33,6 +42,7 @@ class DbtCloudExtractor(BaseExtractor):
         self._meta_ownerships = config.meta_ownerships
         self._meta_tags = config.meta_tags
         self._base_url = config.base_url
+        self._discovery_api_url = config.discovery_api_url
 
         self._entities: Dict[int, Collection[ENTITY_TYPES]] = {}
         self._client = DbtAdminAPIClient(
@@ -78,6 +88,8 @@ class DbtCloudExtractor(BaseExtractor):
         manifest_json = self._client.get_run_artifact(run, "manifest.json")
         logger.info(f"manifest.json saved to {manifest_json}")
 
+        platform = get_data_platform_from_manifest(manifest_json)
+
         try:
             run_results_json = self._client.get_run_artifact(run, "run_results.json")
             logger.info(f"run_results.json saved to {run_results_json}")
@@ -102,7 +114,63 @@ class DbtCloudExtractor(BaseExtractor):
                     meta_tags=self._meta_tags,
                 )
             ).extract()
-            self._entities[run.run_id] = entities
+
+            self._entities[run.run_id] = self._extend_test_run_results_entities(
+                platform, account, run.job_id, entities
+            )
         except Exception as e:
             logger.exception(f"Failed to parse artifacts for run {run}")
             self.extend_errors(e)
+
+    def _extend_test_run_results_entities(
+        self,
+        platform: DataPlatform,
+        account: Optional[str],
+        job_id: int,
+        entities: Collection[ENTITY_TYPES],
+    ):
+
+        logger.info("Parsing test run results")
+
+        discovery_api = DiscoveryAPI(self._discovery_api_url, self._service_token)
+
+        # This overwrite the data monitor datasets in `entities` if the names match.
+        datasets_with_monitor: List[Dataset] = list()
+
+        for entity in entities:
+            if not isinstance(entity, VirtualView):
+                continue
+            if not entity.dbt_model or not entity.dbt_model.tests:
+                continue
+
+            if not entity.logical_id or not entity.logical_id.name:
+                continue
+
+            model_unique_id = f"model.{entity.logical_id.name}"
+
+            dataset = Dataset(
+                logical_id=DatasetLogicalID(
+                    name=discovery_api.get_model_dataset_name(job_id, model_unique_id),
+                    platform=platform,
+                    account=account,
+                ),
+            )
+            datasets_with_monitor.append(dataset)
+
+            for test in entity.dbt_model.tests:
+                if not test.unique_id or not test.name:
+                    continue
+
+                status = dbt_run_result_output_data_monitor_status_map[
+                    discovery_api.get_test_status(job_id, test.unique_id)
+                ]
+
+                add_data_quality_monitor(
+                    dataset,
+                    test.name,
+                    test.columns[0] if test.columns else None,
+                    status,
+                )
+
+        # No need to dedup, ingester will upsert on duplicate entities
+        return list(entities) + datasets_with_monitor

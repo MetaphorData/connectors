@@ -33,3 +33,6 @@ class DbtCloudConfig(BaseConfig):
 
     # Base URL for dbt instance
     base_url: str = "https://cloud.getdbt.com"
+
+    # Discovery API endpoint
+    discovery_api_url: str = "https://metadata.cloud.getdbt.com/graphql"

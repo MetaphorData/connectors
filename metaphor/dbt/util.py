@@ -1,3 +1,4 @@
+import json
 import re
 from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional
@@ -308,3 +309,14 @@ def add_data_quality_monitor(
             status=status,
         )
     )
+
+
+def get_data_platform_from_manifest(
+    manifest_file: str,
+):
+    with open(manifest_file) as f:
+        manifest_json = json.load(f)
+    manifest_metadata = manifest_json.get("metadata", {})
+    platform = manifest_metadata.get("adapter_type", "").upper()
+    assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
+    return DataPlatform[platform]
