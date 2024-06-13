@@ -161,7 +161,6 @@ class DbtCloudExtractor(BaseExtractor):
                     test.columnName,
                     status,
                     test.executeCompletedAt,
-                    check_monitor_exists=True,  # If this monitor is already collected, we don't want to duplicate or overwrite it
                 )
 
         return list(entities) + new_monitor_datasets

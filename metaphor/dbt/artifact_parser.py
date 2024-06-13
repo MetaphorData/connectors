@@ -1,5 +1,6 @@
 import json
 from copy import deepcopy
+from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
 from metaphor.common.entity_id import EntityId
@@ -632,9 +633,16 @@ class ArtifactParser:
         )
 
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
-        add_data_quality_monitor(
-            dataset, test.name, test.column_name, status, last_run=None
+        last_run = None
+        completed_times = sorted(
+            timing.completed_at
+            for timing in run_result.timing
+            if isinstance(timing.completed_at, datetime)
         )
+        if completed_times:
+            last_run = completed_times[-1]
+
+        add_data_quality_monitor(dataset, test.name, test.column_name, status, last_run)
 
     def _parse_virtual_view_node(
         self,
