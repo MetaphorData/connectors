@@ -91,13 +91,6 @@ class DbtCloudExtractor(BaseExtractor):
 
         platform = get_data_platform_from_manifest(manifest_json)
 
-        try:
-            run_results_json = self._client.get_run_artifact(run, "run_results.json")
-            logger.info(f"run_results.json saved to {run_results_json}")
-        except Exception:
-            logger.warning("Cannot locate run_results.json")
-            run_results_json = None
-
         docs_base_url = (
             f"{self._base_url}/accounts/{self._account_id}/jobs/{run.job_id}/docs"
         )
@@ -107,7 +100,7 @@ class DbtCloudExtractor(BaseExtractor):
             entities = await DbtExtractor(
                 DbtRunConfig(
                     manifest=manifest_json,
-                    run_results=run_results_json,
+                    run_results=None,  # Instead of getting test results from `run_results.json`, we get them from discovery API after we parse the manifest
                     account=account,
                     docs_base_url=docs_base_url,
                     output=self._output,
@@ -136,15 +129,6 @@ class DbtCloudExtractor(BaseExtractor):
 
         new_monitor_datasets: List[Dataset] = list()
 
-        # Collect all datasets we've found so far, they're the data monitors.
-        # We do this because we don't really want to override previously collected
-        # data monitors.
-        datasets: Dict[EntityId, Dataset] = {}
-        for entity in entities:
-            if not isinstance(entity, Dataset) or not entity.logical_id:
-                continue
-            datasets[to_dataset_entity_id_from_logical_id(entity.logical_id)] = entity
-
         # Go thru the virtual views
         for entity in entities:
             if not isinstance(entity, VirtualView):
@@ -159,17 +143,12 @@ class DbtCloudExtractor(BaseExtractor):
                 account=account,
             )
 
-            # Get the existing data monitor, if it does not exist then we make one
-            dataset = datasets.get(
-                to_dataset_entity_id_from_logical_id(dataset_logical_id)
+            dataset = Dataset(
+                logical_id=dataset_logical_id,
             )
-            if not dataset:
-                dataset = Dataset(
-                    logical_id=dataset_logical_id,
-                )
-                new_monitor_datasets.append(dataset)
+            new_monitor_datasets.append(dataset)
 
-            for test in discovery_api.get_all_test_status(job_id):
+            for test in discovery_api.get_all_job_tests(job_id):
                 if not test.name:
                     continue
 
@@ -182,6 +161,7 @@ class DbtCloudExtractor(BaseExtractor):
                     test.name,
                     test.columnName,
                     status,
+                    test.executeCompletedAt,
                     check_monitor_exists=True,  # If this monitor is already collected, we don't want to duplicate or overwrite it
                 )
 

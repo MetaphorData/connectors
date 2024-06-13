@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from metaphor.common.entity_id import dataset_normalized_name
 
@@ -11,6 +12,7 @@ class DiscoveryTestNode(BaseModel):
     name: Optional[str]
     status: Optional[str]
     columnName: Optional[str]
+    executeCompletedAt: Optional[datetime]
 
 
 class DiscoveryAPI:
@@ -60,7 +62,7 @@ query Model($uniqueId: String!, $jobId: BigInt!) {
         )
         return dataset_normalized_name(database, schema, name)
 
-    def get_all_test_status(self, job_id: int):
+    def get_all_job_tests(self, job_id: int):
         query = """
 query Tests($jobId: BigInt!) {
   job(id: $jobId) {
@@ -69,6 +71,7 @@ query Tests($jobId: BigInt!) {
         name
         status
         columnName
+        executeCompletedAt
     }
   }
 }

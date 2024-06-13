@@ -1,6 +1,7 @@
 import json
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Callable, Dict, List, Optional
 
 from metaphor.common.entity_id import (
@@ -51,6 +52,7 @@ def get_dataset_entity_id(self, db: str, schema: str, table: str) -> EntityId:
 
 
 def get_virtual_view_id(logical_id: VirtualViewLogicalID) -> str:
+    assert logical_id.name and logical_id.type
     return str(to_virtual_view_entity_id(logical_id.name, logical_id.type))
 
 
@@ -287,6 +289,7 @@ def add_data_quality_monitor(
     name: str,
     column_name: Optional[str],
     status: DataMonitorStatus,
+    last_run: Optional[datetime],
     check_monitor_exists: bool = False,
 ) -> None:
     if dataset.data_quality is None:
@@ -305,6 +308,7 @@ def add_data_quality_monitor(
             # column: Name of the target column. Not set if the monitor performs dataset-level tests, e.g. row count.
             # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the data quality metadata is attached to.
             DataMonitor(
+                last_run=last_run,
                 title=name,
                 targets=[
                     DataMonitorTarget(

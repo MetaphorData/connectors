@@ -632,7 +632,9 @@ class ArtifactParser:
         )
 
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
-        add_data_quality_monitor(dataset, test.name, test.column_name, status)
+        add_data_quality_monitor(
+            dataset, test.name, test.column_name, status, last_run=None
+        )
 
     def _parse_virtual_view_node(
         self,

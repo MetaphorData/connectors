@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -132,23 +133,25 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
     mock_discovery_api = MagicMock()
     mock_discovery_api.get_model_dataset_name.return_value = "db.sch.tab"
 
-    def fake_get_all_test_status(job_id: int):
+    def fake_get_all_job_tests(job_id: int):
         return [
             DiscoveryTestNode(
                 uniqueId="1",
                 name="test1",
                 columnName="col1",
                 status="pass",
+                executeCompletedAt=datetime.now(),
             ),
             DiscoveryTestNode(
                 uniqueId="2",
                 name="test2",
                 columnName="col2",
                 status="error",
+                executeCompletedAt=datetime.now(),
             ),
         ]
 
-    mock_discovery_api.get_all_test_status.side_effect = fake_get_all_test_status
+    mock_discovery_api.get_all_job_tests.side_effect = fake_get_all_job_tests
     mock_discovery_api_class.return_value = mock_discovery_api
     entities = [
         VirtualView(

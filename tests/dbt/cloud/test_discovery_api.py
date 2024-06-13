@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
@@ -46,12 +47,14 @@ def test(mock_requests_post: MagicMock):
                                     "name": None,
                                     "columnName": "col",
                                     "status": "pass",
+                                    "executeCompletedAt": datetime.now(),
                                 },
                                 {
                                     "uniqueId": "2",
                                     "name": "not pass",
                                     "columnName": "col2",
                                     "status": "error",
+                                    "executeCompletedAt": datetime.now(),
                                 },
                             ]
                         }
@@ -62,8 +65,8 @@ def test(mock_requests_post: MagicMock):
     mock_requests_post.side_effect = fake_post
     discovery_api = DiscoveryAPI("url", "token")
     assert discovery_api.get_model_dataset_name(123, "foo") == "db.sch.tab"
-    assert not discovery_api.get_all_test_status(0)
-    test_statuses = discovery_api.get_all_test_status(1)
+    assert not discovery_api.get_all_job_tests(0)
+    test_statuses = discovery_api.get_all_job_tests(1)
     assert len(test_statuses) == 2
     assert test_statuses[0].name is None
     assert test_statuses[0].status == "pass"
