@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 import requests
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 
 from metaphor.common.entity_id import dataset_normalized_name
 

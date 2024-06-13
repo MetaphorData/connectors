@@ -1,7 +1,6 @@
 from typing import Collection, Dict, List, Optional
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import EntityId, to_dataset_entity_id_from_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.dbt.artifact_parser import dbt_run_result_output_data_monitor_status_map
