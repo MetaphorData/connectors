@@ -149,12 +149,7 @@ class DbtCloudExtractor(BaseExtractor):
         for entity in entities:
             if not isinstance(entity, VirtualView):
                 continue
-            if (
-                not entity.dbt_model
-                or not entity.dbt_model.tests
-                or not entity.logical_id
-                or not entity.logical_id.name
-            ):
+            if not entity.logical_id or not entity.logical_id.name:
                 continue
 
             model_unique_id = f"model.{entity.logical_id.name}"
@@ -174,18 +169,18 @@ class DbtCloudExtractor(BaseExtractor):
                 )
                 new_monitor_datasets.append(dataset)
 
-            for test in entity.dbt_model.tests:
-                if not test.unique_id or not test.name:
+            for test in discovery_api.get_all_test_status(job_id):
+                if not test.name:
                     continue
 
                 status = dbt_run_result_output_data_monitor_status_map[
-                    discovery_api.get_test_status(job_id, test.unique_id)
+                    test.status or "skipped"
                 ]
 
                 add_data_quality_monitor(
                     dataset,
                     test.name,
-                    test.columns[0] if test.columns else None,
+                    test.columnName,
                     status,
                     check_monitor_exists=True,  # If this monitor is already collected, we don't want to duplicate or overwrite it
                 )

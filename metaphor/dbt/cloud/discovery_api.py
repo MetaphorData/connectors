@@ -1,8 +1,16 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import requests
+from pydantic import BaseModel
 
 from metaphor.common.entity_id import dataset_normalized_name
+
+
+class DiscoveryTestNode(BaseModel):
+    uniqueId: str
+    name: Optional[str]
+    status: Optional[str]
+    columnName: Optional[str]
 
 
 class DiscoveryAPI:
@@ -52,25 +60,21 @@ query Model($uniqueId: String!, $jobId: BigInt!) {
         )
         return dataset_normalized_name(database, schema, name)
 
-    def get_test_status(self, job_id: int, test_unique_id: str):
-        """
-        If the test cannot be found, we consider it as `skipped`.
-        """
+    def get_all_test_status(self, job_id: int):
         query = """
-query Test($uniqueId: String!, $jobId: BigInt!) {
+query Tests($jobId: BigInt!) {
   job(id: $jobId) {
-    test(uniqueId: $uniqueId) {
-      status
+    tests {
+        uniqueId
+        name
+        status
+        columnName
     }
   }
 }
         """
         variables = {
             "jobId": job_id,
-            "uniqueId": test_unique_id,
         }
-
-        res = self._send(query, variables)["job"]["test"]
-        if res is None:
-            return "skipped"
-        return res["status"]
+        tests = self._send(query, variables)["job"]["tests"]
+        return [DiscoveryTestNode.model_validate(test) for test in tests]

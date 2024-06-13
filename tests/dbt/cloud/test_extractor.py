@@ -5,6 +5,7 @@ import pytest
 from metaphor.common.base_config import OutputConfig
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
+from metaphor.dbt.cloud.discovery_api import DiscoveryTestNode
 from metaphor.dbt.cloud.extractor import DbtCloudExtractor
 from metaphor.models.metadata_change_event import (
     DataMonitorStatus,
@@ -13,7 +14,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DbtModel,
-    DbtTest,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
@@ -132,12 +132,23 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
     mock_discovery_api = MagicMock()
     mock_discovery_api.get_model_dataset_name.return_value = "db.sch.tab"
 
-    def fake_get_test_status(_job_id: int, test_unique_id: str):
-        if test_unique_id == "1":
-            return "pass"
-        return "error"
+    def fake_get_all_test_status(job_id: int):
+        return [
+            DiscoveryTestNode(
+                uniqueId="1",
+                name="test1",
+                columnName="col1",
+                status="pass",
+            ),
+            DiscoveryTestNode(
+                uniqueId="2",
+                name="test2",
+                columnName="col2",
+                status="error",
+            ),
+        ]
 
-    mock_discovery_api.get_test_status.side_effect = fake_get_test_status
+    mock_discovery_api.get_all_test_status.side_effect = fake_get_all_test_status
     mock_discovery_api_class.return_value = mock_discovery_api
     entities = [
         VirtualView(
@@ -145,20 +156,7 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
                 name="foo",
                 type=VirtualViewType.DBT_MODEL,
             ),
-            dbt_model=DbtModel(
-                tests=[
-                    DbtTest(
-                        columns=["col1"],
-                        name="1",
-                        unique_id="1",
-                    ),
-                    DbtTest(
-                        columns=["col2"],
-                        name="2",
-                        unique_id="2",
-                    ),
-                ]
-            ),
+            dbt_model=DbtModel(),
         ),
         Dataset(
             logical_id=DatasetLogicalID(
@@ -166,13 +164,12 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
                 platform=DataPlatform.UNKNOWN,
             )
         ),
-        VirtualView(),
     ]
 
     res = extractor._extend_test_run_results_entities(
         DataPlatform.UNKNOWN, None, 2222, entities
     )
-    assert len(res) == 4
+    assert len(res) == 3
     dataset = next(
         x for x in res if isinstance(x, Dataset) and x.data_quality is not None
     )
