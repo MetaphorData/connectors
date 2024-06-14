@@ -1,5 +1,7 @@
+import json
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Callable, Dict, List, Optional
 
 from metaphor.common.entity_id import (
@@ -50,6 +52,7 @@ def get_dataset_entity_id(self, db: str, schema: str, table: str) -> EntityId:
 
 
 def get_virtual_view_id(logical_id: VirtualViewLogicalID) -> str:
+    assert logical_id.name and logical_id.type
     return str(to_virtual_view_entity_id(logical_id.name, logical_id.type))
 
 
@@ -286,16 +289,22 @@ def add_data_quality_monitor(
     name: str,
     column_name: Optional[str],
     status: DataMonitorStatus,
+    last_run: Optional[datetime],
 ) -> None:
     if dataset.data_quality is None:
         dataset.data_quality = DatasetDataQuality(
             monitors=[], provider=DataQualityProvider.DBT
         )
+
+    assert dataset.data_quality.monitors is not None
+    assert dataset.logical_id
+
     dataset.data_quality.monitors.append(
         # For `DataMonitorTarget`:
         # column: Name of the target column. Not set if the monitor performs dataset-level tests, e.g. row count.
         # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the data quality metadata is attached to.
         DataMonitor(
+            last_run=last_run,
             title=name,
             targets=[
                 DataMonitorTarget(
@@ -308,3 +317,14 @@ def add_data_quality_monitor(
             status=status,
         )
     )
+
+
+def get_data_platform_from_manifest(
+    manifest_file: str,
+):
+    with open(manifest_file) as f:
+        manifest_json = json.load(f)
+    manifest_metadata = manifest_json.get("metadata", {})
+    platform = manifest_metadata.get("adapter_type", "").upper()
+    assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
+    return DataPlatform[platform]

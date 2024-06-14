@@ -41,6 +41,14 @@ If you're using dbt [Single Tenancy](https://docs.getdbt.com/docs/cloud/about-cl
 base_url: https://cloud.<tenant>.getdbt.com
 ```
 
+#### Discovery API URL
+
+Specify this if your dbt instance isn't a North America multi-tenant deployment. See [Discovery API endpoints](https://docs.getdbt.com/docs/dbt-cloud-apis/discovery-querying#discovery-api-endpoints) for reference.
+
+```yaml
+discovery_api_url: https://metadata.cloud.getdbt.com/graphql
+```
+
 #### Environment IDs
 
 ```yaml
