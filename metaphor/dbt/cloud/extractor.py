@@ -145,7 +145,6 @@ class DbtCloudExtractor(BaseExtractor):
             dataset = Dataset(
                 logical_id=dataset_logical_id,
             )
-            new_monitor_datasets.append(dataset)
 
             for test in discovery_api.get_all_job_tests(job_id):
                 if not test.name:
@@ -162,5 +161,8 @@ class DbtCloudExtractor(BaseExtractor):
                     status,
                     test.executeCompletedAt,
                 )
+
+            if dataset.data_quality and dataset.data_quality.monitors:
+                new_monitor_datasets.append(dataset)
 
         return list(entities) + new_monitor_datasets
