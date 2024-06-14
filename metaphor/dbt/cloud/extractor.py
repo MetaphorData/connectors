@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Collection, Dict, List, Optional
 
 from metaphor.common.base_extractor import BaseExtractor
@@ -6,7 +7,7 @@ from metaphor.common.logger import get_logger
 from metaphor.dbt.artifact_parser import dbt_run_result_output_data_monitor_status_map
 from metaphor.dbt.cloud.client import DbtAdminAPIClient
 from metaphor.dbt.cloud.config import DbtCloudConfig
-from metaphor.dbt.cloud.discovery_api import DiscoveryAPI
+from metaphor.dbt.cloud.discovery_api import DiscoveryAPI, DiscoveryTestNode
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.extractor import DbtExtractor
 from metaphor.dbt.util import add_data_quality_monitor, get_data_platform_from_manifest
@@ -128,6 +129,14 @@ class DbtCloudExtractor(BaseExtractor):
 
         new_monitor_datasets: List[Dataset] = list()
 
+        # Get all test nodes from discovery API
+        test_nodes_by_model_uid: Dict[str, List[DiscoveryTestNode]] = defaultdict(list)
+        for test_node in discovery_api.get_all_job_tests(job_id):
+            for model in test_node.models:
+                test_nodes_by_model_uid[model].append(test_node)
+
+        model_names = discovery_api.get_all_job_model_names(job_id)
+
         # Go thru the virtual views
         for entity in entities:
             if not isinstance(entity, VirtualView):
@@ -136,8 +145,15 @@ class DbtCloudExtractor(BaseExtractor):
                 continue
 
             model_unique_id = f"model.{entity.logical_id.name}"
+
+            if (
+                model_unique_id not in test_nodes_by_model_uid
+                or model_unique_id not in model_names
+            ):
+                continue
+
             dataset_logical_id = DatasetLogicalID(
-                name=discovery_api.get_model_dataset_name(job_id, model_unique_id),
+                name=model_names[model_unique_id],
                 platform=platform,
                 account=account,
             )
@@ -146,20 +162,21 @@ class DbtCloudExtractor(BaseExtractor):
                 logical_id=dataset_logical_id,
             )
 
-            for test in discovery_api.get_all_job_tests(job_id):
-                if not test.name:
+            # Go thru the tests in this dbt model
+            for test_node in test_nodes_by_model_uid[model_unique_id]:
+                if not test_node.name:
                     continue
 
                 status = dbt_run_result_output_data_monitor_status_map[
-                    test.status or "skipped"
+                    test_node.status or "skipped"
                 ]
 
                 add_data_quality_monitor(
                     dataset,
-                    test.name,
-                    test.columnName,
+                    test_node.name,
+                    test_node.columnName,
                     status,
-                    test.executeCompletedAt,
+                    test_node.executeCompletedAt,
                 )
 
             if dataset.data_quality and dataset.data_quality.monitors:

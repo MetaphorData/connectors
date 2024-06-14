@@ -14,13 +14,13 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    DbtModel,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
 )
 
 
+@patch("metaphor.dbt.cloud.extractor.DiscoveryAPI")
 @patch("metaphor.dbt.cloud.extractor.get_data_platform_from_manifest")
 @patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
 @patch("metaphor.dbt.cloud.extractor.DbtExtractor")
@@ -29,6 +29,7 @@ async def test_extractor(
     mock_dbt_extractor_class: MagicMock,
     mock_client_class: MagicMock,
     mock_get_data_platform_from_manifest: MagicMock,
+    mock_discovery_api_class: MagicMock,
 ):
     mock_client = MagicMock()
     mock_client.get_last_successful_run = MagicMock(
@@ -58,6 +59,9 @@ async def test_extractor(
 
     mock_client_class.return_value = mock_client
     mock_dbt_extractor_class.return_value = mock_dbt_extractor
+
+    mock_discovery_api = MagicMock()
+    mock_discovery_api.get_all_job_tests.return_value = []
 
     config = DbtCloudConfig(
         output=OutputConfig(),
@@ -131,7 +135,9 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
     )
     extractor = DbtCloudExtractor(config)
     mock_discovery_api = MagicMock()
-    mock_discovery_api.get_model_dataset_name.return_value = "db.sch.tab"
+    mock_discovery_api.get_all_job_model_names.return_value = {
+        "model.foo.bar": "db.sch.tab"
+    }
 
     def fake_get_all_job_tests(job_id: int):
         return [
@@ -141,6 +147,7 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
                 columnName="col1",
                 status="pass",
                 executeCompletedAt=datetime.now(),
+                dependsOn=["model.foo.bar"],
             ),
             DiscoveryTestNode(
                 uniqueId="2",
@@ -148,6 +155,7 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
                 columnName="col2",
                 status="error",
                 executeCompletedAt=datetime.now(),
+                dependsOn=["model.foo.bar"],
             ),
         ]
 
@@ -156,10 +164,9 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
     entities = [
         VirtualView(
             logical_id=VirtualViewLogicalID(
-                name="foo",
+                name="foo.bar",
                 type=VirtualViewType.DBT_MODEL,
             ),
-            dbt_model=DbtModel(),
         ),
         Dataset(
             logical_id=DatasetLogicalID(

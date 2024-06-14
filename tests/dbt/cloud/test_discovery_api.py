@@ -20,16 +20,19 @@ def test(mock_requests_post: MagicMock):
                     "data": self.response,
                 }
 
-        if json["query"].strip().startswith("query Model"):
+        if json["query"].strip().startswith("query Models"):
             return Response(
                 response={
                     "job": {
-                        "model": {
-                            "alias": None,
-                            "database": "db",
-                            "schema": "sch",
-                            "name": "tab",
-                        }
+                        "models": [
+                            {
+                                "alias": None,
+                                "database": "db",
+                                "schema": "sch",
+                                "name": "tab",
+                                "uniqueId": "foo",
+                            },
+                        ]
                     }
                 }
             )
@@ -48,6 +51,9 @@ def test(mock_requests_post: MagicMock):
                                     "columnName": "col",
                                     "status": "pass",
                                     "executeCompletedAt": datetime.now(),
+                                    "dependsOn": [
+                                        "model.foo.bar",
+                                    ],
                                 },
                                 {
                                     "uniqueId": "2",
@@ -55,6 +61,9 @@ def test(mock_requests_post: MagicMock):
                                     "columnName": "col2",
                                     "status": "error",
                                     "executeCompletedAt": datetime.now(),
+                                    "dependsOn": [
+                                        "model.foo.bar",
+                                    ],
                                 },
                             ]
                         }
@@ -64,7 +73,7 @@ def test(mock_requests_post: MagicMock):
 
     mock_requests_post.side_effect = fake_post
     discovery_api = DiscoveryAPI("url", "token")
-    assert discovery_api.get_model_dataset_name(123, "foo") == "db.sch.tab"
+    assert discovery_api.get_all_job_model_names(123)["foo"] == "db.sch.tab"
     assert not discovery_api.get_all_job_tests(0)
     test_statuses = discovery_api.get_all_job_tests(1)
     assert len(test_statuses) == 2

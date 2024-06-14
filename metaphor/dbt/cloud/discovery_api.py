@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 from pydantic import BaseModel
@@ -13,6 +13,23 @@ class DiscoveryTestNode(BaseModel):
     status: Optional[str]
     columnName: Optional[str]
     executeCompletedAt: Optional[datetime]
+    dependsOn: List[str]
+
+    @property
+    def models(self) -> List[str]:
+        return [x for x in self.dependsOn if x.startswith("model.")]
+
+
+class DiscoveryModelNode(BaseModel):
+    uniqueId: str
+    name: Optional[str]
+    alias: Optional[str]
+    database: Optional[str]
+    schema: Optional[str]
+
+    @property
+    def normalized_name(self) -> str:
+        return dataset_normalized_name(self.database, self.schema, self.name)
 
 
 class DiscoveryAPI:
@@ -36,31 +53,30 @@ class DiscoveryAPI:
         )
         return resp.json()["data"]
 
-    def get_model_dataset_name(self, job_id: int, model_unique_id: str):
+    def get_all_job_model_names(self, job_id: int):
         query = """
-query Model($uniqueId: String!, $jobId: BigInt!) {
+query Models($jobId: BigInt!) {
     job(id: $jobId) {
-        model(uniqueId: $uniqueId) {
+        models {
             alias
             database
             name
             schema
+            uniqueId
         }
     }
 }
         """
         variables = {
-            "uniqueId": model_unique_id,
             "jobId": job_id,
         }
 
-        model = self._send(query, variables)["job"]["model"]
-        database, schema, name = (
-            model.get("database"),
-            model.get("schema"),
-            model.get("alias") or model.get("name"),
-        )
-        return dataset_normalized_name(database, schema, name)
+        model_nodes = self._send(query, variables)["job"]["models"]
+        res: Dict[str, str] = {}
+        for model_node in model_nodes:
+            model = DiscoveryModelNode.model_validate(model_node)
+            res[model.uniqueId] = model.normalized_name
+        return res
 
     def get_all_job_tests(self, job_id: int):
         query = """
@@ -72,6 +88,7 @@ query Tests($jobId: BigInt!) {
         status
         columnName
         executeCompletedAt
+        dependsOn
     }
   }
 }
