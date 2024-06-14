@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from metaphor.common.entity_id import dataset_normalized_name
 
@@ -25,11 +25,11 @@ class DiscoveryModelNode(BaseModel):
     name: Optional[str]
     alias: Optional[str]
     database: Optional[str]
-    schema: Optional[str]
+    schema_: Optional[str] = Field(alias="schema")
 
     @property
     def normalized_name(self) -> str:
-        return dataset_normalized_name(self.database, self.schema, self.name)
+        return dataset_normalized_name(self.database, self.schema_, self.name)
 
 
 class DiscoveryAPI:
