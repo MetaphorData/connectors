@@ -324,6 +324,8 @@ class PostgreSQLExtractor(BaseExtractor):
     ) -> Dataset:
         normalized_name = dataset_normalized_name(database, schema, table)
 
+        # There is no reliable way to directly get data last modified time, can explore alternatives in future
+        # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID()
         dataset.logical_id.platform = self._dataset_platform
@@ -345,8 +347,6 @@ class PostgreSQLExtractor(BaseExtractor):
         )
 
         dataset.statistics = to_dataset_statistics(row_count, table_size)
-        # There is no reliable way to directly get data last modified time, can explore alternatives in future
-        # https://dba.stackexchange.com/questions/58214/getting-last-modification-date-of-a-postgresql-database-table/168752
 
         dataset.structure = DatasetStructure(
             database=database, schema=schema, table=table

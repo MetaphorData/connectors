@@ -220,8 +220,8 @@ def test_fetch_table_info(mock_connect: MagicMock):
     extractor._fetch_table_info({normalized_name: table_info}, False, set())
 
     assert dataset.schema.sql_schema.table_schema == "ddl"
-    assert dataset.statistics.last_updated == datetime.utcfromtimestamp(0).replace(
-        tzinfo=timezone.utc
+    assert dataset.source_info.last_updated == datetime.fromtimestamp(
+        0, tz=timezone.utc
     )
 
 

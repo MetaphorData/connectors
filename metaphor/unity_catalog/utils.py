@@ -116,7 +116,3 @@ def create_connection(
 
 def create_api(host: str, token: str) -> WorkspaceClient:
     return WorkspaceClient(host=host, token=token)
-
-
-def from_timestamp_ms(timestamp: int) -> datetime.datetime:
-    return datetime.datetime.fromtimestamp(timestamp / 1000, tz=datetime.timezone.utc)

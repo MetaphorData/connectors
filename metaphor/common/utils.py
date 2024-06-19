@@ -54,9 +54,11 @@ def generate_querylog_id(platform: str, id: str) -> str:
     return f"{platform}:{id}"
 
 
-def to_utc_time(time: datetime) -> datetime:
-    """convert local datatime to utc timezone"""
-    return time.replace(tzinfo=timezone.utc)
+def to_utc_time(time: Optional[datetime]) -> Optional[datetime]:
+    """convert local datetime to utc timezone"""
+    if time is not None:
+        return time.replace(tzinfo=timezone.utc)
+    return None
 
 
 def safe_parse_ISO8601(iso8601_str: Optional[str]) -> Optional[datetime]:
@@ -172,3 +174,22 @@ def is_email(email: str) -> bool:
     except (ValueError, AssertionError):
         return False
     return True
+
+
+def to_utc_datetime(
+    timestamp: Optional[Union[float, int]] = None,
+    timestamp_ms: Optional[Union[float, int]] = None,
+    tzinfo: Optional[timezone] = timezone.utc,
+) -> Optional[datetime]:
+    """
+    Return a datetime from timestamp or timestamp_ms, None if parameters are None
+    """
+    if timestamp is not None:
+        return datetime.fromtimestamp(timestamp, tz=tzinfo).replace(tzinfo=timezone.utc)
+
+    if timestamp_ms is not None:
+        return datetime.fromtimestamp(timestamp_ms / 1000, tz=tzinfo).replace(
+            tzinfo=timezone.utc
+        )
+
+    return None

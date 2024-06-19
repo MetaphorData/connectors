@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict
@@ -36,14 +35,15 @@ class DeserializableDatasetLogicalID:
 
 
 def to_dataset_statistics(
-    rows: Optional[int] = None,
+    rows: Optional[Union[float, int]] = None,
     size_bytes: Optional[Union[float, int]] = None,
-    last_updated: Optional[datetime] = None,
 ) -> DatasetStatistics:
+    """
+    Initialize a DatasetStatistics instance
+    """
     return DatasetStatistics(
         data_size_bytes=safe_float(size_bytes),
         record_count=safe_float(rows),
-        last_updated=last_updated,
     )
 
 

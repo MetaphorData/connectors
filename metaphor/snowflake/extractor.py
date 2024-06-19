@@ -1,5 +1,5 @@
 import math
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import (
     Collection,
     Dict,
@@ -33,7 +33,7 @@ from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import user_id_or_email
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import chunks, safe_float, start_of_day
+from metaphor.common.utils import chunks, safe_float, start_of_day, to_utc_datetime
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetPlatform,
@@ -386,9 +386,9 @@ class SnowflakeExtractor(BaseExtractor):
             # See https://docs.snowflake.com/en/sql-reference/functions/system_last_change_commit_time.html
             timestamp = results[f"UPDATED_{normalized_name}"]
             if timestamp > 0:
-                dataset.statistics.last_updated = datetime.utcfromtimestamp(
-                    timestamp / 1000000000
-                ).replace(tzinfo=timezone.utc)
+                dataset.source_info.last_updated = to_utc_datetime(
+                    timestamp / 1_000_000_1000
+                )
 
     def _fetch_unique_keys(self, cursor: SnowflakeCursor) -> None:
         cursor.execute("SHOW UNIQUE KEYS")

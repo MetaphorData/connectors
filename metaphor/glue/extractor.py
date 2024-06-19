@@ -8,7 +8,8 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import safe_float, unique_list
+from metaphor.common.models import to_dataset_statistics
+from metaphor.common.utils import unique_list
 from metaphor.glue.config import AwsCredentials, GlueRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -18,11 +19,11 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
-    DatasetStatistics,
     DatasetStructure,
     MaterializationType,
     SchemaField,
     SchemaType,
+    SourceInfo,
     SQLSchema,
 )
 
@@ -144,30 +145,29 @@ class GlueExtractor(BaseExtractor):
         last_updated: datetime,
     ) -> Dataset:
         normalized_name = dataset_normalized_name(schema=schema, table=name)
+
         dataset = Dataset()
-        dataset.logical_id = DatasetLogicalID()
-        dataset.logical_id.platform = DataPlatform.GLUE
-        dataset.logical_id.name = normalized_name
-
-        dataset.schema = DatasetSchema()
-        dataset.schema.schema_type = SchemaType.SQL
-        dataset.schema.description = description
-        dataset.schema.fields = []
-        dataset.schema.sql_schema = SQLSchema()
-        dataset.schema.sql_schema.materialization = (
-            MaterializationType.VIEW
-            if table_type == "VIEW"
-            else (
-                MaterializationType.EXTERNAL
-                if table_type == "EXTERNAL"
-                else MaterializationType.TABLE
-            )
+        dataset.logical_id = DatasetLogicalID(
+            platform=DataPlatform.GLUE, name=normalized_name
         )
-
-        dataset.statistics = DatasetStatistics()
-        dataset.statistics.record_count = safe_float(row_count)
-        dataset.statistics.last_updated = last_updated
-
+        dataset.schema = DatasetSchema(
+            schema_type=SchemaType.SQL,
+            description=description,
+            fields=[],
+            sql_schema=SQLSchema(
+                materialization=(
+                    MaterializationType.VIEW
+                    if table_type == "VIEW"
+                    else (
+                        MaterializationType.EXTERNAL
+                        if table_type == "EXTERNAL"
+                        else MaterializationType.TABLE
+                    )
+                )
+            ),
+        )
+        dataset.statistics = to_dataset_statistics(rows=row_count)
+        dataset.source_info = SourceInfo(last_updated=last_updated)
         dataset.structure = DatasetStructure(schema=schema, table=name)
 
         self._datasets[normalized_name] = dataset

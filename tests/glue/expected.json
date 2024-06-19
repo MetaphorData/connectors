@@ -28,8 +28,10 @@
       }
     },
     "statistics": {
-      "lastUpdated": "2022-09-20T08:30:00",
       "recordCount": 100000.0
+    },
+    "sourceInfo": {
+      "lastUpdated": "2022-09-20T08:30:00"
     },
     "structure": {
       "schema": "db1",
@@ -65,8 +67,10 @@
       }
     },
     "statistics": {
-      "lastUpdated": "2022-09-20T08:30:00",
       "recordCount": 100000.0
+    },
+    "sourceInfo": {
+      "lastUpdated": "2022-09-20T08:30:00"
     },
     "structure": {
       "schema": "db2",

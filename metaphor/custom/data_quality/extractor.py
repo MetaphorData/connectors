@@ -1,8 +1,8 @@
-from datetime import datetime, timezone
 from typing import List
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import safe_float, to_utc_time
 from metaphor.custom.data_quality.config import CustomDataQualityConfig
 from metaphor.models.metadata_change_event import (
     DataMonitor,
@@ -74,14 +74,8 @@ class CustomDataQualityExtractor(BaseExtractor):
                             if monitor.severity
                             else None
                         ),
-                        last_run=(
-                            datetime.fromtimestamp(
-                                monitor.last_run.timestamp()
-                            ).replace(tzinfo=timezone.utc)
-                            if monitor.last_run
-                            else None
-                        ),
-                        value=float(monitor.value) if monitor.value else None,
+                        last_run=to_utc_time(monitor.last_run),
+                        value=safe_float(monitor.value),
                         targets=targets,
                     )
                 )
