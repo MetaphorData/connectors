@@ -22,6 +22,9 @@ output:
 
     # (Optional) IAM role to assume. Default using the current AWS credential.
     assume_role_arn: <iam_role_arn>
+
+    # (Optional) Maximum number of query logs to store in one batch file. Default to 100.
+    query_log_batch_size_count: <query_logs_per_file>
 ```
 
 ## Output to S3
