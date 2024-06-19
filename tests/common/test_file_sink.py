@@ -153,7 +153,11 @@ def test_sink_file(test_root_dir):
 def test_query_log_sink_chunk_by_count():
     directory = tempfile.mkdtemp()
 
-    sink = FileSink(FileSinkConfig(directory=directory, batch_size_count=3))
+    sink = FileSink(
+        FileSinkConfig(
+            directory=directory, batch_size_count=3, query_log_batch_size_count=2
+        )
+    )
     query_logs = [
         QueryLog(
             id=f"{DataPlatform.SNOWFLAKE.name}:{query_id}",
@@ -167,7 +171,7 @@ def test_query_log_sink_chunk_by_count():
             f"this is query no. {x}" for x in range(17)
         )
     ]
-    with sink.get_query_log_sink(2) as query_log_sink:
+    with sink.get_query_log_sink() as query_log_sink:
         for query_log in query_logs:
             query_log_sink.write_query_log(query_log)
 

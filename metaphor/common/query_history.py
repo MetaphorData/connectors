@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from metaphor.common.utils import is_email
 
 # max number of query logs to output in one MCE
-DEFAULT_QUERY_LOG_OUTPUT_SIZE = 100
+DEFAULT_QUERY_LOG_BATCH_SIZE_COUNT = 100
 
 
 def user_id_or_email(maybe_email: str) -> Tuple[Optional[str], Optional[str]]:

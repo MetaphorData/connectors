@@ -12,7 +12,7 @@ from pydantic.dataclasses import dataclass
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logger import LOG_FILE, debug_files, get_logger
-from metaphor.common.query_history import DEFAULT_QUERY_LOG_OUTPUT_SIZE
+from metaphor.common.query_history import DEFAULT_QUERY_LOG_BATCH_SIZE_COUNT
 from metaphor.common.sink import Sink
 from metaphor.common.storage import (
     BaseStorage,
@@ -47,6 +47,9 @@ class FileSinkConfig:
 
     # IAM credential to access S3 bucket
     s3_auth_config: S3StorageConfig = field(default_factory=lambda: S3StorageConfig())
+
+    # Max number of query logs to store in one batch file. Default is 100.
+    query_log_batch_size_count: int = DEFAULT_QUERY_LOG_BATCH_SIZE_COUNT
 
 
 class QueryLogSink:
@@ -141,6 +144,7 @@ class FileSink(Sink):
         self.write_logs = config.write_logs
         self.batch_size_count = config.batch_size_count
         self.batch_size_bytes = config.batch_size_bytes
+        self.query_log_batch_size_count = config.query_log_batch_size_count
         logger.info(f"Write files to {self.path}")
 
         if config.directory.startswith("s3://"):
@@ -225,11 +229,11 @@ class FileSink(Sink):
         """
         self._storage.delete_files([f"{self.path}/{filename}"])
 
-    def get_query_log_sink(self, mce_size: int = DEFAULT_QUERY_LOG_OUTPUT_SIZE):
+    def get_query_log_sink(self):
         return QueryLogSink(
             self.path,
             self._storage,
             self.batch_size_count,
             self.batch_size_bytes,
-            mce_size,
+            self.query_log_batch_size_count,
         )
