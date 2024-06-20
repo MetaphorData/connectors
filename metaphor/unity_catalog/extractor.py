@@ -19,7 +19,12 @@ from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import user_id_or_email
-from metaphor.common.utils import md5_digest, safe_float, to_utc_datetime, unique_list
+from metaphor.common.utils import (
+    md5_digest,
+    safe_float,
+    to_utc_datetime_from_timestamp,
+    unique_list,
+)
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -101,6 +106,12 @@ CatalogSystemTags = Dict[str, CatalogSystemTagsTuple]
 """
 catalog name -> (catalog tags, schema name -> schema tags)
 """
+
+
+def to_utc_from_timestamp_ms(timestamp_ms: Optional[int]):
+    if timestamp_ms is not None:
+        return to_utc_datetime_from_timestamp(timestamp_ms / 1000)
+    return None
 
 
 class UnityCatalogExtractor(BaseExtractor):
@@ -267,8 +278,10 @@ class UnityCatalogExtractor(BaseExtractor):
         main_url = self._get_table_source_url(database, schema_name, table_name)
         dataset.source_info = SourceInfo(
             main_url=main_url,
-            created_at_source=to_utc_datetime(timestamp_ms=table_info.created_at),
-            last_updated=to_utc_datetime(timestamp_ms=table_info.updated_at),
+            created_at_source=to_utc_from_timestamp_ms(
+                timestamp_ms=table_info.created_at
+            ),
+            last_updated=to_utc_from_timestamp_ms(timestamp_ms=table_info.updated_at),
         )
 
         dataset.unity_catalog = UnityCatalog(
@@ -448,7 +461,7 @@ class UnityCatalogExtractor(BaseExtractor):
         ):
             start_time = None
             if query_info.query_start_time_ms is not None:
-                start_time = to_utc_datetime(
+                start_time = to_utc_from_timestamp_ms(
                     timestamp_ms=query_info.query_start_time_ms
                 )
 
@@ -689,7 +702,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
             cursor.execute(query)
             for path, name, size, modification_time in cursor.fetchall():
-                last_updated = to_utc_datetime(timestamp_ms=modification_time)
+                last_updated = to_utc_from_timestamp_ms(timestamp_ms=modification_time)
                 volume_file = self._init_volume_file(
                     path,
                     size,
@@ -782,8 +795,8 @@ class UnityCatalogExtractor(BaseExtractor):
         main_url = self._get_volume_source_url(catalog_name, schema_name, name)
         dataset.source_info = SourceInfo(
             main_url=main_url,
-            last_updated=to_utc_datetime(timestamp_ms=volume.updated_at),
-            created_at_source=to_utc_datetime(timestamp_ms=volume.created_at),
+            last_updated=to_utc_from_timestamp_ms(timestamp_ms=volume.updated_at),
+            created_at_source=to_utc_from_timestamp_ms(timestamp_ms=volume.created_at),
             created_by=volume.created_by,
             updated_by=volume.updated_by,
         )

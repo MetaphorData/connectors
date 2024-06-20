@@ -176,20 +176,14 @@ def is_email(email: str) -> bool:
     return True
 
 
-def to_utc_datetime(
+def to_utc_datetime_from_timestamp(
     timestamp: Optional[Union[float, int]] = None,
-    timestamp_ms: Optional[Union[float, int]] = None,
     tzinfo: Optional[timezone] = timezone.utc,
 ) -> Optional[datetime]:
     """
-    Return a datetime from timestamp or timestamp_ms, None if parameters are None
+    Return a datetime from timestamp or timestamp_ms, None if timestamp are None
     """
     if timestamp is not None:
         return datetime.fromtimestamp(timestamp, tz=tzinfo).replace(tzinfo=timezone.utc)
-
-    if timestamp_ms is not None:
-        return datetime.fromtimestamp(timestamp_ms / 1000, tz=tzinfo).replace(
-            tzinfo=timezone.utc
-        )
 
     return None
