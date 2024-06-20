@@ -42,6 +42,7 @@ class DbtCloudExtractor(BaseExtractor):
         self._service_token = config.service_token
         self._meta_ownerships = config.meta_ownerships
         self._meta_tags = config.meta_tags
+        self._meta_key_tags = config.meta_key_tags
         self._base_url = config.base_url
         self._discovery_api_url = config.discovery_api_url
 
@@ -106,6 +107,7 @@ class DbtCloudExtractor(BaseExtractor):
                     output=self._output,
                     meta_ownerships=self._meta_ownerships,
                     meta_tags=self._meta_tags,
+                    meta_key_tags=self._meta_key_tags,
                 )
             ).extract()
 

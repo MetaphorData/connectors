@@ -1,5 +1,5 @@
 from dataclasses import field as dataclass_field
-from typing import List, Set
+from typing import List, Optional, Set
 
 from pydantic.dataclasses import dataclass
 
@@ -28,8 +28,11 @@ class DbtCloudConfig(BaseConfig):
     # map meta field to ownerships
     meta_ownerships: List[MetaOwnership] = dataclass_field(default_factory=list)
 
-    # map meta field to tags
+    # Deprecated. Use meta_key_tags instead
     meta_tags: List[MetaTag] = dataclass_field(default_factory=list)
+
+    # Maps meta field to additional dbt tags
+    meta_key_tags: Optional[str] = None
 
     # Base URL for dbt instance
     base_url: str = "https://cloud.getdbt.com"
