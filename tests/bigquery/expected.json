@@ -33,7 +33,6 @@
     },
     "statistics": {
       "dataSizeBytes": 5242880.0,
-      "lastUpdated": "2000-01-02T00:00:00+00:00",
       "recordCount": 100.0
     },
     "structure": {
@@ -93,7 +92,6 @@
     },
     "statistics": {
       "dataSizeBytes": 524288.0,
-      "lastUpdated": "2000-01-02T00:00:00+00:00",
       "recordCount": 1000.0
     },
     "structure": {

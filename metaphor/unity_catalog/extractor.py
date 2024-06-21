@@ -17,15 +17,20 @@ from metaphor.common.entity_id import (
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
+from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import user_id_or_email
-from metaphor.common.utils import md5_digest, safe_float, unique_list
+from metaphor.common.utils import (
+    md5_digest,
+    safe_float,
+    to_utc_datetime_from_timestamp,
+    unique_list,
+)
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
-    DatasetStatistics,
     DatasetStructure,
     EntityUpstream,
     FieldMapping,
@@ -63,7 +68,6 @@ from metaphor.unity_catalog.utils import (
     build_query_log_filter_by,
     create_api,
     create_connection,
-    from_timestamp_ms,
     list_column_lineage,
     list_table_lineage,
 )
@@ -102,6 +106,12 @@ CatalogSystemTags = Dict[str, CatalogSystemTagsTuple]
 """
 catalog name -> (catalog tags, schema name -> schema tags)
 """
+
+
+def to_utc_from_timestamp_ms(timestamp_ms: Optional[int]):
+    if timestamp_ms is not None:
+        return to_utc_datetime_from_timestamp(timestamp_ms / 1000)
+    return None
 
 
 class UnityCatalogExtractor(BaseExtractor):
@@ -268,8 +278,10 @@ class UnityCatalogExtractor(BaseExtractor):
         main_url = self._get_table_source_url(database, schema_name, table_name)
         dataset.source_info = SourceInfo(
             main_url=main_url,
-            created_at_source=from_timestamp_ms(table_info.created_at),
-            last_updated=from_timestamp_ms(table_info.updated_at),
+            created_at_source=to_utc_from_timestamp_ms(
+                timestamp_ms=table_info.created_at
+            ),
+            last_updated=to_utc_from_timestamp_ms(timestamp_ms=table_info.updated_at),
         )
 
         dataset.unity_catalog = UnityCatalog(
@@ -449,7 +461,9 @@ class UnityCatalogExtractor(BaseExtractor):
         ):
             start_time = None
             if query_info.query_start_time_ms is not None:
-                start_time = from_timestamp_ms(query_info.query_start_time_ms)
+                start_time = to_utc_from_timestamp_ms(
+                    timestamp_ms=query_info.query_start_time_ms
+                )
 
             user_id, email = user_id_or_email(query_info.user_name)
 
@@ -688,7 +702,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
             cursor.execute(query)
             for path, name, size, modification_time in cursor.fetchall():
-                last_updated = from_timestamp_ms(modification_time)
+                last_updated = to_utc_from_timestamp_ms(timestamp_ms=modification_time)
                 volume_file = self._init_volume_file(
                     path,
                     size,
@@ -781,12 +795,8 @@ class UnityCatalogExtractor(BaseExtractor):
         main_url = self._get_volume_source_url(catalog_name, schema_name, name)
         dataset.source_info = SourceInfo(
             main_url=main_url,
-            last_updated=(
-                from_timestamp_ms(volume.updated_at) if volume.updated_at else None
-            ),
-            created_at_source=(
-                from_timestamp_ms(volume.created_at) if volume.created_at else None
-            ),
+            last_updated=to_utc_from_timestamp_ms(timestamp_ms=volume.updated_at),
+            created_at_source=to_utc_from_timestamp_ms(timestamp_ms=volume.created_at),
             created_by=volume.created_by,
             updated_by=volume.updated_by,
         )
@@ -825,7 +835,7 @@ class UnityCatalogExtractor(BaseExtractor):
         self,
         path: str,
         size: int,
-        last_updated: datetime,
+        last_updated: Optional[datetime],
         entity_id: str,
     ) -> Optional[Dataset]:
         dataset = Dataset()
@@ -835,15 +845,16 @@ class UnityCatalogExtractor(BaseExtractor):
             platform=DataPlatform.UNITY_CATALOG_VOLUME_FILE,
         )
 
-        dataset.source_info = SourceInfo(last_updated=last_updated)
+        if last_updated:
+            dataset.source_info = SourceInfo(last_updated=last_updated)
 
         dataset.unity_catalog = UnityCatalog(
             dataset_type=UnityCatalogDatasetType.UNITY_CATALOG_VOLUME_FILE,
             volume_entity_id=entity_id,
         )
 
-        dataset.statistics = DatasetStatistics(
-            data_size_bytes=float(size),
+        dataset.statistics = to_dataset_statistics(
+            size_bytes=size,
         )
 
         dataset.entity_upstream = EntityUpstream(source_entities=[])

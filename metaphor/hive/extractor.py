@@ -6,6 +6,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.models import to_dataset_statistics
 from metaphor.hive.config import HiveRunConfig
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -13,7 +14,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
-    DatasetStatistics,
     EntityType,
     FieldStatistics,
     MaterializationType,
@@ -205,9 +205,9 @@ class HiveExtractor(BaseExtractor):
                 ),
                 None,
             )
-            dataset_statistics = DatasetStatistics(
-                data_size_bytes=table_size,
-                record_count=num_rows,
+
+            dataset_statistics = to_dataset_statistics(
+                rows=num_rows, size_bytes=table_size
             )
 
             field_statistics = None

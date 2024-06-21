@@ -188,9 +188,7 @@ class BigQueryExtractor(BaseExtractor):
         )
 
         schema = BigQueryExtractor.parse_schema(bq_table)
-        statistics = to_dataset_statistics(
-            bq_table.num_rows, bq_table.num_bytes, bq_table.modified
-        )
+        statistics = to_dataset_statistics(bq_table.num_rows, bq_table.num_bytes)
 
         return Dataset(
             logical_id=dataset_id,

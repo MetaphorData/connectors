@@ -7,8 +7,9 @@ from more_itertools import peekable
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.models import to_dataset_statistics
 from metaphor.models.crawler_run_metadata import Platform
-from metaphor.models.metadata_change_event import Dataset, DatasetStatistics
+from metaphor.models.metadata_change_event import Dataset, SourceInfo
 from metaphor.s3.boto_helpers import list_folders
 from metaphor.s3.config import PathSpec, S3RunConfig
 from metaphor.s3.parse_schema import parse_schema
@@ -176,9 +177,13 @@ class S3Extractor(BaseExtractor):
         return Dataset(
             display_name=table_data.display_name,
             logical_id=table_data.logical_id,
-            statistics=DatasetStatistics(
-                last_updated=table_data.timestamp,
-                data_size_bytes=float(table_data.size_in_bytes),
+            statistics=to_dataset_statistics(
+                size_bytes=table_data.size_in_bytes,
+            ),
+            source_info=(
+                SourceInfo(last_updated=table_data.timestamp)
+                if table_data.timestamp
+                else None
             ),
             schema=parse_schema(self._config, table_data),
         )
