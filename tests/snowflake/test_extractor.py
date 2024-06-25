@@ -205,7 +205,7 @@ def test_fetch_table_info(mock_connect: MagicMock):
 
     mock_cursor.fetchone.return_value = {
         f"DDL_{normalized_name}": "ddl",
-        f"UPDATED_{normalized_name}": 1,
+        f"UPDATED_{normalized_name}": 1719327434000000000,
     }
 
     extractor = SnowflakeExtractor(make_snowflake_config())
@@ -220,8 +220,8 @@ def test_fetch_table_info(mock_connect: MagicMock):
     extractor._fetch_table_info({normalized_name: table_info}, False, set())
 
     assert dataset.schema.sql_schema.table_schema == "ddl"
-    assert dataset.source_info.last_updated == datetime.fromtimestamp(
-        0, tz=timezone.utc
+    assert dataset.source_info.last_updated == datetime(
+        2024, 6, 25, 14, 57, 14, tzinfo=timezone.utc
     )
 
 

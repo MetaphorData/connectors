@@ -392,7 +392,7 @@ class SnowflakeExtractor(BaseExtractor):
             timestamp = results[f"UPDATED_{normalized_name}"]
             if timestamp > 0:
                 dataset.source_info.last_updated = to_utc_datetime_from_timestamp(
-                    timestamp / 1_000_000_1000
+                    timestamp / 1_000_000_000
                 )
 
     def _fetch_unique_keys(self, cursor: SnowflakeCursor) -> None:
