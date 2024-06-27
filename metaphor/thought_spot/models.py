@@ -5,7 +5,7 @@ This module models the ThoughtSpot SDK complex return objects.
 from enum import Enum
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Tag(BaseModel):
@@ -228,7 +228,7 @@ class TMLTable(BaseModel):
 
 
 class TMLAnswerTableObject(BaseModel):
-    ordered_column_ids: List[str]
+    ordered_column_ids: List[str] = Field(default_factory=list)
 
 
 class TMLAnswer(TMLBase):
