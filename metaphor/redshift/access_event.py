@@ -12,7 +12,23 @@ SELECT DISTINCT
     ss.rows,
     ss.bytes,
     ss.tbl,
-    LISTAGG(CASE WHEN LEN(RTRIM(sqt.text)) = 0 THEN sqt.text ELSE RTRIM(sqt.text) END, '') within group (order by sqt.sequence) AS querytxt,
+    REPLACE(
+        REPLACE(
+            LISTAGG(
+                CASE
+                    WHEN LEN(RTRIM(sqt.text)) = 0 THEN sqt.text
+                    ELSE RTRIM(sqt.text)
+                END,
+                ''
+            )
+            WITHIN GROUP (ORDER BY sqt.sequence)
+            OVER (
+                PARTITION BY sqt.userid, sqt.xid, sqt.pid, sqt.query
+            ),
+            '\r', ''
+        ),
+        '\\n', ''
+    ) AS querytxt,
     sti.database,
     sti.schema,
     sti.table,
@@ -40,7 +56,13 @@ GROUP BY
     sq.starttime,
     sq.endtime,
     sq.aborted,
-    ss.endtime
+    ss.endtime,
+    sqt.text,
+    sqt.userid,
+    sqt.xid,
+    sqt.pid,
+    sqt.query,
+    sqt.sequence
 ORDER BY ss.endtime DESC;
 """
 
