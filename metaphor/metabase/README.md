@@ -39,6 +39,27 @@ database_defaults:
 
 See [Output Config](../common/docs/output.md) for more information.
 
+#### Excluding Directories
+
+You can specify the directories (collection paths) to be included / excluded by the connector. By default all assets are included.
+
+To specify the directories to include / exclude, use the following field:
+
+```yaml
+directories_filter:
+  includes:
+    - directory/path/1
+    - directory/path/2
+    ...
+  excludes:
+    - directory/path/3
+    - directory/path/4
+    ...
+```
+
+To only include specific paths, use `includes` field. To only exclude certain paths, use `excludes` field.
+
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `metabase` extra.

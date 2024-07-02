@@ -90,6 +90,7 @@ class MetabaseExtractor(BaseExtractor):
         self._password = config.password
         self._session = requests.session()
         self._database_defaults = config.database_defaults
+        self._asset_filter = config.asset_filter
 
         self._databases: Dict[int, DatabaseInfo] = {}
         self._dashboards: Dict[int, Dashboard] = {}
@@ -182,17 +183,18 @@ class MetabaseExtractor(BaseExtractor):
             return
 
         parent_path = location.split("/")[1:-1]
+        logger.info(
+            f"location {location}, parent_path {parent_path}, collection {collection_id}"
+        )
+
+        path = parent_path + [str(collection_id)]
+        if not self._asset_filter.include_path(path):
+            logger.info(f"skipping hierachy path {path}")
+            return
 
         hierarchy = Hierarchy(
             logical_id=HierarchyLogicalID(
-                path=list(
-                    map(
-                        str,
-                        [DashboardPlatform.METABASE.value]
-                        + parent_path
-                        + [collection_id],
-                    )
-                )
+                path=[DashboardPlatform.METABASE.value] + path
             ),
             hierarchy_info=HierarchyInfo(
                 description=description,
@@ -251,6 +253,18 @@ class MetabaseExtractor(BaseExtractor):
         dashboard_details = self._fetch_asset("dashboard", dashboard_id)
         name = dashboard_details["name"]
 
+        dashboard_collection = dashboard_details.get("collection")
+        collection = (
+            self._collections.get(dashboard_collection.get("id"))
+            if dashboard_collection
+            else None
+        )
+
+        path = collection.logical_id.path[1:] if collection else []
+        if not self._asset_filter.include_path(path):
+            logger.info(f"skipping collection path {path}")
+            return
+
         cards = dashboard_details.get("dashcards", [])
         charts, upstream_datasets = [], set()
         for card in cards:
@@ -275,19 +289,12 @@ class MetabaseExtractor(BaseExtractor):
             else None
         )
 
-        dashboard_collection = dashboard_details.get("collection")
-        collection = (
-            self._collections.get(dashboard_collection.get("id"))
-            if dashboard_collection
-            else None
-        )
-
         dashboard = Dashboard(
             logical_id=DashboardLogicalID(
                 dashboard_id=str(dashboard_id), platform=DashboardPlatform.METABASE
             ),
             structure=AssetStructure(
-                directories=collection.logical_id.path[1:] if collection else [],
+                directories=path,
                 name=name,
             ),
             dashboard_info=dashboard_info,
