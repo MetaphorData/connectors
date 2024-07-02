@@ -45,7 +45,10 @@ class LookerRunConfig(BaseConfig):
     project_source_url: Optional[str] = None
 
     verify_ssl: bool = True
-    timeout: int = 120
+    timeout: int = 300
+
+    # Whether to include dashboards in personal folders
+    include_personal_folders: bool = False
 
     @model_validator(mode="after")
     def have_local_or_git_dir_for_lookml(self):

@@ -5,6 +5,13 @@ from typing import AsyncIterator
 from asyncpg import Connection, Record
 
 REDSHIFT_USAGE_SQL_TEMPLATE = """
+WITH queries as (
+    SELECT
+        sqt.*,
+        SUM(LEN(sqt.text)) OVER (PARTITION BY sqt.query) AS length
+    FROM stl_querytext as sqt
+    ORDER BY length DESC, sqt.sequence
+)
 SELECT DISTINCT
     ss.userid,
     ss.query,
@@ -16,14 +23,14 @@ SELECT DISTINCT
         REPLACE(
             LISTAGG(
                 CASE
-                    WHEN LEN(RTRIM(sqt.text)) = 0 THEN sqt.text
-                    ELSE RTRIM(sqt.text)
+                    WHEN LEN(RTRIM(q.text)) = 0 THEN q.text
+                    ELSE RTRIM(q.text)
                 END,
                 ''
             )
-            WITHIN GROUP (ORDER BY sqt.sequence)
+            WITHIN GROUP (ORDER BY q.sequence)
             OVER (
-                PARTITION BY sqt.userid, sqt.xid, sqt.pid, sqt.query
+                PARTITION BY q.userid, q.xid, q.pid, q.query
             ),
             '\r', ''
         ),
@@ -38,11 +45,12 @@ SELECT DISTINCT
 FROM stl_scan ss
     JOIN svv_table_info sti ON ss.tbl = sti.table_id
     JOIN stl_query sq ON ss.query = sq.query
-    JOIN stl_querytext sqt ON ss.query = sqt.query
+    JOIN queries q ON ss.query = q.query
     JOIN svl_user_info sui ON sq.userid = sui.usesysid
 WHERE ss.starttime >= '{start_time}'
     AND ss.starttime < '{end_time}'
     AND sq.aborted = 0
+    AND q.length < 65536
 GROUP BY
     ss.userid,
     ss.query,
@@ -57,13 +65,18 @@ GROUP BY
     sq.endtime,
     sq.aborted,
     ss.endtime,
-    sqt.text,
-    sqt.userid,
-    sqt.xid,
-    sqt.pid,
-    sqt.query,
-    sqt.sequence
+    q.text,
+    q.userid,
+    q.xid,
+    q.pid,
+    q.query,
+    q.sequence
 ORDER BY ss.endtime DESC;
+"""
+"""
+The condition `q.length < 65536` is because Redshift's LISTAGG method
+is unable to process the query if it is over 65535 characters long.
+See https://docs.aws.amazon.com/redshift/latest/dg/r_WF_LISTAGG.html#r_WF_LISTAGG-data-types
 """
 
 

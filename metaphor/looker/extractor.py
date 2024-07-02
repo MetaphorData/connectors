@@ -1,5 +1,5 @@
 import os
-from typing import Collection, Dict, Iterable, List, Sequence, Set, Tuple
+from typing import Collection, Dict, Iterable, Iterator, List, Sequence, Set, Tuple
 
 from metaphor.common.git import clone_repo
 from metaphor.models.crawler_run_metadata import Platform
@@ -14,9 +14,10 @@ except ImportError:
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import to_virtual_view_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
-from metaphor.looker.lookml_parser import Model, fullname, parse_project
+from metaphor.looker.folder import FolderMap, FolderMetadata, build_directories
+from metaphor.looker.lookml_parser import ModelMap, fullname, parse_project
 from metaphor.models.metadata_change_event import (
     AssetStructure,
     Chart,
@@ -26,6 +27,10 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     EntityUpstream,
+    Hierarchy,
+    HierarchyInfo,
+    HierarchyLogicalID,
+    HierarchyType,
     SourceInfo,
     VirtualViewType,
 )
@@ -69,6 +74,7 @@ class LookerExtractor(BaseExtractor):
         self._lookml_dir = config.lookml_dir
         self._lookml_git_repo = config.lookml_git_repo
         self._project_source_url = config.project_source_url
+        self._include_personal_folders = config.include_personal_folders
 
         # Load config using environment variables instead from looker.ini file
         # See https://github.com/looker-open-source/sdk-codegen#environment-variable-configuration
@@ -98,22 +104,57 @@ class LookerExtractor(BaseExtractor):
             lookml_dir, connections, self._project_source_url
         )
 
-        dashboards = self._fetch_dashboards(model_map)
+        folder_map = self._fetch_folders()
+
+        dashboards = self._fetch_dashboards(model_map, folder_map)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(dashboards)
         entities.extend(virtual_views)
+        entities.extend(self.build_hierarchy(folder_map))
         return entities
 
-    def _fetch_dashboards(self, model_map: Dict[str, Model]) -> List[Dashboard]:
+    def _fetch_folders(self) -> FolderMap:
+        folder_map: FolderMap = {}
+        folders = self._sdk.all_folders()
+        json_dump_to_debug_file(folders, "all_folders.json")
+
+        for folder in folders:
+            if folder.id is None:
+                continue
+            folder_map[folder.id] = FolderMetadata(
+                id=folder.id, name=folder.name, parent_id=folder.parent_id
+            )
+
+        return folder_map
+
+    def _fetch_dashboards(
+        self, model_map: ModelMap, folder_map: FolderMap
+    ) -> List[Dashboard]:
         dashboards: List[Dashboard] = []
-        for basic_dashboard in self._sdk.all_dashboards():
+
+        all_dashboards = self._sdk.all_dashboards()
+        json_dump_to_debug_file(all_dashboards, "all_dashboards.json")
+
+        for basic_dashboard in all_dashboards:
             assert basic_dashboard.id is not None
 
             try:
                 dashboard = self._sdk.dashboard(dashboard_id=basic_dashboard.id)
             except Exception as error:
                 logger.error(f"Failed to fetch dashboard {basic_dashboard.id}: {error}")
+                continue
+
+            # Skip personal folders
+            if (
+                not self._include_personal_folders
+                and dashboard.folder
+                and (
+                    dashboard.folder.is_personal
+                    or dashboard.folder.is_personal_descendant
+                )
+            ):
+                logger.info(f"Skipping personal dashboard {dashboard.id}")
                 continue
 
             logger.info(f"Processing dashboard {basic_dashboard.id}")
@@ -140,10 +181,6 @@ class LookerExtractor(BaseExtractor):
 
             assert dashboard.id is not None
 
-            # Dashboard id is guaranteed to look like `model_name::dashboard_name`
-            # Ref: https://www.googlecloudcommunity.com/gc/Technical-Tips-Tricks/How-can-I-find-the-id-of-a-LookML-dashboard/ta-p/592288
-            directory, name = dashboard.id.rsplit("::", 1)
-
             dashboards.append(
                 Dashboard(
                     logical_id=DashboardLogicalID(
@@ -152,9 +189,15 @@ class LookerExtractor(BaseExtractor):
                     dashboard_info=dashboard_info,
                     source_info=source_info,
                     entity_upstream=entity_upstream,
-                    structure=AssetStructure(
-                        directories=[directory],
-                        name=name,
+                    structure=(
+                        AssetStructure(
+                            directories=build_directories(
+                                dashboard.folder.id, folder_map
+                            ),
+                            name=dashboard.title,
+                        )
+                        if dashboard.folder and dashboard.folder.id
+                        else None
                     ),
                 )
             )
@@ -164,7 +207,7 @@ class LookerExtractor(BaseExtractor):
     def _extract_charts(
         self,
         dashboard_elements: Sequence[DashboardElement],
-        model_map: Dict[str, Model],
+        model_map: ModelMap,
     ) -> Tuple[List[Chart], EntityUpstream]:
         charts = []
         explore_ids: Set[str] = set()
@@ -223,3 +266,17 @@ class LookerExtractor(BaseExtractor):
                 source_entities=list(explore_ids),
             ),
         )
+
+    def build_hierarchy(
+        self, folder_map: Dict[str, FolderMetadata]
+    ) -> Iterator[Hierarchy]:
+        for folder in folder_map.values():
+            yield Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[DashboardPlatform.LOOKER.value]
+                    + build_directories(folder.id, folder_map)
+                ),
+                hierarchy_info=HierarchyInfo(
+                    type=HierarchyType.LOOKER_FOLDER, name=folder.name
+                ),
+            )

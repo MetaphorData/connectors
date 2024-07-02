@@ -46,14 +46,14 @@ You can specify the directories (collection paths) to be included / excluded by 
 To specify the directories to include / exclude, use the following field:
 
 ```yaml
-directories_filter:
+filter:
   includes:
-    - directory/path/1
-    - directory/path/2
+    - top_level_directory
+    - directory/sub_directory
     ...
   excludes:
-    - directory/path/3
-    - directory/path/4
+    - top_level_directory2
+    - directory/sub_directory2/sub_sub_dir
     ...
 ```
 
