@@ -462,7 +462,7 @@ class UnityCatalogExtractor(BaseExtractor):
             include_metrics=True,
             max_results=self._query_log_config.max_results,
         ):
-            if not query_info.query_text or not query_info.user_name:
+            if query_info.query_text is None or query_info.user_name is None:
                 continue
 
             start_time = None

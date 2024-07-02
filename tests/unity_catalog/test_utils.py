@@ -130,17 +130,17 @@ def test_parse_query_log_filter_by():
     client = MagicMock()
     client.users = MagicMock()
     client.users.list = lambda: [
-        User(id="u0", user_name="alice"),
-        User(id="u1", user_name="bob"),
-        User(id="u2", user_name="charlie"),
-        User(id="u3", user_name="dave"),
+        User(id="0", user_name="alice"),
+        User(id="1", user_name="bob"),
+        User(id="2", user_name="charlie"),
+        User(id="3", user_name="dave"),
     ]
     config = UnityCatalogQueryLogConfig(
         lookback_days=2,
         excluded_usernames={"bob", "charlie"},
     )
     query_filter = build_query_log_filter_by(config, client)
-    assert sorted(query_filter.user_ids) == ["u0", "u3"]
+    assert sorted(query_filter.user_ids) == [0, 3]
     assert query_filter.query_start_time_range.start_time_ms is not None
     start_time = datetime.datetime.fromtimestamp(
         timestamp=query_filter.query_start_time_range.start_time_ms / 1000,
