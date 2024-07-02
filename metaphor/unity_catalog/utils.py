@@ -69,9 +69,9 @@ def build_query_log_filter_by(
     )
     if config.excluded_usernames:
         query_filter.user_ids = [
-            user.id
+            int(user.id)
             for user in client.users.list()
-            if user.user_name not in config.excluded_usernames
+            if user.id and user.user_name not in config.excluded_usernames
         ]
 
     return query_filter
