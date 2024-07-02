@@ -90,7 +90,7 @@ class MetabaseExtractor(BaseExtractor):
         self._password = config.password
         self._session = requests.session()
         self._database_defaults = config.database_defaults
-        self._asset_filter = config.asset_filter
+        self._filter = config.filter
 
         self._databases: Dict[int, DatabaseInfo] = {}
         self._dashboards: Dict[int, Dashboard] = {}
@@ -183,13 +183,13 @@ class MetabaseExtractor(BaseExtractor):
             return
 
         parent_path = location.split("/")[1:-1]
-        logger.info(
+        logger.debug(
             f"location {location}, parent_path {parent_path}, collection {collection_id}"
         )
 
         path = parent_path + [str(collection_id)]
-        if not self._asset_filter.include_path(path):
-            logger.info(f"skipping hierachy path {path}")
+        if not self._filter.include_path(path):
+            logger.info(f"skipping hierarchy path {path}")
             return
 
         hierarchy = Hierarchy(
@@ -261,7 +261,7 @@ class MetabaseExtractor(BaseExtractor):
         )
 
         path = collection.logical_id.path[1:] if collection else []
-        if not self._asset_filter.include_path(path):
+        if not self._filter.include_path(path):
             logger.info(f"skipping collection path {path}")
             return
 

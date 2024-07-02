@@ -35,4 +35,4 @@ class MetabaseRunConfig(BaseConfig):
 
     database_defaults: List[MetabaseDatabaseDefaults] = field(default_factory=list)
 
-    asset_filter: MetabaseAssetFilter = field(default_factory=MetabaseAssetFilter)
+    filter: MetabaseAssetFilter = field(default_factory=MetabaseAssetFilter)
