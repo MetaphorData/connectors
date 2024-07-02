@@ -73,6 +73,11 @@ GROUP BY
     q.sequence
 ORDER BY ss.endtime DESC;
 """
+"""
+The condition `q.length < 65536` is because Redshift's LISTAGG method
+is unable to process the query if it is over 65535 characters long.
+See https://docs.aws.amazon.com/redshift/latest/dg/r_WF_LISTAGG.html#r_WF_LISTAGG-data-types
+"""
 
 
 @dataclass(frozen=True)
