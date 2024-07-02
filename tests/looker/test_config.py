@@ -31,6 +31,7 @@ def test_yaml_config(test_root_dir):
         project_source_url="http://foo.bar",
         verify_ssl=True,
         timeout=1,
+        include_personal_folders=False,
         output=OutputConfig(),
     )
 
@@ -55,6 +56,7 @@ def test_yaml_config_with_git(test_root_dir):
             username="foo",
             access_token="bar",
         ),
+        include_personal_folders=True,
         output=OutputConfig(),
     )
 
