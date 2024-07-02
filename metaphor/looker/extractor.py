@@ -1,5 +1,5 @@
 import os
-from typing import Collection, Dict, Iterable, List, Sequence, Set, Tuple
+from typing import Collection, Dict, Iterable, Iterator, List, Sequence, Set, Tuple
 
 from metaphor.common.git import clone_repo
 from metaphor.models.crawler_run_metadata import Platform
@@ -27,6 +27,10 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     EntityUpstream,
+    Hierarchy,
+    HierarchyInfo,
+    HierarchyLogicalID,
+    HierarchyType,
     SourceInfo,
     VirtualViewType,
 )
@@ -107,6 +111,7 @@ class LookerExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(dashboards)
         entities.extend(virtual_views)
+        entities.extend(self.build_hierarchy(folder_map))
         return entities
 
     def _fetch_folders(self) -> FolderMap:
@@ -248,3 +253,17 @@ class LookerExtractor(BaseExtractor):
                 source_entities=list(explore_ids),
             ),
         )
+
+    def build_hierarchy(
+        self, folder_map: Dict[str, FolderMetadata]
+    ) -> Iterator[Hierarchy]:
+        for folder in folder_map.values():
+            yield Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[DashboardPlatform.LOOKER.value]
+                    + build_directories(folder.id, folder_map)
+                ),
+                hierarchy_info=HierarchyInfo(
+                    type=HierarchyType.LOOKER_FOLDER, name=folder.name
+                ),
+            )

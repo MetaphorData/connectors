@@ -25,7 +25,7 @@ def build_directories(folder_id: str, folder_map: FolderMap) -> List[str]:
             logger.error(f"Invalid folder ID: {folder_id}")
             return []
 
-        directories.insert(0, folder.name)
+        directories.insert(0, folder.id)
 
         if folder.parent_id is None:
             return directories

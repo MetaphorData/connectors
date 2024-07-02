@@ -24,8 +24,8 @@
     },
     "structure": {
       "directories": [
-        "shared",
-        "folder1"
+        "1",
+        "2"
       ],
       "name": "first"
     }
