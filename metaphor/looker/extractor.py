@@ -120,6 +120,8 @@ class LookerExtractor(BaseExtractor):
         json_dump_to_debug_file(folders, "all_folders.json")
 
         for folder in folders:
+            if folder.id is None:
+                continue
             folder_map[folder.id] = FolderMetadata(
                 id=folder.id, name=folder.name, parent_id=folder.parent_id
             )
@@ -144,8 +146,13 @@ class LookerExtractor(BaseExtractor):
                 continue
 
             # Skip personal folders
-            if not self._include_personal_folders and (
-                dashboard.folder.is_personal or dashboard.folder.is_personal_descendant
+            if (
+                not self._include_personal_folders
+                and dashboard.folder
+                and (
+                    dashboard.folder.is_personal
+                    or dashboard.folder.is_personal_descendant
+                )
             ):
                 logger.info(f"Skipping personal dashboard {dashboard.id}")
                 continue
@@ -182,9 +189,15 @@ class LookerExtractor(BaseExtractor):
                     dashboard_info=dashboard_info,
                     source_info=source_info,
                     entity_upstream=entity_upstream,
-                    structure=AssetStructure(
-                        directories=build_directories(dashboard.folder.id, folder_map),
-                        name=dashboard.title,
+                    structure=(
+                        AssetStructure(
+                            directories=build_directories(
+                                dashboard.folder.id, folder_map
+                            ),
+                            name=dashboard.title,
+                        )
+                        if dashboard.folder and dashboard.folder.id
+                        else None
                     ),
                 )
             )
