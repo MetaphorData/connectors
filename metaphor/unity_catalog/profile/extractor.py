@@ -74,19 +74,21 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         catalogs = [
             catalog_info.name
             for catalog_info in self._api.catalogs.list()
-            if self._filter.include_database(catalog_info.name)
+            if catalog_info.name and self._filter.include_database(catalog_info.name)
         ]
         for catalog in catalogs:
             schemas = [
                 schema_info.name
                 for schema_info in self._api.schemas.list(catalog)
-                if self._filter.include_schema(catalog, schema_info.name)
+                if schema_info.name
+                and self._filter.include_schema(catalog, schema_info.name)
             ]
             for schema in schemas:
                 table_infos = [
                     table_info
                     for table_info in self._api.tables.list(catalog, schema)
-                    if self._filter.include_table(catalog, schema, table_info.name)
+                    if table_info.name
+                    and self._filter.include_table(catalog, schema, table_info.name)
                 ]
                 for table_info in table_infos:
                     dataset = self._init_dataset(table_info)
@@ -101,6 +103,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         return entities
 
     def _init_dataset(self, table_info: TableInfo) -> Dataset:
+        assert table_info.full_name
         return Dataset(
             logical_id=DatasetLogicalID(
                 name=normalize_full_dataset_name(table_info.full_name),
@@ -111,6 +114,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
     def _get_statistics(
         self, table_info: TableInfo
     ) -> Tuple[DatasetStatistics, Optional[DatasetFieldStatistics]]:
+        assert table_info.full_name
         dataset_statistics = DatasetStatistics()
 
         # Gather this first, if this is nonempty in the end then we actually save

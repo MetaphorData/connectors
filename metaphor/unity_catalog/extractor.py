@@ -165,6 +165,7 @@ class UnityCatalogExtractor(BaseExtractor):
                     continue
 
                 for volume in self._get_volume_infos(catalog, schema):
+                    assert volume.full_name
                     self._volumes[volume.full_name] = volume
                     self._init_volume(volume)
                     self._extract_volume_files(volume)
@@ -236,6 +237,7 @@ class UnityCatalogExtractor(BaseExtractor):
         return url
 
     def _init_dataset(self, table_info: TableInfo) -> Dataset:
+        assert table_info.catalog_name and table_info.schema_name and table_info.name
         table_name = table_info.name
         schema_name = table_info.schema_name
         database = table_info.catalog_name
@@ -454,11 +456,15 @@ class UnityCatalogExtractor(BaseExtractor):
     def collect_query_logs(self) -> Iterator[QueryLog]:
         if self._query_log_config.lookback_days <= 0:
             return
+
         for query_info in self._api.query_history.list(
             filter_by=build_query_log_filter_by(self._query_log_config, self._api),
             include_metrics=True,
             max_results=self._query_log_config.max_results,
         ):
+            if query_info.query_text is None or query_info.user_name is None:
+                continue
+
             start_time = None
             if query_info.query_start_time_ms is not None:
                 start_time = to_utc_from_timestamp_ms(
@@ -775,7 +781,12 @@ class UnityCatalogExtractor(BaseExtractor):
         return dataset
 
     def _init_volume(self, volume: VolumeInfo):
-        assert volume.volume_type
+        assert (
+            volume.volume_type
+            and volume.schema_name
+            and volume.catalog_name
+            and volume.name
+        )
 
         schema_name = volume.schema_name
         catalog_name = volume.catalog_name
