@@ -7,10 +7,39 @@ from asyncpg import Connection, Record
 REDSHIFT_USAGE_SQL_TEMPLATE = """
 WITH queries as (
     SELECT
-        sqt.*,
-        SUM(LEN(sqt.text)) OVER (PARTITION BY sqt.query) AS length
-    FROM stl_querytext as sqt
-    ORDER BY length DESC, sqt.sequence
+        *,
+        SUM(LEN(text)) OVER (PARTITION BY query) AS length
+    FROM
+        stl_querytext
+), filtered_queries as (
+    SELECT
+        *
+    FROM
+        queries
+    WHERE
+        length < 65536
+), concatenated_queries as (
+    SELECT
+        query,
+        REPLACE(
+            REPLACE(
+                LISTAGG(
+                    CASE
+                        WHEN LEN(RTRIM(text)) = 0 THEN text
+                        ELSE RTRIM(text)
+                    END,
+                    ''
+                )
+                WITHIN GROUP (ORDER BY sequence)
+                OVER (
+                    PARTITION BY userid, xid, pid, query
+                ),
+                '\r', ''
+            ),
+            '\\n', ''
+        ) AS querytxt
+    FROM
+        filtered_queries
 )
 SELECT DISTINCT
     ss.userid,
@@ -19,23 +48,7 @@ SELECT DISTINCT
     ss.rows,
     ss.bytes,
     ss.tbl,
-    REPLACE(
-        REPLACE(
-            LISTAGG(
-                CASE
-                    WHEN LEN(RTRIM(q.text)) = 0 THEN q.text
-                    ELSE RTRIM(q.text)
-                END,
-                ''
-            )
-            WITHIN GROUP (ORDER BY q.sequence)
-            OVER (
-                PARTITION BY q.userid, q.xid, q.pid, q.query
-            ),
-            '\r', ''
-        ),
-        '\\n', ''
-    ) AS querytxt,
+    q.querytxt,
     sti.database,
     sti.schema,
     sti.table,
@@ -45,12 +58,9 @@ SELECT DISTINCT
 FROM stl_scan ss
     JOIN svv_table_info sti ON ss.tbl = sti.table_id
     JOIN stl_query sq ON ss.query = sq.query
-    JOIN queries q ON ss.query = q.query
+    JOIN concatenated_queries q ON ss.query = q.query
     JOIN svl_user_info sui ON sq.userid = sui.usesysid
-WHERE ss.starttime >= '{start_time}'
-    AND ss.starttime < '{end_time}'
-    AND sq.aborted = 0
-    AND q.length < 65536
+WHERE sq.aborted = 0
 GROUP BY
     ss.userid,
     ss.query,
@@ -65,16 +75,11 @@ GROUP BY
     sq.endtime,
     sq.aborted,
     ss.endtime,
-    q.text,
-    q.userid,
-    q.xid,
-    q.pid,
-    q.query,
-    q.sequence
+    q.querytxt
 ORDER BY ss.endtime DESC;
 """
 """
-The condition `q.length < 65536` is because Redshift's LISTAGG method
+The condition `length < 65536` is because Redshift's LISTAGG method
 is unable to process the query if it is over 65535 characters long.
 See https://docs.aws.amazon.com/redshift/latest/dg/r_WF_LISTAGG.html#r_WF_LISTAGG-data-types
 """
