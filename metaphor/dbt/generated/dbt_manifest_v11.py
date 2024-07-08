@@ -17,7 +17,7 @@ class ManifestMetadata(BaseModel):
         extra='forbid',
     )
     dbt_schema_version: Optional[str] = None
-    dbt_version: Optional[str] = '1.7.7'
+    dbt_version: Optional[str] = '1.7.14'
     generated_at: Optional[str] = None
     invocation_id: Optional[str] = None
     env: Optional[Dict[str, str]] = None
