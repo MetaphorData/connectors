@@ -1038,7 +1038,19 @@ class MetricTimeWindow(BaseModel):
         extra='forbid',
     )
     count: int
-    granularity: Literal['day', 'week', 'month', 'quarter', 'year']
+    granularity: Literal[
+        'nanosecond',
+        'microsecond',
+        'millisecond',
+        'second',
+        'minute',
+        'hour',
+        'day',
+        'week',
+        'month',
+        'quarter',
+        'year',
+    ]
 
 
 class MetricInput(BaseModel):
@@ -1049,7 +1061,21 @@ class MetricInput(BaseModel):
     filter: Optional[WhereFilterIntersection2] = None
     alias: Optional[str] = None
     offset_window: Optional[MetricTimeWindow] = None
-    offset_to_grain: Optional[Literal['day', 'week', 'month', 'quarter', 'year']] = None
+    offset_to_grain: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
 
 
 class WhereFilterIntersection3(WhereFilterIntersection):
@@ -1064,7 +1090,21 @@ class MetricInput1(BaseModel):
     filter: Optional[WhereFilterIntersection3] = None
     alias: Optional[str] = None
     offset_window: Optional[MetricTimeWindow] = None
-    offset_to_grain: Optional[Literal['day', 'week', 'month', 'quarter', 'year']] = None
+    offset_to_grain: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
 
 
 class WhereFilterIntersection4(WhereFilterIntersection):
@@ -1079,7 +1119,21 @@ class MetricInput2(BaseModel):
     filter: Optional[WhereFilterIntersection4] = None
     alias: Optional[str] = None
     offset_window: Optional[MetricTimeWindow] = None
-    offset_to_grain: Optional[Literal['day', 'week', 'month', 'quarter', 'year']] = None
+    offset_to_grain: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
 
 
 class WhereFilterIntersection5(WhereFilterIntersection):
@@ -1132,6 +1186,29 @@ class ConversionTypeParams(BaseModel):
     constant_properties: Optional[List[ConstantPropertyInput]] = None
 
 
+class CumulativeTypeParams(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    window: Optional[MetricTimeWindow] = None
+    grain_to_date: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
+    period_agg: Optional[Literal['first', 'last', 'average']] = 'first'
+
+
 class MetricTypeParams(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -1142,9 +1219,24 @@ class MetricTypeParams(BaseModel):
     denominator: Optional[MetricInput1] = None
     expr: Optional[str] = None
     window: Optional[MetricTimeWindow] = None
-    grain_to_date: Optional[Literal['day', 'week', 'month', 'quarter', 'year']] = None
+    grain_to_date: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
     metrics: Optional[List[MetricInput2]] = None
     conversion_type_params: Optional[ConversionTypeParams] = None
+    cumulative_type_params: Optional[CumulativeTypeParams] = None
 
 
 class WhereFilterIntersection7(WhereFilterIntersection):
@@ -1196,6 +1288,21 @@ class Metric(BaseModel):
     type_params: MetricTypeParams = Field(..., title='MetricTypeParams')
     filter: Optional[WhereFilterIntersection7] = None
     metadata: Optional[SourceFileMetadata] = None
+    default_granularity: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
     meta: Optional[Dict[str, Any]] = None
     tags: Optional[List[str]] = None
     config: Optional[MetricConfig] = Field(None, title='MetricConfig')
@@ -1836,7 +1943,21 @@ class MetricInput3(BaseModel):
     filter: Optional[WhereFilterIntersection10] = None
     alias: Optional[str] = None
     offset_window: Optional[MetricTimeWindow] = None
-    offset_to_grain: Optional[Literal['day', 'week', 'month', 'quarter', 'year']] = None
+    offset_to_grain: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
 
 
 class WhereFilterIntersection11(WhereFilterIntersection):
@@ -1851,7 +1972,21 @@ class MetricInput4(BaseModel):
     filter: Optional[WhereFilterIntersection11] = None
     alias: Optional[str] = None
     offset_window: Optional[MetricTimeWindow] = None
-    offset_to_grain: Optional[Literal['day', 'week', 'month', 'quarter', 'year']] = None
+    offset_to_grain: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
 
 
 class WhereFilterIntersection12(WhereFilterIntersection):
@@ -1866,7 +2001,21 @@ class MetricInput5(BaseModel):
     filter: Optional[WhereFilterIntersection12] = None
     alias: Optional[str] = None
     offset_window: Optional[MetricTimeWindow] = None
-    offset_to_grain: Optional[Literal['day', 'week', 'month', 'quarter', 'year']] = None
+    offset_to_grain: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
 
 
 class WhereFilterIntersection13(WhereFilterIntersection):
@@ -1911,6 +2060,10 @@ class ConversionTypeParams1(BaseModel):
     constant_properties: Optional[List[ConstantPropertyInput]] = None
 
 
+class CumulativeTypeParams1(CumulativeTypeParams):
+    pass
+
+
 class MetricTypeParams1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -1921,9 +2074,24 @@ class MetricTypeParams1(BaseModel):
     denominator: Optional[MetricInput4] = None
     expr: Optional[str] = None
     window: Optional[MetricTimeWindow] = None
-    grain_to_date: Optional[Literal['day', 'week', 'month', 'quarter', 'year']] = None
+    grain_to_date: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
     metrics: Optional[List[MetricInput5]] = None
     conversion_type_params: Optional[ConversionTypeParams1] = None
+    cumulative_type_params: Optional[CumulativeTypeParams1] = None
 
 
 class WhereFilterIntersection15(WhereFilterIntersection):
@@ -1951,6 +2119,21 @@ class Metric1(BaseModel):
     type_params: MetricTypeParams1 = Field(..., title='MetricTypeParams')
     filter: Optional[WhereFilterIntersection15] = None
     metadata: Optional[SourceFileMetadata1] = None
+    default_granularity: Optional[
+        Literal[
+            'nanosecond',
+            'microsecond',
+            'millisecond',
+            'second',
+            'minute',
+            'hour',
+            'day',
+            'week',
+            'month',
+            'quarter',
+            'year',
+        ]
+    ] = None
     meta: Optional[Dict[str, Any]] = None
     tags: Optional[List[str]] = None
     config: Optional[MetricConfig] = Field(None, title='MetricConfig')
@@ -2023,26 +2206,7 @@ class SavedQuery(BaseModel):
         extra='forbid',
     )
     name: str
-    resource_type: Literal[
-        'model',
-        'analysis',
-        'test',
-        'snapshot',
-        'operation',
-        'seed',
-        'rpc',
-        'sql_operation',
-        'doc',
-        'source',
-        'macro',
-        'exposure',
-        'metric',
-        'group',
-        'saved_query',
-        'semantic_model',
-        'unit_test',
-        'fixture',
-    ]
+    resource_type: Literal['saved_query']
     package_name: str
     path: str
     original_file_path: str
@@ -2155,7 +2319,19 @@ class DimensionTypeParams(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    time_granularity: Literal['day', 'week', 'month', 'quarter', 'year']
+    time_granularity: Literal[
+        'nanosecond',
+        'microsecond',
+        'millisecond',
+        'second',
+        'minute',
+        'hour',
+        'day',
+        'week',
+        'month',
+        'quarter',
+        'year',
+    ]
     validity_params: Optional[DimensionValidityParams] = None
 
 
@@ -2352,26 +2528,7 @@ class SavedQuery1(BaseModel):
         extra='forbid',
     )
     name: str
-    resource_type: Literal[
-        'model',
-        'analysis',
-        'test',
-        'snapshot',
-        'operation',
-        'seed',
-        'rpc',
-        'sql_operation',
-        'doc',
-        'source',
-        'macro',
-        'exposure',
-        'metric',
-        'group',
-        'saved_query',
-        'semantic_model',
-        'unit_test',
-        'fixture',
-    ]
+    resource_type: Literal['saved_query']
     package_name: str
     path: str
     original_file_path: str
