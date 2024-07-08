@@ -84,11 +84,23 @@ For more information about git repo configuration, please refer to [Git Repo Con
 
 ### Optional Configurations
 
+#### Project Source URL
+
 To add a "View LookML" link to Looker explore & views on Metaphor you need to specify a base URL for the Looker project. This can be either a URL to the GitHub repository (`https://github.com/<account>/<repo>`) or Looker IDE (`https://<account>.cloud.looker.com/projects/<project>/files/`).
 
 ```yaml
 project_source_url: <looker_project_source_url>
 ```
+
+#### Alternative Server URL
+
+If the looker users use a different URL to view content on Looker than the server URL for fetching metadata, please provide the alternative base URL so the crawler can generate direct links to the assets:
+
+```yaml
+alternative_base_url: <looker_base_url> // e.g. https://looker.my_company.com
+```
+
+#### SSL Verification
 
 You can also disable SSL verify and change the request timeout if needed, e.g.
 

@@ -70,6 +70,7 @@ class LookerExtractor(BaseExtractor):
     def __init__(self, config: LookerRunConfig) -> None:
         super().__init__(config)
         self._base_url = config.base_url
+        self._alternative_base_url = config.alternative_base_url
         self._connections = config.connections
         self._lookml_dir = config.lookml_dir
         self._lookml_git_repo = config.lookml_git_repo
@@ -166,7 +167,7 @@ class LookerExtractor(BaseExtractor):
             )
 
             source_info = SourceInfo(
-                main_url=f"{self._base_url}/{dashboard.preferred_viewer}/{dashboard.id}",
+                main_url=f"{self._alternative_base_url or self._base_url}/{dashboard.preferred_viewer}/{dashboard.id}",
             )
 
             # All numeric fields must be converted to "float" to meet quicktype's expectation
