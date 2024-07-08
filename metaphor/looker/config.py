@@ -50,6 +50,9 @@ class LookerRunConfig(BaseConfig):
     # Whether to include dashboards in personal folders
     include_personal_folders: bool = False
 
+    # Alternative base url to build the entity source URL
+    alternative_base_url: Optional[str] = None
+
     @model_validator(mode="after")
     def have_local_or_git_dir_for_lookml(self):
         must_set_exactly_one(self.__dict__, ["lookml_dir", "lookml_git_repo"])
