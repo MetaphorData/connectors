@@ -22,7 +22,7 @@ class ConfluenceExtractor(BaseExtractor):
     """Confluence Page Extractor."""
 
     _description = "Extracts pages from a Confluence instance."
-    _platform = Platform.UNKNOWN
+    _platform = Platform.CONFLUENCE
 
     @staticmethod
     def from_config_file(config_file: str) -> "ConfluenceExtractor":
