@@ -38,11 +38,19 @@ class MondayExtractor(BaseExtractor):
         self.monday_api_key = config.monday_api_key
         self.monday_api_version = config.monday_api_version
 
+        # Embedding source
+        self.embed_source = config.embed_source
+
+        # Azure OpenAI
         self.azure_openAI_key = config.azure_openAI_key
         self.azure_openAI_version = config.azure_openAI_version
         self.azure_openAI_endpoint = config.azure_openAI_endpoint
         self.azure_openAI_model = config.azure_openAI_model
         self.azure_openAI_model_name = config.azure_openAI_model_name
+
+        # OpenAI
+        self.openAI_key = config.openAI_key
+        self.openAI_model = config.openAI_model
 
         self.include_text = config.include_text
 
