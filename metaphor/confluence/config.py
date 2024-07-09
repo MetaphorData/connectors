@@ -13,9 +13,15 @@ class ConfluenceRunConfig(BaseConfig):
     confluence_cloud: bool
     select_method: str
 
+    # Embeddings source
+    embed_source: str = "azure"
+
     # Azure OpenAI configs
-    azure_openAI_key: str
-    azure_openAI_endpoint: str
+    azure_openAI_key: str = ""
+    azure_openAI_endpoint: str = ""
+
+    # OpenAI configs
+    openAI_key: str = ""
 
     # Confluence username / token (Cloud)
     confluence_username: str = ""
@@ -30,10 +36,11 @@ class ConfluenceRunConfig(BaseConfig):
     label: str = ""
     cql: str = ""
 
-    # Default Azure OpenAI services configs
+    # Default AI configs
     azure_openAI_version: str = "2024-03-01-preview"
     azure_openAI_model: str = "text-embedding-3-small"
     azure_openAI_model_name: str = "Embedding_3_small"
+    openAI_model: str = "text-embedding-3-small"
 
     # Store the document's content alongside embeddings
     include_text: bool = False

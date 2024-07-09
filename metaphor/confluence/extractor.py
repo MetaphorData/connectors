@@ -53,12 +53,19 @@ class ConfluenceExtractor(BaseExtractor):
         self.include_children = config.include_children
         self.page_status = config.page_status
 
+        # Embedding source
+        self.embed_source = config.embed_source
+
         # Azure OpenAI
         self.azure_openAI_key = config.azure_openAI_key
         self.azure_openAI_version = config.azure_openAI_version
         self.azure_openAI_endpoint = config.azure_openAI_endpoint
         self.azure_openAI_model = config.azure_openAI_model
         self.azure_openAI_model_name = config.azure_openAI_model_name
+
+        # OpenAI
+        self.openAI_key = config.openAI_key
+        self.openAI_model = config.openAI_model
 
         # Replace empty configs for validation
         self.space_key = self.space_key if self.space_key else None  # type: ignore[assignment]
@@ -86,14 +93,17 @@ class ConfluenceExtractor(BaseExtractor):
         logger.info("Starting embedding process")
 
         vector_store_index = embed_documents(
-            documents,
-            self.azure_openAI_key,
-            self.azure_openAI_version,
-            self.azure_openAI_endpoint,
-            self.azure_openAI_model,
-            self.azure_openAI_model_name,
-            embedding_chunk_size,
-            embedding_overlap_size,
+            docs=documents,
+            azure_openAI_key=self.azure_openAI_key,
+            azure_openAI_ver=self.azure_openAI_version,
+            azure_openAI_endpoint=self.azure_openAI_endpoint,
+            azure_openAI_model=self.azure_openAI_model,
+            azure_openAI_model_name=self.azure_openAI_model_name,
+            openAI_key=self.openAI_key,
+            openAI_model=self.openAI_model,
+            source=self.embed_source,
+            chunk_size=embedding_chunk_size,
+            chunk_overlap=embedding_overlap_size,
         )
 
         embedded_nodes = map_metadata(

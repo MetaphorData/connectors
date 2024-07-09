@@ -34,13 +34,13 @@ def sanitize_text(input_string: str) -> str:
 
 def embed_documents(
     docs: Sequence[Document],
-    azure_openAI_key: Optional[str] = None,
-    azure_openAI_ver: Optional[str] = None,
-    azure_openAI_endpoint: Optional[str] = None,
-    azure_openAI_model: Optional[str] = None,
-    azure_openAI_model_name: Optional[str] = None,
-    openAI_api_key: Optional[str] = None,
-    openAI_model: Optional[str] = None,
+    azure_openAI_key: str = "",
+    azure_openAI_ver: str = "",
+    azure_openAI_endpoint: str = "",
+    azure_openAI_model: str = "",
+    azure_openAI_model_name: str = "",
+    openAI_key: str = "",
+    openAI_model: str = "",
     chunk_size: int = 512,
     chunk_overlap: int = 50,
     source: str = "azure",
@@ -64,7 +64,7 @@ def embed_documents(
             api_version=azure_openAI_ver,
         )
     elif source == "openai":
-        embed_model = OpenAIEmbedding(model=openAI_model, api_key=openAI_api_key)
+        embed_model = OpenAIEmbedding(model=openAI_model, api_key=openAI_key)
     else:
         raise Exception(f"Embedding source {source} not supported")
 
