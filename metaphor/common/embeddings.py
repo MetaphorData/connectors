@@ -1,11 +1,12 @@
 import re
-from typing import Collection, Sequence
+from typing import Collection, Optional, Sequence
 
 from llama_index.core import Document, Settings, StorageContext, VectorStoreIndex
 from llama_index.core.llms.mock import MockLLM
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.vector_stores import SimpleVectorStore
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+from llama_index.embeddings.openai import OpenAIEmbedding
 
 from metaphor.models.metadata_change_event import ExternalSearchDocument
 
@@ -33,13 +34,16 @@ def sanitize_text(input_string: str) -> str:
 
 def embed_documents(
     docs: Sequence[Document],
-    azure_openAI_key: str,
-    azure_openAI_ver: str,
-    azure_openAI_endpoint: str,
-    azure_openAI_model: str,
-    azure_openAI_model_name: str,
-    chunk_size: int,
-    chunk_overlap: int,
+    azure_openAI_key: Optional[str] = None,
+    azure_openAI_ver: Optional[str] = None,
+    azure_openAI_endpoint: Optional[str] = None,
+    azure_openAI_model: Optional[str] = None,
+    azure_openAI_model_name: Optional[str] = None,
+    openAI_api_key: Optional[str] = None,
+    openAI_model: Optional[str] = None,
+    chunk_size: int = 512,
+    chunk_overlap: int = 50,
+    source: str = "azure",
 ) -> VectorStoreIndex:
     """
     Generates embeddings for Documents and returns them as stored in a
@@ -47,15 +51,22 @@ def embed_documents(
     and overlap sizes for node generation from Documents.
 
     Returns a VectorStoreIndex (in-memory VectorStore)
+
+    Options for `source` include ['azure', 'openai']; default is 'azure'.
     """
 
-    embed_model = AzureOpenAIEmbedding(
-        model=azure_openAI_model,
-        deployment_name=azure_openAI_model_name,
-        api_key=azure_openAI_key,
-        azure_endpoint=azure_openAI_endpoint,
-        api_version=azure_openAI_ver,
-    )
+    if source == "azure":
+        embed_model = AzureOpenAIEmbedding(
+            model=azure_openAI_model,
+            deployment_name=azure_openAI_model_name,
+            api_key=azure_openAI_key,
+            azure_endpoint=azure_openAI_endpoint,
+            api_version=azure_openAI_ver,
+        )
+    elif source == "openai":
+        embed_model = OpenAIEmbedding(model=openAI_model, api_key=openAI_api_key)
+    else:
+        raise Exception(f"Embedding source {source} not supported")
 
     node_parser = SentenceSplitter.from_defaults(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
