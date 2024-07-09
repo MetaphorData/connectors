@@ -80,7 +80,9 @@ class NotionExtractor(BaseExtractor):
             chunk_overlap=embedding_overlap_size,
         )
 
-        embedded_nodes = map_metadata(vector_store_index, include_text=self.include_text)
+        embedded_nodes = map_metadata(
+            vector_store_index, include_text=self.include_text
+        )
 
         # Returns a list of document dicts
         # Each document dict has nodeId, embedding, lastRefreshed, metadata

@@ -97,7 +97,9 @@ class MondayExtractor(BaseExtractor):
             chunk_overlap=embedding_overlap_size,
         )
 
-        embedded_nodes = map_metadata(vector_store_index, include_text=self.include_text)
+        embedded_nodes = map_metadata(
+            vector_store_index, include_text=self.include_text
+        )
 
         return embedded_nodes
 

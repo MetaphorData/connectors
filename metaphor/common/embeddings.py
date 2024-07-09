@@ -1,5 +1,5 @@
 import re
-from typing import Collection, Optional, Sequence
+from typing import Collection, Sequence
 
 from llama_index.core import Document, Settings, StorageContext, VectorStoreIndex
 from llama_index.core.llms.mock import MockLLM
