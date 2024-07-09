@@ -38,12 +38,19 @@ class SharepointExtractor(BaseExtractor):
         self.sharepoint_client_secret = config.sharepoint_client_secret
         self.sharepoint_tenant_id = config.sharepoint_tenant_id
 
+        # Embedding source
+        self.embed_source = config.embed_source
+
         # Azure OpenAI
         self.azure_openAI_key = config.azure_openAI_key
         self.azure_openAI_version = config.azure_openAI_version
         self.azure_openAI_endpoint = config.azure_openAI_endpoint
         self.azure_openAI_model = config.azure_openAI_model
         self.azure_openAI_model_name = config.azure_openAI_model_name
+
+        # OpenAI
+        self.openAI_key = config.openAI_key
+        self.openAI_model = config.openAI_model
 
         # include_text
         self.include_text = config.include_text
