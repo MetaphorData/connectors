@@ -1,6 +1,5 @@
 import datetime
 import json
-import traceback
 from typing import Collection, Sequence
 
 import requests
@@ -39,11 +38,19 @@ class NotionExtractor(BaseExtractor):
         self.notion_api_token = config.notion_api_token
         self.notion_api_version = config.notion_api_version
 
+        # Embedding source
+        self.embed_source = config.embed_source
+
+        # Azure OpenAI
         self.azure_openAI_key = config.azure_openAI_key
         self.azure_openAI_version = config.azure_openAI_version
         self.azure_openAI_endpoint = config.azure_openAI_endpoint
         self.azure_openAI_model = config.azure_openAI_model
         self.azure_openAI_model_name = config.azure_openAI_model_name
+
+        # OpenAI
+        self.openAI_key = config.openAI_key
+        self.openAI_model = config.openAI_model
 
         self.include_text = config.include_text
 
@@ -92,7 +99,6 @@ class NotionExtractor(BaseExtractor):
             title = r.json()["results"][0]["title"]["plain_text"]
 
         except (HTTPError, KeyError) as error:
-            traceback.print_exc()
             logger.warning(f"Failed to get title for page {page}, err: {error}")
             title = ""
 
@@ -120,7 +126,6 @@ class NotionExtractor(BaseExtractor):
             r.raise_for_status()
 
         except HTTPError as error:
-            traceback.print_exc()
             logger.error(f"Failed to get Notion database IDs, error {error}")
             raise error
 
