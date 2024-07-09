@@ -48,7 +48,7 @@ class StaticWebExtractor(BaseExtractor):
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Scraping provided URLs")
-        self.docs = list()  # type: List[Document]
+        documents = list()  # type: List[Document]
         self.visited_pages = set()  # type: set
 
         for page, depth in zip(self.target_URLs, self.target_depths):
@@ -66,14 +66,17 @@ class StaticWebExtractor(BaseExtractor):
         # Embedding process
         logger.info("Starting embedding process")
         vector_store_index = embed_documents(
-            self.docs,
-            self.azure_openAI_key,
-            self.azure_openAI_version,
-            self.azure_openAI_endpoint,
-            self.azure_openAI_model,
-            self.azure_openAI_model_name,
-            embedding_chunk_size,
-            embedding_overlap_size,
+            docs=documents,
+            azure_openAI_key=self.azure_openAI_key,
+            azure_openAI_ver=self.azure_openAI_version,
+            azure_openAI_endpoint=self.azure_openAI_endpoint,
+            azure_openAI_model=self.azure_openAI_model,
+            azure_openAI_model_name=self.azure_openAI_model_name,
+            openAI_key=self.openAI_key,
+            openAI_model=self.openAI_model,
+            source=self.embed_source,
+            chunk_size=embedding_chunk_size,
+            chunk_overlap=embedding_overlap_size,
         )
 
         embedded_nodes = map_metadata(

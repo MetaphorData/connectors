@@ -62,22 +62,25 @@ class NotionExtractor(BaseExtractor):
 
         # Retrieve all databases and documents the integration can "see"
         self._get_databases()
-        docs = self._get_all_documents()
+        documents = self._get_all_documents()
 
         # Embedding process
         logger.info("Starting embedding process")
-        vsi = embed_documents(
-            docs,
-            self.azure_openAI_key,
-            self.azure_openAI_version,
-            self.azure_openAI_endpoint,
-            self.azure_openAI_model,
-            self.azure_openAI_model_name,
-            embedding_chunk_size,
-            embedding_overlap_size,
+        vector_store_index = embed_documents(
+            docs=documents,
+            azure_openAI_key=self.azure_openAI_key,
+            azure_openAI_ver=self.azure_openAI_version,
+            azure_openAI_endpoint=self.azure_openAI_endpoint,
+            azure_openAI_model=self.azure_openAI_model,
+            azure_openAI_model_name=self.azure_openAI_model_name,
+            openAI_key=self.openAI_key,
+            openAI_model=self.openAI_model,
+            source=self.embed_source,
+            chunk_size=embedding_chunk_size,
+            chunk_overlap=embedding_overlap_size,
         )
 
-        embedded_nodes = map_metadata(vsi, include_text=self.include_text)
+        embedded_nodes = map_metadata(vector_store_index, include_text=self.include_text)
 
         # Returns a list of document dicts
         # Each document dict has nodeId, embedding, lastRefreshed, metadata

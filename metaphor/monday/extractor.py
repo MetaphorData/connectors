@@ -64,7 +64,7 @@ class MondayExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching items from Monday.com")
 
-        self.documents = []
+        documents = []
 
         self.boards = self._get_available_boards()
         self.board_columns = self._parse_board_columns()  # type: ignore[assignment]
@@ -79,22 +79,25 @@ class MondayExtractor(BaseExtractor):
                 board_items, board_columns, board_id, board_name
             )
 
-            self.documents.extend(board_docs)  # type: ignore[call-arg]
+            documents.extend(board_docs)  # type: ignore[call-arg]
 
         logger.info("Starting embedding process")
 
-        vsi = embed_documents(
-            self.documents,
-            self.azure_openAI_key,
-            self.azure_openAI_version,
-            self.azure_openAI_endpoint,
-            self.azure_openAI_model,
-            self.azure_openAI_model_name,
-            embedding_chunk_size,
-            embedding_overlap_size,
+        vector_store_index = embed_documents(
+            docs=documents,
+            azure_openAI_key=self.azure_openAI_key,
+            azure_openAI_ver=self.azure_openAI_version,
+            azure_openAI_endpoint=self.azure_openAI_endpoint,
+            azure_openAI_model=self.azure_openAI_model,
+            azure_openAI_model_name=self.azure_openAI_model_name,
+            openAI_key=self.openAI_key,
+            openAI_model=self.openAI_model,
+            source=self.embed_source,
+            chunk_size=embedding_chunk_size,
+            chunk_overlap=embedding_overlap_size,
         )
 
-        embedded_nodes = map_metadata(vsi, include_text=self.include_text)
+        embedded_nodes = map_metadata(vector_store_index, include_text=self.include_text)
 
         return embedded_nodes
 
