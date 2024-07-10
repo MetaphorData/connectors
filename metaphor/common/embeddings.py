@@ -8,6 +8,7 @@ from llama_index.core.vector_stores import SimpleVectorStore
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
 
+from metaphor.common.embeddings_config import EmbeddingModelConfig
 from metaphor.models.metadata_change_event import ExternalSearchDocument
 
 
@@ -34,16 +35,10 @@ def sanitize_text(input_string: str) -> str:
 
 def embed_documents(
     docs: Sequence[Document],
-    azure_openAI_key: str = "",
-    azure_openAI_ver: str = "",
-    azure_openAI_endpoint: str = "",
-    azure_openAI_model: str = "",
-    azure_openAI_model_name: str = "",
-    openAI_key: str = "",
-    openAI_model: str = "",
+    embed_model_config: EmbeddingModelConfig,
+    source: str = "azure",
     chunk_size: int = 512,
     chunk_overlap: int = 50,
-    source: str = "azure",
 ) -> VectorStoreIndex:
     """
     Generates embeddings for Documents and returns them as stored in a
@@ -57,14 +52,16 @@ def embed_documents(
 
     if source == "azure":
         embed_model = AzureOpenAIEmbedding(
-            model=azure_openAI_model,
-            deployment_name=azure_openAI_model_name,
-            api_key=azure_openAI_key,
-            azure_endpoint=azure_openAI_endpoint,
-            api_version=azure_openAI_ver,
+            model=embed_model_config.azure_openAI_model,
+            deployment_name=embed_model_config.azure_openAI_model_name,
+            api_key=embed_model_config.azure_openAI_key,
+            azure_endpoint=embed_model_config.azure_openAI_endpoint,
+            api_version=embed_model_config.azure_openAI_version,
         )
     elif source == "openai":
-        embed_model = OpenAIEmbedding(model=openAI_model, api_key=openAI_key)
+        embed_model = OpenAIEmbedding(
+            model=embed_model_config.openAI_model, api_key=embed_model_config.openAI_key
+        )
     else:
         raise Exception(f"Embedding source {source} not supported")
 
