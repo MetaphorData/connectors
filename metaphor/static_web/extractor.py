@@ -18,9 +18,6 @@ from metaphor.static_web.utils import text_from_HTML, title_from_HTML
 
 logger = get_logger()
 
-embedding_chunk_size = 512
-embedding_overlap_size = 50
-
 
 class StaticWebExtractor(BaseExtractor):
     """Static webpage extractor."""
@@ -38,19 +35,9 @@ class StaticWebExtractor(BaseExtractor):
         self.target_URLs = config.links
         self.target_depths = config.depths
 
-        # Embedding source
+        # Embedding source and configs
         self.embed_source = config.embed_source
-
-        # Azure OpenAI
-        self.azure_openAI_key = config.azure_openAI_key
-        self.azure_openAI_version = config.azure_openAI_version
-        self.azure_openAI_endpoint = config.azure_openAI_endpoint
-        self.azure_openAI_model = config.azure_openAI_model
-        self.azure_openAI_model_name = config.azure_openAI_model_name
-
-        # OpenAI
-        self.openAI_key = config.openAI_key
-        self.openAI_model = config.openAI_model
+        self.embed_model_config = config.embed_model_config
 
         self.include_text = config.include_text
 
@@ -73,18 +60,11 @@ class StaticWebExtractor(BaseExtractor):
 
         # Embedding process
         logger.info("Starting embedding process")
+
         vector_store_index = embed_documents(
             docs=self.documents,
-            azure_openAI_key=self.azure_openAI_key,
-            azure_openAI_ver=self.azure_openAI_version,
-            azure_openAI_endpoint=self.azure_openAI_endpoint,
-            azure_openAI_model=self.azure_openAI_model,
-            azure_openAI_model_name=self.azure_openAI_model_name,
-            openAI_key=self.openAI_key,
-            openAI_model=self.openAI_model,
+            embed_model_config=self.embed_model_config,
             source=self.embed_source,
-            chunk_size=embedding_chunk_size,
-            chunk_overlap=embedding_overlap_size,
         )
 
         embedded_nodes = map_metadata(

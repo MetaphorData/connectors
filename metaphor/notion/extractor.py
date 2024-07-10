@@ -18,9 +18,6 @@ logger = get_logger()
 
 baseURL = "https://api.notion.com/v1"
 
-embedding_chunk_size = 512
-embedding_overlap_size = 50
-
 
 class NotionExtractor(BaseExtractor):
     """Notion Document extractor."""
@@ -38,19 +35,9 @@ class NotionExtractor(BaseExtractor):
         self.notion_api_token = config.notion_api_token
         self.notion_api_version = config.notion_api_version
 
-        # Embedding source
+        # Embedding source and configs
         self.embed_source = config.embed_source
-
-        # Azure OpenAI
-        self.azure_openAI_key = config.azure_openAI_key
-        self.azure_openAI_version = config.azure_openAI_version
-        self.azure_openAI_endpoint = config.azure_openAI_endpoint
-        self.azure_openAI_model = config.azure_openAI_model
-        self.azure_openAI_model_name = config.azure_openAI_model_name
-
-        # OpenAI
-        self.openAI_key = config.openAI_key
-        self.openAI_model = config.openAI_model
+        self.embed_model_config = config.embed_model_config
 
         self.include_text = config.include_text
 
@@ -68,16 +55,8 @@ class NotionExtractor(BaseExtractor):
         logger.info("Starting embedding process")
         vector_store_index = embed_documents(
             docs=documents,
-            azure_openAI_key=self.azure_openAI_key,
-            azure_openAI_ver=self.azure_openAI_version,
-            azure_openAI_endpoint=self.azure_openAI_endpoint,
-            azure_openAI_model=self.azure_openAI_model,
-            azure_openAI_model_name=self.azure_openAI_model_name,
-            openAI_key=self.openAI_key,
-            openAI_model=self.openAI_model,
+            embed_model_config=self.embed_model_config,
             source=self.embed_source,
-            chunk_size=embedding_chunk_size,
-            chunk_overlap=embedding_overlap_size,
         )
 
         embedded_nodes = map_metadata(
@@ -152,7 +131,7 @@ class NotionExtractor(BaseExtractor):
         _get_databases has to have been called previously.
         """
 
-        self.docs = list()
+        documents = list()
 
         # Forcing lastRefreshed to be constant for all documents in this crawler run
         current_time = str(datetime.datetime.utcnow())
@@ -162,11 +141,11 @@ class NotionExtractor(BaseExtractor):
             logger.info(f"Getting documents from db {db_id}")
 
             try:
-                queried = self.NotionReader.load_data(database_id=db_id)
-
-            except Exception:
+                queried = self.NotionReader.load_data(database_ids=[db_id])
+            except Exception as e:
                 logger.warning(f"Failed to get documents from db {db_id}")
-
+                logger.warn(e)
+                continue
             # exclude functionality would be implemented here somewhere
             # regex patterns, url-exclusion, etc.
 
@@ -195,6 +174,6 @@ class NotionExtractor(BaseExtractor):
 
             # Extend documents
             logger.info(f"Successfully retrieved {len(queried)} documents")
-            self.docs.extend(queried)
+            documents.extend(queried)
 
-        return self.docs
+        return documents

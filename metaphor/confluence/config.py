@@ -14,9 +14,8 @@ class ConfluenceRunConfig(BaseConfig):
     confluence_cloud: bool
     select_method: str
 
-    # Embeddings source
+    # Embeddings
     embed_source: str = "azure"
-
     embed_model_config: EmbeddingModelConfig = field(
         default_factory=EmbeddingModelConfig
     )

@@ -1,4 +1,5 @@
 from dataclasses import asdict, field
+
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -14,9 +15,8 @@ class MondayRunConfig(BaseConfig):
     # Monday API version
     monday_api_version: str
 
-    # Embeddings source
+    # Embeddings
     embed_source: str = "azure"
-
     embed_model_config: EmbeddingModelConfig = field(
         default_factory=EmbeddingModelConfig
     )
