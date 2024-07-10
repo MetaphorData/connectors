@@ -1,4 +1,3 @@
-import datetime
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
@@ -72,19 +71,11 @@ async def test_extractor(
         SimpleNamespace(info_name="num_nulls", info_value="NULL"),
     ]
 
-    mock_latest_history = [
-        {
-            "timestamp": datetime.datetime.fromisoformat("2023-10-30T12:06:19+00:00"),
-            "operation": "CREATE TABLE",
-        }
-    ]
-
     mock_cursor = MagicMock()
     mock_cursor.fetchall = MagicMock()
     mock_cursor.fetchall.side_effect = [
         mock_rows,
         mock_col2_stats,
-        mock_latest_history,
     ]
 
     mock_cursor_ctx = MagicMock()

@@ -179,12 +179,6 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 )
                 field_statistics.field_statistics.append(stats)
 
-            cursor.execute(f"DESCRIBE HISTORY {escaped_name}")
-            for history in cursor.fetchall():
-                if history["operation"] not in NON_MODIFICATION_OPERATIONS:
-                    dataset_statistics.last_updated = history["timestamp"]
-                    break
-
         return (
             dataset_statistics,
             None if not field_statistics.field_statistics else field_statistics,
