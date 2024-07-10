@@ -53,19 +53,9 @@ class ConfluenceExtractor(BaseExtractor):
         self.include_children = config.include_children
         self.page_status = config.page_status
 
-        # Embedding source
+        # Embedding source and configs
         self.embed_source = config.embed_source
-
-        # Azure OpenAI
-        self.azure_openAI_key = config.azure_openAI_key
-        self.azure_openAI_version = config.azure_openAI_version
-        self.azure_openAI_endpoint = config.azure_openAI_endpoint
-        self.azure_openAI_model = config.azure_openAI_model
-        self.azure_openAI_model_name = config.azure_openAI_model_name
-
-        # OpenAI
-        self.openAI_key = config.openAI_key
-        self.openAI_model = config.openAI_model
+        self.embed_model_config = config.embed_model_config
 
         # Replace empty configs for validation
         self.space_key = self.space_key if self.space_key else None  # type: ignore[assignment]
@@ -94,13 +84,7 @@ class ConfluenceExtractor(BaseExtractor):
 
         vector_store_index = embed_documents(
             docs=documents,
-            azure_openAI_key=self.azure_openAI_key,
-            azure_openAI_ver=self.azure_openAI_version,
-            azure_openAI_endpoint=self.azure_openAI_endpoint,
-            azure_openAI_model=self.azure_openAI_model,
-            azure_openAI_model_name=self.azure_openAI_model_name,
-            openAI_key=self.openAI_key,
-            openAI_model=self.openAI_model,
+            embed_model_config = self.embed_model_config,
             source=self.embed_source,
             chunk_size=embedding_chunk_size,
             chunk_overlap=embedding_overlap_size,
