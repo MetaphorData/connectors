@@ -7,11 +7,11 @@ confluence_token: "token"
 
 space_key: "KB"
 
-azure_openAI_key: azure_openAI_key
-azure_openAI_version: azure_openAI_version
-azure_openAI_endpoint: azure_openAI_endpoint
-azure_openAI_model: text-embedding-ada-002
-azure_openAI_model_name: Embedding_ada002
+embed_source: "azure"
+embed_model_config:
+  azure_openAI_key: azure_openAI_key
+  azure_openAI_endpoint: azure_openAI_endpoint
+
 include_text: true
 
 output: {}

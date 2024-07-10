@@ -6,17 +6,14 @@ import requests
 from llama_index.core import Document
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.embeddings_config import EmbeddingModelConfig
 from metaphor.notion.config import NotionRunConfig
 from metaphor.notion.extractor import NotionExtractor
 from tests.test_utils import load_json
 
 dummy_config = NotionRunConfig(
     notion_api_token="notion_api_token",
-    azure_openAI_key="azure_openAI_key",
-    azure_openAI_version="azure_openAI_version",
-    azure_openAI_endpoint="azure_openAI_endpoint",
-    azure_openAI_model="text-embedding-ada-002",
-    azure_openAI_model_name="EmbeddingModel",
+    embed_model_config=EmbeddingModelConfig(),
     include_text=True,
     notion_api_version="2022-06-08",
     output=OutputConfig(),

@@ -2,11 +2,11 @@
 monday_api_key: monday_api_key
 monday_api_version: monday_api_version
 
-azure_openAI_key: azure_openAI_key
-azure_openAI_version: azure_openAI_version
-azure_openAI_endpoint: azure_openAI_endpoint
-azure_openAI_model: text-embedding-3-small
-azure_openAI_model_name: Embedding_3_small
+embed_source: "azure"
+embed_model_config:
+  azure_openAI_key: azure_openAI_key
+  azure_openAI_endpoint: azure_openAI_endpoint
+
 include_text: true
 
 output: {}
