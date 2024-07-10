@@ -8,7 +8,7 @@ A service account username and API token is required for this connector. Follow 
 
 Ensure that the service acccount whose token is being used has the appropriate access to the spaces and pages that you would like to extract content from.
 
-Additionally, this connector requires [Azure OpenAI services](https://azure.microsoft.com/en-us/products/ai-services/openai-service) to generate embedding vectors for documents.
+Additionally, this connector requires [Azure OpenAI services](https://azure.microsoft.com/en-us/products/ai-services/openai-service) or an [OpenAI API key](https://platform.openai.com) to generate embedding vectors for documents.
 
 ## Config File
 
@@ -54,15 +54,17 @@ label: <label> # ex: "my-label"
 
 cql: <cql> # ex: "space = DEV and creator not in (Jack,Jill,John)"
 
-# Azure OpenAI configs
-azure_openAI_key: <azure_openAI_key>
-azure_openAI_endpoint: <azure_openAI_endpoint>
+embed_model_config:
+  azure_openAI_key: <azure_openAI_key>
+  azure_openAI_endpoint: <azure_openAI_endpoint>
 ```
+
+Note that an embedding model needs to be appropriately configured. This example shows how to configure an Azure OpenAI services model, but you can use other [supported models](/docs/embeddings.md).
 
 ### Optional Configurations
 `include_attachments` specifies whether to parse files attached to pages that are retrieved by the connector. Supported filetypes are PDF, PNG, JPEG/JPG, SVG, Word and Excel.
 
-`include_children` works when `page_ids` are configured above, refers to if you'd like to parse  child pages.
+`include_children` works when `page_ids` are configured above, refers to if you'd like to parse child pages.
 
 `page_status` works when `space_key` is configured above, refers to choosing only a specific page type
 
@@ -74,9 +76,12 @@ include_children: <include_children> # False
 
 page_status: <page_status> # "current"
 
-azure_openAI_version: <azure_openAI_version> # "2024-03-01-preview"
-azure_openAI_model_name: <azure_openAI_model_name> # "Embedding_3_small"
-azure_openAI_model: <azure_openAI_model> # "text-embedding-3-small"
+embed_model_config:  # in the same block as above
+  azure_openAI_version: <azure_openAI_version> # "2024-03-01-preview"
+  azure_openAI_model_name: <azure_openAI_model_name> # "Embedding_3_small"
+  azure_openAI_model: <azure_openAI_model> # "text-embedding-3-small"
+  chunk_size: 512
+  chunk_overlap: 50
 
 include_text: <include_text> # False
 ```
