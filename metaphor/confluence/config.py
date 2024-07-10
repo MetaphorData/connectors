@@ -15,7 +15,7 @@ class ConfluenceRunConfig(BaseConfig):
     select_method: str
 
     # Embeddings
-    embed_source: str = "azure"
+    embed_source: str = "azure-openai"
     embed_model_config: EmbeddingModelConfig = field(
         default_factory=EmbeddingModelConfig
     )

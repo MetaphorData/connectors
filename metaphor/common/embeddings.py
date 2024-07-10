@@ -36,7 +36,7 @@ def sanitize_text(input_string: str) -> str:
 def embed_documents(
     docs: Sequence[Document],
     embed_model_config: EmbeddingModelConfig,
-    source: str = "azure",
+    source: str = "azure-openai",
 ) -> VectorStoreIndex:
     """
     Generates embeddings for Documents and returns them as stored in a
@@ -48,7 +48,7 @@ def embed_documents(
     Options for `source` include ['azure', 'openai']; default is 'azure'.
     """
 
-    if source == "azure":
+    if source == "azure-openai":
         embed_model = AzureOpenAIEmbedding(
             model=embed_model_config.azure_openAI_model,
             deployment_name=embed_model_config.azure_openAI_model_name,

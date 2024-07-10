@@ -2,7 +2,7 @@
 monday_api_key: monday_api_key
 monday_api_version: monday_api_version
 
-embed_source: "azure"
+embed_source: azure-openai
 embed_model_config:
   azure_openAI_key: azure_openAI_key
   azure_openAI_endpoint: azure_openAI_endpoint
