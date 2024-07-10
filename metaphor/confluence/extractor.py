@@ -14,9 +14,6 @@ from metaphor.models.crawler_run_metadata import Platform
 
 logger = get_logger()
 
-embedding_chunk_size = 512
-embedding_overlap_size = 50
-
 
 class ConfluenceExtractor(BaseExtractor):
     """Confluence Page Extractor."""
@@ -84,10 +81,8 @@ class ConfluenceExtractor(BaseExtractor):
 
         vector_store_index = embed_documents(
             docs=documents,
-            embed_model_config = self.embed_model_config,
+            embed_model_config=self.embed_model_config,
             source=self.embed_source,
-            chunk_size=embedding_chunk_size,
-            chunk_overlap=embedding_overlap_size,
         )
 
         embedded_nodes = map_metadata(

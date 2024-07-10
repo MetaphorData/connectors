@@ -37,8 +37,6 @@ def embed_documents(
     docs: Sequence[Document],
     embed_model_config: EmbeddingModelConfig,
     source: str = "azure",
-    chunk_size: int = 512,
-    chunk_overlap: int = 50,
 ) -> VectorStoreIndex:
     """
     Generates embeddings for Documents and returns them as stored in a
@@ -66,7 +64,8 @@ def embed_documents(
         raise Exception(f"Embedding source {source} not supported")
 
     node_parser = SentenceSplitter.from_defaults(
-        chunk_size=chunk_size, chunk_overlap=chunk_overlap
+        chunk_size=embed_model_config.chunk_size,
+        chunk_overlap=embed_model_config.chunk_overlap,
     )
 
     Settings.llm = MockLLM()

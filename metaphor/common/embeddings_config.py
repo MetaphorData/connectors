@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from typing import List, Dict
+
 
 @dataclass
 class EmbeddingModelConfig:
     """
     Config fields and defaults for supported embeddings services.
     """
+
     # Azure OpenAI services
     azure_openAI_key: str = ""
     azure_openAI_endpoint: str = ""
@@ -16,6 +17,10 @@ class EmbeddingModelConfig:
     # OpenAI
     openAI_key: str = ""
     openAI_model: str = "text-embedding-3-small"
+
+    # Chunk & overlap size
+    chunk_size: int = 512
+    chunk_overlap_size: int = 50
 
     def update(self, config_dict):
         for key, value in config_dict.items():

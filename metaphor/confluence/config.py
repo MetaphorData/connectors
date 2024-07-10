@@ -6,6 +6,7 @@ from metaphor.common.base_config import BaseConfig
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.embeddings_config import EmbeddingModelConfig
 
+
 @dataclass(config=ConnectorConfig)
 class ConfluenceRunConfig(BaseConfig):
     # General Confluence configs
@@ -16,7 +17,9 @@ class ConfluenceRunConfig(BaseConfig):
     # Embeddings source
     embed_source: str = "azure"
 
-    embed_model_config: EmbeddingModelConfig = field(default_factory=EmbeddingModelConfig)
+    embed_model_config: EmbeddingModelConfig = field(
+        default_factory=EmbeddingModelConfig
+    )
 
     # Confluence username / token (Cloud)
     confluence_username: str = ""
