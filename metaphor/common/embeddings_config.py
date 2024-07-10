@@ -24,5 +24,7 @@ class EmbeddingModelConfig:
 
     def update(self, config_dict):
         for key, value in config_dict.items():
-            if not hasattr(self, key):  # check if attribute doesn't exist
-                setattr(self, key, value)  # set with defaults
+            if hasattr(self, key) and not getattr(
+                self, key, ""
+            ):  # to be updated, an attribute MUST exist but be Falsey
+                setattr(self, key, value)  # set with incoming
