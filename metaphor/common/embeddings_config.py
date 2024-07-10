@@ -20,7 +20,7 @@ class EmbeddingModelConfig:
 
     # Chunk & overlap size
     chunk_size: int = 512
-    chunk_overlap_size: int = 50
+    chunk_overlap: int = 50
 
     def update(self, config_dict):
         for key, value in config_dict.items():
