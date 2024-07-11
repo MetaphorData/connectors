@@ -5,9 +5,9 @@ depths:
   - 1
 
 embedding_model:
-  azure-openai:
-    azure_openAI_key: azure_openAI_key
-    azure_openAI_endpoint: azure_openAI_endpoint
+  azure_openai:
+    key: azure_openAI_key
+    endpoint: azure_openAI_endpoint
 
 include_text: true
 output: {}

@@ -23,4 +23,4 @@ class SharepointRunConfig(BaseConfig):
     # insert user-provided embedding model configs
     def __post_init__(self):
         default_config = EmbeddingModelConfig()
-        self.embed_model_config.update(asdict(default_config))
+        self.embedding_model.update(asdict(default_config))

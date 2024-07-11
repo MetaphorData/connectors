@@ -1,5 +1,5 @@
 from metaphor.common.base_config import OutputConfig
-from metaphor.common.embeddings_config import EmbeddingModelConfig
+from metaphor.common.embeddings_config import AzureOpenAIConfig, EmbeddingModelConfig
 from metaphor.confluence.config import ConfluenceRunConfig
 
 
@@ -8,15 +8,13 @@ def test_config(test_root_dir):
         f"{test_root_dir}/confluence/config.yml"
     )
 
-    extras = {
-        "azure_openai": {
-            "key": "azure_openAI_key",
-            "endpoint": "azure_openAI_endpoint",
-        }
-    }
+    embed_config = EmbeddingModelConfig(
+        AzureOpenAIConfig(key="azure_openAI_key", endpoint="azure_openAI_endpoint")
+    )
 
-    embed_config = EmbeddingModelConfig()
-    embed_config.update(extras)
+    print(config.embedding_model)
+    print("\n\n")
+    print(embed_config)
 
     assert config == ConfluenceRunConfig(
         confluence_base_URL="https://test.atlassian.net/wiki",
@@ -25,7 +23,7 @@ def test_config(test_root_dir):
         confluence_username="test@metaphor.io",
         confluence_token="token",
         space_key="KB",
-        embed_model_config=embed_config,
+        embedding_model=embed_config,
         include_text=True,
         output=OutputConfig(),
     )
