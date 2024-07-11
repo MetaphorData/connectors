@@ -21,9 +21,10 @@ sharepoint_client_id: sharepoint_client_id
 sharepoint_client_secret: sharepoint_client_secret
 sharepoint_tenant_id: sharepoint_tenant_id
 
-embed_model_config:
-  azure_openAI_key: <azure_openAI_key>
-  azure_openAI_endpoint: <azure_openAI_endpoint>
+embedding_model:
+  azure_openai:
+    key: <key>
+    endpoint: <endpoint>
 ```
 
 Note that an embedding model needs to be appropriately configured. This example shows how to configure an Azure OpenAI services model, but you can use other [supported models](/docs/embeddings.md).
@@ -36,9 +37,10 @@ These defaults are provided; you don't have to manually configure them.
 
 ```yaml
 embed_model_config:  # in the same block as above
-  azure_openAI_version: <azure_openAI_version> # "2024-03-01-preview"
-  azure_openAI_model_name: <azure_openAI_model_name> # "Embedding_3_small"
-  azure_openAI_model: <azure_openAI_model> # "text-embedding-3-small"
+  azure_openai:
+    version: <version> # "2024-03-01-preview"
+    model_name: <model_name> # "Embedding_3_small"
+    model: <model> # "text-embedding-3-small"
   chunk_size: 512
   chunk_overlap: 50
 
