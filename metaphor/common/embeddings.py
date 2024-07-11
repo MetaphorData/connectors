@@ -8,7 +8,7 @@ from llama_index.core.vector_stores import SimpleVectorStore
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
 
-from metaphor.common.embeddings_config import EmbeddingModelConfig
+from metaphor.common.embeddings_config import EmbeddingModelConfig, supported_sources
 from metaphor.models.metadata_change_event import ExternalSearchDocument
 
 
@@ -35,8 +35,7 @@ def sanitize_text(input_string: str) -> str:
 
 def embed_documents(
     docs: Sequence[Document],
-    embed_model_config: EmbeddingModelConfig,
-    source: str = "azure-openai",
+    embedding_model: EmbeddingModelConfig,
 ) -> VectorStoreIndex:
     """
     Generates embeddings for Documents and returns them as stored in a
@@ -44,28 +43,39 @@ def embed_documents(
     and overlap sizes for node generation from Documents.
 
     Returns a VectorStoreIndex (in-memory VectorStore)
-
-    Options for `source` include ['azure', 'openai']; default is 'azure'.
     """
 
+    # Determine the source from the embedding_model configuration
+    source = None
+    for src in supported_sources:
+        config_obj = getattr(embedding_model, src.replace("-", "_"), None)
+        if config_obj and getattr(config_obj, "key", None):
+            source = src
+            break
+
+    if not source:
+        raise Exception("No valid embedding model configuration found")
+
     if source == "azure-openai":
+        azure_config = embedding_model.azure_openai
         embed_model = AzureOpenAIEmbedding(
-            model=embed_model_config.azure_openAI_model,
-            deployment_name=embed_model_config.azure_openAI_model_name,
-            api_key=embed_model_config.azure_openAI_key,
-            azure_endpoint=embed_model_config.azure_openAI_endpoint,
-            api_version=embed_model_config.azure_openAI_version,
+            model=azure_config.model,
+            deployment_name=azure_config.model_name,
+            api_key=azure_config.key,
+            azure_endpoint=azure_config.endpoint,
+            api_version=azure_config.version,
         )
     elif source == "openai":
+        openai_config = embedding_model.openai
         embed_model = OpenAIEmbedding(
-            model=embed_model_config.openAI_model, api_key=embed_model_config.openAI_key
+            model=openai_config.model, api_key=openai_config.key
         )
     else:
         raise Exception(f"Embedding source {source} not supported")
 
     node_parser = SentenceSplitter.from_defaults(
-        chunk_size=embed_model_config.chunk_size,
-        chunk_overlap=embed_model_config.chunk_overlap,
+        chunk_size=embedding_model.chunk_size,
+        chunk_overlap=embedding_model.chunk_overlap,
     )
 
     Settings.llm = MockLLM()
@@ -76,13 +86,13 @@ def embed_documents(
 
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    vsi = VectorStoreIndex.from_documents(
+    vector_store_index = VectorStoreIndex.from_documents(
         docs,
         storage_context=storage_context,
         show_progress=True,
     )
 
-    return vsi
+    return vector_store_index
 
 
 def map_metadata(
