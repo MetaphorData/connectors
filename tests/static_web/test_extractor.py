@@ -15,7 +15,7 @@ def static_web_extractor():
     config = StaticWebRunConfig(
         links=["https://example.com"],
         depths=[1],
-        embed_model_config=EmbeddingModelConfig(),
+        embedding_model=EmbeddingModelConfig(),
         include_text=True,
         output=OutputConfig(),
     )

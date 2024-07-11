@@ -36,8 +36,7 @@ class SharepointExtractor(BaseExtractor):
         self.sharepoint_tenant_id = config.sharepoint_tenant_id
 
         # Embedding source and configs
-        self.embed_source = config.embed_source
-        self.embed_model_config = config.embed_model_config
+        self.embedding_model = config.embedding_model
 
         # include_text
         self.include_text = config.include_text
@@ -83,8 +82,7 @@ class SharepointExtractor(BaseExtractor):
 
         vector_store_index = embed_documents(
             docs=documents,
-            embed_model_config=self.embed_model_config,
-            source=self.embed_source,
+            embedding_model=self.embedding_model,
         )
 
         embedded_nodes = map_metadata(

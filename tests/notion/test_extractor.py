@@ -13,7 +13,7 @@ from tests.test_utils import load_json
 
 dummy_config = NotionRunConfig(
     notion_api_token="notion_api_token",
-    embed_model_config=EmbeddingModelConfig(),
+    embedding_model=EmbeddingModelConfig(),
     include_text=True,
     notion_api_version="2022-06-08",
     output=OutputConfig(),

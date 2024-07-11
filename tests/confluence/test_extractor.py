@@ -16,7 +16,7 @@ dummy_config = ConfluenceRunConfig(
     confluence_username="test@metaphor.io",
     confluence_token="token",
     space_key="KB",
-    embed_model_config=EmbeddingModelConfig(),
+    embedding_model=EmbeddingModelConfig(),
     include_text=True,
     output=OutputConfig(),
 )

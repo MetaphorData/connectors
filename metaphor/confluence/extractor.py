@@ -51,8 +51,7 @@ class ConfluenceExtractor(BaseExtractor):
         self.page_status = config.page_status
 
         # Embedding source and configs
-        self.embed_source = config.embed_source
-        self.embed_model_config = config.embed_model_config
+        self.embedding_model = config.embedding_model
 
         # Replace empty configs for validation
         self.space_key = self.space_key if self.space_key else None  # type: ignore[assignment]
@@ -81,8 +80,7 @@ class ConfluenceExtractor(BaseExtractor):
 
         vector_store_index = embed_documents(
             docs=documents,
-            embed_model_config=self.embed_model_config,
-            source=self.embed_source,
+            embedding_model=self.embedding_model,
         )
 
         embedded_nodes = map_metadata(

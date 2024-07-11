@@ -9,8 +9,10 @@ def test_config(test_root_dir):
     )
 
     extras = {
-        "azure_openAI_key": "azure_openAI_key",
-        "azure_openAI_endpoint": "azure_openAI_endpoint",
+        "azure_openai": {
+            "key": "azure_openAI_key",
+            "endpoint": "azure_openAI_endpoint",
+        }
     }
 
     embed_config = EmbeddingModelConfig()

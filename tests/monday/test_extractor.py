@@ -13,7 +13,7 @@ from tests.test_utils import load_json
 dummy_config = MondayRunConfig(
     monday_api_key="monday_api_key",
     monday_api_version="monday_api_version",
-    embed_model_config=EmbeddingModelConfig(),
+    embedding_model=EmbeddingModelConfig(),
     include_text=True,
     output=OutputConfig(),
 )

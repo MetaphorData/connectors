@@ -36,8 +36,7 @@ class StaticWebExtractor(BaseExtractor):
         self.target_depths = config.depths
 
         # Embedding source and configs
-        self.embed_source = config.embed_source
-        self.embed_model_config = config.embed_model_config
+        self.embedding_model = config.embedding_model
 
         self.include_text = config.include_text
 
@@ -63,8 +62,7 @@ class StaticWebExtractor(BaseExtractor):
 
         vector_store_index = embed_documents(
             docs=self.documents,
-            embed_model_config=self.embed_model_config,
-            source=self.embed_source,
+            embedding_model=self.embedding_model,
         )
 
         embedded_nodes = map_metadata(

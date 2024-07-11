@@ -1,10 +1,10 @@
 ---
 notion_api_token: notion_api_token
 
-embed_source: azure-openai
-embed_model_config:
-  azure_openAI_key: azure_openAI_key
-  azure_openAI_endpoint: azure_openAI_endpoint
+embedding_model:
+  azure-openai:
+    azure_openAI_key: azure_openAI_key
+    azure_openAI_endpoint: azure_openAI_endpoint
 
 include_text: true
 notion_api_version: '2022-06-08'

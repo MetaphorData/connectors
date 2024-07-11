@@ -15,7 +15,7 @@ def get_dummy_config(include_text: bool):
         sharepoint_client_id="client_id",
         sharepoint_client_secret="client_secret",
         sharepoint_tenant_id="tenant_id",
-        embed_model_config=EmbeddingModelConfig(),
+        embedding_model=EmbeddingModelConfig(),
         include_text=include_text,
         output=OutputConfig(),
     )

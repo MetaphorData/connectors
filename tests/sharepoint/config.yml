@@ -3,10 +3,10 @@ sharepoint_client_id: sharepoint_client_id
 sharepoint_client_secret: sharepoint_client_secret
 sharepoint_tenant_id: sharepoint_tenant_id
 
-embed_source: azure-openai
-embed_model_config:
-  azure_openAI_key: azure_openAI_key
-  azure_openAI_endpoint: azure_openAI_endpoint
+embedding_model:
+  azure-openai:
+    azure_openAI_key: azure_openAI_key
+    azure_openAI_endpoint: azure_openAI_endpoint
 
 include_text: true
 

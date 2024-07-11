@@ -4,10 +4,10 @@ links:
 depths:
   - 1
 
-embed_source: azure-openai
-embed_model_config:
-  azure_openAI_key: azure_openAI_key
-  azure_openAI_endpoint: azure_openAI_endpoint
+embedding_model:
+  azure-openai:
+    azure_openAI_key: azure_openAI_key
+    azure_openAI_endpoint: azure_openAI_endpoint
 
 include_text: true
 output: {}

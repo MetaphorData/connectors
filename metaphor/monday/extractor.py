@@ -37,8 +37,7 @@ class MondayExtractor(BaseExtractor):
         self.monday_api_version = config.monday_api_version
 
         # Embedding source and configs
-        self.embed_source = config.embed_source
-        self.embed_model_config = config.embed_model_config
+        self.embedding_model = config.embedding_model
 
         self.include_text = config.include_text
 
@@ -73,8 +72,7 @@ class MondayExtractor(BaseExtractor):
 
         vector_store_index = embed_documents(
             docs=documents,
-            embed_model_config=self.embed_model_config,
-            source=self.embed_source,
+            embedding_model=self.embedding_model,
         )
 
         embedded_nodes = map_metadata(
