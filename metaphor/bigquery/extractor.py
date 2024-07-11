@@ -226,7 +226,11 @@ class BigQueryExtractor(BaseExtractor):
         elif bq_table.table_type == "SNAPSHOT":
             schema.sql_schema = SQLSchema(
                 materialization=MaterializationType.SNAPSHOT,
-                snapshot_time=bq_table.snapshot_definition.snapshot_time if ba_table.snapshot_definition else None,
+                snapshot_time=(
+                    bq_table.snapshot_definition.snapshot_time
+                    if bq_table.snapshot_definition
+                    else None
+                ),
             )
         else:
             raise ValueError(f"Unexpected table type {bq_table.table_type}")
