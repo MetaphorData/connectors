@@ -48,7 +48,7 @@ def embed_documents(
     # Determine the source from the embedding_model configuration
     source = None
     for src in supported_sources:
-        config_obj = getattr(embedding_model, src.replace("-", "_"), None)
+        config_obj = getattr(embedding_model, src, None)
         if config_obj and getattr(config_obj, "key", None):
             source = src
             break
@@ -56,7 +56,7 @@ def embed_documents(
     if not source:
         raise Exception("No valid embedding model configuration found")
 
-    if source == "azure-openai":
+    if source == "azure_openai":
         azure_config = embedding_model.azure_openai
         embed_model = AzureOpenAIEmbedding(
             model=azure_config.model,
