@@ -253,7 +253,7 @@ def test_fetch_table_info_error_handling(mock_connect: MagicMock):
     extractor._fetch_table_info({normalized_name: table_info}, False, set())
 
     assert dataset.schema.sql_schema.table_schema is None
-    assert dataset.statistics.last_updated is None
+    assert dataset.source_info.last_updated is None
 
 
 @patch("metaphor.snowflake.auth.connect")
