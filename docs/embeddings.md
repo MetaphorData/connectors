@@ -4,7 +4,7 @@ Metaphor develops several knowledgebase connectors that are capable of retrievin
 
 # Supported Endpoints
 
-Embedding models are configured via the `EmbeddingModelConfig` [class](/metaphor/common/embeddings_config.py). Required and optional configs should be entered in the `embed_model_config` dictionary in the crawler YAML file. 
+Embedding models are configured via the `EmbeddingModelConfig` [class](/metaphor/common/embeddings_config.py). Required and optional configs should be entered in the `embedding_model` dictionary in the crawler YAML file. 
 
 ## Azure OpenAI service models
 [Home](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
@@ -17,7 +17,7 @@ The following models are known to work:
 
 ```yaml
 # REQUIRED CONFIGS
-embed_model_config:
+embedding_model:
   azure_openai:
     key: <key>
     endpoint: <endpoint>
@@ -40,7 +40,7 @@ The following models are known to work:
 
 ```yaml
 # REQUIRED CONFIGS
-embed_model_config:
+embedding_model:
   openai:
     key: <openAI_key>
     # DEFAULTS; DON'T NEED TO BE CONFIGURED

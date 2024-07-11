@@ -77,7 +77,7 @@ include_children: <include_children> # False
 
 page_status: <page_status> # "current"
 
-embed_model_config:  # in the same block as above
+embedding_model:  # in the same block as above
   azure_openai:
     version: <version> # "2024-03-01-preview"
     model_name: <model_name> # "Embedding_3_small"

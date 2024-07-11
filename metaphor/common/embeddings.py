@@ -70,8 +70,6 @@ def embed_documents(
         embed_model = OpenAIEmbedding(
             model=openai_config.model, api_key=openai_config.key
         )
-    else:
-        raise Exception(f"Embedding source {source} not supported")
 
     node_parser = SentenceSplitter.from_defaults(
         chunk_size=embedding_model.chunk_size,

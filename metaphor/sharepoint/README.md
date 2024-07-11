@@ -36,7 +36,7 @@ These defaults are provided; you don't have to manually configure them.
 `include_text` specifies whether to include the original document text alongside the embedded content.
 
 ```yaml
-embed_model_config:  # in the same block as above
+embedding_model:  # in the same block as above
   azure_openai:
     version: <version> # "2024-03-01-preview"
     model_name: <model_name> # "Embedding_3_small"
