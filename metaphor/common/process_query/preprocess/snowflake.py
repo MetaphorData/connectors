@@ -2,6 +2,7 @@ import re
 
 
 def drop_snowflake_copy_into_options(sql: str) -> str:
+    sql = sql.strip()
     pat = r"^\s?copy into"
     match = next(re.finditer(pat, sql, re.IGNORECASE), None)
     if not match:

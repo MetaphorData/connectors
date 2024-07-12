@@ -9,7 +9,7 @@ class ProcessQueryConfig:
     Config to control what to do when processing the parsed SQL queries.
     """
 
-    redact_literal_values_in_where_clauses: bool = True
+    redact_literal_values_in_where_clauses: bool = False
     """
     Whether to redact literal values in WHERE clauses. If set to `True`, all literal values will be redacted to a predefined string value.
     """
