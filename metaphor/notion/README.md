@@ -37,7 +37,7 @@ These defaults are provided; you don't have to manually configure them.
 embedding_model:  # in the same block as above
   azure_openai:
     version: <version> # "2024-03-01-preview"
-    model_name: <model_name> # "Embedding_3_small"
+    deployment_name: <deployment_name> # "Embedding_3_small"
     model: <model> # "text-embedding-3-small"
   chunk_size: 512
   chunk_overlap: 50
