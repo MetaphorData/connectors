@@ -74,6 +74,7 @@ from metaphor.snowflake.utils import (
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
+    redact_values_in_where_clause,
     str_to_source_type,
     str_to_stream_type,
     table_type_to_materialization_type,
@@ -838,7 +839,7 @@ class SnowflakeExtractor(BaseExtractor):
                     bytes_written=safe_float(bytes_written),
                     sources=sources,
                     targets=targets,
-                    sql=query_text,
+                    sql=redact_values_in_where_clause(query_text),
                     sql_hash=query_hash,
                 )
 
