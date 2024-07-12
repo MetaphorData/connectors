@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, model_validator
 
 supported_sources = ["azure_openai", "openai"]
 
@@ -24,7 +24,7 @@ class EmbeddingModelConfig(BaseModel):
     chunk_size: int = 512
     chunk_overlap: int = 50
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def apply_defaults(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """
         Applies defaults to the first non-None provided configuration.
