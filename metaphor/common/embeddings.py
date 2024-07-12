@@ -8,7 +8,11 @@ from llama_index.core.vector_stores import SimpleVectorStore
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
 
-from metaphor.common.embeddings_config import EmbeddingModelConfig, supported_sources
+from metaphor.common.embeddings_config import (
+    AzureOpenAIConfig,
+    EmbeddingModelConfig,
+    OpenAIConfig,
+)
 from metaphor.models.metadata_change_event import ExternalSearchDocument
 
 
@@ -46,30 +50,22 @@ def embed_documents(
     """
 
     # Determine the source from the embedding_model configuration
-    source = None
-    for src in supported_sources:
-        config_obj = getattr(embedding_model, src, None)
-        if config_obj and getattr(config_obj, "key", None):
-            source = src
-            break
+    active_config = embedding_model.active_config
 
-    if not source:
-        raise Exception("No valid embedding model configuration found")
-
-    if source == "azure_openai":
-        azure_config = embedding_model.azure_openai
+    if isinstance(active_config, AzureOpenAIConfig):
         embed_model = AzureOpenAIEmbedding(
-            model=azure_config.model,
-            deployment_name=azure_config.model_name,
-            api_key=azure_config.key,
-            azure_endpoint=azure_config.endpoint,
-            api_version=azure_config.version,
+            model=active_config.model,
+            deployment_name=active_config.deployment_name,
+            api_key=active_config.key,
+            azure_endpoint=active_config.endpoint,
+            api_version=active_config.version,
         )
-    elif source == "openai":
-        openai_config = embedding_model.openai
+    elif isinstance(active_config, OpenAIConfig):
         embed_model = OpenAIEmbedding(
-            model=openai_config.model, api_key=openai_config.key
+            model=active_config.model, api_key=active_config.key
         )
+    else:
+        raise Exception(f"Embedding source {type(active_config)} not supported")
 
     node_parser = SentenceSplitter.from_defaults(
         chunk_size=embedding_model.chunk_size,
