@@ -1,4 +1,4 @@
-from dataclasses import asdict, field
+from dataclasses import field
 
 from pydantic.dataclasses import dataclass
 
@@ -20,8 +20,3 @@ class NotionRunConfig(BaseConfig):
 
     # Notion API version
     notion_api_version: str = "2022-06-28"
-
-    # insert user-provided embedding model configs
-    def __post_init__(self):
-        default_config = EmbeddingModelConfig()
-        self.embedding_model.update(asdict(default_config))

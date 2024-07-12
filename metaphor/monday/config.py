@@ -1,4 +1,4 @@
-from dataclasses import asdict, field
+from dataclasses import field
 
 from pydantic.dataclasses import dataclass
 
@@ -20,8 +20,3 @@ class MondayRunConfig(BaseConfig):
 
     # Store the document's content alongside embeddings
     include_text: bool = False
-
-    # insert user-provided embedding model configs
-    def __post_init__(self):
-        default_config = EmbeddingModelConfig()
-        self.embedding_model.update(asdict(default_config))
