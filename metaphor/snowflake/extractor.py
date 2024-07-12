@@ -840,7 +840,9 @@ class SnowflakeExtractor(BaseExtractor):
                     sources=sources,
                     targets=targets,
                     sql=process_query(
-                        query_text, DataPlatform.SNOWFLAKE, self._config.query_log
+                        query_text,
+                        DataPlatform.SNOWFLAKE,
+                        self._config.query_log.process_query_config,
                     ),
                     sql_hash=query_hash,
                 )

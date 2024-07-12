@@ -19,7 +19,7 @@ DEFAULT_MAX_QUERY_SIZE = 100_000
 
 
 @dataclass(config=ConnectorConfig)
-class SnowflakeQueryLogConfig(ProcessQueryConfig):
+class SnowflakeQueryLogConfig:
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 1
 
@@ -31,6 +31,11 @@ class SnowflakeQueryLogConfig(ProcessQueryConfig):
 
     # Queries larger than this size will not be processed
     max_query_size: int = DEFAULT_MAX_QUERY_SIZE
+
+    # Config to control query processing
+    process_query_config: ProcessQueryConfig = field(
+        default_factory=lambda: ProcessQueryConfig()
+    )
 
 
 @dataclass(config=ConnectorConfig)

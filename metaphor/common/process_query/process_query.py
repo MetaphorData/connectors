@@ -9,17 +9,24 @@ from metaphor.models.metadata_change_event import DataPlatform
 
 logger = get_logger()
 
-SUPPORTED_DIALECTS = {
+_PLATFORM_TO_DIALECT = {
+    DataPlatform.BIGQUERY: "bigquery",
+    DataPlatform.HIVE: "hive",
+    DataPlatform.MSSQL: "tsql",
+    DataPlatform.MYSQL: "mysql",
+    DataPlatform.POSTGRESQL: "postgres",
+    DataPlatform.REDSHIFT: "redshift",
     DataPlatform.SNOWFLAKE: "snowflake",
+    DataPlatform.UNITY_CATALOG: "databricks",
 }
 
-_REDACTED_LITERAL_VALUE = "__REDACTED_BY_METAPHOR__"
 
-
-def _redact_literal_values_in_where_clauses(expression: Expression) -> None:
+def _redact_literal_values_in_where_clauses(
+    expression: Expression, config: ProcessQueryConfig
+) -> None:
     for where in expression.find_all(exp.Where):
         for lit in where.find_all(exp.Literal):
-            lit.args["this"] = _REDACTED_LITERAL_VALUE
+            lit.args["this"] = config.redacted_literal_placeholder
 
 
 def process_query(
@@ -51,9 +58,7 @@ def process_query(
     if is_bad_query_pattern(sql):
         return sql
 
-    dialect = SUPPORTED_DIALECTS.get(data_platform)
-    if not dialect:
-        return sql
+    dialect = _PLATFORM_TO_DIALECT.get(data_platform)
 
     try:
         updated = preprocess(sql, data_platform)
@@ -63,6 +68,6 @@ def process_query(
         return sql
 
     if config.redact_literal_values_in_where_clauses:
-        _redact_literal_values_in_where_clauses(expression)
+        _redact_literal_values_in_where_clauses(expression, config)
 
     return expression.sql(dialect=dialect)
