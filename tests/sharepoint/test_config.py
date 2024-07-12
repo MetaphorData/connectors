@@ -1,5 +1,5 @@
 from metaphor.common.base_config import OutputConfig
-from metaphor.common.embeddings_config import AzureOpenAIConfig, EmbeddingModelConfig
+from metaphor.common.embeddings_config import EmbeddingModelConfig
 from metaphor.sharepoint.config import SharepointRunConfig
 
 
@@ -8,9 +8,10 @@ def test_config(test_root_dir):
         f"{test_root_dir}/sharepoint/config.yml"
     )
 
-    embed_config = EmbeddingModelConfig(
-        AzureOpenAIConfig(key="azure_openAI_key", endpoint="azure_openAI_endpoint")
-    )
+    test_config = {
+        "azure_openai": {"key": "azure_openAI_key", "endpoint": "azure_openAI_endpoint"}
+    }
+    embed_config = EmbeddingModelConfig(**test_config)
 
     assert config == SharepointRunConfig(
         sharepoint_client_id="sharepoint_client_id",
