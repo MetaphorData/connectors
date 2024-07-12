@@ -8,8 +8,6 @@ from typing import Callable, Dict, List, Optional, Set, Tuple
 
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
-from sqlglot import Expression, exp, maybe_parse
-from sqlglot.errors import SqlglotError
 
 from metaphor.models.metadata_change_event import (
     Dataset,
@@ -272,17 +270,3 @@ def append_column_system_tag(
     field = next((f for f in fields if is_target_field(f)), None)
     if field:
         _update_field_system_tag(field, system_tag)
-
-
-def redact_values_in_where_clause(sql: str) -> str:
-    try:
-        expression: Expression = maybe_parse(sql, dialect="snowflake")
-    except SqlglotError:
-        logger.warning(f"Cannot parse sql with sqlglot: {sql}")
-        return sql
-
-    for where in expression.find_all(exp.Where):
-        for eq in where.find_all(exp.EQ):
-            eq.right.args["this"] = "REDACTED_BY_METAPHOR"
-
-    return expression.sql(dialect="snowflake")

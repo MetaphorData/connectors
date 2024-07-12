@@ -5,6 +5,7 @@ from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.process_query import ProcessQueryConfig
 from metaphor.common.tag_matcher import TagMatcher
 from metaphor.snowflake.auth import SnowflakeAuthConfig
 from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE
@@ -18,7 +19,7 @@ DEFAULT_MAX_QUERY_SIZE = 100_000
 
 
 @dataclass(config=ConnectorConfig)
-class SnowflakeQueryLogConfig:
+class SnowflakeQueryLogConfig(ProcessQueryConfig):
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 1
 

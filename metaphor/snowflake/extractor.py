@@ -30,6 +30,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
+from metaphor.common.process_query import process_query
 from metaphor.common.query_history import user_id_or_email
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.tag_matcher import tag_datasets
@@ -74,7 +75,6 @@ from metaphor.snowflake.utils import (
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
-    redact_values_in_where_clause,
     str_to_source_type,
     str_to_stream_type,
     table_type_to_materialization_type,
@@ -839,7 +839,9 @@ class SnowflakeExtractor(BaseExtractor):
                     bytes_written=safe_float(bytes_written),
                     sources=sources,
                     targets=targets,
-                    sql=redact_values_in_where_clause(query_text),
+                    sql=process_query(
+                        query_text, DataPlatform.SNOWFLAKE, self._config.query_log
+                    ),
                     sql_hash=query_hash,
                 )
 
