@@ -220,9 +220,11 @@ def init_schema(dataset: Dataset) -> None:
 
 
 def init_field(fields: List[SchemaField], column: str) -> SchemaField:
-    field = next((f for f in fields if f.field_path == column), None)
+    field = next((f for f in fields if f.field_name == column), None)
     if not field:
-        field = SchemaField(field_path=column, field_name=column, subfields=None)
+        field = SchemaField(
+            field_path=column.lower(), field_name=column, subfields=None
+        )
         fields.append(field)
     return field
 
@@ -244,13 +246,14 @@ def init_field_doc(dataset: Dataset, column: str) -> FieldDocumentation:
         (
             d
             for d in dataset.documentation.field_documentations
-            if d.field_path == column
+            if d.field_path == column.lower()
         ),
         None,
     )
     if not doc:
-        doc = FieldDocumentation()
-        doc.field_path = column
+        doc = FieldDocumentation(
+            field_path=column.lower(),
+        )
         dataset.documentation.field_documentations.append(doc)
     return doc
 

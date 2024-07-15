@@ -113,7 +113,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
         entities = ["COUNT(1)"]
         for field in dataset.schema.fields:
-            column = f'"{field.field_path}"'
+            column = f'"{field.field_name}"'
             nullable = field.nullable
             is_numeric = field.precision is not None
 
@@ -153,7 +153,6 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
         row_count = int(results[0])
         index = 1
         for field in dataset.schema.fields:
-            column = field.field_path
             nullable = field.nullable
             is_numeric = field.precision is not None
 
@@ -181,7 +180,7 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
             dataset.field_statistics.field_statistics.append(
                 FieldStatistics(
-                    field_path=column,
+                    field_path=field.field_path,
                     distinct_value_count=unique_values,
                     null_value_count=nulls,
                     nonnull_value_count=(row_count - nulls),

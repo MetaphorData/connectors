@@ -100,7 +100,7 @@ class MySQLExtractor(BaseExtractor):
                     SchemaField(
                         description=column.get("comment"),
                         field_name=column.get("name"),
-                        field_path=column.get("name"),
+                        field_path=column.get("name").lower(),
                         native_type=str(column.get("type")),
                         nullable=bool(column.get("nullable")),
                         subfields=None,

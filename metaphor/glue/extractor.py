@@ -78,7 +78,7 @@ class GlueExtractor(BaseExtractor):
                 columns.append(
                     SchemaField(
                         field_name=column.get("Name"),
-                        field_path=column.get("Name"),
+                        field_path=column.get("Name").lower(),
                         native_type=column.get("Type"),
                         description=column.get("Comment"),
                         subfields=None,

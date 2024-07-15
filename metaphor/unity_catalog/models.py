@@ -15,7 +15,7 @@ def extract_schema_field_from_column_info(column: ColumnInfo) -> SchemaField:
     return SchemaField(
         subfields=None,
         field_name=column.name,
-        field_path=column.name,
+        field_path=column.name.lower(),
         native_type=column.type_name.value.lower(),
         precision=(
             float(column.type_precision)

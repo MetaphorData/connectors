@@ -240,7 +240,7 @@ class AvroParser:
         models = [
             SchemaField(
                 field_name=field_name,
-                field_path=field_name,
+                field_path=field_name.lower(),
                 native_type=str(parsed_schema.type).upper(),
                 subfields=self.get_avro_fields(parsed_schema, field_name),
                 description=AvroParser._safe_get_doc(parsed_schema),

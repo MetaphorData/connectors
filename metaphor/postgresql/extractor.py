@@ -364,7 +364,7 @@ class PostgreSQLExtractor(BaseExtractor):
         )
 
         return SchemaField(
-            field_path=column["column_name"],
+            field_path=column["column_name"].lower(),
             field_name=column["column_name"],
             native_type=native_type,
             nullable=(not column["not_null"]),

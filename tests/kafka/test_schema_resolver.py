@@ -92,7 +92,7 @@ def test_schema_resolver(
         fields=[
             SchemaField(
                 field_name="<NA>",
-                field_path="<NA>",
+                field_path="<na>",
                 native_type="STRING",
                 subfields=[],
             )
@@ -105,7 +105,7 @@ def test_schema_resolver(
         fields=[
             SchemaField(
                 field_name="<NA>",
-                field_path="<NA>",
+                field_path="<na>",
                 native_type="DOUBLE",
                 subfields=[],
             )
@@ -122,7 +122,7 @@ def test_schema_resolver(
         fields=[
             SchemaField(
                 field_name="<NA>",
-                field_path="<NA>",
+                field_path="<na>",
                 native_type="STRING",
                 subfields=[],
             )

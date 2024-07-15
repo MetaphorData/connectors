@@ -305,7 +305,7 @@ class SnowflakeExtractor(BaseExtractor):
 
             dataset.schema.fields.append(
                 SchemaField(
-                    field_path=column,
+                    field_path=column.lower(),
                     field_name=column,
                     native_type=data_type,
                     max_length=safe_float(max_length),

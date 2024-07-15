@@ -175,7 +175,8 @@ class TrinoExtractor(BaseExtractor):
             for schema, name, column_name, column_nullable, column_type in rows:
                 table_fields[_Table(catalog, schema, name)].append(
                     SchemaField(
-                        field_path=column_name,
+                        field_path=column_name.lower(),
+                        field_name=column_name,
                         nullable=column_nullable == "YES",
                         native_type=column_type,
                     )

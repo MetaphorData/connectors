@@ -101,7 +101,7 @@ class MssqlExtractor(BaseExtractor):
                     SchemaField(
                         subfields=None,
                         field_name=column.name,
-                        field_path=column.name,
+                        field_path=column.name.lower(),
                         max_length=column.max_length if column.max_length > 0 else None,
                         nullable=column.is_nullable,
                         precision=column.precision,

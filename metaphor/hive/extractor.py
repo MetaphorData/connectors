@@ -82,10 +82,11 @@ class HiveExtractor(BaseExtractor):
             )
             fields: List[SchemaField] = []
             cursor.execute(f"describe {database}.{table}")
-            for field_path, field_type, comment in cursor:
+            for field_name, field_type, comment in cursor:
                 fields.append(
                     SchemaField(
-                        field_path=field_path,
+                        field_path=field_name.lower(),
+                        field_name=field_name,
                         native_type=field_type,
                         description=comment if comment else None,
                     )
@@ -130,7 +131,7 @@ class HiveExtractor(BaseExtractor):
     ) -> FieldStatistics:
         with self._connection.cursor() as cursor:
             raw_field_statistics: Dict[str, Any] = {
-                "fieldPath": field.field_path,
+                "fieldPath": field.field_name,
             }
 
             chosen_stats: Dict[str, str] = {}
@@ -146,7 +147,7 @@ class HiveExtractor(BaseExtractor):
             if chosen_stats:
                 # Gotta extract column stats calculated by Hive
                 cursor.execute(
-                    f"describe formatted {database}.{table} {field.field_path}"
+                    f"describe formatted {database}.{table} {field.field_name}"
                 )
                 for row in cursor:
                     field_stats_key = chosen_stats.get(row[0])
@@ -156,18 +157,18 @@ class HiveExtractor(BaseExtractor):
                         except Exception:
                             if HiveExtractor._is_numeric_field(field):
                                 logger.warning(
-                                    f"Cannot find {field_stats_key} for field {field.field_path}"
+                                    f"Cannot find {field_stats_key} for field {field.field_name}"
                                 )
 
             def _calculate_by_hand(function: str) -> Optional[float]:
                 try:
                     cursor.execute(
-                        f"select {function}({field.field_path}) from {database}.{table}"
+                        f"select {function}({field.field_name}) from {database}.{table}"
                     )
                     return float(next(cursor)[0])
                 except Exception:
                     logger.exception(
-                        f"Cannot calculate {function} for field {field.field_path}"
+                        f"Cannot calculate {function} for field {field.field_name}"
                     )
                     return None
 

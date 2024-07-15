@@ -9,26 +9,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -46,36 +51,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -93,36 +105,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -140,26 +159,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -177,26 +201,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -214,46 +243,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -271,16 +309,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -298,26 +339,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -335,81 +381,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -427,46 +489,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -484,21 +555,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -516,46 +591,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -573,36 +657,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -620,16 +711,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -647,41 +741,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
@@ -699,81 +801,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -791,46 +909,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -848,36 +975,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -895,36 +1029,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -942,81 +1083,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -1034,36 +1191,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -1081,41 +1245,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
@@ -1133,46 +1305,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -1190,41 +1371,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
@@ -1242,21 +1431,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -1274,26 +1467,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -1311,16 +1509,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -1338,41 +1539,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
@@ -1390,46 +1599,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -1447,16 +1665,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -1474,46 +1695,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -1531,46 +1761,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -1588,21 +1827,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -1620,46 +1863,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -1677,21 +1929,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -1709,46 +1965,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -1766,81 +2031,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -1858,36 +2139,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -1905,41 +2193,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
@@ -1957,16 +2253,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -1984,26 +2283,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -2021,41 +2325,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
@@ -2073,36 +2385,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -2120,16 +2439,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -2147,16 +2469,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -2174,46 +2499,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -2231,26 +2565,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -2268,81 +2607,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -2360,46 +2715,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -2417,81 +2781,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -2509,46 +2889,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -2566,46 +2955,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -2623,81 +3021,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -2715,46 +3129,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -2772,81 +3195,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -2864,21 +3303,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -2896,41 +3339,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
@@ -2948,46 +3399,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -3005,26 +3465,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -3042,26 +3507,31 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "availqty",
           "fieldPath": "availqty",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "supplycost",
           "fieldPath": "supplycost",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(199)",
           "nullable": false
@@ -3079,16 +3549,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -3106,16 +3579,19 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -3133,81 +3609,97 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "linenumber",
           "fieldPath": "linenumber",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "quantity",
           "fieldPath": "quantity",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "extendedprice",
           "fieldPath": "extendedprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "discount",
           "fieldPath": "discount",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "tax",
           "fieldPath": "tax",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "returnflag",
           "fieldPath": "returnflag",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "linestatus",
           "fieldPath": "linestatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "shipdate",
           "fieldPath": "shipdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "commitdate",
           "fieldPath": "commitdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "receiptdate",
           "fieldPath": "receiptdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "shipinstruct",
           "fieldPath": "shipinstruct",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "shipmode",
           "fieldPath": "shipmode",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(44)",
           "nullable": false
@@ -3225,21 +3717,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -3257,41 +3753,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
@@ -3309,21 +3813,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -3341,46 +3849,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "orderkey",
           "fieldPath": "orderkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "orderstatus",
           "fieldPath": "orderstatus",
           "nativeType": "varchar(1)",
           "nullable": false
         },
         {
+          "fieldName": "totalprice",
           "fieldPath": "totalprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "orderdate",
           "fieldPath": "orderdate",
           "nativeType": "date",
           "nullable": false
         },
         {
+          "fieldName": "orderpriority",
           "fieldPath": "orderpriority",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "clerk",
           "fieldPath": "clerk",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "shippriority",
           "fieldPath": "shippriority",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(79)",
           "nullable": false
@@ -3398,21 +3915,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -3430,46 +3951,55 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "partkey",
           "fieldPath": "partkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(55)",
           "nullable": false
         },
         {
+          "fieldName": "mfgr",
           "fieldPath": "mfgr",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "brand",
           "fieldPath": "brand",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "type",
           "fieldPath": "type",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "size",
           "fieldPath": "size",
           "nativeType": "integer",
           "nullable": false
         },
         {
+          "fieldName": "container",
           "fieldPath": "container",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "retailprice",
           "fieldPath": "retailprice",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(23)",
           "nullable": false
@@ -3487,21 +4017,25 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "regionkey",
           "fieldPath": "regionkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(152)",
           "nullable": false
@@ -3519,36 +4053,43 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "suppkey",
           "fieldPath": "suppkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(101)",
           "nullable": false
@@ -3566,41 +4107,49 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "custkey",
           "fieldPath": "custkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(25)",
           "nullable": false
         },
         {
+          "fieldName": "address",
           "fieldPath": "address",
           "nativeType": "varchar(40)",
           "nullable": false
         },
         {
+          "fieldName": "nationkey",
           "fieldPath": "nationkey",
           "nativeType": "bigint",
           "nullable": false
         },
         {
+          "fieldName": "phone",
           "fieldPath": "phone",
           "nativeType": "varchar(15)",
           "nullable": false
         },
         {
+          "fieldName": "acctbal",
           "fieldPath": "acctbal",
           "nativeType": "double",
           "nullable": false
         },
         {
+          "fieldName": "mktsegment",
           "fieldPath": "mktsegment",
           "nativeType": "varchar(10)",
           "nullable": false
         },
         {
+          "fieldName": "comment",
           "fieldPath": "comment",
           "nativeType": "varchar(117)",
           "nullable": false
