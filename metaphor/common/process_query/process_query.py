@@ -64,7 +64,7 @@ def process_query(
         updated = preprocess(sql, data_platform)
         expression: Expression = maybe_parse(updated, dialect=dialect)
     except SqlglotError:
-        logger.warning(f"Cannot parse sql with sqlglot: {sql}")
+        logger.warning(f"Failed to parse sql: {sql}")
         return sql
 
     if config.redact_literal_values_in_where_clauses:
