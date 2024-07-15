@@ -42,6 +42,7 @@ def test_fetch_dashboards(test_root_dir) -> None:
             DashboardBase(id="1"),
             DashboardBase(id="2"),
             DashboardBase(id="3"),
+            DashboardBase(id="4"),
         ]
 
         mock_dashboards = [
@@ -90,6 +91,30 @@ def test_fetch_dashboards(test_root_dir) -> None:
                     is_personal=False,
                     is_personal_descendant=True,
                 ),
+            ),
+            Dashboard(
+                id="4",
+                title="old version dashboard",
+                description="foo",
+                preferred_viewer=None,
+                view_count=123,
+                folder=FolderBase(id="2", name="folder1"),
+                dashboard_elements=[
+                    DashboardElement(
+                        type="vis",
+                        result_maker=ResultMakerWithIdVisConfigAndDynamicFields(
+                            vis_config={
+                                "type": "looker_map",
+                            },
+                            filterables=[
+                                ResultMakerFilterables(
+                                    model="model1",
+                                    view="view1",
+                                )
+                            ],
+                        ),
+                    )
+                ],
             ),
         ]
 
