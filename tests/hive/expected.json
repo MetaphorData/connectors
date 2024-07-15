@@ -8,6 +8,7 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "int"
         }
@@ -43,14 +44,17 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "deptno",
           "fieldPath": "deptno",
           "nativeType": "int"
         },
         {
+          "fieldName": "deptname",
           "fieldPath": "deptname",
           "nativeType": "varchar(256)"
         },
         {
+          "fieldName": "locationid",
           "fieldPath": "locationid",
           "nativeType": "int"
         }
@@ -100,22 +104,27 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "empid",
           "fieldPath": "empid",
           "nativeType": "int"
         },
         {
+          "fieldName": "deptno",
           "fieldPath": "deptno",
           "nativeType": "int"
         },
         {
+          "fieldName": "name",
           "fieldPath": "name",
           "nativeType": "varchar(256)"
         },
         {
+          "fieldName": "salary",
           "fieldPath": "salary",
           "nativeType": "float"
         },
         {
+          "fieldName": "hire_date",
           "fieldPath": "hire_date",
           "nativeType": "timestamp"
         }
@@ -179,14 +188,17 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "empid",
           "fieldPath": "empid",
           "nativeType": "int"
         },
         {
+          "fieldName": "deptname",
           "fieldPath": "deptname",
           "nativeType": "varchar(256)"
         },
         {
+          "fieldName": "hire_date",
           "fieldPath": "hire_date",
           "nativeType": "timestamp"
         }
@@ -232,18 +244,22 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "userid",
           "fieldPath": "userid",
           "nativeType": "int"
         },
         {
+          "fieldName": "movieid",
           "fieldPath": "movieid",
           "nativeType": "int"
         },
         {
+          "fieldName": "rating",
           "fieldPath": "rating",
           "nativeType": "int"
         },
         {
+          "fieldName": "unixtime",
           "fieldPath": "unixtime",
           "nativeType": "string"
         }
@@ -264,10 +280,12 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "int"
         },
         {
+          "fieldName": "type_name",
           "fieldPath": "type_name",
           "nativeType": "string"
         }
@@ -308,14 +326,17 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "int"
         },
         {
+          "fieldName": "ship_type_id",
           "fieldPath": "ship_type_id",
           "nativeType": "int"
         },
         {
+          "fieldName": "crew_size",
           "fieldPath": "crew_size",
           "nativeType": "int"
         }
@@ -369,14 +390,17 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "id",
           "fieldPath": "id",
           "nativeType": "int"
         },
         {
+          "fieldName": "ship_id",
           "fieldPath": "ship_id",
           "nativeType": "int"
         },
         {
+          "fieldName": "admiral_id",
           "fieldPath": "admiral_id",
           "nativeType": "int"
         }
@@ -430,18 +454,22 @@
     "schema": {
       "fields": [
         {
+          "fieldName": "userid",
           "fieldPath": "userid",
           "nativeType": "int"
         },
         {
+          "fieldName": "movieid",
           "fieldPath": "movieid",
           "nativeType": "int"
         },
         {
+          "fieldName": "rating",
           "fieldPath": "rating",
           "nativeType": "int"
         },
         {
+          "fieldName": "unixtime",
           "fieldPath": "unixtime",
           "nativeType": "string"
         }
