@@ -3,8 +3,8 @@ from typing import List, Optional, Tuple
 import avro.schema as avroschema
 from avro.schema import ArraySchema, RecordSchema, UnionSchema
 
+from metaphor.common.fieldpath import build_field_path, build_schema_field
 from metaphor.common.logger import get_logger
-from metaphor.kafka.schema_parsers.utils import get_field_path
 from metaphor.models.metadata_change_event import SchemaField
 
 logger = get_logger()
@@ -61,7 +61,7 @@ class AvroParser:
         """
         Parses the record schema into a schema field.
         """
-        field_path = get_field_path(cur_path, record_schema.name)
+        field_path = build_field_path(cur_path, record_schema.name)
         child_field = SchemaField(
             field_name=record_schema.name,
             field_path=field_path,
@@ -128,7 +128,7 @@ class AvroParser:
         the display type would be `ARRAY<ARRAY<record>>`
         """
         field_name = AvroParser._safe_get_name(field)
-        field_path = get_field_path(cur_path, field_name)
+        field_path = build_field_path(cur_path, field_name)
         schema_field = SchemaField(
             field_name=field_name,
             field_path=field_path,
@@ -138,7 +138,7 @@ class AvroParser:
 
         array_type, subfields = self._parse_array_child(
             arr_item=field.type.items,  # type: ignore # avro types are broken, field.type is actually a schema
-            cur_path=get_field_path(cur_path, field_name),
+            cur_path=build_field_path(cur_path, field_name),
         )
 
         schema_field.native_type = f"{schema_field.native_type}<{array_type}>"
@@ -150,7 +150,7 @@ class AvroParser:
         """
         Parse the nested record fields for avro
         """
-        field_path = get_field_path(cur_path, field.name)
+        field_path = build_field_path(cur_path, field.name)
         child_schema: RecordSchema = field.type  # type: ignore # avro types are broken, field.type is actually a record schema
         schema_field = SchemaField(
             field_name=field.name,
@@ -175,7 +175,7 @@ class AvroParser:
 
         field_type: UnionSchema = union_field.type  # type: ignore # avro types are broken, field.type is actually a union schema
         field_name = AvroParser._safe_get_name(union_field)
-        field_path = get_field_path(cur_path, field_name)
+        field_path = build_field_path(cur_path, field_name)
         schema_field = SchemaField(
             field_name=field_name,
             field_path=field_path,
@@ -202,7 +202,7 @@ class AvroParser:
         field_name = AvroParser._safe_get_name(field)
         return SchemaField(
             field_name=field_name,
-            field_path=get_field_path(cur_path, field_name),
+            field_path=build_field_path(cur_path, field_name),
             native_type=str(field.type.type).upper(),  # type: ignore # avro types are broken, field.type is actually a schema
             description=AvroParser._safe_get_doc(field),
         )
@@ -237,16 +237,13 @@ class AvroParser:
     def run_parser(self, raw_schema: str) -> List[SchemaField]:
         parsed_schema = avroschema.parse(raw_schema)
         field_name = AvroParser._safe_get_name(parsed_schema)
-        models = [
-            SchemaField(
-                field_name=field_name,
-                field_path=field_name.lower(),
-                native_type=str(parsed_schema.type).upper(),
-                subfields=self.get_avro_fields(parsed_schema, field_name),
-                description=AvroParser._safe_get_doc(parsed_schema),
-            )
-        ]
-        return models
+        schema_field = build_schema_field(
+            field_name,
+            str(parsed_schema.type).upper(),
+            AvroParser._safe_get_doc(parsed_schema),
+        )
+        schema_field.subfields = self.get_avro_fields(parsed_schema, field_name)
+        return [schema_field]
 
     @staticmethod
     def parse(raw_schema: str, subject: str) -> Optional[List[SchemaField]]:

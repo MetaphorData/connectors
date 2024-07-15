@@ -13,6 +13,8 @@ from typing import (
     Tuple,
 )
 
+from metaphor.common.fieldpath import build_schema_field
+
 try:
     from snowflake.connector.cursor import DictCursor, SnowflakeCursor
     from snowflake.connector.errors import ProgrammingError
@@ -53,7 +55,6 @@ from metaphor.models.metadata_change_event import (
     Hierarchy,
     HierarchyLogicalID,
     QueryLog,
-    SchemaField,
     SchemaType,
     SnowflakeStreamInfo,
     SourceInfo,
@@ -303,18 +304,11 @@ class SnowflakeExtractor(BaseExtractor):
 
             assert dataset.schema is not None and dataset.schema.fields is not None
 
-            dataset.schema.fields.append(
-                SchemaField(
-                    field_path=column.lower(),
-                    field_name=column,
-                    native_type=data_type,
-                    max_length=safe_float(max_length),
-                    precision=safe_float(precision),
-                    nullable=nullable == "YES",
-                    description=comment,
-                    subfields=None,
-                )
-            )
+            field = build_schema_field(column, data_type, comment, nullable == "YES")
+            field.max_length = safe_float(max_length)
+            field.precision = safe_float(precision)
+
+            dataset.schema.fields.append(field)
 
     def _fetch_table_info(
         self,

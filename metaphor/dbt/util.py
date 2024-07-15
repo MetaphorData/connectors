@@ -12,6 +12,7 @@ from metaphor.common.entity_id import (
     to_person_entity_id,
     to_virtual_view_entity_id,
 )
+from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import is_email
 from metaphor.dbt.config import MetaOwnership, MetaTag
@@ -222,9 +223,7 @@ def init_schema(dataset: Dataset) -> None:
 def init_field(fields: List[SchemaField], column: str) -> SchemaField:
     field = next((f for f in fields if f.field_name == column), None)
     if not field:
-        field = SchemaField(
-            field_path=column.lower(), field_name=column, subfields=None
-        )
+        field = build_schema_field(column)
         fields.append(field)
     return field
 
@@ -242,17 +241,18 @@ def init_field_doc(dataset: Dataset, column: str) -> FieldDocumentation:
         and dataset.documentation.field_documentations is not None
     )
 
+    field_path = column.lower()
     doc = next(
         (
             d
             for d in dataset.documentation.field_documentations
-            if d.field_path == column.lower()
+            if d.field_path == field_path
         ),
         None,
     )
     if not doc:
         doc = FieldDocumentation(
-            field_path=column.lower(),
+            field_path=field_path,
         )
         dataset.documentation.field_documentations.append(doc)
     return doc

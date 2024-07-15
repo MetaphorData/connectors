@@ -4,6 +4,7 @@ from typing import Collection, Dict, List
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -16,7 +17,6 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     ForeignKey,
     MaterializationType,
-    SchemaField,
     SQLSchema,
 )
 from metaphor.mssql.config import MssqlConfig
@@ -94,21 +94,18 @@ class MssqlExtractor(BaseExtractor):
                 schema=table.schema_name,
                 table=table.name,
             )
+
             fields = []
             primary_keys = []
             for column in table.column_dict.values():
-                fields.append(
-                    SchemaField(
-                        subfields=None,
-                        field_name=column.name,
-                        field_path=column.name.lower(),
-                        max_length=column.max_length if column.max_length > 0 else None,
-                        nullable=column.is_nullable,
-                        precision=column.precision,
-                        native_type=column.type,
-                        is_unique=column.is_unique,
-                    )
+                field = build_schema_field(
+                    column.name, column.type, None, column.is_nullable
                 )
+                field.max_length = column.max_length if column.max_length > 0 else None
+                field.precision = column.precision
+                field.is_unique = column.is_unique
+                fields.append(field)
+
                 if column.is_primary_key:
                     primary_keys.append(column.name)
 

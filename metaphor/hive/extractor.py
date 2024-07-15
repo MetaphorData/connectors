@@ -5,6 +5,7 @@ from pyhive import hive
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
 from metaphor.hive.config import HiveRunConfig
@@ -83,14 +84,7 @@ class HiveExtractor(BaseExtractor):
             fields: List[SchemaField] = []
             cursor.execute(f"describe {database}.{table}")
             for field_name, field_type, comment in cursor:
-                fields.append(
-                    SchemaField(
-                        field_path=field_name.lower(),
-                        field_name=field_name,
-                        native_type=field_type,
-                        description=comment if comment else None,
-                    )
-                )
+                fields.append(build_schema_field(field_name, field_type, comment))
 
             cursor.execute(f"show create table {database}.{table}")
             table_schema = "\n".join(

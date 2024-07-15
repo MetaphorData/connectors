@@ -6,6 +6,7 @@ from sqlalchemy.engine import URL, Inspector
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.models.crawler_run_metadata import Platform
@@ -17,7 +18,6 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     ForeignKey,
     MaterializationType,
-    SchemaField,
     SchemaType,
     SQLSchema,
 )
@@ -97,13 +97,11 @@ class MySQLExtractor(BaseExtractor):
                 description=table_info.get("text"),
                 schema_type=SchemaType.SQL,
                 fields=[
-                    SchemaField(
-                        description=column.get("comment"),
-                        field_name=column.get("name"),
-                        field_path=column.get("name").lower(),
-                        native_type=str(column.get("type")),
-                        nullable=bool(column.get("nullable")),
-                        subfields=None,
+                    build_schema_field(
+                        column.get("name"),
+                        str(column.get("type")),
+                        column.get("comment"),
+                        bool(column.get("nullable")),
                     )
                     for column in columns
                 ],
