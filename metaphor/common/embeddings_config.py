@@ -25,23 +25,15 @@ class EmbeddingModelConfig(BaseModel):
     chunk_overlap: int = 50
 
     @model_validator(mode="before")
-    def apply_defaults(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def check_only_one_config(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Applies defaults to the first non-None provided configuration.
+        Ensure that only one of `supported_sources` is set.
         """
-        for key in supported_sources:
-            provided_config = values.get(key)
-            if provided_config:
-                if key == "azure_openai":
-                    default_config = AzureOpenAIConfig()
-                    updated_config = default_config.model_copy(update=provided_config)
-                    values[key] = updated_config
-                elif key == "openai":
-                    default_config = OpenAIConfig()  # type: ignore
-                    updated_config = default_config.model_copy(update=provided_config)
-                    values[key] = updated_config
-                else:
-                    raise ValueError("No valid embedding model configuration found")
+        config_count = sum(
+            1 for key in supported_sources if values.get(key) is not None
+        )
+        if config_count != 1:
+            raise ValueError(f"Exactly one of {supported_sources} must be set")
         return values
 
     @property

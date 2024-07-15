@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from metaphor.common.base_config import OutputConfig
-from metaphor.common.embeddings_config import EmbeddingModelConfig
+from metaphor.common.embeddings_config import AzureOpenAIConfig, EmbeddingModelConfig
 from metaphor.static_web.config import StaticWebRunConfig
 from metaphor.static_web.extractor import StaticWebExtractor
 from tests.test_utils import load_json, load_text
@@ -15,7 +15,9 @@ def static_web_extractor():
     config = StaticWebRunConfig(
         links=["https://example.com"],
         depths=[1],
-        embedding_model=EmbeddingModelConfig(),
+        embedding_model=EmbeddingModelConfig(
+            azure_openai=AzureOpenAIConfig(key="key", endpoint="endpoint")
+        ),
         include_text=True,
         output=OutputConfig(),
     )

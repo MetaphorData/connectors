@@ -4,7 +4,7 @@ import pytest
 from llama_index.core import Document
 
 from metaphor.common.base_config import OutputConfig
-from metaphor.common.embeddings_config import EmbeddingModelConfig
+from metaphor.common.embeddings_config import AzureOpenAIConfig, EmbeddingModelConfig
 from metaphor.sharepoint.config import SharepointRunConfig
 from metaphor.sharepoint.extractor import SharepointExtractor
 from tests.test_utils import load_json
@@ -15,7 +15,9 @@ def get_dummy_config(include_text: bool):
         sharepoint_client_id="client_id",
         sharepoint_client_secret="client_secret",
         sharepoint_tenant_id="tenant_id",
-        embedding_model=EmbeddingModelConfig(),
+        embedding_model=EmbeddingModelConfig(
+            azure_openai=AzureOpenAIConfig(key="key", endpoint="endpoint")
+        ),
         include_text=include_text,
         output=OutputConfig(),
     )
