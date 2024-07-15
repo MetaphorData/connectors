@@ -5,6 +5,7 @@ from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.process_query import ProcessQueryConfig
 from metaphor.common.tag_matcher import TagMatcher
 from metaphor.snowflake.auth import SnowflakeAuthConfig
 from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE
@@ -30,6 +31,11 @@ class SnowflakeQueryLogConfig:
 
     # Queries larger than this size will not be processed
     max_query_size: int = DEFAULT_MAX_QUERY_SIZE
+
+    # Config to control query processing
+    process_query: ProcessQueryConfig = field(
+        default_factory=lambda: ProcessQueryConfig()
+    )
 
 
 @dataclass(config=ConnectorConfig)

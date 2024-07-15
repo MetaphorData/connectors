@@ -29,5 +29,36 @@
       ],
       "name": "first"
     }
+  },
+  {
+    "dashboardInfo": {
+      "charts": [
+        {
+          "chartType": "MAP"
+        }
+      ],
+      "description": "foo",
+      "title": "old version dashboard",
+      "viewCount": 123.0
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~BCFF7FBF29617570C10466C0CA541AE4"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "4",
+      "platform": "LOOKER"
+    },
+    "sourceInfo": {
+      "mainUrl": "http://test/dashboards/4"
+    },
+    "structure": {
+      "directories": [
+        "1",
+        "2"
+      ],
+      "name": "old version dashboard"
+    }
   }
 ]

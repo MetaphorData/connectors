@@ -133,6 +133,10 @@ query_log:
   fetch_size: <number_of_logs>
 ```
 
+##### Process Query Config
+
+See [Process Query](../common/docs/process_query.md) for more information on the optional `process_query_config` config.
+
 #### Concurrency
 
 The max number of concurrent queries to the snowflake database can be configured as follows,
