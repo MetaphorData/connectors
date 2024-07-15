@@ -166,8 +166,14 @@ class LookerExtractor(BaseExtractor):
                 charts=[],
             )
 
+            # Prefer user-provided base url
+            base_url = self._alternative_base_url or self._base_url
+
+            # preferred_viewer only have value if the dashboard support new version (dashboard-next)
+            prefix = dashboard.preferred_viewer or "dashboards"
+
             source_info = SourceInfo(
-                main_url=f"{self._alternative_base_url or self._base_url}/{dashboard.preferred_viewer}/{dashboard.id}",
+                main_url=f"{base_url}/{prefix}/{dashboard.id}",
             )
 
             # All numeric fields must be converted to "float" to meet quicktype's expectation
