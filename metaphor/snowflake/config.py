@@ -33,7 +33,7 @@ class SnowflakeQueryLogConfig:
     max_query_size: int = DEFAULT_MAX_QUERY_SIZE
 
     # Config to control query processing
-    process_query_config: ProcessQueryConfig = field(
+    process_query: ProcessQueryConfig = field(
         default_factory=lambda: ProcessQueryConfig()
     )
 
