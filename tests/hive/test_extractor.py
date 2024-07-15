@@ -1,3 +1,4 @@
+import json
 import re
 import time
 
@@ -75,6 +76,8 @@ async def test_extractor(test_root_dir: str) -> None:
             events.append(EventUtil.trim_event(entity))
 
         events.sort(key=lambda event: event.get("logicalId", {}).get("name", ""))
+        logger.info(json.dumps(events))
+
         expected = f"{test_root_dir}/hive/expected.json"
 
         assert events == load_json(expected)
