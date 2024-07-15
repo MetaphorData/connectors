@@ -12,6 +12,41 @@ def test_redact_literal_values_in_where_clauses():
         == f"SELECT col FROM src WHERE col > {config.redacted_literal_placeholder} AND col < {config.redacted_literal_placeholder}"
     )
 
+    sql = """
+    WITH q AS (
+        SELECT
+            *
+        FROM (
+            SELECT
+                foo,
+                bar
+            FROM (
+                SELECT
+                    *
+                FROM
+                    db.sch.src
+                WHERE
+                    col > 1234 AND col < 9999
+            )
+            WHERE
+                col2 == 'some value'
+        )
+        WHERE
+            foo == 'not really foo'
+    )
+    SELECT
+        foo,
+        bar
+    FROM
+        q
+    WHERE
+        bar != 'this cannot be bar'
+    """
+    processed = process_query(sql, DataPlatform.SNOWFLAKE, config)
+    # Notice `==` becomes `=` and `!=` becomes `<>`
+    expected = "WITH q AS (SELECT * FROM (SELECT foo, bar FROM (SELECT * FROM db.sch.src WHERE col > <REDACTED> AND col < <REDACTED>) WHERE col2 = '<REDACTED>') WHERE foo = '<REDACTED>') SELECT foo, bar FROM q WHERE bar <> '<REDACTED>'"
+    assert processed == expected
+
 
 def test_handle_snowflake_copy_into():
     sql = """
