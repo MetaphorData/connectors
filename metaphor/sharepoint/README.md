@@ -8,7 +8,7 @@ This connector makes use of a Microsoft Azure [App Registration](https://learn.m
 
 Configure the client ID, client secret, and tenant ID using the information from the registered App.
 
-Additionally, this connector requires [Azure OpenAI services](https://azure.microsoft.com/en-us/products/ai-services/openai-service) to generate embedding vectors for documents.
+Additionally, this connector requires [Azure OpenAI services](https://azure.microsoft.com/en-us/products/ai-services/openai-service) or an [OpenAI API key](https://platform.openai.com) to generate embedding vectors for documents.
 
 ## Config File
 
@@ -21,10 +21,13 @@ sharepoint_client_id: sharepoint_client_id
 sharepoint_client_secret: sharepoint_client_secret
 sharepoint_tenant_id: sharepoint_tenant_id
 
-azure_openAI_key: <azure_openAI_key>
-
-azure_openAI_endpoint: <azure_openAI_endpoint>
+embedding_model:
+  azure_openai:
+    key: <key>
+    endpoint: <endpoint>
 ```
+
+Note that an embedding model needs to be appropriately configured. This example shows how to configure an Azure OpenAI services model, but you can use other [supported models](/docs/embeddings.md).
 
 ### Optional Configurations
 
@@ -33,9 +36,13 @@ These defaults are provided; you don't have to manually configure them.
 `include_text` specifies whether to include the original document text alongside the embedded content.
 
 ```yaml
-azure_openAI_version: <azure_openAI_version> # "2024-03-01-preview"
-azure_openAI_model_name: <azure_openAI_model_name> # "Embedding_3_small"
-azure_openAI_model: <azure_openAI_model> # "text-embedding-3-small"
+embedding_model:  # in the same block as above
+  azure_openai:
+    version: <version> # "2024-03-01-preview"
+    deployment_name: <deployment_name> # "Embedding_3_small"
+    model: <model> # "text-embedding-3-small"
+  chunk_size: 512
+  chunk_overlap: 50
 
 include_text: <include_text> # False
 ```

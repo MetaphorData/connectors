@@ -4,6 +4,7 @@ import pytest
 import requests
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.embeddings_config import AzureOpenAIConfig, EmbeddingModelConfig
 from metaphor.static_web.config import StaticWebRunConfig
 from metaphor.static_web.extractor import StaticWebExtractor
 from tests.test_utils import load_json, load_text
@@ -14,11 +15,9 @@ def static_web_extractor():
     config = StaticWebRunConfig(
         links=["https://example.com"],
         depths=[1],
-        azure_openAI_key="key",
-        azure_openAI_version="version",
-        azure_openAI_endpoint="endpoint",
-        azure_openAI_model="text-embedding-ada-002",
-        azure_openAI_model_name="model_name",
+        embedding_model=EmbeddingModelConfig(
+            azure_openai=AzureOpenAIConfig(key="key", endpoint="endpoint")
+        ),
         include_text=True,
         output=OutputConfig(),
     )
@@ -87,23 +86,23 @@ async def test_process_subpages(
 
     # Call the _process_subpages method
     static_web_extractor.visited_pages = set()
-    static_web_extractor.docs = list()
+    static_web_extractor.documents = list()
     await static_web_extractor._process_subpages("https://example.com", parent_html, 2)
 
     # Check if _get_page_HTML is called for subpages
     mock_get_page_HTML.assert_any_call("https://example.com/subpage1")
 
     # Verify that documents are added correctly
-    assert len(static_web_extractor.docs) > 0
+    assert len(static_web_extractor.documents) > 0
     assert (
-        static_web_extractor.docs[0].extra_info["link"]
+        static_web_extractor.documents[0].extra_info["link"]
         == "https://example.com/subpage1"
     )
     # Further assertions can be made based on the structure of your Document objects
 
     # Check if the depth limit is respected
     assert not any(
-        "subpage2" in doc.extra_info["link"] for doc in static_web_extractor.docs
+        "subpage2" in doc.extra_info["link"] for doc in static_web_extractor.documents
     )
 
 
@@ -140,7 +139,7 @@ async def test_shallow_recursion(
     await static_web_extractor.extract()
 
     assert len(static_web_extractor.visited_pages) == 3
-    assert len(static_web_extractor.docs) == 3
+    assert len(static_web_extractor.documents) == 3
 
 
 # Test infinite
@@ -177,7 +176,7 @@ async def test_infinite_recursion(
     await static_web_extractor.extract()
 
     assert len(static_web_extractor.visited_pages) == 5
-    assert len(static_web_extractor.docs) == 5
+    assert len(static_web_extractor.documents) == 5
 
 
 # Test extract

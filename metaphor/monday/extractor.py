@@ -16,9 +16,6 @@ from metaphor.monday.config import MondayRunConfig
 logger = get_logger()
 
 baseURL = "https://api.monday.com/v2"
-
-embedding_chunk_size = 512
-embedding_overlap_size = 50
 max_items_query = 500
 
 
@@ -35,14 +32,12 @@ class MondayExtractor(BaseExtractor):
     def __init__(self, config: MondayRunConfig):
         super().__init__(config=config)  # type: ignore[call-arg]
 
+        # Monday API
         self.monday_api_key = config.monday_api_key
         self.monday_api_version = config.monday_api_version
 
-        self.azure_openAI_key = config.azure_openAI_key
-        self.azure_openAI_version = config.azure_openAI_version
-        self.azure_openAI_endpoint = config.azure_openAI_endpoint
-        self.azure_openAI_model = config.azure_openAI_model
-        self.azure_openAI_model_name = config.azure_openAI_model_name
+        # Embedding source and configs
+        self.embedding_model = config.embedding_model
 
         self.include_text = config.include_text
 
@@ -56,7 +51,7 @@ class MondayExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching items from Monday.com")
 
-        self.documents = []
+        documents = []
 
         self.boards = self._get_available_boards()
         self.board_columns = self._parse_board_columns()  # type: ignore[assignment]
@@ -71,22 +66,18 @@ class MondayExtractor(BaseExtractor):
                 board_items, board_columns, board_id, board_name
             )
 
-            self.documents.extend(board_docs)  # type: ignore[call-arg]
+            documents.extend(board_docs)  # type: ignore[call-arg]
 
         logger.info("Starting embedding process")
 
-        vsi = embed_documents(
-            self.documents,
-            self.azure_openAI_key,
-            self.azure_openAI_version,
-            self.azure_openAI_endpoint,
-            self.azure_openAI_model,
-            self.azure_openAI_model_name,
-            embedding_chunk_size,
-            embedding_overlap_size,
+        vector_store_index = embed_documents(
+            docs=documents,
+            embedding_model=self.embedding_model,
         )
 
-        embedded_nodes = map_metadata(vsi, include_text=self.include_text)
+        embedded_nodes = map_metadata(
+            vector_store_index, include_text=self.include_text
+        )
 
         return embedded_nodes
 
