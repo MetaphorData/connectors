@@ -3,6 +3,7 @@ from typing import List, Optional, Union
 from databricks.sdk.service.catalog import ColumnInfo
 from pydantic import BaseModel, field_validator
 
+from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import SchemaField
 
@@ -10,20 +11,18 @@ logger = get_logger()
 
 
 def extract_schema_field_from_column_info(column: ColumnInfo) -> SchemaField:
-    if column.type_name is None:
+    if column.name is None or column.type_name is None:
         raise ValueError(f"Invalid column {column.name}, no type_name found")
-    return SchemaField(
-        subfields=None,
-        field_name=column.name,
-        field_path=column.name,
-        native_type=column.type_name.value.lower(),
-        precision=(
-            float(column.type_precision)
-            if column.type_precision is not None
-            else float("nan")
-        ),
-        description=column.comment,
+
+    field = build_schema_field(
+        column.name, column.type_name.value.lower(), column.comment
     )
+    field.precision = (
+        float(column.type_precision)
+        if column.type_precision is not None
+        else float("nan")
+    )
+    return field
 
 
 class NoPermission(BaseModel):

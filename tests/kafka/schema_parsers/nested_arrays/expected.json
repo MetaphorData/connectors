@@ -1,27 +1,27 @@
 [
   {
     "fieldName": "Top",
-    "fieldPath": "Top",
+    "fieldPath": "top",
     "nativeType": "RECORD",
     "subfields": [
       {
         "fieldName": "FirstLayer",
-        "fieldPath": "Top.FirstLayer",
+        "fieldPath": "top.firstlayer",
         "nativeType": "ARRAY<ARRAY<ARRAY<record>>>",
         "subfields": [
           {
             "fieldName": "Leaf",
-            "fieldPath": "Top.FirstLayer.Leaf",
+            "fieldPath": "top.firstlayer.leaf",
             "nativeType": "RECORD",
             "subfields": [
               {
                 "fieldName": "id",
-                "fieldPath": "Top.FirstLayer.Leaf.id",
+                "fieldPath": "top.firstlayer.leaf.id",
                 "nativeType": "STRING"
               },
               {
                 "fieldName": "LeafArray",
-                "fieldPath": "Top.FirstLayer.Leaf.LeafArray",
+                "fieldPath": "top.firstlayer.leaf.leafarray",
                 "nativeType": "ARRAY<ARRAY<string>>"
               }
             ]

@@ -1,27 +1,27 @@
 [
   {
     "fieldName": "UnionRecord",
-    "fieldPath": "UnionRecord",
+    "fieldPath": "unionrecord",
     "nativeType": "RECORD",
     "subfields": [
       {
         "fieldName": "field",
-        "fieldPath": "UnionRecord.field",
+        "fieldPath": "unionrecord.field",
         "nativeType": "UNION<record,int,string,null>",
         "subfields": [
           {
             "fieldName": "Record",
-            "fieldPath": "UnionRecord.field.Record",
+            "fieldPath": "unionrecord.field.record",
             "nativeType": "RECORD",
             "subfields": [
               {
                 "fieldName": "ID",
-                "fieldPath": "UnionRecord.field.Record.ID",
+                "fieldPath": "unionrecord.field.record.id",
                 "nativeType": "STRING"
               },
               {
                 "fieldName": "name",
-                "fieldPath": "UnionRecord.field.Record.name",
+                "fieldPath": "unionrecord.field.record.name",
                 "nativeType": "STRING"
               }
             ]

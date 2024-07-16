@@ -7,6 +7,7 @@ import boto3
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
 from metaphor.common.utils import unique_list
@@ -71,17 +72,14 @@ class GlueExtractor(BaseExtractor):
                 database_names.append(database["Name"])
         return unique_list(database_names)
 
-    def _get_columns(self, storageDescriptor: Any) -> List[SchemaField]:
+    @staticmethod
+    def _get_columns(storageDescriptor: Any) -> List[SchemaField]:
         columns = []
         if storageDescriptor and "Columns" in storageDescriptor:
             for column in storageDescriptor.get("Columns"):
                 columns.append(
-                    SchemaField(
-                        field_name=column.get("Name"),
-                        field_path=column.get("Name"),
-                        native_type=column.get("Type"),
-                        description=column.get("Comment"),
-                        subfields=None,
+                    build_schema_field(
+                        column.get("Name"), column.get("Type"), column.get("Comment")
                     )
                 )
         return columns
