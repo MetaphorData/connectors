@@ -9,8 +9,8 @@ from typing import List, Optional
 
 from google.protobuf.descriptor import FileDescriptor  # type: ignore
 
+from metaphor.common.fieldpath import build_field_path
 from metaphor.common.logger import get_logger
-from metaphor.kafka.schema_parsers.utils import get_field_path
 from metaphor.models.metadata_change_event import SchemaField
 
 logger = get_logger()
@@ -123,7 +123,7 @@ class ProtobufParser:
     def _parse_protobuf_fields(self, fields, cur_path: str) -> List[SchemaField]:
         schema_fields = []
         for field in fields:
-            field_path = get_field_path(cur_path, field.name)
+            field_path = build_field_path(cur_path, field.name)
 
             field_type = ProtobufDataTypes(field.type)
             schema_field = SchemaField(

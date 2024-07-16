@@ -1,5 +1,7 @@
 from typing import Callable, Collection, Dict, List, Optional, Tuple
 
+from metaphor.common.fieldpath import build_schema_field
+
 try:
     import asyncpg
 except ImportError:
@@ -363,16 +365,15 @@ class PostgreSQLExtractor(BaseExtractor):
             native_type, column["format"]
         )
 
-        return SchemaField(
-            field_path=column["column_name"],
-            field_name=column["column_name"],
-            native_type=native_type,
-            nullable=(not column["not_null"]),
-            description=column["description"],
-            max_length=max_length,
-            precision=precision,
-            subfields=None,
+        field = build_schema_field(
+            column["column_name"],
+            native_type,
+            column["description"],
+            not column["not_null"],
         )
+        field.max_length = max_length
+        field.precision = precision
+        return field
 
     @staticmethod
     def _build_constraint(constraint: Dict, schema: SQLSchema) -> None:

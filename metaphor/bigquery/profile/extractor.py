@@ -180,7 +180,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         query = ["SELECT COUNT(1)"]
 
         for field in schema.fields:
-            column = field.field_path
+            column = field.field_name
             data_type = field.native_type
 
             if (
@@ -229,7 +229,6 @@ class BigQueryProfileExtractor(BaseExtractor):
 
         index = 1
         for field in schema.fields:
-            column = field.field_path
             data_type = field.native_type
 
             unique_count = None
@@ -266,7 +265,7 @@ class BigQueryProfileExtractor(BaseExtractor):
 
             fields.append(
                 FieldStatistics(
-                    field_path=column,
+                    field_path=field.field_path,
                     distinct_value_count=unique_count,
                     null_value_count=nulls,
                     nonnull_value_count=non_nulls,

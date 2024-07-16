@@ -9,6 +9,7 @@ from trino.dbapi import connect
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import md5_digest
@@ -174,10 +175,8 @@ class TrinoExtractor(BaseExtractor):
             rows = cursor.fetchall()
             for schema, name, column_name, column_nullable, column_type in rows:
                 table_fields[_Table(catalog, schema, name)].append(
-                    SchemaField(
-                        field_path=column_name,
-                        nullable=column_nullable == "YES",
-                        native_type=column_type,
+                    build_schema_field(
+                        column_name, column_type, None, column_nullable == "YES"
                     )
                 )
             for table, fields in table_fields.items():

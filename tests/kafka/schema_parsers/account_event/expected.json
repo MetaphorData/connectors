@@ -1,57 +1,57 @@
 [
   {
     "fieldName": "AccountEvent",
-    "fieldPath": "AccountEvent",
+    "fieldPath": "accountevent",
     "nativeType": "RECORD",
     "subfields": [
       {
         "fieldName": "accountNumber",
-        "fieldPath": "AccountEvent.accountNumber",
+        "fieldPath": "accountevent.accountnumber",
         "nativeType": "STRING"
       },
       {
         "fieldName": "address",
-        "fieldPath": "AccountEvent.address",
+        "fieldPath": "accountevent.address",
         "nativeType": "STRING"
       },
       {
         "fieldName": "accountList",
-        "fieldPath": "AccountEvent.accountList",
+        "fieldPath": "accountevent.accountlist",
         "nativeType": "ARRAY<record>",
         "subfields": [
           {
             "fieldName": "Account",
-            "fieldPath": "AccountEvent.accountList.Account",
+            "fieldPath": "accountevent.accountlist.account",
             "nativeType": "RECORD",
             "subfields": [
               {
                 "fieldName": "accountNumber",
-                "fieldPath": "AccountEvent.accountList.Account.accountNumber",
+                "fieldPath": "accountevent.accountlist.account.accountnumber",
                 "nativeType": "STRING"
               },
               {
                 "fieldName": "id",
-                "fieldPath": "AccountEvent.accountList.Account.id",
+                "fieldPath": "accountevent.accountlist.account.id",
                 "nativeType": "STRING"
               },
               {
                 "fieldName": "accountOwner",
-                "fieldPath": "AccountEvent.accountList.Account.accountOwner",
+                "fieldPath": "accountevent.accountlist.account.accountowner",
                 "nativeType": "RECORD",
                 "subfields": [
                   {
                     "fieldName": "OwnerRecord",
-                    "fieldPath": "AccountEvent.accountList.Account.accountOwner.OwnerRecord",
+                    "fieldPath": "accountevent.accountlist.account.accountowner.ownerrecord",
                     "nativeType": "RECORD",
                     "subfields": [
                       {
                         "fieldName": "name",
-                        "fieldPath": "AccountEvent.accountList.Account.accountOwner.OwnerRecord.name",
+                        "fieldPath": "accountevent.accountlist.account.accountowner.ownerrecord.name",
                         "nativeType": "STRING"
                       },
                       {
                         "fieldName": "email",
-                        "fieldPath": "AccountEvent.accountList.Account.accountOwner.OwnerRecord.email",
+                        "fieldPath": "accountevent.accountlist.account.accountowner.ownerrecord.email",
                         "nativeType": "STRING"
                       }
                     ]
