@@ -2797,13 +2797,13 @@ llama-index-core = ">=0.10.29"
 
 [[package]]
 name = "looker-sdk"
-version = "24.10.0"
+version = "24.12.0"
 description = "Looker REST API"
 optional = true
 python-versions = ">=3.6"
 files = [
-    {file = "looker_sdk-24.10.0-py3-none-any.whl", hash = "sha256:26b4c919a0ec81bfa4d9c5eadddfad4c64ae46a20b0f299e7eabe300feaa1842"},
-    {file = "looker_sdk-24.10.0.tar.gz", hash = "sha256:a6fe1e47912d10c90dadba0da33150dd694e24d65b84cb149a025ca26e3046cb"},
+    {file = "looker_sdk-24.12.0-py3-none-any.whl", hash = "sha256:ac9c6f1c3267ff6e4f920262ad90f59187313a1e2203686cbb7a185c4af715f6"},
+    {file = "looker_sdk-24.12.0.tar.gz", hash = "sha256:c736c9a3aee02623f66e4754b14d5249f9a7a4f8e9b44affd46c4dac8ea34505"},
 ]
 
 [package.dependencies]
@@ -3600,13 +3600,13 @@ signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
 
 [[package]]
 name = "openai"
-version = "1.35.13"
+version = "1.35.14"
 description = "The official Python library for the openai API"
 optional = true
 python-versions = ">=3.7.1"
 files = [
-    {file = "openai-1.35.13-py3-none-any.whl", hash = "sha256:36ec3e93e0d1f243f69be85c89b9221a471c3e450dfd9df16c9829e3cdf63e60"},
-    {file = "openai-1.35.13.tar.gz", hash = "sha256:c684f3945608baf7d2dcc0ef3ee6f3e27e4c66f21076df0b47be45d57e6ae6e4"},
+    {file = "openai-1.35.14-py3-none-any.whl", hash = "sha256:adadf8c176e0b8c47ad782ed45dc20ef46438ee1f02c7103c4155cff79c8f68b"},
+    {file = "openai-1.35.14.tar.gz", hash = "sha256:394ba1dfd12ecec1d634c50e512d24ff1858bbc2674ffcce309b822785a058de"},
 ]
 
 [package.dependencies]
