@@ -1,6 +1,8 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, model_validator
+
+from metaphor.common.utils import must_set_exactly_one
 
 supported_sources = ["azure_openai", "openai"]
 
@@ -24,17 +26,13 @@ class EmbeddingModelConfig(BaseModel):
     chunk_size: int = 512
     chunk_overlap: int = 50
 
-    @model_validator(mode="before")
-    def check_only_one_config(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    @model_validator(mode="after")
+    def check_only_one_config(self):
         """
         Ensure that only one of `supported_sources` is set.
         """
-        config_count = sum(
-            1 for key in supported_sources if values.get(key) is not None
-        )
-        if config_count != 1:
-            raise ValueError(f"Exactly one of {supported_sources} must be set")
-        return values
+        must_set_exactly_one(self.__dict__, supported_sources)
+        return self
 
     @property
     def active_config(self) -> Any:
