@@ -70,3 +70,43 @@ FILES = ('1') REGION = 'us-east-1' CREDENTIALS = (AWS_KEY_ID = 'id' AWS_SECRET_K
         ProcessQueryConfig(redact_literal_values_in_where_clauses=True),
     )
     assert processed == "COPY INTO tgt (foo, bar) FROM (SELECT * FROM src)"
+
+
+def test_scrub_literals_in_where_in():
+    sql = """
+    SELECT p.FirstName, p.LastName, e.JobTitle
+FROM Person.Person AS p
+JOIN HumanResources.Employee AS e
+    ON p.BusinessEntityID = e.BusinessEntityID
+WHERE e.JobTitle IN ('Design Engineer', 'Tool Designer', 'Marketing Assistant')
+    """
+    processed = process_query(
+        sql,
+        DataPlatform.MSSQL,
+        ProcessQueryConfig(redact_literal_values_in_where_clauses=True),
+    )
+    assert (
+        processed
+        == "SELECT p.FirstName, p.LastName, e.JobTitle FROM Person.Person AS p JOIN HumanResources.Employee AS e ON p.BusinessEntityID = e.BusinessEntityID WHERE e.JobTitle IN ('<REDACTED>', '<REDACTED>', '<REDACTED>')"
+    )
+
+
+def test_scrub_literals_in_where_or():
+    sql = """
+SELECT p.FirstName, p.LastName, e.JobTitle
+FROM Person.Person AS p
+JOIN HumanResources.Employee AS e
+    ON p.BusinessEntityID = e.BusinessEntityID
+WHERE e.JobTitle = 'Design Engineer'
+   OR e.JobTitle = 'Tool Designer'
+   OR e.JobTitle = 'Marketing Assistant'
+    """
+    processed = process_query(
+        sql,
+        DataPlatform.MSSQL,
+        ProcessQueryConfig(redact_literal_values_in_where_clauses=True),
+    )
+    assert (
+        processed
+        == "SELECT p.FirstName, p.LastName, e.JobTitle FROM Person.Person AS p JOIN HumanResources.Employee AS e ON p.BusinessEntityID = e.BusinessEntityID WHERE e.JobTitle = '<REDACTED>' OR e.JobTitle = '<REDACTED>' OR e.JobTitle = '<REDACTED>'"
+    )
