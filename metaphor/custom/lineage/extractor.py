@@ -5,12 +5,7 @@ from metaphor.common.entity_id import EntityId
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 from metaphor.custom.lineage.config import CustomLineageConfig
-from metaphor.models.metadata_change_event import (
-    Dataset,
-    EntityType,
-    EntityUpstream,
-    MetadataChangeEvent,
-)
+from metaphor.models.metadata_change_event import Dataset, EntityType, EntityUpstream
 
 logger = get_logger()
 
@@ -29,7 +24,7 @@ class CustomLineageExtractor(BaseExtractor):
         super().__init__(config)
         self._lineages = config.lineages
 
-    async def extract(self) -> List[MetadataChangeEvent]:
+    async def extract(self) -> List[Dataset]:
         logger.info("Fetching lineage from config")
 
         # Create a placeholder dataset for each unique upstream dataset
