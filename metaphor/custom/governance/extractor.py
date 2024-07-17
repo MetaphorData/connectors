@@ -3,7 +3,7 @@ from typing import List
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.logger import get_logger
 from metaphor.custom.governance.config import CustomGovernanceConfig
-from metaphor.models.metadata_change_event import Dataset, MetadataChangeEvent
+from metaphor.models.metadata_change_event import Dataset
 
 logger = get_logger()
 
@@ -24,7 +24,7 @@ class CustomGovernanceExtractor(BaseExtractor):
         super().__init__(config)
         self._datasets = config.datasets
 
-    async def extract(self) -> List[MetadataChangeEvent]:
+    async def extract(self) -> List[Dataset]:
         logger.info("Fetching governance from config")
 
         datasets = []

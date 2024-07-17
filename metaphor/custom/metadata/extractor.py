@@ -8,7 +8,6 @@ from metaphor.models.metadata_change_event import (
     CustomMetadata,
     CustomMetadataItem,
     Dataset,
-    MetadataChangeEvent,
 )
 
 logger = get_logger()
@@ -28,7 +27,7 @@ class CustomMetadataExtractor(BaseExtractor):
         super().__init__(config)
         self._datasets = config.datasets
 
-    async def extract(self) -> List[MetadataChangeEvent]:
+    async def extract(self) -> List[Dataset]:
         logger.info("Fetching custom metadata from config")
 
         datasets = []
