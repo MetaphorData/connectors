@@ -4,6 +4,7 @@ import pytest
 from llama_index.core import Document
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.embeddings_config import AzureOpenAIConfig, EmbeddingModelConfig
 from metaphor.confluence.config import ConfluenceRunConfig
 from metaphor.confluence.extractor import ConfluenceExtractor
 from tests.test_utils import load_json
@@ -15,11 +16,9 @@ dummy_config = ConfluenceRunConfig(
     confluence_username="test@metaphor.io",
     confluence_token="token",
     space_key="KB",
-    azure_openAI_key="azure_openAI_key",
-    azure_openAI_version="azure_openAI_version",
-    azure_openAI_endpoint="azure_openAI_endpoint",
-    azure_openAI_model="text-embedding-3-small",
-    azure_openAI_model_name="Embedding_3_small",
+    embedding_model=EmbeddingModelConfig(
+        azure_openai=AzureOpenAIConfig(key="key", endpoint="endpoint")
+    ),
     include_text=True,
     output=OutputConfig(),
 )

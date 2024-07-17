@@ -5,6 +5,7 @@ import requests
 from llama_index.core import Document
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.embeddings_config import AzureOpenAIConfig, EmbeddingModelConfig
 from metaphor.monday.config import MondayRunConfig
 from metaphor.monday.extractor import MondayExtractor
 from tests.test_utils import load_json
@@ -12,11 +13,9 @@ from tests.test_utils import load_json
 dummy_config = MondayRunConfig(
     monday_api_key="monday_api_key",
     monday_api_version="monday_api_version",
-    azure_openAI_key="azure_openAI_key",
-    azure_openAI_version="azure_openAI_version",
-    azure_openAI_endpoint="azure_openAI_endpoint",
-    azure_openAI_model="text-embedding-ada-002",
-    azure_openAI_model_name="Embedding_ada002",
+    embedding_model=EmbeddingModelConfig(
+        azure_openai=AzureOpenAIConfig(key="key", endpoint="endpoint")
+    ),
     include_text=True,
     output=OutputConfig(),
 )

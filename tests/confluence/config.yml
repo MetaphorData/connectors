@@ -1,17 +1,18 @@
-confluence_base_URL: "https://test.atlassian.net/wiki"
+---
+confluence_base_URL: https://test.atlassian.net/wiki
 confluence_cloud: true
-select_method: "label"
+select_method: label
 
-confluence_username: "test@metaphor.io"
-confluence_token: "token"
+confluence_username: test@metaphor.io
+confluence_token: token
 
-space_key: "KB"
+space_key: KB
 
-azure_openAI_key: azure_openAI_key
-azure_openAI_version: azure_openAI_version
-azure_openAI_endpoint: azure_openAI_endpoint
-azure_openAI_model: text-embedding-ada-002
-azure_openAI_model_name: Embedding_ada002
+embedding_model:
+  azure_openai:
+    key: azure_openAI_key
+    endpoint: azure_openAI_endpoint
+
 include_text: true
 
 output: {}

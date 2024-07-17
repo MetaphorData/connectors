@@ -16,9 +16,6 @@ from metaphor.static_web.utils import text_from_HTML
 
 logger = get_logger()
 
-embedding_chunk_size = 512
-embedding_overlap_size = 50
-
 
 class SharepointExtractor(BaseExtractor):
     """Sharepoint site extractor."""
@@ -38,12 +35,8 @@ class SharepointExtractor(BaseExtractor):
         self.sharepoint_client_secret = config.sharepoint_client_secret
         self.sharepoint_tenant_id = config.sharepoint_tenant_id
 
-        # Azure OpenAI
-        self.azure_openAI_key = config.azure_openAI_key
-        self.azure_openAI_version = config.azure_openAI_version
-        self.azure_openAI_endpoint = config.azure_openAI_endpoint
-        self.azure_openAI_model = config.azure_openAI_model
-        self.azure_openAI_model_name = config.azure_openAI_model_name
+        # Embedding source and configs
+        self.embedding_model = config.embedding_model
 
         # include_text
         self.include_text = config.include_text
@@ -88,14 +81,8 @@ class SharepointExtractor(BaseExtractor):
         logger.info("Starting embedding process")
 
         vector_store_index = embed_documents(
-            documents,
-            self.azure_openAI_key,
-            self.azure_openAI_version,
-            self.azure_openAI_endpoint,
-            self.azure_openAI_model,
-            self.azure_openAI_model_name,
-            embedding_chunk_size,
-            embedding_overlap_size,
+            docs=documents,
+            embedding_model=self.embedding_model,
         )
 
         embedded_nodes = map_metadata(

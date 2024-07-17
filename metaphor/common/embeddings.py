@@ -6,7 +6,13 @@ from llama_index.core.llms.mock import MockLLM
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.vector_stores import SimpleVectorStore
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+from llama_index.embeddings.openai import OpenAIEmbedding
 
+from metaphor.common.embeddings_config import (
+    AzureOpenAIConfig,
+    EmbeddingModelConfig,
+    OpenAIConfig,
+)
 from metaphor.models.metadata_change_event import ExternalSearchDocument
 
 
@@ -33,13 +39,7 @@ def sanitize_text(input_string: str) -> str:
 
 def embed_documents(
     docs: Sequence[Document],
-    azure_openAI_key: str,
-    azure_openAI_ver: str,
-    azure_openAI_endpoint: str,
-    azure_openAI_model: str,
-    azure_openAI_model_name: str,
-    chunk_size: int,
-    chunk_overlap: int,
+    embedding_model: EmbeddingModelConfig,
 ) -> VectorStoreIndex:
     """
     Generates embeddings for Documents and returns them as stored in a
@@ -49,16 +49,27 @@ def embed_documents(
     Returns a VectorStoreIndex (in-memory VectorStore)
     """
 
-    embed_model = AzureOpenAIEmbedding(
-        model=azure_openAI_model,
-        deployment_name=azure_openAI_model_name,
-        api_key=azure_openAI_key,
-        azure_endpoint=azure_openAI_endpoint,
-        api_version=azure_openAI_ver,
-    )
+    # Determine the source from the embedding_model configuration
+    active_config = embedding_model.active_config
+
+    if isinstance(active_config, AzureOpenAIConfig):
+        embed_model = AzureOpenAIEmbedding(
+            model=active_config.model,
+            deployment_name=active_config.deployment_name,
+            api_key=active_config.key,
+            azure_endpoint=active_config.endpoint,
+            api_version=active_config.version,
+        )
+    elif isinstance(active_config, OpenAIConfig):
+        embed_model = OpenAIEmbedding(
+            model=active_config.model, api_key=active_config.key
+        )
+    else:
+        raise Exception(f"Embedding source {type(active_config)} not supported")
 
     node_parser = SentenceSplitter.from_defaults(
-        chunk_size=chunk_size, chunk_overlap=chunk_overlap
+        chunk_size=embedding_model.chunk_size,
+        chunk_overlap=embedding_model.chunk_overlap,
     )
 
     Settings.llm = MockLLM()
@@ -69,13 +80,13 @@ def embed_documents(
 
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    vsi = VectorStoreIndex.from_documents(
+    vector_store_index = VectorStoreIndex.from_documents(
         docs,
         storage_context=storage_context,
         show_progress=True,
     )
 
-    return vsi
+    return vector_store_index
 
 
 def map_metadata(

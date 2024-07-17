@@ -18,9 +18,6 @@ from metaphor.static_web.utils import text_from_HTML, title_from_HTML
 
 logger = get_logger()
 
-embedding_chunk_size = 512
-embedding_overlap_size = 50
-
 
 class StaticWebExtractor(BaseExtractor):
     """Static webpage extractor."""
@@ -38,17 +35,14 @@ class StaticWebExtractor(BaseExtractor):
         self.target_URLs = config.links
         self.target_depths = config.depths
 
-        self.azure_openAI_key = config.azure_openAI_key
-        self.azure_openAI_version = config.azure_openAI_version
-        self.azure_openAI_endpoint = config.azure_openAI_endpoint
-        self.azure_openAI_model = config.azure_openAI_model
-        self.azure_openAI_model_name = config.azure_openAI_model_name
+        # Embedding source and configs
+        self.embedding_model = config.embedding_model
 
         self.include_text = config.include_text
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Scraping provided URLs")
-        self.docs = list()  # type: List[Document]
+        self.documents = list()  # type: List[Document]
         self.visited_pages = set()  # type: set
 
         for page, depth in zip(self.target_URLs, self.target_depths):
@@ -65,15 +59,10 @@ class StaticWebExtractor(BaseExtractor):
 
         # Embedding process
         logger.info("Starting embedding process")
+
         vector_store_index = embed_documents(
-            self.docs,
-            self.azure_openAI_key,
-            self.azure_openAI_version,
-            self.azure_openAI_endpoint,
-            self.azure_openAI_model,
-            self.azure_openAI_model_name,
-            embedding_chunk_size,
-            embedding_overlap_size,
+            docs=self.documents,
+            embedding_model=self.embedding_model,
         )
 
         embedded_nodes = map_metadata(
@@ -129,7 +118,7 @@ class StaticWebExtractor(BaseExtractor):
             page_title = title_from_HTML(page_content)
 
             page_doc = self._make_document(page, page_title, page_text)
-            self.docs.append(page_doc)
+            self.documents.append(page_doc)
 
             return (True, page_content)
 
