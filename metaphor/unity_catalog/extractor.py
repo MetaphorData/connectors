@@ -269,7 +269,7 @@ class UnityCatalogExtractor(BaseExtractor):
             database=database, schema=schema_name, table=table_name
         )
 
-        if table_info.table_type is None:
+        if table_type is None:
             raise ValueError(f"Invalid table {table_info.name}, no table_type found")
 
         fields = []
