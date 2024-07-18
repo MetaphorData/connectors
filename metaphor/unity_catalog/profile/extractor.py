@@ -140,9 +140,9 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 cursor.execute(analyze_query)
                 cursor.execute(f"DESCRIBE TABLE EXTENDED {escaped_name}")
                 rows = cursor.fetchall()
-            except Exception as error:
-                logger.error(
-                    f"not able to get statistics for {escaped_name}, error: {error}"
+            except Exception:
+                logger.exception(
+                    f"not able to get statistics for {escaped_name}"
                 )
                 return None, None
 
