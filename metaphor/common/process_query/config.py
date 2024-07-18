@@ -29,5 +29,5 @@ class ProcessQueryConfig:
         """
         return (
             self.redact_literal_values_in_where_clauses
-            and self.ignore_insert_values_into
+            or self.ignore_insert_values_into
         )
