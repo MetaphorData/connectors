@@ -329,5 +329,7 @@ def get_data_platform_from_manifest(
         manifest_json = json.load(f)
     manifest_metadata = manifest_json.get("metadata", {})
     platform = manifest_metadata.get("adapter_type", "").upper()
+    if platform == "DATABRICKS":
+        return DataPlatform.UNITY_CATALOG
     assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
     return DataPlatform[platform]
