@@ -815,33 +815,37 @@ class SnowflakeExtractor(BaseExtractor):
                 # User IDs can be an email address
                 user_id, email = user_id_or_email(username)
 
-                query_log = QueryLog(
-                    id=f"{DataPlatform.SNOWFLAKE.name}:{query_id}",
-                    query_id=query_id,
-                    platform=DataPlatform.SNOWFLAKE,
-                    account=self._account,
-                    start_time=start_time,
-                    duration=safe_float(elapsed_time / 1000.0),
-                    cost=safe_float(credit),
-                    user_id=user_id,
-                    email=email,
-                    default_database=default_database,
-                    default_schema=default_schema,
-                    rows_read=safe_float(rows_produced),
-                    rows_written=safe_float(rows_inserted) or safe_float(rows_updated),
-                    bytes_read=safe_float(bytes_scanned),
-                    bytes_written=safe_float(bytes_written),
-                    sources=sources,
-                    targets=targets,
-                    sql=process_query(
-                        query_text,
-                        DataPlatform.SNOWFLAKE,
-                        self._config.query_log.process_query,
-                    ),
-                    sql_hash=query_hash,
+                sql = process_query(
+                    query_text,
+                    DataPlatform.SNOWFLAKE,
+                    self._config.query_log.process_query,
                 )
 
-                yield query_log
+                if sql:
+                    query_log = QueryLog(
+                        id=f"{DataPlatform.SNOWFLAKE.name}:{query_id}",
+                        query_id=query_id,
+                        platform=DataPlatform.SNOWFLAKE,
+                        account=self._account,
+                        start_time=start_time,
+                        duration=safe_float(elapsed_time / 1000.0),
+                        cost=safe_float(credit),
+                        user_id=user_id,
+                        email=email,
+                        default_database=default_database,
+                        default_schema=default_schema,
+                        rows_read=safe_float(rows_produced),
+                        rows_written=safe_float(rows_inserted)
+                        or safe_float(rows_updated),
+                        bytes_read=safe_float(bytes_scanned),
+                        bytes_written=safe_float(bytes_written),
+                        sources=sources,
+                        targets=targets,
+                        sql=sql,
+                        sql_hash=query_hash,
+                    )
+
+                    yield query_log
             except Exception:
                 logger.exception(f"query log processing error, query id: {query_id}")
 
