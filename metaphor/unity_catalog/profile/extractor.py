@@ -113,7 +113,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
 
     def _get_statistics(
         self, table_info: TableInfo
-    ) -> Tuple[DatasetStatistics, Optional[DatasetFieldStatistics]]:
+    ) -> Tuple[Optional[DatasetStatistics], Optional[DatasetFieldStatistics]]:
         assert table_info.full_name
         dataset_statistics = DatasetStatistics()
 
@@ -135,10 +135,17 @@ class UnityCatalogProfileExtractor(BaseExtractor):
             if numeric_columns:
                 analyze_query += f" FOR COLUMNS {', '.join(numeric_columns)}"
 
-            # This can take a while
-            cursor.execute(analyze_query)
-            cursor.execute(f"DESCRIBE TABLE EXTENDED {escaped_name}")
-            rows = cursor.fetchall()
+            try:
+                # This can take a while
+                cursor.execute(analyze_query)
+                cursor.execute(f"DESCRIBE TABLE EXTENDED {escaped_name}")
+                rows = cursor.fetchall()
+            except Exception as error:
+                logger.error(
+                    f"not able to get statistics for {escaped_name}, error: {error}"
+                )
+                return None, None
+
             statistics = next(
                 (row for row in rows if row.col_name == "Statistics"), None
             )
@@ -152,8 +159,14 @@ class UnityCatalogProfileExtractor(BaseExtractor):
 
             for numeric_column in numeric_columns:
                 # Parse numeric column stats
-                cursor.execute(f"DESCRIBE EXTENDED {escaped_name} {numeric_column}")
-                column_details = cursor.fetchall()
+                try:
+                    cursor.execute(f"DESCRIBE EXTENDED {escaped_name} {numeric_column}")
+                    column_details = cursor.fetchall()
+                except Exception as error:
+                    logger.error(
+                        f"not able to get column stat for {escaped_name}.{numeric_column}, error: {error}"
+                    )
+                    continue
 
                 def get_value_from_row(key: str) -> Optional[float]:
                     value = next(
