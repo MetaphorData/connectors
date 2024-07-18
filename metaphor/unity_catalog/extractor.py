@@ -83,10 +83,25 @@ DEFAULT_FILTER: DatasetFilter = DatasetFilter(
 )
 
 TABLE_TYPE_MATERIALIZATION_TYPE_MAP = {
-    TableType.MANAGED: MaterializationType.TABLE,
     TableType.EXTERNAL: MaterializationType.EXTERNAL,
-    TableType.VIEW: MaterializationType.VIEW,
+    TableType.EXTERNAL_SHALLOW_CLONE: MaterializationType.EXTERNAL,
+    TableType.FOREIGN: MaterializationType.EXTERNAL,
+    TableType.MANAGED: MaterializationType.TABLE,
+    TableType.MANAGED_SHALLOW_CLONE: MaterializationType.TABLE,
     TableType.MATERIALIZED_VIEW: MaterializationType.MATERIALIZED_VIEW,
+    TableType.STREAMING_TABLE: MaterializationType.STREAM,
+    TableType.VIEW: MaterializationType.VIEW,
+}
+
+TABLE_TYPE_MAP = {
+    TableType.EXTERNAL: UnityCatalogTableType.EXTERNAL,
+    TableType.EXTERNAL_SHALLOW_CLONE: UnityCatalogTableType.EXTERNAL_SHALLOW_CLONE,
+    TableType.FOREIGN: UnityCatalogTableType.FOREIGN,
+    TableType.MANAGED: UnityCatalogTableType.MANAGED,
+    TableType.MANAGED_SHALLOW_CLONE: UnityCatalogTableType.MANAGED_SHALLOW_CLONE,
+    TableType.MATERIALIZED_VIEW: UnityCatalogTableType.MATERIALIZED_VIEW,
+    TableType.STREAMING_TABLE: UnityCatalogTableType.STREAMING_TABLE,
+    TableType.VIEW: UnityCatalogTableType.VIEW,
 }
 
 # For variable substitution in source URLs
@@ -241,6 +256,7 @@ class UnityCatalogExtractor(BaseExtractor):
         table_name = table_info.name
         schema_name = table_info.schema_name
         database = table_info.catalog_name
+        table_type = table_info.table_type
 
         normalized_name = dataset_normalized_name(database, schema_name, table_name)
 
@@ -269,7 +285,7 @@ class UnityCatalogExtractor(BaseExtractor):
             fields=fields,
             sql_schema=SQLSchema(
                 materialization=TABLE_TYPE_MATERIALIZATION_TYPE_MAP.get(
-                    table_info.table_type, MaterializationType.TABLE
+                    table_type, MaterializationType.TABLE
                 ),
                 table_schema=(
                     table_info.view_definition if table_info.view_definition else None
@@ -289,7 +305,7 @@ class UnityCatalogExtractor(BaseExtractor):
         dataset.unity_catalog = UnityCatalog(
             dataset_type=UnityCatalogDatasetType.UNITY_CATALOG_TABLE,
             table_info=UnityCatalogTableInfo(
-                type=UnityCatalogTableType[table_info.table_type.value],
+                type=TABLE_TYPE_MAP.get(table_type, UnityCatalogTableType.UNKNOWN),
                 data_source_format=(
                     table_info.data_source_format.value
                     if table_info.data_source_format is not None

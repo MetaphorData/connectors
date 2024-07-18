@@ -1,9 +1,13 @@
 import json
 from datetime import datetime
-from typing import Any, Iterator
+from typing import Any, Iterator, Union
 
-from metaphor.common.event_util import EventUtil
-from metaphor.models.metadata_change_event import QueryLog, QueryLogs
+from metaphor.common.event_util import ENTITY_TYPES, EventUtil
+from metaphor.models.metadata_change_event import (
+    MetadataChangeEvent,
+    QueryLog,
+    QueryLogs,
+)
 
 
 def load_json(path):
@@ -70,3 +74,7 @@ def ignore_datetime_values(  # noqa C901
 
 def wrap_query_log_stream_to_event(logs: Iterator[QueryLog]):
     return [EventUtil.build_then_trim(QueryLogs(logs=list(logs)))]
+
+
+def serialize_event(event: Union[MetadataChangeEvent, ENTITY_TYPES]) -> str:
+    return "".join([json.dumps(EventUtil.trim_event(event), indent=2), "\n"])

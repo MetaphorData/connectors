@@ -11,6 +11,7 @@ from databricks.sdk.service.catalog import (
 from databricks.sdk.service.catalog import TableInfo as Table
 from databricks.sdk.service.catalog import TableType, VolumeInfo, VolumeType
 from databricks.sdk.service.sql import QueryInfo, QueryMetrics
+from pytest_snapshot.plugin import Snapshot
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
@@ -25,7 +26,7 @@ from metaphor.unity_catalog.models import (
     TableInfo,
     TableLineage,
 )
-from tests.test_utils import load_json, wrap_query_log_stream_to_event
+from tests.test_utils import load_json, serialize_event, wrap_query_log_stream_to_event
 
 
 def dummy_config():
@@ -391,3 +392,80 @@ def test_init_invalid_dataset(
         extractor._init_dataset(
             Table(catalog_name="catalog", schema_name="schema", name="table")
         )
+
+
+@patch("metaphor.unity_catalog.extractor.create_connection")
+@patch("metaphor.unity_catalog.extractor.create_api")
+def test_init_dataset(
+    mock_create_api: MagicMock,
+    mock_create_connection: MagicMock,
+    test_root_dir: str,
+    snapshot: Snapshot,
+) -> None:
+    mock_create_api.return_value = None
+    mock_create_connection.return_value = None
+
+    extractor = UnityCatalogExtractor.from_config_file(
+        f"{test_root_dir}/unity_catalog/config.yml"
+    )
+
+    snapshot.assert_match(
+        serialize_event(
+            extractor._init_dataset(
+                Table(
+                    name="table",
+                    catalog_name="catalog",
+                    schema_name="schema",
+                    table_type=TableType.MANAGED,
+                    data_source_format=DataSourceFormat.CSV,
+                    columns=[
+                        ColumnInfo(
+                            name="col1",
+                            type_name=ColumnTypeName.INT,
+                            type_precision=32,
+                            nullable=True,
+                            comment="some description",
+                        )
+                    ],
+                    storage_location="s3://path",
+                    owner="foo@bar.com",
+                    comment="example",
+                    updated_at=0,
+                    updated_by="foo@bar.com",
+                    properties={
+                        "delta.lastCommitTimestamp": "1664444422000",
+                    },
+                    created_at=0,
+                ),
+            )
+        ),
+        "table.json",
+    )
+
+    snapshot.assert_match(
+        serialize_event(
+            extractor._init_dataset(
+                Table(
+                    name="table",
+                    catalog_name="catalog",
+                    schema_name="schema",
+                    table_type=TableType.MANAGED_SHALLOW_CLONE,
+                ),
+            )
+        ),
+        "shallow_clone.json",
+    )
+
+    snapshot.assert_match(
+        serialize_event(
+            extractor._init_dataset(
+                Table(
+                    name="table",
+                    catalog_name="catalog",
+                    schema_name="schema",
+                    table_type=TableType.EXTERNAL_SHALLOW_CLONE,
+                ),
+            )
+        ),
+        "external_shallow_clone.json",
+    )
