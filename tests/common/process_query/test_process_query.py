@@ -1,9 +1,13 @@
 from metaphor.common.process_query import process_query
-from metaphor.common.process_query.config import ProcessQueryConfig
+from metaphor.common.process_query.config import ProcessQueryConfig, RedactLiteralConfig
 from metaphor.models.metadata_change_event import DataPlatform
 
 config = ProcessQueryConfig(
-    redact_literal_values_in_where_clauses=True, ignore_insert_values_into=True
+    redact=RedactLiteralConfig(
+        where_clauses=True,
+        when_not_matched_insert_clauses=True,
+    ),
+    ignore_insert_values_into=True,
 )
 
 
@@ -12,7 +16,7 @@ def test_redact_literal_values_in_where_clauses():
     processed = process_query(sql, DataPlatform.SNOWFLAKE, config)
     assert (
         processed
-        == f"SELECT col FROM src WHERE col > {config.redacted_literal_placeholder} AND col < {config.redacted_literal_placeholder}"
+        == f"SELECT col FROM src WHERE col > {config.redact.placeholder_literal} AND col < {config.redact.placeholder_literal}"
     )
 
     sql = """
@@ -129,3 +133,30 @@ VALUES
         config,
     )
     assert processed is None
+
+
+def test_merge_insert_when_not_matched():
+    sql = """
+    MERGE TargetProducts AS Target
+    USING SourceProducts	AS Source
+    ON Source.ProductID = Target.ProductID
+
+    -- For Inserts
+    WHEN NOT MATCHED BY Target THEN
+        INSERT (ProductID,ProductName, Price)
+        VALUES (1,'awesome product', 0.1)
+
+    -- For Updates
+    WHEN MATCHED THEN UPDATE SET
+        Target.ProductName	= Source.ProductName,
+        Target.Price		= Source.Price;
+    """
+    processed = process_query(
+        sql,
+        DataPlatform.MSSQL,
+        config,
+    )
+    assert (
+        processed
+        == "MERGE INTO TargetProducts AS Target USING SourceProducts AS Source ON Source.ProductID = Target.ProductID WHEN NOT MATCHED THEN INSERT (ProductID, ProductName, Price) VALUES (<REDACTED>, '<REDACTED>', <REDACTED>) WHEN MATCHED THEN UPDATE SET Target.ProductName = Source.ProductName, Target.Price = Source.Price"
+    )
