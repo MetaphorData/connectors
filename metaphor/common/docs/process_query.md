@@ -11,7 +11,7 @@ process_query:
 
     placeholder_literal: <placeholder literal>  # The redacted values will be replaced by this placeholder string. Default is '<REDACTED>'.
 
-  ignore_insert_values_into: <true | false>  #  Ignore `INSERT INTO ... VALUES` expressions. These expressions don't have any lineage information, and are often very large in size. Default is `true`.
+  ignore_insert_values_into: <true | false>  #  Ignore `INSERT INTO ... VALUES` expressions. These expressions don't have any lineage information, and are often very large in size. Default is `false`.
 ```
 
 If any of the following boolean values is set to true, crawler will process the incoming SQL queries:
