@@ -16,7 +16,7 @@ class ProcessQueryConfig:
 
     redacted_literal_placeholder: str = "<REDACTED>"
 
-    ignore_insert_values_into: bool = True
+    ignore_insert_values_into: bool = False
     """
     Ignore `INSERT INTO ... VALUES` expressions. These expressions don't have any
     lineage information, and are often very large in size.
