@@ -2,9 +2,12 @@ from metaphor.common.process_query import process_query
 from metaphor.common.process_query.config import ProcessQueryConfig
 from metaphor.models.metadata_change_event import DataPlatform
 
+config = ProcessQueryConfig(
+    redact_literal_values_in_where_clauses=True, ignore_insert_values_into=True
+)
+
 
 def test_redact_literal_values_in_where_clauses():
-    config = ProcessQueryConfig(redact_literal_values_in_where_clauses=True)
     sql = "SELECT col FROM src WHERE col > 12345 AND col < 99999"
     processed = process_query(sql, DataPlatform.SNOWFLAKE, config)
     assert (
@@ -67,7 +70,7 @@ FILES = ('1') REGION = 'us-east-1' CREDENTIALS = (AWS_KEY_ID = 'id' AWS_SECRET_K
     processed = process_query(
         sql,
         DataPlatform.SNOWFLAKE,
-        ProcessQueryConfig(redact_literal_values_in_where_clauses=True),
+        config,
     )
     assert processed == "COPY INTO tgt (foo, bar) FROM (SELECT * FROM src)"
 
@@ -83,7 +86,7 @@ WHERE e.JobTitle IN ('Design Engineer', 'Tool Designer', 'Marketing Assistant')
     processed = process_query(
         sql,
         DataPlatform.MSSQL,
-        ProcessQueryConfig(redact_literal_values_in_where_clauses=True),
+        config,
     )
     assert (
         processed
@@ -104,9 +107,25 @@ WHERE e.JobTitle = 'Design Engineer'
     processed = process_query(
         sql,
         DataPlatform.MSSQL,
-        ProcessQueryConfig(redact_literal_values_in_where_clauses=True),
+        config,
     )
     assert (
         processed
         == "SELECT p.FirstName, p.LastName, e.JobTitle FROM Person.Person AS p JOIN HumanResources.Employee AS e ON p.BusinessEntityID = e.BusinessEntityID WHERE e.JobTitle = '<REDACTED>' OR e.JobTitle = '<REDACTED>' OR e.JobTitle = '<REDACTED>'"
     )
+
+
+def test_ignore_insert_value_into():
+    sql = """
+INSERT INTO employees (id, name, age)
+VALUES
+(1, 'John Doe', 30),
+(2, 'Jane Smith', 25),
+(3, 'Bob Johnson', 40);
+    """
+    processed = process_query(
+        sql,
+        DataPlatform.SNOWFLAKE,
+        config,
+    )
+    assert processed is None
