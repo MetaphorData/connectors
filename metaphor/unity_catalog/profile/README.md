@@ -26,11 +26,11 @@ See [this page](https://docs.databricks.com/en/integrations/compute-details.html
 
 ### Optional Configurations
 
-See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
+See [Filter Configurations](../../common/docs/filter.md) for more information on the optional `filter` config.
 
 #### Output Destination
 
-See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
+See [Output Config](../../common/docs/output.md) for more information on the optional `output` config.
 
 ## Testing
 
