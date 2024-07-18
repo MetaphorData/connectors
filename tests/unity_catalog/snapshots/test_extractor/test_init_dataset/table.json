@@ -1,0 +1,50 @@
+{
+  "logicalId": {
+    "name": "catalog.schema.table",
+    "platform": "UNITY_CATALOG"
+  },
+  "schema": {
+    "description": "example",
+    "fields": [
+      {
+        "description": "some description",
+        "fieldName": "col1",
+        "fieldPath": "col1",
+        "nativeType": "int",
+        "precision": 32.0
+      }
+    ],
+    "schemaType": "SQL",
+    "sqlSchema": {
+      "materialization": "TABLE"
+    }
+  },
+  "sourceInfo": {
+    "createdAtSource": "1970-01-01T00:00:00+00:00",
+    "lastUpdated": "1970-01-01T00:00:00+00:00",
+    "mainUrl": "http://foo.bar/catalog/schema/table"
+  },
+  "structure": {
+    "database": "catalog",
+    "schema": "schema",
+    "table": "table"
+  },
+  "systemTags": {
+    "tags": []
+  },
+  "unityCatalog": {
+    "datasetType": "UNITY_CATALOG_TABLE",
+    "tableInfo": {
+      "dataSourceFormat": "CSV",
+      "owner": "foo@bar.com",
+      "properties": [
+        {
+          "key": "delta.lastCommitTimestamp",
+          "value": "\"1664444422000\""
+        }
+      ],
+      "storageLocation": "s3://path",
+      "type": "MANAGED"
+    }
+  }
+}

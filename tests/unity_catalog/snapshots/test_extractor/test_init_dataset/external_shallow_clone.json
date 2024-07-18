@@ -1,0 +1,31 @@
+{
+  "logicalId": {
+    "name": "catalog.schema.table",
+    "platform": "UNITY_CATALOG"
+  },
+  "schema": {
+    "fields": [],
+    "schemaType": "SQL",
+    "sqlSchema": {
+      "materialization": "EXTERNAL"
+    }
+  },
+  "sourceInfo": {
+    "mainUrl": "http://foo.bar/catalog/schema/table"
+  },
+  "structure": {
+    "database": "catalog",
+    "schema": "schema",
+    "table": "table"
+  },
+  "systemTags": {
+    "tags": []
+  },
+  "unityCatalog": {
+    "datasetType": "UNITY_CATALOG_TABLE",
+    "tableInfo": {
+      "properties": [],
+      "type": "EXTERNAL_SHALLOW_CLONE"
+    }
+  }
+}
