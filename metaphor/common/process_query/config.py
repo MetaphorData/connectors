@@ -6,7 +6,7 @@ from metaphor.common.base_config import ConnectorConfig
 
 
 @dataclass(config=ConnectorConfig)
-class RedactLiteralConfig:
+class RedactPIILiteralsConfig:
     """
     Config to control whether we want to redact literal values. Useful if you want to remove PII from your queries.
     """
@@ -30,7 +30,9 @@ class ProcessQueryConfig:
     Config to control what to do when processing the parsed SQL queries.
     """
 
-    redact: RedactLiteralConfig = field(default_factory=lambda: RedactLiteralConfig())
+    redact_literals: RedactPIILiteralsConfig = field(
+        default_factory=lambda: RedactPIILiteralsConfig()
+    )
 
     ignore_insert_values_into: bool = True
     """
@@ -44,7 +46,7 @@ class ProcessQueryConfig:
         Whether we should run the processing method at all.
         """
         return (
-            self.redact.where_clauses
-            or self.redact.when_not_matched_insert_clauses
+            self.redact_literals.where_clauses
+            or self.redact_literals.when_not_matched_insert_clauses
             or self.ignore_insert_values_into
         )

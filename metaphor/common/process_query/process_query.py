@@ -28,7 +28,7 @@ def _redact_literal_values_in_where_clauses(
 ) -> None:
     for where in expression.find_all(exp.Where):
         for lit in where.find_all(exp.Literal):
-            lit.args["this"] = config.redact.placeholder_literal
+            lit.args["this"] = config.redact_literals.placeholder_literal
 
 
 def _redact_literal_values_in_when_not_matched_insert_clauses(
@@ -46,7 +46,7 @@ def _redact_literal_values_in_when_not_matched_insert_clauses(
             continue
 
         for lit in values.find_all(exp.Literal):
-            lit.args["this"] = config.redact.placeholder_literal
+            lit.args["this"] = config.redact_literals.placeholder_literal
 
 
 def _is_insert_values_into(expression: Expression) -> bool:
@@ -97,10 +97,10 @@ def process_query(
     if config.ignore_insert_values_into and _is_insert_values_into(expression):
         return None
 
-    if config.redact.where_clauses:
+    if config.redact_literals.where_clauses:
         _redact_literal_values_in_where_clauses(expression, config)
 
-    if config.redact.when_not_matched_insert_clauses:
+    if config.redact_literals.when_not_matched_insert_clauses:
         _redact_literal_values_in_when_not_matched_insert_clauses(expression, config)
 
     return expression.sql(dialect=dialect)

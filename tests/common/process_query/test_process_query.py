@@ -1,9 +1,12 @@
 from metaphor.common.process_query import process_query
-from metaphor.common.process_query.config import ProcessQueryConfig, RedactLiteralConfig
+from metaphor.common.process_query.config import (
+    ProcessQueryConfig,
+    RedactPIILiteralsConfig,
+)
 from metaphor.models.metadata_change_event import DataPlatform
 
 config = ProcessQueryConfig(
-    redact=RedactLiteralConfig(
+    redact_literals=RedactPIILiteralsConfig(
         where_clauses=True,
         when_not_matched_insert_clauses=True,
     ),
@@ -16,7 +19,7 @@ def test_redact_literal_values_in_where_clauses():
     processed = process_query(sql, DataPlatform.SNOWFLAKE, config)
     assert (
         processed
-        == f"SELECT col FROM src WHERE col > {config.redact.placeholder_literal} AND col < {config.redact.placeholder_literal}"
+        == f"SELECT col FROM src WHERE col > {config.redact_literals.placeholder_literal} AND col < {config.redact_literals.placeholder_literal}"
     )
 
     sql = """
