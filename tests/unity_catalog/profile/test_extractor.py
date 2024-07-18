@@ -159,7 +159,7 @@ async def test_should_handle_exception(
 
 @patch("metaphor.unity_catalog.profile.extractor.create_connection")
 @patch("metaphor.unity_catalog.profile.extractor.create_api")
-@patch("logging.Logger.error")
+@patch("logging.Logger.exception")
 @pytest.mark.asyncio
 async def test_should_handle_exception_column_stat(
     mock_log_error: MagicMock,
@@ -232,7 +232,7 @@ async def test_should_handle_exception_column_stat(
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     mock_log_error.assert_called_with(
-        "not able to get column stat for catalog.schema.table.col_error, error: error for column stat"
+        "not able to get column stat for catalog.schema.table.col_error"
     )
 
     assert events == load_json(f"{test_root_dir}/unity_catalog/profile/expected.json")
