@@ -162,9 +162,9 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 try:
                     cursor.execute(f"DESCRIBE EXTENDED {escaped_name} {numeric_column}")
                     column_details = cursor.fetchall()
-                except Exception as error:
-                    logger.error(
-                        f"not able to get column stat for {escaped_name}.{numeric_column}, error: {error}"
+                except Exception:
+                    logger.exception(
+                        f"not able to get column stat for {escaped_name}.{numeric_column}"
                     )
                     continue
 
