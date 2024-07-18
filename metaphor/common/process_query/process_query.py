@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlglot import Expression, exp, maybe_parse
 from sqlglot.errors import SqlglotError
 
@@ -29,11 +31,17 @@ def _redact_literal_values_in_where_clauses(
             lit.args["this"] = config.redacted_literal_placeholder
 
 
+def _is_insert_values_into(expression: Expression) -> bool:
+    return isinstance(expression, exp.Insert) and isinstance(
+        expression.expression, exp.Values
+    )
+
+
 def process_query(
     sql: str,
     data_platform: DataPlatform,
     config: ProcessQueryConfig,
-) -> str:
+) -> Optional[str]:
     """
     Processes a crawled SQL query.
 
@@ -50,7 +58,8 @@ def process_query(
 
     Returns
     -------
-    the processed SQL query as a `str`.
+    The processed SQL query as a `str`, or `None` if the SQL query does not
+    include any lineage.
     """
     if not config.should_process:
         return sql
@@ -66,6 +75,9 @@ def process_query(
     except SqlglotError:
         logger.warning(f"Failed to parse sql: {sql}")
         return sql
+
+    if config.ignore_insert_values_into and _is_insert_values_into(expression):
+        return None
 
     if config.redact_literal_values_in_where_clauses:
         _redact_literal_values_in_where_clauses(expression, config)

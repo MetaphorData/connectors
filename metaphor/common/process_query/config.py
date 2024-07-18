@@ -16,9 +16,18 @@ class ProcessQueryConfig:
 
     redacted_literal_placeholder: str = "<REDACTED>"
 
+    ignore_insert_values_into: bool = True
+    """
+    Ignore `INSERT INTO ... VALUES` expressions. These expressions don't have any
+    lineage information, and are often very large in size.
+    """
+
     @property
     def should_process(self) -> bool:
         """
         Whether we should run the processing method at all.
         """
-        return self.redact_literal_values_in_where_clauses
+        return (
+            self.redact_literal_values_in_where_clauses
+            and self.ignore_insert_values_into
+        )
