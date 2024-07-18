@@ -1,11 +1,12 @@
 from metaphor.common.entity_id import to_person_entity_id
 from metaphor.dbt.config import MetaOwnership, MetaTag
 from metaphor.dbt.util import (
+    get_data_platform_from_manifest,
     get_dbt_tags_from_meta,
     get_metaphor_tags_from_meta,
     get_ownerships_from_meta,
 )
-from metaphor.models.metadata_change_event import Ownership
+from metaphor.models.metadata_change_event import DataPlatform, Ownership
 
 
 def test_get_ownerships_from_meta(test_root_dir):
@@ -163,3 +164,9 @@ def test_get_dbt_tags_from_meta(test_root_dir):
         "foo",
         "bar",
     ]
+
+
+def test_get_data_platform_from_manifest(test_root_dir: str) -> None:
+    manifest_path = f"{test_root_dir}/dbt/data/databricks/manifest.json"
+    platform = get_data_platform_from_manifest(manifest_path)
+    assert platform is DataPlatform.UNITY_CATALOG
