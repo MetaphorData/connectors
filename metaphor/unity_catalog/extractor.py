@@ -336,6 +336,16 @@ class UnityCatalogExtractor(BaseExtractor):
             ),
         )
 
+        if table_info.owner is not None:
+            dataset.system_contacts = SystemContacts(
+                contacts=[
+                    SystemContact(
+                        email=table_info.owner,
+                        system_contact_source=SystemContactSource.UNITY_CATALOG,
+                    )
+                ]
+            )
+
         dataset.system_tags = SystemTags(tags=[])
 
         self._datasets[normalized_name] = dataset

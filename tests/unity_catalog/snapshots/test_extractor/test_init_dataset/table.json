@@ -29,6 +29,14 @@
     "schema": "schema",
     "table": "table"
   },
+  "systemContacts": {
+    "contacts": [
+      {
+        "email": "foo@bar.com",
+        "systemContactSource": "UNITY_CATALOG"
+      }
+    ]
+  },
   "systemTags": {
     "tags": []
   },
