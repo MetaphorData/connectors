@@ -1,129 +1,70 @@
 import datetime
 from unittest.mock import MagicMock
 
-import pytest
 from databricks.sdk.service.iam import User
-from requests import HTTPError, Response
 
 from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
+from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 from metaphor.unity_catalog.utils import (
     build_query_log_filter_by,
     escape_special_characters,
     list_column_lineage,
     list_table_lineage,
 )
+from tests.unity_catalog.mocks import mock_sql_connection
 
 
 def test_list_table_lineage():
-    client = MagicMock()
-    client.do = MagicMock(
-        return_value={
-            "upstreams": [
-                {
-                    "tableInfo": {
-                        "name": "upstream",
-                        "catalog_name": "db",
-                        "schema_name": "schema",
-                    }
-                },
-                {
-                    "tableInfo": {
-                        "name": "upstream2",
-                        "catalog_name": "db",
-                        "schema_name": "schema",
-                    },
-                },
-                {"fileInfo": {"path": "s3://path", "has_permission": True}},
-                {"tableInfo": {"has_permission": False}},
-            ],
-            "downstreams": [
-                {
-                    "fileInfo": {
-                        "path": "s3://path/file.csv",
-                        "has_permission": True,
-                        "securable_name": "db.schema.volume",
-                        "securable_type": "VOLUME",
-                        "storage_location": "s3://path",
-                    }
-                },
-                {"tableInfo": {"has_permission": False}},
-            ],
-        }
+    mock_connection = mock_sql_connection(
+        [
+            [
+                ("c.s.t1", "c.s.t3"),
+                ("c.s.t2", "c.s.t3"),
+                ("c.s.t4", "c.s.t2"),
+            ]
+        ]
     )
 
-    result = list_table_lineage(client, "table")
+    table_lineage = list_table_lineage(mock_connection, "c", "s")
 
-    for upstream in result.upstreams:
-        assert (upstream.fileInfo is not None) != (upstream.tableInfo is not None)
-    for downstream in result.downstreams:
-        assert (downstream.fileInfo is not None) != (downstream.tableInfo is not None)
-
-
-def test_list_table_lineage_unavailable_service():
-    response = Response()
-    response.status_code = 503
-
-    client = MagicMock()
-    client.do = MagicMock(side_effect=HTTPError(response=response))
-
-    result = list_table_lineage(client, "foo")
-    assert not result.upstreams
-    assert not result.downstreams
-
-
-def test_list_table_lineage_internal_server_error():
-    response = Response()
-    response.status_code = 500
-
-    client = MagicMock()
-    client.do = MagicMock(side_effect=HTTPError(response=response))
-
-    with pytest.raises(HTTPError):
-        list_table_lineage(client, "foo")
+    assert table_lineage == {
+        "c.s.t3": TableLineage(upstream_tables=["c.s.t1", "c.s.t2"]),
+        "c.s.t2": TableLineage(upstream_tables=["c.s.t4"]),
+    }
 
 
 def test_list_column_lineage():
-    client = MagicMock()
-    client.do = MagicMock(
-        return_value={
-            "upstream_cols": [
-                {
-                    "name": "col1",
-                    "catalog_name": "db",
-                    "schema_name": "schema",
-                    "table_name": "upstream",
-                }
-            ],
-            "downstream_cols": [],
-        }
+    mock_connection = mock_sql_connection(
+        [
+            [
+                ("c.s.t1", "c1", "c.s.t3", "ca"),
+                ("c.s.t1", "c2", "c.s.t3", "ca"),
+                ("c.s.t1", "c3", "c.s.t3", "cb"),
+                ("c.s.t2", "c4", "c.s.t3", "ca"),
+                ("c.s.t3", "c5", "c.s.t2", "cc"),
+            ]
+        ]
     )
 
-    result = list_column_lineage(client, "table", "col1")
-    assert not result.downstream_cols
-    assert all(col.name == "col1" for col in result.upstream_cols)
+    column_lineage = list_column_lineage(mock_connection, "catalog", "schema")
 
-
-def test_list_column_lineage_unavailable_service():
-    response = Response()
-    response.status_code = 503
-
-    client = MagicMock()
-    client.do = MagicMock(side_effect=HTTPError(response=response))
-
-    result = list_column_lineage(client, "foo", "bar")
-    assert not result.upstream_cols
-    assert not result.downstream_cols
-
-
-def test_list_column_lineage_internal_server_error():
-    response = Response()
-    response.status_code = 500
-
-    client = MagicMock()
-    client.do = MagicMock(side_effect=HTTPError(response=response))
-
-    with pytest.raises(HTTPError):
-        list_column_lineage(client, "foo", "bar")
+    assert column_lineage == {
+        "c.s.t3": ColumnLineage(
+            upstream_columns={
+                "ca": [
+                    Column(column_name="c1", table_name="c.s.t1"),
+                    Column(column_name="c2", table_name="c.s.t1"),
+                    Column(column_name="c4", table_name="c.s.t2"),
+                ],
+                "cb": [Column(column_name="c3", table_name="c.s.t1")],
+            }
+        ),
+        "c.s.t2": ColumnLineage(
+            upstream_columns={
+                "cc": [Column(column_name="c5", table_name="c.s.t3")],
+            }
+        ),
+    }
 
 
 def test_parse_query_log_filter_by():

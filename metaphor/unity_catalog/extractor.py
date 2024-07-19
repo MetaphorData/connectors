@@ -1,10 +1,8 @@
 import json
-import logging
 import re
 import urllib.parse
 from collections import defaultdict
 from datetime import datetime
-from itertools import chain
 from typing import Collection, Dict, Generator, Iterator, List, Optional, Tuple
 
 from databricks.sdk.service.catalog import TableInfo, TableType, VolumeInfo
@@ -12,6 +10,7 @@ from databricks.sdk.service.catalog import TableInfo, TableType, VolumeInfo
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     dataset_normalized_name,
+    normalize_full_dataset_name,
     to_dataset_entity_id_from_logical_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
@@ -19,12 +18,7 @@ from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import user_id_or_email
-from metaphor.common.utils import (
-    md5_digest,
-    safe_float,
-    to_utc_datetime_from_timestamp,
-    unique_list,
-)
+from metaphor.common.utils import md5_digest, safe_float, to_utc_datetime_from_timestamp
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -58,18 +52,16 @@ from metaphor.models.metadata_change_event import (
     VolumeFile,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
-from metaphor.unity_catalog.models import (
-    FileInfo,
-    NoPermission,
-    TableLineage,
-    extract_schema_field_from_column_info,
-)
+from metaphor.unity_catalog.models import extract_schema_field_from_column_info
 from metaphor.unity_catalog.utils import (
+    ColumnLineageMap,
+    TableLineageMap,
     build_query_log_filter_by,
     create_api,
     create_connection,
     list_column_lineage,
     list_table_lineage,
+    system_access_schema_enabled,
 )
 
 logger = get_logger()
@@ -165,11 +157,20 @@ class UnityCatalogExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Unity Catalog")
 
+        has_system_access = system_access_schema_enabled(self._connection)
+        if not has_system_access:
+            logger.warn(
+                "You must enable system.access schema to extract lineage information. "
+                "See https://docs.databricks.com/en/admin/system-tables/index.html#enable-system-table-schemas for more details."
+            )
+
         catalogs = (
             self._get_catalogs()
             if self._filter.includes is None
             else list(self._filter.includes.keys())
         )
+        logger.info(f"Found catalogs: {catalogs}")
+
         for catalog in catalogs:
             schemas = self._get_schemas(catalog)
             for schema in schemas:
@@ -179,6 +180,16 @@ class UnityCatalogExtractor(BaseExtractor):
                     )
                     continue
 
+                table_lineage = {}
+                column_lineage = {}
+                if has_system_access:
+                    table_lineage = list_table_lineage(
+                        self._connection, catalog, schema
+                    )
+                    column_lineage = list_column_lineage(
+                        self._connection, catalog, schema
+                    )
+
                 for volume in self._get_volume_infos(catalog, schema):
                     assert volume.full_name
                     self._volumes[volume.full_name] = volume
@@ -187,14 +198,16 @@ class UnityCatalogExtractor(BaseExtractor):
 
                 for table_info in self._get_table_infos(catalog, schema):
                     table_name = f"{catalog}.{schema}.{table_info.name}"
+
                     if table_info.name is None:
                         logger.error(f"Ignoring table without name: {table_info}")
                         continue
                     if not self._filter.include_table(catalog, schema, table_info.name):
                         logger.info(f"Ignore table: {table_name} due to filter config")
                         continue
+
                     dataset = self._init_dataset(table_info)
-                    self._populate_lineage(dataset)
+                    self._populate_lineage(dataset, table_lineage, column_lineage)
 
         self._fetch_tags(catalogs)
 
@@ -340,131 +353,66 @@ class UnityCatalogExtractor(BaseExtractor):
         name = dataset_normalized_name(catalog_name, schema_name, table_name)
         return DatasetLogicalID(name=name, platform=DataPlatform.UNITY_CATALOG)
 
-    def _table_entity_id(
-        self, catalog_name: str, schema_name: str, table_name: str
-    ) -> str:
-        logical_id = self._table_logical_id(catalog_name, schema_name, table_name)
-        return str(to_dataset_entity_id_from_logical_id(logical_id))
-
-    def _populate_lineage(self, dataset: Dataset):
-        table_name = f"{dataset.structure.database}.{dataset.structure.schema}.{dataset.structure.table}"
-        lineage = list_table_lineage(self._api.api_client, table_name)
-
-        # Skip table without upstream
-        if not lineage.upstreams:
-            logging.info(f"Table {table_name} has no upstream")
-            return
-
-        source_datasets = self._process_table_lineage(dataset, lineage)
-        field_mappings = self._process_column_lineage(dataset, source_datasets)
-        unique_datasets = unique_list(source_datasets)
-        dataset.entity_upstream = EntityUpstream(
-            source_entities=unique_datasets, field_mappings=field_mappings
+    def _table_entity_id(self, table_full_name: str) -> str:
+        logical_id = DatasetLogicalID(
+            name=normalize_full_dataset_name(table_full_name),
+            platform=DataPlatform.UNITY_CATALOG,
         )
 
-    def _get_dataset_by_file_info(self, file_info: FileInfo) -> Optional[Dataset]:
-        # if upstream is a external location file
-        if file_info.securable_type == "EXTERNAL_LOCATION":
-            return self._init_file(file_info)
+        return str(to_dataset_entity_id_from_logical_id(logical_id))
 
-        # if upstream is a volume file
-        if file_info.securable_name and file_info.securable_type == "VOLUME":
-            volume_dataset = self._datasets.get(file_info.securable_name)
+    def _populate_lineage(
+        self,
+        dataset: Dataset,
+        table_lineage: TableLineageMap,
+        column_lineage: ColumnLineageMap,
+    ):
+        source_datasets = self._process_table_lineage(dataset, table_lineage)
+        field_mappings = self._process_column_lineage(dataset, column_lineage)
 
-            if volume_dataset:
-                # Users could use underlying path, replace the path to volume path
-                volume_prefix = (
-                    f"/Volumes/{volume_dataset.logical_id.name.replace('.', '/')}"
-                )
-                assert volume_dataset.unity_catalog.volume_info
-                volume_info = volume_dataset.unity_catalog.volume_info
-                path = file_info.path.replace(
-                    volume_info.storage_location, volume_prefix
-                )
-                return self._datasets.get(path)
-        return None
+        if len(source_datasets) + len(field_mappings) > 0:
+            dataset.entity_upstream = EntityUpstream(
+                source_entities=source_datasets, field_mappings=field_mappings
+            )
+
+    def _get_full_table_name(self, dataset: Dataset):
+        return f"{dataset.structure.database}.{dataset.structure.schema}.{dataset.structure.table}".lower()
 
     def _process_table_lineage(
-        self, dataset: Dataset, lineage: TableLineage
+        self, dataset: Dataset, lineage: TableLineageMap
     ) -> List[str]:
+        source_table = self._get_full_table_name(dataset)
+        if source_table not in lineage:
+            return []
+
         source_datasets: List[str] = []
-        for upstream in lineage.upstreams:
-            table_info = upstream.tableInfo
-            if table_info is not None and not isinstance(table_info, NoPermission):
-                entity_id = self._table_entity_id(
-                    table_info.catalog_name, table_info.schema_name, table_info.name
-                )
-                source_datasets.append(entity_id)
-            file_info = upstream.fileInfo
-            if file_info is not None and file_info.has_permission:
-                upstream_file = self._get_dataset_by_file_info(file_info)
+        for target_table in lineage[source_table].upstream_tables:
+            entity_id = self._table_entity_id(target_table)
+            source_datasets.append(entity_id)
 
-                if not upstream_file:
-                    logger.warning(
-                        f"cannot parse upstream volume file, {file_info.path}"
-                    )
-                    continue
-                source_datasets.append(
-                    str(to_dataset_entity_id_from_logical_id(upstream_file.logical_id))
-                )
-
-        for downstream in lineage.downstreams:
-            file_info = downstream.fileInfo
-            if file_info is not None and file_info.has_permission:
-                downstream_file = self._get_dataset_by_file_info(file_info)
-                if not downstream_file:
-                    logger.warning(
-                        f"cannot parse downstream volume file, {file_info.path}"
-                    )
-                    continue
-                downstream_file.entity_upstream.source_entities = unique_list(
-                    chain(
-                        downstream_file.entity_upstream.source_entities,
-                        [str(to_dataset_entity_id_from_logical_id(dataset.logical_id))],
-                    )
-                )
         return source_datasets
 
-    def _process_column_lineage(self, dataset: Dataset, source_datasets: List[str]):
-        table_name = f"{dataset.structure.database}.{dataset.structure.schema}.{dataset.structure.table}"
+    def _process_column_lineage(self, dataset: Dataset, lineage: ColumnLineageMap):
+        source_table = self._get_full_table_name(dataset)
+        if source_table not in lineage:
+            return []
 
-        # Add column-level lineage if available
         field_mappings = []
-        has_permission_issues = False
-        if dataset.schema is not None and dataset.schema.fields is not None:
-            for field in dataset.schema.fields:
-                column_name = field.field_name
-                if column_name is not None:
-                    column_lineage = list_column_lineage(
-                        self._api.api_client, table_name, column_name
+        for target_column, source_columns in lineage[
+            source_table
+        ].upstream_columns.items():
+            sources = []
+            for source_column in source_columns:
+                entity_id = self._table_entity_id(source_column.table_name)
+                sources.append(
+                    SourceField(
+                        source_entity_id=entity_id,
+                        field=source_column.column_name,
                     )
+                )
 
-                    field_mapping = FieldMapping(destination=column_name, sources=[])
-                    for upstream_col in column_lineage.upstream_cols:
-                        if isinstance(upstream_col, NoPermission):
-                            has_permission_issues = True
-                            continue
-
-                        logical_id = self._table_logical_id(
-                            upstream_col.catalog_name,
-                            upstream_col.schema_name,
-                            upstream_col.table_name,
-                        )
-                        entity_id = str(
-                            to_dataset_entity_id_from_logical_id(logical_id)
-                        )
-                        source_datasets.append(entity_id)
-                        field_mapping.sources.append(
-                            SourceField(
-                                dataset=logical_id,
-                                source_entity_id=entity_id,
-                                field=upstream_col.name,
-                            )
-                        )
-                    field_mappings.append(field_mapping)
-        if has_permission_issues:
-            logger.error(
-                f"Unable to extract lineage for {table_name} due to permission issues"
+            field_mappings.append(
+                FieldMapping(destination=target_column, sources=sources)
             )
 
         return field_mappings
@@ -542,6 +490,8 @@ class UnityCatalogExtractor(BaseExtractor):
                     )
 
     def _fetch_catalog_system_tags(self, catalog: str) -> CatalogSystemTagsTuple:
+        logger.info(f"Fetching tags for catalog {catalog}")
+
         with self._connection.cursor() as cursor:
             catalog_tags = []
             schema_tags: Dict[str, List[SystemTag]] = defaultdict(list)
@@ -752,49 +702,6 @@ class UnityCatalogExtractor(BaseExtractor):
                             ),
                         )
                     )
-
-    def _init_file(self, file_info: FileInfo) -> Optional[Dataset]:
-        if file_info.securable_type != "EXTERNAL_LOCATION":
-            return None
-
-        path = file_info.path
-        platform = (
-            DataPlatform.S3
-            if path.startswith("s3://")
-            else (
-                DataPlatform.AZURE_DATA_LAKE_STORAGE
-                if path.startswith("abfs://") or path.startswith("abfss://")
-                else None
-            )
-        )
-
-        if not platform:
-            return None
-
-        dataset = Dataset()
-        dataset.logical_id = DatasetLogicalID(
-            name=path,
-            platform=platform,
-        )
-
-        main_url = (
-            self._get_location_url(file_info.securable_name)
-            if file_info.securable_name
-            else None
-        )
-        dataset.source_info = SourceInfo(
-            main_url=main_url,
-        )
-
-        dataset.unity_catalog = UnityCatalog(
-            dataset_type=UnityCatalogDatasetType.UNITY_CATALOG_EXTERNAL_LOCATION,
-        )
-
-        dataset.entity_upstream = EntityUpstream(source_entities=[])
-
-        self._datasets[path] = dataset
-
-        return dataset
 
     def _init_volume(self, volume: VolumeInfo):
         assert (

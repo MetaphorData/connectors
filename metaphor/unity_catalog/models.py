@@ -1,7 +1,7 @@
-from typing import List, Optional, Union
+from typing import Dict, List
 
 from databricks.sdk.service.catalog import ColumnInfo
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 
 from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
@@ -25,49 +25,14 @@ def extract_schema_field_from_column_info(column: ColumnInfo) -> SchemaField:
     return field
 
 
-class NoPermission(BaseModel):
-    has_permission: bool = False
-
-    @field_validator("has_permission")
-    @classmethod
-    def has_permission_must_be_false(cls, value):
-        if value is False:
-            return value
-
-        raise ValueError("has_permission must be False")
+class TableLineage(BaseModel):
+    upstream_tables: List[str] = []
 
 
-class LineageColumnInfo(BaseModel):
-    name: str
-    catalog_name: str
-    schema_name: str
+class Column(BaseModel):
+    column_name: str
     table_name: str
 
 
 class ColumnLineage(BaseModel):
-    upstream_cols: List[Union[LineageColumnInfo, NoPermission]] = []
-    downstream_cols: List[Union[LineageColumnInfo, NoPermission]] = []
-
-
-class FileInfo(BaseModel):
-    path: str
-    has_permission: bool
-    securable_name: Optional[str] = None
-    securable_type: Optional[str] = None
-    storage_location: Optional[str] = None
-
-
-class TableInfo(BaseModel):
-    name: str
-    catalog_name: str
-    schema_name: str
-
-
-class LineageInfo(BaseModel):
-    tableInfo: Optional[Union[TableInfo, NoPermission]] = None
-    fileInfo: Optional[FileInfo] = None
-
-
-class TableLineage(BaseModel):
-    upstreams: List[LineageInfo] = []
-    downstreams: List[LineageInfo] = []
+    upstream_columns: Dict[str, List[Column]] = {}

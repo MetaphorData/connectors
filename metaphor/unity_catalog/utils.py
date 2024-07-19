@@ -1,57 +1,127 @@
 import datetime
-import json
-from typing import Optional
+from typing import Dict, Optional
 
 from databricks import sql
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.core import ApiClient
 from databricks.sdk.service.sql import QueryFilter, TimeRange
 from databricks.sql.client import Connection
-from requests import HTTPError
+from databricks.sql.exc import Error
 
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
-from metaphor.unity_catalog.models import ColumnLineage, TableLineage
+from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 
 logger = get_logger()
 
+# Map a table's full name to its table lineage
+TableLineageMap = Dict[str, TableLineage]
 
-def list_table_lineage(client: ApiClient, table_name: str) -> TableLineage:
-    _data = {"table_name": table_name}
-    resp = None
+# Map a table's full name to its column lineage
+ColumnLineageMap = Dict[str, ColumnLineage]
 
-    try:
-        resp = client.do(
-            "GET", "/api/2.0/lineage-tracking/table-lineage", data=json.dumps(_data)
-        )
-        json_dump_to_debug_file(resp, f"table-lineage-{table_name}.json")
-        return TableLineage.model_validate(resp)
-    except HTTPError as e:
-        # Lineage API returns 503 on GCP as it's not yet available
-        if e.response is not None and e.response.status_code == 503:
-            return TableLineage()
 
-        raise e
+def system_access_schema_enabled(connection: Connection):
+    """
+    Check if system.access schema is enabled
+    See https://docs.databricks.com/en/admin/system-tables/index.html#enable-system-table-schemas
+    """
+    with connection.cursor() as cursor:
+        query = "SELECT source_table_full_name FROM system.access.table_lineage LIMIT 1"
+        try:
+            cursor.execute(query)
+            cursor.fetchone()
+        except Error:
+            return False
+
+    return True
+
+
+def list_table_lineage(
+    connection: Connection, catalog: str, schema: str, lookback_days=7
+) -> TableLineageMap:
+    """
+    Fetch table lineage for a specific schema from system.access.table_lineage table
+    See https://docs.databricks.com/en/admin/system-tables/lineage.html for more details
+    """
+
+    with connection.cursor() as cursor:
+        query = f"""
+            SELECT
+                source_table_full_name,
+                target_table_full_name
+            FROM system.access.table_lineage
+            WHERE
+                target_table_catalog = '{catalog}' AND
+                target_table_schema = '{schema}' AND
+                source_table_full_name IS NOT NULL AND
+                event_time > date_sub(now(), {lookback_days})
+            GROUP BY
+                source_table_full_name,
+                target_table_full_name
+        """
+        cursor.execute(query)
+
+        table_lineage: Dict[str, TableLineage] = {}
+        for source_table, target_table in cursor.fetchall():
+            lineage = table_lineage.setdefault(target_table.lower(), TableLineage())
+            lineage.upstream_tables.append(source_table.lower())
+
+    logger.info(
+        f"Fetched table lineage for {len(table_lineage)} tables in {catalog}.{schema}"
+    )
+    json_dump_to_debug_file(table_lineage, f"table_lineage_{catalog}_{schema}.json")
+    return table_lineage
 
 
 def list_column_lineage(
-    client: ApiClient, table_name: str, column_name: str
-) -> ColumnLineage:
-    _data = {"table_name": table_name, "column_name": column_name}
+    connection: Connection, catalog: str, schema: str, lookback_days=7
+) -> ColumnLineageMap:
+    """
+    Fetch column lineage for a specific schema from system.access.table_lineage table
+    See https://docs.databricks.com/en/admin/system-tables/lineage.html for more details
+    """
 
-    # Lineage API returns 503 on GCP as it's not yet available
-    try:
-        resp = client.do(
-            "GET", "/api/2.0/lineage-tracking/column-lineage", data=json.dumps(_data)
-        )
-        json_dump_to_debug_file(resp, f"column-lineage-{table_name}-{column_name}.json")
-        return ColumnLineage.model_validate(resp)
-    except HTTPError as e:
-        # Lineage API returns 503 on GCP as it's not yet available
-        if e.response is not None and e.response.status_code == 503:
-            return ColumnLineage()
+    with connection.cursor() as cursor:
+        query = f"""
+            SELECT
+                source_table_full_name,
+                source_column_name,
+                target_table_full_name,
+                target_column_name
+            FROM system.access.column_lineage
+            WHERE
+                target_table_catalog = '{catalog}' AND
+                target_table_schema = '{schema}' AND
+                source_table_full_name IS NOT NULL AND
+                event_time > date_sub(now(), {lookback_days})
+            GROUP BY
+                source_table_full_name,
+                source_column_name,
+                target_table_full_name,
+                target_column_name
+        """
+        cursor.execute(query)
 
-        raise e
+        column_lineage: Dict[str, ColumnLineage] = {}
+        for (
+            source_table,
+            source_column,
+            target_table,
+            target_column,
+        ) in cursor.fetchall():
+            lineage = column_lineage.setdefault(target_table.lower(), ColumnLineage())
+            columns = lineage.upstream_columns.setdefault(target_column.lower(), [])
+            columns.append(
+                Column(
+                    table_name=source_table.lower(), column_name=source_column.lower()
+                )
+            )
+
+    logger.info(
+        f"Fetched column lineage for {len(column_lineage)} tables in {catalog}.{schema}"
+    )
+    json_dump_to_debug_file(column_lineage, f"column_lineage_{catalog}_{schema}.json")
+    return column_lineage
 
 
 def build_query_log_filter_by(
