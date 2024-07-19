@@ -76,6 +76,40 @@ class UnityCatalogProfileExtractor(BaseExtractor):
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching data profile from Unity Catalog")
+
+        tables = self._get_tables()
+        return self._profile(tables)
+
+    def _profile(self, tables: List[TableInfo]) -> List[Dataset]:
+        def profile(table_info: TableInfo):
+            dataset = self._init_dataset(table_info)
+
+            connection = self._connection_pool.get()
+
+            dataset_statistics, field_statistics = self._get_statistics(
+                connection, table_info
+            )
+
+            self._connection_pool.put(connection)
+
+            dataset.statistics = dataset_statistics
+            dataset.field_statistics = field_statistics
+
+            logger.info(f"Fetched {table_info.table_type}: {table_info.full_name}")
+            return dataset
+
+        logger.info(f"Profiling {len(tables)} tables")
+
+        entities = []
+        with ThreadPoolExecutor(max_workers=self._connection_pool.maxsize) as executor:
+            futures = [executor.submit(profile, table) for table in tables]
+
+            for future in as_completed(futures):
+                entities.append(future.result())
+
+        return entities
+
+    def _get_tables(self) -> List[TableInfo]:
         catalogs = [
             catalog_info.name
             for catalog_info in self._api.catalogs.list()
@@ -105,34 +139,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                     ):
                         continue
                     tables.append(table_info)
-
-        def profile(table_info: TableInfo):
-            dataset = self._init_dataset(table_info)
-
-            connection = self._connection_pool.get()
-
-            dataset_statistics, field_statistics = self._get_statistics(
-                connection, table_info
-            )
-
-            self._connection_pool.put(connection)
-
-            dataset.statistics = dataset_statistics
-            dataset.field_statistics = field_statistics
-
-            logger.info(f"Fetched {table_type}: {table_info.full_name}")
-            return dataset
-
-        logger.info(f"Profiling {len(tables)} tables")
-
-        entities = []
-        with ThreadPoolExecutor(max_workers=self._connection_pool.maxsize) as executor:
-            futures = [executor.submit(profile, table) for table in tables]
-
-            for future in as_completed(futures):
-                entities.append(future.result())
-
-        return entities
+        return tables
 
     def _init_dataset(self, table_info: TableInfo) -> Dataset:
         assert table_info.full_name
