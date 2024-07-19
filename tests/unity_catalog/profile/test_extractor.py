@@ -16,6 +16,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.profile.extractor import UnityCatalogProfileExtractor
 from tests.test_utils import load_json
+from tests.unity_catalog.mocks import mock_sql_connection
 
 
 def dummy_config():
@@ -71,22 +72,12 @@ async def test_extractor(
         SimpleNamespace(info_name="num_nulls", info_value="NULL"),
     ]
 
-    mock_cursor = MagicMock()
-    mock_cursor.fetchall = MagicMock()
-    mock_cursor.fetchall.side_effect = [
-        mock_rows,
-        mock_col2_stats,
-    ]
-
-    mock_cursor_ctx = MagicMock()
-    mock_cursor_ctx.__enter__ = MagicMock()
-    mock_cursor_ctx.__enter__.return_value = mock_cursor
-
-    mock_connection = MagicMock()
-    mock_connection.cursor = MagicMock()
-    mock_connection.cursor.return_value = mock_cursor_ctx
-
-    mock_create_connection.return_value = mock_connection
+    mock_create_connection.return_value = mock_sql_connection(
+        [
+            mock_rows,
+            mock_col2_stats,
+        ]
+    )
 
     extractor = UnityCatalogProfileExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -126,23 +117,12 @@ async def test_should_handle_exception(
     ]
     mock_create_api.return_value = mock_client
 
-    mock_cursor = MagicMock()
-    mock_cursor.execute = MagicMock()
-
     def throw_error(_):
         raise Exception("no permission")
 
-    mock_cursor.execute.side_effect = throw_error
-
-    mock_cursor_ctx = MagicMock()
-    mock_cursor_ctx.__enter__ = MagicMock()
-    mock_cursor_ctx.__enter__.return_value = mock_cursor
-
-    mock_connection = MagicMock()
-    mock_connection.cursor = MagicMock()
-    mock_connection.cursor.return_value = mock_cursor_ctx
-
-    mock_create_connection.return_value = mock_connection
+    mock_create_connection.return_value = mock_sql_connection(
+        fetch_all_side_effect=[], execute_side_effect=throw_error
+    )
 
     extractor = UnityCatalogProfileExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -206,12 +186,12 @@ async def test_should_handle_exception_column_stat(
 
     mock_cursor = MagicMock()
     mock_cursor.fetchall = MagicMock()
-    mock_cursor.fetchall.side_effect = [
+    fetchall_side_effect = [
         mock_rows,
         mock_col2_stats,
     ]
 
-    mock_cursor.execute.side_effect = [
+    execute_side_effect = [
         None,
         None,
         Exception("error for column stat"),
@@ -226,7 +206,10 @@ async def test_should_handle_exception_column_stat(
     mock_connection.cursor = MagicMock()
     mock_connection.cursor.return_value = mock_cursor_ctx
 
-    mock_create_connection.return_value = mock_connection
+    mock_create_connection.return_value = mock_sql_connection(
+        fetch_all_side_effect=fetchall_side_effect,
+        execute_side_effect=execute_side_effect,
+    )
 
     extractor = UnityCatalogProfileExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]

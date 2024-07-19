@@ -82,9 +82,7 @@
   },
   {
     "entityUpstream": {
-      "sourceEntities": [
-        "DATASET~FDF012DB00302C39651E2FF173405230"
-      ]
+      "sourceEntities": []
     },
     "logicalId": {
       "name": "/Volumes/catalog2/schema/volume/output.csv",
@@ -108,10 +106,6 @@
           "destination": "col1",
           "sources": [
             {
-              "dataset": {
-                "name": "db.schema.upstream",
-                "platform": "UNITY_CATALOG"
-              },
               "field": "col1",
               "sourceEntityId": "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84"
             }
@@ -336,18 +330,6 @@
       "name": "catalog2.schema.table2",
       "platform": "UNITY_CATALOG"
     },
-    "entityUpstream": {
-      "fieldMappings": [
-        {
-          "destination": "col1",
-          "sources": []
-        }
-      ],
-      "sourceEntities": [
-        "DATASET~C109145C4035631CA68E19687464C80A",
-        "DATASET~7027DB17D7A88FC1442608A7E5F79984"
-      ]
-    },
     "schema": {
       "description": "example",
       "fields": [
@@ -391,21 +373,6 @@
         "storageLocation": "s3://path",
         "type": "MANAGED"
       }
-    }
-  },
-  {
-    "entityUpstream": {
-      "sourceEntities": []
-    },
-    "logicalId": {
-      "name": "s3://path/input2.csv",
-      "platform": "S3"
-    },
-    "sourceInfo": {
-      "mainUrl": "https://dummy.host/explore/location/input2/browse"
-    },
-    "unityCatalog": {
-      "datasetType": "UNITY_CATALOG_EXTERNAL_LOCATION"
     }
   },
   {

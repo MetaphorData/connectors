@@ -17,16 +17,9 @@ from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.extractor import UnityCatalogExtractor
-from metaphor.unity_catalog.models import (
-    ColumnLineage,
-    FileInfo,
-    LineageColumnInfo,
-    LineageInfo,
-    NoPermission,
-    TableInfo,
-    TableLineage,
-)
+from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 from tests.test_utils import load_json, serialize_event, wrap_query_log_stream_to_event
+from tests.unity_catalog.mocks import mock_sql_connection
 
 
 def dummy_config():
@@ -202,86 +195,31 @@ async def test_extractor(
     mock_client.volumes = MagicMock()
     mock_client.volumes.list = mock_list_volumes
     mock_list_table_lineage.side_effect = [
-        TableLineage(
-            upstreams=[
-                LineageInfo(
-                    tableInfo=TableInfo(
-                        name="upstream", catalog_name="db", schema_name="schema"
-                    ),
-                    fileInfo=None,
-                ),
-                LineageInfo(
-                    tableInfo=TableInfo(
-                        name="upstream2", catalog_name="db", schema_name="schema"
-                    ),
-                    fileInfo=None,
-                ),
-                LineageInfo(
-                    tableInfo=None,
-                    fileInfo=FileInfo(
-                        path="s3://path",
-                        has_permission=True,
-                    ),
-                ),
-                LineageInfo(tableInfo=NoPermission(), fileInfo=None),
-            ],
-        ),
-        TableLineage(),
-        TableLineage(
-            upstreams=[
-                LineageInfo(
-                    tableInfo=None,
-                    fileInfo=FileInfo(
-                        path="s3://path/input.csv",
-                        securable_name="catalog2.schema.volume",
-                        securable_type="VOLUME",
-                        storage_location="s3://path",
-                        has_permission=True,
-                    ),
-                ),
-                LineageInfo(
-                    tableInfo=None,
-                    fileInfo=FileInfo(
-                        path="s3://path/input2.csv",
-                        securable_name="input2",
-                        securable_type="EXTERNAL_LOCATION",
-                        storage_location="s3://path",
-                        has_permission=True,
-                    ),
-                ),
-            ],
-            downstreams=[
-                LineageInfo(
-                    tableInfo=None,
-                    fileInfo=FileInfo(
-                        path="s3://path/output.csv",
-                        securable_name="catalog2.schema.volume",
-                        securable_type="VOLUME",
-                        storage_location="s3://path",
-                        has_permission=True,
-                    ),
-                ),
-            ],
-        ),
+        {
+            "catalog.schema.table": TableLineage(
+                upstream_tables=[
+                    "db.schema.upstream",
+                    "db.schema.upstream2",
+                ],
+            )
+        }
     ]
+
     mock_list_column_lineage.side_effect = [
-        ColumnLineage(
-            upstream_cols=[
-                LineageColumnInfo(
-                    name="col1",
-                    catalog_name="db",
-                    schema_name="schema",
-                    table_name="upstream",
-                )
-            ]
-        ),
-        ColumnLineage(upstream_cols=[]),
+        {
+            "catalog.schema.table": ColumnLineage(
+                upstream_columns={
+                    "col1": [
+                        Column(column_name="col1", table_name="db.schema.upstream")
+                    ]
+                }
+            ),
+        }
     ]
+
     mock_create_api.return_value = mock_client
 
-    mock_cursor = MagicMock()
-    mock_cursor.fetchall = MagicMock()
-    mock_cursor.fetchall.side_effect = [
+    results = [
         [
             (
                 "/Volumes/catalog2/schema/volume/input.csv",
@@ -319,15 +257,7 @@ async def test_extractor(
         ],
     ]
 
-    mock_cursor_ctx = MagicMock()
-    mock_cursor_ctx.__enter__ = MagicMock()
-    mock_cursor_ctx.__enter__.return_value = mock_cursor
-
-    mock_connection = MagicMock()
-    mock_connection.cursor = MagicMock()
-    mock_connection.cursor.return_value = mock_cursor_ctx
-
-    mock_create_connection.return_value = mock_connection
+    mock_create_connection.return_value = mock_sql_connection(results)
 
     extractor = UnityCatalogExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
