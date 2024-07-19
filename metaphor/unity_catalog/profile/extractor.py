@@ -1,4 +1,6 @@
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from queue import Queue
 from typing import Collection, List, Optional, Tuple
 
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
@@ -63,19 +65,24 @@ class UnityCatalogProfileExtractor(BaseExtractor):
     def __init__(self, config: UnityCatalogRunConfig):
         super().__init__(config)
         self._api = create_api(f"https://{config.hostname}", config.token)
-        self._connection = create_connection(
-            config.token, config.hostname, config.http_path
-        )
+
+        self._connection_pool: Queue = Queue(maxsize=config.max_concurrency)
+        for _ in range(config.max_concurrency):
+            self._connection_pool.put(
+                create_connection(config.token, config.hostname, config.http_path)
+            )
+
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching data profile from Unity Catalog")
-        entities: List[ENTITY_TYPES] = []
         catalogs = [
             catalog_info.name
             for catalog_info in self._api.catalogs.list()
             if catalog_info.name and self._filter.include_database(catalog_info.name)
         ]
+
+        tables: List[TableInfo] = []
         for catalog in catalogs:
             schemas = [
                 schema_info.name
@@ -91,15 +98,40 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                     and self._filter.include_table(catalog, schema, table_info.name)
                 ]
                 for table_info in table_infos:
-                    dataset = self._init_dataset(table_info)
-                    if table_info.table_type is not TableType.VIEW:
-                        dataset_statistics, field_statistics = self._get_statistics(
-                            table_info
-                        )
-                        dataset.statistics = dataset_statistics
-                        dataset.field_statistics = field_statistics
-                    entities.append(dataset)
-                    logger.info(f"Fetched: {table_info.full_name}")
+                    table_type = table_info.table_type
+                    if table_type is None or table_type in (
+                        TableType.VIEW,
+                        TableType.MATERIALIZED_VIEW,
+                    ):
+                        continue
+                    tables.append(table_info)
+
+        def profile(table_info: TableInfo):
+            dataset = self._init_dataset(table_info)
+
+            connection = self._connection_pool.get()
+
+            dataset_statistics, field_statistics = self._get_statistics(
+                connection, table_info
+            )
+
+            self._connection_pool.put(connection)
+
+            dataset.statistics = dataset_statistics
+            dataset.field_statistics = field_statistics
+
+            logger.info(f"Fetched {table_type}: {table_info.full_name}")
+            return dataset
+
+        logger.info(f"Profiling {len(tables)} tables")
+
+        entities = []
+        with ThreadPoolExecutor(max_workers=self._connection_pool.maxsize) as executor:
+            futures = [executor.submit(profile, table) for table in tables]
+
+            for future in as_completed(futures):
+                entities.append(future.result())
+
         return entities
 
     def _init_dataset(self, table_info: TableInfo) -> Dataset:
@@ -112,7 +144,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         )
 
     def _get_statistics(
-        self, table_info: TableInfo
+        self, connection, table_info: TableInfo
     ) -> Tuple[Optional[DatasetStatistics], Optional[DatasetFieldStatistics]]:
         assert table_info.full_name
         dataset_statistics = DatasetStatistics()
@@ -122,7 +154,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         field_statistics = DatasetFieldStatistics(field_statistics=[])
         assert field_statistics.field_statistics is not None
 
-        with self._connection.cursor() as cursor:
+        with connection.cursor() as cursor:
             escaped_name = escape_special_characters(table_info.full_name)
             # Gather numeric columns
             numeric_columns = [

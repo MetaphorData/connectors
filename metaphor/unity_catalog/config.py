@@ -39,3 +39,6 @@ class UnityCatalogRunConfig(BaseConfig):
     query_log: UnityCatalogQueryLogConfig = field(
         default_factory=lambda: UnityCatalogQueryLogConfig()
     )
+
+    # Max number of connection to the database
+    max_concurrency: int = 10
