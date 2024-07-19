@@ -17,7 +17,6 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.query_history import user_id_or_email
 from metaphor.common.utils import md5_digest, safe_float, to_utc_datetime_from_timestamp
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -32,6 +31,7 @@ from metaphor.models.metadata_change_event import (
     HierarchyLogicalID,
     KeyValuePair,
     MaterializationType,
+    QueriedDataset,
     QueryLog,
     SchemaType,
     SourceField,
@@ -56,12 +56,11 @@ from metaphor.unity_catalog.models import extract_schema_field_from_column_info
 from metaphor.unity_catalog.utils import (
     ColumnLineageMap,
     TableLineageMap,
-    build_query_log_filter_by,
     create_api,
     create_connection,
     list_column_lineage,
+    list_query_log,
     list_table_lineage,
-    system_access_schema_enabled,
 )
 
 logger = get_logger()
@@ -157,18 +156,12 @@ class UnityCatalogExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Unity Catalog")
 
-        has_system_access = system_access_schema_enabled(self._connection)
-        if not has_system_access:
-            logger.warn(
-                "You must enable system.access schema to extract lineage information. "
-                "See https://docs.databricks.com/en/admin/system-tables/index.html#enable-system-table-schemas for more details."
-            )
+        catalogs = [
+            catalog
+            for catalog in self._get_catalogs()
+            if self._filter.include_database(catalog)
+        ]
 
-        catalogs = (
-            self._get_catalogs()
-            if self._filter.includes is None
-            else list(self._filter.includes.keys())
-        )
         logger.info(f"Found catalogs: {catalogs}")
 
         for catalog in catalogs:
@@ -180,15 +173,8 @@ class UnityCatalogExtractor(BaseExtractor):
                     )
                     continue
 
-                table_lineage = {}
-                column_lineage = {}
-                if has_system_access:
-                    table_lineage = list_table_lineage(
-                        self._connection, catalog, schema
-                    )
-                    column_lineage = list_column_lineage(
-                        self._connection, catalog, schema
-                    )
+                table_lineage = list_table_lineage(self._connection, catalog, schema)
+                column_lineage = list_column_lineage(self._connection, catalog, schema)
 
                 for volume in self._get_volume_infos(catalog, schema):
                     assert volume.full_name
@@ -434,48 +420,37 @@ class UnityCatalogExtractor(BaseExtractor):
         logger.info(f"Fetching queries from the last {lookback_days} days")
 
         count = 0
-        for query_info in self._api.query_history.list(
-            filter_by=build_query_log_filter_by(self._query_log_config, self._api),
-            include_metrics=True,
-            max_results=self._query_log_config.max_results,
+        for row in list_query_log(
+            self._connection,
+            self._query_log_config.lookback_days,
+            self._query_log_config.excluded_usernames,
         ):
-            if query_info.query_text is None or query_info.user_name is None:
-                continue
-
             count += 1
-            if count > 0 and count % 5000 == 0:
+            if count > 0 and count % 10000 == 0:
                 logger.info(f"Fetched {count} queries")
 
-            start_time = None
-            if query_info.query_start_time_ms is not None:
-                start_time = to_utc_from_timestamp_ms(
-                    timestamp_ms=query_info.query_start_time_ms
-                )
+            query_id = row["query_id"]
 
-            user_id, email = user_id_or_email(query_info.user_name)
+            # TODO: User sqlglot to extract the sources & targets
+            sources: List[QueriedDataset] = []
+            targets: List[QueriedDataset] = []
 
-            query_log = QueryLog(
-                id=f"{DataPlatform.UNITY_CATALOG.name}:{query_info.query_id}",
-                duration=safe_float(query_info.duration),
-                user_id=user_id,
-                email=email,
+            yield QueryLog(
+                id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
+                query_id=query_id,
                 platform=DataPlatform.UNITY_CATALOG,
-                query_id=query_info.query_id,
-                sql=query_info.query_text,
-                sql_hash=md5_digest(query_info.query_text.encode("utf-8")),
-                start_time=start_time,
+                email=row["email"],
+                start_time=row["start_time"],
+                duration=safe_float(row["duration"]),
+                rows_read=safe_float(row["rows_read"]),
+                rows_written=safe_float(row["rows_written"]),
+                bytes_read=safe_float(row["bytes_read"]),
+                bytes_written=safe_float(row["bytes_written"]),
+                sources=sources,
+                targets=targets,
+                sql=row["query_text"],
+                sql_hash=md5_digest(row["query_text"].encode("utf-8")),
             )
-            if query_info.metrics is not None:
-                query_log.bytes_read = safe_float(query_info.metrics.read_remote_bytes)
-                query_log.bytes_written = safe_float(
-                    query_info.metrics.write_remote_bytes
-                )
-                query_log.rows_read = safe_float(query_info.metrics.rows_read_count)
-                query_log.rows_written = safe_float(
-                    query_info.metrics.rows_produced_count
-                )
-
-            yield query_log
 
     def _extract_hierarchies(self, catalog_system_tags: CatalogSystemTags) -> None:
         for catalog, (catalog_tags, schema_name_to_tag) in catalog_system_tags.items():
@@ -571,7 +546,7 @@ class UnityCatalogExtractor(BaseExtractor):
                 dataset = self._datasets.get(normalized_dataset_name)
 
                 if dataset is None:
-                    logger.warn(f"Cannot find {normalized_dataset_name} dataset")
+                    logger.warning(f"Cannot find {normalized_dataset_name} dataset")
                     continue
 
                 assert dataset.system_tags and dataset.system_tags.tags is not None
@@ -642,7 +617,7 @@ class UnityCatalogExtractor(BaseExtractor):
                 )
                 dataset = self._datasets.get(normalized_dataset_name)
                 if dataset is None:
-                    logger.warn(f"Cannot find {normalized_dataset_name} table")
+                    logger.warning(f"Cannot find {normalized_dataset_name} table")
                     continue
 
                 tag = f"{tag_name}={tag_value}" if tag_value else tag_name

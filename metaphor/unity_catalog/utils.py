@@ -1,14 +1,11 @@
-import datetime
-from typing import Dict, Optional
+from typing import Collection, Dict, Optional
 
 from databricks import sql
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.service.sql import QueryFilter, TimeRange
 from databricks.sql.client import Connection
-from databricks.sql.exc import Error
 
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
+from metaphor.common.utils import start_of_day
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 
 logger = get_logger()
@@ -18,22 +15,6 @@ TableLineageMap = Dict[str, TableLineage]
 
 # Map a table's full name to its column lineage
 ColumnLineageMap = Dict[str, ColumnLineage]
-
-
-def system_access_schema_enabled(connection: Connection):
-    """
-    Check if system.access schema is enabled
-    See https://docs.databricks.com/en/admin/system-tables/index.html#enable-system-table-schemas
-    """
-    with connection.cursor() as cursor:
-        query = "SELECT source_table_full_name FROM system.access.table_lineage LIMIT 1"
-        try:
-            cursor.execute(query)
-            cursor.fetchone()
-        except Error:
-            return False
-
-    return True
 
 
 def list_table_lineage(
@@ -124,27 +105,40 @@ def list_column_lineage(
     return column_lineage
 
 
-def build_query_log_filter_by(
-    config: UnityCatalogQueryLogConfig,
-    client: WorkspaceClient,
-) -> QueryFilter:
-    end_time = datetime.datetime.now(tz=datetime.timezone.utc)
-    start_time = end_time - datetime.timedelta(days=config.lookback_days)
+def list_query_log(
+    connection: Connection, lookback_days: int, excluded_usernames: Collection[str]
+):
+    """
+    See https://docs.databricks.com/en/admin/system-tables/query-history.html
+    """
+    start = start_of_day(lookback_days)
+    end = start_of_day()
 
-    query_filter = QueryFilter(
-        query_start_time_range=TimeRange(
-            end_time_ms=int(end_time.timestamp() * 1000),
-            start_time_ms=int(start_time.timestamp() * 1000),
-        )
-    )
-    if config.excluded_usernames:
-        query_filter.user_ids = [
-            int(user.id)
-            for user in client.users.list()
-            if user.id and user.user_name not in config.excluded_usernames
-        ]
+    user_condition = ",".join([f"'{user}'" for user in excluded_usernames])
+    user_filter = f"Q.executed_by IN ({user_condition}) AND" if user_condition else ""
 
-    return query_filter
+    with connection.cursor() as cursor:
+        query = f"""
+            SELECT
+                statement_id as query_id,
+                executed_by as email,
+                start_time,
+                int(total_task_duration_ms/1000) as duration,
+                read_rows as rows_read,
+                produced_rows as rows_written,
+                read_bytes as bytes_read,
+                written_bytes as bytes_written,
+                statement_type as query_type,
+                statement_text as query_text
+            FROM system.query.history
+            WHERE
+                {user_filter}
+                execution_status = 'FINISHED' AND
+                start_time >= ? AND
+                start_time < ?
+        """
+        cursor.execute(query, [start, end])
+        return cursor.fetchall()
 
 
 SPECIAL_CHARACTERS = "&*{}[],=-()+;'\"`"

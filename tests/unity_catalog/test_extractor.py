@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -10,7 +11,6 @@ from databricks.sdk.service.catalog import (
 )
 from databricks.sdk.service.catalog import TableInfo as Table
 from databricks.sdk.service.catalog import TableType, VolumeInfo, VolumeType
-from databricks.sdk.service.sql import QueryInfo, QueryMetrics
 from pytest_snapshot.plugin import Snapshot
 
 from metaphor.common.base_config import OutputConfig
@@ -35,14 +35,17 @@ def dummy_config():
 @patch("metaphor.unity_catalog.extractor.create_api")
 @patch("metaphor.unity_catalog.extractor.list_table_lineage")
 @patch("metaphor.unity_catalog.extractor.list_column_lineage")
+@patch("metaphor.unity_catalog.extractor.list_query_log")
 @pytest.mark.asyncio
 async def test_extractor(
+    mock_list_query_log: MagicMock,
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
     mock_create_api: MagicMock,
     mock_create_connection: MagicMock,
     test_root_dir: str,
 ):
+
     def mock_list_catalogs():
         return [CatalogInfo(name="catalog")]
 
@@ -140,27 +143,6 @@ async def test_extractor(
             ),
         ]
 
-    def mock_list_query_history(
-        filter_by,
-        include_metrics,
-        max_results,  # No pagination!
-    ):
-        return [
-            QueryInfo(
-                duration=1234,
-                query_id="foo",
-                metrics=QueryMetrics(
-                    read_remote_bytes=1234,
-                    write_remote_bytes=5678,
-                    rows_produced_count=5566,
-                    rows_read_count=9487,
-                ),
-                query_text="bogus query",
-                user_name="uwu",
-                query_start_time_ms=55667788,
-            )
-        ]
-
     def mock_list_volumes(catalog, schema):
         return [
             VolumeInfo(
@@ -190,8 +172,6 @@ async def test_extractor(
     mock_client.schemas.list = mock_list_schemas
     mock_client.tables = MagicMock()
     mock_client.tables.list = mock_list_tables
-    mock_client.query_history = MagicMock()
-    mock_client.query_history.list = mock_list_query_history
     mock_client.volumes = MagicMock()
     mock_client.volumes.list = mock_list_volumes
     mock_list_table_lineage.side_effect = [
@@ -214,6 +194,23 @@ async def test_extractor(
                     ]
                 }
             ),
+        }
+    ]
+
+    mock_list_query_log.return_value = [
+        {
+            "query_id": "foo",
+            "email": "foo@bar.com",
+            "start_time": datetime(2020, 1, 1, tzinfo=timezone.utc),
+            "duration": 1234,
+            "rows_read": 9487,
+            "rows_written": 5566,
+            "bytes_read": 1234,
+            "bytes_written": 5678,
+            "query_type": "SELECT",
+            "query_text": "bogus query",
+            "sources": "[]",
+            "targets": "[]",
         }
     ]
 
