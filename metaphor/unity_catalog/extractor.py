@@ -198,7 +198,6 @@ class UnityCatalogExtractor(BaseExtractor):
 
                 for table_info in self._get_table_infos(catalog, schema):
                     table_name = f"{catalog}.{schema}.{table_info.name}"
-
                     if table_info.name is None:
                         logger.error(f"Ignoring table without name: {table_info}")
                         continue
