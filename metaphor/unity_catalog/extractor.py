@@ -417,9 +417,13 @@ class UnityCatalogExtractor(BaseExtractor):
         return field_mappings
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
-        if self._query_log_config.lookback_days <= 0:
+        lookback_days = self._query_log_config.lookback_days
+        if lookback_days <= 0:
             return
 
+        logger.info(f"Fetching queries from the last {lookback_days} days")
+
+        count = 0
         for query_info in self._api.query_history.list(
             filter_by=build_query_log_filter_by(self._query_log_config, self._api),
             include_metrics=True,
@@ -427,6 +431,10 @@ class UnityCatalogExtractor(BaseExtractor):
         ):
             if query_info.query_text is None or query_info.user_name is None:
                 continue
+
+            count += 1
+            if count > 0 and count % 5000 == 0:
+                logger.info(f"Fetched {count} queries")
 
             start_time = None
             if query_info.query_start_time_ms is not None:
