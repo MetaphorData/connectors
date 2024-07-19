@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Collection, Dict, Optional
 
 from databricks import sql
@@ -15,6 +16,15 @@ TableLineageMap = Dict[str, TableLineage]
 
 # Map a table's full name to its column lineage
 ColumnLineageMap = Dict[str, ColumnLineage]
+
+IGNORED_HISTORY_OPERATIONS = {
+    "ADD CONSTRAINT",
+    "CHANGE COLUMN",
+    "LIQUID TAGGING",
+    "OPTIMIZE",
+    "SET TBLPROPERTIES",
+}
+"""These are the operations that do not modify actual data."""
 
 
 def list_table_lineage(
@@ -139,6 +149,28 @@ def list_query_log(
         """
         cursor.execute(query, [start, end])
         return cursor.fetchall()
+
+
+def get_last_refreshed_time(
+    connection: Connection, table_full_name: str, limit: int
+) -> Optional[datetime]:
+    """
+    Retrieve the last refresh time for a table
+    See https://docs.databricks.com/en/delta/history.html
+    """
+
+    with connection.cursor() as cursor:
+        try:
+            cursor.execute("DESCRIBE HISTORY ? LIMIT ?", [table_full_name, limit])
+        except Exception as error:
+            logger.exception(f"Failed to get history for {table_full_name}: {error}")
+            return None
+
+        for history in cursor.fetchall():
+            if history["operation"] not in IGNORED_HISTORY_OPERATIONS:
+                return history["timestamp"]
+
+    return None
 
 
 SPECIAL_CHARACTERS = "&*{}[],=-()+;'\"`"

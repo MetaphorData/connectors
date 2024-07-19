@@ -42,3 +42,6 @@ class UnityCatalogRunConfig(BaseConfig):
 
     # Max number of connection to the database
     max_concurrency: int = 10
+
+    # The limit to apply when running DESCRIBE HISTORY
+    describe_history_limit: int = 50
