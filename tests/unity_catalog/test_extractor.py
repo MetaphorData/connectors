@@ -67,7 +67,7 @@ async def test_extractor(
                     )
                 ],
                 storage_location="s3://path",
-                owner="foo@bar.com",
+                owner="user1@foo.com",
                 comment="example",
                 updated_at=0,
                 updated_by="foo@bar.com",
@@ -90,7 +90,7 @@ async def test_extractor(
                     )
                 ],
                 view_definition="SELECT ...",
-                owner="foo@bar.com",
+                owner="user2@foo.com",
                 comment="example",
                 updated_at=0,
                 updated_by="foo@bar.com",
@@ -129,7 +129,7 @@ async def test_extractor(
                     )
                 ],
                 storage_location="s3://path",
-                owner="foo@bar.com",
+                owner="user3@foo.com",
                 comment="example",
                 updated_at=0,
                 updated_by="foo@bar.com",

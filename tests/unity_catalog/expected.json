@@ -151,6 +151,14 @@
       "schema": "schema",
       "table": "table"
     },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "user1@foo.com",
+          "systemContactSource": "UNITY_CATALOG"
+        }
+      ]
+    },
     "systemTags": {
       "tags": [
         {
@@ -188,7 +196,7 @@
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {
         "dataSourceFormat": "CSV",
-        "owner": "foo@bar.com",
+        "owner": "user1@foo.com",
         "properties": [
           {
             "key": "delta.lastCommitTimestamp",
@@ -231,6 +239,14 @@
       "schema": "schema",
       "table": "view"
     },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "user2@foo.com",
+          "systemContactSource": "UNITY_CATALOG"
+        }
+      ]
+    },
     "systemTags": {
       "tags": [
         {
@@ -258,7 +274,7 @@
     "unityCatalog": {
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {
-        "owner": "foo@bar.com",
+        "owner": "user2@foo.com",
         "properties": [
           {
             "key": "view.catalogAndNamespace.numParts",
@@ -356,6 +372,14 @@
       "schema": "schema",
       "table": "table2"
     },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "user3@foo.com",
+          "systemContactSource": "UNITY_CATALOG"
+        }
+      ]
+    },
     "systemTags": {
       "tags": []
     },
@@ -363,7 +387,7 @@
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {
         "dataSourceFormat": "DELTA",
-        "owner": "foo@bar.com",
+        "owner": "user3@foo.com",
         "properties": [
           {
             "key": "delta.lastCommitTimestamp",
