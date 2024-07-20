@@ -56,9 +56,10 @@ from metaphor.unity_catalog.models import extract_schema_field_from_column_info
 from metaphor.unity_catalog.utils import (
     ColumnLineageMap,
     TableLineageMap,
+    batch_get_last_refreshed_time,
     create_api,
     create_connection,
-    get_last_refreshed_time,
+    create_connection_pool,
     list_column_lineage,
     list_query_log,
     list_table_lineage,
@@ -142,7 +143,10 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def __init__(self, config: UnityCatalogRunConfig):
         super().__init__(config)
+        self._token = config.token
         self._hostname = config.hostname
+        self._http_path = config.http_path
+
         self._source_url = (
             f"https://{config.hostname}/{{path}}/{{catalog}}/{{schema}}/{{table}}"
             if config.source_url is None
@@ -150,13 +154,17 @@ class UnityCatalogExtractor(BaseExtractor):
         )
 
         self._describe_history_limit = config.describe_history_limit
+        self._max_concurrency = config.max_concurrency
 
         self._api = create_api(f"https://{config.hostname}", config.token)
+
         self._connection = create_connection(
             token=config.token,
             server_hostname=config.hostname,
             http_path=config.http_path,
         )
+
+        self._last_refresh_time_queue: List[str] = []
 
         # Map fullname or volume path to a dataset
         self._datasets: Dict[str, Dataset] = {}
@@ -207,6 +215,8 @@ class UnityCatalogExtractor(BaseExtractor):
                     self._populate_lineage(dataset, table_lineage, column_lineage)
 
         self._fetch_tags(catalogs)
+
+        self._populate_last_refreshed_time()
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(list(self._datasets.values()))
@@ -303,12 +313,8 @@ class UnityCatalogExtractor(BaseExtractor):
             ),
         )
 
-        last_updated = None
         if table_info.table_type in TABLE_TYPE_WITH_HISTORY:
-            last_updated = get_last_refreshed_time(
-                self._connection, normalized_name, self._describe_history_limit
-            )
-            logger.info(f"Fetched last updated time for {normalized_name}")
+            self._last_refresh_time_queue.append(normalized_name)
 
         main_url = self._get_table_source_url(database, schema_name, table_name)
         dataset.source_info = SourceInfo(
@@ -316,7 +322,6 @@ class UnityCatalogExtractor(BaseExtractor):
             created_at_source=to_utc_from_timestamp_ms(
                 timestamp_ms=table_info.created_at
             ),
-            last_updated=last_updated,
         )
 
         dataset.unity_catalog = UnityCatalog(
@@ -807,3 +812,23 @@ class UnityCatalogExtractor(BaseExtractor):
         self._datasets[path] = dataset
 
         return dataset
+
+    def _populate_last_refreshed_time(self):
+        connection_pool = create_connection_pool(
+            self._token, self._hostname, self._http_path, self._max_concurrency
+        )
+
+        result_map = batch_get_last_refreshed_time(
+            connection_pool,
+            self._last_refresh_time_queue,
+            self._describe_history_limit,
+        )
+
+        for name, last_refreshed_time in result_map.items():
+            dataset = self._datasets.get(name)
+            if dataset is not None:
+                dataset.source_info = SourceInfo(
+                    main_url=dataset.source_info.main_url,
+                    created_at_source=dataset.source_info.created_at_source,
+                    last_updated=last_refreshed_time,
+                )

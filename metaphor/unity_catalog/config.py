@@ -44,4 +44,4 @@ class UnityCatalogRunConfig(BaseConfig):
     max_concurrency: int = 10
 
     # The limit to apply when running DESCRIBE HISTORY
-    describe_history_limit: int = 50
+    describe_history_limit: int = 100

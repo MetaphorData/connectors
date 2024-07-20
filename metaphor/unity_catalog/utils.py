@@ -1,5 +1,7 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from typing import Collection, Dict, Optional
+from queue import Queue
+from typing import Collection, Dict, List, Optional, Tuple
 
 from databricks import sql
 from databricks.sdk import WorkspaceClient
@@ -152,8 +154,10 @@ def list_query_log(
 
 
 def get_last_refreshed_time(
-    connection: Connection, table_full_name: str, limit: int
-) -> Optional[datetime]:
+    connection: Connection,
+    table_full_name: str,
+    limit: int,
+) -> Optional[Tuple[str, datetime]]:
     """
     Retrieve the last refresh time for a table
     See https://docs.databricks.com/en/delta/history.html
@@ -161,16 +165,54 @@ def get_last_refreshed_time(
 
     with connection.cursor() as cursor:
         try:
-            cursor.execute("DESCRIBE HISTORY ? LIMIT ?", [table_full_name, limit])
+            cursor.execute(f"DESCRIBE HISTORY {table_full_name} LIMIT {limit}")
         except Exception as error:
             logger.exception(f"Failed to get history for {table_full_name}: {error}")
             return None
 
         for history in cursor.fetchall():
-            if history["operation"] not in IGNORED_HISTORY_OPERATIONS:
-                return history["timestamp"]
+            operation = history["operation"]
+            if operation not in IGNORED_HISTORY_OPERATIONS:
+                logger.info(
+                    f"Fetched last refresh time for {table_full_name} ({operation})"
+                )
+                return (table_full_name, history["timestamp"])
 
     return None
+
+
+def batch_get_last_refreshed_time(
+    connection_pool: Queue,
+    table_full_names: List[str],
+    describe_history_limit: int,
+):
+    result_map: Dict[str, datetime] = {}
+
+    with ThreadPoolExecutor(max_workers=connection_pool.maxsize) as executor:
+
+        def get_last_refreshed_time_helper(table_full_name: str):
+            connection = connection_pool.get()
+            result = get_last_refreshed_time(
+                connection, table_full_name, describe_history_limit
+            )
+            connection_pool.put(connection)
+            return result
+
+        futures = [
+            executor.submit(
+                get_last_refreshed_time_helper,
+                table_full_name,
+            )
+            for table_full_name in table_full_names
+        ]
+
+        for future in as_completed(futures):
+            result = future.result()
+            if result is not None:
+                table_full_name, last_refreshed_time = result
+                result_map[table_full_name] = last_refreshed_time
+
+    return result_map
 
 
 SPECIAL_CHARACTERS = "&*{}[],=-()+;'\"`"
@@ -208,6 +250,20 @@ def create_connection(
         http_path=http_path,
         access_token=token,
     )
+
+
+def create_connection_pool(
+    token: str, hostname: str, http_path: str, size: int
+) -> Queue:
+    """
+    Create a pool of connections to allow concurrent querying
+    """
+
+    connection_pool: Queue = Queue(maxsize=size)
+    for _ in range(connection_pool.maxsize):
+        connection_pool.put(create_connection(token, hostname, http_path))
+
+    return connection_pool
 
 
 def create_api(host: str, token: str) -> WorkspaceClient:
