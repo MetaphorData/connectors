@@ -286,7 +286,13 @@ def list_service_principals(api: WorkspaceClient) -> Dict[str, ServicePrincipal]
             api.service_principals.list(excluded_attributes=excluded_attributes)
         )
         json_dump_to_debug_file(principals, "list-principals.json")
-        return {p.application_id: p for p in principals}
+
+        principal_map: Dict[str, ServicePrincipal] = {}
+        for p in principals:
+            if p.application_id is not None:
+                principal_map[p.application_id] = p
+
+        return principal_map
     except Exception as e:
         logger.error(f"Failed to list principals: {e}")
         return {}
