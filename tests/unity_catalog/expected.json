@@ -374,7 +374,7 @@
     "systemContacts": {
       "contacts": [
         {
-          "email": "user3@foo.com",
+          "email": "service principal 1",
           "systemContactSource": "UNITY_CATALOG"
         }
       ]
@@ -386,7 +386,7 @@
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {
         "dataSourceFormat": "DELTA",
-        "owner": "user3@foo.com",
+        "owner": "sp1",
         "properties": [
           {
             "key": "delta.lastCommitTimestamp",

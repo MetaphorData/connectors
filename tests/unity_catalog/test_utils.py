@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
+from databricks.sdk.service.iam import ServicePrincipal
 from freezegun import freeze_time
 from pytest_snapshot.plugin import Snapshot
 
@@ -11,6 +12,7 @@ from metaphor.unity_catalog.utils import (
     get_last_refreshed_time,
     list_column_lineage,
     list_query_log,
+    list_service_principals,
     list_table_lineage,
 )
 from tests.unity_catalog.mocks import mock_connection_pool, mock_sql_connection
@@ -150,6 +152,20 @@ def test_batch_get_last_refreshed_time():
     result_map = batch_get_last_refreshed_time(connection_pool, ["a.b.c", "d.e.f"], 10)
 
     assert result_map == {"a.b.c": datetime(2020, 1, 1), "d.e.f": datetime(2020, 1, 1)}
+
+
+def test_list_service_principals():
+
+    sp1 = ServicePrincipal(application_id="sp1", display_name="SP1")
+    sp2 = ServicePrincipal(application_id="sp2", display_name="SP2")
+
+    mock_api = MagicMock()
+    mock_api.service_principals = MagicMock()
+    mock_api.service_principals.list.return_value = [sp1, sp2]
+
+    principals = list_service_principals(mock_api)
+
+    assert principals == {"sp1": sp1, "sp2": sp2}
 
 
 def test_escape_special_characters():

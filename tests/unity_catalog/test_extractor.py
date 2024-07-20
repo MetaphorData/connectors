@@ -12,6 +12,7 @@ from databricks.sdk.service.catalog import (
 )
 from databricks.sdk.service.catalog import TableInfo as Table
 from databricks.sdk.service.catalog import TableType, VolumeInfo, VolumeType
+from databricks.sdk.service.iam import ServicePrincipal
 from pytest_snapshot.plugin import Snapshot
 
 from metaphor.common.base_config import OutputConfig
@@ -39,8 +40,10 @@ def dummy_config():
 @patch("metaphor.unity_catalog.extractor.list_table_lineage")
 @patch("metaphor.unity_catalog.extractor.list_column_lineage")
 @patch("metaphor.unity_catalog.extractor.list_query_log")
+@patch("metaphor.unity_catalog.extractor.list_service_principals")
 @pytest.mark.asyncio
 async def test_extractor(
+    mock_list_service_principals: MagicMock,
     mock_list_query_log: MagicMock,
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
@@ -50,6 +53,9 @@ async def test_extractor(
     mock_batch_get_last_refreshed_time: MagicMock,
     test_root_dir: str,
 ):
+    mock_list_service_principals.return_value = {
+        "sp1": ServicePrincipal(display_name="service principal 1")
+    }
 
     def mock_list_catalogs():
         return [CatalogInfo(name="catalog")]
@@ -137,7 +143,7 @@ async def test_extractor(
                     )
                 ],
                 storage_location="s3://path",
-                owner="user3@foo.com",
+                owner="sp1",
                 comment="example",
                 updated_at=0,
                 updated_by="foo@bar.com",
