@@ -3,10 +3,8 @@ from unittest.mock import MagicMock
 
 
 def mock_sql_connection(
-    fetch_all_side_effect: Any, execute_side_effect=None
+    fetch_all_side_effect: Any, execute_side_effect=None, mock_cursor=MagicMock()
 ) -> MagicMock:
-
-    mock_cursor = MagicMock()
 
     mock_cursor.execute = MagicMock()
     if execute_side_effect is not None:

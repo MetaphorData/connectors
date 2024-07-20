@@ -1,14 +1,14 @@
-import datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
-from databricks.sdk.service.iam import User
+from freezegun import freeze_time
+from pytest_snapshot.plugin import Snapshot
 
-from metaphor.unity_catalog.config import UnityCatalogQueryLogConfig
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 from metaphor.unity_catalog.utils import (
-    build_query_log_filter_by,
     escape_special_characters,
     list_column_lineage,
+    list_query_log,
     list_table_lineage,
 )
 from tests.unity_catalog.mocks import mock_sql_connection
@@ -67,33 +67,23 @@ def test_list_column_lineage():
     }
 
 
-def test_parse_query_log_filter_by():
-    client = MagicMock()
-    client.users = MagicMock()
-    client.users.list = lambda: [
-        User(id="0", user_name="alice"),
-        User(id="1", user_name="bob"),
-        User(id="2", user_name="charlie"),
-        User(id="3", user_name="dave"),
+@freeze_time("2000-01-02")
+def test_list_query_logs(
+    test_root_dir: str,
+    snapshot: Snapshot,
+):
+
+    mock_cursor = MagicMock()
+    mock_connection = mock_sql_connection(None, None, mock_cursor)
+
+    list_query_log(mock_connection, 1, ["user1", "user2"])
+
+    args = mock_cursor.execute.call_args_list[0].args
+    snapshot.assert_match(args[0], "list_query_log.sql")
+    assert args[1] == [
+        datetime(2000, 1, 1, tzinfo=timezone.utc),
+        datetime(2000, 1, 2, tzinfo=timezone.utc),
     ]
-    config = UnityCatalogQueryLogConfig(
-        lookback_days=2,
-        excluded_usernames={"bob", "charlie"},
-    )
-    query_filter = build_query_log_filter_by(config, client)
-    assert sorted(query_filter.user_ids) == [0, 3]
-    assert query_filter.query_start_time_range.start_time_ms is not None
-    start_time = datetime.datetime.fromtimestamp(
-        timestamp=query_filter.query_start_time_range.start_time_ms / 1000,
-        tz=datetime.timezone.utc,
-    )
-    assert query_filter.query_start_time_range.end_time_ms is not None
-    end_time = datetime.datetime.fromtimestamp(
-        timestamp=query_filter.query_start_time_range.end_time_ms / 1000,
-        tz=datetime.timezone.utc,
-    )
-    time_diff = end_time - start_time
-    assert time_diff == datetime.timedelta(days=2)
 
 
 def test_escape_special_characters():
