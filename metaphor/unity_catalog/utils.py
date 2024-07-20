@@ -5,6 +5,7 @@ from typing import Collection, Dict, List, Optional, Tuple
 
 from databricks import sql
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.iam import ServicePrincipal
 from databricks.sql.client import Connection
 
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
@@ -121,6 +122,7 @@ def list_query_log(
     connection: Connection, lookback_days: int, excluded_usernames: Collection[str]
 ):
     """
+    Fetch query logs from system.query.history table
     See https://docs.databricks.com/en/admin/system-tables/query-history.html
     """
     start = start_of_day(lookback_days)
@@ -268,3 +270,29 @@ def create_connection_pool(
 
 def create_api(host: str, token: str) -> WorkspaceClient:
     return WorkspaceClient(host=host, token=token)
+
+
+def list_service_principals(api: WorkspaceClient) -> Dict[str, ServicePrincipal]:
+    """
+    List all service principals
+    See https://docs.databricks.com/api/workspace/groups/list
+    """
+
+    # See https://databricks-sdk-py.readthedocs.io/en/latest/dbdataclasses/iam.html#databricks.sdk.service.iam.Group
+    excluded_attributes = "entitlements,groups,roles,schemas"
+
+    try:
+        principals = list(
+            api.service_principals.list(excluded_attributes=excluded_attributes)
+        )
+        json_dump_to_debug_file(principals, "list-principals.json")
+
+        principal_map: Dict[str, ServicePrincipal] = {}
+        for p in principals:
+            if p.application_id is not None:
+                principal_map[p.application_id] = p
+
+        return principal_map
+    except Exception as e:
+        logger.error(f"Failed to list principals: {e}")
+        return {}

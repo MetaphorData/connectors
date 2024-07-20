@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Collection, Dict, Generator, Iterator, List, Optional, Tuple
 
 from databricks.sdk.service.catalog import TableInfo, TableType, VolumeInfo
+from databricks.sdk.service.iam import ServicePrincipal
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -62,6 +63,7 @@ from metaphor.unity_catalog.utils import (
     create_connection_pool,
     list_column_lineage,
     list_query_log,
+    list_service_principals,
     list_table_lineage,
 )
 
@@ -164,6 +166,8 @@ class UnityCatalogExtractor(BaseExtractor):
             http_path=config.http_path,
         )
 
+        self._service_principals: Dict[str, ServicePrincipal] = {}
+
         self._last_refresh_time_queue: List[str] = []
 
         # Map fullname or volume path to a dataset
@@ -175,6 +179,9 @@ class UnityCatalogExtractor(BaseExtractor):
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Unity Catalog")
+
+        self._service_principals = list_service_principals(self._api)
+        logger.info(f"Found service principals: {self._service_principals}")
 
         catalogs = [
             catalog
@@ -347,10 +354,19 @@ class UnityCatalogExtractor(BaseExtractor):
         )
 
         if table_info.owner is not None:
+            # Unity Catalog returns service principal's application_id and must be
+            # manually map back to display_name
+            service_principal = self._service_principals.get(table_info.owner)
+            owner = (
+                service_principal.display_name
+                if service_principal
+                else table_info.owner
+            )
+
             dataset.system_contacts = SystemContacts(
                 contacts=[
                     SystemContact(
-                        email=table_info.owner,
+                        email=owner,
                         system_contact_source=SystemContactSource.UNITY_CATALOG,
                     )
                 ]
