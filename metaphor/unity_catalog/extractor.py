@@ -58,6 +58,7 @@ from metaphor.unity_catalog.utils import (
     TableLineageMap,
     create_api,
     create_connection,
+    get_last_refreshed_time,
     list_column_lineage,
     list_query_log,
     list_table_lineage,
@@ -83,6 +84,15 @@ TABLE_TYPE_MATERIALIZATION_TYPE_MAP = {
     TableType.STREAMING_TABLE: MaterializationType.STREAM,
     TableType.VIEW: MaterializationType.VIEW,
 }
+
+TABLE_TYPE_WITH_HISTORY = set(
+    [
+        TableType.EXTERNAL,
+        TableType.EXTERNAL_SHALLOW_CLONE,
+        TableType.MANAGED,
+        TableType.MANAGED_SHALLOW_CLONE,
+    ]
+)
 
 TABLE_TYPE_MAP = {
     TableType.EXTERNAL: UnityCatalogTableType.EXTERNAL,
@@ -138,6 +148,8 @@ class UnityCatalogExtractor(BaseExtractor):
             if config.source_url is None
             else config.source_url
         )
+
+        self._describe_history_limit = config.describe_history_limit
 
         self._api = create_api(f"https://{config.hostname}", config.token)
         self._connection = create_connection(
@@ -291,13 +303,20 @@ class UnityCatalogExtractor(BaseExtractor):
             ),
         )
 
+        last_updated = None
+        if table_info.table_type in TABLE_TYPE_WITH_HISTORY:
+            last_updated = get_last_refreshed_time(
+                self._connection, normalized_name, self._describe_history_limit
+            )
+            logger.info(f"Fetched last updated time for {normalized_name}")
+
         main_url = self._get_table_source_url(database, schema_name, table_name)
         dataset.source_info = SourceInfo(
             main_url=main_url,
             created_at_source=to_utc_from_timestamp_ms(
                 timestamp_ms=table_info.created_at
             ),
-            last_updated=to_utc_from_timestamp_ms(timestamp_ms=table_info.updated_at),
+            last_updated=last_updated,
         )
 
         dataset.unity_catalog = UnityCatalog(

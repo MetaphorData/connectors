@@ -31,6 +31,7 @@ def dummy_config():
     )
 
 
+@patch("metaphor.unity_catalog.extractor.get_last_refreshed_time")
 @patch("metaphor.unity_catalog.extractor.create_connection")
 @patch("metaphor.unity_catalog.extractor.create_api")
 @patch("metaphor.unity_catalog.extractor.list_table_lineage")
@@ -43,6 +44,7 @@ async def test_extractor(
     mock_list_table_lineage: MagicMock,
     mock_create_api: MagicMock,
     mock_create_connection: MagicMock,
+    mock_get_last_refreshed_time: MagicMock,
     test_root_dir: str,
 ):
 
@@ -214,6 +216,10 @@ async def test_extractor(
         }
     ]
 
+    mock_get_last_refreshed_time.return_value = datetime(
+        2020, 1, 1, tzinfo=timezone.utc
+    )
+
     mock_create_api.return_value = mock_client
 
     results = [
@@ -302,15 +308,18 @@ def test_source_url(
     )
 
 
+@patch("metaphor.unity_catalog.extractor.get_last_refreshed_time")
 @patch("metaphor.unity_catalog.extractor.create_connection")
 @patch("metaphor.unity_catalog.extractor.create_api")
 def test_init_invalid_dataset(
     mock_create_api: MagicMock,
     mock_create_connection: MagicMock,
+    mock_get_last_refreshed_time: MagicMock,
     test_root_dir: str,
 ) -> None:
     mock_create_api.return_value = None
     mock_create_connection.return_value = None
+    mock_get_last_refreshed_time.return_value = datetime(2020, 1, 1)
 
     extractor = UnityCatalogExtractor.from_config_file(
         f"{test_root_dir}/unity_catalog/config.yml"
@@ -321,16 +330,21 @@ def test_init_invalid_dataset(
         )
 
 
+@patch("metaphor.unity_catalog.extractor.get_last_refreshed_time")
 @patch("metaphor.unity_catalog.extractor.create_connection")
 @patch("metaphor.unity_catalog.extractor.create_api")
 def test_init_dataset(
     mock_create_api: MagicMock,
     mock_create_connection: MagicMock,
+    mock_get_last_refreshed_time: MagicMock,
     test_root_dir: str,
     snapshot: Snapshot,
 ) -> None:
     mock_create_api.return_value = None
     mock_create_connection.return_value = None
+    mock_get_last_refreshed_time.return_value = datetime(
+        2020, 1, 1, tzinfo=timezone.utc
+    )
 
     extractor = UnityCatalogExtractor.from_config_file(
         f"{test_root_dir}/unity_catalog/config.yml"

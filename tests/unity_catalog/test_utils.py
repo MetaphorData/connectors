@@ -7,6 +7,7 @@ from pytest_snapshot.plugin import Snapshot
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 from metaphor.unity_catalog.utils import (
     escape_special_characters,
+    get_last_refreshed_time,
     list_column_lineage,
     list_query_log,
     list_table_lineage,
@@ -84,6 +85,47 @@ def test_list_query_logs(
         datetime(2000, 1, 1, tzinfo=timezone.utc),
         datetime(2000, 1, 2, tzinfo=timezone.utc),
     ]
+
+
+def test_get_last_refreshed_time(
+    test_root_dir: str,
+    snapshot: Snapshot,
+):
+
+    mock_cursor = MagicMock()
+
+    mock_connection = mock_sql_connection(
+        [
+            [
+                {
+                    "operation": "SET TBLPROPERTIES",
+                    "timestamp": datetime(2020, 1, 4),
+                },
+                {
+                    "operation": "ADD CONSTRAINT",
+                    "timestamp": datetime(2020, 1, 3),
+                },
+                {
+                    "operation": "CHANGE COLUMN",
+                    "timestamp": datetime(2020, 1, 2),
+                },
+                {
+                    "operation": "WRITE",
+                    "timestamp": datetime(2020, 1, 1),
+                },
+            ]
+        ],
+        None,
+        mock_cursor,
+    )
+
+    last_refreshed = get_last_refreshed_time(mock_connection, "db.schema.table", 50)
+
+    assert last_refreshed == datetime(2020, 1, 1)
+
+    args = mock_cursor.execute.call_args_list[0].args
+    snapshot.assert_match(args[0], "describe_history.sql")
+    assert args[1] == ["db.schema.table", 50]
 
 
 def test_escape_special_characters():

@@ -12,5 +12,6 @@ def test_yaml_config_password(test_root_dir):
         http_path="path",
         token="token",
         source_url="http://foo.bar/{catalog}/{schema}/{table}",
+        describe_history_limit=30,
         output=OutputConfig(),
     )
