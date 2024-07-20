@@ -16,7 +16,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.profile.extractor import UnityCatalogProfileExtractor
 from tests.test_utils import load_json
-from tests.unity_catalog.mocks import mock_sql_connection
+from tests.unity_catalog.mocks import mock_connection_pool
 
 
 def dummy_config():
@@ -28,12 +28,12 @@ def dummy_config():
     )
 
 
-@patch("metaphor.unity_catalog.profile.extractor.create_connection")
+@patch("metaphor.unity_catalog.profile.extractor.create_connection_pool")
 @patch("metaphor.unity_catalog.profile.extractor.create_api")
 @pytest.mark.asyncio
 async def test_extractor(
     mock_create_api: MagicMock,
-    mock_create_connection: MagicMock,
+    mock_create_connection_pool: MagicMock,
     test_root_dir: str,
 ):
     mock_client = MagicMock()
@@ -72,7 +72,7 @@ async def test_extractor(
         SimpleNamespace(info_name="num_nulls", info_value="NULL"),
     ]
 
-    mock_create_connection.return_value = mock_sql_connection(
+    mock_create_connection_pool.return_value = mock_connection_pool(
         [
             mock_rows,
             mock_col2_stats,
@@ -85,12 +85,12 @@ async def test_extractor(
     assert events == load_json(f"{test_root_dir}/unity_catalog/profile/expected.json")
 
 
-@patch("metaphor.unity_catalog.profile.extractor.create_connection")
+@patch("metaphor.unity_catalog.profile.extractor.create_connection_pool")
 @patch("metaphor.unity_catalog.profile.extractor.create_api")
 @pytest.mark.asyncio
 async def test_should_handle_exception(
     mock_create_api: MagicMock,
-    mock_create_connection: MagicMock,
+    mock_create_connection_pool: MagicMock,
 ):
     mock_client = MagicMock()
 
@@ -120,7 +120,7 @@ async def test_should_handle_exception(
     def throw_error(_):
         raise Exception("no permission")
 
-    mock_create_connection.return_value = mock_sql_connection(
+    mock_create_connection_pool.return_value = mock_connection_pool(
         fetch_all_side_effect=[], execute_side_effect=throw_error
     )
 
@@ -137,14 +137,14 @@ async def test_should_handle_exception(
     ]
 
 
-@patch("metaphor.unity_catalog.profile.extractor.create_connection")
+@patch("metaphor.unity_catalog.profile.extractor.create_connection_pool")
 @patch("metaphor.unity_catalog.profile.extractor.create_api")
 @patch("logging.Logger.exception")
 @pytest.mark.asyncio
 async def test_should_handle_exception_column_stat(
     mock_log_error: MagicMock,
     mock_create_api: MagicMock,
-    mock_create_connection: MagicMock,
+    mock_create_connection_pool: MagicMock,
     test_root_dir: str,
 ):
     mock_client = MagicMock()
@@ -206,7 +206,7 @@ async def test_should_handle_exception_column_stat(
     mock_connection.cursor = MagicMock()
     mock_connection.cursor.return_value = mock_cursor_ctx
 
-    mock_create_connection.return_value = mock_sql_connection(
+    mock_create_connection_pool.return_value = mock_connection_pool(
         fetch_all_side_effect=fetchall_side_effect,
         execute_side_effect=execute_side_effect,
     )

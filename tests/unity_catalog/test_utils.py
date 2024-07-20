@@ -6,13 +6,14 @@ from pytest_snapshot.plugin import Snapshot
 
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 from metaphor.unity_catalog.utils import (
+    batch_get_last_refreshed_time,
     escape_special_characters,
     get_last_refreshed_time,
     list_column_lineage,
     list_query_log,
     list_table_lineage,
 )
-from tests.unity_catalog.mocks import mock_sql_connection
+from tests.unity_catalog.mocks import mock_connection_pool, mock_sql_connection
 
 
 def test_list_table_lineage():
@@ -119,13 +120,36 @@ def test_get_last_refreshed_time(
         mock_cursor,
     )
 
-    last_refreshed = get_last_refreshed_time(mock_connection, "db.schema.table", 50)
+    result = get_last_refreshed_time(mock_connection, "db.schema.table", 50)
 
-    assert last_refreshed == datetime(2020, 1, 1)
+    assert result == ("db.schema.table", datetime(2020, 1, 1))
 
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "describe_history.sql")
-    assert args[1] == ["db.schema.table", 50]
+
+
+def test_batch_get_last_refreshed_time():
+
+    connection_pool = mock_connection_pool(
+        [
+            [
+                {
+                    "operation": "WRITE",
+                    "timestamp": datetime(2020, 1, 1),
+                },
+            ],
+            [
+                {
+                    "operation": "WRITE",
+                    "timestamp": datetime(2020, 1, 1),
+                },
+            ],
+        ],
+    )
+
+    result_map = batch_get_last_refreshed_time(connection_pool, ["a.b.c", "d.e.f"], 10)
+
+    assert result_map == {"a.b.c": datetime(2020, 1, 1), "d.e.f": datetime(2020, 1, 1)}
 
 
 def test_escape_special_characters():

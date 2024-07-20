@@ -1,13 +1,12 @@
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from queue import Queue
 from typing import Collection, List, Optional, Tuple
 
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.extractor import DEFAULT_FILTER
 from metaphor.unity_catalog.utils import (
     create_api,
-    create_connection,
+    create_connection_pool,
     escape_special_characters,
 )
 
@@ -66,11 +65,9 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         super().__init__(config)
         self._api = create_api(f"https://{config.hostname}", config.token)
 
-        self._connection_pool: Queue = Queue(maxsize=config.max_concurrency)
-        for _ in range(config.max_concurrency):
-            self._connection_pool.put(
-                create_connection(config.token, config.hostname, config.http_path)
-            )
+        self._connection_pool = create_connection_pool(
+            config.token, config.hostname, config.http_path, config.max_concurrency
+        )
 
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
