@@ -16,8 +16,7 @@ class UnityCatalogQueryLogConfig:
     # Query log filter to exclude certain usernames
     excluded_usernames: Set[str] = field(default_factory=lambda: set())
 
-    # Limit the number of results returned in one page.
-    # The default is 1000, max allowed by the API.
+    # Deprecated: Not used. Will be dropped in 0.15
     max_results: Optional[int] = 1000
 
 
