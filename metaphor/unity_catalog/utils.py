@@ -9,12 +9,18 @@ from databricks.sdk.service.iam import ServicePrincipal
 from databricks.sql.client import Connection
 from databricks.sql.types import Row
 
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
 from metaphor.common.utils import md5_digest, safe_float, start_of_day
-from metaphor.models.metadata_change_event import DataPlatform, QueryLog
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    QueriedDataset,
+    QueryLog,
+)
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 
 logger = get_logger()
@@ -303,7 +309,49 @@ def list_service_principals(api: WorkspaceClient) -> Dict[str, ServicePrincipal]
         return {}
 
 
-def to_query_log_with_tll(row: Row):
+def find_qualified_dataset(dataset: QueriedDataset, datasets: Dict[str, Dataset]):
+    if dataset.database and dataset.schema:
+        # No need
+        return dataset
+
+    # See if there's only one fully qualified dataset
+    candidates = set(
+        key
+        for key in datasets.keys()
+        if key.endswith(
+            dataset_normalized_name(dataset.database, dataset.schema, dataset.table)
+        )
+    )
+
+    if len(candidates) == 1:
+        # If there's only one dataset that matches the partially qualified
+        # dataset, we know for sure this is the one we're looking for.
+        key = list(candidates)[0]
+        found = datasets[key]
+
+        if found.structure:
+            name = dataset_normalized_name(
+                found.structure.database,
+                found.structure.schema,
+                found.structure.table,
+            )
+            id = str(
+                to_dataset_entity_id(
+                    name,
+                    platform=DataPlatform.UNITY_CATALOG,
+                    account=None,
+                )
+            )
+            return QueriedDataset(
+                database=found.structure.database,
+                schema=found.structure.schema,
+                table=found.structure.table,
+                id=id,
+            )
+    return dataset
+
+
+def to_query_log_with_tll(row: Row, datasets: Dict[str, Dataset]):
     query_id = row["query_id"]
 
     sql = row["query_text"]
@@ -314,6 +362,8 @@ def to_query_log_with_tll(row: Row):
         statement_type=row["query_type"],
         query_id=query_id,
     )
+    sources = [find_qualified_dataset(x, datasets) for x in ttl.sources]
+    targets = [find_qualified_dataset(x, datasets) for x in ttl.targets]
 
     return QueryLog(
         id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
@@ -326,8 +376,8 @@ def to_query_log_with_tll(row: Row):
         rows_written=safe_float(row["rows_written"]),
         bytes_read=safe_float(row["bytes_read"]),
         bytes_written=safe_float(row["bytes_written"]),
-        sources=ttl.sources,
-        targets=ttl.targets,
+        sources=sources,
+        targets=targets,
         sql=sql,
         sql_hash=md5_digest(sql.encode("utf-8")),
     )
@@ -338,6 +388,7 @@ def get_query_logs(
     lookback_days: int,
     excluded_usernames: Set[str],
     max_concurrency: int,
+    datasets: Dict[str, Dataset],
 ):
     with ProcessPoolExecutor(max_workers=max_concurrency) as pool:
         rows = list_query_logs(
@@ -345,8 +396,7 @@ def get_query_logs(
             lookback_days,
             excluded_usernames,
         )
-        logger.info(f"Found {len(rows)} queries, converting them to QueryLog")
-        futures = [pool.submit(to_query_log_with_tll, row) for row in rows]
+        futures = [pool.submit(to_query_log_with_tll, row, datasets) for row in rows]
 
         for count, future in enumerate(as_completed(futures)):
             result = future.result()
