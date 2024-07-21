@@ -11,7 +11,7 @@ from metaphor.unity_catalog.utils import (
     escape_special_characters,
     get_last_refreshed_time,
     list_column_lineage,
-    list_query_log,
+    list_query_logs,
     list_service_principals,
     list_table_lineage,
 )
@@ -80,7 +80,7 @@ def test_list_query_logs(
     mock_cursor = MagicMock()
     mock_connection = mock_sql_connection(None, None, mock_cursor)
 
-    list_query_log(mock_connection, 1, ["user1", "user2"])
+    list_query_logs(mock_connection, 1, ["user1", "user2"])
 
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "list_query_log.sql")

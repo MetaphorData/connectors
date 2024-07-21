@@ -1,16 +1,20 @@
+import logging
+import re
 from collections import defaultdict
 from typing import Dict, Optional, Set
 
+import sqlglot
+import sqlglot.errors
 from sqlglot import Expression, exp, maybe_parse
 from sqlglot.optimizer.scope import build_scope
 
 from metaphor.common.logger import get_logger
 from metaphor.common.sql.dialect import PLATFORM_TO_DIALECT
-from metaphor.common.sql.table_level_lineage.expression_handlers import (
+from metaphor.common.sql.table_level_lineage.helpers.expression_handlers import (
     expression_handlers,
     find_target_in_select_into,
 )
-from metaphor.common.sql.table_level_lineage.find_select_in_expression import (
+from metaphor.common.sql.table_level_lineage.helpers.find_select_in_expression import (
     find_select_in_expression,
 )
 from metaphor.common.sql.table_level_lineage.result import Result
@@ -19,22 +23,51 @@ from metaphor.models.metadata_change_event import DataPlatform
 
 logger = get_logger()
 
-_UPDATE_TYPES = {
-    "CREATE": exp.Create,
-    "INSERT": exp.Insert,
-    "UPDATE": exp.Update,
-    "MERGE": exp.Merge,
-    "COPY": exp.Copy,
+
+class IgnoreSQLGlotUnsupportedSyntax(logging.Filter):
+    def filter(self, record):
+        return (
+            "contains unsupported syntax. Falling back to parsing as a 'Command'"
+            not in record.getMessage()
+        )
+
+
+def _is_truncated_insert_into_with_values(sql: str):
+    sql = re.sub(r"/\*.*?\*/\s*", "", sql, flags=re.DOTALL)
+    match = re.match(r"^insert\s+into[^\(]+\([^\)]+\)\s+values", sql, re.IGNORECASE)
+    return match is not None and sql.endswith("...")
+
+
+sqlglot_logger = logging.getLogger("sqlglot")
+sqlglot_logger.addFilter(IgnoreSQLGlotUnsupportedSyntax())
+
+_UPDATE_TYPES = (
+    exp.Create,
+    exp.Insert,
+    exp.Update,
+    exp.Merge,
+    exp.Copy,
+)
+
+_VALID_STATEMENT_TYPES = {
+    "Create",
+    "Insert",
+    "Update",
+    "Merge",
+    "Copy",
 }
 
 
 def _find_targets(expression: Expression) -> Set[Table]:
     targets: Set[Table] = set()
 
-    for update_exp in expression.find_all(*_UPDATE_TYPES.values()):
+    for update_exp in expression.find_all(*_UPDATE_TYPES):
         assert isinstance(update_exp, Expression)
         table = update_exp.find(exp.Table)
         if table:
+            if isinstance(update_exp, exp.Create) and update_exp.kind != "TABLE":
+                # This is not really updating a table, ignore this
+                continue
             targets.add(Table.from_sqlglot_table(table))
 
     # If there's a `SELECT INTO`, we want to include the target table as well.
@@ -92,14 +125,15 @@ def _find_sources(expression: Expression) -> Set[Table]:
     return sources
 
 
-def table_level_lineage(
+def extract_table_level_lineage(
     sql: str,
     platform: DataPlatform,
     account: Optional[str],
     statement_type: Optional[str],
+    query_id: Optional[str],
 ) -> Result:
 
-    if statement_type and statement_type.upper() not in _UPDATE_TYPES:
+    if statement_type and statement_type.upper() not in _VALID_STATEMENT_TYPES:
         # No target, no TLL possible
         return Result()
 
@@ -107,8 +141,13 @@ def table_level_lineage(
         expression: Expression = maybe_parse(
             sql,
             dialect=PLATFORM_TO_DIALECT[platform],
-            into=_UPDATE_TYPES[statement_type] if statement_type else None,
         )
+    except (sqlglot.errors.ParseError, sqlglot.errors.TokenError):
+        if not _is_truncated_insert_into_with_values(sql):
+            logger.info(f"Cannot parse sql with SQLGlot, query_id = {query_id}")
+        return Result()
+
+    try:
         return Result(
             targets=[
                 target.to_queried_dataset(platform, account)
@@ -120,5 +159,7 @@ def table_level_lineage(
             ],
         )
     except Exception:
-        logger.exception(f"Failed to parse table level lineage for query: {sql}")
+        logger.exception(
+            f"Failed to parse table level lineage for query, query_id = {query_id}"
+        )
         return Result()

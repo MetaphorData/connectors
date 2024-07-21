@@ -1,15 +1,20 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from datetime import datetime
 from queue import Queue
-from typing import Collection, Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Set, Tuple
 
 from databricks import sql
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.iam import ServicePrincipal
 from databricks.sql.client import Connection
+from databricks.sql.types import Row
 
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.common.utils import start_of_day
+from metaphor.common.sql.table_level_lineage.table_level_lineage import (
+    extract_table_level_lineage,
+)
+from metaphor.common.utils import md5_digest, safe_float, start_of_day
+from metaphor.models.metadata_change_event import DataPlatform, QueryLog
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 
 logger = get_logger()
@@ -118,7 +123,7 @@ def list_column_lineage(
     return column_lineage
 
 
-def list_query_log(
+def list_query_logs(
     connection: Connection, lookback_days: int, excluded_usernames: Collection[str]
 ):
     """
@@ -296,3 +301,56 @@ def list_service_principals(api: WorkspaceClient) -> Dict[str, ServicePrincipal]
     except Exception as e:
         logger.error(f"Failed to list principals: {e}")
         return {}
+
+
+def to_query_log_with_tll(row: Row):
+    query_id = row["query_id"]
+
+    sql = row["query_text"]
+    ttl = extract_table_level_lineage(
+        sql,
+        platform=DataPlatform.UNITY_CATALOG,
+        account=None,
+        statement_type=row["query_type"],
+        query_id=query_id,
+    )
+
+    return QueryLog(
+        id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
+        query_id=query_id,
+        platform=DataPlatform.UNITY_CATALOG,
+        email=row["email"],
+        start_time=row["start_time"],
+        duration=safe_float(row["duration"]),
+        rows_read=safe_float(row["rows_read"]),
+        rows_written=safe_float(row["rows_written"]),
+        bytes_read=safe_float(row["bytes_read"]),
+        bytes_written=safe_float(row["bytes_written"]),
+        sources=ttl.sources,
+        targets=ttl.targets,
+        sql=sql,
+        sql_hash=md5_digest(sql.encode("utf-8")),
+    )
+
+
+def get_query_logs(
+    connection: Connection,
+    lookback_days: int,
+    excluded_usernames: Set[str],
+    max_concurrency: int,
+):
+    with ProcessPoolExecutor(max_workers=max_concurrency) as pool:
+        rows = list_query_logs(
+            connection,
+            lookback_days,
+            excluded_usernames,
+        )
+        logger.info(f"Found {len(rows)} queries, converting them to QueryLog")
+        futures = [pool.submit(to_query_log_with_tll, row) for row in rows]
+
+        for count, future in enumerate(as_completed(futures)):
+            result = future.result()
+            if count > 0 and count % 10000 == 0:
+                logger.info(f"Fetched {count} queries")
+            if result is not None:
+                yield result
