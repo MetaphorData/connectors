@@ -65,7 +65,10 @@ def _find_targets(expression: Expression) -> Set[Table]:
         assert isinstance(update_exp, Expression)
         table = update_exp.find(exp.Table)
         if table:
-            if isinstance(update_exp, exp.Create) and update_exp.kind != "TABLE":
+            if isinstance(update_exp, exp.Create) and update_exp.kind not in {
+                "TABLE",
+                "VIEW",
+            }:
                 # This is not really updating a table, ignore this
                 continue
             targets.add(Table.from_sqlglot_table(table))
@@ -139,8 +142,7 @@ def extract_table_level_lineage(
 
     try:
         expression: Expression = maybe_parse(
-            sql,
-            dialect=PLATFORM_TO_DIALECT[platform],
+            sql, dialect=PLATFORM_TO_DIALECT.get(platform)
         )
     except (sqlglot.errors.ParseError, sqlglot.errors.TokenError):
         if not _is_truncated_insert_into_with_values(sql):
