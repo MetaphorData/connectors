@@ -319,7 +319,11 @@ def find_qualified_dataset(dataset: QueriedDataset, datasets: Dict[str, Dataset]
         key
         for key in datasets.keys()
         if key.endswith(
-            dataset_normalized_name(dataset.database, dataset.schema, dataset.table)
+            dataset_normalized_name(
+                dataset.database if dataset.database else None,
+                dataset.schema if dataset.schema else None,
+                dataset.table if dataset.table else None,
+            )
         )
     )
 
@@ -389,17 +393,20 @@ def get_query_logs(
     excluded_usernames: Set[str],
     datasets: Dict[str, Dataset],
 ):
+    logger.info("gonna list query logs")
+    rows = list_query_logs(
+        connection,
+        lookback_days,
+        excluded_usernames,
+    )
     with ProcessPoolExecutor() as pool:
-        rows = list_query_logs(
-            connection,
-            lookback_days,
-            excluded_usernames,
-        )
+        logger.info("gonna submit futures")
         futures = [pool.submit(to_query_log_with_tll, row, datasets) for row in rows]
 
-        for count, future in enumerate(as_completed(futures)):
-            result = future.result()
-            if count > 0 and count % 10000 == 0:
+        count = 0
+        for future in as_completed(futures):
+            count += 1
+            if count % 1000 == 0:
                 logger.info(f"Fetched {count} queries")
-            if result is not None:
-                yield result
+            if future.result() is not None:
+                yield future.result()

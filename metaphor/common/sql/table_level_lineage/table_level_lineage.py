@@ -50,11 +50,11 @@ _UPDATE_TYPES = (
 )
 
 _VALID_STATEMENT_TYPES = {
-    "Create",
-    "Insert",
-    "Update",
-    "Merge",
-    "Copy",
+    "CREATE",
+    "INSERT",
+    "UPDATE",
+    "MERGE",
+    "COPY",
 }
 
 
@@ -144,7 +144,7 @@ def extract_table_level_lineage(
         )
     except (sqlglot.errors.ParseError, sqlglot.errors.TokenError):
         if not _is_truncated_insert_into_with_values(sql):
-            logger.info(f"Cannot parse sql with SQLGlot, query_id = {query_id}")
+            logger.warning(f"Cannot parse sql with SQLGlot, query_id = {query_id}")
         return Result()
 
     try:

@@ -73,8 +73,7 @@ def ignore_datetime_values(  # noqa C901
 
 
 def wrap_query_log_stream_to_event(logs: Iterator[QueryLog]):
-    ls = list(logs)
-    return [EventUtil.build_then_trim(QueryLogs(logs=ls))]
+    return [EventUtil.build_then_trim(QueryLogs(logs=list(logs)))]
 
 
 def serialize_event(event: Union[MetadataChangeEvent, ENTITY_TYPES]) -> str:
