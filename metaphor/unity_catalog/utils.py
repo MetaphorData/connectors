@@ -387,10 +387,9 @@ def get_query_logs(
     connection: Connection,
     lookback_days: int,
     excluded_usernames: Set[str],
-    max_concurrency: int,
     datasets: Dict[str, Dataset],
 ):
-    with ProcessPoolExecutor(max_workers=max_concurrency) as pool:
+    with ProcessPoolExecutor() as pool:
         rows = list_query_logs(
             connection,
             lookback_days,
