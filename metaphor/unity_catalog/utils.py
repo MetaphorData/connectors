@@ -393,14 +393,12 @@ def get_query_logs(
     excluded_usernames: Set[str],
     datasets: Dict[str, Dataset],
 ):
-    logger.info("gonna list query logs")
     rows = list_query_logs(
         connection,
         lookback_days,
         excluded_usernames,
     )
     with ProcessPoolExecutor() as pool:
-        logger.info("gonna submit futures")
         futures = [pool.submit(to_query_log_with_tll, row, datasets) for row in rows]
 
         count = 0
