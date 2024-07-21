@@ -1,5 +1,5 @@
-from metaphor.common.process_query import ProcessQueryConfig
-from metaphor.common.process_query.config import RedactPIILiteralsConfig
+from metaphor.common.sql.process_query import ProcessQueryConfig
+from metaphor.common.sql.process_query.config import RedactPIILiteralsConfig
 
 
 def test_config():
