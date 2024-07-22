@@ -1,9 +1,13 @@
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from queue import Queue
 from typing import Collection, List, Optional, Tuple
 
-from metaphor.unity_catalog.config import UnityCatalogRunConfig
+from databricks.sql.client import Connection
+
 from metaphor.unity_catalog.extractor import DEFAULT_FILTER
+from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
 from metaphor.unity_catalog.utils import (
     create_api,
     create_connection_pool,
@@ -58,36 +62,52 @@ class UnityCatalogProfileExtractor(BaseExtractor):
     @staticmethod
     def from_config_file(config_file: str) -> "UnityCatalogProfileExtractor":
         return UnityCatalogProfileExtractor(
-            UnityCatalogRunConfig.from_yaml_file(config_file)
+            UnityCatalogProfileRunConfig.from_yaml_file(config_file)
         )
 
-    def __init__(self, config: UnityCatalogRunConfig):
+    def __init__(self, config: UnityCatalogProfileRunConfig):
         super().__init__(config)
         self._api = create_api(f"https://{config.hostname}", config.token)
 
-        self._connection_pool = create_connection_pool(
-            config.token, config.hostname, config.http_path, config.max_concurrency
-        )
+        self._token = config.token
+        self._hostname = config.hostname
+        self._http_path = config.http_path
+        self._max_concurrency = config.max_concurrency
+
+        # Profiling config
+        self._analyze = config.analyze
+        self._analyze_if_no_statistics = config.analyze_if_no_statistics
 
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info("Fetching data profile from Unity Catalog")
+        logger.info(
+            f"Fetching dataset statistics from Unity Catalog, need analyze: {self._analyze}"
+        )
 
         tables = self._get_tables()
-        return self._profile(tables)
 
-    def _profile(self, tables: List[TableInfo]) -> List[Dataset]:
+        connection_pool = create_connection_pool(
+            token=self._token,
+            hostname=self._hostname,
+            http_path=self._http_path,
+            size=self._max_concurrency,
+        )
+        return self._profile(connection_pool, tables)
+
+    def _profile(
+        self, connection_pool: Queue, tables: List[TableInfo]
+    ) -> List[Dataset]:
         def profile(table_info: TableInfo):
             dataset = self._init_dataset(table_info)
 
-            connection = self._connection_pool.get()
+            connection = connection_pool.get()
 
-            dataset_statistics, field_statistics = self._get_statistics(
-                connection, table_info
+            dataset_statistics, field_statistics = (
+                self._get_statistics_from_analyzed_table(connection, table_info)
             )
 
-            self._connection_pool.put(connection)
+            connection_pool.put(connection)
 
             dataset.statistics = dataset_statistics
             dataset.field_statistics = field_statistics
@@ -98,7 +118,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         logger.info(f"Profiling {len(tables)} tables")
 
         entities = []
-        with ThreadPoolExecutor(max_workers=self._connection_pool.maxsize) as executor:
+        with ThreadPoolExecutor(max_workers=connection_pool.maxsize) as executor:
             futures = [executor.submit(profile, table) for table in tables]
 
             for future in as_completed(futures):
@@ -130,9 +150,11 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 ]
                 for table_info in table_infos:
                     table_type = table_info.table_type
-                    if table_type is None or table_type in (
-                        TableType.VIEW,
-                        TableType.MATERIALIZED_VIEW,
+                    if table_type not in (
+                        TableType.EXTERNAL,
+                        TableType.EXTERNAL_SHALLOW_CLONE,
+                        TableType.MANAGED,
+                        TableType.MANAGED_SHALLOW_CLONE,
                     ):
                         continue
                     tables.append(table_info)
@@ -147,49 +169,56 @@ class UnityCatalogProfileExtractor(BaseExtractor):
             ),
         )
 
-    def _get_statistics(
-        self, connection, table_info: TableInfo
+    def _get_statistics_from_analyzed_table(
+        self,
+        connection: Connection,
+        table_info: TableInfo,
     ) -> Tuple[Optional[DatasetStatistics], Optional[DatasetFieldStatistics]]:
         assert table_info.full_name
+
+        start_time = time.time()
+
+        escaped_name = escape_special_characters(table_info.full_name)
+
         dataset_statistics = DatasetStatistics()
 
         # Gather this first, if this is nonempty in the end then we actually save
         # this to `Dataset`.
         field_statistics = DatasetFieldStatistics(field_statistics=[])
+
         assert field_statistics.field_statistics is not None
 
+        # Gather numeric columns
+        numeric_columns = [
+            column.name
+            for column in (table_info.columns or [])
+            if column.type_name in NUMERIC_TYPES and column.name
+        ]
+
+        analyze_query = f"ANALYZE TABLE {escaped_name} COMPUTE STATISTICS"
+        if numeric_columns:
+            analyze_query += f" FOR COLUMNS {', '.join(numeric_columns)}"
+
         with connection.cursor() as cursor:
-            escaped_name = escape_special_characters(table_info.full_name)
-            # Gather numeric columns
-            numeric_columns = [
-                column.name
-                for column in (table_info.columns or [])
-                if column.type_name in NUMERIC_TYPES and column.name
-            ]
-
-            analyze_query = f"ANALYZE TABLE {escaped_name} COMPUTE STATISTICS"
-            if numeric_columns:
-                analyze_query += f" FOR COLUMNS {', '.join(numeric_columns)}"
-
             try:
                 # This can take a while
-                cursor.execute(analyze_query)
+                if self._analyze:
+                    cursor.execute(analyze_query)
+
                 cursor.execute(f"DESCRIBE TABLE EXTENDED {escaped_name}")
-                rows = cursor.fetchall()
             except Exception:
                 logger.exception(f"not able to get statistics for {escaped_name}")
                 return None, None
 
+            rows = cursor.fetchall()
             statistics = next(
                 (row for row in rows if row.col_name == "Statistics"), None
             )
             if statistics:
                 # `statistics.data_type` looks like "X bytes, Y rows"
-                bytes_count, row_count = [
-                    float(x) for x in re.findall(r"(\d+)", statistics.data_type)
-                ]
-                dataset_statistics.data_size_bytes = bytes_count
-                dataset_statistics.record_count = row_count
+                matches = (float(x) for x in re.findall(r"(\d+)", statistics.data_type))
+                dataset_statistics.data_size_bytes = next(matches, None)
+                dataset_statistics.record_count = next(matches, None)
 
             for numeric_column in numeric_columns:
                 # Parse numeric column stats
@@ -225,6 +254,10 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                     null_value_count=get_value_from_row("num_nulls"),
                 )
                 field_statistics.field_statistics.append(stats)
+
+        logger.info(
+            f"v1, {table_info.full_name}, {dataset_statistics.data_size_bytes}, {dataset_statistics.record_count}, {time.time() - start_time} seconds"
+        )
 
         return (
             dataset_statistics,

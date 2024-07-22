@@ -13,17 +13,18 @@ from databricks.sdk.service.catalog import (
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.unity_catalog.config import UnityCatalogRunConfig
+from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
 from metaphor.unity_catalog.profile.extractor import UnityCatalogProfileExtractor
 from tests.test_utils import load_json
 from tests.unity_catalog.mocks import mock_connection_pool
 
 
 def dummy_config():
-    return UnityCatalogRunConfig(
+    return UnityCatalogProfileRunConfig(
         hostname="dummy.host",
         http_path="path",
         token="",
+        analyze=True,
         output=OutputConfig(),
     )
 
