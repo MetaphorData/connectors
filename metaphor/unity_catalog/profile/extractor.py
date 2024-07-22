@@ -75,14 +75,13 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         self._max_concurrency = config.max_concurrency
 
         # Profiling config
-        self._analyze = config.analyze
         self._analyze_if_no_statistics = config.analyze_if_no_statistics
 
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(
-            f"Fetching dataset statistics from Unity Catalog, need analyze: {self._analyze}"
+            f"Fetching dataset statistics from Unity Catalog, analyze_if_no_statistics: {self._analyze_if_no_statistics}"
         )
 
         tables = self._get_tables()
@@ -220,16 +219,14 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                     _, record_count = UnityCatalogProfileExtractor._get_statistics(
                         escaped_name, cursor
                     )
-
-                if self._analyze or (
-                    record_count is None and self._analyze_if_no_statistics
-                ):
-                    # This can take a while
-                    cursor.execute(analyze_query)
+                    if record_count is None:
+                        # This can take a while
+                        cursor.execute(analyze_query)
 
                 data_size_bytes, record_count = (
                     UnityCatalogProfileExtractor._get_statistics(escaped_name, cursor)
                 )
+
             except Exception:
                 logger.exception(f"not able to get statistics for {escaped_name}")
                 return None, None

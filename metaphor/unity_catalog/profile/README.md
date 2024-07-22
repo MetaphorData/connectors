@@ -42,7 +42,7 @@ max_concurrency: <max_number_of_queries> # Default to 10
 
 #### Analyze table
 
-To run `ANALYZE TABLE` query before the connector getting the statistics, or only for tables have no statistics.
+To run `ANALYZE TABLE` query if there are not statistics for the table.
 
 ```yaml
 analyze: true # Default is false
