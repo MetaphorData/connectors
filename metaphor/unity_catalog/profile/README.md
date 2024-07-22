@@ -45,7 +45,6 @@ max_concurrency: <max_number_of_queries> # Default to 10
 To run `ANALYZE TABLE` query if there are not statistics for the table.
 
 ```yaml
-analyze: true # Default is false
 analyze_if_no_statistics: true # Default is false
 ```
 
