@@ -25,6 +25,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import normalize_full_dataset_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -259,7 +260,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                     if value:
                         if value == "NULL":
                             return None
-                        return float(value)
+                        return safe_float(value)
                     return value
 
                 stats = FieldStatistics(
@@ -272,7 +273,10 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 field_statistics.field_statistics.append(stats)
 
         logger.info(
-            f"Profiled {table_info.full_name}, {dataset_statistics.data_size_bytes}, {dataset_statistics.record_count}, {time.time() - start_time} seconds"
+            f"Profiled {table_info.full_name} "
+            f"({dataset_statistics.data_size_bytes:.0f} bytes, "
+            f"{dataset_statistics.record_count:.0f} rows) "
+            f"in {(time.time() - start_time):.1f} seconds"
         )
 
         return (
