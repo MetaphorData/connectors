@@ -52,6 +52,13 @@ NUMERIC_TYPES = {
     ColumnTypeName.SHORT,
 }
 
+TABLE_TYPES_TO_PROFILE = {
+    TableType.EXTERNAL,
+    TableType.EXTERNAL_SHALLOW_CLONE,
+    TableType.MANAGED,
+    TableType.MANAGED_SHALLOW_CLONE,
+}
+
 
 class UnityCatalogProfileExtractor(BaseExtractor):
     """Unity Catalog data profile extractor"""
@@ -148,12 +155,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 ]
                 for table_info in table_infos:
                     table_type = table_info.table_type
-                    if table_type not in (
-                        TableType.EXTERNAL,
-                        TableType.EXTERNAL_SHALLOW_CLONE,
-                        TableType.MANAGED,
-                        TableType.MANAGED_SHALLOW_CLONE,
-                    ):
+                    if table_type not in TABLE_TYPES_TO_PROFILE:
                         continue
                     tables.append(table_info)
         return tables
