@@ -77,8 +77,22 @@ jobs:
     name: Docker build
     runs-on: ubuntu-latest
     steps:
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Export requirements.txt
+        run: |
+          poetry self add poetry-plugin-export
+          poetry export --all-extras --format=requirements.txt --output=requirements.txt
+
       - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
           push: false
-
