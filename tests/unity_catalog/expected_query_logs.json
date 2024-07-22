@@ -44,15 +44,15 @@
         "sources": [
           {
             "database": "myDb",
-            "id": "DATASET~B41682B478F375D5BFADDB1EEE9D58E5",
-            "schema": "mySchema",
-            "table": "orders"
-          },
-          {
-            "database": "myDb",
             "id": "DATASET~63095DEC5A8FA2D08F6E0B34493652A9",
             "schema": "mySchema",
             "table": "order_items"
+          },
+          {
+            "database": "myDb",
+            "id": "DATASET~B41682B478F375D5BFADDB1EEE9D58E5",
+            "schema": "mySchema",
+            "table": "orders"
           }
         ],
         "sql": "\nCREATE TABLE monthly_sales_summary AS\nSELECT\n    DATE_TRUNC('month', o.order_date) AS month,\n    SUM(oi.quantity * oi.price) AS total_sales,\n    COUNT(DISTINCT o.order_id) AS total_orders\nFROM\n    orders o\nJOIN\n    order_items oi ON o.order_id = oi.order_id\nWHERE\n    o.order_status = 'completed'\nGROUP BY\n    DATE_TRUNC('month', o.order_date);\n            ",

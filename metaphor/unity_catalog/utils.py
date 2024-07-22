@@ -1,4 +1,4 @@
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from queue import Queue
 from typing import Collection, Dict, List, Optional, Set, Tuple
@@ -398,13 +398,12 @@ def get_query_logs(
         lookback_days,
         excluded_usernames,
     )
-    with ProcessPoolExecutor() as pool:
-        futures = [pool.submit(to_query_log_with_tll, row, datasets) for row in rows]
 
-        count = 0
-        for future in as_completed(futures):
-            count += 1
-            if count % 1000 == 0:
-                logger.info(f"Fetched {count} queries")
-            if future.result() is not None:
-                yield future.result()
+    count = 0
+    logger.info(f"{len(rows)} queries to fetch")
+    for row in rows:
+        res = to_query_log_with_tll(row, datasets)
+        count += 1
+        if count % 1000 == 0:
+            logger.info(f"Fetched {count} queries")
+        yield res

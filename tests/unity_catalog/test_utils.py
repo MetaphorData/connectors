@@ -1,16 +1,25 @@
 from datetime import datetime, timezone
+from typing import Optional, Tuple
 from unittest.mock import MagicMock
 
 from databricks.sdk.service.iam import ServicePrincipal
 from freezegun import freeze_time
 from pytest_snapshot.plugin import Snapshot
 
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import EventUtil
-from metaphor.models.metadata_change_event import Dataset, DatasetStructure, QueryLogs
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    DatasetStructure,
+    QueriedDataset,
+    QueryLogs,
+)
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 from metaphor.unity_catalog.utils import (
     batch_get_last_refreshed_time,
     escape_special_characters,
+    find_qualified_dataset,
     get_last_refreshed_time,
     get_query_logs,
     list_column_lineage,
@@ -75,38 +84,96 @@ GROUP BY
     mock_connection.cursor = MagicMock()
     mock_connection.cursor.return_value = mock_cursor_ctx
 
-    logs = get_query_logs(
-        mock_connection,
-        1,
-        set(),
-        {
-            "mydb.myschema.orders": Dataset(
-                structure=DatasetStructure(
-                    database="myDb",
-                    schema="mySchema",
-                    table="orders",
+    logs = list(
+        get_query_logs(
+            mock_connection,
+            1,
+            set(),
+            {
+                "mydb.myschema.orders": Dataset(
+                    structure=DatasetStructure(
+                        database="myDb",
+                        schema="mySchema",
+                        table="orders",
+                    ),
                 ),
-            ),
-            "mydb.myschema.order_items": Dataset(
-                structure=DatasetStructure(
-                    database="myDb",
-                    schema="mySchema",
-                    table="order_items",
+                "mydb.myschema.order_items": Dataset(
+                    structure=DatasetStructure(
+                        database="myDb",
+                        schema="mySchema",
+                        table="order_items",
+                    ),
                 ),
-            ),
-            "mydb.myschema.monthly_sales_summary": Dataset(
-                structure=DatasetStructure(
-                    database="myDb",
-                    schema="mySchema",
-                    table="monthly_sales_summary",
+                "mydb.myschema.monthly_sales_summary": Dataset(
+                    structure=DatasetStructure(
+                        database="myDb",
+                        schema="mySchema",
+                        table="monthly_sales_summary",
+                    ),
                 ),
-            ),
-        },
+            },
+        )
     )
+    for log in logs:
+        if log.sources:
+            log.sources = sorted(log.sources, key=lambda source: source.id or "")
     logs = sorted((log for log in logs), key=lambda log: log.id or "")
     query_logs = EventUtil.build_then_trim(QueryLogs(logs))
     expected_query_logs = f"{test_root_dir}/unity_catalog/expected_query_logs.json"
     assert query_logs == load_json(expected_query_logs)
+
+
+def test_find_qualified_dataset():
+    def make_queried_dataset(
+        parts: Tuple[Optional[str], Optional[str], str]
+    ) -> QueriedDataset:
+        return QueriedDataset(
+            id=str(
+                to_dataset_entity_id(
+                    dataset_normalized_name(
+                        parts[0],
+                        parts[1],
+                        parts[2],
+                    ),
+                    DataPlatform.UNITY_CATALOG,
+                )
+            ),
+            database=parts[0],
+            schema=parts[1],
+            table=parts[2],
+        )
+
+    def make_dataset(parts: Tuple[str, str, str]) -> Dataset:
+        return Dataset(
+            structure=DatasetStructure(
+                database=parts[0],
+                schema=parts[1],
+                table=parts[2],
+            ),
+        )
+
+    dataset = make_queried_dataset(("db", "sch", "tab"))
+    found = find_qualified_dataset(dataset, {})
+    assert found.id == dataset.id
+
+    dataset = make_queried_dataset((None, "sch", "tab"))
+    found = find_qualified_dataset(
+        dataset,
+        {
+            "db.sch.tab": make_dataset(("db", "sch", "tab")),
+        },
+    )
+    assert found.id == make_queried_dataset(("db", "sch", "tab")).id
+
+    dataset = make_queried_dataset((None, "sch", "tab"))
+    found = find_qualified_dataset(
+        dataset,
+        {
+            "db1.sch.tab": make_dataset(("db1", "sch", "tab")),
+            "db2.sch.tab": make_dataset(("db2", "sch", "tab")),
+        },
+    )
+    assert found.id == dataset.id
 
 
 def test_list_table_lineage():
