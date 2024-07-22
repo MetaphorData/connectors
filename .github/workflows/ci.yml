@@ -88,9 +88,7 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Export requirements.txt
-        run: |
-          poetry self add poetry-plugin-export
-          poetry export --all-extras --format=requirements.txt --output=requirements.txt
+        run: poetry export --all-extras --format=requirements.txt --output=requirements.txt
 
       - name: Build Docker image
         uses: docker/build-push-action@v2
