@@ -169,6 +169,20 @@ class UnityCatalogProfileExtractor(BaseExtractor):
             ),
         )
 
+    @staticmethod
+    def _get_statistics(
+        table_name: str, cursor
+    ) -> Tuple[Optional[float], Optional[float]]:
+        cursor.execute(f"DESCRIBE TABLE EXTENDED {table_name}")
+
+        rows = cursor.fetchall()
+        statistics = next((row for row in rows if row.col_name == "Statistics"), None)
+        if statistics:
+            # `statistics.data_type` looks like "X bytes, Y rows"
+            matches = (float(x) for x in re.findall(r"(\d+)", statistics.data_type))
+            return (next(matches, None), next(matches, None))
+        return None, None
+
     def _get_statistics_from_analyzed_table(
         self,
         connection: Connection,
@@ -199,26 +213,30 @@ class UnityCatalogProfileExtractor(BaseExtractor):
         if numeric_columns:
             analyze_query += f" FOR COLUMNS {', '.join(numeric_columns)}"
 
+        record_count = None
         with connection.cursor() as cursor:
             try:
-                # This can take a while
-                if self._analyze:
+                # Check if we need to run analyze
+                if self._analyze_if_no_statistics:
+                    _, record_count = UnityCatalogProfileExtractor._get_statistics(
+                        escaped_name, cursor
+                    )
+
+                if self._analyze or (
+                    record_count is None and self._analyze_if_no_statistics
+                ):
+                    # This can take a while
                     cursor.execute(analyze_query)
 
-                cursor.execute(f"DESCRIBE TABLE EXTENDED {escaped_name}")
+                data_size_bytes, record_count = (
+                    UnityCatalogProfileExtractor._get_statistics(escaped_name, cursor)
+                )
             except Exception:
                 logger.exception(f"not able to get statistics for {escaped_name}")
                 return None, None
 
-            rows = cursor.fetchall()
-            statistics = next(
-                (row for row in rows if row.col_name == "Statistics"), None
-            )
-            if statistics:
-                # `statistics.data_type` looks like "X bytes, Y rows"
-                matches = (float(x) for x in re.findall(r"(\d+)", statistics.data_type))
-                dataset_statistics.data_size_bytes = next(matches, None)
-                dataset_statistics.record_count = next(matches, None)
+            dataset_statistics.data_size_bytes = data_size_bytes
+            dataset_statistics.record_count = record_count
 
             for numeric_column in numeric_columns:
                 # Parse numeric column stats
