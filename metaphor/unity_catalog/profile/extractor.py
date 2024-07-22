@@ -273,7 +273,10 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                 field_statistics.field_statistics.append(stats)
 
         logger.info(
-            f"Profiled {table_info.full_name}, {dataset_statistics.data_size_bytes}, {dataset_statistics.record_count}, {time.time() - start_time} seconds"
+            f"Profiled {table_info.full_name} "
+            f"({dataset_statistics.data_size_bytes:.0f} bytes, "
+            f"{dataset_statistics.record_count:.0f} rows) "
+            f"in {(time.time() - start_time):.1f} seconds"
         )
 
         return (
