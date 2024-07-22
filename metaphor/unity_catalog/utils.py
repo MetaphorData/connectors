@@ -14,7 +14,7 @@ from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
-from metaphor.common.utils import md5_digest, safe_float, start_of_day
+from metaphor.common.utils import is_email, md5_digest, safe_float, start_of_day
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -357,7 +357,11 @@ def find_qualified_dataset(dataset: QueriedDataset, datasets: Dict[str, Dataset]
     return None
 
 
-def to_query_log_with_tll(row: Row, datasets: Dict[str, Dataset]):
+def to_query_log_with_tll(
+    row: Row,
+    service_principals: Dict[str, ServicePrincipal],
+    datasets: Dict[str, Dataset],
+):
     query_id = row["query_id"]
 
     sql = row["query_text"]
@@ -371,6 +375,15 @@ def to_query_log_with_tll(row: Row, datasets: Dict[str, Dataset]):
 
     sources: List[QueriedDataset] = []
     targets: List[QueriedDataset] = []
+
+    email = None
+    user_id = None
+    if is_email(row["email"]):
+        email = row["email"]
+    elif row["email"] in service_principals:
+        user_id = service_principals[row["email"]].display_name
+    else:
+        user_id = row["email"]
 
     for source in ttl.sources:
         found = find_qualified_dataset(source, datasets)
@@ -386,7 +399,8 @@ def to_query_log_with_tll(row: Row, datasets: Dict[str, Dataset]):
         id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
         query_id=query_id,
         platform=DataPlatform.UNITY_CATALOG,
-        email=row["email"],
+        email=email,
+        user_id=user_id,
         start_time=row["start_time"],
         duration=safe_float(row["duration"]),
         rows_read=safe_float(row["rows_read"]),
@@ -404,6 +418,7 @@ def get_query_logs(
     connection: Connection,
     lookback_days: int,
     excluded_usernames: Set[str],
+    service_principals: Dict[str, ServicePrincipal],
     datasets: Dict[str, Dataset],
 ):
     rows = list_query_logs(
@@ -415,7 +430,7 @@ def get_query_logs(
     count = 0
     logger.info(f"{len(rows)} queries to fetch")
     for row in rows:
-        res = to_query_log_with_tll(row, datasets)
+        res = to_query_log_with_tll(row, service_principals, datasets)
         count += 1
         if count % 1000 == 0:
             logger.info(f"Fetched {count} queries")

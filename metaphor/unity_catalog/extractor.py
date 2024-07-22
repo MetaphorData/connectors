@@ -462,6 +462,7 @@ class UnityCatalogExtractor(BaseExtractor):
             self._connection,
             self._query_log_config.lookback_days,
             self._query_log_config.excluded_usernames,
+            self._service_principals,
             self._datasets,
         ):
             yield query_log
