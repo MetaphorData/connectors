@@ -352,7 +352,9 @@ def find_qualified_dataset(dataset: QueriedDataset, datasets: Dict[str, Dataset]
                 table=found.structure.table,
                 id=id,
             )
-    return dataset
+    # Cannot find matching fully qualified dataset, this probably
+    # isn't an actual table
+    return None
 
 
 def to_query_log_with_tll(row: Row, datasets: Dict[str, Dataset]):
@@ -366,8 +368,19 @@ def to_query_log_with_tll(row: Row, datasets: Dict[str, Dataset]):
         statement_type=row["query_type"],
         query_id=query_id,
     )
-    sources = [find_qualified_dataset(x, datasets) for x in ttl.sources]
-    targets = [find_qualified_dataset(x, datasets) for x in ttl.targets]
+
+    sources: List[QueriedDataset] = []
+    targets: List[QueriedDataset] = []
+
+    for source in ttl.sources:
+        found = find_qualified_dataset(source, datasets)
+        if found:
+            sources.append(found)
+
+    for target in ttl.targets:
+        found = find_qualified_dataset(target, datasets)
+        if found:
+            targets.append(found)
 
     return QueryLog(
         id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
