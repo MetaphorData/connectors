@@ -16,8 +16,8 @@ class Table:
     @classmethod
     def from_sqlglot_table(cls, table: exp.Table):
         return cls(
-            db=table.catalog,
-            schema=table.db,
+            db=table.catalog if table.catalog else None,
+            schema=table.db if table.db else None,
             table=table.name,
         )
 
