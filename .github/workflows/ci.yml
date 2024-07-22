@@ -77,6 +77,9 @@ jobs:
     name: Docker build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Setup python
         uses: actions/setup-python@v2
         with:
@@ -86,9 +89,6 @@ jobs:
         uses: abatilo/actions-poetry@v2.1.4
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
-
-      - name: ls
-        run: ls
 
       - name: Export requirements.txt
         run: poetry export -E all -f requirements.txt --output requirements.txt
