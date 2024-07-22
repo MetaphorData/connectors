@@ -58,7 +58,6 @@ python-dateutil = "^2.8.1"
 PyYAML = "^6.0"
 requests = "^2.28.1"
 sasl = { version = "^0.3.1", optional = true }
-setuptools = "^69.2.0"
 smart-open = "^7.0.1"
 snowflake-connector-python = { version = "^3.7.1", optional = true }
 SQLAlchemy = { version = "^1.4.46", optional = true}
@@ -141,7 +140,7 @@ synapse = ["pymssql"]
 tableau = ["tableauserverclient", "sqllineage"]
 thought_spot = ["thoughtspot-rest-api-v1", "sqllineage"]
 trino = ["trino"]
-unity_catalog = ["databricks-sdk", "databricks-sql-connector"]
+unity_catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.2"

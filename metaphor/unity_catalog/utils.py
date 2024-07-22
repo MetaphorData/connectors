@@ -1,15 +1,26 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from queue import Queue
-from typing import Collection, Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Set, Tuple
 
 from databricks import sql
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.iam import ServicePrincipal
 from databricks.sql.client import Connection
+from databricks.sql.types import Row
 
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
-from metaphor.common.utils import start_of_day
+from metaphor.common.sql.table_level_lineage.table_level_lineage import (
+    extract_table_level_lineage,
+)
+from metaphor.common.utils import md5_digest, safe_float, start_of_day
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    QueriedDataset,
+    QueryLog,
+)
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 
 logger = get_logger()
@@ -118,7 +129,7 @@ def list_column_lineage(
     return column_lineage
 
 
-def list_query_log(
+def list_query_logs(
     connection: Connection, lookback_days: int, excluded_usernames: Collection[str]
 ):
     """
@@ -296,3 +307,103 @@ def list_service_principals(api: WorkspaceClient) -> Dict[str, ServicePrincipal]
     except Exception as e:
         logger.error(f"Failed to list principals: {e}")
         return {}
+
+
+def find_qualified_dataset(dataset: QueriedDataset, datasets: Dict[str, Dataset]):
+    if dataset.database and dataset.schema:
+        # No need
+        return dataset
+
+    # See if there's only one fully qualified dataset
+    candidates = set(
+        key
+        for key in datasets.keys()
+        if key.endswith(
+            dataset_normalized_name(
+                dataset.database if dataset.database else None,
+                dataset.schema if dataset.schema else None,
+                dataset.table if dataset.table else None,
+            )
+        )
+    )
+
+    if len(candidates) == 1:
+        # If there's only one dataset that matches the partially qualified
+        # dataset, we know for sure this is the one we're looking for.
+        key = list(candidates)[0]
+        found = datasets[key]
+
+        if found.structure:
+            name = dataset_normalized_name(
+                found.structure.database,
+                found.structure.schema,
+                found.structure.table,
+            )
+            id = str(
+                to_dataset_entity_id(
+                    name,
+                    platform=DataPlatform.UNITY_CATALOG,
+                    account=None,
+                )
+            )
+            return QueriedDataset(
+                database=found.structure.database,
+                schema=found.structure.schema,
+                table=found.structure.table,
+                id=id,
+            )
+    return dataset
+
+
+def to_query_log_with_tll(row: Row, datasets: Dict[str, Dataset]):
+    query_id = row["query_id"]
+
+    sql = row["query_text"]
+    ttl = extract_table_level_lineage(
+        sql,
+        platform=DataPlatform.UNITY_CATALOG,
+        account=None,
+        statement_type=row["query_type"],
+        query_id=query_id,
+    )
+    sources = [find_qualified_dataset(x, datasets) for x in ttl.sources]
+    targets = [find_qualified_dataset(x, datasets) for x in ttl.targets]
+
+    return QueryLog(
+        id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
+        query_id=query_id,
+        platform=DataPlatform.UNITY_CATALOG,
+        email=row["email"],
+        start_time=row["start_time"],
+        duration=safe_float(row["duration"]),
+        rows_read=safe_float(row["rows_read"]),
+        rows_written=safe_float(row["rows_written"]),
+        bytes_read=safe_float(row["bytes_read"]),
+        bytes_written=safe_float(row["bytes_written"]),
+        sources=sources,
+        targets=targets,
+        sql=sql,
+        sql_hash=md5_digest(sql.encode("utf-8")),
+    )
+
+
+def get_query_logs(
+    connection: Connection,
+    lookback_days: int,
+    excluded_usernames: Set[str],
+    datasets: Dict[str, Dataset],
+):
+    rows = list_query_logs(
+        connection,
+        lookback_days,
+        excluded_usernames,
+    )
+
+    count = 0
+    logger.info(f"{len(rows)} queries to fetch")
+    for row in rows:
+        res = to_query_log_with_tll(row, datasets)
+        count += 1
+        if count % 1000 == 0:
+            logger.info(f"Fetched {count} queries")
+        yield res

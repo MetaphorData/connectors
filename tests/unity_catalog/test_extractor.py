@@ -17,6 +17,7 @@ from pytest_snapshot.plugin import Snapshot
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.models.metadata_change_event import DataPlatform, QueryLog
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.extractor import UnityCatalogExtractor
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
@@ -39,12 +40,12 @@ def dummy_config():
 @patch("metaphor.unity_catalog.extractor.create_api")
 @patch("metaphor.unity_catalog.extractor.list_table_lineage")
 @patch("metaphor.unity_catalog.extractor.list_column_lineage")
-@patch("metaphor.unity_catalog.extractor.list_query_log")
+@patch("metaphor.unity_catalog.extractor.get_query_logs")
 @patch("metaphor.unity_catalog.extractor.list_service_principals")
 @pytest.mark.asyncio
 async def test_extractor(
     mock_list_service_principals: MagicMock,
-    mock_list_query_log: MagicMock,
+    mock_get_query_logs: MagicMock,
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
     mock_create_api: MagicMock,
@@ -208,21 +209,23 @@ async def test_extractor(
         }
     ]
 
-    mock_list_query_log.return_value = [
-        {
-            "query_id": "foo",
-            "email": "foo@bar.com",
-            "start_time": datetime(2020, 1, 1, tzinfo=timezone.utc),
-            "duration": 1234,
-            "rows_read": 9487,
-            "rows_written": 5566,
-            "bytes_read": 1234,
-            "bytes_written": 5678,
-            "query_type": "SELECT",
-            "query_text": "bogus query",
-            "sources": "[]",
-            "targets": "[]",
-        }
+    mock_get_query_logs.return_value = [
+        QueryLog(
+            query_id="foo",
+            email="foo@bar.com",
+            start_time=datetime(2020, 1, 1, tzinfo=timezone.utc),
+            duration=1234.0,
+            rows_read=9487.0,
+            rows_written=5566.0,
+            bytes_read=1234.0,
+            bytes_written=5678.0,
+            sql="bogus query",
+            sources=[],
+            targets=[],
+            sql_hash="4d562df2c6dc30bee38ccfac33bc47d7",
+            platform=DataPlatform.UNITY_CATALOG,
+            id="UNITY_CATALOG:foo",
+        )
     ]
 
     mock_batch_get_last_refreshed_time.return_value = {
