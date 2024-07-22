@@ -18,7 +18,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.utils import md5_digest, safe_float, to_utc_datetime_from_timestamp
+from metaphor.common.utils import to_utc_datetime_from_timestamp
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -32,7 +32,6 @@ from metaphor.models.metadata_change_event import (
     HierarchyLogicalID,
     KeyValuePair,
     MaterializationType,
-    QueriedDataset,
     QueryLog,
     SchemaType,
     SourceField,
@@ -61,8 +60,8 @@ from metaphor.unity_catalog.utils import (
     create_api,
     create_connection,
     create_connection_pool,
+    get_query_logs,
     list_column_lineage,
-    list_query_log,
     list_service_principals,
     list_table_lineage,
 )
@@ -459,38 +458,13 @@ class UnityCatalogExtractor(BaseExtractor):
 
         logger.info(f"Fetching queries from the last {lookback_days} days")
 
-        count = 0
-        for row in list_query_log(
+        for query_log in get_query_logs(
             self._connection,
             self._query_log_config.lookback_days,
             self._query_log_config.excluded_usernames,
+            self._datasets,
         ):
-            count += 1
-            if count > 0 and count % 10000 == 0:
-                logger.info(f"Fetched {count} queries")
-
-            query_id = row["query_id"]
-
-            # TODO: User sqlglot to extract the sources & targets
-            sources: List[QueriedDataset] = []
-            targets: List[QueriedDataset] = []
-
-            yield QueryLog(
-                id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
-                query_id=query_id,
-                platform=DataPlatform.UNITY_CATALOG,
-                email=row["email"],
-                start_time=row["start_time"],
-                duration=safe_float(row["duration"]),
-                rows_read=safe_float(row["rows_read"]),
-                rows_written=safe_float(row["rows_written"]),
-                bytes_read=safe_float(row["bytes_read"]),
-                bytes_written=safe_float(row["bytes_written"]),
-                sources=sources,
-                targets=targets,
-                sql=row["query_text"],
-                sql_hash=md5_digest(row["query_text"].encode("utf-8")),
-            )
+            yield query_log
 
     def _extract_hierarchies(self, catalog_system_tags: CatalogSystemTags) -> None:
         for catalog, (catalog_tags, schema_name_to_tag) in catalog_system_tags.items():

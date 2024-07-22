@@ -5,7 +5,7 @@ from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
-from metaphor.common.process_query import ProcessQueryConfig
+from metaphor.common.sql.process_query import ProcessQueryConfig
 from metaphor.common.tag_matcher import TagMatcher
 from metaphor.snowflake.auth import SnowflakeAuthConfig
 from metaphor.snowflake.utils import DEFAULT_THREAD_POOL_SIZE

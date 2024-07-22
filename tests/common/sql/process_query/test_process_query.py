@@ -1,5 +1,5 @@
-from metaphor.common.process_query import process_query
-from metaphor.common.process_query.config import (
+from metaphor.common.sql.process_query import process_query
+from metaphor.common.sql.process_query.config import (
     ProcessQueryConfig,
     RedactPIILiteralsConfig,
 )

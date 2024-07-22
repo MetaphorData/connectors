@@ -45,6 +45,10 @@ To build and publish an image with the `test` tag for testing, run the following
 # Assuming not yet logged in
 docker login
 
+# Our Dockerfile refereneces requirements.txt to decrease build time. Make sure
+# to run this before running `docker build`.
+poetry export --all-extras --format=requirements.txt --output=requirements.txt
+
 docker build --platform linux/amd64 -t metaphordata/connectors:test .
 docker push metaphordata/connectors:test
 ```

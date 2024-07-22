@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.14.49"
+version = "0.14.50"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -140,7 +140,7 @@ synapse = ["pymssql"]
 tableau = ["tableauserverclient", "sqllineage"]
 thought_spot = ["thoughtspot-rest-api-v1", "sqllineage"]
 trino = ["trino"]
-unity_catalog = ["databricks-sdk", "databricks-sql-connector"]
+unity_catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.2"
