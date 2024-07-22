@@ -36,7 +36,7 @@
         "bytesRead": 78922.0,
         "bytesWritten": 78911.0,
         "duration": 12345.0,
-        "email": "jane.doe@metaphor.io",
+        "userId": "service principal 1",
         "platform": "UNITY_CATALOG",
         "queryId": "query2",
         "rowsRead": 45678.0,

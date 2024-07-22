@@ -72,7 +72,7 @@ GROUP BY
             "rows_written": 45691,
             "bytes_read": 78922,
             "bytes_written": 78911,
-            "email": "jane.doe@metaphor.io",
+            "email": "sp1",
         },
     ]
 
@@ -89,6 +89,7 @@ GROUP BY
             mock_connection,
             1,
             set(),
+            {"sp1": ServicePrincipal(display_name="service principal 1")},
             {
                 "mydb.myschema.orders": Dataset(
                     structure=DatasetStructure(
