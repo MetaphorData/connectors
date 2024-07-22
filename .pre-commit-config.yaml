@@ -60,11 +60,3 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-
-  - repo: https://github.com/python-poetry/poetry
-    rev: 1.8.3
-    hooks:
-      - id: poetry-lock
-        args: [--no-update]
-      - id: poetry-export
-        args: [--all-extras, --output=requirements.txt]
