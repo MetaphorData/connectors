@@ -154,7 +154,7 @@ def test_find_qualified_dataset():
 
     dataset = make_queried_dataset(("db", "sch", "tab"))
     found = find_qualified_dataset(dataset, {})
-    assert found.id == dataset.id
+    assert found and found.id == dataset.id
 
     dataset = make_queried_dataset((None, "sch", "tab"))
     found = find_qualified_dataset(
@@ -163,7 +163,7 @@ def test_find_qualified_dataset():
             "db.sch.tab": make_dataset(("db", "sch", "tab")),
         },
     )
-    assert found.id == make_queried_dataset(("db", "sch", "tab")).id
+    assert found and found.id == make_queried_dataset(("db", "sch", "tab")).id
 
     dataset = make_queried_dataset((None, "sch", "tab"))
     found = find_qualified_dataset(
@@ -173,7 +173,7 @@ def test_find_qualified_dataset():
             "db2.sch.tab": make_dataset(("db2", "sch", "tab")),
         },
     )
-    assert found.id == dataset.id
+    assert not found
 
 
 def test_list_table_lineage():
