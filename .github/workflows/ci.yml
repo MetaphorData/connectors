@@ -87,6 +87,9 @@ jobs:
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
 
+      - name: ls
+        run: ls
+
       - name: Export requirements.txt
         run: poetry export -E all -f requirements.txt --output requirements.txt
 
