@@ -40,6 +40,14 @@ The max number of concurrent queries to the databricks compute node can be confi
 max_concurrency: <max_number_of_queries> # Default to 10
 ```
 
+#### Analyze table
+
+To run `ANALYZE TABLE` query if there are not statistics for the table.
+
+```yaml
+analyze_if_no_statistics: true # Default is false
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `unity_catalog` extra.

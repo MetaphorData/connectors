@@ -13,17 +13,18 @@ from databricks.sdk.service.catalog import (
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.unity_catalog.config import UnityCatalogRunConfig
+from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
 from metaphor.unity_catalog.profile.extractor import UnityCatalogProfileExtractor
 from tests.test_utils import load_json
 from tests.unity_catalog.mocks import mock_connection_pool
 
 
 def dummy_config():
-    return UnityCatalogRunConfig(
+    return UnityCatalogProfileRunConfig(
         hostname="dummy.host",
         http_path="path",
         token="",
+        analyze_if_no_statistics=True,
         output=OutputConfig(),
     )
 
@@ -74,6 +75,7 @@ async def test_extractor(
 
     mock_create_connection_pool.return_value = mock_connection_pool(
         [
+            mock_rows,
             mock_rows,
             mock_col2_stats,
         ]
@@ -173,6 +175,8 @@ async def test_should_handle_exception_column_stat(
     ]
     mock_create_api.return_value = mock_client
 
+    mock_no_rows = [SimpleNamespace(col_name="Statistics", data_type="5566 bytes")]
+
     mock_rows = [
         SimpleNamespace(col_name="Statistics", data_type="5566 bytes, 9487 rows")
     ]
@@ -187,11 +191,13 @@ async def test_should_handle_exception_column_stat(
     mock_cursor = MagicMock()
     mock_cursor.fetchall = MagicMock()
     fetchall_side_effect = [
+        mock_no_rows,
         mock_rows,
         mock_col2_stats,
     ]
 
     execute_side_effect = [
+        None,
         None,
         None,
         Exception("error for column stat"),
