@@ -6,7 +6,7 @@ import pytest
 from metaphor.common.base_config import OutputConfig
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
-from metaphor.dbt.cloud.discovery_api import DiscoveryTestNode
+from metaphor.dbt.cloud.discovery_api.queries.get_job_tests import GetJobTests
 from metaphor.dbt.cloud.extractor import DbtCloudExtractor
 from metaphor.models.metadata_change_event import (
     DataMonitorStatus,
@@ -140,24 +140,34 @@ def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
     }
 
     def fake_get_all_job_tests(job_id: int):
-        return [
-            DiscoveryTestNode(
-                uniqueId="1",
-                name="test1",
-                columnName="col1",
-                status="pass",
-                executeCompletedAt=datetime.now(),
-                dependsOn=["model.foo.bar"],
-            ),
-            DiscoveryTestNode(
-                uniqueId="2",
-                name="test2",
-                columnName="col2",
-                status="error",
-                executeCompletedAt=datetime.now(),
-                dependsOn=["model.foo.bar"],
-            ),
-        ]
+        return GetJobTests.model_validate(
+            {
+                "job": {
+                    "tests": [
+                        {
+                            "uniqueId": "1",
+                            "name": "test1",
+                            "columnName": "col1",
+                            "status": "pass",
+                            "executeCompletedAt": datetime.now(),
+                            "dependsOn": [
+                                "model.foo.bar",
+                            ],
+                        },
+                        {
+                            "uniqueId": "2",
+                            "name": "test2",
+                            "columnName": "col2",
+                            "status": "error",
+                            "executeCompletedAt": datetime.now(),
+                            "dependsOn": [
+                                "model.foo.bar",
+                            ],
+                        },
+                    ]
+                }
+            }
+        )
 
     mock_discovery_api.get_all_job_tests.side_effect = fake_get_all_job_tests
     mock_discovery_api_class.return_value = mock_discovery_api

@@ -6381,7 +6381,7 @@ bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
-dbt = []
+dbt = ["gql"]
 hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["avro", "confluent-kafka", "grpcio-tools"]
 looker = ["GitPython", "lkml", "looker-sdk"]
@@ -6407,4 +6407,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "63eb1f68ad0dee8ddd549242ba8555173e449ba558fbb7497684cae98981c3c7"
+content-hash = "7411f6dfa01891632cdb25e46ae43d1a79c50f13efab98ad9cda8b53cd63b878"

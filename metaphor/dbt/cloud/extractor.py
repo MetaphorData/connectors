@@ -7,7 +7,8 @@ from metaphor.common.logger import get_logger
 from metaphor.dbt.artifact_parser import dbt_run_result_output_data_monitor_status_map
 from metaphor.dbt.cloud.client import DbtAdminAPIClient
 from metaphor.dbt.cloud.config import DbtCloudConfig
-from metaphor.dbt.cloud.discovery_api import DiscoveryAPI, DiscoveryTestNode
+from metaphor.dbt.cloud.discovery_api import DiscoveryAPI
+from metaphor.dbt.cloud.discovery_api.queries.get_job_tests import Test
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.extractor import DbtExtractor
 from metaphor.dbt.util import add_data_quality_monitor, get_data_platform_from_manifest
@@ -132,10 +133,10 @@ class DbtCloudExtractor(BaseExtractor):
         new_monitor_datasets: List[Dataset] = list()
 
         # Get all test nodes from discovery API
-        test_nodes_by_model_uid: Dict[str, List[DiscoveryTestNode]] = defaultdict(list)
-        for test_node in discovery_api.get_all_job_tests(job_id):
-            for model in test_node.models:
-                test_nodes_by_model_uid[model].append(test_node)
+        test_nodes_by_model_uid: Dict[str, List[Test]] = defaultdict(list)
+        for test in discovery_api.get_all_job_tests(job_id).job.tests:
+            for model in test.models:
+                test_nodes_by_model_uid[model].append(test)
 
         model_names = discovery_api.get_all_job_model_names(job_id)
 
@@ -165,20 +166,20 @@ class DbtCloudExtractor(BaseExtractor):
             )
 
             # Go thru the tests in this dbt model
-            for test_node in test_nodes_by_model_uid[model_unique_id]:
-                if not test_node.name:
+            for test in test_nodes_by_model_uid[model_unique_id]:
+                if not test.name:
                     continue
 
                 status = dbt_run_result_output_data_monitor_status_map[
-                    test_node.status or "skipped"
+                    test.status or "skipped"
                 ]
 
                 add_data_quality_monitor(
                     dataset,
-                    test_node.name,
-                    test_node.columnName,
+                    test.name,
+                    test.columnName,
                     status,
-                    test_node.executeCompletedAt,
+                    test.executeCompletedAt,
                 )
 
             if dataset.data_quality and dataset.data_quality.monitors:
