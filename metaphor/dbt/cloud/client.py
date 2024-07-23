@@ -15,6 +15,7 @@ class DbtRun(NamedTuple):
     project_id: int
     job_id: int
     run_id: int
+    environment_id: int
 
     def __str__(self) -> str:
         return f"ID = {self.run_id}, project ID = {self.project_id}, job ID = {self.job_id}"
@@ -115,6 +116,7 @@ class DbtAdminAPIClient:
                         project_id=run.get("project_id"),
                         job_id=run.get("job_definition_id"),
                         run_id=run.get("id"),
+                        environment_id=run.get("environment_id"),
                     )
 
             offset += page_size
@@ -149,7 +151,3 @@ class DbtAdminAPIClient:
         )
         shutil.copyfile(temp_name, pretty_name)
         return pretty_name
-
-    def get_project_environments(self, project_id: int) -> List[int]:
-        resp = self._get(f"projects/{project_id}")
-        return [environment["id"] for environment in resp["data"]["environments"]]

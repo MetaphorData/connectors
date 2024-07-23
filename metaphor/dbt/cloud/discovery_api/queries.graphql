@@ -1,15 +1,3 @@
-query getJobModels($jobId: BigInt!) {
-    job(id: $jobId) {
-        models {
-            alias
-            database
-            name
-            schema
-            uniqueId
-        }
-    }
-}
-
 query getJobTests($jobId: BigInt!) {
     job(id: $jobId) {
         tests {
@@ -21,4 +9,328 @@ query getJobTests($jobId: BigInt!) {
             dependsOn
         }
     }
+}
+
+query GetJobRunModels($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    models {
+      alias
+      columns {
+        comment
+        description
+        meta
+        name
+        tags
+        type
+      }
+      compiledCode
+      compiledSql
+      database
+      dependsOn
+      description
+      environmentId
+      materializedType
+      meta
+      name
+      packageName
+      rawCode
+      rawSql
+      schema
+      tags
+      uniqueId
+    }
+  }
+}
+
+query GetJobRunSnapshots($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    snapshots {
+      alias
+      columns {
+        comment
+        description
+        index
+        meta
+        name
+        tags
+        type
+      }
+      comment
+      compiledCode
+      compiledSql
+      database
+      description
+      environmentId
+      meta
+      name
+      owner
+      packageName
+      rawCode
+      rawSql
+      schema
+      tags
+      uniqueId
+    }
+  }
+}
+
+query GetJobRunMacros($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    macros {
+      dependsOn
+      description
+      environmentId
+      macroSql
+      meta
+      name
+      packageName
+      uniqueId
+    }
+  }
+}
+
+query GetJobRunSources($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    sources {
+      columns {
+        description
+        name
+      }
+      database
+      description
+      identifier
+      schema
+      uniqueId
+    }
+    # metrics {
+    #   accountId
+    #   calculation_method
+    #   dbtVersion
+    #   dependsOn
+    #   description
+    #   dimensions
+    #   environmentId
+    #   environmentName
+    #   expression
+    #   filters {
+    #     field
+    #     operator
+    #     value
+    #   }
+    #   jobId
+    #   label
+    #   meta
+    #   model {
+    #     access
+    #     accountId
+    #     alias
+    #     args
+    #     childrenL1
+    #     columns {
+    #       comment
+    #       description
+    #       index
+    #       meta
+    #       name
+    #       tags
+    #       type
+    #     }
+    #     comment
+    #     compileCompletedAt
+    #     compileStartedAt
+    #     compiledCode
+    #     compiledSql
+    #     database
+    #     dbtGroup
+    #     dbtVersion
+    #     dependsOn
+    #     description
+    #     environmentId
+    #     error
+    #     executeCompletedAt
+    #     executeStartedAt
+    #     executionTime
+    #     invocationId
+    #     jobId
+    #     language
+    #     materializedType
+    #     meta
+    #     name
+    #     owner
+    #     packageName
+    #     packages
+    #     projectId
+    #     rawCode
+    #     rawSql
+    #     resourceType
+    #     runElapsedTime
+    #     runGeneratedAt
+    #     runId
+    #     runResults {
+    #       args
+    #       compileCompletedAt
+    #       compileStartedAt
+    #       error
+    #       executeCompletedAt
+    #       executeStartedAt
+    #       executionTime
+    #       invocationId
+    #       runElapsedTime
+    #       runGeneratedAt
+    #       skip
+    #       status
+    #       threadId
+    #     }
+    #     schema
+    #     skip
+    #     stats {
+    #       description
+    #       id
+    #       include
+    #       label
+    #       value
+    #     }
+    #     status
+    #     tags
+    #     tests {
+    #       accountId
+    #       columnName
+    #       compileCompletedAt
+    #       compileStartedAt
+    #       compiledCode
+    #       compiledSql
+    #       dbtVersion
+    #       dependsOn
+    #       description
+    #       environmentId
+    #       error
+    #       executeCompletedAt
+    #       executeStartedAt
+    #       executionTime
+    #       fail
+    #       invocationId
+    #       jobId
+    #       language
+    #       meta
+    #       name
+    #       projectId
+    #       rawCode
+    #       rawSql
+    #       resourceType
+    #       runElapsedTime
+    #       runGeneratedAt
+    #       runId
+    #       skip
+    #       state
+    #       status
+    #       tags
+    #       threadId
+    #       uniqueId
+    #       warn
+    #     }
+    #     threadId
+    #     type
+    #     uniqueId
+    #   }
+    #   name
+    #   packageName
+    #   projectId
+    #   resourceType
+    #   runId
+    #   sql
+    #   tags
+    #   timeGrains
+    #   timestamp
+    #   type
+    #   uniqueId
+    # }
+    # tests {
+    #   accountId
+    #   columnName
+    #   compileCompletedAt
+    #   compileStartedAt
+    #   compiledCode
+    #   compiledSql
+    #   dbtVersion
+    #   dependsOn
+    #   description
+    #   environmentId
+    #   error
+    #   executeCompletedAt
+    #   executeStartedAt
+    #   executionTime
+    #   fail
+    #   invocationId
+    #   jobId
+    #   language
+    #   meta
+    #   name
+    #   projectId
+    #   rawCode
+    #   rawSql
+    #   resourceType
+    #   runElapsedTime
+    #   runGeneratedAt
+    #   runId
+    #   skip
+    #   state
+    #   status
+    #   tags
+    #   threadId
+    #   uniqueId
+    #   warn
+    # }
+  }
+}
+
+query GetEnvironmentAdapterType($environmentId: BigInt!) {
+  environment(id: $environmentId) {
+    adapterType
+  }
+}
+
+query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter) {
+  environment(id: $environmentId) {
+    definition {
+      macros(filter: $filter, first: 1) {
+        edges {
+          node {
+            arguments {
+              description
+              name
+              type
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetEnvironmentModelFilePath($environmentId: BigInt!, $filter: ModelDefinitionFilter) {
+  environment(id: $environmentId) {
+    definition {
+      models(filter: $filter, first: 1) {
+        edges {
+          node {
+            filePath
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetEnvironmentSnapshotFilePath($environmentId: BigInt!, $filter: GenericMaterializedFilter) {
+  environment(id: $environmentId) {
+    definition {
+      snapshots(filter: $filter, first: 1) {
+        edges {
+          node {
+            filePath
+          }
+        }
+      }
+    }
+  }
 }

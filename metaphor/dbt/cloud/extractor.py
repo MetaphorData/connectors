@@ -1,6 +1,8 @@
 from collections import defaultdict
 from typing import Collection, Dict, List, Optional, Set
 
+import httpx
+
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
@@ -9,15 +11,19 @@ from metaphor.dbt.artifact_parser import dbt_run_result_output_data_monitor_stat
 from metaphor.dbt.cloud.client import DbtAdminAPIClient
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_tests import GetJobTestsJobTests
+from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_tests import (
+    GetJobTestsJobTests,
+)
+from metaphor.dbt.cloud.parser.parser import Parser
+from metaphor.dbt.cloud.utils import adapter_type_to_data_platform
 from metaphor.dbt.config import DbtRunConfig
-from metaphor.dbt.extractor import DbtExtractor
 from metaphor.dbt.util import add_data_quality_monitor, get_data_platform_from_manifest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
+    Metric,
     VirtualView,
 )
 
@@ -48,6 +54,7 @@ class DbtCloudExtractor(BaseExtractor):
         self._base_url = config.base_url
         self._discovery_api_url = config.discovery_api_url
 
+        self._project_accounts: Dict[int, str] = {}
         self._entities: Dict[int, Collection[ENTITY_TYPES]] = {}
         self._client = DbtAdminAPIClient(
             base_url=self._base_url,
@@ -55,10 +62,20 @@ class DbtCloudExtractor(BaseExtractor):
             service_token=self._service_token,
             included_env_ids=config.environment_ids,
         )
-        self._discovery_api_client = DiscoveryAPIClient(url=self._discovery_api_url, headers={
+        headers = {
             "Authorization": f"Bearer {self._service_token}",
             "Content-Type": "application/json",
-        })
+        }
+        self._discovery_api_client = DiscoveryAPIClient(
+            url=self._discovery_api_url,
+            headers=headers,
+            http_client=httpx.Client(timeout=None, headers=headers),
+        )
+
+        self._datasets: Dict[str, Dataset] = {}
+        self._virtual_views: Dict[str, VirtualView] = {}
+        self._metrics: Dict[str, Metric] = {}
+        self._referenced_virtual_views: Set[str] = set()
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from DBT cloud")
@@ -68,11 +85,6 @@ class DbtCloudExtractor(BaseExtractor):
 
         for job_id in self._job_ids:
             await self._extract_last_run(job_id)
-
-        for project_id in self._project_ids:
-            for environment_id in self._client.get_project_environments(project_id):
-                self._discovery_api_client
-            
 
         return [item for ls in self._entities.values() for item in ls]
 
@@ -88,8 +100,6 @@ class DbtCloudExtractor(BaseExtractor):
             logger.warning(f"Cannot find any successful run for job ID: {job_id}")
             return
 
-        self._project_ids.add(run.project_id)
-
         if run.run_id in self._entities:
             logger.info(f"Found already extracted run: {run}")
             return
@@ -100,11 +110,35 @@ class DbtCloudExtractor(BaseExtractor):
         if account is not None:
             logger.info(f"Snowflake account: {account}")
 
-        platform = get_data_platform_from_manifest(manifest_json)
-
         docs_base_url = (
             f"{self._base_url}/accounts/{self._account_id}/jobs/{run.job_id}/docs"
         )
+
+        environment = self._discovery_api_client.get_environment_adapter_type(
+            run.environment_id
+        ).environment
+        platform = adapter_type_to_data_platform(environment)
+
+        conf = DbtRunConfig(
+            manifest="",
+            run_results=None,  # Instead of getting test results from `run_results.json`, we get them from discovery API after we parse the manifest
+            account=account,
+            docs_base_url=docs_base_url,
+            output=self._output,
+            meta_ownerships=self._meta_ownerships,
+            meta_tags=self._meta_tags,
+            meta_key_tags=self._meta_key_tags,
+        )
+
+        Parser(
+            self._discovery_api_client,
+            conf,
+            platform,
+            self._datasets,
+            self._virtual_views,
+            self._metrics,
+            self._referenced_virtual_views,
+        ).parse_run(run)
 
     def _extend_test_run_results_entities(
         self,
@@ -118,63 +152,67 @@ class DbtCloudExtractor(BaseExtractor):
         new_monitor_datasets: List[Dataset] = list()
 
         # Get all test nodes from discovery API
-        test_nodes_by_model_uid: Dict[str, List[GetJobTestsJobTests]] = defaultdict(list)
+        test_nodes_by_model_uid: Dict[str, List[GetJobTestsJobTests]] = defaultdict(
+            list
+        )
         job = self._discovery_api_client.get_job_tests(job_id).job
         assert job is not None
         for test in job.tests:
             for model in [x for x in test.depends_on if x.startswith("model.")]:
                 test_nodes_by_model_uid[model].append(test)
 
-        job = self._discovery_api_client.get_job_models(job_id).job
-        assert job is not None
-        model_names = {
-            model.unique_id: dataset_normalized_name(model.database, model.schema_, model.name)
-            for model in job.models
-        }
+        # job = self._discovery_api_client.get_job_models(job_id).job
+        # assert job is not None
+        # model_names = {
+        #     model.unique_id: dataset_normalized_name(
+        #         model.database, model.schema_, model.name
+        #     )
+        #     for model in job.models
+        # }
 
-        # Go thru the virtual views
-        for entity in entities:
-            if not isinstance(entity, VirtualView):
-                continue
-            if not entity.logical_id or not entity.logical_id.name:
-                continue
+        # # Go thru the virtual views
+        # for entity in entities:
+        #     if not isinstance(entity, VirtualView):
+        #         continue
+        #     if not entity.logical_id or not entity.logical_id.name:
+        #         continue
 
-            model_unique_id = f"model.{entity.logical_id.name}"
+        #     model_unique_id = f"model.{entity.logical_id.name}"
 
-            if (
-                model_unique_id not in test_nodes_by_model_uid
-                or model_unique_id not in model_names
-            ):
-                continue
+        #     if (
+        #         model_unique_id not in test_nodes_by_model_uid
+        #         or model_unique_id not in model_names
+        #     ):
+        #         continue
 
-            dataset_logical_id = DatasetLogicalID(
-                name=model_names[model_unique_id],
-                platform=platform,
-                account=account,
-            )
+        #     dataset_logical_id = DatasetLogicalID(
+        #         name=model_names[model_unique_id],
+        #         platform=platform,
+        #         account=account,
+        #     )
 
-            dataset = Dataset(
-                logical_id=dataset_logical_id,
-            )
+        #     dataset = Dataset(
+        #         logical_id=dataset_logical_id,
+        #     )
 
-            # Go thru the tests in this dbt model
-            for test in test_nodes_by_model_uid[model_unique_id]:
-                if not test.name:
-                    continue
+        #     # Go thru the tests in this dbt model
+        #     for test in test_nodes_by_model_uid[model_unique_id]:
+        #         if not test.name:
+        #             continue
 
-                status = dbt_run_result_output_data_monitor_status_map[
-                    test.status or "skipped"
-                ]
+        #         status = dbt_run_result_output_data_monitor_status_map[
+        #             test.status or "skipped"
+        #         ]
 
-                add_data_quality_monitor(
-                    dataset,
-                    test.name,
-                    test.column_name,
-                    status,
-                    test.execute_completed_at,
-                )
+        #         add_data_quality_monitor(
+        #             dataset,
+        #             test.name,
+        #             test.column_name,
+        #             status,
+        #             test.execute_completed_at,
+        #         )
 
-            if dataset.data_quality and dataset.data_quality.monitors:
-                new_monitor_datasets.append(dataset)
+        #     if dataset.data_quality and dataset.data_quality.monitors:
+        #         new_monitor_datasets.append(dataset)
 
-        return list(entities) + new_monitor_datasets
+        # return list(entities) + new_monitor_datasets
