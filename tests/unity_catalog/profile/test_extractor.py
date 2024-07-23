@@ -69,7 +69,7 @@ async def test_extractor(
     mock_col2_stats = [
         SimpleNamespace(info_name="distinct_count", info_value="1234"),
         SimpleNamespace(info_name="max", info_value="9999"),
-        SimpleNamespace(info_name="min", info_value="-9999"),
+        SimpleNamespace(info_name="min", info_value="Infinity"),
         SimpleNamespace(info_name="num_nulls", info_value="NULL"),
     ]
 
@@ -184,7 +184,7 @@ async def test_should_handle_exception_column_stat(
     mock_col2_stats = [
         SimpleNamespace(info_name="distinct_count", info_value="1234"),
         SimpleNamespace(info_name="max", info_value="9999"),
-        SimpleNamespace(info_name="min", info_value="-9999"),
+        SimpleNamespace(info_name="min", info_value="Infinity"),
         SimpleNamespace(info_name="num_nulls", info_value="NULL"),
     ]
 

@@ -5,8 +5,7 @@
         {
           "distinctValueCount": 1234.0,
           "fieldPath": "col2",
-          "maxValue": 9999.0,
-          "minValue": -9999.0
+          "maxValue": 9999.0
         }
       ]
     },
