@@ -211,19 +211,25 @@ def batch_get_last_refreshed_time(
             connection_pool.put(connection)
             return result
 
-        futures = [
+        futures = {
             executor.submit(
                 get_last_refreshed_time_helper,
                 table_full_name,
-            )
+            ): table_full_name
             for table_full_name in table_full_names
-        ]
+        }
 
         for future in as_completed(futures):
-            result = future.result()
-            if result is not None:
+            try:
+                result = future.result()
+                if result is None:
+                    continue
                 table_full_name, last_refreshed_time = result
                 result_map[table_full_name] = last_refreshed_time
+            except Exception:
+                logger.exception(
+                    f"Not able to get refreshed time for {futures[future]}"
+                )
 
     return result_map
 

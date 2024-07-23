@@ -125,10 +125,14 @@ class UnityCatalogProfileExtractor(BaseExtractor):
 
         entities = []
         with ThreadPoolExecutor(max_workers=connection_pool.maxsize) as executor:
-            futures = [executor.submit(profile, table) for table in tables]
+            futures = {executor.submit(profile, table): table for table in tables}
 
             for future in as_completed(futures):
-                entities.append(future.result())
+                table = futures[future]
+                try:
+                    entities.append(future.result())
+                except Exception:
+                    logger.exception(f"Not able to profile {table.full_name}")
 
         return entities
 
@@ -274,8 +278,8 @@ class UnityCatalogProfileExtractor(BaseExtractor):
 
         logger.info(
             f"Profiled {table_info.full_name} "
-            f"({dataset_statistics.data_size_bytes:.0f} bytes, "
-            f"{dataset_statistics.record_count:.0f} rows) "
+            f"({dataset_statistics.data_size_bytes or 0:.0f} bytes, "
+            f"{dataset_statistics.record_count or 0:.0f} rows) "
             f"in {(time.time() - start_time):.1f} seconds"
         )
 
