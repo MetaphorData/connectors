@@ -110,6 +110,8 @@ class ColumnLevelConstraint(BaseModel):
     expression: Optional[str] = None
     warn_unenforced: Optional[bool] = True
     warn_unsupported: Optional[bool] = True
+    to: Optional[str] = None
+    to_columns: Optional[List[str]] = None
 
 
 class ColumnInfo(BaseModel):
@@ -484,6 +486,8 @@ class ModelLevelConstraint(BaseModel):
     expression: Optional[str] = None
     warn_unenforced: Optional[bool] = True
     warn_unsupported: Optional[bool] = True
+    to: Optional[str] = None
+    to_columns: Optional[List[str]] = None
     columns: Optional[List[str]] = None
 
 
@@ -1288,7 +1292,7 @@ class Metric(BaseModel):
     type_params: MetricTypeParams = Field(..., title='MetricTypeParams')
     filter: Optional[WhereFilterIntersection7] = None
     metadata: Optional[SourceFileMetadata] = None
-    default_granularity: Optional[
+    time_granularity: Optional[
         Literal[
             'nanosecond',
             'microsecond',
@@ -2119,7 +2123,7 @@ class Metric1(BaseModel):
     type_params: MetricTypeParams1 = Field(..., title='MetricTypeParams')
     filter: Optional[WhereFilterIntersection15] = None
     metadata: Optional[SourceFileMetadata1] = None
-    default_granularity: Optional[
+    time_granularity: Optional[
         Literal[
             'nanosecond',
             'microsecond',
