@@ -262,7 +262,7 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                         None,
                     )
                     if value:
-                        if value == "NULL":
+                        if value in ["NULL", "Infinity"]:
                             return None
                         return safe_float(value)
                     return value
