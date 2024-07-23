@@ -218,6 +218,32 @@ dev = ["cogapp", "pre-commit", "pytest", "wheel"]
 tests = ["pytest"]
 
 [[package]]
+name = "ariadne-codegen"
+version = "0.14.0"
+description = "Generate fully typed GraphQL client from schema, queries and mutations!"
+optional = false
+python-versions = "*"
+files = [
+    {file = "ariadne_codegen-0.14.0-py2.py3-none-any.whl", hash = "sha256:e0553960bd298ddc49aeeb748a0be3a37acbdfdee7d7c26fce7154715fa826e0"},
+    {file = "ariadne_codegen-0.14.0.tar.gz", hash = "sha256:d5b15470195c3858b88a2bae855b5c04602ffae40228077b6cfb26a57d3f14f6"},
+]
+
+[package.dependencies]
+autoflake = "*"
+black = "*"
+click = ">=8.1,<9.0"
+graphql-core = ">=3.2.0,<3.3"
+httpx = ">=0.23,<1.0"
+isort = "*"
+pydantic = ">=2.0.0,<3.0.0"
+toml = ">=0.10,<1.0"
+
+[package.extras]
+dev = ["ariadne", "freezegun", "mypy", "pylint", "pytest", "pytest-asyncio", "pytest-httpx", "pytest-mock", "requests-toolbelt", "types-toml"]
+opentelemetry = ["opentelemetry-api"]
+subscriptions = ["websockets (>=11.0,<12.0)"]
+
+[[package]]
 name = "asn1crypto"
 version = "1.5.1"
 description = "Fast ASN.1 parser and serializer with definitions for private keys, public keys, certificates, CRL, OCSP, CMS, PKCS#3, PKCS#7, PKCS#8, PKCS#12, PKCS#5, X.509 and TSP"
@@ -337,6 +363,21 @@ docs = ["furo", "myst-parser", "sphinx", "sphinx-notfound-page", "sphinxcontrib-
 tests = ["attrs[tests-no-zope]", "zope-interface"]
 tests-mypy = ["mypy (>=1.6)", "pytest-mypy-plugins"]
 tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "pytest (>=4.3.0)", "pytest-xdist[psutil]"]
+
+[[package]]
+name = "autoflake"
+version = "2.3.1"
+description = "Removes unused imports and unused variables"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "autoflake-2.3.1-py3-none-any.whl", hash = "sha256:3ae7495db9084b7b32818b4140e6dc4fc280b712fb414f5b8fe57b0a8e85a840"},
+    {file = "autoflake-2.3.1.tar.gz", hash = "sha256:c98b75dc5b0a86459c4f01a1d32ac7eb4338ec4317a4469515ff1e687ecd909e"},
+]
+
+[package.dependencies]
+pyflakes = ">=3.0.0"
+tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "avro"
@@ -1910,7 +1951,7 @@ websockets = ["websockets (>=10,<12)"]
 name = "graphql-core"
 version = "3.2.3"
 description = "GraphQL implementation for Python, a port of GraphQL.js, the JavaScript reference implementation for GraphQL."
-optional = true
+optional = false
 python-versions = ">=3.6,<4"
 files = [
     {file = "graphql-core-3.2.3.tar.gz", hash = "sha256:06d2aad0ac723e35b1cb47885d3e5c45e956a53bc1b209a9fc5369007fe46676"},
@@ -6381,7 +6422,7 @@ bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
-dbt = ["gql"]
+dbt = []
 hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["avro", "confluent-kafka", "grpcio-tools"]
 looker = ["GitPython", "lkml", "looker-sdk"]
@@ -6407,4 +6448,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "7411f6dfa01891632cdb25e46ae43d1a79c50f13efab98ad9cda8b53cd63b878"
+content-hash = "3bca5ccd5b90ea29defa74536b378a11fb0bcd09100d4b1364372e09c079e641"

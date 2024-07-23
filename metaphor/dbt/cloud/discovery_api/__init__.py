@@ -1,5 +1,5 @@
-from .discovery_api import DiscoveryAPI
+from .graphql_client.client import Client as DiscoveryAPIClient
 
 __all__ = [
-    "DiscoveryAPI",
+    "DiscoveryAPIClient",
 ]

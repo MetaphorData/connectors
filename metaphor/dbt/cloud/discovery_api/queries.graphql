@@ -1,0 +1,24 @@
+query getJobModels($jobId: BigInt!) {
+    job(id: $jobId) {
+        models {
+            alias
+            database
+            name
+            schema
+            uniqueId
+        }
+    }
+}
+
+query getJobTests($jobId: BigInt!) {
+    job(id: $jobId) {
+        tests {
+            uniqueId
+            name
+            status
+            columnName
+            executeCompletedAt
+            dependsOn
+        }
+    }
+}

@@ -119,7 +119,7 @@ bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
-dbt = ["gql"]
+dbt = ["ariadne-codegen"]
 hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["confluent-kafka", "avro", "grpcio-tools"]
 looker = ["GitPython", "lkml", "looker-sdk"]
@@ -143,6 +143,7 @@ trino = ["trino"]
 unity_catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 
 [tool.poetry.dev-dependencies]
+ariadne-codegen = "^0.14.0"
 bandit = "^1.7.2"
 black = "^24.3.0"
 coverage = "^7.1.0"

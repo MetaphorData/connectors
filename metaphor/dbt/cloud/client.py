@@ -149,3 +149,7 @@ class DbtAdminAPIClient:
         )
         shutil.copyfile(temp_name, pretty_name)
         return pretty_name
+
+    def get_project_environments(self, project_id: int) -> List[int]:
+        resp = self._get(f"projects/{project_id}")
+        return [environment["id"] for environment in resp["data"]["environments"]]
