@@ -289,10 +289,10 @@ query GetEnvironmentAdapterType($environmentId: BigInt!) {
   }
 }
 
-query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter) {
+query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter, $first: Int!) {
   environment(id: $environmentId) {
     definition {
-      macros(filter: $filter, first: 1) {
+      macros(filter: $filter, first: $first) {
         edges {
           node {
             arguments {
@@ -300,6 +300,7 @@ query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter)
               name
               type
             }
+            uniqueId
           }
         }
       }

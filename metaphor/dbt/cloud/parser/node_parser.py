@@ -296,7 +296,7 @@ class NodeParser:
 
         models = unique_list(
             [
-                get_virtual_view_id(self._virtual_views[n].logical_id)
+                get_virtual_view_id(self._virtual_views[n].logical_id)  # type: ignore
                 for n in depends_on
                 if n.startswith("model.") or n.startswith("snapshot.")
             ]

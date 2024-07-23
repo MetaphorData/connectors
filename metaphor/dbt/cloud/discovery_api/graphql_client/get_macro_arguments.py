@@ -3,6 +3,8 @@
 
 from typing import List, Optional
 
+from pydantic import Field
+
 from .base_model import BaseModel
 
 
@@ -28,6 +30,7 @@ class GetMacroArgumentsEnvironmentDefinitionMacrosEdges(BaseModel):
 
 class GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNode(BaseModel):
     arguments: List["GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNodeArguments"]
+    unique_id: str = Field(alias="uniqueId")
 
 
 class GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNodeArguments(BaseModel):
