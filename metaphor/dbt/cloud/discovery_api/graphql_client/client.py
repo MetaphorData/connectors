@@ -210,6 +210,7 @@ class Client(BaseClient):
             query GetEnvironmentAdapterType($environmentId: BigInt!) {
               environment(id: $environmentId) {
                 adapterType
+                dbtProjectName
               }
             }
             """

@@ -1,5 +1,6 @@
-from typing import Dict, Set
+from typing import Dict, List, Optional, Set
 
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
@@ -22,19 +23,18 @@ class Parser:
         discovery_api: DiscoveryAPIClient,
         config: DbtRunConfig,
         platform: DataPlatform,
-        datasets: Dict[str, Dataset],
-        virtual_views: Dict[str, VirtualView],
-        metrics: Dict[str, Metric],
-        referenced_virtual_views: Set[str],
+        project_name: Optional[str],
     ) -> None:
         self._discovery_api = discovery_api
         self._platform = platform
         self._config = config
-        self._datasets = datasets
-        self._virtual_views = virtual_views
-        self._metrics = metrics
-        self._referenced_virtual_views = referenced_virtual_views
 
+        self._datasets: Dict[str, Dataset] = {}
+        self._virtual_views: Dict[str, VirtualView] = {}
+        self._metrics: Dict[str, Metric] = {}
+        self._referenced_virtual_views: Set[str] = set()
+
+        self._project_name = project_name
         self._account = config.account
         if self._account and platform == DataPlatform.SNOWFLAKE:
             self._account = normalize_snowflake_account(self._account)
@@ -51,7 +51,6 @@ class Parser:
             self._datasets,
             self._virtual_views,
             self._metrics,
-            self._referenced_virtual_views,
         )
 
     def _get_source_map(self, run: DbtRun):
@@ -86,6 +85,8 @@ class Parser:
             init_virtual_view(
                 self._virtual_views, node.unique_id, NodeParser._get_node_name(node)
             )
+            if self._project_name and node.package_name != self._project_name:
+                self._referenced_virtual_views.add(node.unique_id)
 
         for node in nodes:
             self._node_parser.parse(node, source_map, macro_map)
@@ -95,3 +96,13 @@ class Parser:
 
         # for _, metric in job.metrics:
         #     self._parse_metric(metric, source_map, macro_map)
+
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(self._datasets.values())
+        entities.extend(
+            v
+            for k, v in self._virtual_views.items()
+            if k not in self._referenced_virtual_views
+        )
+        entities.extend(self._metrics.values())
+        return entities

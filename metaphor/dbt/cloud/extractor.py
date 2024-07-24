@@ -4,10 +4,8 @@ from typing import Collection, Dict, List, Optional, Set
 import httpx
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.dbt.artifact_parser import dbt_run_result_output_data_monitor_status_map
 from metaphor.dbt.cloud.client import DbtAdminAPIClient
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
@@ -15,14 +13,12 @@ from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_tests import (
     GetJobTestsJobTests,
 )
 from metaphor.dbt.cloud.parser.parser import Parser
-from metaphor.dbt.cloud.utils import adapter_type_to_data_platform
+from metaphor.dbt.cloud.utils import parse_environment
 from metaphor.dbt.config import DbtRunConfig
-from metaphor.dbt.util import add_data_quality_monitor, get_data_platform_from_manifest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
-    DatasetLogicalID,
     Metric,
     VirtualView,
 )
@@ -117,7 +113,7 @@ class DbtCloudExtractor(BaseExtractor):
         environment = self._discovery_api_client.get_environment_adapter_type(
             run.environment_id
         ).environment
-        platform = adapter_type_to_data_platform(environment)
+        platform, project_name = parse_environment(environment)
 
         conf = DbtRunConfig(
             manifest="",
@@ -134,10 +130,7 @@ class DbtCloudExtractor(BaseExtractor):
             self._discovery_api_client,
             conf,
             platform,
-            self._datasets,
-            self._virtual_views,
-            self._metrics,
-            self._referenced_virtual_views,
+            project_name,
         ).parse_run(run)
 
     def _extend_test_run_results_entities(

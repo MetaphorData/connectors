@@ -286,6 +286,7 @@ query GetJobRunSources($jobId: BigInt!, $runId: BigInt!) {
 query GetEnvironmentAdapterType($environmentId: BigInt!) {
   environment(id: $environmentId) {
     adapterType
+    dbtProjectName
   }
 }
 

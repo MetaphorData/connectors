@@ -55,7 +55,6 @@ class NodeParser:
         datasets: Dict[str, Dataset],
         virtual_views: Dict[str, VirtualView],
         metrics: Dict[str, Metric],
-        referenced_virtual_views: Set[str],
     ) -> None:
         self._discovery_api = discovery_api
         self._platform = platform
@@ -68,7 +67,6 @@ class NodeParser:
         self._datasets = datasets
         self._virtual_views = virtual_views
         self._metrics = metrics
-        self._referenced_virtual_views = referenced_virtual_views
 
     @staticmethod
     def _get_node_name(node: NODE_TYPE):
@@ -214,6 +212,39 @@ class NodeParser:
             assert definition
             return definition.snapshots.edges[0].node.file_path
 
+    def _init_dbt_model(self, node: NODE_TYPE, virtual_view: VirtualView):
+        virtual_view.dbt_model = DbtModel(
+            package_name=node.package_name,
+            description=node.description or None,
+            url=build_source_code_url(
+                self._project_source_url, self._parse_node_file_path(node)
+            ),
+            docs_url=build_model_docs_url(self._docs_base_url, node.unique_id),
+            fields=[],
+        )
+        return virtual_view.dbt_model
+
+    def _set_system_tags(self, node: NODE_TYPE, virtual_view: VirtualView):
+        # Treat dbt tags as system tags
+        tags = get_dbt_tags_from_meta(node.meta, self._meta_key_tags)
+        if node.tags:
+            tags.extend(node.tags)
+            tags: List[str] = unique_list(tags)
+
+        if len(tags) > 0:
+            virtual_view.system_tags = build_system_tags(tags)
+
+    def _set_entity_upstream(self, virtual_view: VirtualView, dbt_model: DbtModel):
+        source_entities = []
+        if dbt_model.source_datasets is not None:
+            source_entities.extend(dbt_model.source_datasets)
+        if dbt_model.source_models is not None:
+            source_entities.extend(dbt_model.source_models)
+        if len(source_entities) > 0:
+            virtual_view.entity_upstream = EntityUpstream(
+                source_entities=source_entities,
+            )
+
     def parse(
         self,
         node: NODE_TYPE,
@@ -233,62 +264,32 @@ class NodeParser:
             name=node.name,
         )
 
-        virtual_view.dbt_model = DbtModel(
-            package_name=node.package_name,
-            description=node.description or None,
-            url=build_source_code_url(
-                self._project_source_url, self._parse_node_file_path(node)
-            ),
-            docs_url=build_model_docs_url(self._docs_base_url, node.unique_id),
-            fields=[],
-        )
-        dbt_model = virtual_view.dbt_model
-
-        # Treat dbt tags as system tags
-        tags = get_dbt_tags_from_meta(node.meta, self._meta_key_tags)
-        if node.tags:
-            tags.extend(node.tags)
-            tags: List[str] = unique_list(tags)
-
-        if len(tags) > 0:
-            virtual_view.system_tags = build_system_tags(tags)
+        dbt_model = self._init_dbt_model(node, virtual_view)
+        self._set_system_tags(node, virtual_view)
 
         # raw_sql & complied_sql got renamed to raw_code & complied_code in V7
-        virtual_view.dbt_model.raw_sql = node.raw_code or node.raw_sql
-        virtual_view.dbt_model.compiled_sql = node.compiled_code or node.compiled_sql
+        dbt_model.raw_sql = node.raw_code or node.raw_sql
+        dbt_model.compiled_sql = node.compiled_code or node.compiled_sql
 
         if isinstance(node, GetJobRunModelsJobModels):
             self._parse_model_meta(node, virtual_view)
             self._parse_model_materialization(node, dbt_model)
+            self._parse_depends_on(node.depends_on, source_map, macro_map, dbt_model)
 
         self._parse_node_columns(node, dbt_model)
-
-        if isinstance(node, GetJobRunModelsJobModels):
-            (
-                dbt_model.source_datasets,
-                dbt_model.source_models,
-                dbt_model.macros,
-            ) = self._parse_depends_on(node.depends_on, source_map, macro_map)
-
-        source_entities = []
-        if dbt_model.source_datasets is not None:
-            source_entities.extend(dbt_model.source_datasets)
-        if dbt_model.source_models is not None:
-            source_entities.extend(dbt_model.source_models)
-        if len(source_entities) > 0:
-            virtual_view.entity_upstream = EntityUpstream(
-                source_entities=source_entities,
-            )
+        self._set_entity_upstream(virtual_view, dbt_model)
 
     def _parse_depends_on(
         self,
         depends_on: List[str],
         source_map: Dict[str, EntityId],
         macro_map: Dict[str, DbtMacro],
-    ) -> Tuple[Optional[List], Optional[List], Optional[List]]:
-        datasets, models, macros = None, None, None
+        dbt_model: DbtModel,
+    ):
         if not depends_on:
-            return datasets, models, macros
+            return
+
+        datasets, models, macros = None, None, None
 
         datasets = unique_list(
             [str(source_map[n]) for n in depends_on if n.startswith("source.")]
@@ -302,11 +303,12 @@ class NodeParser:
             ]
         )
 
-        depends_on_macros = [
+        macros = [
             macro_map[n]
             for n in depends_on
             if n.startswith("macro.") and n in macro_map
         ]
-        macros = depends_on_macros if depends_on_macros else None
 
-        return datasets, models, macros
+        dbt_model.source_datasets = datasets if datasets else None
+        dbt_model.source_models = models if models else None
+        dbt_model.macros = macros if macros else None
