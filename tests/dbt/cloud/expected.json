@@ -1,0 +1,1064 @@
+[
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_type",
+              "dataset": "DATASET~9916513B634F4B8103E337055A33BF4B"
+            }
+          ],
+          "title": "accepted_values_customers_customer_type__new__returning"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~9916513B634F4B8103E337055A33BF4B"
+            }
+          ],
+          "title": "not_null_customers_customer_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~9916513B634F4B8103E337055A33BF4B"
+            }
+          ],
+          "title": "unique_customers_customer_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8"
+            }
+          ],
+          "title": "not_null_orders_order_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8"
+            }
+          ],
+          "title": "relationships_orders_customer_id__customer_id__ref_stg_customers_"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8"
+            }
+          ],
+          "title": "unique_orders_order_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.orders",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~512557BF25DF9EAEE5584140A235E03D"
+            }
+          ],
+          "title": "not_null_stg_customers_customer_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~512557BF25DF9EAEE5584140A235E03D"
+            }
+          ],
+          "title": "unique_stg_customers_customer_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "location_id",
+              "dataset": "DATASET~30CDC644AD658B552B89094BA9B3E99C"
+            }
+          ],
+          "title": "not_null_stg_locations_location_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "location_id",
+              "dataset": "DATASET~30CDC644AD658B552B89094BA9B3E99C"
+            }
+          ],
+          "title": "unique_stg_locations_location_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_locations",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_item_id",
+              "dataset": "DATASET~D1E6B89E5891621E2DB93165B5828719"
+            }
+          ],
+          "title": "not_null_stg_order_items_order_item_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_item_id",
+              "dataset": "DATASET~D1E6B89E5891621E2DB93165B5828719"
+            }
+          ],
+          "title": "unique_stg_order_items_order_item_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_order_items",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~757BF2FC19B9BBD0DBAFD90768F2DC8B"
+            }
+          ],
+          "title": "not_null_stg_orders_order_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~757BF2FC19B9BBD0DBAFD90768F2DC8B"
+            }
+          ],
+          "title": "unique_stg_orders_order_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_orders",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "product_id",
+              "dataset": "DATASET~2932BAF66BF93D64D6AC2F457698EB52"
+            }
+          ],
+          "title": "not_null_stg_products_product_id"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "product_id",
+              "dataset": "DATASET~2932BAF66BF93D64D6AC2F457698EB52"
+            }
+          ],
+          "title": "unique_stg_products_product_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_products",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "supply_uuid",
+              "dataset": "DATASET~A808B6BE5F80DA3A550D49C92E8F2D89"
+            }
+          ],
+          "title": "not_null_stg_supplies_supply_uuid"
+        },
+        {
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "supply_uuid",
+              "dataset": "DATASET~A808B6BE5F80DA3A550D49C92E8F2D89"
+            }
+          ],
+          "title": "unique_stg_supplies_supply_uuid"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_supplies",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\nwith\n\ncustomers as (\n\n    select * from acme.jaffle_shop.stg_customers\n\n),\n\norders_mart as (\n\n    select * from acme.jaffle_shop.orders\n\n),\n\norder_items_mart as (\n\n    select * from acme.jaffle_shop.order_items\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct om.order_id) as count_lifetime_orders,\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\n        min(om.ordered_at) as first_ordered_at,\n        max(om.ordered_at) as last_ordered_at,\n        sum(oi.subtotal) as lifetime_spend_pretax,\n        sum(om.order_total) as lifetime_spend\n\n    from orders_mart om\n    \n    left join order_items_mart oi on om.order_id = oi.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+      "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.customers",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~9916513B634F4B8103E337055A33BF4B",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\n    config(\n        materialized='table'\n    )\n}}\n\nwith\n\ncustomers as (\n\n    select * from {{ ref('stg_customers') }}\n\n),\n\norders_mart as (\n\n    select * from {{ ref('orders') }}\n\n),\n\norder_items_mart as (\n\n    select * from {{ ref('order_items') }}\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct om.order_id) as count_lifetime_orders,\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\n        min(om.ordered_at) as first_ordered_at,\n        max(om.ordered_at) as last_ordered_at,\n        sum(oi.subtotal) as lifetime_spend_pretax,\n        sum(om.order_total) as lifetime_spend\n\n    from orders_mart om\n    \n    left join order_items_mart oi on om.order_id = oi.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+      "sourceModels": [
+        "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3",
+        "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
+        "VIRTUAL_VIEW~F3CAA2D12722D7A5CB634D3277D91846"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "customer_type"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_accepted_values"
+          ],
+          "name": "accepted_values_customers_customer_type__new__returning",
+          "sql": "\n    \n    \n\nwith all_values as (\n\n    select\n        customer_type as value_field,\n        count(*) as n_records\n\n    from acme.jaffle_shop.customers\n    group by customer_type\n\n)\n\nselect *\nfrom all_values\nwhere value_field not in (\n    'new','returning'\n)\n\n\n",
+          "uniqueId": "test.jaffle_shop.accepted_values_customers_customer_type__new__returning.d12f0947c8"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_customers_customer_id",
+          "sql": "\n    \n    \n\n\n\nselect customer_id\nfrom acme.jaffle_shop.customers\nwhere customer_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_customers_customer_id.5c9bf9911d"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_customers_customer_id",
+          "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_customers_customer_id.c5af1ff4b1"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.customers"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3",
+        "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
+        "VIRTUAL_VIEW~F3CAA2D12722D7A5CB634D3277D91846"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.customers",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "customers"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "-- metricflow_time_spine.sql\nwith days as (\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n\n    with date_spine as\n(\n\n    \n\n\n\n\n\nwith rawdata as (\n\n    \n\n    \n\n    with p as (\n        select 0 as generated_number union all select 1\n    ), unioned as (\n\n    select\n\n    \n    p0.generated_number * power(2, 0)\n     + \n    \n    p1.generated_number * power(2, 1)\n     + \n    \n    p2.generated_number * power(2, 2)\n     + \n    \n    p3.generated_number * power(2, 3)\n     + \n    \n    p4.generated_number * power(2, 4)\n     + \n    \n    p5.generated_number * power(2, 5)\n     + \n    \n    p6.generated_number * power(2, 6)\n     + \n    \n    p7.generated_number * power(2, 7)\n     + \n    \n    p8.generated_number * power(2, 8)\n     + \n    \n    p9.generated_number * power(2, 9)\n     + \n    \n    p10.generated_number * power(2, 10)\n     + \n    \n    p11.generated_number * power(2, 11)\n    \n    \n    + 1\n    as generated_number\n\n    from\n\n    \n    p as p0\n     cross join \n    \n    p as p1\n     cross join \n    \n    p as p2\n     cross join \n    \n    p as p3\n     cross join \n    \n    p as p4\n     cross join \n    \n    p as p5\n     cross join \n    \n    p as p6\n     cross join \n    \n    p as p7\n     cross join \n    \n    p as p8\n     cross join \n    \n    p as p9\n     cross join \n    \n    p as p10\n     cross join \n    \n    p as p11\n    \n    \n\n    )\n\n    select *\n    from unioned\n    where generated_number <= 3651\n    order by generated_number\n\n\n\n),\n\nall_periods as (\n\n    select (\n        \n\n    dateadd(\n        day,\n        row_number() over (order by 1) - 1,\n        \n\n    dateadd(\n        day,\n        -3650,\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\n) as date)\n        )\n\n\n        )\n\n\n    ) as date_day\n    from rawdata\n\n),\n\nfiltered as (\n\n    select *\n    from all_periods\n    where date_day <= cast(\n\n    dateadd(\n        day,\n        1,\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\n) as date)\n        )\n\n as date)\n\n)\n\nselect * from filtered\n\n\n\n)\nselect\n    cast(d.date_day as timestamp) as date_day\nfrom\n    date_spine d\n\n\n),\n\nfinal as (\n    select cast(date_day as date) as date_day\n    from days\n)\n\nselect *\nfrom final",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.metricflow_time_spine",
+      "fields": [],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_date.default__get_base_dates"
+          ],
+          "description": "",
+          "name": "get_base_dates",
+          "packageName": "dbt_date",
+          "sql": "{% macro get_base_dates(start_date=None, end_date=None, n_dateparts=None, datepart=\"day\") %}\n    {{ adapter.dispatch('get_base_dates', 'dbt_date') (start_date, end_date, n_dateparts, datepart) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt_date.get_base_dates"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~420E546583F6D2B1719826B06A843433",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "-- metricflow_time_spine.sql\nwith days as (\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n{{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\n),\n\nfinal as (\n    select cast(date_day as date) as date_day\n    from days\n)\n\nselect *\nfrom final",
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.metricflow_time_spine"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.metricflow_time_spine",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "metricflow_time_spine"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\nwith order_items as (\n\n    select * from acme.jaffle_shop.stg_order_items\n\n),\n\n\norders as (\n    \n    select * from acme.jaffle_shop.stg_orders\n),\n\nproducts as (\n\n    select * from acme.jaffle_shop.stg_products\n\n),\n\n\nfinal as (\n    select\n        order_items.*,\n        orders.ordered_at,\n        products.product_price as subtotal,\n        products.is_food_item,\n        products.is_drink_item\n    from order_items\n\n    left join products on order_items.product_id = products.product_id\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\n    left join orders on order_items.order_id  = orders.order_id\n)\n\nselect * from final",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.order_items",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~9C04E59044AD0F422EA6A996BCD17E39",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_item_id'\n    )\n}}\n\nwith order_items as (\n\n    select * from {{ ref('stg_order_items') }}\n\n),\n\n\norders as (\n    \n    select * from {{ ref('stg_orders')}}\n),\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n\n),\n\n\nfinal as (\n    select\n        order_items.*,\n        orders.ordered_at,\n        products.product_price as subtotal,\n        products.is_food_item,\n        products.is_drink_item\n    from order_items\n\n    left join products on order_items.product_id = products.product_id\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\n    left join orders on order_items.order_id  = orders.order_id\n)\n\nselect * from final",
+      "sourceModels": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.order_items"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.order_items",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "order_items"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\n\nwith orders as (\n    \n    select * from acme.jaffle_shop.stg_orders\n\n),\n\norder_items as (\n    \n    select * from acme.jaffle_shop.stg_order_items\n\n),\n\nproducts as (\n\n    select * from acme.jaffle_shop.stg_products\n),\n\nsupplies as (\n\n    select * from acme.jaffle_shop.stg_supplies\n\n),\n\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supplies.supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items\n\n    left join supplies on order_items.product_id = supplies.product_id\n    left join products on order_items.product_id = products.product_id\n\n    group by 1\n\n),\n\n\nfinal as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from final",
+      "description": "Order overview data mart, offering key details for each order inlcluding if it's a customer's first order and a food vs. drink item breakdown. One row per order.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.orders",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_id'\n    )\n}}\n\n\nwith orders as (\n    \n    select * from {{ ref('stg_orders')}}\n\n),\n\norder_items as (\n    \n    select * from {{ ref('stg_order_items')}}\n\n),\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n),\n\nsupplies as (\n\n    select * from {{ ref('stg_supplies') }}\n\n),\n\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supplies.supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items\n\n    left join supplies on order_items.product_id = supplies.product_id\n    left join products on order_items.product_id = products.product_id\n\n    group by 1\n\n),\n\n\nfinal as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from final",
+      "sourceModels": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
+        "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_orders_order_id",
+          "sql": "\n    \n    \n\n\n\nselect order_id\nfrom acme.jaffle_shop.orders\nwhere order_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_orders_order_id.cf6c17daed"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_relationships"
+          ],
+          "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
+          "sql": "\n    \n    \n\nwith child as (\n    select customer_id as from_field\n    from acme.jaffle_shop.orders\n    where customer_id is not null\n),\n\nparent as (\n    select customer_id as to_field\n    from acme.jaffle_shop.stg_customers\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16"
+        },
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_orders_order_id",
+          "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_orders_order_id.fed79b3a6e"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.orders"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
+        "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.orders",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "orders"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_customers\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as customer_id,\n\n        ---------- properties\n        name as customer_name\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "Customer data with basic cleaning and transformation applied, one row per customer.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_customers",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~512557BF25DF9EAEE5584140A235E03D",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_customers\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as customer_id,\n\n        ---------- properties\n        name as customer_name\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_customers_customer_id",
+          "sql": "\n    \n    \n\n\n\nselect customer_id\nfrom acme.jaffle_shop.stg_customers\nwhere customer_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_customers_customer_id.e2cfb1f9aa"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_customers_customer_id",
+          "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_customers_customer_id.c7614daada"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_customers"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_customers",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_customers"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_stores\n\n    -- \n    -- where opened_at <= convert_timezone('UTC', current_timestamp())\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as location_id,\n\n        ---------- properties\n        name as location_name,\n        tax_rate,\n\n        ---------- timestamp\n        opened_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "List of open locations with basic cleaning and transformation applied, one row per location.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_locations",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~30CDC644AD658B552B89094BA9B3E99C",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_stores\n\n    -- {# data runs to 2026, truncate timespan to desired range, \n    -- current time as default #}\n    -- where opened_at <= {{ var('truncate_timespan_to') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as location_id,\n\n        ---------- properties\n        name as location_name,\n        tax_rate,\n\n        ---------- timestamp\n        opened_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "location_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_locations_location_id",
+          "sql": "\n    \n    \n\n\n\nselect location_id\nfrom acme.jaffle_shop.stg_locations\nwhere location_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_locations_location_id.3d237927d2"
+        },
+        {
+          "columns": [
+            "location_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_locations_location_id",
+          "sql": "\n    \n    \n\nselect\n    location_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_locations\nwhere location_id is not null\ngroup by location_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_locations_location_id.2e2fc58ecc"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_locations"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_locations",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_locations"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_items\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_item_id,\n        order_id,\n\n        ---------- properties\n        sku as product_id\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "Individual food and drink items that make up our orders, one row per item.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_order_items",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~D1E6B89E5891621E2DB93165B5828719",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_items\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_item_id,\n        order_id,\n\n        ---------- properties\n        sku as product_id\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "order_item_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_order_items_order_item_id",
+          "sql": "\n    \n    \n\n\n\nselect order_item_id\nfrom acme.jaffle_shop.stg_order_items\nwhere order_item_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_order_items_order_item_id.26a7e2bc35"
+        },
+        {
+          "columns": [
+            "order_item_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_order_items_order_item_id",
+          "sql": "\n    \n    \n\nselect\n    order_item_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_order_items\nwhere order_item_id is not null\ngroup by order_item_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_order_items_order_item_id.90e333a108"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_order_items"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_order_items",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_order_items"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\nwith\n\nsource as (\n\n    select * from raw_orders\n\n    -- data runs to 2026, truncate timespan to desired range,\n    -- current time as default\n    -- where ordered_at <= convert_timezone('UTC', current_timestamp())\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_id,\n        store_id as location_id,\n        customer as customer_id,\n\n        ---------- properties\n        (order_total / 100.0) as order_total,\n        (tax_paid / 100.0) as tax_paid,\n\n        ---------- timestamps\n        ordered_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "Order data with basic cleaning and transformation applied, one row per order.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_orders",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~757BF2FC19B9BBD0DBAFD90768F2DC8B",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_id'\n    )\n}}\n\nwith\n\nsource as (\n\n    select * from raw_orders\n\n    -- data runs to 2026, truncate timespan to desired range,\n    -- current time as default\n    -- where ordered_at <= {{ var('truncate_timespan_to') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_id,\n        store_id as location_id,\n        customer as customer_id,\n\n        ---------- properties\n        (order_total / 100.0) as order_total,\n        (tax_paid / 100.0) as tax_paid,\n\n        ---------- timestamps\n        ordered_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_orders_order_id",
+          "sql": "\n    \n    \n\n\n\nselect order_id\nfrom acme.jaffle_shop.stg_orders\nwhere order_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_orders_order_id.81cfe2fe64"
+        },
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_orders_order_id",
+          "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_orders_order_id.e3b841c71a"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_orders"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_orders",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_orders"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_products\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- properties\n        name as product_name,\n        type as product_type,\n        description as product_description,\n        (price / 100.0) as product_price,\n\n\n        ---------- derived\n        case\n            when type = 'jaffle' then 1\n            else 0\n        end as is_food_item,\n\n        case\n            when type = 'beverage' then 1\n            else 0\n        end as is_drink_item\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_products",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~2932BAF66BF93D64D6AC2F457698EB52",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_products\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- properties\n        name as product_name,\n        type as product_type,\n        description as product_description,\n        (price / 100.0) as product_price,\n\n\n        ---------- derived\n        case\n            when type = 'jaffle' then 1\n            else 0\n        end as is_food_item,\n\n        case\n            when type = 'beverage' then 1\n            else 0\n        end as is_drink_item\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "product_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_products_product_id",
+          "sql": "\n    \n    \n\n\n\nselect product_id\nfrom acme.jaffle_shop.stg_products\nwhere product_id is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_products_product_id.6373b0acf3"
+        },
+        {
+          "columns": [
+            "product_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_products_product_id",
+          "sql": "\n    \n    \n\nselect\n    product_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_products\nwhere product_id is not null\ngroup by product_id\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_products_product_id.7d950a1467"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_products"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_products",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_products"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\nsource as (\n\n    select * from raw_supplies\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        \n    \nmd5(cast(coalesce(cast(id as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(sku as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as supply_uuid,\n        id as supply_id,\n        sku as product_id,\n\n        ---------- properties\n        name as supply_name,\n        (cost / 100.0) as supply_cost,\n        perishable as is_perishable_supply\n\n    from source\n\n)\n\nselect * from renamed",
+      "description": "List of our supply expenses data with basic cleaning and transformation applied.\nOne row per supply cost, not per supply. As supply costs fluctuate they receive a new row with a new UUID. Thus there can be multiple rows per supply_id.\n",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_supplies",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~A808B6BE5F80DA3A550D49C92E8F2D89",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\n\nsource as (\n\n    select * from raw_supplies\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\n        id as supply_id,\n        sku as product_id,\n\n        ---------- properties\n        name as supply_name,\n        (cost / 100.0) as supply_cost,\n        perishable as is_perishable_supply\n\n    from source\n\n)\n\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "supply_uuid"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_supplies_supply_uuid",
+          "sql": "\n    \n    \n\n\n\nselect supply_uuid\nfrom acme.jaffle_shop.stg_supplies\nwhere supply_uuid is null\n\n\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_supplies_supply_uuid.515c6eda6d"
+        },
+        {
+          "columns": [
+            "supply_uuid"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_supplies_supply_uuid",
+          "sql": "\n    \n    \n\nselect\n    supply_uuid as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_supplies\nwhere supply_uuid is not null\ngroup by supply_uuid\nhaving count(*) > 1\n\n\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_supplies_supply_uuid.c9e3edcfed"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_supplies"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_supplies",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_supplies"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The cumulative revenue for all orders.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Cumulative Revenue (All Time)",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "cumulative",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.cumulative_revenue"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.cumulative_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Distict count of customers placing orders",
+      "dimensions": [],
+      "filters": [],
+      "label": "Customers w/ Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.customers_with_orders"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.customers_with_orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders that contain food order items",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.food_orders"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.food_orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The revenue from food in each order",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.food_revenue"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.food_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The % of order revenue from food.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Revenue %",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "ratio",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.food_revenue_pct"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.food_revenue_pct",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders with order total over 20.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Large Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.large_order"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.large_order",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of locations that placed in order.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Locations",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.locations"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.locations",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The median revenue for each order item. Excludes tax.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Median Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.median_revenue"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.median_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Unique count of new customers.",
+      "dimensions": [],
+      "filters": [],
+      "label": "New Customers",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.new_customer"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.new_customer",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of cost for each order item.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Cost",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.order_cost"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.order_cost",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Gross profit from each order.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Gross Profit",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "derived",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.order_gross_profit"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.order_gross_profit",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.orders"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of total order amonunt. Includes tax + revenue.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Total",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.order_total"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.order_total",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of the product revenue for each order item. Excludes tax.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.revenue"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Percentage growth of revenue compared to 1 month ago. Excluded tax",
+      "dimensions": [],
+      "filters": [],
+      "label": "Revenue Growth % M/M",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "derived",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.revenue_growth_mom"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.revenue_growth_mom",
+      "type": "DBT_METRIC"
+    }
+  }
+]
