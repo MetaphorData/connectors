@@ -39,43 +39,56 @@ class Parser:
         if self._account and platform == DataPlatform.SNOWFLAKE:
             self._account = normalize_snowflake_account(self._account)
 
-    def parse_run(self, run: DbtRun):
+        self._source_parser = SourceParser(
+            self._datasets, self._platform, self._account
+        )
+        self._macro_parser = MacroParser(self._discovery_api)
+        self._node_parser = NodeParser(
+            self._discovery_api,
+            self._config,
+            self._platform,
+            self._account,
+            self._datasets,
+            self._virtual_views,
+            self._metrics,
+            self._referenced_virtual_views,
+        )
+
+    def _get_source_map(self, run: DbtRun):
         job_run_sources = self._discovery_api.get_job_run_sources(
             run.job_id, run.run_id
         )
         assert job_run_sources.job
+        return self._source_parser.parse(job_run_sources.job.sources)
 
-        source_map = SourceParser(self._datasets, self._platform, self._account).parse(
-            job_run_sources.job.sources
-        )
+    def _get_macro_map(self, run: DbtRun):
 
         job_run_macros = self._discovery_api.get_job_run_macros(run.job_id, run.run_id)
         assert job_run_macros.job
-        macro_map = MacroParser(self._discovery_api).parse(job_run_macros.job.macros)
+        return self._macro_parser.parse(job_run_macros.job.macros)
 
+    def _get_nodes(self, run: DbtRun):
         job_run_models = self._discovery_api.get_job_run_models(run.job_id, run.run_id)
         assert job_run_models.job
         job_run_snapshots = self._discovery_api.get_job_run_snapshots(
             run.job_id, run.run_id
         )
         assert job_run_snapshots.job
+        return job_run_models.job.models + job_run_snapshots.job.snapshots
 
-        for node in job_run_models.job.models + job_run_snapshots.job.snapshots:
+    def parse_run(self, run: DbtRun):
+        source_map = self._get_source_map(run)
+        macro_map = self._get_macro_map(run)
+
+        nodes = self._get_nodes(run)
+
+        for node in nodes:
             init_virtual_view(
                 self._virtual_views, node.unique_id, NodeParser._get_node_name(node)
             )
 
-        for node in job_run_models.job.models + job_run_snapshots.job.snapshots:
-            NodeParser(
-                self._discovery_api,
-                self._config,
-                self._platform,
-                self._account,
-                self._datasets,
-                self._virtual_views,
-                self._metrics,
-                self._referenced_virtual_views,
-            ).parse(node, source_map, macro_map)
+        for node in nodes:
+            self._node_parser.parse(node, source_map, macro_map)
 
         # for _, test in job.tests:
         #     self._parse_test(test, run_results, models)
