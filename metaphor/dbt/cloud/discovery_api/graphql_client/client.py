@@ -25,7 +25,7 @@ class Client(BaseClient):
     def get_job_tests(self, job_id: Any, **kwargs: Any) -> GetJobTests:
         query = gql(
             """
-            query getJobTests($jobId: BigInt!) {
+            query GetJobTests($jobId: BigInt!) {
               job(id: $jobId) {
                 tests {
                   uniqueId
@@ -41,7 +41,7 @@ class Client(BaseClient):
         )
         variables: Dict[str, object] = {"jobId": job_id}
         response = self.execute(
-            query=query, operation_name="getJobTests", variables=variables, **kwargs
+            query=query, operation_name="GetJobTests", variables=variables, **kwargs
         )
         data = self.get_data(response)
         return GetJobTests.model_validate(data)

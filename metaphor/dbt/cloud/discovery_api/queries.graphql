@@ -1,4 +1,4 @@
-query getJobTests($jobId: BigInt!) {
+query GetJobTests($jobId: BigInt!) {
     job(id: $jobId) {
         tests {
             uniqueId
