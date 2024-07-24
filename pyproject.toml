@@ -197,7 +197,7 @@ ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
 
 [tool.bandit]
-exclude_dirs = ["venv"]
+exclude_dirs = ["venv", "metaphor/dbt/cloud/discovery_api/graphql_client"]
 skips = [
   'B101',
   'B106',
