@@ -83,6 +83,7 @@ from .get_macro_arguments import (
     GetMacroArgumentsEnvironmentDefinitionMacrosEdges,
     GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNode,
     GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNodeArguments,
+    GetMacroArgumentsEnvironmentDefinitionMacrosPageInfo,
 )
 from .input_types import (
     AppliedModelSort,
@@ -161,6 +162,7 @@ __all__ = [
     "GetMacroArgumentsEnvironmentDefinitionMacrosEdges",
     "GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNode",
     "GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNodeArguments",
+    "GetMacroArgumentsEnvironmentDefinitionMacrosPageInfo",
     "GraphQLClientError",
     "GraphQLClientGraphQLError",
     "GraphQLClientGraphQLMultiError",

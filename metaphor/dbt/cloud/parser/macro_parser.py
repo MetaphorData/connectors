@@ -5,6 +5,9 @@ from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_macros import (
     GetJobRunMacrosJobMacros,
 )
+from metaphor.dbt.cloud.discovery_api.graphql_client.get_macro_arguments import (
+    GetMacroArgumentsEnvironmentDefinitionMacrosEdges as GetMacroArgumentsEdge,
+)
 from metaphor.dbt.cloud.discovery_api.graphql_client.input_types import (
     MacroDefinitionFilter,
 )
@@ -25,16 +28,25 @@ class MacroParser:
 
         arguments: Dict[str, List[DbtMacroArgument]] = dict()
         for environment_id, unique_ids in macros_by_environment.items():
-            definition = self._discovery_api.get_macro_arguments(
-                environment_id,
-                filter=MacroDefinitionFilter(
-                    uniqueIds=unique_ids,
-                ),
-                first=len(unique_ids),
-            ).environment.definition
-            if not definition:
-                continue
-            for edge in definition.macros.edges:
+            edges: List[GetMacroArgumentsEdge] = []
+            after = None
+            while True:
+                environment = self._discovery_api.get_macro_arguments(
+                    environment_id,
+                    filter=MacroDefinitionFilter(
+                        uniqueIds=unique_ids,
+                    ),
+                    after=after,
+                ).environment
+                definition = environment.definition
+                if not definition:
+                    break
+                edges += definition.macros.edges
+                after = definition.macros.page_info.end_cursor
+                if not definition.macros.page_info.has_next_page:
+                    break
+
+            for edge in edges:
                 node = edge.node
                 arguments[node.unique_id] = [
                     DbtMacroArgument(

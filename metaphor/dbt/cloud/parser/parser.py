@@ -129,8 +129,14 @@ class Parser:
             if self._project_name and node.package_name != self._project_name:
                 self._referenced_virtual_views.add(node.unique_id)
 
+        t = time.time()
         for node in nodes:
-            self._node_parser.parse(node, source_map, macro_map)
+            s = time.time()
+            self._node_parser.parse(node, source_map, macro_map)  # Takes a long time...
+            logger.info(
+                f"took {time.time() - s} seconds to parse node {node.unique_id}"
+            )
+        logger.info(f"took {time.time() - t} seconds to parse all nodes")
 
         models = {
             node.unique_id: node

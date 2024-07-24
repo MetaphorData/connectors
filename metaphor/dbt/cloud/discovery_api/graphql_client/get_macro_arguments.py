@@ -22,6 +22,9 @@ class GetMacroArgumentsEnvironmentDefinition(BaseModel):
 
 class GetMacroArgumentsEnvironmentDefinitionMacros(BaseModel):
     edges: List["GetMacroArgumentsEnvironmentDefinitionMacrosEdges"]
+    page_info: "GetMacroArgumentsEnvironmentDefinitionMacrosPageInfo" = Field(
+        alias="pageInfo"
+    )
 
 
 class GetMacroArgumentsEnvironmentDefinitionMacrosEdges(BaseModel):
@@ -37,6 +40,11 @@ class GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNodeArguments(BaseModel):
     description: Optional[str]
     name: Optional[str]
     type: Optional[str]
+
+
+class GetMacroArgumentsEnvironmentDefinitionMacrosPageInfo(BaseModel):
+    has_next_page: bool = Field(alias="hasNextPage")
+    end_cursor: Optional[str] = Field(alias="endCursor")
 
 
 GetMacroArguments.model_rebuild()

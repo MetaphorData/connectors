@@ -304,16 +304,16 @@ class Client(BaseClient):
     def get_macro_arguments(
         self,
         environment_id: Any,
-        first: int,
         filter: Union[Optional[MacroDefinitionFilter], UnsetType] = UNSET,
+        after: Union[Optional[str], UnsetType] = UNSET,
         **kwargs: Any
     ) -> GetMacroArguments:
         query = gql(
             """
-            query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter, $first: Int!) {
+            query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter, $after: String) {
               environment(id: $environmentId) {
                 definition {
-                  macros(filter: $filter, first: $first) {
+                  macros(filter: $filter, first: 500, after: $after) {
                     edges {
                       node {
                         arguments {
@@ -324,6 +324,10 @@ class Client(BaseClient):
                         uniqueId
                       }
                     }
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
                   }
                 }
               }
@@ -333,7 +337,7 @@ class Client(BaseClient):
         variables: Dict[str, object] = {
             "environmentId": environment_id,
             "filter": filter,
-            "first": first,
+            "after": after,
         }
         response = self.execute(
             query=query,
