@@ -10,11 +10,11 @@ from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
     GetJobRunModelsJobModels as Model,
 )
-from metaphor.dbt.cloud.parser.macro_parser import MacroParser
-from metaphor.dbt.cloud.parser.metric_parser import MetricParser
-from metaphor.dbt.cloud.parser.node_parser import NodeParser
-from metaphor.dbt.cloud.parser.source_parser import SourceParser
-from metaphor.dbt.cloud.parser.test_parser import TestParser
+from metaphor.dbt.cloud.parser.dbt_macro_parser import MacroParser
+from metaphor.dbt.cloud.parser.dbt_metric_parser import MetricParser
+from metaphor.dbt.cloud.parser.dbt_node_parser import NodeParser
+from metaphor.dbt.cloud.parser.dbt_source_parser import SourceParser
+from metaphor.dbt.cloud.parser.dbt_test_parser import TestParser
 from metaphor.dbt.util import init_virtual_view
 from metaphor.models.metadata_change_event import (
     DataPlatform,
