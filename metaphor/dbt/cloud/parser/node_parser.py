@@ -11,13 +11,9 @@ from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
 from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_snapshots import (
     GetJobRunSnapshotsJobSnapshots,
 )
-from metaphor.dbt.cloud.discovery_api.graphql_client.input_types import (
-    ModelDefinitionFilter,
-)
 from metaphor.dbt.cloud.parser.common import parse_depends_on
 from metaphor.dbt.util import (
     build_model_docs_url,
-    build_source_code_url,
     build_system_tags,
     get_dbt_tags_from_meta,
     get_metaphor_tags_from_meta,
@@ -56,7 +52,7 @@ class NodeParser:
         platform: DataPlatform,
         account: Optional[str],
         docs_base_url: Optional[str],
-        project_source_url: Optional[str],
+        project_explore_url: str,
         datasets: Dict[str, Dataset],
         virtual_views: Dict[str, VirtualView],
         metrics: Dict[str, Metric],
@@ -65,7 +61,7 @@ class NodeParser:
         self._platform = platform
         self._account = account
         self._docs_base_url = docs_base_url
-        self._project_source_url = project_source_url
+        self._project_explore_base_url = project_explore_url
         self._meta_ownerships = config.meta_ownerships
         self._meta_tags = config.meta_tags
         self._meta_key_tags = config.meta_key_tags
@@ -204,36 +200,11 @@ class NodeParser:
             )
         )
 
-    def _parse_node_file_path(self, node: NODE_TYPE):
-        # FIXME
-        if node.environment_id in self._env_file_path:
-            return self._env_file_path[node.environment_id]
-
-        if isinstance(node, GetJobRunModelsJobModels):
-            model_definition = self._discovery_api.get_environment_model_file_path(
-                node.environment_id,
-            ).environment.definition
-            assert model_definition
-            file_path = model_definition.models.edges[0].node.file_path
-
-        elif isinstance(node, GetJobRunSnapshotsJobSnapshots):
-            snapshot_definition = (
-                self._discovery_api.get_environment_snapshot_file_path(
-                    node.environment_id
-                ).environment.definition
-            )
-            assert snapshot_definition
-            file_path = snapshot_definition.snapshots.edges[0].node.file_path
-        self._env_file_path[node.environment_id] = file_path
-        return file_path
-
     def _init_dbt_model(self, node: NODE_TYPE, virtual_view: VirtualView):
         virtual_view.dbt_model = DbtModel(
             package_name=node.package_name,
             description=node.description or None,
-            url=build_source_code_url(
-                self._project_source_url, self._parse_node_file_path(node)
-            ),
+            url=f"{self._project_explore_base_url}/{node.unique_id}",
             docs_url=build_model_docs_url(self._docs_base_url, node.unique_id),
             fields=[],
         )

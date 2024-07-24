@@ -8,7 +8,7 @@ from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
-    GetJobRunModelsJobModels,
+    GetJobRunModelsJobModels as Model,
 )
 from metaphor.dbt.cloud.parser.macro_parser import MacroParser
 from metaphor.dbt.cloud.parser.metric_parser import MetricParser
@@ -35,7 +35,7 @@ class Parser:
         account: Optional[str],
         project_name: Optional[str],
         docs_base_url: str,
-        project_source_url: Optional[str],
+        project_explore_url: str,
     ) -> None:
         self._discovery_api = discovery_api
         self._platform = platform
@@ -61,7 +61,7 @@ class Parser:
             self._platform,
             self._account,
             docs_base_url,
-            project_source_url,
+            project_explore_url,
             self._datasets,
             self._virtual_views,
             self._metrics,
@@ -117,32 +117,29 @@ class Parser:
         Parses a single job run.
         """
         start = time.time()
-        source_map = self._get_source_map(run)
-        macro_map = self._get_macro_map(run)
-
         nodes = self._get_nodes(run)
-
+        models: Dict[str, Model] = dict()
         for node in nodes:
             init_virtual_view(
                 self._virtual_views, node.unique_id, NodeParser.get_node_name(node)
             )
             if self._project_name and node.package_name != self._project_name:
                 self._referenced_virtual_views.add(node.unique_id)
+            if isinstance(node, Model):
+                models[node.unique_id] = node
 
-        t = time.time()
-        for node in nodes:
-            s = time.time()
-            self._node_parser.parse(node, source_map, macro_map)  # Takes a long time...
+        if not self._virtual_views:
             logger.info(
-                f"took {time.time() - s} seconds to parse node {node.unique_id}"
+                f"Fetched job ID: no entity to parse. Elapsed time: {time.time() - start} secs."
             )
-        logger.info(f"took {time.time() - t} seconds to parse all nodes")
+            return []
 
-        models = {
-            node.unique_id: node
-            for node in nodes
-            if isinstance(node, GetJobRunModelsJobModels)
-        }
+        source_map = self._get_source_map(run)
+        macro_map = self._get_macro_map(run)
+
+        for node in nodes:
+            self._node_parser.parse(node, source_map, macro_map)
+
         for test in self._get_tests(run):
             self._test_parser.parse(test, models)
 
@@ -158,6 +155,6 @@ class Parser:
         )
         entities.extend(self._metrics.values())
         logger.info(
-            f"Fetched job ID: {run.job_id}, elapsed time: {time.time() - start} secs."
+            f"Fetched job ID: {run.job_id} and parsed {len(entities)} entities. Elapsed time: {time.time() - start} secs."
         )
         return entities

@@ -176,31 +176,3 @@ query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter,
     }
   }
 }
-
-query GetEnvironmentModelFilePath($environmentId: BigInt!, $filter: ModelDefinitionFilter) {
-  environment(id: $environmentId) {
-    definition {
-      models(filter: $filter, first: 1) {
-        edges {
-          node {
-            filePath
-          }
-        }
-      }
-    }
-  }
-}
-
-query GetEnvironmentSnapshotFilePath($environmentId: BigInt!, $filter: GenericMaterializedFilter) {
-  environment(id: $environmentId) {
-    definition {
-      snapshots(filter: $filter, first: 1) {
-        edges {
-          node {
-            filePath
-          }
-        }
-      }
-    }
-  }
-}

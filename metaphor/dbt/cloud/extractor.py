@@ -90,6 +90,7 @@ class DbtCloudExtractor(BaseExtractor):
         docs_base_url = (
             f"{self._base_url}/accounts/{self._account_id}/jobs/{run.job_id}/docs"
         )
+        project_explore_url = f"{self._base_url}/explore/{self._account_id}/projects/{run.project_id}/environments/production/details"
 
         environment = self._discovery_api_client.get_environment_adapter_type(
             run.environment_id
@@ -103,6 +104,6 @@ class DbtCloudExtractor(BaseExtractor):
             account,
             project_name,
             docs_base_url,
-            project_source_url=None,
+            project_explore_url=project_explore_url,
         )
         self._entities.extend(job_run_parser.parse_run(run))

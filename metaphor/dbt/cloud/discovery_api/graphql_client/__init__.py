@@ -27,22 +27,6 @@ from .get_environment_adapter_type import (
     GetEnvironmentAdapterType,
     GetEnvironmentAdapterTypeEnvironment,
 )
-from .get_environment_model_file_path import (
-    GetEnvironmentModelFilePath,
-    GetEnvironmentModelFilePathEnvironment,
-    GetEnvironmentModelFilePathEnvironmentDefinition,
-    GetEnvironmentModelFilePathEnvironmentDefinitionModels,
-    GetEnvironmentModelFilePathEnvironmentDefinitionModelsEdges,
-    GetEnvironmentModelFilePathEnvironmentDefinitionModelsEdgesNode,
-)
-from .get_environment_snapshot_file_path import (
-    GetEnvironmentSnapshotFilePath,
-    GetEnvironmentSnapshotFilePathEnvironment,
-    GetEnvironmentSnapshotFilePathEnvironmentDefinition,
-    GetEnvironmentSnapshotFilePathEnvironmentDefinitionSnapshots,
-    GetEnvironmentSnapshotFilePathEnvironmentDefinitionSnapshotsEdges,
-    GetEnvironmentSnapshotFilePathEnvironmentDefinitionSnapshotsEdgesNode,
-)
 from .get_job_run_macros import (
     GetJobRunMacros,
     GetJobRunMacrosJob,
@@ -117,18 +101,6 @@ __all__ = [
     "GenericMaterializedFilter",
     "GetEnvironmentAdapterType",
     "GetEnvironmentAdapterTypeEnvironment",
-    "GetEnvironmentModelFilePath",
-    "GetEnvironmentModelFilePathEnvironment",
-    "GetEnvironmentModelFilePathEnvironmentDefinition",
-    "GetEnvironmentModelFilePathEnvironmentDefinitionModels",
-    "GetEnvironmentModelFilePathEnvironmentDefinitionModelsEdges",
-    "GetEnvironmentModelFilePathEnvironmentDefinitionModelsEdgesNode",
-    "GetEnvironmentSnapshotFilePath",
-    "GetEnvironmentSnapshotFilePathEnvironment",
-    "GetEnvironmentSnapshotFilePathEnvironmentDefinition",
-    "GetEnvironmentSnapshotFilePathEnvironmentDefinitionSnapshots",
-    "GetEnvironmentSnapshotFilePathEnvironmentDefinitionSnapshotsEdges",
-    "GetEnvironmentSnapshotFilePathEnvironmentDefinitionSnapshotsEdgesNode",
     "GetJobRunMacros",
     "GetJobRunMacrosJob",
     "GetJobRunMacrosJobMacros",

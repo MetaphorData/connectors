@@ -6,8 +6,6 @@ from typing import Any, Dict, Optional, Union
 from .base_client import BaseClient
 from .base_model import UNSET, UnsetType
 from .get_environment_adapter_type import GetEnvironmentAdapterType
-from .get_environment_model_file_path import GetEnvironmentModelFilePath
-from .get_environment_snapshot_file_path import GetEnvironmentSnapshotFilePath
 from .get_job_run_macros import GetJobRunMacros
 from .get_job_run_metrics import GetJobRunMetrics
 from .get_job_run_models import GetJobRunModels
@@ -16,11 +14,7 @@ from .get_job_run_sources import GetJobRunSources
 from .get_job_run_tests import GetJobRunTests
 from .get_job_tests import GetJobTests
 from .get_macro_arguments import GetMacroArguments
-from .input_types import (
-    GenericMaterializedFilter,
-    MacroDefinitionFilter,
-    ModelDefinitionFilter,
-)
+from .input_types import MacroDefinitionFilter
 
 
 def gql(q: str) -> str:
@@ -347,75 +341,3 @@ class Client(BaseClient):
         )
         data = self.get_data(response)
         return GetMacroArguments.model_validate(data)
-
-    def get_environment_model_file_path(
-        self,
-        environment_id: Any,
-        filter: Union[Optional[ModelDefinitionFilter], UnsetType] = UNSET,
-        **kwargs: Any
-    ) -> GetEnvironmentModelFilePath:
-        query = gql(
-            """
-            query GetEnvironmentModelFilePath($environmentId: BigInt!, $filter: ModelDefinitionFilter) {
-              environment(id: $environmentId) {
-                definition {
-                  models(filter: $filter, first: 1) {
-                    edges {
-                      node {
-                        filePath
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {
-            "environmentId": environment_id,
-            "filter": filter,
-        }
-        response = self.execute(
-            query=query,
-            operation_name="GetEnvironmentModelFilePath",
-            variables=variables,
-            **kwargs
-        )
-        data = self.get_data(response)
-        return GetEnvironmentModelFilePath.model_validate(data)
-
-    def get_environment_snapshot_file_path(
-        self,
-        environment_id: Any,
-        filter: Union[Optional[GenericMaterializedFilter], UnsetType] = UNSET,
-        **kwargs: Any
-    ) -> GetEnvironmentSnapshotFilePath:
-        query = gql(
-            """
-            query GetEnvironmentSnapshotFilePath($environmentId: BigInt!, $filter: GenericMaterializedFilter) {
-              environment(id: $environmentId) {
-                definition {
-                  snapshots(filter: $filter, first: 1) {
-                    edges {
-                      node {
-                        filePath
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {
-            "environmentId": environment_id,
-            "filter": filter,
-        }
-        response = self.execute(
-            query=query,
-            operation_name="GetEnvironmentSnapshotFilePath",
-            variables=variables,
-            **kwargs
-        )
-        data = self.get_data(response)
-        return GetEnvironmentSnapshotFilePath.model_validate(data)

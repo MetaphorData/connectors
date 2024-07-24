@@ -5,7 +5,9 @@ from metaphor.models.metadata_change_event import DataPlatform
 
 
 def parse_environment(environment: GetEnvironmentAdapterTypeEnvironment):
-    adapter_type = environment.adapter_type or ""
+    adapter_type = (
+        environment.adapter_type or "unknown"
+    )  # It's possible for the environment to not have an adapter type!
     adapter_type = adapter_type.upper()
     if adapter_type == "DATABRICKS":
         platform = DataPlatform.UNITY_CATALOG
