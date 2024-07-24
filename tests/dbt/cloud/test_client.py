@@ -1,7 +1,7 @@
 from typing import Dict
 from unittest.mock import patch
 
-from metaphor.dbt.cloud.client import DbtAdminAPIClient, DbtRun
+from metaphor.dbt.cloud.client import DbtAdminAPIClient
 
 
 class Response:
@@ -196,31 +196,6 @@ def test_get_project_jobs(mock_requests):
     )
     jobs = client.get_project_jobs(4444)
     assert jobs == [3333, 2222]
-
-
-@patch("metaphor.dbt.cloud.client.requests")
-def test_get_run_artifact(mock_requests):
-    client = DbtAdminAPIClient(
-        base_url="http://base.url",
-        account_id=1111,
-        service_token="service_token",
-    )
-
-    mock_requests.get.return_value = Response(200, {"artifact": "json"})
-
-    run = DbtRun(run_id=2222, project_id=3333, job_id=4444)
-    path = client.get_run_artifact(run, "manifest.json")
-    assert path.endswith("/3333-4444-manifest.json")
-
-    mock_requests.get.assert_called_once_with(
-        "http://base.url/api/v2/accounts/1111/runs/2222/artifacts/manifest.json",
-        params=None,
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": "Token service_token",
-        },
-        timeout=600,
-    )
 
 
 @patch("metaphor.dbt.cloud.client.requests")

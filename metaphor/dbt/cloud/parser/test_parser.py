@@ -1,22 +1,24 @@
 from datetime import datetime
 from typing import Dict, List, Optional
-from metaphor.models.metadata_change_event import (
-    VirtualView,
-    Dataset,
-    DbtTest,
-    DataPlatform,
-    DataMonitorStatus,
-)
 
 from metaphor.common.logger import get_logger
 from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
     GetJobRunModelsJobModels as Model,
+)
+from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
     GetJobRunModelsJobModelsRunResults as RunResult,
 )
 from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_tests import (
     GetJobRunTestsJobTests as Test,
 )
 from metaphor.dbt.util import add_data_quality_monitor, init_dataset, init_dbt_tests
+from metaphor.models.metadata_change_event import (
+    DataMonitorStatus,
+    DataPlatform,
+    Dataset,
+    DbtTest,
+    VirtualView,
+)
 
 logger = get_logger()
 dbt_run_result_output_data_monitor_status_map: Dict[str, DataMonitorStatus] = {
@@ -118,10 +120,7 @@ class TestParser:
             ),
             None,
         )
-        if (
-            run_result is None
-            or run_result.status is None
-        ):
+        if run_result is None or run_result.status is None:
             logger.warning(f"No valid run_result found: {run_results}")
             return
 

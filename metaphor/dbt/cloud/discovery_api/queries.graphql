@@ -108,148 +108,31 @@ query GetJobRunSources($jobId: BigInt!, $runId: BigInt!) {
     }
   }
 }
-    # metrics {
-    #   accountId
-    #   calculation_method
-    #   dbtVersion
-    #   dependsOn
-    #   description
-    #   dimensions
-    #   environmentId
-    #   environmentName
-    #   expression
-    #   filters {
-    #     field
-    #     operator
-    #     value
-    #   }
-    #   jobId
-    #   label
-    #   meta
-    #   model {
-    #     access
-    #     accountId
-    #     alias
-    #     args
-    #     childrenL1
-    #     columns {
-    #       comment
-    #       description
-    #       index
-    #       meta
-    #       name
-    #       tags
-    #       type
-    #     }
-    #     comment
-    #     compileCompletedAt
-    #     compileStartedAt
-    #     compiledCode
-    #     compiledSql
-    #     database
-    #     dbtGroup
-    #     dbtVersion
-    #     dependsOn
-    #     description
-    #     environmentId
-    #     error
-    #     executeCompletedAt
-    #     executeStartedAt
-    #     executionTime
-    #     invocationId
-    #     jobId
-    #     language
-    #     materializedType
-    #     meta
-    #     name
-    #     owner
-    #     packageName
-    #     packages
-    #     projectId
-    #     rawCode
-    #     rawSql
-    #     resourceType
-    #     runElapsedTime
-    #     runGeneratedAt
-    #     runId
-    #     runResults {
-    #       args
-    #       compileCompletedAt
-    #       compileStartedAt
-    #       error
-    #       executeCompletedAt
-    #       executeStartedAt
-    #       executionTime
-    #       invocationId
-    #       runElapsedTime
-    #       runGeneratedAt
-    #       skip
-    #       status
-    #       threadId
-    #     }
-    #     schema
-    #     skip
-    #     stats {
-    #       description
-    #       id
-    #       include
-    #       label
-    #       value
-    #     }
-    #     status
-    #     tags
-    #     tests {
-    #       accountId
-    #       columnName
-    #       compileCompletedAt
-    #       compileStartedAt
-    #       compiledCode
-    #       compiledSql
-    #       dbtVersion
-    #       dependsOn
-    #       description
-    #       environmentId
-    #       error
-    #       executeCompletedAt
-    #       executeStartedAt
-    #       executionTime
-    #       fail
-    #       invocationId
-    #       jobId
-    #       language
-    #       meta
-    #       name
-    #       projectId
-    #       rawCode
-    #       rawSql
-    #       resourceType
-    #       runElapsedTime
-    #       runGeneratedAt
-    #       runId
-    #       skip
-    #       state
-    #       status
-    #       tags
-    #       threadId
-    #       uniqueId
-    #       warn
-    #     }
-    #     threadId
-    #     type
-    #     uniqueId
-    #   }
-    #   name
-    #   packageName
-    #   projectId
-    #   resourceType
-    #   runId
-    #   sql
-    #   tags
-    #   timeGrains
-    #   timestamp
-    #   type
-    #   uniqueId
-    # }
+
+query GetJobRunMetrics($jobId: BigInt!, $runId: BigInt) {
+  job(id: $jobId, runId: $runId) {
+    metrics {
+      packageName
+      label
+      description
+      dependsOn
+      uniqueId
+      timeGrains
+      timestamp
+      dimensions
+      filters {
+        field
+        operator
+        value
+      }
+      tags
+      type
+      sql
+      expression
+      calculation_method
+    }
+  }
+}
 
 query GetJobRunTests($jobId: BigInt!, $runId: BigInt!) {
   job(id: $jobId, runId: $runId) {

@@ -48,6 +48,12 @@ from .get_job_run_macros import (
     GetJobRunMacrosJob,
     GetJobRunMacrosJobMacros,
 )
+from .get_job_run_metrics import (
+    GetJobRunMetrics,
+    GetJobRunMetricsJob,
+    GetJobRunMetricsJobMetrics,
+    GetJobRunMetricsJobMetricsFilters,
+)
 from .get_job_run_models import (
     GetJobRunModels,
     GetJobRunModelsJob,
@@ -125,6 +131,10 @@ __all__ = [
     "GetJobRunMacros",
     "GetJobRunMacrosJob",
     "GetJobRunMacrosJobMacros",
+    "GetJobRunMetrics",
+    "GetJobRunMetricsJob",
+    "GetJobRunMetricsJobMetrics",
+    "GetJobRunMetricsJobMetricsFilters",
     "GetJobRunModels",
     "GetJobRunModelsJob",
     "GetJobRunModelsJobModels",

@@ -1,15 +1,20 @@
+import time
 from typing import Dict, List, Optional, Set
 
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.dbt.cloud.client import DbtRun
+from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import GetJobRunModelsJobModels
+from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
+    GetJobRunModelsJobModels,
+)
 from metaphor.dbt.cloud.parser.macro_parser import MacroParser
+from metaphor.dbt.cloud.parser.metric_parser import MetricParser
 from metaphor.dbt.cloud.parser.node_parser import NodeParser
 from metaphor.dbt.cloud.parser.source_parser import SourceParser
 from metaphor.dbt.cloud.parser.test_parser import TestParser
-from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import init_virtual_view
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -18,17 +23,23 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 
+logger = get_logger()
+
 
 class Parser:
     def __init__(
         self,
         discovery_api: DiscoveryAPIClient,
-        config: DbtRunConfig,
+        config: DbtCloudConfig,
         platform: DataPlatform,
+        account: Optional[str],
         project_name: Optional[str],
+        docs_base_url: str,
+        project_source_url: Optional[str],
     ) -> None:
         self._discovery_api = discovery_api
         self._platform = platform
+        self._account = account
         self._config = config
 
         self._datasets: Dict[str, Dataset] = {}
@@ -37,7 +48,6 @@ class Parser:
         self._referenced_virtual_views: Set[str] = set()
 
         self._project_name = project_name
-        self._account = config.account
         if self._account and platform == DataPlatform.SNOWFLAKE:
             self._account = normalize_snowflake_account(self._account)
 
@@ -50,6 +60,8 @@ class Parser:
             self._config,
             self._platform,
             self._account,
+            docs_base_url,
+            project_source_url,
             self._datasets,
             self._virtual_views,
             self._metrics,
@@ -59,6 +71,11 @@ class Parser:
             self._account,
             self._virtual_views,
             self._datasets,
+        )
+        self._metric_parser = MetricParser(
+            self._metrics,
+            self._virtual_views,
+            docs_base_url,
         )
 
     def _get_source_map(self, run: DbtRun):
@@ -88,10 +105,18 @@ class Parser:
         assert job_run_tests.job
         return job_run_tests.job.tests
 
+    def _get_metrics(self, run: DbtRun):
+        job_run_metrics = self._discovery_api.get_job_run_metrics(
+            run.job_id, run.run_id
+        )
+        assert job_run_metrics.job
+        return job_run_metrics.job.metrics
+
     def parse_run(self, run: DbtRun):
         """
         Parses a single job run.
         """
+        start = time.time()
         source_map = self._get_source_map(run)
         macro_map = self._get_macro_map(run)
 
@@ -115,8 +140,8 @@ class Parser:
         for test in self._get_tests(run):
             self._test_parser.parse(test, models)
 
-        # for _, metric in job.metrics:
-        #     self._parse_metric(metric, source_map, macro_map)
+        for metric in self._get_metrics(run):
+            self._metric_parser.parse(metric, source_map, macro_map)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
@@ -126,4 +151,7 @@ class Parser:
             if k not in self._referenced_virtual_views
         )
         entities.extend(self._metrics.values())
+        logger.info(
+            f"Fetched job ID: {run.job_id}, elapsed time: {time.time() - start} secs."
+        )
         return entities

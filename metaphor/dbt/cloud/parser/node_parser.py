@@ -1,8 +1,9 @@
 import json
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 from metaphor.common.entity_id import EntityId, parts_to_dataset_entity_id
 from metaphor.common.utils import unique_list
+from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
     GetJobRunModelsJobModels,
@@ -10,7 +11,7 @@ from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
 from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_snapshots import (
     GetJobRunSnapshotsJobSnapshots,
 )
-from metaphor.dbt.config import DbtRunConfig
+from metaphor.dbt.cloud.parser.common import parse_depends_on
 from metaphor.dbt.util import (
     build_model_docs_url,
     build_source_code_url,
@@ -20,7 +21,6 @@ from metaphor.dbt.util import (
     get_model_name_from_unique_id,
     get_ownerships_from_meta,
     get_snapshot_name_from_unique_id,
-    get_virtual_view_id,
     init_dataset,
     init_field,
     init_virtual_view,
@@ -49,9 +49,11 @@ class NodeParser:
     def __init__(
         self,
         discovery_api: DiscoveryAPIClient,
-        config: DbtRunConfig,
+        config: DbtCloudConfig,
         platform: DataPlatform,
         account: Optional[str],
+        docs_base_url: Optional[str],
+        project_source_url: Optional[str],
         datasets: Dict[str, Dataset],
         virtual_views: Dict[str, VirtualView],
         metrics: Dict[str, Metric],
@@ -59,8 +61,8 @@ class NodeParser:
         self._discovery_api = discovery_api
         self._platform = platform
         self._account = account
-        self._docs_base_url = config.docs_base_url
-        self._project_source_url = config.project_source_url
+        self._docs_base_url = docs_base_url
+        self._project_source_url = project_source_url
         self._meta_ownerships = config.meta_ownerships
         self._meta_tags = config.meta_tags
         self._meta_key_tags = config.meta_key_tags
@@ -199,18 +201,20 @@ class NodeParser:
 
     def _parse_node_file_path(self, node: NODE_TYPE):
         if isinstance(node, GetJobRunModelsJobModels):
-            definition = self._discovery_api.get_environment_model_file_path(
+            model_definition = self._discovery_api.get_environment_model_file_path(
                 node.environment_id
             ).environment.definition
-            assert definition
-            return definition.models.edges[0].node.file_path
+            assert model_definition
+            return model_definition.models.edges[0].node.file_path
 
         elif isinstance(node, GetJobRunSnapshotsJobSnapshots):
-            definition = self._discovery_api.get_environment_snapshot_file_path(
-                node.environment_id
-            ).environment.definition
-            assert definition
-            return definition.snapshots.edges[0].node.file_path
+            snapshot_definition = (
+                self._discovery_api.get_environment_snapshot_file_path(
+                    node.environment_id
+                ).environment.definition
+            )
+            assert snapshot_definition
+            return snapshot_definition.snapshots.edges[0].node.file_path
 
     def _init_dbt_model(self, node: NODE_TYPE, virtual_view: VirtualView):
         virtual_view.dbt_model = DbtModel(
@@ -226,10 +230,10 @@ class NodeParser:
 
     def _set_system_tags(self, node: NODE_TYPE, virtual_view: VirtualView):
         # Treat dbt tags as system tags
-        tags = get_dbt_tags_from_meta(node.meta, self._meta_key_tags)
-        if node.tags:
-            tags.extend(node.tags)
-            tags: List[str] = unique_list(tags)
+        tags: List[str] = unique_list(
+            get_dbt_tags_from_meta(node.meta, self._meta_key_tags)
+            + (node.tags if node.tags else [])
+        )
 
         if len(tags) > 0:
             virtual_view.system_tags = build_system_tags(tags)
@@ -274,41 +278,9 @@ class NodeParser:
         if isinstance(node, GetJobRunModelsJobModels):
             self._parse_model_meta(node, virtual_view)
             self._parse_model_materialization(node, dbt_model)
-            self._parse_depends_on(node.depends_on, source_map, macro_map, dbt_model)
+            parse_depends_on(
+                self._virtual_views, node.depends_on, source_map, macro_map, dbt_model
+            )
 
         self._parse_node_columns(node, dbt_model)
         self._set_entity_upstream(virtual_view, dbt_model)
-
-    def _parse_depends_on(
-        self,
-        depends_on: List[str],
-        source_map: Dict[str, EntityId],
-        macro_map: Dict[str, DbtMacro],
-        dbt_model: DbtModel,
-    ):
-        if not depends_on:
-            return
-
-        datasets, models, macros = None, None, None
-
-        datasets = unique_list(
-            [str(source_map[n]) for n in depends_on if n.startswith("source.")]
-        )
-
-        models = unique_list(
-            [
-                get_virtual_view_id(self._virtual_views[n].logical_id)  # type: ignore
-                for n in depends_on
-                if n.startswith("model.") or n.startswith("snapshot.")
-            ]
-        )
-
-        macros = [
-            macro_map[n]
-            for n in depends_on
-            if n.startswith("macro.") and n in macro_map
-        ]
-
-        dbt_model.source_datasets = datasets if datasets else None
-        dbt_model.source_models = models if models else None
-        dbt_model.macros = macros if macros else None

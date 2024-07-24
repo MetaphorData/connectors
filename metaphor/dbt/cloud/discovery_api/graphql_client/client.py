@@ -9,6 +9,7 @@ from .get_environment_adapter_type import GetEnvironmentAdapterType
 from .get_environment_model_file_path import GetEnvironmentModelFilePath
 from .get_environment_snapshot_file_path import GetEnvironmentSnapshotFilePath
 from .get_job_run_macros import GetJobRunMacros
+from .get_job_run_metrics import GetJobRunMetrics
 from .get_job_run_models import GetJobRunModels
 from .get_job_run_snapshots import GetJobRunSnapshots
 from .get_job_run_sources import GetJobRunSources
@@ -207,6 +208,50 @@ class Client(BaseClient):
         data = self.get_data(response)
         return GetJobRunSources.model_validate(data)
 
+    def get_job_run_metrics(
+        self,
+        job_id: Any,
+        run_id: Union[Optional[Any], UnsetType] = UNSET,
+        **kwargs: Any
+    ) -> GetJobRunMetrics:
+        query = gql(
+            """
+            query GetJobRunMetrics($jobId: BigInt!, $runId: BigInt) {
+              job(id: $jobId, runId: $runId) {
+                metrics {
+                  packageName
+                  label
+                  description
+                  dependsOn
+                  uniqueId
+                  timeGrains
+                  timestamp
+                  dimensions
+                  filters {
+                    field
+                    operator
+                    value
+                  }
+                  tags
+                  type
+                  sql
+                  expression
+                  calculation_method
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"jobId": job_id, "runId": run_id}
+        response = self.execute(
+            query=query,
+            operation_name="GetJobRunMetrics",
+            variables=variables,
+            **kwargs
+        )
+        data = self.get_data(response)
+        return GetJobRunMetrics.model_validate(data)
+
     def get_job_run_tests(
         self, job_id: Any, run_id: Any, **kwargs: Any
     ) -> GetJobRunTests:
@@ -220,7 +265,6 @@ class Client(BaseClient):
                   compiledCode
                   dependsOn
                   name
-                  runId
                   uniqueId
                 }
               }
