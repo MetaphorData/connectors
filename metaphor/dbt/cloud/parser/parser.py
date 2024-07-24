@@ -4,9 +4,11 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
+from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import GetJobRunModelsJobModels
 from metaphor.dbt.cloud.parser.macro_parser import MacroParser
 from metaphor.dbt.cloud.parser.node_parser import NodeParser
 from metaphor.dbt.cloud.parser.source_parser import SourceParser
+from metaphor.dbt.cloud.parser.test_parser import TestParser
 from metaphor.dbt.config import DbtRunConfig
 from metaphor.dbt.util import init_virtual_view
 from metaphor.models.metadata_change_event import (
@@ -52,6 +54,12 @@ class Parser:
             self._virtual_views,
             self._metrics,
         )
+        self._test_parser = TestParser(
+            self._platform,
+            self._account,
+            self._virtual_views,
+            self._datasets,
+        )
 
     def _get_source_map(self, run: DbtRun):
         job_run_sources = self._discovery_api.get_job_run_sources(
@@ -75,7 +83,15 @@ class Parser:
         assert job_run_snapshots.job
         return job_run_models.job.models + job_run_snapshots.job.snapshots
 
+    def _get_tests(self, run: DbtRun):
+        job_run_tests = self._discovery_api.get_job_run_tests(run.job_id, run.run_id)
+        assert job_run_tests.job
+        return job_run_tests.job.tests
+
     def parse_run(self, run: DbtRun):
+        """
+        Parses a single job run.
+        """
         source_map = self._get_source_map(run)
         macro_map = self._get_macro_map(run)
 
@@ -83,7 +99,7 @@ class Parser:
 
         for node in nodes:
             init_virtual_view(
-                self._virtual_views, node.unique_id, NodeParser._get_node_name(node)
+                self._virtual_views, node.unique_id, NodeParser.get_node_name(node)
             )
             if self._project_name and node.package_name != self._project_name:
                 self._referenced_virtual_views.add(node.unique_id)
@@ -91,8 +107,13 @@ class Parser:
         for node in nodes:
             self._node_parser.parse(node, source_map, macro_map)
 
-        # for _, test in job.tests:
-        #     self._parse_test(test, run_results, models)
+        models = {
+            node.unique_id: node
+            for node in nodes
+            if isinstance(node, GetJobRunModelsJobModels)
+        }
+        for test in self._get_tests(run):
+            self._test_parser.parse(test, models)
 
         # for _, metric in job.metrics:
         #     self._parse_metric(metric, source_map, macro_map)

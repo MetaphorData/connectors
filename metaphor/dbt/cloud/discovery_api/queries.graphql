@@ -35,6 +35,10 @@ query GetJobRunModels($jobId: BigInt!, $runId: BigInt!) {
       packageName
       rawCode
       rawSql
+      runResults {
+        status
+        executeCompletedAt
+      }
       schema
       tags
       uniqueId
@@ -102,6 +106,8 @@ query GetJobRunSources($jobId: BigInt!, $runId: BigInt!) {
       schema
       uniqueId
     }
+  }
+}
     # metrics {
     #   accountId
     #   calculation_method
@@ -244,42 +250,17 @@ query GetJobRunSources($jobId: BigInt!, $runId: BigInt!) {
     #   type
     #   uniqueId
     # }
-    # tests {
-    #   accountId
-    #   columnName
-    #   compileCompletedAt
-    #   compileStartedAt
-    #   compiledCode
-    #   compiledSql
-    #   dbtVersion
-    #   dependsOn
-    #   description
-    #   environmentId
-    #   error
-    #   executeCompletedAt
-    #   executeStartedAt
-    #   executionTime
-    #   fail
-    #   invocationId
-    #   jobId
-    #   language
-    #   meta
-    #   name
-    #   projectId
-    #   rawCode
-    #   rawSql
-    #   resourceType
-    #   runElapsedTime
-    #   runGeneratedAt
-    #   runId
-    #   skip
-    #   state
-    #   status
-    #   tags
-    #   threadId
-    #   uniqueId
-    #   warn
-    # }
+
+query GetJobRunTests($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    tests {
+      columnName
+      compiledSql
+      compiledCode
+      dependsOn
+      name
+      uniqueId
+    }
   }
 }
 

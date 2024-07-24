@@ -31,6 +31,7 @@ class GetJobRunModelsJobModels(BaseModel):
     package_name: Optional[str] = Field(alias="packageName")
     raw_code: Optional[str] = Field(alias="rawCode")
     raw_sql: Optional[str] = Field(alias="rawSql")
+    run_results: List["GetJobRunModelsJobModelsRunResults"] = Field(alias="runResults")
     schema_: Optional[str] = Field(alias="schema")
     tags: Optional[List[str]]
     unique_id: str = Field(alias="uniqueId")
@@ -43,6 +44,11 @@ class GetJobRunModelsJobModelsColumns(BaseModel):
     name: Optional[str]
     tags: List[str]
     type: Optional[str]
+
+
+class GetJobRunModelsJobModelsRunResults(BaseModel):
+    status: Optional[str]
+    execute_completed_at: Optional[Any] = Field(alias="executeCompletedAt")
 
 
 GetJobRunModels.model_rebuild()

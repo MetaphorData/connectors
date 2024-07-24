@@ -12,6 +12,7 @@ from .get_job_run_macros import GetJobRunMacros
 from .get_job_run_models import GetJobRunModels
 from .get_job_run_snapshots import GetJobRunSnapshots
 from .get_job_run_sources import GetJobRunSources
+from .get_job_run_tests import GetJobRunTests
 from .get_job_tests import GetJobTests
 from .get_macro_arguments import GetMacroArguments
 from .input_types import (
@@ -79,6 +80,10 @@ class Client(BaseClient):
                   packageName
                   rawCode
                   rawSql
+                  runResults {
+                    status
+                    executeCompletedAt
+                  }
                   schema
                   tags
                   uniqueId
@@ -201,6 +206,33 @@ class Client(BaseClient):
         )
         data = self.get_data(response)
         return GetJobRunSources.model_validate(data)
+
+    def get_job_run_tests(
+        self, job_id: Any, run_id: Any, **kwargs: Any
+    ) -> GetJobRunTests:
+        query = gql(
+            """
+            query GetJobRunTests($jobId: BigInt!, $runId: BigInt!) {
+              job(id: $jobId, runId: $runId) {
+                tests {
+                  columnName
+                  compiledSql
+                  compiledCode
+                  dependsOn
+                  name
+                  runId
+                  uniqueId
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"jobId": job_id, "runId": run_id}
+        response = self.execute(
+            query=query, operation_name="GetJobRunTests", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return GetJobRunTests.model_validate(data)
 
     def get_environment_adapter_type(
         self, environment_id: Any, **kwargs: Any

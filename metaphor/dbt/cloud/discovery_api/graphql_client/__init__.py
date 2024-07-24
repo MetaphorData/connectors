@@ -53,6 +53,7 @@ from .get_job_run_models import (
     GetJobRunModelsJob,
     GetJobRunModelsJobModels,
     GetJobRunModelsJobModelsColumns,
+    GetJobRunModelsJobModelsRunResults,
 )
 from .get_job_run_snapshots import (
     GetJobRunSnapshots,
@@ -66,6 +67,7 @@ from .get_job_run_sources import (
     GetJobRunSourcesJobSources,
     GetJobRunSourcesJobSourcesColumns,
 )
+from .get_job_run_tests import GetJobRunTests, GetJobRunTestsJob, GetJobRunTestsJobTests
 from .get_job_tests import GetJobTests, GetJobTestsJob, GetJobTestsJobTests
 from .get_macro_arguments import (
     GetMacroArguments,
@@ -127,6 +129,7 @@ __all__ = [
     "GetJobRunModelsJob",
     "GetJobRunModelsJobModels",
     "GetJobRunModelsJobModelsColumns",
+    "GetJobRunModelsJobModelsRunResults",
     "GetJobRunSnapshots",
     "GetJobRunSnapshotsJob",
     "GetJobRunSnapshotsJobSnapshots",
@@ -135,6 +138,9 @@ __all__ = [
     "GetJobRunSourcesJob",
     "GetJobRunSourcesJobSources",
     "GetJobRunSourcesJobSourcesColumns",
+    "GetJobRunTests",
+    "GetJobRunTestsJob",
+    "GetJobRunTestsJobTests",
     "GetJobTests",
     "GetJobTestsJob",
     "GetJobTestsJobTests",

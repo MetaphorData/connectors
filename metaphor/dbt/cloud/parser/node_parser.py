@@ -69,7 +69,7 @@ class NodeParser:
         self._metrics = metrics
 
     @staticmethod
-    def _get_node_name(node: NODE_TYPE):
+    def get_node_name(node: NODE_TYPE):
         if isinstance(node, GetJobRunModelsJobModels):
             return get_model_name_from_unique_id
         return get_snapshot_name_from_unique_id
@@ -251,7 +251,7 @@ class NodeParser:
         source_map: Dict[str, EntityId],
         macro_map: Dict[str, DbtMacro],
     ):
-        node_name_getter = self._get_node_name(node)
+        node_name_getter = self.get_node_name(node)
         virtual_view = init_virtual_view(
             self._virtual_views, node.unique_id, node_name_getter
         )
