@@ -58,7 +58,6 @@ from .get_job_run_sources import (
     GetJobRunSourcesJobSourcesColumns,
 )
 from .get_job_run_tests import GetJobRunTests, GetJobRunTestsJob, GetJobRunTestsJobTests
-from .get_job_tests import GetJobTests, GetJobTestsJob, GetJobTestsJobTests
 from .get_macro_arguments import (
     GetMacroArguments,
     GetMacroArgumentsEnvironment,
@@ -124,9 +123,6 @@ __all__ = [
     "GetJobRunTests",
     "GetJobRunTestsJob",
     "GetJobRunTestsJobTests",
-    "GetJobTests",
-    "GetJobTestsJob",
-    "GetJobTestsJobTests",
     "GetMacroArguments",
     "GetMacroArgumentsEnvironment",
     "GetMacroArgumentsEnvironmentDefinition",

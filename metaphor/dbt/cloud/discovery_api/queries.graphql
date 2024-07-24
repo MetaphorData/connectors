@@ -1,16 +1,3 @@
-query GetJobTests($jobId: BigInt!) {
-    job(id: $jobId) {
-        tests {
-            uniqueId
-            name
-            status
-            columnName
-            executeCompletedAt
-            dependsOn
-        }
-    }
-}
-
 query GetJobRunModels($jobId: BigInt!, $runId: BigInt!) {
   job(id: $jobId, runId: $runId) {
     models {

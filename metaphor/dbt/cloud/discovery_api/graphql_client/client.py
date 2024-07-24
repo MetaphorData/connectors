@@ -12,7 +12,6 @@ from .get_job_run_models import GetJobRunModels
 from .get_job_run_snapshots import GetJobRunSnapshots
 from .get_job_run_sources import GetJobRunSources
 from .get_job_run_tests import GetJobRunTests
-from .get_job_tests import GetJobTests
 from .get_macro_arguments import GetMacroArguments
 from .input_types import MacroDefinitionFilter
 
@@ -22,30 +21,6 @@ def gql(q: str) -> str:
 
 
 class Client(BaseClient):
-    def get_job_tests(self, job_id: Any, **kwargs: Any) -> GetJobTests:
-        query = gql(
-            """
-            query GetJobTests($jobId: BigInt!) {
-              job(id: $jobId) {
-                tests {
-                  uniqueId
-                  name
-                  status
-                  columnName
-                  executeCompletedAt
-                  dependsOn
-                }
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"jobId": job_id}
-        response = self.execute(
-            query=query, operation_name="GetJobTests", variables=variables, **kwargs
-        )
-        data = self.get_data(response)
-        return GetJobTests.model_validate(data)
-
     def get_job_run_models(
         self, job_id: Any, run_id: Any, **kwargs: Any
     ) -> GetJobRunModels:
