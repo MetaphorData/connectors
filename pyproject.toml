@@ -206,3 +206,14 @@ skips = [
   'B607',
   'B608'
 ]
+
+[tool.coverage.run]
+source = [
+  "metaphor"
+]
+omit = [
+  # TODO(SC-14236): Include __init__.py back to coverage after fixing async testing issues
+  "**/__init__.py",
+  # Ignore auto-generated files
+  "**/generated/*"
+]
