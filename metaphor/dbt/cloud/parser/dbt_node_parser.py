@@ -5,10 +5,10 @@ from metaphor.common.entity_id import EntityId, parts_to_dataset_entity_id
 from metaphor.common.utils import unique_list
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
     GetJobRunModelsJobModels,
 )
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_snapshots import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_snapshots import (
     GetJobRunSnapshotsJobSnapshots,
 )
 from metaphor.dbt.cloud.parser.common import parse_depends_on

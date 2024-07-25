@@ -17,6 +17,6 @@ Yanked from https://metadata.cloud.getdbt.com/graphql.
 
 These are the actual queries.
 
-### `graphql_client`
+### `generated`
 
 The generated GraphQL client.

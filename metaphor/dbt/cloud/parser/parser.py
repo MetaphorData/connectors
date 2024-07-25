@@ -7,7 +7,7 @@ from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
     GetJobRunModelsJobModels as Model,
 )
 from metaphor.dbt.cloud.parser.dbt_macro_parser import MacroParser

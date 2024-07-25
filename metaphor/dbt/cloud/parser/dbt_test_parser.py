@@ -2,13 +2,13 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 from metaphor.common.logger import get_logger
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
     GetJobRunModelsJobModels as Model,
 )
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_models import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
     GetJobRunModelsJobModelsRunResults as RunResult,
 )
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_tests import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_tests import (
     GetJobRunTestsJobTests as Test,
 )
 from metaphor.dbt.util import add_data_quality_monitor, init_dataset, init_dbt_tests

@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 
 from metaphor.common.entity_id import EntityId
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_metrics import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_metrics import (
     GetJobRunMetricsJobMetrics as JobMetric,
 )
 from metaphor.dbt.cloud.parser.common import parse_depends_on

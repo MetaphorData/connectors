@@ -2,15 +2,13 @@ from collections import defaultdict
 from typing import Dict, List
 
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_macros import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_macros import (
     GetJobRunMacrosJobMacros,
 )
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_macro_arguments import (
+from metaphor.dbt.cloud.discovery_api.generated.get_macro_arguments import (
     GetMacroArgumentsEnvironmentDefinitionMacrosEdges as GetMacroArgumentsEdge,
 )
-from metaphor.dbt.cloud.discovery_api.graphql_client.input_types import (
-    MacroDefinitionFilter,
-)
+from metaphor.dbt.cloud.discovery_api.generated.input_types import MacroDefinitionFilter
 from metaphor.models.metadata_change_event import DbtMacro, DbtMacroArgument
 
 

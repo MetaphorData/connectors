@@ -1,4 +1,4 @@
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_environment_adapter_type import (
+from metaphor.dbt.cloud.discovery_api.generated.get_environment_adapter_type import (
     GetEnvironmentAdapterTypeEnvironment,
 )
 from metaphor.models.metadata_change_event import DataPlatform

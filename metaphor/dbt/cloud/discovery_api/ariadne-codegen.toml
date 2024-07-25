@@ -2,3 +2,4 @@
 schema_path = "schema.graphql"
 queries_path = "queries.graphql"
 async_client = false
+target_package_name = "generated"

@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 
 from metaphor.common.entity_id import EntityId, parts_to_dataset_entity_id
-from metaphor.dbt.cloud.discovery_api.graphql_client.get_job_run_sources import (
+from metaphor.dbt.cloud.discovery_api.generated.get_job_run_sources import (
     GetJobRunSourcesJobSources,
 )
 from metaphor.dbt.util import init_dataset, init_documentation, init_field_doc
