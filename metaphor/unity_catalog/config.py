@@ -16,8 +16,8 @@ class UnityCatalogQueryLogConfig:
     # Query log filter to exclude certain usernames
     excluded_usernames: Set[str] = field(default_factory=lambda: set())
 
-    # Limit the number of results returned in one page. The default is 100.
-    max_results: Optional[int] = 100
+    # Deprecated: Not used. Will be dropped in 0.15
+    max_results: Optional[int] = 1000
 
 
 @dataclass(config=ConnectorConfig)
@@ -39,3 +39,9 @@ class UnityCatalogRunConfig(BaseConfig):
     query_log: UnityCatalogQueryLogConfig = field(
         default_factory=lambda: UnityCatalogQueryLogConfig()
     )
+
+    # Max number of connection to the database
+    max_concurrency: int = 10
+
+    # The limit to apply when running DESCRIBE HISTORY
+    describe_history_limit: int = 100

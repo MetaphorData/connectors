@@ -4,23 +4,13 @@ from sqlglot import Expression, exp, maybe_parse
 from sqlglot.errors import SqlglotError
 
 from metaphor.common.logger import get_logger
-from metaphor.common.process_query.bad_queries import is_bad_query_pattern
-from metaphor.common.process_query.config import ProcessQueryConfig
-from metaphor.common.process_query.preprocess import preprocess
+from metaphor.common.sql.dialect import PLATFORM_TO_DIALECT
+from metaphor.common.sql.process_query.bad_queries import is_bad_query_pattern
+from metaphor.common.sql.process_query.config import ProcessQueryConfig
+from metaphor.common.sql.process_query.preprocess import preprocess
 from metaphor.models.metadata_change_event import DataPlatform
 
 logger = get_logger()
-
-_PLATFORM_TO_DIALECT = {
-    DataPlatform.BIGQUERY: "bigquery",
-    DataPlatform.HIVE: "hive",
-    DataPlatform.MSSQL: "tsql",
-    DataPlatform.MYSQL: "mysql",
-    DataPlatform.POSTGRESQL: "postgres",
-    DataPlatform.REDSHIFT: "redshift",
-    DataPlatform.SNOWFLAKE: "snowflake",
-    DataPlatform.UNITY_CATALOG: "databricks",
-}
 
 
 def _redact_literal_values_in_where_clauses(
@@ -85,7 +75,7 @@ def process_query(
     if is_bad_query_pattern(sql):
         return sql
 
-    dialect = _PLATFORM_TO_DIALECT.get(data_platform)
+    dialect = PLATFORM_TO_DIALECT.get(data_platform)
 
     try:
         updated = preprocess(sql, data_platform)

@@ -1,0 +1,72 @@
+{
+  "queryLogs": {
+    "logs": [
+      {
+        "_id": "UNITY_CATALOG:query1",
+        "bytesRead": 789.0,
+        "bytesWritten": 789.0,
+        "duration": 123.0,
+        "email": "john.doe@metaphor.io",
+        "platform": "UNITY_CATALOG",
+        "queryId": "query1",
+        "rowsRead": 456.0,
+        "rowsWritten": 456.0,
+        "sources": [
+          {
+            "database": "db",
+            "id": "DATASET~64EE0EAFFE25A0E013DF1BEB350B1293",
+            "schema": "sch",
+            "table": "src"
+          }
+        ],
+        "sql": "create table db.sch.tgt as select * from db.sch.src",
+        "sqlHash": "cb4795988731111c2a6bca6d967268de",
+        "startTime": "2024-01-01T12:00:00",
+        "targets": [
+          {
+            "database": "db",
+            "id": "DATASET~2D94217C49D290DFCAD00E92994CA46E",
+            "schema": "sch",
+            "table": "tgt"
+          }
+        ]
+      },
+      {
+        "_id": "UNITY_CATALOG:query2",
+        "bytesRead": 78922.0,
+        "bytesWritten": 78911.0,
+        "duration": 12345.0,
+        "userId": "service principal 1",
+        "platform": "UNITY_CATALOG",
+        "queryId": "query2",
+        "rowsRead": 45678.0,
+        "rowsWritten": 45691.0,
+        "sources": [
+          {
+            "database": "myDb",
+            "id": "DATASET~63095DEC5A8FA2D08F6E0B34493652A9",
+            "schema": "mySchema",
+            "table": "order_items"
+          },
+          {
+            "database": "myDb",
+            "id": "DATASET~B41682B478F375D5BFADDB1EEE9D58E5",
+            "schema": "mySchema",
+            "table": "orders"
+          }
+        ],
+        "sql": "\nCREATE TABLE monthly_sales_summary AS\nSELECT\n    DATE_TRUNC('month', o.order_date) AS month,\n    SUM(oi.quantity * oi.price) AS total_sales,\n    COUNT(DISTINCT o.order_id) AS total_orders\nFROM\n    orders o\nJOIN\n    order_items oi ON o.order_id = oi.order_id\nWHERE\n    o.order_status = 'completed'\nGROUP BY\n    DATE_TRUNC('month', o.order_date);\n            ",
+        "sqlHash": "06375a25244e017998f318522b884235",
+        "startTime": "2024-02-01T12:00:00",
+        "targets": [
+          {
+            "database": "myDb",
+            "id": "DATASET~53DA50477BF6898350128A317948A625",
+            "schema": "mySchema",
+            "table": "monthly_sales_summary"
+          }
+        ]
+      }
+    ]
+  }
+}

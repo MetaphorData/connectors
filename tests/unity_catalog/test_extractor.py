@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+from queue import Queue
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -10,23 +12,17 @@ from databricks.sdk.service.catalog import (
 )
 from databricks.sdk.service.catalog import TableInfo as Table
 from databricks.sdk.service.catalog import TableType, VolumeInfo, VolumeType
-from databricks.sdk.service.sql import QueryInfo, QueryMetrics
+from databricks.sdk.service.iam import ServicePrincipal
 from pytest_snapshot.plugin import Snapshot
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.models.metadata_change_event import DataPlatform, QueryLog
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.extractor import UnityCatalogExtractor
-from metaphor.unity_catalog.models import (
-    ColumnLineage,
-    FileInfo,
-    LineageColumnInfo,
-    LineageInfo,
-    NoPermission,
-    TableInfo,
-    TableLineage,
-)
+from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 from tests.test_utils import load_json, serialize_event, wrap_query_log_stream_to_event
+from tests.unity_catalog.mocks import mock_sql_connection
 
 
 def dummy_config():
@@ -38,18 +34,30 @@ def dummy_config():
     )
 
 
+@patch("metaphor.unity_catalog.extractor.batch_get_last_refreshed_time")
+@patch("metaphor.unity_catalog.extractor.create_connection_pool")
 @patch("metaphor.unity_catalog.extractor.create_connection")
 @patch("metaphor.unity_catalog.extractor.create_api")
 @patch("metaphor.unity_catalog.extractor.list_table_lineage")
 @patch("metaphor.unity_catalog.extractor.list_column_lineage")
+@patch("metaphor.unity_catalog.extractor.get_query_logs")
+@patch("metaphor.unity_catalog.extractor.list_service_principals")
 @pytest.mark.asyncio
 async def test_extractor(
+    mock_list_service_principals: MagicMock,
+    mock_get_query_logs: MagicMock,
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
     mock_create_api: MagicMock,
     mock_create_connection: MagicMock,
+    mock_create_connection_pool: MagicMock,
+    mock_batch_get_last_refreshed_time: MagicMock,
     test_root_dir: str,
 ):
+    mock_list_service_principals.return_value = {
+        "sp1": ServicePrincipal(display_name="service principal 1")
+    }
+
     def mock_list_catalogs():
         return [CatalogInfo(name="catalog")]
 
@@ -74,7 +82,7 @@ async def test_extractor(
                     )
                 ],
                 storage_location="s3://path",
-                owner="foo@bar.com",
+                owner="user1@foo.com",
                 comment="example",
                 updated_at=0,
                 updated_by="foo@bar.com",
@@ -97,7 +105,7 @@ async def test_extractor(
                     )
                 ],
                 view_definition="SELECT ...",
-                owner="foo@bar.com",
+                owner="user2@foo.com",
                 comment="example",
                 updated_at=0,
                 updated_by="foo@bar.com",
@@ -136,7 +144,7 @@ async def test_extractor(
                     )
                 ],
                 storage_location="s3://path",
-                owner="foo@bar.com",
+                owner="sp1",
                 comment="example",
                 updated_at=0,
                 updated_by="foo@bar.com",
@@ -145,27 +153,6 @@ async def test_extractor(
                 },
                 created_at=0,
             ),
-        ]
-
-    def mock_list_query_history(
-        filter_by,
-        include_metrics,
-        max_results,  # No pagination!
-    ):
-        return [
-            QueryInfo(
-                duration=1234,
-                query_id="foo",
-                metrics=QueryMetrics(
-                    read_remote_bytes=1234,
-                    write_remote_bytes=5678,
-                    rows_produced_count=5566,
-                    rows_read_count=9487,
-                ),
-                query_text="bogus query",
-                user_name="uwu",
-                query_start_time_ms=55667788,
-            )
         ]
 
     def mock_list_volumes(catalog, schema):
@@ -197,91 +184,58 @@ async def test_extractor(
     mock_client.schemas.list = mock_list_schemas
     mock_client.tables = MagicMock()
     mock_client.tables.list = mock_list_tables
-    mock_client.query_history = MagicMock()
-    mock_client.query_history.list = mock_list_query_history
     mock_client.volumes = MagicMock()
     mock_client.volumes.list = mock_list_volumes
     mock_list_table_lineage.side_effect = [
-        TableLineage(
-            upstreams=[
-                LineageInfo(
-                    tableInfo=TableInfo(
-                        name="upstream", catalog_name="db", schema_name="schema"
-                    ),
-                    fileInfo=None,
-                ),
-                LineageInfo(
-                    tableInfo=TableInfo(
-                        name="upstream2", catalog_name="db", schema_name="schema"
-                    ),
-                    fileInfo=None,
-                ),
-                LineageInfo(
-                    tableInfo=None,
-                    fileInfo=FileInfo(
-                        path="s3://path",
-                        has_permission=True,
-                    ),
-                ),
-                LineageInfo(tableInfo=NoPermission(), fileInfo=None),
-            ],
-        ),
-        TableLineage(),
-        TableLineage(
-            upstreams=[
-                LineageInfo(
-                    tableInfo=None,
-                    fileInfo=FileInfo(
-                        path="s3://path/input.csv",
-                        securable_name="catalog2.schema.volume",
-                        securable_type="VOLUME",
-                        storage_location="s3://path",
-                        has_permission=True,
-                    ),
-                ),
-                LineageInfo(
-                    tableInfo=None,
-                    fileInfo=FileInfo(
-                        path="s3://path/input2.csv",
-                        securable_name="input2",
-                        securable_type="EXTERNAL_LOCATION",
-                        storage_location="s3://path",
-                        has_permission=True,
-                    ),
-                ),
-            ],
-            downstreams=[
-                LineageInfo(
-                    tableInfo=None,
-                    fileInfo=FileInfo(
-                        path="s3://path/output.csv",
-                        securable_name="catalog2.schema.volume",
-                        securable_type="VOLUME",
-                        storage_location="s3://path",
-                        has_permission=True,
-                    ),
-                ),
-            ],
-        ),
+        {
+            "catalog.schema.table": TableLineage(
+                upstream_tables=[
+                    "db.schema.upstream",
+                    "db.schema.upstream2",
+                ],
+            )
+        }
     ]
+
     mock_list_column_lineage.side_effect = [
-        ColumnLineage(
-            upstream_cols=[
-                LineageColumnInfo(
-                    name="col1",
-                    catalog_name="db",
-                    schema_name="schema",
-                    table_name="upstream",
-                )
-            ]
-        ),
-        ColumnLineage(upstream_cols=[]),
+        {
+            "catalog.schema.table": ColumnLineage(
+                upstream_columns={
+                    "col1": [
+                        Column(column_name="col1", table_name="db.schema.upstream")
+                    ]
+                }
+            ),
+        }
     ]
+
+    mock_get_query_logs.return_value = [
+        QueryLog(
+            query_id="foo",
+            email="foo@bar.com",
+            start_time=datetime(2020, 1, 1, tzinfo=timezone.utc),
+            duration=1234.0,
+            rows_read=9487.0,
+            rows_written=5566.0,
+            bytes_read=1234.0,
+            bytes_written=5678.0,
+            sql="bogus query",
+            sources=[],
+            targets=[],
+            sql_hash="4d562df2c6dc30bee38ccfac33bc47d7",
+            platform=DataPlatform.UNITY_CATALOG,
+            id="UNITY_CATALOG:foo",
+        )
+    ]
+
+    mock_batch_get_last_refreshed_time.return_value = {
+        "catalog.schema.table": datetime(2020, 1, 1, tzinfo=timezone.utc),
+        "catalog2.schema.table2": datetime(2020, 1, 1, tzinfo=timezone.utc),
+    }
+
     mock_create_api.return_value = mock_client
 
-    mock_cursor = MagicMock()
-    mock_cursor.fetchall = MagicMock()
-    mock_cursor.fetchall.side_effect = [
+    results = [
         [
             (
                 "/Volumes/catalog2/schema/volume/input.csv",
@@ -319,15 +273,8 @@ async def test_extractor(
         ],
     ]
 
-    mock_cursor_ctx = MagicMock()
-    mock_cursor_ctx.__enter__ = MagicMock()
-    mock_cursor_ctx.__enter__.return_value = mock_cursor
-
-    mock_connection = MagicMock()
-    mock_connection.cursor = MagicMock()
-    mock_connection.cursor.return_value = mock_cursor_ctx
-
-    mock_create_connection.return_value = mock_connection
+    mock_create_connection.return_value = mock_sql_connection(results)
+    mock_create_connection_pool.return_value = Queue(1)
 
     extractor = UnityCatalogExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]

@@ -3,4 +3,5 @@ hostname: hostname
 http_path: path
 token: token
 source_url: http://foo.bar/{catalog}/{schema}/{table}
+describe_history_limit: 30
 output: {}

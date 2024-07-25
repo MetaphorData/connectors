@@ -1,4 +1,4 @@
-from metaphor.common.process_query.preprocess.snowflake import (
+from metaphor.common.sql.process_query.preprocess.snowflake import (
     drop_snowflake_copy_into_options,
 )
 from metaphor.models.metadata_change_event import DataPlatform

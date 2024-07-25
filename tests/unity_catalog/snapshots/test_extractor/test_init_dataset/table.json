@@ -21,13 +21,20 @@
   },
   "sourceInfo": {
     "createdAtSource": "1970-01-01T00:00:00+00:00",
-    "lastUpdated": "1970-01-01T00:00:00+00:00",
     "mainUrl": "http://foo.bar/catalog/schema/table"
   },
   "structure": {
     "database": "catalog",
     "schema": "schema",
     "table": "table"
+  },
+  "systemContacts": {
+    "contacts": [
+      {
+        "email": "foo@bar.com",
+        "systemContactSource": "UNITY_CATALOG"
+      }
+    ]
   },
   "systemTags": {
     "tags": []

@@ -82,9 +82,7 @@
   },
   {
     "entityUpstream": {
-      "sourceEntities": [
-        "DATASET~FDF012DB00302C39651E2FF173405230"
-      ]
+      "sourceEntities": []
     },
     "logicalId": {
       "name": "/Volumes/catalog2/schema/volume/output.csv",
@@ -108,10 +106,6 @@
           "destination": "col1",
           "sources": [
             {
-              "dataset": {
-                "name": "db.schema.upstream",
-                "platform": "UNITY_CATALOG"
-              },
               "field": "col1",
               "sourceEntityId": "DATASET~4B3CF34E5B62D97FAF33F75C7B32BB84"
             }
@@ -149,13 +143,21 @@
     },
     "sourceInfo": {
       "createdAtSource": "1970-01-01T00:00:00+00:00",
-      "lastUpdated": "1970-01-01T00:00:00+00:00",
+      "lastUpdated": "2020-01-01T00:00:00+00:00",
       "mainUrl": "https://dummy.host/explore/data/catalog/schema/table"
     },
     "structure": {
       "database": "catalog",
       "schema": "schema",
       "table": "table"
+    },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "user1@foo.com",
+          "systemContactSource": "UNITY_CATALOG"
+        }
+      ]
     },
     "systemTags": {
       "tags": [
@@ -194,7 +196,7 @@
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {
         "dataSourceFormat": "CSV",
-        "owner": "foo@bar.com",
+        "owner": "user1@foo.com",
         "properties": [
           {
             "key": "delta.lastCommitTimestamp",
@@ -229,13 +231,20 @@
     },
     "sourceInfo": {
       "createdAtSource": "1970-01-01T00:00:00+00:00",
-      "lastUpdated": "1970-01-01T00:00:00+00:00",
       "mainUrl": "https://dummy.host/explore/data/catalog/schema/view"
     },
     "structure": {
       "database": "catalog",
       "schema": "schema",
       "table": "view"
+    },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "user2@foo.com",
+          "systemContactSource": "UNITY_CATALOG"
+        }
+      ]
     },
     "systemTags": {
       "tags": [
@@ -264,7 +273,7 @@
     "unityCatalog": {
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {
-        "owner": "foo@bar.com",
+        "owner": "user2@foo.com",
         "properties": [
           {
             "key": "view.catalogAndNamespace.numParts",
@@ -336,18 +345,6 @@
       "name": "catalog2.schema.table2",
       "platform": "UNITY_CATALOG"
     },
-    "entityUpstream": {
-      "fieldMappings": [
-        {
-          "destination": "col1",
-          "sources": []
-        }
-      ],
-      "sourceEntities": [
-        "DATASET~C109145C4035631CA68E19687464C80A",
-        "DATASET~7027DB17D7A88FC1442608A7E5F79984"
-      ]
-    },
     "schema": {
       "description": "example",
       "fields": [
@@ -366,13 +363,21 @@
     },
     "sourceInfo": {
       "createdAtSource": "1970-01-01T00:00:00+00:00",
-      "lastUpdated": "1970-01-01T00:00:00+00:00",
+      "lastUpdated": "2020-01-01T00:00:00+00:00",
       "mainUrl": "https://dummy.host/explore/data/catalog2/schema/table2"
     },
     "structure": {
       "database": "catalog2",
       "schema": "schema",
       "table": "table2"
+    },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "service principal 1",
+          "systemContactSource": "UNITY_CATALOG"
+        }
+      ]
     },
     "systemTags": {
       "tags": []
@@ -381,7 +386,7 @@
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {
         "dataSourceFormat": "DELTA",
-        "owner": "foo@bar.com",
+        "owner": "sp1",
         "properties": [
           {
             "key": "delta.lastCommitTimestamp",
@@ -391,21 +396,6 @@
         "storageLocation": "s3://path",
         "type": "MANAGED"
       }
-    }
-  },
-  {
-    "entityUpstream": {
-      "sourceEntities": []
-    },
-    "logicalId": {
-      "name": "s3://path/input2.csv",
-      "platform": "S3"
-    },
-    "sourceInfo": {
-      "mainUrl": "https://dummy.host/explore/location/input2/browse"
-    },
-    "unityCatalog": {
-      "datasetType": "UNITY_CATALOG_EXTERNAL_LOCATION"
     }
   },
   {

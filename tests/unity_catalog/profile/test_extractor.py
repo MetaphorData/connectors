@@ -13,26 +13,28 @@ from databricks.sdk.service.catalog import (
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.unity_catalog.config import UnityCatalogRunConfig
+from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
 from metaphor.unity_catalog.profile.extractor import UnityCatalogProfileExtractor
 from tests.test_utils import load_json
+from tests.unity_catalog.mocks import mock_connection_pool
 
 
 def dummy_config():
-    return UnityCatalogRunConfig(
+    return UnityCatalogProfileRunConfig(
         hostname="dummy.host",
         http_path="path",
         token="",
+        analyze_if_no_statistics=True,
         output=OutputConfig(),
     )
 
 
-@patch("metaphor.unity_catalog.profile.extractor.create_connection")
+@patch("metaphor.unity_catalog.profile.extractor.create_connection_pool")
 @patch("metaphor.unity_catalog.profile.extractor.create_api")
 @pytest.mark.asyncio
 async def test_extractor(
     mock_create_api: MagicMock,
-    mock_create_connection: MagicMock,
+    mock_create_connection_pool: MagicMock,
     test_root_dir: str,
 ):
     mock_client = MagicMock()
@@ -67,26 +69,17 @@ async def test_extractor(
     mock_col2_stats = [
         SimpleNamespace(info_name="distinct_count", info_value="1234"),
         SimpleNamespace(info_name="max", info_value="9999"),
-        SimpleNamespace(info_name="min", info_value="-9999"),
+        SimpleNamespace(info_name="min", info_value="Infinity"),
         SimpleNamespace(info_name="num_nulls", info_value="NULL"),
     ]
 
-    mock_cursor = MagicMock()
-    mock_cursor.fetchall = MagicMock()
-    mock_cursor.fetchall.side_effect = [
-        mock_rows,
-        mock_col2_stats,
-    ]
-
-    mock_cursor_ctx = MagicMock()
-    mock_cursor_ctx.__enter__ = MagicMock()
-    mock_cursor_ctx.__enter__.return_value = mock_cursor
-
-    mock_connection = MagicMock()
-    mock_connection.cursor = MagicMock()
-    mock_connection.cursor.return_value = mock_cursor_ctx
-
-    mock_create_connection.return_value = mock_connection
+    mock_create_connection_pool.return_value = mock_connection_pool(
+        [
+            mock_rows,
+            mock_rows,
+            mock_col2_stats,
+        ]
+    )
 
     extractor = UnityCatalogProfileExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -94,12 +87,12 @@ async def test_extractor(
     assert events == load_json(f"{test_root_dir}/unity_catalog/profile/expected.json")
 
 
-@patch("metaphor.unity_catalog.profile.extractor.create_connection")
+@patch("metaphor.unity_catalog.profile.extractor.create_connection_pool")
 @patch("metaphor.unity_catalog.profile.extractor.create_api")
 @pytest.mark.asyncio
 async def test_should_handle_exception(
     mock_create_api: MagicMock,
-    mock_create_connection: MagicMock,
+    mock_create_connection_pool: MagicMock,
 ):
     mock_client = MagicMock()
 
@@ -126,23 +119,12 @@ async def test_should_handle_exception(
     ]
     mock_create_api.return_value = mock_client
 
-    mock_cursor = MagicMock()
-    mock_cursor.execute = MagicMock()
-
     def throw_error(_):
         raise Exception("no permission")
 
-    mock_cursor.execute.side_effect = throw_error
-
-    mock_cursor_ctx = MagicMock()
-    mock_cursor_ctx.__enter__ = MagicMock()
-    mock_cursor_ctx.__enter__.return_value = mock_cursor
-
-    mock_connection = MagicMock()
-    mock_connection.cursor = MagicMock()
-    mock_connection.cursor.return_value = mock_cursor_ctx
-
-    mock_create_connection.return_value = mock_connection
+    mock_create_connection_pool.return_value = mock_connection_pool(
+        fetch_all_side_effect=[], execute_side_effect=throw_error
+    )
 
     extractor = UnityCatalogProfileExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -157,14 +139,14 @@ async def test_should_handle_exception(
     ]
 
 
-@patch("metaphor.unity_catalog.profile.extractor.create_connection")
+@patch("metaphor.unity_catalog.profile.extractor.create_connection_pool")
 @patch("metaphor.unity_catalog.profile.extractor.create_api")
 @patch("logging.Logger.exception")
 @pytest.mark.asyncio
 async def test_should_handle_exception_column_stat(
     mock_log_error: MagicMock,
     mock_create_api: MagicMock,
-    mock_create_connection: MagicMock,
+    mock_create_connection_pool: MagicMock,
     test_root_dir: str,
 ):
     mock_client = MagicMock()
@@ -193,6 +175,8 @@ async def test_should_handle_exception_column_stat(
     ]
     mock_create_api.return_value = mock_client
 
+    mock_no_rows = [SimpleNamespace(col_name="Statistics", data_type="5566 bytes")]
+
     mock_rows = [
         SimpleNamespace(col_name="Statistics", data_type="5566 bytes, 9487 rows")
     ]
@@ -200,18 +184,20 @@ async def test_should_handle_exception_column_stat(
     mock_col2_stats = [
         SimpleNamespace(info_name="distinct_count", info_value="1234"),
         SimpleNamespace(info_name="max", info_value="9999"),
-        SimpleNamespace(info_name="min", info_value="-9999"),
+        SimpleNamespace(info_name="min", info_value="Infinity"),
         SimpleNamespace(info_name="num_nulls", info_value="NULL"),
     ]
 
     mock_cursor = MagicMock()
     mock_cursor.fetchall = MagicMock()
-    mock_cursor.fetchall.side_effect = [
+    fetchall_side_effect = [
+        mock_no_rows,
         mock_rows,
         mock_col2_stats,
     ]
 
-    mock_cursor.execute.side_effect = [
+    execute_side_effect = [
+        None,
         None,
         None,
         Exception("error for column stat"),
@@ -226,7 +212,10 @@ async def test_should_handle_exception_column_stat(
     mock_connection.cursor = MagicMock()
     mock_connection.cursor.return_value = mock_cursor_ctx
 
-    mock_create_connection.return_value = mock_connection
+    mock_create_connection_pool.return_value = mock_connection_pool(
+        fetch_all_side_effect=fetchall_side_effect,
+        execute_side_effect=execute_side_effect,
+    )
 
     extractor = UnityCatalogProfileExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
