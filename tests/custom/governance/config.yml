@@ -12,7 +12,7 @@ datasets:
       - pii
       - golden
     column_tags:
-      - column: col1
+      - column: COL1
         tags:
           - phi
       - column: col2
@@ -29,7 +29,7 @@ datasets:
             email: foo@test.com
           - description: bar
             email: barbar@test.com
-      - column_name: col3
+      - column_name: COL3
         descriptions:
           - description: baz
             email: bazbazbaz@test.com
