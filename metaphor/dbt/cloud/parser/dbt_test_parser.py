@@ -89,6 +89,22 @@ class TestParser:
                 test, models[model_unique_id], model.run_results
             )
 
+    @staticmethod
+    def _get_run_result_executed_completed_at(
+        run_result: RunResult,
+    ) -> Optional[datetime]:
+        if isinstance(run_result.execute_completed_at, datetime):
+            return run_result.execute_completed_at
+        if isinstance(run_result.execute_completed_at, str):
+            completed_at = run_result.execute_completed_at
+            if completed_at.endswith("Z"):
+                completed_at = completed_at[:-1]
+            try:
+                return datetime.fromisoformat(completed_at)
+            except Exception:
+                return None
+        return None
+
     def _parse_test_run_result(
         self,
         test: Test,
@@ -108,9 +124,10 @@ class TestParser:
             return
 
         def run_result_key(run_result: RunResult):
-            if not isinstance(run_result.execute_completed_at, datetime):
+            completed_at = self._get_run_result_executed_completed_at(run_result)
+            if not completed_at:
                 return 0
-            return run_result.execute_completed_at.timestamp()
+            return completed_at.timestamp()
 
         run_result = next(
             (
@@ -135,8 +152,5 @@ class TestParser:
         )
 
         status = dbt_run_result_output_data_monitor_status_map[run_result.status]
-        last_run = None
-        if isinstance(run_result.execute_completed_at, datetime):
-            last_run = run_result.execute_completed_at
-
+        last_run = self._get_run_result_executed_completed_at(run_result)
         add_data_quality_monitor(dataset, test.name, test.column_name, status, last_run)
