@@ -1,3 +1,27 @@
+"""
+A directive used by the Apollo iOS client to annotate operations or fragments that should be used exclusively for generating local cache mutations instead of as standard operations.
+"""
+directive @apollo_client_ios_localCacheMutation on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
+
+"""
+A directive used by the Apollo iOS code generation engine to generate custom import statements in operation or fragment definition files. An import statement to import a module with the name provided in the `module` argument will be added to the generated definition file.
+"""
+directive @import(
+  """The name of the module to import."""
+  module: String!
+) repeatable on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
+
+"""
+Directs the executor to defer this fragment when the `if` argument is true or undefined.
+"""
+directive @defer(
+  """Deferred when true or undefined."""
+  if: Boolean
+
+  """Unique name"""
+  label: String
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
 """The access level of the model you are declaring properties for."""
 enum AccessLevel {
   private
@@ -52,12 +76,10 @@ The output of successful dbt DAG execution that creates or describes the state o
 type AppliedState {
   exposures(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Exposure Filter"""
     filter: ExposureFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): ExposureAppliedStateNodeConnection!
 
   """
@@ -92,12 +114,10 @@ type AppliedState {
   ): [ModelNode!]!
   models(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Model Filter"""
     filter: ModelAppliedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
 
     """Sort by"""
     sort: AppliedModelSort
@@ -115,39 +135,31 @@ type AppliedState {
   """The paginated results of resources."""
   resources(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Resources Filter"""
     filter: AppliedResourcesFilter!
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): EnvironmentAppliedNodeConnection!
   seeds(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Seeds Filter"""
     filter: GenericMaterializedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): SeedAppliedStateNodeConnection!
   snapshots(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Seeds Filter"""
     filter: GenericMaterializedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): SnapshotAppliedStateNodeConnection!
   sources(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Source Filter"""
     filter: SourceAppliedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): SourceAppliedStateNodeConnection!
 
   """The distinct tags of applied resources in the environment"""
@@ -156,12 +168,10 @@ type AppliedState {
   """The definition state of a test"""
   tests(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Test Filter"""
     filter: TestAppliedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): TestAppliedStateNodeConnection!
 }
 
@@ -320,23 +330,19 @@ type DefinitionState {
   """The paginated results of Exposures."""
   exposures(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Exposure Filter"""
     filter: ExposureFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): ExposureDefinitionNodeConnection!
 
   """Groups for model governance."""
   groups(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Group Filter"""
     filter: GroupFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): GroupNodeConnection!
 
   """
@@ -351,30 +357,24 @@ type DefinitionState {
   ): [LineageNode!]!
   macros(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Macro Filter"""
     filter: MacroDefinitionFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): MacroDefinitionNodeConnection!
   metrics(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Metrics Filter"""
     filter: GenericMaterializedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): MetricDefinitionNodeConnection!
   models(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Model Filter"""
     filter: ModelDefinitionFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): ModelDefinitionNodeConnection!
 
   """List of packages used in the environment"""
@@ -389,60 +389,48 @@ type DefinitionState {
   """The paginated results of resources."""
   resources(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Resources Filter"""
     filter: DefinitionResourcesFilter!
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): EnvironmentDefinitionNodeConnection!
   seeds(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Seeds Filter"""
     filter: GenericMaterializedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): SeedDefinitionNodeConnection!
   semanticModels(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """SemanticModels Filter"""
     filter: GenericMaterializedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): SemanticModelDefinitionNodeConnection!
   snapshots(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Snapshots Filter"""
     filter: GenericMaterializedFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): SnapshotDefinitionNodeConnection!
   sources(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Source Filter"""
     filter: SourceDefinitionFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): SourceDefinitionNodeConnection!
 
   """The distinct tags of definition resources in the environment"""
   tags: [Tag!]!
   tests(
     after: String
-    before: String @deprecated(reason: "Use `after` instead")
 
     """Test Filter"""
     filter: TestDefinitionFilter
     first: Int
-    last: Int @deprecated(reason: "Use `first` instead")
   ): TestDefinitionNodeConnection!
 }
 

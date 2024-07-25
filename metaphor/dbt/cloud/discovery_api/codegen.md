@@ -1,22 +1,13 @@
-# Generate GraphQL client
+# Generate GraphQL client code
 
-This is done by `ariadne-codegen`. Python version has to be >= 3.9.
+## Requirements
+
+- Python >= 3.9
+- `ariadne-codegen`
 
 ## Usage
 
-1. Navigate to `{GIT_ROOT}/metaphor/dbt/cloud/discovery_api`
-2. Run `poetry run ariadne-codegen --config ./ariadne-codegen.toml`
-
-## Components
-
-### `schema.graphql`
-
-Yanked from https://metadata.cloud.getdbt.com/graphql.
-
-### `queries.graphql`
-
-These are the actual queries.
-
-### `generated`
-
-The generated GraphQL client.
+```bash
+cd metaphor/dbt/cloud/discovery_api
+./codegen.sh
+```
