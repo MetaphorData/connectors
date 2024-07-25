@@ -1,9 +1,12 @@
 import os
 from typing import Any, Dict
 
+from ..targets import environment_targets
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def fake_GetEnvironmentAdapterType(variables: Dict[str, Any]):
-    with open(f"{dir_path}/jaffle_shop.json") as f:
+    target = environment_targets[variables["environmentId"]]
+    with open(f"{dir_path}/{target}.json") as f:
         return f.read()

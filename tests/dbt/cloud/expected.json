@@ -279,7 +279,7 @@
     "dbtModel": {
       "compiledSql": "\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from acme.jaffle_shop.stg_customers\\n\\n),\\n\\norders_mart as (\\n\\n    select * from acme.jaffle_shop.orders\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from acme.jaffle_shop.order_items\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
       "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.customers",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.customers",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~9916513B634F4B8103E337055A33BF4B",
@@ -353,7 +353,7 @@
   {
     "dbtModel": {
       "compiledSql": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n\\n    with date_spine as\\n(\\n\\n    \\n\\n\\n\\n\\n\\nwith rawdata as (\\n\\n    \\n\\n    \\n\\n    with p as (\\n        select 0 as generated_number union all select 1\\n    ), unioned as (\\n\\n    select\\n\\n    \\n    p0.generated_number * power(2, 0)\\n     + \\n    \\n    p1.generated_number * power(2, 1)\\n     + \\n    \\n    p2.generated_number * power(2, 2)\\n     + \\n    \\n    p3.generated_number * power(2, 3)\\n     + \\n    \\n    p4.generated_number * power(2, 4)\\n     + \\n    \\n    p5.generated_number * power(2, 5)\\n     + \\n    \\n    p6.generated_number * power(2, 6)\\n     + \\n    \\n    p7.generated_number * power(2, 7)\\n     + \\n    \\n    p8.generated_number * power(2, 8)\\n     + \\n    \\n    p9.generated_number * power(2, 9)\\n     + \\n    \\n    p10.generated_number * power(2, 10)\\n     + \\n    \\n    p11.generated_number * power(2, 11)\\n    \\n    \\n    + 1\\n    as generated_number\\n\\n    from\\n\\n    \\n    p as p0\\n     cross join \\n    \\n    p as p1\\n     cross join \\n    \\n    p as p2\\n     cross join \\n    \\n    p as p3\\n     cross join \\n    \\n    p as p4\\n     cross join \\n    \\n    p as p5\\n     cross join \\n    \\n    p as p6\\n     cross join \\n    \\n    p as p7\\n     cross join \\n    \\n    p as p8\\n     cross join \\n    \\n    p as p9\\n     cross join \\n    \\n    p as p10\\n     cross join \\n    \\n    p as p11\\n    \\n    \\n\\n    )\\n\\n    select *\\n    from unioned\\n    where generated_number <= 3651\\n    order by generated_number\\n\\n\\n\\n),\\n\\nall_periods as (\\n\\n    select (\\n        \\n\\n    dateadd(\\n        day,\\n        row_number() over (order by 1) - 1,\\n        \\n\\n    dateadd(\\n        day,\\n        -3650,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n\\n        )\\n\\n\\n    ) as date_day\\n    from rawdata\\n\\n),\\n\\nfiltered as (\\n\\n    select *\\n    from all_periods\\n    where date_day <= cast(\\n\\n    dateadd(\\n        day,\\n        1,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n as date)\\n\\n)\\n\\nselect * from filtered\\n\\n\\n\\n)\\nselect\\n    cast(d.date_day as timestamp) as date_day\\nfrom\\n    date_spine d\\n\\n\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.metricflow_time_spine",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.metricflow_time_spine",
       "fields": [],
       "macros": [
         {
@@ -390,7 +390,7 @@
   {
     "dbtModel": {
       "compiledSql": "\\n\\nwith order_items as (\\n\\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.order_items",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.order_items",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~9C04E59044AD0F422EA6A996BCD17E39",
@@ -427,7 +427,7 @@
     "dbtModel": {
       "compiledSql": "\\n\\n\\nwith orders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n\\n),\\n\\norder_items as (\\n    \\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n),\\n\\nsupplies as (\\n\\n    select * from acme.jaffle_shop.stg_supplies\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
       "description": "Order overview data mart, offering key details for each order inlcluding if it's a customer's first order and a food vs. drink item breakdown. One row per order.",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.orders",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.orders",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8",
@@ -504,7 +504,7 @@
     "dbtModel": {
       "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "Customer data with basic cleaning and transformation applied, one row per customer.",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_customers",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_customers",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~512557BF25DF9EAEE5584140A235E03D",
@@ -555,7 +555,7 @@
     "dbtModel": {
       "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- \\n    -- where opened_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "List of open locations with basic cleaning and transformation applied, one row per location.",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_locations",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_locations",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~30CDC644AD658B552B89094BA9B3E99C",
@@ -606,7 +606,7 @@
     "dbtModel": {
       "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "Individual food and drink items that make up our orders, one row per item.",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_order_items",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_order_items",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~D1E6B89E5891621E2DB93165B5828719",
@@ -657,7 +657,7 @@
     "dbtModel": {
       "compiledSql": "\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "Order data with basic cleaning and transformation applied, one row per order.",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_orders",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_orders",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~757BF2FC19B9BBD0DBAFD90768F2DC8B",
@@ -708,7 +708,7 @@
     "dbtModel": {
       "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product.",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_products",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_products",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~2932BAF66BF93D64D6AC2F457698EB52",
@@ -759,7 +759,7 @@
     "dbtModel": {
       "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        \\n    \\nmd5(cast(coalesce(cast(id as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(sku as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "List of our supply expenses data with basic cleaning and transformation applied.\\nOne row per supply cost, not per supply. As supply costs fluctuate they receive a new row with a new UUID. Thus there can be multiple rows per supply_id.\\n",
-      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_supplies",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_supplies",
       "fields": [],
       "materialization": {
         "targetDataset": "DATASET~A808B6BE5F80DA3A550D49C92E8F2D89",
@@ -815,7 +815,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "cumulative",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.cumulative_revenue"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.cumulative_revenue"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -832,7 +832,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.customers_with_orders"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.customers_with_orders"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -849,7 +849,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.food_orders"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_orders"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -866,7 +866,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.food_revenue"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_revenue"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -883,7 +883,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "ratio",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.food_revenue_pct"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_revenue_pct"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -900,7 +900,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.large_order"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.large_order"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -917,7 +917,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.locations"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.locations"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -934,7 +934,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.median_revenue"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.median_revenue"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -951,7 +951,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.new_customer"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.new_customer"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -968,7 +968,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.order_cost"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_cost"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -985,7 +985,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "derived",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.order_gross_profit"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_gross_profit"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -1002,7 +1002,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.orders"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.orders"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -1019,7 +1019,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.order_total"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_total"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -1036,7 +1036,7 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.revenue"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.revenue"
     },
     "entityUpstream": {},
     "logicalId": {
@@ -1053,12 +1053,410 @@
       "packageName": "jaffle_shop",
       "timeGrains": [],
       "type": "derived",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/metric/metric.jaffle_shop.revenue_growth_mom"
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.revenue_growth_mom"
     },
     "entityUpstream": {},
     "logicalId": {
       "name": "jaffle_shop.revenue_growth_mom",
       "type": "DBT_METRIC"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset contains profile info of each customer. E.g first name, last name, email, company name etc."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Auto-generated ID",
+          "fieldPath": "id"
+        },
+        {
+          "documentation": "Customer's first name",
+          "fieldPath": "first_name"
+        },
+        {
+          "documentation": "Customer's last name",
+          "fieldPath": "last_name"
+        },
+        {
+          "documentation": "Customer's email address",
+          "fieldPath": "email"
+        },
+        {
+          "documentation": "Customer's company",
+          "fieldPath": "company"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "date"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.customer_profile",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset contains all subscriptions info."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "created_at"
+        },
+        {
+          "documentation": "Subscription full display name",
+          "fieldPath": "long_name"
+        },
+        {
+          "documentation": "Subscription price in cents",
+          "fieldPath": "price"
+        },
+        {
+          "documentation": "Type of subscription renewal",
+          "fieldPath": "renew_type"
+        },
+        {
+          "documentation": "Subscription short name",
+          "fieldPath": "short_name"
+        },
+        {
+          "documentation": "Primary Key",
+          "fieldPath": "sub_id"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_base",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset represents all the raw subscription changes info of our product. Each subscription is represented by unique subs_id and each change has a unique chng_id."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Change type",
+          "fieldPath": "change_type"
+        },
+        {
+          "documentation": "Primary Key",
+          "fieldPath": "chg_id"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "created_at"
+        },
+        {
+          "documentation": "Subscription ID",
+          "fieldPath": "sub_id"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_change_raw",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.churn_region_agg",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.modular_campaigns",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_growth",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_v2",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as id,\n  subscriptions_growth.customer_id as cus_id,\n  'no' as reason,\n  subscriptions_growth.created_at as sub_date,\n  '2014-01-01 16:00:00' as cancel_date\nfrom DEMO_DB.METAPHOR.subscriptions_growth as subscriptions_growth",
+      "description": "This dataset contains info about churn, all the accounts that have cancelled the subscriptions in the past.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.churn_region_agg",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~21B252FB382AB10032F473675A8E563E",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "[\"mars@metaphor.io\", \"pardhu@metaphor.io\"]"
+        }
+      ],
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as id,\n  subscriptions_growth.customer_id as cus_id,\n  'no' as reason,\n  subscriptions_growth.created_at as sub_date,\n  '2014-01-01 16:00:00' as cancel_date\nfrom {{ ref('subscriptions_growth') }} as subscriptions_growth",
+      "sourceModels": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.churn_region_agg"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.churn_region_agg",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "churn_region_agg"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as id,\n  'name' as name,\n  'poc' as poc,\n  100 as budget,\n  churn_region_agg.sub_date as date\nfrom DEMO_DB.METAPHOR.churn_region_agg as churn_region_agg",
+      "description": "This dataset contains info about all modular campaigns. The id represents campaign id.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.modular_campaigns",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~21F8510010F67ABD176C2F09C61C0177",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "[\"mars@metaphor.io\", \"pardhu@metaphor.io\"]"
+        }
+      ],
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as id,\n  'name' as name,\n  'poc' as poc,\n  100 as budget,\n  churn_region_agg.sub_date as date\nfrom {{ ref('churn_region_agg') }} as churn_region_agg",
+      "sourceModels": [
+        "VIRTUAL_VIEW~1BD666702EACA1E95384807DA0DC92C7"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.modular_campaigns"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~1BD666702EACA1E95384807DA0DC92C7"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.modular_campaigns",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "modular_campaigns"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sub_id,\n  'url' as url,\n  customer_profile.date as created_at\nfrom DEMO_DB.METAPHOR.CUSTOMER_PROFILE as customer_profile",
+      "description": "This dataset contains all subscriptions core info.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.subscriptions_core",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~F134F3E0858F50ABE766D17D9C558AE3",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sub_id,\n  'url' as url,\n  customer_profile.date as created_at\nfrom {{ source('METAPHOR', 'CUSTOMER_PROFILE') }} as customer_profile",
+      "sourceDatasets": [
+        "DATASET~5641EFE05C0E7A164E64267CB76ED41B"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.subscriptions_core"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~5641EFE05C0E7A164E64267CB76ED41B"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_core",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "subscriptions_core"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "subscription"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  change_raw.sub_id as sub_id,\n  1 as customer_id, \n  base.created_at as created_at\nfrom DEMO_DB.METAPHOR.SUBSCRIPTIONS_CHANGE_RAW as change_raw\ninner join DEMO_DB.METAPHOR.SUBSCRIPTIONS_BASE as base on base.sub_id = change_raw.sub_id\ninner join DEMO_DB.METAPHOR.subscriptions_v2 as v2 on v2.sub_id = change_raw.sub_id",
+      "description": "This dataset represents all the subscription info of our product. Each subscription is represented by unique subs_id.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.subscriptions_growth",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~23E009C6A5D14EE37FCF7DDC9C847939",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "[\"mars@metaphor.io\", \"pardhu@metaphor.io\"]"
+        }
+      ],
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  change_raw.sub_id as sub_id,\n  1 as customer_id, \n  base.created_at as created_at\nfrom {{ source('METAPHOR', 'SUBSCRIPTIONS_CHANGE_RAW') }} as change_raw\ninner join {{ source('METAPHOR', 'SUBSCRIPTIONS_BASE') }} as base on base.sub_id = change_raw.sub_id\ninner join {{ ref('subscriptions_v2') }} as v2 on v2.sub_id = change_raw.sub_id",
+      "sourceDatasets": [
+        "DATASET~2F3C1202ADA5F7AEC4BD6F33A40A2F82",
+        "DATASET~A448444CA0CDE26D11CDCE4A6D640AF9"
+      ],
+      "sourceModels": [
+        "VIRTUAL_VIEW~40E84C63748265E978F781C89A23BE51"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.subscriptions_growth"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~2F3C1202ADA5F7AEC4BD6F33A40A2F82",
+        "DATASET~A448444CA0CDE26D11CDCE4A6D640AF9",
+        "VIRTUAL_VIEW~40E84C63748265E978F781C89A23BE51"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_growth",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "subscriptions_growth"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "subscription"
+        },
+        {
+          "systemTagSource": "DBT",
+          "value": "growth"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sales_id,\n  subscriptions_growth.sub_id as sub_id,\n  1 as sale_rep_id,\n  1 as deal_size,\n  '2014-01-01 16:00:00' as created_at\nfrom DEMO_DB.METAPHOR.subscriptions_growth as subscriptions_growth",
+      "description": "This dataset represents the sales info for each subscription.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.subscriptions_sales",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~EA7EEF0E21B06B0282E4BC3B7FD508A8",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sales_id,\n  subscriptions_growth.sub_id as sub_id,\n  1 as sale_rep_id,\n  1 as deal_size,\n  '2014-01-01 16:00:00' as created_at\nfrom {{ ref('subscriptions_growth') }} as subscriptions_growth",
+      "sourceModels": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.subscriptions_sales"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_sales",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "subscriptions_sales"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "subscription"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sub_id,\n  'short name' as short_name,\n  'long name' as long_name,\n  'region' as region,\n  1 as price,\n  'type' as renew_type,\n  customer_profile.date as created_at\nfrom DEMO_DB.METAPHOR.CUSTOMER_PROFILE as customer_profile",
+      "description": "This dataset contains all newer subscriptions info.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.subscriptions_v2",
+      "fields": [],
+      "materialization": {
+        "targetDataset": "DATASET~4112E9F599D5D58340D7DD2D77458017",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "[\"mars@metaphor.io\", \"pardhu@metaphor.io\"]"
+        }
+      ],
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sub_id,\n  'short name' as short_name,\n  'long name' as long_name,\n  'region' as region,\n  1 as price,\n  'type' as renew_type,\n  customer_profile.date as created_at\nfrom {{ source('METAPHOR', 'CUSTOMER_PROFILE') }} as customer_profile",
+      "sourceDatasets": [
+        "DATASET~5641EFE05C0E7A164E64267CB76ED41B"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.subscriptions_v2"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~5641EFE05C0E7A164E64267CB76ED41B"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_v2",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "subscriptions_v2"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "subscription"
+        }
+      ]
     }
   }
 ]

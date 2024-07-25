@@ -10,7 +10,7 @@ from metaphor.common.event_util import EventUtil
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.extractor import DbtCloudExtractor
-from tests.dbt.cloud.fake_graphql_server import endpoints
+from tests.dbt.cloud.fake_graphql_server import endpoints, targets
 from tests.test_utils import load_json
 
 
@@ -31,20 +31,25 @@ class MockAdminClient:
         service_token: str,
         included_env_ids: Set[int] = set(),
     ):
-        pass
+        self.job_env = {
+            j: e
+            for j, e in zip(
+                targets.job_targets.keys(), targets.environment_targets.keys()
+            )
+        }
 
     def get_project_jobs(self, project_id: int) -> List[int]:
-        return [123]
+        return list(self.job_env.keys())
 
     def is_job_included(self, job_id: int):
         return True
 
     def get_last_successful_run(self, job_id: int, page_size=50):
         return DbtRun(
-            123,
-            job_id,
-            1234,
-            12345,
+            project_id=123,
+            job_id=job_id,
+            run_id=job_id * 10 + 1,
+            environment_id=self.job_env[job_id],
         )
 
     def get_snowflake_account(self, project_id: int):
