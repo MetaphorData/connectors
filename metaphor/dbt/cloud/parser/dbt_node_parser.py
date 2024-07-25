@@ -154,7 +154,7 @@ class NodeParser:
         )
 
     def _parse_node_columns(self, node: NODE_TYPE, dbt_model: DbtModel) -> None:
-        if not dbt_model.fields:
+        if dbt_model.fields is None:
             return
         if node.columns is not None:
             for col in node.columns:
