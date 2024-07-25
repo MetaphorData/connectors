@@ -277,7 +277,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "\n\nwith\n\ncustomers as (\n\n    select * from acme.jaffle_shop.stg_customers\n\n),\n\norders_mart as (\n\n    select * from acme.jaffle_shop.orders\n\n),\n\norder_items_mart as (\n\n    select * from acme.jaffle_shop.order_items\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct om.order_id) as count_lifetime_orders,\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\n        min(om.ordered_at) as first_ordered_at,\n        max(om.ordered_at) as last_ordered_at,\n        sum(oi.subtotal) as lifetime_spend_pretax,\n        sum(om.order_total) as lifetime_spend\n\n    from orders_mart om\n    \n    left join order_items_mart oi on om.order_id = oi.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+      "compiledSql": "\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from acme.jaffle_shop.stg_customers\\n\\n),\\n\\norders_mart as (\\n\\n    select * from acme.jaffle_shop.orders\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from acme.jaffle_shop.order_items\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
       "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.customers",
       "fields": [],
@@ -286,7 +286,7 @@
         "type": "TABLE"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "{{\n    config(\n        materialized='table'\n    )\n}}\n\nwith\n\ncustomers as (\n\n    select * from {{ ref('stg_customers') }}\n\n),\n\norders_mart as (\n\n    select * from {{ ref('orders') }}\n\n),\n\norder_items_mart as (\n\n    select * from {{ ref('order_items') }}\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct om.order_id) as count_lifetime_orders,\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\n        min(om.ordered_at) as first_ordered_at,\n        max(om.ordered_at) as last_ordered_at,\n        sum(oi.subtotal) as lifetime_spend_pretax,\n        sum(om.order_total) as lifetime_spend\n\n    from orders_mart om\n    \n    left join order_items_mart oi on om.order_id = oi.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+      "rawSql": "{{\\n    config(\\n        materialized='table'\\n    )\\n}}\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from {{ ref('stg_customers') }}\\n\\n),\\n\\norders_mart as (\\n\\n    select * from {{ ref('orders') }}\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from {{ ref('order_items') }}\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
       "sourceModels": [
         "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3",
         "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
@@ -302,7 +302,7 @@
             "macro.dbt.test_accepted_values"
           ],
           "name": "accepted_values_customers_customer_type__new__returning",
-          "sql": "\n    \n    \n\nwith all_values as (\n\n    select\n        customer_type as value_field,\n        count(*) as n_records\n\n    from acme.jaffle_shop.customers\n    group by customer_type\n\n)\n\nselect *\nfrom all_values\nwhere value_field not in (\n    'new','returning'\n)\n\n\n",
+          "sql": "\\n    \\n    \\n\\nwith all_values as (\\n\\n    select\\n        customer_type as value_field,\\n        count(*) as n_records\\n\\n    from acme.jaffle_shop.customers\\n    group by customer_type\\n\\n)\\n\\nselect *\\nfrom all_values\\nwhere value_field not in (\\n    'new','returning'\\n)\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.accepted_values_customers_customer_type__new__returning.d12f0947c8"
         },
         {
@@ -314,7 +314,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_customers_customer_id",
-          "sql": "\n    \n    \n\n\n\nselect customer_id\nfrom acme.jaffle_shop.customers\nwhere customer_id is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect customer_id\\nfrom acme.jaffle_shop.customers\\nwhere customer_id is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.not_null_customers_customer_id.5c9bf9911d"
         },
         {
@@ -326,7 +326,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_customers_customer_id",
-          "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+          "sql": "\\n    \\n    \\n\\nselect\\n    customer_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.customers\\nwhere customer_id is not null\\ngroup by customer_id\\nhaving count(*) > 1\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.unique_customers_customer_id.c5af1ff4b1"
         }
       ],
@@ -352,7 +352,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "-- metricflow_time_spine.sql\nwith days as (\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n\n    with date_spine as\n(\n\n    \n\n\n\n\n\nwith rawdata as (\n\n    \n\n    \n\n    with p as (\n        select 0 as generated_number union all select 1\n    ), unioned as (\n\n    select\n\n    \n    p0.generated_number * power(2, 0)\n     + \n    \n    p1.generated_number * power(2, 1)\n     + \n    \n    p2.generated_number * power(2, 2)\n     + \n    \n    p3.generated_number * power(2, 3)\n     + \n    \n    p4.generated_number * power(2, 4)\n     + \n    \n    p5.generated_number * power(2, 5)\n     + \n    \n    p6.generated_number * power(2, 6)\n     + \n    \n    p7.generated_number * power(2, 7)\n     + \n    \n    p8.generated_number * power(2, 8)\n     + \n    \n    p9.generated_number * power(2, 9)\n     + \n    \n    p10.generated_number * power(2, 10)\n     + \n    \n    p11.generated_number * power(2, 11)\n    \n    \n    + 1\n    as generated_number\n\n    from\n\n    \n    p as p0\n     cross join \n    \n    p as p1\n     cross join \n    \n    p as p2\n     cross join \n    \n    p as p3\n     cross join \n    \n    p as p4\n     cross join \n    \n    p as p5\n     cross join \n    \n    p as p6\n     cross join \n    \n    p as p7\n     cross join \n    \n    p as p8\n     cross join \n    \n    p as p9\n     cross join \n    \n    p as p10\n     cross join \n    \n    p as p11\n    \n    \n\n    )\n\n    select *\n    from unioned\n    where generated_number <= 3651\n    order by generated_number\n\n\n\n),\n\nall_periods as (\n\n    select (\n        \n\n    dateadd(\n        day,\n        row_number() over (order by 1) - 1,\n        \n\n    dateadd(\n        day,\n        -3650,\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\n) as date)\n        )\n\n\n        )\n\n\n    ) as date_day\n    from rawdata\n\n),\n\nfiltered as (\n\n    select *\n    from all_periods\n    where date_day <= cast(\n\n    dateadd(\n        day,\n        1,\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\n) as date)\n        )\n\n as date)\n\n)\n\nselect * from filtered\n\n\n\n)\nselect\n    cast(d.date_day as timestamp) as date_day\nfrom\n    date_spine d\n\n\n),\n\nfinal as (\n    select cast(date_day as date) as date_day\n    from days\n)\n\nselect *\nfrom final",
+      "compiledSql": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n\\n    with date_spine as\\n(\\n\\n    \\n\\n\\n\\n\\n\\nwith rawdata as (\\n\\n    \\n\\n    \\n\\n    with p as (\\n        select 0 as generated_number union all select 1\\n    ), unioned as (\\n\\n    select\\n\\n    \\n    p0.generated_number * power(2, 0)\\n     + \\n    \\n    p1.generated_number * power(2, 1)\\n     + \\n    \\n    p2.generated_number * power(2, 2)\\n     + \\n    \\n    p3.generated_number * power(2, 3)\\n     + \\n    \\n    p4.generated_number * power(2, 4)\\n     + \\n    \\n    p5.generated_number * power(2, 5)\\n     + \\n    \\n    p6.generated_number * power(2, 6)\\n     + \\n    \\n    p7.generated_number * power(2, 7)\\n     + \\n    \\n    p8.generated_number * power(2, 8)\\n     + \\n    \\n    p9.generated_number * power(2, 9)\\n     + \\n    \\n    p10.generated_number * power(2, 10)\\n     + \\n    \\n    p11.generated_number * power(2, 11)\\n    \\n    \\n    + 1\\n    as generated_number\\n\\n    from\\n\\n    \\n    p as p0\\n     cross join \\n    \\n    p as p1\\n     cross join \\n    \\n    p as p2\\n     cross join \\n    \\n    p as p3\\n     cross join \\n    \\n    p as p4\\n     cross join \\n    \\n    p as p5\\n     cross join \\n    \\n    p as p6\\n     cross join \\n    \\n    p as p7\\n     cross join \\n    \\n    p as p8\\n     cross join \\n    \\n    p as p9\\n     cross join \\n    \\n    p as p10\\n     cross join \\n    \\n    p as p11\\n    \\n    \\n\\n    )\\n\\n    select *\\n    from unioned\\n    where generated_number <= 3651\\n    order by generated_number\\n\\n\\n\\n),\\n\\nall_periods as (\\n\\n    select (\\n        \\n\\n    dateadd(\\n        day,\\n        row_number() over (order by 1) - 1,\\n        \\n\\n    dateadd(\\n        day,\\n        -3650,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n\\n        )\\n\\n\\n    ) as date_day\\n    from rawdata\\n\\n),\\n\\nfiltered as (\\n\\n    select *\\n    from all_periods\\n    where date_day <= cast(\\n\\n    dateadd(\\n        day,\\n        1,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n as date)\\n\\n)\\n\\nselect * from filtered\\n\\n\\n\\n)\\nselect\\n    cast(d.date_day as timestamp) as date_day\\nfrom\\n    date_spine d\\n\\n\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.metricflow_time_spine",
       "fields": [],
       "macros": [
@@ -364,7 +364,7 @@
           "description": "",
           "name": "get_base_dates",
           "packageName": "dbt_date",
-          "sql": "{% macro get_base_dates(start_date=None, end_date=None, n_dateparts=None, datepart=\"day\") %}\n    {{ adapter.dispatch('get_base_dates', 'dbt_date') (start_date, end_date, n_dateparts, datepart) }}\n{% endmacro %}",
+          "sql": "{% macro get_base_dates(start_date=None, end_date=None, n_dateparts=None, datepart=\"day\") %}\\n    {{ adapter.dispatch('get_base_dates', 'dbt_date') (start_date, end_date, n_dateparts, datepart) }}\\n{% endmacro %}",
           "uniqueId": "macro.dbt_date.get_base_dates"
         }
       ],
@@ -373,7 +373,7 @@
         "type": "TABLE"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "-- metricflow_time_spine.sql\nwith days as (\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n{{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\n),\n\nfinal as (\n    select cast(date_day as date) as date_day\n    from days\n)\n\nselect *\nfrom final",
+      "rawSql": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n{{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
       "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.metricflow_time_spine"
     },
     "logicalId": {
@@ -389,7 +389,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "\n\nwith order_items as (\n\n    select * from acme.jaffle_shop.stg_order_items\n\n),\n\n\norders as (\n    \n    select * from acme.jaffle_shop.stg_orders\n),\n\nproducts as (\n\n    select * from acme.jaffle_shop.stg_products\n\n),\n\n\nfinal as (\n    select\n        order_items.*,\n        orders.ordered_at,\n        products.product_price as subtotal,\n        products.is_food_item,\n        products.is_drink_item\n    from order_items\n\n    left join products on order_items.product_id = products.product_id\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\n    left join orders on order_items.order_id  = orders.order_id\n)\n\nselect * from final",
+      "compiledSql": "\\n\\nwith order_items as (\\n\\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.order_items",
       "fields": [],
       "materialization": {
@@ -397,7 +397,7 @@
         "type": "TABLE"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_item_id'\n    )\n}}\n\nwith order_items as (\n\n    select * from {{ ref('stg_order_items') }}\n\n),\n\n\norders as (\n    \n    select * from {{ ref('stg_orders')}}\n),\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n\n),\n\n\nfinal as (\n    select\n        order_items.*,\n        orders.ordered_at,\n        products.product_price as subtotal,\n        products.is_food_item,\n        products.is_drink_item\n    from order_items\n\n    left join products on order_items.product_id = products.product_id\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\n    left join orders on order_items.order_id  = orders.order_id\n)\n\nselect * from final",
+      "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_item_id'\\n    )\\n}}\\n\\nwith order_items as (\\n\\n    select * from {{ ref('stg_order_items') }}\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from {{ ref('stg_orders')}}\\n),\\n\\nproducts as (\\n\\n    select * from {{ ref('stg_products') }}\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
       "sourceModels": [
         "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
         "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
@@ -425,7 +425,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "\n\n\nwith orders as (\n    \n    select * from acme.jaffle_shop.stg_orders\n\n),\n\norder_items as (\n    \n    select * from acme.jaffle_shop.stg_order_items\n\n),\n\nproducts as (\n\n    select * from acme.jaffle_shop.stg_products\n),\n\nsupplies as (\n\n    select * from acme.jaffle_shop.stg_supplies\n\n),\n\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supplies.supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items\n\n    left join supplies on order_items.product_id = supplies.product_id\n    left join products on order_items.product_id = products.product_id\n\n    group by 1\n\n),\n\n\nfinal as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from final",
+      "compiledSql": "\\n\\n\\nwith orders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n\\n),\\n\\norder_items as (\\n    \\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n),\\n\\nsupplies as (\\n\\n    select * from acme.jaffle_shop.stg_supplies\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
       "description": "Order overview data mart, offering key details for each order inlcluding if it's a customer's first order and a food vs. drink item breakdown. One row per order.",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.orders",
       "fields": [],
@@ -434,7 +434,7 @@
         "type": "TABLE"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_id'\n    )\n}}\n\n\nwith orders as (\n    \n    select * from {{ ref('stg_orders')}}\n\n),\n\norder_items as (\n    \n    select * from {{ ref('stg_order_items')}}\n\n),\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n),\n\nsupplies as (\n\n    select * from {{ ref('stg_supplies') }}\n\n),\n\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supplies.supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items\n\n    left join supplies on order_items.product_id = supplies.product_id\n    left join products on order_items.product_id = products.product_id\n\n    group by 1\n\n),\n\n\nfinal as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from final",
+      "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_id'\\n    )\\n}}\\n\\n\\nwith orders as (\\n    \\n    select * from {{ ref('stg_orders')}}\\n\\n),\\n\\norder_items as (\\n    \\n    select * from {{ ref('stg_order_items')}}\\n\\n),\\n\\nproducts as (\\n\\n    select * from {{ ref('stg_products') }}\\n),\\n\\nsupplies as (\\n\\n    select * from {{ ref('stg_supplies') }}\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
       "sourceModels": [
         "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
         "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
@@ -451,7 +451,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_orders_order_id",
-          "sql": "\n    \n    \n\n\n\nselect order_id\nfrom acme.jaffle_shop.orders\nwhere order_id is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_id\\nfrom acme.jaffle_shop.orders\\nwhere order_id is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.not_null_orders_order_id.cf6c17daed"
         },
         {
@@ -463,7 +463,7 @@
             "macro.dbt.test_relationships"
           ],
           "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
-          "sql": "\n    \n    \n\nwith child as (\n    select customer_id as from_field\n    from acme.jaffle_shop.orders\n    where customer_id is not null\n),\n\nparent as (\n    select customer_id as to_field\n    from acme.jaffle_shop.stg_customers\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\nwith child as (\\n    select customer_id as from_field\\n    from acme.jaffle_shop.orders\\n    where customer_id is not null\\n),\\n\\nparent as (\\n    select customer_id as to_field\\n    from acme.jaffle_shop.stg_customers\\n)\\n\\nselect\\n    from_field\\n\\nfrom child\\nleft join parent\\n    on child.from_field = parent.to_field\\n\\nwhere parent.to_field is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16"
         },
         {
@@ -475,7 +475,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_orders_order_id",
-          "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
+          "sql": "\\n    \\n    \\n\\nselect\\n    order_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.orders\\nwhere order_id is not null\\ngroup by order_id\\nhaving count(*) > 1\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.unique_orders_order_id.fed79b3a6e"
         }
       ],
@@ -502,7 +502,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "with\n\nsource as (\n\n    select * from raw_customers\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as customer_id,\n\n        ---------- properties\n        name as customer_name\n\n    from source\n\n)\n\nselect * from renamed",
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "Customer data with basic cleaning and transformation applied, one row per customer.",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_customers",
       "fields": [],
@@ -511,7 +511,7 @@
         "type": "VIEW"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "with\n\nsource as (\n\n    select * from raw_customers\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as customer_id,\n\n        ---------- properties\n        name as customer_name\n\n    from source\n\n)\n\nselect * from renamed",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "tests": [
         {
           "columns": [
@@ -522,7 +522,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_customers_customer_id",
-          "sql": "\n    \n    \n\n\n\nselect customer_id\nfrom acme.jaffle_shop.stg_customers\nwhere customer_id is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect customer_id\\nfrom acme.jaffle_shop.stg_customers\\nwhere customer_id is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_customers_customer_id.e2cfb1f9aa"
         },
         {
@@ -534,7 +534,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_customers_customer_id",
-          "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+          "sql": "\\n    \\n    \\n\\nselect\\n    customer_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_customers\\nwhere customer_id is not null\\ngroup by customer_id\\nhaving count(*) > 1\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.unique_stg_customers_customer_id.c7614daada"
         }
       ],
@@ -553,7 +553,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "with\n\nsource as (\n\n    select * from raw_stores\n\n    -- \n    -- where opened_at <= convert_timezone('UTC', current_timestamp())\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as location_id,\n\n        ---------- properties\n        name as location_name,\n        tax_rate,\n\n        ---------- timestamp\n        opened_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- \\n    -- where opened_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "List of open locations with basic cleaning and transformation applied, one row per location.",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_locations",
       "fields": [],
@@ -562,7 +562,7 @@
         "type": "VIEW"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "with\n\nsource as (\n\n    select * from raw_stores\n\n    -- {# data runs to 2026, truncate timespan to desired range, \n    -- current time as default #}\n    -- where opened_at <= {{ var('truncate_timespan_to') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as location_id,\n\n        ---------- properties\n        name as location_name,\n        tax_rate,\n\n        ---------- timestamp\n        opened_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- {# data runs to 2026, truncate timespan to desired range, \\n    -- current time as default #}\\n    -- where opened_at <= {{ var('truncate_timespan_to') }}\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "tests": [
         {
           "columns": [
@@ -573,7 +573,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_locations_location_id",
-          "sql": "\n    \n    \n\n\n\nselect location_id\nfrom acme.jaffle_shop.stg_locations\nwhere location_id is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect location_id\\nfrom acme.jaffle_shop.stg_locations\\nwhere location_id is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_locations_location_id.3d237927d2"
         },
         {
@@ -585,7 +585,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_locations_location_id",
-          "sql": "\n    \n    \n\nselect\n    location_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_locations\nwhere location_id is not null\ngroup by location_id\nhaving count(*) > 1\n\n\n",
+          "sql": "\\n    \\n    \\n\\nselect\\n    location_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_locations\\nwhere location_id is not null\\ngroup by location_id\\nhaving count(*) > 1\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.unique_stg_locations_location_id.2e2fc58ecc"
         }
       ],
@@ -604,7 +604,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "with\n\nsource as (\n\n    select * from raw_items\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_item_id,\n        order_id,\n\n        ---------- properties\n        sku as product_id\n\n    from source\n\n)\n\nselect * from renamed",
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "Individual food and drink items that make up our orders, one row per item.",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_order_items",
       "fields": [],
@@ -613,7 +613,7 @@
         "type": "VIEW"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "with\n\nsource as (\n\n    select * from raw_items\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_item_id,\n        order_id,\n\n        ---------- properties\n        sku as product_id\n\n    from source\n\n)\n\nselect * from renamed",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "tests": [
         {
           "columns": [
@@ -624,7 +624,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_order_items_order_item_id",
-          "sql": "\n    \n    \n\n\n\nselect order_item_id\nfrom acme.jaffle_shop.stg_order_items\nwhere order_item_id is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_item_id\\nfrom acme.jaffle_shop.stg_order_items\\nwhere order_item_id is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_order_items_order_item_id.26a7e2bc35"
         },
         {
@@ -636,7 +636,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_order_items_order_item_id",
-          "sql": "\n    \n    \n\nselect\n    order_item_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_order_items\nwhere order_item_id is not null\ngroup by order_item_id\nhaving count(*) > 1\n\n\n",
+          "sql": "\\n    \\n    \\n\\nselect\\n    order_item_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_order_items\\nwhere order_item_id is not null\\ngroup by order_item_id\\nhaving count(*) > 1\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.unique_stg_order_items_order_item_id.90e333a108"
         }
       ],
@@ -655,7 +655,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "\n\nwith\n\nsource as (\n\n    select * from raw_orders\n\n    -- data runs to 2026, truncate timespan to desired range,\n    -- current time as default\n    -- where ordered_at <= convert_timezone('UTC', current_timestamp())\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_id,\n        store_id as location_id,\n        customer as customer_id,\n\n        ---------- properties\n        (order_total / 100.0) as order_total,\n        (tax_paid / 100.0) as tax_paid,\n\n        ---------- timestamps\n        ordered_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "compiledSql": "\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "Order data with basic cleaning and transformation applied, one row per order.",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_orders",
       "fields": [],
@@ -664,7 +664,7 @@
         "type": "TABLE"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "{{\n    config(\n        materialized = 'table',\n        unique_key = 'order_id'\n    )\n}}\n\nwith\n\nsource as (\n\n    select * from raw_orders\n\n    -- data runs to 2026, truncate timespan to desired range,\n    -- current time as default\n    -- where ordered_at <= {{ var('truncate_timespan_to') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_id,\n        store_id as location_id,\n        customer as customer_id,\n\n        ---------- properties\n        (order_total / 100.0) as order_total,\n        (tax_paid / 100.0) as tax_paid,\n\n        ---------- timestamps\n        ordered_at\n\n    from source\n\n)\n\nselect * from renamed",
+      "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_id'\\n    )\\n}}\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= {{ var('truncate_timespan_to') }}\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "tests": [
         {
           "columns": [
@@ -675,7 +675,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_orders_order_id",
-          "sql": "\n    \n    \n\n\n\nselect order_id\nfrom acme.jaffle_shop.stg_orders\nwhere order_id is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_id\\nfrom acme.jaffle_shop.stg_orders\\nwhere order_id is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_orders_order_id.81cfe2fe64"
         },
         {
@@ -687,7 +687,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_orders_order_id",
-          "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
+          "sql": "\\n    \\n    \\n\\nselect\\n    order_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_orders\\nwhere order_id is not null\\ngroup by order_id\\nhaving count(*) > 1\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.unique_stg_orders_order_id.e3b841c71a"
         }
       ],
@@ -706,7 +706,7 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "with\n\nsource as (\n\n    select * from raw_products\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- properties\n        name as product_name,\n        type as product_type,\n        description as product_description,\n        (price / 100.0) as product_price,\n\n\n        ---------- derived\n        case\n            when type = 'jaffle' then 1\n            else 0\n        end as is_food_item,\n\n        case\n            when type = 'beverage' then 1\n            else 0\n        end as is_drink_item\n\n    from source\n\n)\n\nselect * from renamed",
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "description": "Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product.",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_products",
       "fields": [],
@@ -715,7 +715,7 @@
         "type": "VIEW"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "with\n\nsource as (\n\n    select * from raw_products\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- properties\n        name as product_name,\n        type as product_type,\n        description as product_description,\n        (price / 100.0) as product_price,\n\n\n        ---------- derived\n        case\n            when type = 'jaffle' then 1\n            else 0\n        end as is_food_item,\n\n        case\n            when type = 'beverage' then 1\n            else 0\n        end as is_drink_item\n\n    from source\n\n)\n\nselect * from renamed",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "tests": [
         {
           "columns": [
@@ -726,7 +726,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_products_product_id",
-          "sql": "\n    \n    \n\n\n\nselect product_id\nfrom acme.jaffle_shop.stg_products\nwhere product_id is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect product_id\\nfrom acme.jaffle_shop.stg_products\\nwhere product_id is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_products_product_id.6373b0acf3"
         },
         {
@@ -738,7 +738,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_products_product_id",
-          "sql": "\n    \n    \n\nselect\n    product_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_products\nwhere product_id is not null\ngroup by product_id\nhaving count(*) > 1\n\n\n",
+          "sql": "\\n    \\n    \\n\\nselect\\n    product_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_products\\nwhere product_id is not null\\ngroup by product_id\\nhaving count(*) > 1\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.unique_stg_products_product_id.7d950a1467"
         }
       ],
@@ -757,8 +757,8 @@
   },
   {
     "dbtModel": {
-      "compiledSql": "with\n\nsource as (\n\n    select * from raw_supplies\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        \n    \nmd5(cast(coalesce(cast(id as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(sku as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as supply_uuid,\n        id as supply_id,\n        sku as product_id,\n\n        ---------- properties\n        name as supply_name,\n        (cost / 100.0) as supply_cost,\n        perishable as is_perishable_supply\n\n    from source\n\n)\n\nselect * from renamed",
-      "description": "List of our supply expenses data with basic cleaning and transformation applied.\nOne row per supply cost, not per supply. As supply costs fluctuate they receive a new row with a new UUID. Thus there can be multiple rows per supply_id.\n",
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        \\n    \\nmd5(cast(coalesce(cast(id as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(sku as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "description": "List of our supply expenses data with basic cleaning and transformation applied.\\nOne row per supply cost, not per supply. As supply costs fluctuate they receive a new row with a new UUID. Thus there can be multiple rows per supply_id.\\n",
       "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/123/docs/#!/model/model.jaffle_shop.stg_supplies",
       "fields": [],
       "materialization": {
@@ -766,7 +766,7 @@
         "type": "VIEW"
       },
       "packageName": "jaffle_shop",
-      "rawSql": "with\n\nsource as (\n\n    select * from raw_supplies\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\n        id as supply_id,\n        sku as product_id,\n\n        ---------- properties\n        name as supply_name,\n        (cost / 100.0) as supply_cost,\n        perishable as is_perishable_supply\n\n    from source\n\n)\n\nselect * from renamed",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
       "tests": [
         {
           "columns": [
@@ -777,7 +777,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_supplies_supply_uuid",
-          "sql": "\n    \n    \n\n\n\nselect supply_uuid\nfrom acme.jaffle_shop.stg_supplies\nwhere supply_uuid is null\n\n\n",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect supply_uuid\\nfrom acme.jaffle_shop.stg_supplies\\nwhere supply_uuid is null\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_supplies_supply_uuid.515c6eda6d"
         },
         {
@@ -789,7 +789,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_supplies_supply_uuid",
-          "sql": "\n    \n    \n\nselect\n    supply_uuid as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_supplies\nwhere supply_uuid is not null\ngroup by supply_uuid\nhaving count(*) > 1\n\n\n",
+          "sql": "\\n    \\n    \\n\\nselect\\n    supply_uuid as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_supplies\\nwhere supply_uuid is not null\\ngroup by supply_uuid\\nhaving count(*) > 1\\n\\n\\n",
           "uniqueId": "test.jaffle_shop.unique_stg_supplies_supply_uuid.c9e3edcfed"
         }
       ],

@@ -1,0 +1,751 @@
+{
+  "job": {
+    "models": [
+      {
+        "alias": "customers",
+        "columns": [
+          {
+            "comment": null,
+            "description": "The unique key of the orders mart.",
+            "meta": {},
+            "name": "CUSTOMER_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": "Customers' full name.",
+            "meta": {},
+            "name": "CUSTOMER_NAME",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": "Total number of orders a customer has ever placed.",
+            "meta": {},
+            "name": "COUNT_LIFETIME_ORDERS",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": "The timestamp when a customer placed their first order.",
+            "meta": {},
+            "name": "FIRST_ORDERED_AT",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          },
+          {
+            "comment": null,
+            "description": "The timestamp of a customer's most recent order.",
+            "meta": {},
+            "name": "LAST_ORDERED_AT",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          },
+          {
+            "comment": null,
+            "description": "The sum of all the pre-tax subtotals of every order a customer has placed.",
+            "meta": {},
+            "name": "LIFETIME_SPEND_PRETAX",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": "The sum of all the order totals (including tax) that a customer has ever placed.",
+            "meta": {},
+            "name": "LIFETIME_SPEND",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": "Options are 'new' or 'returning', indicating if a customer has ordered more than once or has only placed their first order to date.",
+            "meta": {},
+            "name": "CUSTOMER_TYPE",
+            "tags": [],
+            "type": "TEXT"
+          }
+        ],
+        "compiledCode": "\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from acme.jaffle_shop.stg_customers\\n\\n),\\n\\norders_mart as (\\n\\n    select * from acme.jaffle_shop.orders\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from acme.jaffle_shop.order_items\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
+        "compiledSql": "\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from acme.jaffle_shop.stg_customers\\n\\n),\\n\\norders_mart as (\\n\\n    select * from acme.jaffle_shop.orders\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from acme.jaffle_shop.order_items\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
+        "database": "acme",
+        "dependsOn": [
+          "model.jaffle_shop.order_items",
+          "model.jaffle_shop.orders",
+          "model.jaffle_shop.stg_customers"
+        ],
+        "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
+        "environmentId": 132676,
+        "materializedType": "table",
+        "meta": {},
+        "name": "customers",
+        "packageName": "jaffle_shop",
+        "rawCode": "{{\\n    config(\\n        materialized='table'\\n    )\\n}}\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from {{ ref('stg_customers') }}\\n\\n),\\n\\norders_mart as (\\n\\n    select * from {{ ref('orders') }}\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from {{ ref('order_items') }}\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
+        "rawSql": "{{\\n    config(\\n        materialized='table'\\n    )\\n}}\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from {{ ref('stg_customers') }}\\n\\n),\\n\\norders_mart as (\\n\\n    select * from {{ ref('orders') }}\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from {{ ref('order_items') }}\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:07.650Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:41.238Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.customers"
+      },
+      {
+        "alias": "metricflow_time_spine",
+        "columns": [
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "DATE_DAY",
+            "tags": [],
+            "type": "DATE"
+          }
+        ],
+        "compiledCode": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n\\n    with date_spine as\\n(\\n\\n    \\n\\n\\n\\n\\n\\nwith rawdata as (\\n\\n    \\n\\n    \\n\\n    with p as (\\n        select 0 as generated_number union all select 1\\n    ), unioned as (\\n\\n    select\\n\\n    \\n    p0.generated_number * power(2, 0)\\n     + \\n    \\n    p1.generated_number * power(2, 1)\\n     + \\n    \\n    p2.generated_number * power(2, 2)\\n     + \\n    \\n    p3.generated_number * power(2, 3)\\n     + \\n    \\n    p4.generated_number * power(2, 4)\\n     + \\n    \\n    p5.generated_number * power(2, 5)\\n     + \\n    \\n    p6.generated_number * power(2, 6)\\n     + \\n    \\n    p7.generated_number * power(2, 7)\\n     + \\n    \\n    p8.generated_number * power(2, 8)\\n     + \\n    \\n    p9.generated_number * power(2, 9)\\n     + \\n    \\n    p10.generated_number * power(2, 10)\\n     + \\n    \\n    p11.generated_number * power(2, 11)\\n    \\n    \\n    + 1\\n    as generated_number\\n\\n    from\\n\\n    \\n    p as p0\\n     cross join \\n    \\n    p as p1\\n     cross join \\n    \\n    p as p2\\n     cross join \\n    \\n    p as p3\\n     cross join \\n    \\n    p as p4\\n     cross join \\n    \\n    p as p5\\n     cross join \\n    \\n    p as p6\\n     cross join \\n    \\n    p as p7\\n     cross join \\n    \\n    p as p8\\n     cross join \\n    \\n    p as p9\\n     cross join \\n    \\n    p as p10\\n     cross join \\n    \\n    p as p11\\n    \\n    \\n\\n    )\\n\\n    select *\\n    from unioned\\n    where generated_number <= 3651\\n    order by generated_number\\n\\n\\n\\n),\\n\\nall_periods as (\\n\\n    select (\\n        \\n\\n    dateadd(\\n        day,\\n        row_number() over (order by 1) - 1,\\n        \\n\\n    dateadd(\\n        day,\\n        -3650,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n\\n        )\\n\\n\\n    ) as date_day\\n    from rawdata\\n\\n),\\n\\nfiltered as (\\n\\n    select *\\n    from all_periods\\n    where date_day <= cast(\\n\\n    dateadd(\\n        day,\\n        1,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n as date)\\n\\n)\\n\\nselect * from filtered\\n\\n\\n\\n)\\nselect\\n    cast(d.date_day as timestamp) as date_day\\nfrom\\n    date_spine d\\n\\n\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
+        "compiledSql": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n\\n    with date_spine as\\n(\\n\\n    \\n\\n\\n\\n\\n\\nwith rawdata as (\\n\\n    \\n\\n    \\n\\n    with p as (\\n        select 0 as generated_number union all select 1\\n    ), unioned as (\\n\\n    select\\n\\n    \\n    p0.generated_number * power(2, 0)\\n     + \\n    \\n    p1.generated_number * power(2, 1)\\n     + \\n    \\n    p2.generated_number * power(2, 2)\\n     + \\n    \\n    p3.generated_number * power(2, 3)\\n     + \\n    \\n    p4.generated_number * power(2, 4)\\n     + \\n    \\n    p5.generated_number * power(2, 5)\\n     + \\n    \\n    p6.generated_number * power(2, 6)\\n     + \\n    \\n    p7.generated_number * power(2, 7)\\n     + \\n    \\n    p8.generated_number * power(2, 8)\\n     + \\n    \\n    p9.generated_number * power(2, 9)\\n     + \\n    \\n    p10.generated_number * power(2, 10)\\n     + \\n    \\n    p11.generated_number * power(2, 11)\\n    \\n    \\n    + 1\\n    as generated_number\\n\\n    from\\n\\n    \\n    p as p0\\n     cross join \\n    \\n    p as p1\\n     cross join \\n    \\n    p as p2\\n     cross join \\n    \\n    p as p3\\n     cross join \\n    \\n    p as p4\\n     cross join \\n    \\n    p as p5\\n     cross join \\n    \\n    p as p6\\n     cross join \\n    \\n    p as p7\\n     cross join \\n    \\n    p as p8\\n     cross join \\n    \\n    p as p9\\n     cross join \\n    \\n    p as p10\\n     cross join \\n    \\n    p as p11\\n    \\n    \\n\\n    )\\n\\n    select *\\n    from unioned\\n    where generated_number <= 3651\\n    order by generated_number\\n\\n\\n\\n),\\n\\nall_periods as (\\n\\n    select (\\n        \\n\\n    dateadd(\\n        day,\\n        row_number() over (order by 1) - 1,\\n        \\n\\n    dateadd(\\n        day,\\n        -3650,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n\\n        )\\n\\n\\n    ) as date_day\\n    from rawdata\\n\\n),\\n\\nfiltered as (\\n\\n    select *\\n    from all_periods\\n    where date_day <= cast(\\n\\n    dateadd(\\n        day,\\n        1,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n as date)\\n\\n)\\n\\nselect * from filtered\\n\\n\\n\\n)\\nselect\\n    cast(d.date_day as timestamp) as date_day\\nfrom\\n    date_spine d\\n\\n\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
+        "database": "acme",
+        "dependsOn": [
+          "macro.dbt_date.get_base_dates"
+        ],
+        "description": "",
+        "environmentId": 132676,
+        "materializedType": "table",
+        "meta": {},
+        "name": "metricflow_time_spine",
+        "packageName": "jaffle_shop",
+        "rawCode": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n{{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
+        "rawSql": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n{{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:00:42.495Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:36.466Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.metricflow_time_spine"
+      },
+      {
+        "alias": "order_items",
+        "columns": [
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "ORDER_ITEM_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "ORDER_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "PRODUCT_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "ORDERED_AT",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "SUBTOTAL",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "IS_FOOD_ITEM",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "IS_DRINK_ITEM",
+            "tags": [],
+            "type": "NUMBER"
+          }
+        ],
+        "compiledCode": "\\n\\nwith order_items as (\\n\\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
+        "compiledSql": "\\n\\nwith order_items as (\\n\\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
+        "database": "acme",
+        "dependsOn": [
+          "model.jaffle_shop.stg_order_items",
+          "model.jaffle_shop.stg_orders",
+          "model.jaffle_shop.stg_products"
+        ],
+        "description": "",
+        "environmentId": 132676,
+        "materializedType": "table",
+        "meta": {},
+        "name": "order_items",
+        "packageName": "jaffle_shop",
+        "rawCode": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_item_id'\\n    )\\n}}\\n\\nwith order_items as (\\n\\n    select * from {{ ref('stg_order_items') }}\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from {{ ref('stg_orders')}}\\n),\\n\\nproducts as (\\n\\n    select * from {{ ref('stg_products') }}\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
+        "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_item_id'\\n    )\\n}}\\n\\nwith order_items as (\\n\\n    select * from {{ ref('stg_order_items') }}\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from {{ ref('stg_orders')}}\\n),\\n\\nproducts as (\\n\\n    select * from {{ ref('stg_products') }}\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:01.794Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:39.273Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.order_items"
+      },
+      {
+        "alias": "orders",
+        "columns": [
+          {
+            "comment": null,
+            "description": "The unique key of the orders mart.",
+            "meta": {},
+            "name": "ORDER_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": "The foreign key relating to the location the order was placed at.",
+            "meta": {},
+            "name": "LOCATION_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": "The foreign key relating to the customer who placed the order.",
+            "meta": {},
+            "name": "CUSTOMER_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": "The total amount of the order in USD including tax.",
+            "meta": {},
+            "name": "ORDER_TOTAL",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "TAX_PAID",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": "The timestamp the order was placed at.",
+            "meta": {},
+            "name": "ORDERED_AT",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          },
+          {
+            "comment": null,
+            "description": "A boolean indicating if this order included any food items.",
+            "meta": {},
+            "name": "IS_FOOD_ORDER",
+            "tags": [],
+            "type": "BOOLEAN"
+          },
+          {
+            "comment": null,
+            "description": "A boolean indicating if this order included any drink items.",
+            "meta": {},
+            "name": "IS_DRINK_ORDER",
+            "tags": [],
+            "type": "BOOLEAN"
+          },
+          {
+            "comment": null,
+            "description": "The sum of supply expenses to fulfill the order.",
+            "meta": {},
+            "name": "ORDER_COST",
+            "tags": [],
+            "type": "NUMBER"
+          }
+        ],
+        "compiledCode": "\\n\\n\\nwith orders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n\\n),\\n\\norder_items as (\\n    \\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n),\\n\\nsupplies as (\\n\\n    select * from acme.jaffle_shop.stg_supplies\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
+        "compiledSql": "\\n\\n\\nwith orders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n\\n),\\n\\norder_items as (\\n    \\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n),\\n\\nsupplies as (\\n\\n    select * from acme.jaffle_shop.stg_supplies\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
+        "database": "acme",
+        "dependsOn": [
+          "model.jaffle_shop.stg_order_items",
+          "model.jaffle_shop.stg_orders",
+          "model.jaffle_shop.stg_products",
+          "model.jaffle_shop.stg_supplies"
+        ],
+        "description": "Order overview data mart, offering key details for each order inlcluding if it's a customer's first order and a food vs. drink item breakdown. One row per order.",
+        "environmentId": 132676,
+        "materializedType": "table",
+        "meta": {},
+        "name": "orders",
+        "packageName": "jaffle_shop",
+        "rawCode": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_id'\\n    )\\n}}\\n\\n\\nwith orders as (\\n    \\n    select * from {{ ref('stg_orders')}}\\n\\n),\\n\\norder_items as (\\n    \\n    select * from {{ ref('stg_order_items')}}\\n\\n),\\n\\nproducts as (\\n\\n    select * from {{ ref('stg_products') }}\\n),\\n\\nsupplies as (\\n\\n    select * from {{ ref('stg_supplies') }}\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
+        "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_id'\\n    )\\n}}\\n\\n\\nwith orders as (\\n    \\n    select * from {{ ref('stg_orders')}}\\n\\n),\\n\\norder_items as (\\n    \\n    select * from {{ ref('stg_order_items')}}\\n\\n),\\n\\nproducts as (\\n\\n    select * from {{ ref('stg_products') }}\\n),\\n\\nsupplies as (\\n\\n    select * from {{ ref('stg_supplies') }}\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:01.813Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:39.404Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.orders"
+      },
+      {
+        "alias": "stg_customers",
+        "columns": [
+          {
+            "comment": null,
+            "description": "The unique key for each customer.",
+            "meta": {},
+            "name": "CUSTOMER_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "CUSTOMER_NAME",
+            "tags": [],
+            "type": "TEXT"
+          }
+        ],
+        "compiledCode": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "database": "acme",
+        "dependsOn": [],
+        "description": "Customer data with basic cleaning and transformation applied, one row per customer.",
+        "environmentId": 132676,
+        "materializedType": "view",
+        "meta": {},
+        "name": "stg_customers",
+        "packageName": "jaffle_shop",
+        "rawCode": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:00:41.339Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:35.949Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.stg_customers"
+      },
+      {
+        "alias": "stg_locations",
+        "columns": [
+          {
+            "comment": null,
+            "description": "The unique key for each location.",
+            "meta": {},
+            "name": "LOCATION_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "LOCATION_NAME",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "TAX_RATE",
+            "tags": [],
+            "type": "FLOAT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "OPENED_AT",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          }
+        ],
+        "compiledCode": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- \\n    -- where opened_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- \\n    -- where opened_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "database": "acme",
+        "dependsOn": [
+          "macro.dbt.current_timestamp"
+        ],
+        "description": "List of open locations with basic cleaning and transformation applied, one row per location.",
+        "environmentId": 132676,
+        "materializedType": "view",
+        "meta": {},
+        "name": "stg_locations",
+        "packageName": "jaffle_shop",
+        "rawCode": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- {# data runs to 2026, truncate timespan to desired range, \\n    -- current time as default #}\\n    -- where opened_at <= {{ var('truncate_timespan_to') }}\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- {# data runs to 2026, truncate timespan to desired range, \\n    -- current time as default #}\\n    -- where opened_at <= {{ var('truncate_timespan_to') }}\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:00:41.217Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:35.994Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.stg_locations"
+      },
+      {
+        "alias": "stg_order_items",
+        "columns": [
+          {
+            "comment": null,
+            "description": "The unique key for each order item.",
+            "meta": {},
+            "name": "ORDER_ITEM_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "ORDER_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "PRODUCT_ID",
+            "tags": [],
+            "type": "TEXT"
+          }
+        ],
+        "compiledCode": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "database": "acme",
+        "dependsOn": [],
+        "description": "Individual food and drink items that make up our orders, one row per item.",
+        "environmentId": 132676,
+        "materializedType": "view",
+        "meta": {},
+        "name": "stg_order_items",
+        "packageName": "jaffle_shop",
+        "rawCode": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:00:41.336Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:35.953Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.stg_order_items"
+      },
+      {
+        "alias": "stg_orders",
+        "columns": [
+          {
+            "comment": null,
+            "description": "The unique key for each order.",
+            "meta": {},
+            "name": "ORDER_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "LOCATION_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "CUSTOMER_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "ORDER_TOTAL",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "TAX_PAID",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "ORDERED_AT",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          }
+        ],
+        "compiledCode": "\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "compiledSql": "\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "database": "acme",
+        "dependsOn": [
+          "macro.dbt.current_timestamp"
+        ],
+        "description": "Order data with basic cleaning and transformation applied, one row per order.",
+        "environmentId": 132676,
+        "materializedType": "table",
+        "meta": {},
+        "name": "stg_orders",
+        "packageName": "jaffle_shop",
+        "rawCode": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_id'\\n    )\\n}}\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= {{ var('truncate_timespan_to') }}\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_id'\\n    )\\n}}\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= {{ var('truncate_timespan_to') }}\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:00:43.674Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:37.610Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.stg_orders"
+      },
+      {
+        "alias": "stg_products",
+        "columns": [
+          {
+            "comment": null,
+            "description": "The unique key for each product.",
+            "meta": {},
+            "name": "PRODUCT_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "PRODUCT_NAME",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "PRODUCT_TYPE",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "PRODUCT_DESCRIPTION",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "PRODUCT_PRICE",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "IS_FOOD_ITEM",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "IS_DRINK_ITEM",
+            "tags": [],
+            "type": "NUMBER"
+          }
+        ],
+        "compiledCode": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "database": "acme",
+        "dependsOn": [],
+        "description": "Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product.",
+        "environmentId": 132676,
+        "materializedType": "view",
+        "meta": {},
+        "name": "stg_products",
+        "packageName": "jaffle_shop",
+        "rawCode": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:00:42.359Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:36.921Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.stg_products"
+      },
+      {
+        "alias": "stg_supplies",
+        "columns": [
+          {
+            "comment": null,
+            "description": "The unique key of our supplies per cost.",
+            "meta": {},
+            "name": "SUPPLY_UUID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "SUPPLY_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "PRODUCT_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "SUPPLY_NAME",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "SUPPLY_COST",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "meta": {},
+            "name": "IS_PERISHABLE_SUPPLY",
+            "tags": [],
+            "type": "BOOLEAN"
+          }
+        ],
+        "compiledCode": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        \\n    \\nmd5(cast(coalesce(cast(id as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(sku as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        \\n    \\nmd5(cast(coalesce(cast(id as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(sku as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "database": "acme",
+        "dependsOn": [
+          "macro.dbt_utils.generate_surrogate_key"
+        ],
+        "description": "List of our supply expenses data with basic cleaning and transformation applied.\\nOne row per supply cost, not per supply. As supply costs fluctuate they receive a new row with a new UUID. Thus there can be multiple rows per supply_id.\\n",
+        "environmentId": 132676,
+        "materializedType": "view",
+        "meta": {},
+        "name": "stg_supplies",
+        "packageName": "jaffle_shop",
+        "rawCode": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+        "runResults": [
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:00:42.365Z"
+          },
+          {
+            "status": "success",
+            "executeCompletedAt": "2024-07-24T04:01:37.035Z"
+          }
+        ],
+        "schema": "jaffle_shop",
+        "tags": [],
+        "uniqueId": "model.jaffle_shop.stg_supplies"
+      }
+    ]
+  }
+}
