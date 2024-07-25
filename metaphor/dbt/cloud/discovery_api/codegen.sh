@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# The tool is called `apollo-ios-cli`: https://www.apollographql.com/docs/ios/code-generation/codegen-cli/
+# It does not mean it's iOS only.
 APOLLO_IOS_CLI_VERSION=1.14.0
 
 wget -c \
