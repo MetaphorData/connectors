@@ -1,0 +1,16 @@
+{
+  "count": 2,
+  "objects": [
+    {
+      "id": "71e4gvVQh8lclejElAZ2qZ",
+      "path": "Default/Extract same station bike hires",
+      "type": "DTEMPLATE",
+      "description": "desc in Informatica",
+      "updatedBy": "metaphor-dev",
+      "updateTime": "2024-07-25T11:34:09Z",
+      "tags": [],
+      "sourceControl": null,
+      "customAttributes": null
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "count": 3,
+  "@id": "gdm2ALESzgxjhPkzOGvns7",
+  "references": [
+    {
+      "id": "6A1MCUiynMDdWhYNCI0Oc0",
+      "appContextId": null,
+      "path": "Default/Data Transfer Task1",
+      "documentType": "DTT",
+      "description": "",
+      "lastUpdatedTime": "2024-07-15T10:02:25Z"
+    },
+    {
+      "id": "71e4gvVQh8lclejElAZ2qZ",
+      "appContextId": "01CY6H1700000000000W",
+      "path": "Default/Extract same station bike hires",
+      "documentType": "MAPPING",
+      "description": "desc in Informatica",
+      "lastUpdatedTime": "2024-07-25T11:34:09Z"
+    },
+    {
+      "id": "da7K7KnK6w9lGoUogqtcg8",
+      "appContextId": "01CY6H0Z000000000002",
+      "path": "Default/Extract same station bike hires task",
+      "documentType": "MCT",
+      "description": null,
+      "lastUpdatedTime": "2024-07-25T11:34:09Z"
+    }
+  ]
+}
