@@ -44,7 +44,7 @@ repos:
     rev: 1.7.8
     hooks:
       - id: bandit
-        args: ['--skip=B101,B106,B404,B603,B607,B608', -x, metaphor/dbt/cloud/discovery_api/generated]
+        args: [-c, pyproject.toml]
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.0.0
