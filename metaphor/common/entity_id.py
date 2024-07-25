@@ -130,6 +130,9 @@ def parts_to_dataset_entity_id(
     schema: Optional[str] = None,
     table: Optional[str] = None,
 ) -> EntityId:
+    """
+    converts parts of a dataset, its platform and account into a dataset entity ID
+    """
     return to_dataset_entity_id(
         dataset_normalized_name(database, schema, table),
         platform,
