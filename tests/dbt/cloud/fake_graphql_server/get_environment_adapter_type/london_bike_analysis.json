@@ -1,0 +1,6 @@
+{
+  "environment": {
+    "adapterType": "snowflake",
+    "dbtProjectName": "london_bike_analysis"
+  }
+}
