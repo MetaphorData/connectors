@@ -1,0 +1,175 @@
+{
+  "@type": "mappingTemplate",
+  "id": "01CY6H1700000000000W",
+  "orgId": "01CY6H",
+  "name": "Extract same station bike hires",
+  "description": "desc in Informatica",
+  "createTime": "2024-07-17T02:25:28.000Z",
+  "updateTime": "2024-07-25T07:34:07.000Z",
+  "createdBy": "metaphor-dev",
+  "updatedBy": "metaphor-dev",
+  "bundleVersion": "0",
+  "templateId": "stringIdentity:01CY6H0X00000000003E",
+  "testTaskId": "01CY6H0Z000000000003",
+  "deployTime": 1721907248000,
+  "hasParameters": false,
+  "valid": true,
+  "fixedConnection": true,
+  "hasParametersDeployed": false,
+  "fixedConnectionDeployed": true,
+  "isSchemaValidationEnabled": false,
+  "deployedTemplateId": "stringIdentity:01CY6H0X000000000049",
+  "prunedTemplateId": "stringIdentity:01CY6H0X00000000003S",
+  "tasks": 1,
+  "mappingPreviewFileRecordId": "01CY6H0X000000000048",
+  "deployedMappingPreviewFileRecordId": "01CY6H0X00000000004A",
+  "documentType": "MAPPING",
+  "parameters": [
+    {
+      "@type": "mtTaskParameter",
+      "id": -1,
+      "name": "$cleaned_bike_ride$",
+      "type": "EXTENDED_SOURCE",
+      "label": "cleaned_bike_ride",
+      "uiProperties": {
+        "connectionParameterized": "false",
+        "isSelectDistinct": "false",
+        "isMsrcFilterParameterized": "false",
+        "isMsrcSortParameterized": "false",
+        "objectParameterized": "false",
+        "visible": "false",
+        "originalPath": "cleaned_bike_ride"
+      },
+      "sourceConnectionId": "01CY6H0B000000000002",
+      "newFlatFile": false,
+      "newObject": false,
+      "showBusinessNames": false,
+      "naturalOrder": true,
+      "truncateTarget": false,
+      "bulkApiDBTarget": false,
+      "tgtFieldRefs": {},
+      "targetRefsV2": {},
+      "targetUpdateColumns": [],
+      "extendedObject": {
+        "@type": "extendedObject",
+        "object": {
+          "@type": "mObject",
+          "name": "ACME/RIDE_SHARE/CLEANED_BIKE_RIDES",
+          "label": "CLEANED_BIKE_RIDES",
+          "metadataUpdated": false,
+          "relations": [],
+          "children": []
+        },
+        "singleMode": true,
+        "objects": [
+          {
+            "@type": "mObject",
+            "name": "ACME/RIDE_SHARE/CLEANED_BIKE_RIDES",
+            "label": "CLEANED_BIKE_RIDES",
+            "metadataUpdated": false,
+            "relations": [],
+            "children": []
+          }
+        ],
+        "filters": [],
+        "sortFields": []
+      },
+      "runtimeAttrs": {},
+      "oprRuntimeAttrs": {
+        "schema": "",
+        "postsql": "",
+        "database": "",
+        "role": "",
+        "sqloverride": "",
+        "warehouse": "",
+        "tablename": "",
+        "presql": ""
+      },
+      "isRESTModernSource": true,
+      "isFileList": false,
+      "handleSpecialChars": false,
+      "handleDecimalRoundOff": false,
+      "frsAsset": false,
+      "dynamicFileName": false,
+      "excludeDynamicFileNameField": false,
+      "currentlyProcessedFileName": false,
+      "retainFieldMetadata": false,
+      "useExactSrcNames": false,
+      "tgtObjectAttributes": {},
+      "runtimeParameterData": {
+        "@type": "mtTaskRuntimeParameterData",
+        "isConnectionRuntimeParameter": false,
+        "isObjectRuntimeParameter": false
+      },
+      "overriddenFields": []
+    },
+    {
+      "@type": "mtTaskParameter",
+      "id": -1,
+      "name": "$bike_hires_same_station$",
+      "type": "TARGET",
+      "label": "bike_hires_same_station",
+      "uiProperties": {
+        "connectionParameterized": "false",
+        "objectParameterized": "false",
+        "visible": "false",
+        "defaultTargetUpdateColumns": "",
+        "supportApplyDDLChanges": "true",
+        "originalPath": "bike_hires_same_station"
+      },
+      "targetConnectionId": "01CY6H0B000000000002",
+      "targetObject": "ACME/INFORMATICA/bike_hires_same_station",
+      "targetObjectLabel": "ACME/INFORMATICA/bike_hires_same_station",
+      "newFlatFile": false,
+      "newObject": true,
+      "showBusinessNames": false,
+      "naturalOrder": true,
+      "newObjectName": "ACME/INFORMATICA/bike_hires_same_station",
+      "truncateTarget": false,
+      "bulkApiDBTarget": false,
+      "operationType": "Insert",
+      "tgtFieldRefs": {},
+      "targetRefsV2": {},
+      "targetUpdateColumns": [],
+      "extendedObject": {
+        "@type": "extendedObject",
+        "singleMode": true,
+        "filters": [],
+        "sortFields": []
+      },
+      "runtimeAttrs": {},
+      "isRESTModernSource": true,
+      "isFileList": false,
+      "handleSpecialChars": false,
+      "handleDecimalRoundOff": false,
+      "frsAsset": false,
+      "dynamicFileName": false,
+      "excludeDynamicFileNameField": false,
+      "currentlyProcessedFileName": false,
+      "retainFieldMetadata": false,
+      "objectName": "ACME/INFORMATICA/bike_hires_same_station",
+      "objectLabel": "ACME/INFORMATICA/bike_hires_same_station",
+      "useExactSrcNames": false,
+      "tgtObjectAttributes": {
+        "tableType": "TABLE",
+        "parent": "ACME/INFORMATICA"
+      },
+      "runtimeParameterData": {
+        "@type": "mtTaskRuntimeParameterData",
+        "isConnectionRuntimeParameter": false,
+        "isObjectRuntimeParameter": false
+      },
+      "targetSchemaProviderType": "SELECTED_OBJECT",
+      "overriddenFields": []
+    }
+  ],
+  "inOutParameters": [],
+  "references": [
+    {
+      "@type": "reference",
+      "refObjectId": "01CY6H0B000000000002",
+      "refType": "connection"
+    }
+  ],
+  "sequences": []
+}

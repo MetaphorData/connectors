@@ -1,0 +1,35 @@
+[
+  {
+    "@type": "connection",
+    "id": "01CY6H0B000000000002",
+    "orgId": "01CY6H",
+    "name": "Snowflake",
+    "createTime": "2024-07-15T05:50:45.000Z",
+    "updateTime": "2024-07-15T06:00:33.000Z",
+    "createdBy": "metaphor-dev",
+    "updatedBy": "metaphor-dev",
+    "agentId": "00800000000002H",
+    "runtimeEnvironmentId": "025000000000002",
+    "instanceName": "Snowflake Cloud Data Warehouse V2",
+    "instanceDisplayName": "Snowflake Data Cloud",
+    "type": "TOOLKIT_CCI",
+    "subType": "TOOLKIT_CCI",
+    "port": 0,
+    "majorUpdateTime": "2024-07-15T06:00:33.000Z",
+    "timeout": 60,
+    "connParams": {
+      "agentId": "00800000000002H",
+      "agentGroupId": "025000000000002",
+      "orgId": "01CY6H"
+    },
+    "internal": false,
+    "federatedId": "gdm2ALESzgxjhPkzOGvns7",
+    "retryNetworkError": false,
+    "supportsCCIMultiGroup": false,
+    "metadataBrowsable": true,
+    "supportLabels": true,
+    "vaultEnabled": false,
+    "vaultEnabledParams": [],
+    "connectorGuid": "com.infa.adapter.snowflake"
+  }
+]

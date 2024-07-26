@@ -1,0 +1,14 @@
+{
+  "count": 1,
+  "@id": "71e4gvVQh8lclejElAZ2qZ",
+  "references": [
+    {
+      "id": "gdm2ALESzgxjhPkzOGvns7",
+      "appContextId": "01CY6H0B000000000002",
+      "path": "Snowflake",
+      "documentType": "SAAS_CONNECTION",
+      "description": null,
+      "lastUpdatedTime": "2024-07-15T10:00:34Z"
+    }
+  ]
+}
