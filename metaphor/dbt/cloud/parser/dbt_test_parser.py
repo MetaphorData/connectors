@@ -98,7 +98,8 @@ class TestParser:
         if isinstance(run_result.execute_completed_at, str):
             completed_at = run_result.execute_completed_at
             if completed_at.endswith("Z"):
-                completed_at = completed_at[:-1]
+                # Convert Zulu to +00:00
+                completed_at = f"{completed_at[:-1]}+00:00"
             try:
                 return datetime.fromisoformat(completed_at)
             except Exception:

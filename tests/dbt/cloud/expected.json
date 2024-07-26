@@ -3,7 +3,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:41.238000",
+          "lastRun": "2024-07-24T04:01:41.238000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -14,7 +14,7 @@
           "title": "accepted_values_customers_customer_type__new__returning"
         },
         {
-          "lastRun": "2024-07-24T04:01:41.238000",
+          "lastRun": "2024-07-24T04:01:41.238000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -25,7 +25,7 @@
           "title": "not_null_customers_customer_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:41.238000",
+          "lastRun": "2024-07-24T04:01:41.238000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -48,7 +48,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:39.404000",
+          "lastRun": "2024-07-24T04:01:39.404000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -59,7 +59,7 @@
           "title": "not_null_orders_order_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:39.404000",
+          "lastRun": "2024-07-24T04:01:39.404000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -70,7 +70,7 @@
           "title": "relationships_orders_customer_id__customer_id__ref_stg_customers_"
         },
         {
-          "lastRun": "2024-07-24T04:01:39.404000",
+          "lastRun": "2024-07-24T04:01:39.404000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -93,7 +93,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:35.949000",
+          "lastRun": "2024-07-24T04:01:35.949000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -104,7 +104,7 @@
           "title": "not_null_stg_customers_customer_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:35.949000",
+          "lastRun": "2024-07-24T04:01:35.949000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -127,7 +127,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:35.994000",
+          "lastRun": "2024-07-24T04:01:35.994000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -138,7 +138,7 @@
           "title": "not_null_stg_locations_location_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:35.994000",
+          "lastRun": "2024-07-24T04:01:35.994000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -161,7 +161,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:35.953000",
+          "lastRun": "2024-07-24T04:01:35.953000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -172,7 +172,7 @@
           "title": "not_null_stg_order_items_order_item_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:35.953000",
+          "lastRun": "2024-07-24T04:01:35.953000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -195,7 +195,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:37.610000",
+          "lastRun": "2024-07-24T04:01:37.610000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -206,7 +206,7 @@
           "title": "not_null_stg_orders_order_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:37.610000",
+          "lastRun": "2024-07-24T04:01:37.610000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -229,7 +229,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:36.921000",
+          "lastRun": "2024-07-24T04:01:36.921000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -240,7 +240,7 @@
           "title": "not_null_stg_products_product_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:36.921000",
+          "lastRun": "2024-07-24T04:01:36.921000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -263,7 +263,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:37.035000",
+          "lastRun": "2024-07-24T04:01:37.035000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -274,7 +274,7 @@
           "title": "not_null_stg_supplies_supply_uuid"
         },
         {
-          "lastRun": "2024-07-24T04:01:37.035000",
+          "lastRun": "2024-07-24T04:01:37.035000+00:00",
           "status": "PASSED",
           "targets": [
             {
