@@ -4,6 +4,7 @@ from metaphor.common.entity_id import EntityId
 from metaphor.common.utils import unique_list
 from metaphor.dbt.util import get_virtual_view_id
 from metaphor.models.metadata_change_event import (
+    Dataset,
     DbtMacro,
     DbtMetric,
     DbtModel,
@@ -43,3 +44,17 @@ def parse_depends_on(
     target.source_models = models if models else None
     if isinstance(target, DbtModel):
         target.macros = macros if macros else None
+
+
+def dataset_has_parsed_fields(
+    dataset: Dataset,
+) -> bool:
+    """
+    init_dataset may generate irrelevant datasets, need to filter these out
+    """
+    return (
+        dataset.ownership_assignment is not None
+        or dataset.tag_assignment is not None
+        or dataset.documentation is not None
+        or dataset.data_quality is not None
+    )
