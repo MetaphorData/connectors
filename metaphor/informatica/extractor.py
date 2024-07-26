@@ -98,9 +98,6 @@ class InformaticaExtractor(BaseExtractor):
         # v2 id -> mapping object
         mapping_v3_v2_id_map: Dict[str, ReferenceObjectDetail] = {}
 
-        # TODO
-        mapping_task_v3_v2_id_map: Dict[str, ReferenceObjectDetail] = {}
-
         for mapping_v3_object in v3_mapping_objects.values():
             reference = self._get_object_reference(mapping_v3_object.id, "Uses")
             for ref in reference.references:
@@ -110,8 +107,6 @@ class InformaticaExtractor(BaseExtractor):
         for connection_ref in v3_connections_ref_type.values():
             reference = self._get_object_reference(connection_ref.id, "usedBy")
             for ref in reference.references:
-                if ref.documentType == "MCT":
-                    mapping_task_v3_v2_id_map[ref.appContextId] = ref
                 if ref.documentType == "MAPPING":
                     mapping_v3_v2_id_map[ref.appContextId] = ref
 
