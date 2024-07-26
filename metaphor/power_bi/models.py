@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
 
-from metaphor.common.models import BaseModel
+from pydantic import BaseModel
 
 
 class PowerBIApp(BaseModel):

@@ -1,0 +1,30 @@
+{
+  "count": 3,
+  "@id": "8WzoMOwPAofia8FrbiDU2e",
+  "references": [
+    {
+      "id": "17N0kgL3NlAltRFBDEQQss",
+      "appContextId": "01CY6H0L00000000001C",
+      "path": "Add-On Bundles/EDI Gateway V2.1/mplt_IB_ACK_Processor",
+      "documentType": "SAAS_CUSTOM_FUNC",
+      "description": null,
+      "lastUpdatedTime": "2024-07-15T09:28:50Z"
+    },
+    {
+      "id": "i7GegbaTs0GfaD7gkHFuAN",
+      "appContextId": "01CY6H0L00000000000T",
+      "path": "Add-On Bundles/EDI Gateway V2.1/mplt_IB_GS_Processor",
+      "documentType": "SAAS_CUSTOM_FUNC",
+      "description": null,
+      "lastUpdatedTime": "2024-07-15T09:28:47Z"
+    },
+    {
+      "id": "a2ZNly9miTRjLlJgRtyOAq",
+      "appContextId": "01CY6H0L000000000011",
+      "path": "Add-On Bundles/EDI Gateway V2.1/mplt_IB_ISA_Processor",
+      "documentType": "SAAS_CUSTOM_FUNC",
+      "description": null,
+      "lastUpdatedTime": "2024-07-15T09:28:49Z"
+    }
+  ]
+}
