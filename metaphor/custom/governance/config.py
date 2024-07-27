@@ -63,7 +63,7 @@ class ColumnDescriptions:
     def to_column_asset_description(self) -> ColumnDescriptionAssignment:
         return ColumnDescriptionAssignment(
             asset_descriptions=[d.to_asset_description() for d in self.descriptions],
-            column_name=self.column_name,
+            column_name=self.column_name.lower(),
         )
 
 
@@ -107,7 +107,7 @@ class DatasetGovernance:
         if self.column_tags:
             tag_assignment.column_tag_assignments = [
                 ColumnTagAssignment(
-                    column_name=column_tag.column, tag_names=column_tag.tags
+                    column_name=column_tag.column.lower(), tag_names=column_tag.tags
                 )
                 for column_tag in self.column_tags
             ]
