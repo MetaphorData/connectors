@@ -25,7 +25,7 @@ def test_yaml_config(test_root_dir):
                 ],
                 tags=["pii", "golden"],
                 column_tags=[
-                    ColumnTags(column="col1", tags=["phi"]),
+                    ColumnTags(column="COL1", tags=["phi"]),
                     ColumnTags(column="col2", tags=["deprecated", "do_not_use"]),
                 ],
                 descriptions=[
@@ -40,7 +40,7 @@ def test_yaml_config(test_root_dir):
                         ],
                     ),
                     ColumnDescriptions(
-                        column_name="col3",
+                        column_name="COL3",
                         descriptions=[
                             Description(description="baz", email="bazbazbaz@test.com"),
                         ],
