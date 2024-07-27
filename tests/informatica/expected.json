@@ -1,0 +1,45 @@
+[
+  {
+    "informaticaMapping": {
+      "description": "desc in Informatica",
+      "name": "Extract same station bike hires"
+    },
+    "logicalId": {
+      "name": "71e4gvVQh8lclejElAZ2qZ",
+      "type": "INFORMATICA_MAPPING"
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-07-17T02:25:28+00:00",
+      "createdBy": "metaphor-dev",
+      "lastUpdated": "2024-07-25T07:34:07+00:00",
+      "mainUrl": "https://usw5.dm-us.informaticacloud.com/saas/diUI/products/integrationDesign/main/mapping/71e4gvVQh8lclejElAZ2qZ",
+      "updatedBy": "metaphor-dev"
+    },
+    "structure": {
+      "directories": [
+        "Default"
+      ],
+      "name": "Extract same station bike hires"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~91F0104280AA722838FE72A102FB273A"
+      ]
+    },
+    "logicalId": {
+      "account": "snowflake-account",
+      "name": "acme.informatica.bike_hires_same_station",
+      "platform": "SNOWFLAKE"
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~BC684854C28C480CD274A4A7736A5FB8"
+        }
+      ]
+    }
+  }
+]

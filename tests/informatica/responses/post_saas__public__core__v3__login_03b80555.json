@@ -1,0 +1,18 @@
+{
+  "products": [
+    {
+      "name": "Integration Cloud",
+      "baseApiUrl": "https://usw5.dm-us.informaticacloud.com/saas"
+    }
+  ],
+  "userInfo": {
+    "sessionId": "a2ww3bpo7kWiulCQEgX5E9",
+    "id": "0ZGLGtzmytfe5ZJI6kZcwN",
+    "name": "",
+    "parentOrgId": "52ZSTB0IDK6dXxaEQLUaQu",
+    "orgId": "5Mp4BTqelMFlR89CcPgf49",
+    "orgName": "",
+    "groups": {},
+    "status": "Active"
+  }
+}

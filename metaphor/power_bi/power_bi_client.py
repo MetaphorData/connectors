@@ -5,7 +5,7 @@ from urllib.parse import quote, urlencode
 
 import requests
 
-from metaphor.common.api_request import ApiError, get_request
+from metaphor.common.api_request import ApiError, make_request
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import start_of_day
 from metaphor.power_bi.config import PowerBIRunConfig
@@ -441,7 +441,7 @@ class PowerBIClient:
         transform_response: Callable[[requests.Response], Any] = lambda r: r.json(),
     ) -> T:
         try:
-            return get_request(
+            return make_request(
                 url,
                 self.get_headers(),
                 type_,
@@ -449,10 +449,10 @@ class PowerBIClient:
             )
         except ApiError as error:
             if error.status_code == 401:
-                raise AuthenticationError(error.error_msg) from None
+                raise AuthenticationError(error.body) from None
             elif error.status_code == 404:
-                raise EntityNotFoundError(error.error_msg) from None
+                raise EntityNotFoundError(error.body) from None
             else:
                 raise AssertionError(
-                    f"GET {url} failed: {error.status_code}\n{error.error_msg}"
+                    f"GET {url} failed: {error.status_code}\n{error.body}"
                 ) from None

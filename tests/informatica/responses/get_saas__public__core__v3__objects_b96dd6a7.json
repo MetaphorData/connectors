@@ -1,0 +1,16 @@
+{
+  "count": 2,
+  "objects": [
+    {
+      "id": "8WzoMOwPAofia8FrbiDU2e",
+      "path": "Add-On Bundles/EDI Gateway V2.1/B2B_Gateway_EDI_Inbound_Mapping",
+      "type": "DTEMPLATE",
+      "description": "",
+      "updatedBy": "bundle-license-notifier",
+      "updateTime": "2024-07-15T09:28:52Z",
+      "tags": [],
+      "sourceControl": null,
+      "customAttributes": null
+    }
+  ]
+}

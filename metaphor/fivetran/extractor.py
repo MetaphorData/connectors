@@ -4,7 +4,7 @@ from typing import Collection, Dict, List, Optional, Type
 
 from requests.auth import HTTPBasicAuth
 
-from metaphor.common.api_request import ApiError, get_request
+from metaphor.common.api_request import ApiError, make_request
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     dataset_normalized_name,
@@ -550,4 +550,4 @@ class FivetranExtractor(BaseExtractor):
 
     def _call_get(self, url: str, **kwargs):
         headers = {"Accept": "application/json;version=2"}
-        return get_request(url=url, headers=headers, auth=self._auth, **kwargs)
+        return make_request(url=url, headers=headers, auth=self._auth, **kwargs)
