@@ -75,8 +75,6 @@ jobs:
 
       - name: Test
         run: |
-          pip install -I --force-reinstall setuptools==71.0.0
-          pip install pyhive==0.7.0
           poetry install -E all
           poetry run coverage run --source=metaphor -m pytest
           poetry run coverage xml
