@@ -75,6 +75,8 @@ jobs:
 
       - name: Test
         run: |
+          echo "setuptools<72" > constraints.txt
+          poetry run pip install --constraint constraints.txt pyhive==0.7.0
           poetry install -E all
           poetry run coverage run --source=metaphor -m pytest
           poetry run coverage xml

@@ -1,0 +1,179 @@
+{
+  "job": {
+    "snapshots": [
+      {
+        "alias": "cycle_hire_snapshot",
+        "columns": [
+          {
+            "comment": null,
+            "description": null,
+            "index": 1,
+            "meta": {},
+            "name": "RENTAL_ID",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 2,
+            "meta": {},
+            "name": "DURATION",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 3,
+            "meta": {},
+            "name": "BIKE_ID",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 4,
+            "meta": {},
+            "name": "END_DATE",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 5,
+            "meta": {},
+            "name": "END_STATION_ID",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 6,
+            "meta": {},
+            "name": "END_STATION_NAME",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 7,
+            "meta": {},
+            "name": "START_DATE",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 8,
+            "meta": {},
+            "name": "START_STATION_ID",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 9,
+            "meta": {},
+            "name": "START_STATION_NAME",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 10,
+            "meta": {},
+            "name": "END_STATION_LOGICAL_TERMINAL",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 11,
+            "meta": {},
+            "name": "START_STATION_LOGICAL_TERMINAL",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 12,
+            "meta": {},
+            "name": "END_STATION_PRIORITY_ID",
+            "tags": [],
+            "type": "NUMBER"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 13,
+            "meta": {},
+            "name": "PRICING_TIER",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 14,
+            "meta": {},
+            "name": "DBT_SCD_ID",
+            "tags": [],
+            "type": "TEXT"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 15,
+            "meta": {},
+            "name": "DBT_UPDATED_AT",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 16,
+            "meta": {},
+            "name": "DBT_VALID_FROM",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          },
+          {
+            "comment": null,
+            "description": null,
+            "index": 17,
+            "meta": {},
+            "name": "DBT_VALID_TO",
+            "tags": [],
+            "type": "TIMESTAMP_NTZ"
+          }
+        ],
+        "comment": "",
+        "compiledCode": "\n\n\nselect * from ACME.berlin_bicycles.cycle_hire",
+        "compiledSql": "\n\n\nselect * from ACME.berlin_bicycles.cycle_hire",
+        "database": "ACME",
+        "description": "",
+        "environmentId": 114017,
+        "meta": {},
+        "name": "cycle_hire_snapshot",
+        "owner": "METAPHOR_ROLE",
+        "packageName": "london_bike_analysis",
+        "rawCode": "\n{{\n    config(\n      target_schema='snapshots',\n      strategy='check',\n      unique_key='bike_id',\n      check_cols=['start_date', 'end_date']\n    )\n}}\n\nselect * from {{ source('berlin_bicycles', 'cycle_hire') }}\n",
+        "rawSql": "\n{{\n    config(\n      target_schema='snapshots',\n      strategy='check',\n      unique_key='bike_id',\n      check_cols=['start_date', 'end_date']\n    )\n}}\n\nselect * from {{ source('berlin_bicycles', 'cycle_hire') }}\n",
+        "schema": "snapshots",
+        "tags": [],
+        "uniqueId": "snapshot.london_bike_analysis.cycle_hire_snapshot"
+      }
+    ]
+  }
+}

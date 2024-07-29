@@ -1,0 +1,83 @@
+{
+  "schemaNamespace": "MySchema",
+  "schemaDownload": {
+    "downloadMethod": {
+      "introspection": {
+        "endpointURL": "https://metadata.cloud.getdbt.com/graphql",
+        "httpMethod": {
+          "POST": {}
+        },
+        "includeDeprecatedInputValues": false,
+        "outputFormat": "SDL"
+      }
+    },
+    "downloadTimeout": 60,
+    "headers": [],
+    "outputPath": "./schema.graphql"
+  },
+  "experimentalFeatures": {
+    "clientControlledNullability": true,
+    "legacySafelistingCompatibleOperations": true
+  },
+  "operationManifest": {
+    "generateManifestOnCodeGeneration": false,
+    "path": "/operation/identifiers/path",
+    "version": "persistedQueries"
+  },
+  "input": {
+    "operationSearchPaths": [
+      "/search/path/**/*.graphql"
+    ],
+    "schemaSearchPaths": [
+      "/path/to/schema.graphqls"
+    ]
+  },
+  "output": {
+    "operations": {
+      "absolute": {
+        "accessModifier": "internal",
+        "path": "/absolute/path"
+      }
+    },
+    "schemaTypes": {
+      "moduleType": {
+        "embeddedInTarget": {
+          "accessModifier": "public",
+          "name": "SomeTarget"
+        }
+      },
+      "path": "/output/path"
+    },
+    "testMocks": {
+      "swiftPackage": {
+        "targetName": "SchemaTestMocks"
+      }
+    }
+  },
+  "options": {
+    "additionalInflectionRules": [
+      {
+        "pluralization": {
+          "replacementRegex": "animals",
+          "singularRegex": "animal"
+        }
+      }
+    ],
+    "cocoapodsCompatibleImportStatements": true,
+    "conversionStrategies": {
+      "enumCases": "none",
+      "fieldAccessors": "camelCase",
+      "inputObjects": "camelCase"
+    },
+    "deprecatedEnumCases": "exclude",
+    "operationDocumentFormat": [
+      "definition"
+    ],
+    "pruneGeneratedFiles": false,
+    "schemaDocumentation": "exclude",
+    "selectionSetInitializers": {
+      "localCacheMutations": true
+    },
+    "warningsOnDeprecatedUsage": "exclude"
+  }
+}

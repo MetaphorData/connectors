@@ -1,0 +1,165 @@
+query GetJobRunModels($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    models {
+      alias
+      columns {
+        comment
+        description
+        meta
+        name
+        tags
+        type
+      }
+      compiledCode
+      compiledSql
+      database
+      dependsOn
+      description
+      environmentId
+      materializedType
+      meta
+      name
+      packageName
+      rawCode
+      rawSql
+      runResults {
+        status
+        executeCompletedAt
+      }
+      schema
+      tags
+      uniqueId
+    }
+  }
+}
+
+query GetJobRunSnapshots($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    snapshots {
+      alias
+      columns {
+        comment
+        description
+        index
+        meta
+        name
+        tags
+        type
+      }
+      comment
+      compiledCode
+      compiledSql
+      database
+      description
+      environmentId
+      meta
+      name
+      owner
+      packageName
+      rawCode
+      rawSql
+      schema
+      tags
+      uniqueId
+    }
+  }
+}
+
+query GetJobRunMacros($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    macros {
+      dependsOn
+      description
+      environmentId
+      macroSql
+      meta
+      name
+      packageName
+      uniqueId
+    }
+  }
+}
+
+query GetJobRunSources($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    sources {
+      columns {
+        description
+        name
+      }
+      database
+      description
+      identifier
+      schema
+      uniqueId
+    }
+  }
+}
+
+query GetJobRunMetrics($jobId: BigInt!, $runId: BigInt) {
+  job(id: $jobId, runId: $runId) {
+    metrics {
+      packageName
+      label
+      description
+      dependsOn
+      uniqueId
+      timeGrains
+      timestamp
+      dimensions
+      filters {
+        field
+        operator
+        value
+      }
+      tags
+      type
+      sql
+      expression
+      calculation_method
+    }
+  }
+}
+
+query GetJobRunTests($jobId: BigInt!, $runId: BigInt!) {
+  job(id: $jobId, runId: $runId) {
+    tests {
+      columnName
+      compiledSql
+      compiledCode
+      dependsOn
+      name
+      uniqueId
+    }
+  }
+}
+
+query GetEnvironmentAdapterType($environmentId: BigInt!) {
+  environment(id: $environmentId) {
+    adapterType
+    dbtProjectName
+  }
+}
+
+query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter, $after: String) {
+  environment(id: $environmentId) {
+    definition {
+      macros(filter: $filter, first: 500, after: $after) {
+        edges {
+          node {
+            arguments {
+              description
+              name
+              type
+            }
+            uniqueId
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }
+}

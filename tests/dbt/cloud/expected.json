@@ -1,0 +1,2785 @@
+[
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-07-24T04:01:41.238000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_type",
+              "dataset": "DATASET~9916513B634F4B8103E337055A33BF4B"
+            }
+          ],
+          "title": "accepted_values_customers_customer_type__new__returning"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:41.238000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~9916513B634F4B8103E337055A33BF4B"
+            }
+          ],
+          "title": "not_null_customers_customer_id"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:41.238000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~9916513B634F4B8103E337055A33BF4B"
+            }
+          ],
+          "title": "unique_customers_customer_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-07-24T04:01:39.404000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8"
+            }
+          ],
+          "title": "not_null_orders_order_id"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:39.404000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8"
+            }
+          ],
+          "title": "relationships_orders_customer_id__customer_id__ref_stg_customers_"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:39.404000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8"
+            }
+          ],
+          "title": "unique_orders_order_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.orders",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-07-24T04:01:35.949000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~512557BF25DF9EAEE5584140A235E03D"
+            }
+          ],
+          "title": "not_null_stg_customers_customer_id"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:35.949000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~512557BF25DF9EAEE5584140A235E03D"
+            }
+          ],
+          "title": "unique_stg_customers_customer_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-07-24T04:01:35.994000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "location_id",
+              "dataset": "DATASET~30CDC644AD658B552B89094BA9B3E99C"
+            }
+          ],
+          "title": "not_null_stg_locations_location_id"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:35.994000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "location_id",
+              "dataset": "DATASET~30CDC644AD658B552B89094BA9B3E99C"
+            }
+          ],
+          "title": "unique_stg_locations_location_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_locations",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-07-24T04:01:35.953000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_item_id",
+              "dataset": "DATASET~D1E6B89E5891621E2DB93165B5828719"
+            }
+          ],
+          "title": "not_null_stg_order_items_order_item_id"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:35.953000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_item_id",
+              "dataset": "DATASET~D1E6B89E5891621E2DB93165B5828719"
+            }
+          ],
+          "title": "unique_stg_order_items_order_item_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_order_items",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-07-24T04:01:37.610000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~757BF2FC19B9BBD0DBAFD90768F2DC8B"
+            }
+          ],
+          "title": "not_null_stg_orders_order_id"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:37.610000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~757BF2FC19B9BBD0DBAFD90768F2DC8B"
+            }
+          ],
+          "title": "unique_stg_orders_order_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_orders",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-07-24T04:01:36.921000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "product_id",
+              "dataset": "DATASET~2932BAF66BF93D64D6AC2F457698EB52"
+            }
+          ],
+          "title": "not_null_stg_products_product_id"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:36.921000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "product_id",
+              "dataset": "DATASET~2932BAF66BF93D64D6AC2F457698EB52"
+            }
+          ],
+          "title": "unique_stg_products_product_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_products",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-07-24T04:01:37.035000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "supply_uuid",
+              "dataset": "DATASET~A808B6BE5F80DA3A550D49C92E8F2D89"
+            }
+          ],
+          "title": "not_null_stg_supplies_supply_uuid"
+        },
+        {
+          "lastRun": "2024-07-24T04:01:37.035000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "supply_uuid",
+              "dataset": "DATASET~A808B6BE5F80DA3A550D49C92E8F2D89"
+            }
+          ],
+          "title": "unique_stg_supplies_supply_uuid"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.jaffle_shop.stg_supplies",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from acme.jaffle_shop.stg_customers\\n\\n),\\n\\norders_mart as (\\n\\n    select * from acme.jaffle_shop.orders\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from acme.jaffle_shop.order_items\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
+      "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.customers",
+      "fields": [
+        {
+          "description": "The unique key of the orders mart.",
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "Customers' full name.",
+          "fieldName": "customer_name",
+          "fieldPath": "customer_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "Total number of orders a customer has ever placed.",
+          "fieldName": "count_lifetime_orders",
+          "fieldPath": "count_lifetime_orders",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "The timestamp when a customer placed their first order.",
+          "fieldName": "first_ordered_at",
+          "fieldPath": "first_ordered_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "description": "The timestamp of a customer's most recent order.",
+          "fieldName": "last_ordered_at",
+          "fieldPath": "last_ordered_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "description": "The sum of all the pre-tax subtotals of every order a customer has placed.",
+          "fieldName": "lifetime_spend_pretax",
+          "fieldPath": "lifetime_spend_pretax",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "The sum of all the order totals (including tax) that a customer has ever placed.",
+          "fieldName": "lifetime_spend",
+          "fieldPath": "lifetime_spend",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Options are 'new' or 'returning', indicating if a customer has ordered more than once or has only placed their first order to date.",
+          "fieldName": "customer_type",
+          "fieldPath": "customer_type",
+          "nativeType": "TEXT",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~9916513B634F4B8103E337055A33BF4B",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\\n    config(\\n        materialized='table'\\n    )\\n}}\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from {{ ref('stg_customers') }}\\n\\n),\\n\\norders_mart as (\\n\\n    select * from {{ ref('orders') }}\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from {{ ref('order_items') }}\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
+      "sourceModels": [
+        "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3",
+        "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
+        "VIRTUAL_VIEW~F3CAA2D12722D7A5CB634D3277D91846"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "customer_type"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_accepted_values"
+          ],
+          "name": "accepted_values_customers_customer_type__new__returning",
+          "sql": "\\n    \\n    \\n\\nwith all_values as (\\n\\n    select\\n        customer_type as value_field,\\n        count(*) as n_records\\n\\n    from acme.jaffle_shop.customers\\n    group by customer_type\\n\\n)\\n\\nselect *\\nfrom all_values\\nwhere value_field not in (\\n    'new','returning'\\n)\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.accepted_values_customers_customer_type__new__returning.d12f0947c8"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_customers_customer_id",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect customer_id\\nfrom acme.jaffle_shop.customers\\nwhere customer_id is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.not_null_customers_customer_id.5c9bf9911d"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_customers_customer_id",
+          "sql": "\\n    \\n    \\n\\nselect\\n    customer_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.customers\\nwhere customer_id is not null\\ngroup by customer_id\\nhaving count(*) > 1\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.unique_customers_customer_id.c5af1ff4b1"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.customers"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~FE32A419A352C0C5890E84AB1F6F25B3",
+        "VIRTUAL_VIEW~A01D8D20460F0A5E1002EA6E565963AE",
+        "VIRTUAL_VIEW~F3CAA2D12722D7A5CB634D3277D91846"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.customers",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "customers"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n\\n    with date_spine as\\n(\\n\\n    \\n\\n\\n\\n\\n\\nwith rawdata as (\\n\\n    \\n\\n    \\n\\n    with p as (\\n        select 0 as generated_number union all select 1\\n    ), unioned as (\\n\\n    select\\n\\n    \\n    p0.generated_number * power(2, 0)\\n     + \\n    \\n    p1.generated_number * power(2, 1)\\n     + \\n    \\n    p2.generated_number * power(2, 2)\\n     + \\n    \\n    p3.generated_number * power(2, 3)\\n     + \\n    \\n    p4.generated_number * power(2, 4)\\n     + \\n    \\n    p5.generated_number * power(2, 5)\\n     + \\n    \\n    p6.generated_number * power(2, 6)\\n     + \\n    \\n    p7.generated_number * power(2, 7)\\n     + \\n    \\n    p8.generated_number * power(2, 8)\\n     + \\n    \\n    p9.generated_number * power(2, 9)\\n     + \\n    \\n    p10.generated_number * power(2, 10)\\n     + \\n    \\n    p11.generated_number * power(2, 11)\\n    \\n    \\n    + 1\\n    as generated_number\\n\\n    from\\n\\n    \\n    p as p0\\n     cross join \\n    \\n    p as p1\\n     cross join \\n    \\n    p as p2\\n     cross join \\n    \\n    p as p3\\n     cross join \\n    \\n    p as p4\\n     cross join \\n    \\n    p as p5\\n     cross join \\n    \\n    p as p6\\n     cross join \\n    \\n    p as p7\\n     cross join \\n    \\n    p as p8\\n     cross join \\n    \\n    p as p9\\n     cross join \\n    \\n    p as p10\\n     cross join \\n    \\n    p as p11\\n    \\n    \\n\\n    )\\n\\n    select *\\n    from unioned\\n    where generated_number <= 3651\\n    order by generated_number\\n\\n\\n\\n),\\n\\nall_periods as (\\n\\n    select (\\n        \\n\\n    dateadd(\\n        day,\\n        row_number() over (order by 1) - 1,\\n        \\n\\n    dateadd(\\n        day,\\n        -3650,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n\\n        )\\n\\n\\n    ) as date_day\\n    from rawdata\\n\\n),\\n\\nfiltered as (\\n\\n    select *\\n    from all_periods\\n    where date_day <= cast(\\n\\n    dateadd(\\n        day,\\n        1,\\n        cast(convert_timezone('UTC', 'America/Los_Angeles',\\n    cast(convert_timezone('UTC', current_timestamp()) as timestamp)\\n) as date)\\n        )\\n\\n as date)\\n\\n)\\n\\nselect * from filtered\\n\\n\\n\\n)\\nselect\\n    cast(d.date_day as timestamp) as date_day\\nfrom\\n    date_spine d\\n\\n\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.metricflow_time_spine",
+      "fields": [
+        {
+          "fieldName": "date_day",
+          "fieldPath": "date_day",
+          "nativeType": "DATE",
+          "tags": []
+        }
+      ],
+      "macros": [
+        {
+          "arguments": [],
+          "dependsOnMacros": [
+            "macro.dbt_date.default__get_base_dates"
+          ],
+          "description": "",
+          "name": "get_base_dates",
+          "packageName": "dbt_date",
+          "sql": "{% macro get_base_dates(start_date=None, end_date=None, n_dateparts=None, datepart=\"day\") %}\\n    {{ adapter.dispatch('get_base_dates', 'dbt_date') (start_date, end_date, n_dateparts, datepart) }}\\n{% endmacro %}",
+          "uniqueId": "macro.dbt_date.get_base_dates"
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~420E546583F6D2B1719826B06A843433",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "-- metricflow_time_spine.sql\\nwith days as (\\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\\n{{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\\n),\\n\\nfinal as (\\n    select cast(date_day as date) as date_day\\n    from days\\n)\\n\\nselect *\\nfrom final",
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.metricflow_time_spine"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.metricflow_time_spine",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "metricflow_time_spine"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\\n\\nwith order_items as (\\n\\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.order_items",
+      "fields": [
+        {
+          "fieldName": "order_item_id",
+          "fieldPath": "order_item_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "order_id",
+          "fieldPath": "order_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "product_id",
+          "fieldPath": "product_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "ordered_at",
+          "fieldPath": "ordered_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "fieldName": "subtotal",
+          "fieldPath": "subtotal",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "is_food_item",
+          "fieldPath": "is_food_item",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "is_drink_item",
+          "fieldPath": "is_drink_item",
+          "nativeType": "NUMBER",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~9C04E59044AD0F422EA6A996BCD17E39",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_item_id'\\n    )\\n}}\\n\\nwith order_items as (\\n\\n    select * from {{ ref('stg_order_items') }}\\n\\n),\\n\\n\\norders as (\\n    \\n    select * from {{ ref('stg_orders')}}\\n),\\n\\nproducts as (\\n\\n    select * from {{ ref('stg_products') }}\\n\\n),\\n\\n\\nfinal as (\\n    select\\n        order_items.*,\\n        orders.ordered_at,\\n        products.product_price as subtotal,\\n        products.is_food_item,\\n        products.is_drink_item\\n    from order_items\\n\\n    left join products on order_items.product_id = products.product_id\\n    -- left join order_supplies_summary on order_items.order_id = order_supplies_summary.product_id\\n    left join orders on order_items.order_id  = orders.order_id\\n)\\n\\nselect * from final",
+      "sourceModels": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.order_items"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.order_items",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "order_items"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\\n\\n\\nwith orders as (\\n    \\n    select * from acme.jaffle_shop.stg_orders\\n\\n),\\n\\norder_items as (\\n    \\n    select * from acme.jaffle_shop.stg_order_items\\n\\n),\\n\\nproducts as (\\n\\n    select * from acme.jaffle_shop.stg_products\\n),\\n\\nsupplies as (\\n\\n    select * from acme.jaffle_shop.stg_supplies\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
+      "description": "Order overview data mart, offering key details for each order inlcluding if it's a customer's first order and a food vs. drink item breakdown. One row per order.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.orders",
+      "fields": [
+        {
+          "description": "The unique key of the orders mart.",
+          "fieldName": "order_id",
+          "fieldPath": "order_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "The foreign key relating to the location the order was placed at.",
+          "fieldName": "location_id",
+          "fieldPath": "location_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "The foreign key relating to the customer who placed the order.",
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "The total amount of the order in USD including tax.",
+          "fieldName": "order_total",
+          "fieldPath": "order_total",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "tax_paid",
+          "fieldPath": "tax_paid",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "The timestamp the order was placed at.",
+          "fieldName": "ordered_at",
+          "fieldPath": "ordered_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "description": "A boolean indicating if this order included any food items.",
+          "fieldName": "is_food_order",
+          "fieldPath": "is_food_order",
+          "nativeType": "BOOLEAN",
+          "tags": []
+        },
+        {
+          "description": "A boolean indicating if this order included any drink items.",
+          "fieldName": "is_drink_order",
+          "fieldPath": "is_drink_order",
+          "nativeType": "BOOLEAN",
+          "tags": []
+        },
+        {
+          "description": "The sum of supply expenses to fulfill the order.",
+          "fieldName": "order_cost",
+          "fieldPath": "order_cost",
+          "nativeType": "NUMBER",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~2628FDFF9D0CDB0AA4E3FC0FFBED02B8",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_id'\\n    )\\n}}\\n\\n\\nwith orders as (\\n    \\n    select * from {{ ref('stg_orders')}}\\n\\n),\\n\\norder_items as (\\n    \\n    select * from {{ ref('stg_order_items')}}\\n\\n),\\n\\nproducts as (\\n\\n    select * from {{ ref('stg_products') }}\\n),\\n\\nsupplies as (\\n\\n    select * from {{ ref('stg_supplies') }}\\n\\n),\\n\\n\\norder_items_summary as (\\n\\n    select\\n\\n        order_items.order_id,\\n\\n        sum(supplies.supply_cost) as order_cost,\\n        sum(is_food_item) as count_food_items,\\n        sum(is_drink_item) as count_drink_items\\n\\n\\n    from order_items\\n\\n    left join supplies on order_items.product_id = supplies.product_id\\n    left join products on order_items.product_id = products.product_id\\n\\n    group by 1\\n\\n),\\n\\n\\nfinal as (\\n    select\\n\\n        orders.*,\\n        count_food_items > 0 as is_food_order,\\n        count_drink_items > 0 as is_drink_order,\\n        order_cost\\n\\n    from orders\\n    \\n    left join order_items_summary on orders.order_id = order_items_summary.order_id\\n)\\n\\nselect * from final",
+      "sourceModels": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
+        "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
+      ],
+      "tests": [
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_orders_order_id",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_id\\nfrom acme.jaffle_shop.orders\\nwhere order_id is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.not_null_orders_order_id.cf6c17daed"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_relationships"
+          ],
+          "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
+          "sql": "\\n    \\n    \\n\\nwith child as (\\n    select customer_id as from_field\\n    from acme.jaffle_shop.orders\\n    where customer_id is not null\\n),\\n\\nparent as (\\n    select customer_id as to_field\\n    from acme.jaffle_shop.stg_customers\\n)\\n\\nselect\\n    from_field\\n\\nfrom child\\nleft join parent\\n    on child.from_field = parent.to_field\\n\\nwhere parent.to_field is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16"
+        },
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_orders_order_id",
+          "sql": "\\n    \\n    \\n\\nselect\\n    order_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.orders\\nwhere order_id is not null\\ngroup by order_id\\nhaving count(*) > 1\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.unique_orders_order_id.fed79b3a6e"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.orders"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~CCD5BC591587FEE1871D151FCC12EEB1",
+        "VIRTUAL_VIEW~B4C1C7825A401215D815D4520CD8ECF4",
+        "VIRTUAL_VIEW~769DCFC28317E6CDC8B9D7E745BA61CB",
+        "VIRTUAL_VIEW~226AEA90AFE7D7925BCE6CE156C2D901"
+      ]
+    },
+    "logicalId": {
+      "name": "jaffle_shop.orders",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "orders"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "description": "Customer data with basic cleaning and transformation applied, one row per customer.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_customers",
+      "fields": [
+        {
+          "description": "The unique key for each customer.",
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "customer_name",
+          "fieldPath": "customer_name",
+          "nativeType": "TEXT",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~512557BF25DF9EAEE5584140A235E03D",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_customers\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as customer_id,\\n\\n        ---------- properties\\n        name as customer_name\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_customers_customer_id",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect customer_id\\nfrom acme.jaffle_shop.stg_customers\\nwhere customer_id is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_customers_customer_id.e2cfb1f9aa"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_customers_customer_id",
+          "sql": "\\n    \\n    \\n\\nselect\\n    customer_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_customers\\nwhere customer_id is not null\\ngroup by customer_id\\nhaving count(*) > 1\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_customers_customer_id.c7614daada"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_customers"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_customers",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_customers"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- \\n    -- where opened_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "description": "List of open locations with basic cleaning and transformation applied, one row per location.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_locations",
+      "fields": [
+        {
+          "description": "The unique key for each location.",
+          "fieldName": "location_id",
+          "fieldPath": "location_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "location_name",
+          "fieldPath": "location_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "tax_rate",
+          "fieldPath": "tax_rate",
+          "nativeType": "FLOAT",
+          "tags": []
+        },
+        {
+          "fieldName": "opened_at",
+          "fieldPath": "opened_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~30CDC644AD658B552B89094BA9B3E99C",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_stores\\n\\n    -- {# data runs to 2026, truncate timespan to desired range, \\n    -- current time as default #}\\n    -- where opened_at <= {{ var('truncate_timespan_to') }}\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as location_id,\\n\\n        ---------- properties\\n        name as location_name,\\n        tax_rate,\\n\\n        ---------- timestamp\\n        opened_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "location_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_locations_location_id",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect location_id\\nfrom acme.jaffle_shop.stg_locations\\nwhere location_id is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_locations_location_id.3d237927d2"
+        },
+        {
+          "columns": [
+            "location_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_locations_location_id",
+          "sql": "\\n    \\n    \\n\\nselect\\n    location_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_locations\\nwhere location_id is not null\\ngroup by location_id\\nhaving count(*) > 1\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_locations_location_id.2e2fc58ecc"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_locations"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_locations",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_locations"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "description": "Individual food and drink items that make up our orders, one row per item.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_order_items",
+      "fields": [
+        {
+          "description": "The unique key for each order item.",
+          "fieldName": "order_item_id",
+          "fieldPath": "order_item_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "order_id",
+          "fieldPath": "order_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "product_id",
+          "fieldPath": "product_id",
+          "nativeType": "TEXT",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~D1E6B89E5891621E2DB93165B5828719",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_items\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_item_id,\\n        order_id,\\n\\n        ---------- properties\\n        sku as product_id\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "order_item_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_order_items_order_item_id",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_item_id\\nfrom acme.jaffle_shop.stg_order_items\\nwhere order_item_id is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_order_items_order_item_id.26a7e2bc35"
+        },
+        {
+          "columns": [
+            "order_item_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_order_items_order_item_id",
+          "sql": "\\n    \\n    \\n\\nselect\\n    order_item_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_order_items\\nwhere order_item_id is not null\\ngroup by order_item_id\\nhaving count(*) > 1\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_order_items_order_item_id.90e333a108"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_order_items"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_order_items",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_order_items"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= convert_timezone('UTC', current_timestamp())\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "description": "Order data with basic cleaning and transformation applied, one row per order.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_orders",
+      "fields": [
+        {
+          "description": "The unique key for each order.",
+          "fieldName": "order_id",
+          "fieldPath": "order_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "location_id",
+          "fieldPath": "location_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "order_total",
+          "fieldPath": "order_total",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "tax_paid",
+          "fieldPath": "tax_paid",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "ordered_at",
+          "fieldPath": "ordered_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~757BF2FC19B9BBD0DBAFD90768F2DC8B",
+        "type": "TABLE"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "{{\\n    config(\\n        materialized = 'table',\\n        unique_key = 'order_id'\\n    )\\n}}\\n\\nwith\\n\\nsource as (\\n\\n    select * from raw_orders\\n\\n    -- data runs to 2026, truncate timespan to desired range,\\n    -- current time as default\\n    -- where ordered_at <= {{ var('truncate_timespan_to') }}\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        id as order_id,\\n        store_id as location_id,\\n        customer as customer_id,\\n\\n        ---------- properties\\n        (order_total / 100.0) as order_total,\\n        (tax_paid / 100.0) as tax_paid,\\n\\n        ---------- timestamps\\n        ordered_at\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_orders_order_id",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_id\\nfrom acme.jaffle_shop.stg_orders\\nwhere order_id is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_orders_order_id.81cfe2fe64"
+        },
+        {
+          "columns": [
+            "order_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_orders_order_id",
+          "sql": "\\n    \\n    \\n\\nselect\\n    order_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_orders\\nwhere order_id is not null\\ngroup by order_id\\nhaving count(*) > 1\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_orders_order_id.e3b841c71a"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_orders"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_orders",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_orders"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "description": "Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_products",
+      "fields": [
+        {
+          "description": "The unique key for each product.",
+          "fieldName": "product_id",
+          "fieldPath": "product_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "product_name",
+          "fieldPath": "product_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "product_type",
+          "fieldPath": "product_type",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "product_description",
+          "fieldPath": "product_description",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "product_price",
+          "fieldPath": "product_price",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "is_food_item",
+          "fieldPath": "is_food_item",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "is_drink_item",
+          "fieldPath": "is_drink_item",
+          "nativeType": "NUMBER",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~2932BAF66BF93D64D6AC2F457698EB52",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_products\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as product_name,\\n        type as product_type,\\n        description as product_description,\\n        (price / 100.0) as product_price,\\n\\n\\n        ---------- derived\\n        case\\n            when type = 'jaffle' then 1\\n            else 0\\n        end as is_food_item,\\n\\n        case\\n            when type = 'beverage' then 1\\n            else 0\\n        end as is_drink_item\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "product_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_products_product_id",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect product_id\\nfrom acme.jaffle_shop.stg_products\\nwhere product_id is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_products_product_id.6373b0acf3"
+        },
+        {
+          "columns": [
+            "product_id"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_products_product_id",
+          "sql": "\\n    \\n    \\n\\nselect\\n    product_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_products\\nwhere product_id is not null\\ngroup by product_id\\nhaving count(*) > 1\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_products_product_id.7d950a1467"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_products"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_products",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_products"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        \\n    \\nmd5(cast(coalesce(cast(id as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(sku as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "description": "List of our supply expenses data with basic cleaning and transformation applied.\\nOne row per supply cost, not per supply. As supply costs fluctuate they receive a new row with a new UUID. Thus there can be multiple rows per supply_id.\\n",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/model/model.jaffle_shop.stg_supplies",
+      "fields": [
+        {
+          "description": "The unique key of our supplies per cost.",
+          "fieldName": "supply_uuid",
+          "fieldPath": "supply_uuid",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "supply_id",
+          "fieldPath": "supply_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "product_id",
+          "fieldPath": "product_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "supply_name",
+          "fieldPath": "supply_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "supply_cost",
+          "fieldPath": "supply_cost",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "is_perishable_supply",
+          "fieldPath": "is_perishable_supply",
+          "nativeType": "BOOLEAN",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~A808B6BE5F80DA3A550D49C92E8F2D89",
+        "type": "VIEW"
+      },
+      "packageName": "jaffle_shop",
+      "rawSql": "with\\n\\nsource as (\\n\\n    select * from raw_supplies\\n\\n),\\n\\nrenamed as (\\n\\n    select\\n\\n        ----------  ids\\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\\n        id as supply_id,\\n        sku as product_id,\\n\\n        ---------- properties\\n        name as supply_name,\\n        (cost / 100.0) as supply_cost,\\n        perishable as is_perishable_supply\\n\\n    from source\\n\\n)\\n\\nselect * from renamed",
+      "tests": [
+        {
+          "columns": [
+            "supply_uuid"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_not_null"
+          ],
+          "name": "not_null_stg_supplies_supply_uuid",
+          "sql": "\\n    \\n    \\n\\n\\n\\nselect supply_uuid\\nfrom acme.jaffle_shop.stg_supplies\\nwhere supply_uuid is null\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.not_null_stg_supplies_supply_uuid.515c6eda6d"
+        },
+        {
+          "columns": [
+            "supply_uuid"
+          ],
+          "dependsOnMacros": [
+            "macro.dbt.get_where_subquery",
+            "macro.dbt.test_unique"
+          ],
+          "name": "unique_stg_supplies_supply_uuid",
+          "sql": "\\n    \\n    \\n\\nselect\\n    supply_uuid as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_supplies\\nwhere supply_uuid is not null\\ngroup by supply_uuid\\nhaving count(*) > 1\\n\\n\\n",
+          "uniqueId": "test.jaffle_shop.unique_stg_supplies_supply_uuid.c9e3edcfed"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.jaffle_shop.stg_supplies"
+    },
+    "logicalId": {
+      "name": "jaffle_shop.stg_supplies",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "jaffle_shop"
+      ],
+      "name": "stg_supplies"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The cumulative revenue for all orders.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Cumulative Revenue (All Time)",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "cumulative",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.cumulative_revenue"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.cumulative_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Distict count of customers placing orders",
+      "dimensions": [],
+      "filters": [],
+      "label": "Customers w/ Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.customers_with_orders"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.customers_with_orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders that contain food order items",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_orders"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.food_orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The revenue from food in each order",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_revenue"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.food_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The % of order revenue from food.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Revenue %",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "ratio",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_revenue_pct"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.food_revenue_pct",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders with order total over 20.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Large Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.large_order"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.large_order",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of locations that placed in order.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Locations",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.locations"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.locations",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The median revenue for each order item. Excludes tax.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Median Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.median_revenue"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.median_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Unique count of new customers.",
+      "dimensions": [],
+      "filters": [],
+      "label": "New Customers",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.new_customer"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.new_customer",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of cost for each order item.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Cost",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_cost"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.order_cost",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Gross profit from each order.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Gross Profit",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "derived",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_gross_profit"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.order_gross_profit",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.orders"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of total order amonunt. Includes tax + revenue.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Total",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_total"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.order_total",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of the product revenue for each order item. Excludes tax.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.revenue"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Percentage growth of revenue compared to 1 month ago. Excluded tax",
+      "dimensions": [],
+      "filters": [],
+      "label": "Revenue Growth % M/M",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "derived",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.revenue_growth_mom"
+    },
+    "entityUpstream": {},
+    "logicalId": {
+      "name": "jaffle_shop.revenue_growth_mom",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset contains profile info of each customer. E.g first name, last name, email, company name etc."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Auto-generated ID",
+          "fieldPath": "id"
+        },
+        {
+          "documentation": "Customer's first name",
+          "fieldPath": "first_name"
+        },
+        {
+          "documentation": "Customer's last name",
+          "fieldPath": "last_name"
+        },
+        {
+          "documentation": "Customer's email address",
+          "fieldPath": "email"
+        },
+        {
+          "documentation": "Customer's company",
+          "fieldPath": "company"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "date"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.customer_profile",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset contains all subscriptions info."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "created_at"
+        },
+        {
+          "documentation": "Subscription full display name",
+          "fieldPath": "long_name"
+        },
+        {
+          "documentation": "Subscription price in cents",
+          "fieldPath": "price"
+        },
+        {
+          "documentation": "Type of subscription renewal",
+          "fieldPath": "renew_type"
+        },
+        {
+          "documentation": "Subscription short name",
+          "fieldPath": "short_name"
+        },
+        {
+          "documentation": "Primary Key",
+          "fieldPath": "sub_id"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_base",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset represents all the raw subscription changes info of our product. Each subscription is represented by unique subs_id and each change has a unique chng_id."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Change type",
+          "fieldPath": "change_type"
+        },
+        {
+          "documentation": "Primary Key",
+          "fieldPath": "chg_id"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "created_at"
+        },
+        {
+          "documentation": "Subscription ID",
+          "fieldPath": "sub_id"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_change_raw",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as id,\n  subscriptions_growth.customer_id as cus_id,\n  'no' as reason,\n  subscriptions_growth.created_at as sub_date,\n  '2014-01-01 16:00:00' as cancel_date\nfrom DEMO_DB.METAPHOR.subscriptions_growth as subscriptions_growth",
+      "description": "This dataset contains info about churn, all the accounts that have cancelled the subscriptions in the past.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.churn_region_agg",
+      "fields": [
+        {
+          "description": "Auto-generated ID",
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Customer ID",
+          "fieldName": "cus_id",
+          "fieldPath": "cus_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "The reason for churn",
+          "fieldName": "reason",
+          "fieldPath": "reason",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "Timestamp at which the subscription is created.",
+          "fieldName": "sub_date",
+          "fieldPath": "sub_date",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "description": "Timestamp at which the subscription is cancelled.",
+          "fieldName": "cancel_date",
+          "fieldPath": "cancel_date",
+          "nativeType": "TEXT",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~21B252FB382AB10032F473675A8E563E",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "[\"mars@metaphor.io\", \"pardhu@metaphor.io\"]"
+        }
+      ],
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as id,\n  subscriptions_growth.customer_id as cus_id,\n  'no' as reason,\n  subscriptions_growth.created_at as sub_date,\n  '2014-01-01 16:00:00' as cancel_date\nfrom {{ ref('subscriptions_growth') }} as subscriptions_growth",
+      "sourceModels": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.churn_region_agg"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.churn_region_agg",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "churn_region_agg"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as id,\n  'name' as name,\n  'poc' as poc,\n  100 as budget,\n  churn_region_agg.sub_date as date\nfrom DEMO_DB.METAPHOR.churn_region_agg as churn_region_agg",
+      "description": "This dataset contains info about all modular campaigns. The id represents campaign id.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.modular_campaigns",
+      "fields": [
+        {
+          "description": "Auto-generated ID",
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Campaign name",
+          "fieldName": "name",
+          "fieldPath": "name",
+          "nativeType": "TEXT",
+          "tags": [
+            "pii",
+            "name"
+          ]
+        },
+        {
+          "description": "Point of contact",
+          "fieldName": "poc",
+          "fieldPath": "poc",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "Budget for the campaign in dollars",
+          "fieldName": "budget",
+          "fieldPath": "budget",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Creation timestamp",
+          "fieldName": "date",
+          "fieldPath": "date",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~21F8510010F67ABD176C2F09C61C0177",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "[\"mars@metaphor.io\", \"pardhu@metaphor.io\"]"
+        }
+      ],
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as id,\n  'name' as name,\n  'poc' as poc,\n  100 as budget,\n  churn_region_agg.sub_date as date\nfrom {{ ref('churn_region_agg') }} as churn_region_agg",
+      "sourceModels": [
+        "VIRTUAL_VIEW~1BD666702EACA1E95384807DA0DC92C7"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.modular_campaigns"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~1BD666702EACA1E95384807DA0DC92C7"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.modular_campaigns",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "modular_campaigns"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sub_id,\n  'url' as url,\n  customer_profile.date as created_at\nfrom DEMO_DB.METAPHOR.CUSTOMER_PROFILE as customer_profile",
+      "description": "This dataset contains all subscriptions core info.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.subscriptions_core",
+      "fields": [
+        {
+          "description": "Subscription ID",
+          "fieldName": "sub_id",
+          "fieldPath": "sub_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "URL for the subscription",
+          "fieldName": "url",
+          "fieldPath": "url",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "Creation timestamp",
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~F134F3E0858F50ABE766D17D9C558AE3",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sub_id,\n  'url' as url,\n  customer_profile.date as created_at\nfrom {{ source('METAPHOR', 'CUSTOMER_PROFILE') }} as customer_profile",
+      "sourceDatasets": [
+        "DATASET~5641EFE05C0E7A164E64267CB76ED41B"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.subscriptions_core"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~5641EFE05C0E7A164E64267CB76ED41B"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_core",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "subscriptions_core"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "subscription"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  change_raw.sub_id as sub_id,\n  1 as customer_id, \n  base.created_at as created_at\nfrom DEMO_DB.METAPHOR.SUBSCRIPTIONS_CHANGE_RAW as change_raw\ninner join DEMO_DB.METAPHOR.SUBSCRIPTIONS_BASE as base on base.sub_id = change_raw.sub_id\ninner join DEMO_DB.METAPHOR.subscriptions_v2 as v2 on v2.sub_id = change_raw.sub_id",
+      "description": "This dataset represents all the subscription info of our product. Each subscription is represented by unique subs_id.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.subscriptions_growth",
+      "fields": [
+        {
+          "description": "Unique ID of the Subscription. This is generated at the time of creation of a new subscription.",
+          "fieldName": "sub_id",
+          "fieldPath": "sub_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Unique ID of the Customer. This is generated end of registration flow for a user.",
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Timestamp at which the subscription is created. Always represented in Pacific Time Zone irrespective of the location of the user.",
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~23E009C6A5D14EE37FCF7DDC9C847939",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "[\"mars@metaphor.io\", \"pardhu@metaphor.io\"]"
+        }
+      ],
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  change_raw.sub_id as sub_id,\n  1 as customer_id, \n  base.created_at as created_at\nfrom {{ source('METAPHOR', 'SUBSCRIPTIONS_CHANGE_RAW') }} as change_raw\ninner join {{ source('METAPHOR', 'SUBSCRIPTIONS_BASE') }} as base on base.sub_id = change_raw.sub_id\ninner join {{ ref('subscriptions_v2') }} as v2 on v2.sub_id = change_raw.sub_id",
+      "sourceDatasets": [
+        "DATASET~2F3C1202ADA5F7AEC4BD6F33A40A2F82",
+        "DATASET~A448444CA0CDE26D11CDCE4A6D640AF9"
+      ],
+      "sourceModels": [
+        "VIRTUAL_VIEW~40E84C63748265E978F781C89A23BE51"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.subscriptions_growth"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~2F3C1202ADA5F7AEC4BD6F33A40A2F82",
+        "DATASET~A448444CA0CDE26D11CDCE4A6D640AF9",
+        "VIRTUAL_VIEW~40E84C63748265E978F781C89A23BE51"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_growth",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "subscriptions_growth"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "subscription"
+        },
+        {
+          "systemTagSource": "DBT",
+          "value": "growth"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sales_id,\n  subscriptions_growth.sub_id as sub_id,\n  1 as sale_rep_id,\n  1 as deal_size,\n  '2014-01-01 16:00:00' as created_at\nfrom DEMO_DB.METAPHOR.subscriptions_growth as subscriptions_growth",
+      "description": "This dataset represents the sales info for each subscription.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.subscriptions_sales",
+      "fields": [
+        {
+          "description": "Auto-generated ID",
+          "fieldName": "sales_id",
+          "fieldPath": "sales_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Subscription ID",
+          "fieldName": "sub_id",
+          "fieldPath": "sub_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Sales representative ID",
+          "fieldName": "sale_rep_id",
+          "fieldPath": "sale_rep_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Size of the deals in dollars",
+          "fieldName": "deal_size",
+          "fieldPath": "deal_size",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Creation timestamp",
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "TEXT",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~EA7EEF0E21B06B0282E4BC3B7FD508A8",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sales_id,\n  subscriptions_growth.sub_id as sub_id,\n  1 as sale_rep_id,\n  1 as deal_size,\n  '2014-01-01 16:00:00' as created_at\nfrom {{ ref('subscriptions_growth') }} as subscriptions_growth",
+      "sourceModels": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.subscriptions_sales"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~C0B4C324A0D6AB95F681101D76B04791"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_sales",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "subscriptions_sales"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "subscription"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "select \n  1 as sub_id,\n  'short name' as short_name,\n  'long name' as long_name,\n  'region' as region,\n  1 as price,\n  'type' as renew_type,\n  customer_profile.date as created_at\nfrom DEMO_DB.METAPHOR.CUSTOMER_PROFILE as customer_profile",
+      "description": "This dataset contains all newer subscriptions info.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/22/docs/#!/model/model.metaphor_subscriptions.subscriptions_v2",
+      "fields": [
+        {
+          "description": "Primary Key",
+          "fieldName": "sub_id",
+          "fieldPath": "sub_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Subscription short name",
+          "fieldName": "short_name",
+          "fieldPath": "short_name",
+          "nativeType": "TEXT",
+          "tags": [
+            "pii",
+            "name"
+          ]
+        },
+        {
+          "description": "Subscription full display name",
+          "fieldName": "long_name",
+          "fieldPath": "long_name",
+          "nativeType": "TEXT",
+          "tags": [
+            "pii",
+            "name"
+          ]
+        },
+        {
+          "description": "Available regions, comma separated",
+          "fieldName": "region",
+          "fieldPath": "region",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "Subscription price in cents",
+          "fieldName": "price",
+          "fieldPath": "price",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Type of subscription renewal",
+          "fieldName": "renew_type",
+          "fieldPath": "renew_type",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "Creation timestamp",
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~4112E9F599D5D58340D7DD2D77458017",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "owner",
+          "value": "[\"mars@metaphor.io\", \"pardhu@metaphor.io\"]"
+        }
+      ],
+      "packageName": "metaphor_subscriptions",
+      "rawSql": "select \n  1 as sub_id,\n  'short name' as short_name,\n  'long name' as long_name,\n  'region' as region,\n  1 as price,\n  'type' as renew_type,\n  customer_profile.date as created_at\nfrom {{ source('METAPHOR', 'CUSTOMER_PROFILE') }} as customer_profile",
+      "sourceDatasets": [
+        "DATASET~5641EFE05C0E7A164E64267CB76ED41B"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.metaphor_subscriptions.subscriptions_v2"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~5641EFE05C0E7A164E64267CB76ED41B"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor_subscriptions.subscriptions_v2",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor_subscriptions"
+      ],
+      "name": "subscriptions_v2"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "subscription"
+        }
+      ]
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [],
+      "fieldDocumentations": [
+        {
+          "documentation": "Duration of the bike trip in seconds.",
+          "fieldPath": "duration"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.berlin_bicycles.cycle_hire",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [],
+      "fieldDocumentations": []
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.berlin_bicycles.cycle_stations",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration_minutes) as total_minutes\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM ACME.ride_share.raw_bike_hires\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_minutes DESC",
+      "description": "This table contains a transformed version of the raw_bike_hires table, which includes additional calculated fields such as creating a duration in minutes field.  Each ride has been aggregated so any journey that starts and ends at the same station, in the same month and roughly time of day are  aggregated together to get the total minutes similar journeys have taken\n",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/23/docs/#!/model/model.london_bike_analysis.cleaned_bike_rides",
+      "fields": [
+        {
+          "description": "The total minutes of a particular journey in a month and general time of day.",
+          "fieldName": "total_minutes",
+          "fieldPath": "total_minutes",
+          "nativeType": "NUMBER",
+          "tags": [
+            "aggregates"
+          ]
+        },
+        {
+          "description": "Total number of bike hires of the same journey in a particular month and time of day",
+          "fieldName": "total_bike_hires",
+          "fieldPath": "total_bike_hires",
+          "nativeType": "NUMBER",
+          "tags": [
+            "aggregates"
+          ]
+        },
+        {
+          "description": "",
+          "fieldName": "average_duration",
+          "fieldPath": "average_duration",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "Month the bike hire was in",
+          "fieldName": "month",
+          "fieldPath": "month",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_peak_travel",
+          "fieldPath": "start_peak_travel",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "same_station_flag",
+          "fieldPath": "same_station_flag",
+          "nativeType": "BOOLEAN",
+          "tags": []
+        },
+        {
+          "description": "",
+          "fieldName": "start_station_id",
+          "fieldPath": "start_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_name",
+          "fieldPath": "start_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "",
+          "fieldName": "end_station_id",
+          "fieldPath": "end_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "",
+          "fieldName": "end_station_name",
+          "fieldPath": "end_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~92D9D4AFB0BA1FAE857D2F67B1C5651F",
+        "type": "TABLE"
+      },
+      "meta": [
+        {
+          "key": "dbt_tags",
+          "value": "[\"pii\", \"marketplace\", \"apps\"]"
+        },
+        {
+          "key": "data_product_manager",
+          "value": "\"kirit\""
+        }
+      ],
+      "packageName": "london_bike_analysis",
+      "rawSql": "-- Adding extra fields including if the bike was rented during peak time \r\nSELECT\r\n    SUM(duration_minutes) as total_minutes\r\n    , COUNT(rental_id) as total_bike_hires\r\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\r\n    , EXTRACT(month from start_date) as month\r\n    , CASE\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\r\n        ELSE 'Off-Peak'\r\n      END AS start_peak_travel\r\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_station_id\r\n    , end_station_name\r\nFROM {{ ref('raw_bike_hires') }}\r\nGROUP BY 4,5,6,7,8,9,10\r\nORDER BY total_minutes DESC",
+      "sourceModels": [
+        "VIRTUAL_VIEW~AB431420AAB09A0DC1E238C1D2A8A423"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.london_bike_analysis.cleaned_bike_rides"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~AB431420AAB09A0DC1E238C1D2A8A423"
+      ]
+    },
+    "logicalId": {
+      "name": "london_bike_analysis.cleaned_bike_rides",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "london_bike_analysis"
+      ],
+      "name": "cleaned_bike_rides"
+    },
+    "systemTags": {
+      "tags": [
+        {
+          "systemTagSource": "DBT",
+          "value": "bike_ride_data"
+        }
+      ]
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration) as total_seconds\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM ACME.snapshots.cycle_hire_snapshot\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_seconds DESC",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/23/docs/#!/model/model.london_bike_analysis.cleaned_bike_rides_from_snapshot",
+      "fields": [
+        {
+          "fieldName": "total_seconds",
+          "fieldPath": "total_seconds",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "total_bike_hires",
+          "fieldPath": "total_bike_hires",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "average_duration",
+          "fieldPath": "average_duration",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "month",
+          "fieldPath": "month",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_peak_travel",
+          "fieldPath": "start_peak_travel",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "same_station_flag",
+          "fieldPath": "same_station_flag",
+          "nativeType": "BOOLEAN",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_id",
+          "fieldPath": "start_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_name",
+          "fieldPath": "start_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_id",
+          "fieldPath": "end_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_name",
+          "fieldPath": "end_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~D20E9E03D75970A68AF0D43B5E37B1C1",
+        "type": "TABLE"
+      },
+      "packageName": "london_bike_analysis",
+      "rawSql": "-- Adding extra fields including if the bike was rented during peak time \r\nSELECT\r\n    SUM(duration) as total_seconds\r\n    , COUNT(rental_id) as total_bike_hires\r\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\r\n    , EXTRACT(month from start_date) as month\r\n    , CASE\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\r\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\r\n        ELSE 'Off-Peak'\r\n      END AS start_peak_travel\r\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_station_id\r\n    , end_station_name\r\nFROM {{ ref('cycle_hire_snapshot') }}\r\nGROUP BY 4,5,6,7,8,9,10\r\nORDER BY total_seconds DESC",
+      "sourceModels": [
+        "VIRTUAL_VIEW~FEE8405461EBC519C4D9B3A20C4E251C"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.london_bike_analysis.cleaned_bike_rides_from_snapshot"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~FEE8405461EBC519C4D9B3A20C4E251C"
+      ]
+    },
+    "logicalId": {
+      "name": "london_bike_analysis.cleaned_bike_rides_from_snapshot",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "london_bike_analysis"
+      ],
+      "name": "cleaned_bike_rides_from_snapshot"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "SELECT \n    rental_id\n    , duration as duration_seconds\n    , duration / 60 as duration_minutes\n    , bike_id\n    , start_date\n    , start_station_id\n    , start_station_name\n    , end_date\n    , end_station_id\n    , end_station_name\nFROM  ACME.berlin_bicycles.cycle_hire\nWHERE EXTRACT(year from start_date) = 2017",
+      "description": "This table contains all bike hires in London in 2017. This is the raw dataset so no cleaning or transformation.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/23/docs/#!/model/model.london_bike_analysis.raw_bike_hires",
+      "fields": [
+        {
+          "fieldName": "rental_id",
+          "fieldPath": "rental_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "duration_seconds",
+          "fieldPath": "duration_seconds",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "duration_minutes",
+          "fieldPath": "duration_minutes",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "bike_id",
+          "fieldPath": "bike_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_date",
+          "fieldPath": "start_date",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_id",
+          "fieldPath": "start_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_name",
+          "fieldPath": "start_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "end_date",
+          "fieldPath": "end_date",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_id",
+          "fieldPath": "end_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_name",
+          "fieldPath": "end_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~846FFD46D882F745471F05CDAC30771E",
+        "type": "TABLE"
+      },
+      "packageName": "london_bike_analysis",
+      "rawSql": "SELECT \r\n    rental_id\r\n    , duration as duration_seconds\r\n    , duration / 60 as duration_minutes\r\n    , bike_id\r\n    , start_date\r\n    , start_station_id\r\n    , start_station_name\r\n    , end_date\r\n    , end_station_id\r\n    , end_station_name\r\nFROM  {{ source('berlin_bicycles', 'cycle_hire') }}\r\nWHERE EXTRACT(year from start_date) = 2017",
+      "sourceDatasets": [
+        "DATASET~F0C9B26420A687DD5EFC906351F8540A"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.london_bike_analysis.raw_bike_hires"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~F0C9B26420A687DD5EFC906351F8540A"
+      ]
+    },
+    "logicalId": {
+      "name": "london_bike_analysis.raw_bike_hires",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "london_bike_analysis"
+      ],
+      "name": "raw_bike_hires"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "SELECT \n    id\n    , name as station_name\n    , bikes_count\n    , docks_count\n    , install_date\n    , removal_date\nFROM  ACME.berlin_bicycles.cycle_stations\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
+      "description": "This table contains all bike stations in the London area. This only includes stations intalled before January 1, 2017 and doesn't include stations that were removed in 2017 (before Jan 1 2018). This is the raw data so no cleaning or transformation.",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/23/docs/#!/model/model.london_bike_analysis.raw_bike_stations",
+      "fields": [
+        {
+          "description": "Primary Key",
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "",
+          "fieldName": "station_name",
+          "fieldPath": "station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "",
+          "fieldName": "bikes_count",
+          "fieldPath": "bikes_count",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "",
+          "fieldName": "docks_count",
+          "fieldPath": "docks_count",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "",
+          "fieldName": "install_date",
+          "fieldPath": "install_date",
+          "nativeType": "DATE",
+          "tags": []
+        },
+        {
+          "description": "",
+          "fieldName": "removal_date",
+          "fieldPath": "removal_date",
+          "nativeType": "DATE",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~94CCD222AF1361D0A9D552BB8DC69A8A",
+        "type": "TABLE"
+      },
+      "packageName": "london_bike_analysis",
+      "rawSql": "SELECT \r\n    id\r\n    , name as station_name\r\n    , bikes_count\r\n    , docks_count\r\n    , install_date\r\n    , removal_date\r\nFROM  {{ source('berlin_bicycles', 'cycle_stations') }}\r\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
+      "sourceDatasets": [
+        "DATASET~221DEF4E5CF338DA5E3CD9F86862E9AD"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.london_bike_analysis.raw_bike_stations"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~221DEF4E5CF338DA5E3CD9F86862E9AD"
+      ]
+    },
+    "logicalId": {
+      "name": "london_bike_analysis.raw_bike_stations",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "london_bike_analysis"
+      ],
+      "name": "raw_bike_stations"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "WITH stations AS (\n\n    SELECT *\n    FROM ACME.ride_share.raw_bike_stations\n\n),\n\nrides AS (\n\n    SELECT *\n    FROM ACME.ride_share.cleaned_bike_rides\n\n),\n\nstart_stat_join AS (\n\n    SELECT rides.*\n    , stations.bikes_count as start_station_bikes_count\n    , stations.docks_count as start_station_docks_count\n    , stations.install_date as start_station_install_date\n    FROM rides\n    LEFT JOIN stations\n    ON rides.start_station_id = stations.id\n)\n\nSELECT \n    total_minutes \n    , total_bike_hires \n    , average_duration \n    , month \n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count \n    , start_station_docks_count \n    , start_station_install_date \n    , end_station_id\n    , end_station_name\n    , stations.bikes_count as end_station_bikes_count\n    , stations.docks_count as end_station_docks_count\n    , stations.install_date as end_station_install_date\nFROM start_stat_join\nLEFT JOIN stations\nON start_stat_join.end_station_id = stations.id",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/23/docs/#!/model/model.london_bike_analysis.rides_by_month_2017",
+      "fields": [
+        {
+          "fieldName": "total_minutes",
+          "fieldPath": "total_minutes",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "total_bike_hires",
+          "fieldPath": "total_bike_hires",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "average_duration",
+          "fieldPath": "average_duration",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "month",
+          "fieldPath": "month",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_peak_travel",
+          "fieldPath": "start_peak_travel",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "same_station_flag",
+          "fieldPath": "same_station_flag",
+          "nativeType": "BOOLEAN",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_id",
+          "fieldPath": "start_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_name",
+          "fieldPath": "start_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_bikes_count",
+          "fieldPath": "start_station_bikes_count",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_docks_count",
+          "fieldPath": "start_station_docks_count",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_install_date",
+          "fieldPath": "start_station_install_date",
+          "nativeType": "DATE",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_id",
+          "fieldPath": "end_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_name",
+          "fieldPath": "end_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_bikes_count",
+          "fieldPath": "end_station_bikes_count",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_docks_count",
+          "fieldPath": "end_station_docks_count",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_install_date",
+          "fieldPath": "end_station_install_date",
+          "nativeType": "DATE",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~92BCFD89936A73CBB7CA66BE21E65B8A",
+        "type": "TABLE"
+      },
+      "packageName": "london_bike_analysis",
+      "rawSql": "WITH stations AS (\r\n\r\n    SELECT *\r\n    FROM {{ ref('raw_bike_stations') }}\r\n\r\n),\r\n\r\nrides AS (\r\n\r\n    SELECT *\r\n    FROM {{ ref('cleaned_bike_rides') }}\r\n\r\n),\r\n\r\nstart_stat_join AS (\r\n\r\n    SELECT rides.*\r\n    , stations.bikes_count as start_station_bikes_count\r\n    , stations.docks_count as start_station_docks_count\r\n    , stations.install_date as start_station_install_date\r\n    FROM rides\r\n    LEFT JOIN stations\r\n    ON rides.start_station_id = stations.id\r\n)\r\n\r\nSELECT \r\n    total_minutes \r\n    , total_bike_hires \r\n    , average_duration \r\n    , month \r\n    , start_peak_travel\r\n    , same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , start_station_bikes_count \r\n    , start_station_docks_count \r\n    , start_station_install_date \r\n    , end_station_id\r\n    , end_station_name\r\n    , stations.bikes_count as end_station_bikes_count\r\n    , stations.docks_count as end_station_docks_count\r\n    , stations.install_date as end_station_install_date\r\nFROM start_stat_join\r\nLEFT JOIN stations\r\nON start_stat_join.end_station_id = stations.id",
+      "sourceModels": [
+        "VIRTUAL_VIEW~E2AC9FA16880683393FEF02E8AE6F087",
+        "VIRTUAL_VIEW~BEABE1FF13F4749A5287A0C3AB91A51C"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.london_bike_analysis.rides_by_month_2017"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~E2AC9FA16880683393FEF02E8AE6F087",
+        "VIRTUAL_VIEW~BEABE1FF13F4749A5287A0C3AB91A51C"
+      ]
+    },
+    "logicalId": {
+      "name": "london_bike_analysis.rides_by_month_2017",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "london_bike_analysis"
+      ],
+      "name": "rides_by_month_2017"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "SELECT \n    SUM(total_minutes) AS total_minutes\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\n    , SUM(total_bike_hires) AS total_bike_hires\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\n    , month\n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count\n    , start_station_docks_count\n    , start_station_install_date\nFROM ACME.ride_share.rides_by_month_2017\nGROUP BY 5,6,7,8,9,10,11,12\nORDER BY total_bike_hires DESC",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/23/docs/#!/model/model.london_bike_analysis.rides_by_month_start_station_2017",
+      "fields": [
+        {
+          "fieldName": "total_minutes",
+          "fieldPath": "total_minutes",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "total_hours",
+          "fieldPath": "total_hours",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "total_bike_hires",
+          "fieldPath": "total_bike_hires",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "average_duration_in_minutes",
+          "fieldPath": "average_duration_in_minutes",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "month",
+          "fieldPath": "month",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_peak_travel",
+          "fieldPath": "start_peak_travel",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "same_station_flag",
+          "fieldPath": "same_station_flag",
+          "nativeType": "BOOLEAN",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_id",
+          "fieldPath": "start_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_name",
+          "fieldPath": "start_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_bikes_count",
+          "fieldPath": "start_station_bikes_count",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_docks_count",
+          "fieldPath": "start_station_docks_count",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_install_date",
+          "fieldPath": "start_station_install_date",
+          "nativeType": "DATE",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~F190E85DB324F612C64041A640B83248",
+        "type": "TABLE"
+      },
+      "packageName": "london_bike_analysis",
+      "rawSql": "SELECT \r\n    SUM(total_minutes) AS total_minutes\r\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\r\n    , SUM(total_bike_hires) AS total_bike_hires\r\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\r\n    , month\r\n    , start_peak_travel\r\n    , same_station_flag\r\n    , start_station_id\r\n    , start_station_name\r\n    , start_station_bikes_count\r\n    , start_station_docks_count\r\n    , start_station_install_date\r\nFROM {{ ref('rides_by_month_2017') }}\r\nGROUP BY 5,6,7,8,9,10,11,12\r\nORDER BY total_bike_hires DESC",
+      "sourceModels": [
+        "VIRTUAL_VIEW~C7AD0F50959B4A41901E513EB19B2592"
+      ],
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/model.london_bike_analysis.rides_by_month_start_station_2017"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~C7AD0F50959B4A41901E513EB19B2592"
+      ]
+    },
+    "logicalId": {
+      "name": "london_bike_analysis.rides_by_month_start_station_2017",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "london_bike_analysis"
+      ],
+      "name": "rides_by_month_start_station_2017"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "\n\n\nselect * from ACME.berlin_bicycles.cycle_hire",
+      "docsUrl": "https://cloud.getdbt.com/accounts/1/jobs/23/docs/#!/model/snapshot.london_bike_analysis.cycle_hire_snapshot",
+      "fields": [
+        {
+          "fieldName": "rental_id",
+          "fieldPath": "rental_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "duration",
+          "fieldPath": "duration",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "bike_id",
+          "fieldPath": "bike_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "end_date",
+          "fieldPath": "end_date",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_id",
+          "fieldPath": "end_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_name",
+          "fieldPath": "end_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "start_date",
+          "fieldPath": "start_date",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_id",
+          "fieldPath": "start_station_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_name",
+          "fieldPath": "start_station_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_logical_terminal",
+          "fieldPath": "end_station_logical_terminal",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "start_station_logical_terminal",
+          "fieldPath": "start_station_logical_terminal",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "end_station_priority_id",
+          "fieldPath": "end_station_priority_id",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "fieldName": "pricing_tier",
+          "fieldPath": "pricing_tier",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "dbt_scd_id",
+          "fieldPath": "dbt_scd_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "fieldName": "dbt_updated_at",
+          "fieldPath": "dbt_updated_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "fieldName": "dbt_valid_from",
+          "fieldPath": "dbt_valid_from",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        },
+        {
+          "fieldName": "dbt_valid_to",
+          "fieldPath": "dbt_valid_to",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "packageName": "london_bike_analysis",
+      "rawSql": "\n{{\n    config(\n      target_schema='snapshots',\n      strategy='check',\n      unique_key='bike_id',\n      check_cols=['start_date', 'end_date']\n    )\n}}\n\nselect * from {{ source('berlin_bicycles', 'cycle_hire') }}\n",
+      "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/snapshot.london_bike_analysis.cycle_hire_snapshot"
+    },
+    "logicalId": {
+      "name": "london_bike_analysis.cycle_hire_snapshot",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "london_bike_analysis"
+      ],
+      "name": "cycle_hire_snapshot"
+    }
+  }
+]

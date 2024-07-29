@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.14.59"
+version = "0.14.60"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -143,6 +143,7 @@ trino = ["trino"]
 unity_catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 
 [tool.poetry.dev-dependencies]
+ariadne-codegen = "^0.14.0"
 bandit = "^1.7.2"
 black = "^24.3.0"
 coverage = "^7.1.0"
@@ -196,7 +197,7 @@ ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
 
 [tool.bandit]
-exclude_dirs = ["venv"]
+exclude_dirs = ["venv", "metaphor/dbt/cloud/discovery_api/generated"]
 skips = [
   'B101',
   'B106',
@@ -204,4 +205,15 @@ skips = [
   'B603',
   'B607',
   'B608'
+]
+
+[tool.coverage.run]
+source = [
+  "metaphor"
+]
+omit = [
+  # TODO(SC-14236): Include __init__.py back to coverage after fixing async testing issues
+  "**/__init__.py",
+  # Ignore auto-generated files
+  "**/generated/*"
 ]

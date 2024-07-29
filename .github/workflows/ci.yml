@@ -43,6 +43,8 @@ jobs:
 
       - name: Lint & Type Check
         run: |
+          echo "setuptools<72" > constraints.txt
+          poetry run pip install --constraint constraints.txt pyhive==0.7.0
           poetry install -E all
           poetry run flake8
           poetry run black --check .
@@ -50,10 +52,9 @@ jobs:
           poetry run mypy . --explicit-package-bases
           poetry run bandit -r . -c pyproject.toml
 
-      # TODO(SC-14236): Include __init__.py back to coverage after fixing async testing issues
       - name: Test
         run: |
-          poetry run coverage run --source=metaphor --omit='**/__init__.py' -m pytest
+          poetry run coverage run -m pytest
           poetry run coverage xml
 
       - name: Codecov

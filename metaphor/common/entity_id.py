@@ -121,3 +121,20 @@ def dataset_normalized_name(
     return normalize_full_dataset_name(
         ".".join([part for part in [db, schema, table] if part is not None])
     )
+
+
+def parts_to_dataset_entity_id(
+    platform: DataPlatform,
+    account: Optional[str],
+    database: Optional[str] = None,
+    schema: Optional[str] = None,
+    table: Optional[str] = None,
+) -> EntityId:
+    """
+    converts parts of a dataset, its platform and account into a dataset entity ID
+    """
+    return to_dataset_entity_id(
+        dataset_normalized_name(database, schema, table),
+        platform,
+        account,
+    )

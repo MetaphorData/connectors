@@ -1,198 +1,80 @@
-from datetime import datetime
+import json
+from typing import List, Set
 from unittest.mock import MagicMock, patch
 
 import pytest
+from httpx import Response
 
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.event_util import EventUtil
 from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
-from metaphor.dbt.cloud.discovery_api import DiscoveryTestNode
 from metaphor.dbt.cloud.extractor import DbtCloudExtractor
-from metaphor.models.metadata_change_event import (
-    DataMonitorStatus,
-    DataMonitorTarget,
-    DataPlatform,
-    Dataset,
-    DatasetLogicalID,
-    VirtualView,
-    VirtualViewLogicalID,
-    VirtualViewType,
-)
+from tests.dbt.cloud.fake_graphql_server import endpoints, targets
+from tests.test_utils import load_json
 
 
-@patch("metaphor.dbt.cloud.extractor.DiscoveryAPI")
-@patch("metaphor.dbt.cloud.extractor.get_data_platform_from_manifest")
-@patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
-@patch("metaphor.dbt.cloud.extractor.DbtExtractor")
-@pytest.mark.asyncio
-async def test_extractor(
-    mock_dbt_extractor_class: MagicMock,
-    mock_client_class: MagicMock,
-    mock_get_data_platform_from_manifest: MagicMock,
-    mock_discovery_api_class: MagicMock,
-):
-    mock_client = MagicMock()
-    mock_client.get_last_successful_run = MagicMock(
-        side_effect=(
-            DbtRun(run_id=3333, project_id=4444, job_id=2222),
-            DbtRun(run_id=7777, project_id=6666, job_id=8888),
-            DbtRun(run_id=3333, project_id=4444, job_id=2222),
-        )
-    )
-    mock_client.get_project_jobs = MagicMock(side_effect=[[8888], [2222]])
-
-    def mock_is_job_included(job_id: int) -> bool:
-        return job_id != 3333
-
-    mock_client.is_job_included = mock_is_job_included
-    mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
-    mock_client.get_run_artifact = MagicMock(return_value="tempfile")
-
-    mock_get_data_platform_from_manifest.return_value = DataPlatform.UNKNOWN
-
-    mock_dbt_extractor = MagicMock()
-
-    async def fake_extract():
-        return []
-
-    mock_dbt_extractor.extract.side_effect = fake_extract
-
-    mock_client_class.return_value = mock_client
-    mock_dbt_extractor_class.return_value = mock_dbt_extractor
-
-    mock_discovery_api = MagicMock()
-    mock_discovery_api.get_all_job_tests.return_value = []
-
-    config = DbtCloudConfig(
-        output=OutputConfig(),
-        account_id=1111,
-        job_ids={2222, 3333},
-        project_ids={6666, 4444},
-        environment_ids={1},
-        base_url="https://cloud.metaphor.getdbt.com",
-        service_token="service_token",
-    )
-    extractor = DbtCloudExtractor(config)
-    await extractor.extract()
-    assert sorted(extractor._entities.keys()) == [3333, 7777]
+def mock_post(url: str, content: str, **kwargs):
+    content_json = json.loads(content)
+    operation_name = content_json["operationName"]
+    variables = content_json["variables"]
+    results = endpoints[operation_name](variables)
+    payload = {"data": json.loads(results)}
+    return Response(200, content=json.dumps(payload))
 
 
-@patch("metaphor.dbt.cloud.extractor.get_data_platform_from_manifest")
-@patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
-@patch("metaphor.dbt.cloud.extractor.DbtExtractor")
-@pytest.mark.asyncio
-async def test_extractor_bad_source(
-    mock_dbt_extractor_class: MagicMock,
-    mock_client_class: MagicMock,
-    mock_get_data_platform_from_manifest: MagicMock,
-):
-    mock_client = MagicMock()
-    mock_client.get_last_successful_run = MagicMock(
-        side_effect=(
-            DbtRun(run_id=3333, project_id=4444, job_id=2222),
-            DbtRun(run_id=7777, project_id=6666, job_id=8888),
-            DbtRun(run_id=3333, project_id=4444, job_id=2222),
-        )
-    )
-    mock_client.get_project_jobs = MagicMock(side_effect=[[8888], [2222]])
-    mock_client.get_snowflake_account = MagicMock(return_value="snowflake_account")
-    mock_client.get_run_artifact = MagicMock(return_value="tempfile")
-
-    mock_get_data_platform_from_manifest.return_value = DataPlatform.UNKNOWN
-
-    mock_dbt_extractor = MagicMock()
-
-    async def fake_extract():
-        raise ValueError()
-
-    mock_dbt_extractor.extract.side_effect = fake_extract
-
-    mock_client_class.return_value = mock_client
-    mock_dbt_extractor_class.return_value = mock_dbt_extractor
-
-    config = DbtCloudConfig(
-        output=OutputConfig(),
-        account_id=1111,
-        job_ids={2222},
-        project_ids={6666, 4444},
-        base_url="https://cloud.metaphor.getdbt.com",
-        service_token="service_token",
-    )
-    extractor = DbtCloudExtractor(config)
-    await extractor.extract()
-    assert not extractor._entities
-
-
-@patch("metaphor.dbt.cloud.extractor.DiscoveryAPI")
-def test_extend_test_run_results_entities(mock_discovery_api_class: MagicMock):
-    config = DbtCloudConfig(
-        output=OutputConfig(),
-        account_id=1111,
-        job_ids={2222},
-        project_ids={6666, 4444},
-        base_url="https://cloud.metaphor.getdbt.com",
-        service_token="service_token",
-    )
-    extractor = DbtCloudExtractor(config)
-    mock_discovery_api = MagicMock()
-    mock_discovery_api.get_all_job_model_names.return_value = {
-        "model.foo.bar": "db.sch.tab"
-    }
-
-    def fake_get_all_job_tests(job_id: int):
-        return [
-            DiscoveryTestNode(
-                uniqueId="1",
-                name="test1",
-                columnName="col1",
-                status="pass",
-                executeCompletedAt=datetime.now(),
-                dependsOn=["model.foo.bar"],
-            ),
-            DiscoveryTestNode(
-                uniqueId="2",
-                name="test2",
-                columnName="col2",
-                status="error",
-                executeCompletedAt=datetime.now(),
-                dependsOn=["model.foo.bar"],
-            ),
-        ]
-
-    mock_discovery_api.get_all_job_tests.side_effect = fake_get_all_job_tests
-    mock_discovery_api_class.return_value = mock_discovery_api
-    entities = [
-        VirtualView(
-            logical_id=VirtualViewLogicalID(
-                name="foo.bar",
-                type=VirtualViewType.DBT_MODEL,
-            ),
-        ),
-        Dataset(
-            logical_id=DatasetLogicalID(
-                name="a.b.c",
-                platform=DataPlatform.UNKNOWN,
+class MockAdminClient:
+    def __init__(
+        self,
+        base_url: str,
+        account_id: int,
+        service_token: str,
+        included_env_ids: Set[int] = set(),
+    ):
+        self.job_env = {
+            j: e
+            for j, e in zip(
+                targets.job_targets.keys(), targets.environment_targets.keys()
             )
-        ),
-    ]
+        }
 
-    res = extractor._extend_test_run_results_entities(
-        DataPlatform.UNKNOWN, None, 2222, entities
-    )
-    assert len(res) == 3
-    dataset = next(
-        x for x in res if isinstance(x, Dataset) and x.data_quality is not None
-    )
-    assert dataset.data_quality and dataset.data_quality.monitors
-    assert dataset.data_quality.monitors[0].status == DataMonitorStatus.PASSED
-    assert dataset.data_quality.monitors[0].targets == [
-        DataMonitorTarget(
-            column="col1", dataset="DATASET~083603875008F6D0B4981A524F67A549"
+    def get_project_jobs(self, project_id: int) -> List[int]:
+        return list(self.job_env.keys())
+
+    def is_job_included(self, job_id: int):
+        return True
+
+    def get_last_successful_run(self, job_id: int, page_size=50):
+        return DbtRun(
+            project_id=123,
+            job_id=job_id,
+            run_id=job_id * 10 + 1,
+            environment_id=self.job_env[job_id],
         )
-    ]
-    assert dataset.data_quality.monitors[1].status == DataMonitorStatus.ERROR
-    assert dataset.data_quality.monitors[1].targets == [
-        DataMonitorTarget(
-            column="col2", dataset="DATASET~083603875008F6D0B4981A524F67A549"
+
+    def get_snowflake_account(self, project_id: int):
+        return "john.doe@metaphor.io"
+
+
+@pytest.mark.asyncio()
+@patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
+@patch("httpx.Client.post")
+async def test_extractor(
+    mock_httpx_client_post: MagicMock,
+    mock_admin_client: MagicMock,
+    test_root_dir: str,
+):
+    mock_httpx_client_post.side_effect = mock_post
+    mock_admin_client.side_effect = MockAdminClient
+
+    extractor = DbtCloudExtractor(
+        DbtCloudConfig(
+            output=OutputConfig(),
+            account_id=1,
+            service_token="tok",
+            project_ids={123},
         )
-    ]
+    )
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+    expected = f"{test_root_dir}/dbt/cloud/expected.json"
+    assert events == load_json(expected)
