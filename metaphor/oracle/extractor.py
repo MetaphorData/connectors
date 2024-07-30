@@ -5,7 +5,7 @@ from sqlalchemy import Inspector, text
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import start_of_day
+from metaphor.common.utils import start_of_day, to_utc_time
 from metaphor.database.extractor import GenericDatabaseExtractor
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -207,5 +207,5 @@ class OracleExtractor(GenericDatabaseExtractor):
                     user_id=user,
                     sql=query,
                     duration=float(duration),
-                    start_time=start,
+                    start_time=to_utc_time(start),
                 )
