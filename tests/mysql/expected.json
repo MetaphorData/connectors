@@ -2,7 +2,7 @@
   {
     "logicalId": {
       "account": "foo.bar.com",
-      "name": "schema1.table1",
+      "name": "db.schema1.table1",
       "platform": "MYSQL"
     },
     "schema": {
@@ -33,12 +33,16 @@
     "structure": {
       "schema": "schema1",
       "table": "table1"
+    },
+    "systemDescription": {
+      "description": "comment",
+      "platform": "MYSQL"
     }
   },
   {
     "logicalId": {
       "account": "foo.bar.com",
-      "name": "schema2.table2",
+      "name": "db.schema2.table2",
       "platform": "MYSQL"
     },
     "schema": {
@@ -84,7 +88,7 @@
   {
     "logicalId": {
       "account": "foo.bar.com",
-      "name": "schema2.table3",
+      "name": "db.schema2.table3",
       "platform": "MYSQL"
     },
     "schema": {
