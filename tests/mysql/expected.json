@@ -31,6 +31,7 @@
       }
     },
     "structure": {
+      "database": "db",
       "schema": "schema1",
       "table": "table1"
     },
@@ -81,6 +82,7 @@
       }
     },
     "structure": {
+      "database": "db",
       "schema": "schema2",
       "table": "table2"
     }
@@ -116,6 +118,7 @@
       }
     },
     "structure": {
+      "database": "db",
       "schema": "schema2",
       "table": "table3"
     }

@@ -139,7 +139,9 @@ class GenericDatabaseExtractor(BaseExtractor):
                     primary_key=pk_info.get("constrained_columns") or None,
                 ),
             ),
-            structure=DatasetStructure(schema=schema, table=table),
+            structure=DatasetStructure(
+                database=self._database, schema=schema, table=table
+            ),
             system_description=(
                 SystemDescription(
                     description=table_description,
