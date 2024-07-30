@@ -21,6 +21,7 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     ForeignKey,
     MaterializationType,
+    SchemaField,
     SchemaType,
     SQLSchema,
     SystemDescription,
@@ -70,7 +71,7 @@ class GenericDatabaseExtractor(BaseExtractor):
 
         return self._datasets.values()
 
-    def _get_sqlalchemy_url(self) -> str:
+    def _get_sqlalchemy_url(self) -> URL:
         return URL.create(
             self._sqlalchemy_dialect,
             username=self._config.user,
@@ -115,6 +116,24 @@ class GenericDatabaseExtractor(BaseExtractor):
         )
         table_description = table_info.get("text")
 
+        fields: List[SchemaField] = []
+
+        for column in columns:
+            column_name = column.get("name")
+
+            if not column_name:
+                continue
+
+            fields.append(
+                build_schema_field(
+                    column_name=column_name,
+                    field_type=str(column.get("type")),
+                    description=column.get("comment"),
+                    nullable=bool(column.get("nullable")),
+                    precision=get_precision(column.get("type")),
+                )
+            )
+
         self._datasets[table_name] = Dataset(
             logical_id=DatasetLogicalID(
                 name=table_name,
@@ -124,16 +143,7 @@ class GenericDatabaseExtractor(BaseExtractor):
             schema=DatasetSchema(
                 description=table_description,
                 schema_type=SchemaType.SQL,
-                fields=[
-                    build_schema_field(
-                        column_name=column.get("name"),
-                        field_type=str(column.get("type")),
-                        description=column.get("comment"),
-                        nullable=bool(column.get("nullable")),
-                        precision=get_precision(column.get("type")),
-                    )
-                    for column in columns
-                ],
+                fields=fields,
                 sql_schema=SQLSchema(
                     materialization=materialization,
                     primary_key=pk_info.get("constrained_columns") or None,
@@ -177,8 +187,8 @@ class GenericDatabaseExtractor(BaseExtractor):
                     platform=DataPlatform[self._platform.value],
                 )
 
-                constrained_columns = info.get("constrained_columns")
-                referred_columns = info.get("referred_columns")
+                constrained_columns = info.get("constrained_columns") or []
+                referred_columns = info.get("referred_columns") or []
 
                 if len(constrained_columns) != len(referred_columns):
                     logger.warning(f"Skip foreign key: {info.get('name')}")
