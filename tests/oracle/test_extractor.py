@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -123,7 +123,15 @@ def mock_connection():
     )
 
     cursor.__iter__.return_value = iter(
-        [("DEV", "SELECT...", datetime.fromtimestamp(1722353493), 10.0, "sql-id")]
+        [
+            (
+                "DEV",
+                "SELECT...",
+                datetime.fromtimestamp(1722353493, tz=timezone.utc),
+                10.0,
+                "sql-id",
+            )
+        ]
     )
 
     return connection
