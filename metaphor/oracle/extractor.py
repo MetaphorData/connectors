@@ -107,6 +107,33 @@ class OracleExtractor(GenericDatabaseExtractor):
                 materialization=MaterializationType.MATERIALIZED_VIEW,
             )
 
+    def get_system_users(self, inspector: Inspector):
+        with inspector.engine.connect() as connection:
+            sql = "SELECT USERNAME FROM all_users WHERE ORACLE_MAINTAINED = 'Y'"
+            cursor = connection.execute(text(sql))
+            rows = cursor.fetchall()
+            return [user.lower() for user, in rows]
+
+    def extract_views_names(self, inspector: Inspector, schema: str):
+        with inspector.engine.connect() as connection:
+            sql = f"""
+            SELECT VIEW_NAME FROM all_views
+            WHERE OWNER = '{schema.upper()}'
+            """
+            cursor = connection.execute(text(sql))
+            rows = cursor.fetchall()
+            return [view_name for view_name, in rows]
+
+    def extract_mviews_names(self, inspector: Inspector, schema: str):
+        with inspector.engine.connect() as connection:
+            sql = f"""
+            SELECT MVIEW_NAME FROM all_mviews
+            WHERE OWNER = '{schema.upper()}'
+            """
+            cursor = connection.execute(text(sql))
+            rows = cursor.fetchall()
+            return [mview_name for mview_name, in rows]
+
     def extract_ddl(self, inspector: Inspector):
         engine = inspector.engine
 
@@ -146,49 +173,14 @@ class OracleExtractor(GenericDatabaseExtractor):
                 assert dataset.schema and dataset.schema.sql_schema
                 dataset.schema.sql_schema.table_schema = ddl
 
-    def get_system_users(self, inspector: Inspector):
-        engine = inspector.engine
-
-        with engine.connect() as connection:
-            sql = "SELECT USERNAME FROM all_users WHERE ORACLE_MAINTAINED = 'Y'"
-            cursor = connection.execute(text(sql))
-            rows = cursor.fetchall()
-            return [user.lower() for user, in rows]
-
-    def extract_views_names(self, inspector: Inspector, schema: str):
-        engine = inspector.engine
-
-        with engine.connect() as connection:
-            sql = f"""
-            SELECT VIEW_NAME FROM all_views
-            WHERE OWNER = '{schema.upper()}'
-            """
-            cursor = connection.execute(text(sql))
-            rows = cursor.fetchall()
-            return [view_name for view_name, in rows]
-
-    def extract_mviews_names(self, inspector: Inspector, schema: str):
-        engine = inspector.engine
-
-        with engine.connect() as connection:
-            sql = f"""
-            SELECT MVIEW_NAME FROM all_mviews
-            WHERE OWNER = '{schema.upper()}'
-            """
-            cursor = connection.execute(text(sql))
-            rows = cursor.fetchall()
-            return [mview_name for mview_name, in rows]
-
     def extract_query_logs(self, inspector: Inspector, excluded_users: List[str]):
-        engine = inspector.engine
-
         start_time = start_of_day(
             daysAgo=self._query_logs_config.lookback_days
         ).strftime("%y-%m-%d/%H:%M:%S")
 
         users = [f"'{user.upper()}'" for user in excluded_users]
 
-        with engine.connect() as connection:
+        with inspector.engine.connect() as connection:
             result_limit = 1000
             filters = f"""AND PARSING_SCHEMA_NAME not in ({','.join(users)})"""
 

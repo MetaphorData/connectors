@@ -167,11 +167,11 @@ class GenericDatabaseExtractor(BaseExtractor):
                 parent_table = info.get("referred_table")
 
                 parent_logical_id = DatasetLogicalID(
-                    account=self._config.host,
+                    account=self._alternative_host or self._config.host,
                     name=dataset_normalized_name(
                         schema=parent_schema, table=parent_table
                     ),
-                    platform=DataPlatform.MYSQL,
+                    platform=DataPlatform[self._platform.value],
                 )
 
                 constrained_columns = info.get("constrained_columns")

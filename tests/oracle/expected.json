@@ -1,0 +1,160 @@
+[
+  {
+    "logicalId": {
+      "account": "foo.bar.com",
+      "name": "db.dev.table1",
+      "platform": "ORACLE"
+    },
+    "schema": {
+      "description": "comment",
+      "fields": [
+        {
+          "description": "col desc",
+          "fieldName": "col1",
+          "fieldPath": "col1",
+          "nativeType": "INTEGER",
+          "nullable": true
+        },
+        {
+          "fieldName": "col2",
+          "fieldPath": "col2",
+          "nativeType": "INTEGER",
+          "nullable": true
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "primaryKey": [
+          "col1"
+        ],
+        "tableSchema": "DDL ......"
+      }
+    },
+    "structure": {
+      "schema": "dev",
+      "table": "table1"
+    },
+    "systemDescription": {
+      "description": "comment",
+      "platform": "ORACLE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "foo.bar.com",
+      "name": "db.prod.table2",
+      "platform": "ORACLE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "description": "col desc",
+          "fieldName": "x",
+          "fieldPath": "x",
+          "nativeType": "VARCHAR(255)",
+          "nullable": true
+        },
+        {
+          "fieldName": "y",
+          "fieldPath": "y",
+          "nativeType": "INTEGER",
+          "nullable": true
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "foreignKey": [
+          {
+            "fieldPath": "x",
+            "parent": {
+              "account": "foo.bar.com",
+              "name": "dev.table1",
+              "platform": "ORACLE"
+            },
+            "parentField": "col1"
+          }
+        ],
+        "materialization": "TABLE",
+        "primaryKey": [
+          "x"
+        ]
+      }
+    },
+    "structure": {
+      "schema": "prod",
+      "table": "table2"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "foo.bar.com",
+      "name": "db.prod.table3",
+      "platform": "ORACLE"
+    },
+    "schema": {
+      "fields": [
+        {
+          "description": "id",
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "VARCHAR(255)",
+          "nullable": true
+        },
+        {
+          "fieldName": "email",
+          "fieldPath": "email",
+          "nativeType": "VARCHAR(255)",
+          "nullable": true
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE",
+        "primaryKey": [
+          "id"
+        ]
+      }
+    },
+    "structure": {
+      "schema": "prod",
+      "table": "table3"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "foo.bar.com",
+      "name": "db.prod.view",
+      "platform": "ORACLE"
+    },
+    "schema": {
+      "fields": [],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW"
+      }
+    },
+    "structure": {
+      "schema": "prod",
+      "table": "view"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "foo.bar.com",
+      "name": "db.prod.mview",
+      "platform": "ORACLE"
+    },
+    "schema": {
+      "fields": [],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "MATERIALIZED_VIEW"
+      }
+    },
+    "structure": {
+      "schema": "prod",
+      "table": "mview"
+    }
+  }
+]
