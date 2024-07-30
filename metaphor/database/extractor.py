@@ -81,7 +81,7 @@ class GenericDatabaseExtractor(BaseExtractor):
         )
 
     @staticmethod
-    def get_inspector(url: str) -> Inspector:
+    def get_inspector(url: URL) -> Inspector:
         engine = create_engine(url)
         return inspect(engine)
 
