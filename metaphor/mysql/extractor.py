@@ -23,9 +23,9 @@ class MySQLExtractor(GenericDatabaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from MySQL host {self._config.host}")
 
-        inspector = MySQLExtractor.get_inspector(self.get_sqlalchemy_url())
-        for schema in self.get_schemas(inspector):
-            self.extract_schema(inspector, schema)
-        self.extract_foreign_key(inspector)
+        inspector = MySQLExtractor.get_inspector(self._get_sqlalchemy_url())
+        for schema in self._get_schemas(inspector):
+            self._extract_schema(inspector, schema)
+        self._extract_foreign_key(inspector)
 
         return self._datasets.values()

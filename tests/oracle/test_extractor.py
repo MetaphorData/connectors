@@ -118,6 +118,7 @@ def mock_connection():
             [("view",)],  # extract_views_names, prod
             [("mview",)],  # extract_mviews_names, prod
             [("TABLE1", "DEV", "DDL ......")],  # extract_ddl
+            [("SYS",)],  # get_system_users
         ]
     )
 
@@ -157,3 +158,7 @@ async def test_extractor(mock_get_inspector: MagicMock, test_root_dir: str):
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/oracle/expected.json")
+
+    query_logs = [EventUtil.trim_event(e) for e in extractor.collect_query_logs()]
+
+    assert query_logs == load_json(f"{test_root_dir}/oracle/expected_query_logs.json")

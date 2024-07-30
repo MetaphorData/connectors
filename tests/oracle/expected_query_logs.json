@@ -1,0 +1,10 @@
+[
+  {
+    "duration": 10.0,
+    "platform": "ORACLE",
+    "queryId": "sql-id",
+    "sql": "SELECT...",
+    "startTime": "2024-07-30T23:31:33",
+    "userId": "DEV"
+  }
+]

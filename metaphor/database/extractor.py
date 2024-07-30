@@ -29,6 +29,12 @@ from metaphor.models.metadata_change_event import (
 logger = get_logger()
 
 
+def get_precision(type_):
+    if isinstance(type_, sqltypes.Numeric):
+        return float(type_.precision) if type_.precision else None
+    return None
+
+
 class GenericDatabaseExtractor(BaseExtractor):
     """Generic Database metadata extractor"""
 
@@ -57,14 +63,14 @@ class GenericDatabaseExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from host {self._config.host}")
 
-        inspector = GenericDatabaseExtractor.get_inspector(self.get_sqlalchemy_url())
-        for schema in self.get_schemas(inspector):
-            self.extract_schema(inspector, schema)
-        self.extract_foreign_key(inspector)
+        inspector = GenericDatabaseExtractor.get_inspector(self._get_sqlalchemy_url())
+        for schema in self._get_schemas(inspector):
+            self._extract_schema(inspector, schema)
+        self._extract_foreign_key(inspector)
 
         return self._datasets.values()
 
-    def get_sqlalchemy_url(self) -> str:
+    def _get_sqlalchemy_url(self) -> str:
         return URL.create(
             self._sqlalchemy_dialect,
             username=self._config.user,
@@ -78,23 +84,18 @@ class GenericDatabaseExtractor(BaseExtractor):
         engine = create_engine(url)
         return inspect(engine)
 
-    def get_schemas(self, inspector: Inspector) -> List[str]:
+    def _get_schemas(self, inspector: Inspector) -> List[str]:
         return inspector.get_schema_names()
 
-    def extract_schema(self, inspector: Inspector, schema: str):
+    def _extract_schema(self, inspector: Inspector, schema: str):
         if not self._filter.include_schema_two_level(schema):
             logger.info(f"Skip schema: {schema}")
             return
 
         for table in inspector.get_table_names(schema):
-            self.extract_table(inspector, schema, table)
+            self._extract_table(inspector, schema, table)
 
-    def get_precision(self, type_):
-        if isinstance(type_, sqltypes.Numeric):
-            return float(type_.precision) if type_.precision else None
-        return None
-
-    def extract_table(
+    def _extract_table(
         self,
         inspector: Inspector,
         schema: str,
@@ -129,7 +130,7 @@ class GenericDatabaseExtractor(BaseExtractor):
                         field_type=str(column.get("type")),
                         description=column.get("comment"),
                         nullable=bool(column.get("nullable")),
-                        precision=self.get_precision(column.get("type")),
+                        precision=get_precision(column.get("type")),
                     )
                     for column in columns
                 ],
@@ -149,7 +150,7 @@ class GenericDatabaseExtractor(BaseExtractor):
             ),
         )
 
-    def extract_foreign_key(self, inspector: Inspector):
+    def _extract_foreign_key(self, inspector: Inspector):
         for dataset in self._datasets.values():
             table = dataset.structure.table
             schema = dataset.structure.schema

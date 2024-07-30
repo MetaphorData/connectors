@@ -47,18 +47,18 @@ class OracleExtractor(GenericDatabaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Oracle host {self._config.host}")
 
-        inspector = OracleExtractor.get_inspector(self.get_sqlalchemy_url())
+        inspector = OracleExtractor.get_inspector(self._get_sqlalchemy_url())
 
         system_users = self.get_system_users(inspector)
         system_users.extend(["RDSADMIN".lower()])
 
-        for schema in self.get_schemas(inspector):
+        for schema in self._get_schemas(inspector):
             if schema.lower() in system_users:
                 continue
-            self.extract_schema(inspector, schema)
+            self._extract_schema(inspector, schema)
 
-        self.extract_ddl(inspector)
-        self.extract_foreign_key(inspector)
+        self._extract_ddl(inspector)
+        self._extract_foreign_key(inspector)
 
         return self._datasets.values()
 
@@ -69,7 +69,7 @@ class OracleExtractor(GenericDatabaseExtractor):
 
         logger.info(f"Fetching queries from the last {lookback_days} days")
 
-        inspector = OracleExtractor.get_inspector(self.get_sqlalchemy_url())
+        inspector = OracleExtractor.get_inspector(self._get_sqlalchemy_url())
 
         # Exclude all system user
         excluded_users = self.get_system_users(inspector)
@@ -83,24 +83,24 @@ class OracleExtractor(GenericDatabaseExtractor):
         # Exclude user-specified excluded usernames
         excluded_users.extend(self._query_logs_config.excluded_usernames)
 
-        for query_log in self.extract_query_logs(inspector, excluded_users):
+        for query_log in self._extract_query_logs(inspector, excluded_users):
             yield query_log
 
-    def extract_schema(self, inspector: Inspector, schema: str):
+    def _extract_schema(self, inspector: Inspector, schema: str):
         if not self._filter.include_schema_two_level(schema):
             logger.info(f"Skip schema: {schema}")
             return
 
         for table in inspector.get_table_names(schema):
-            self.extract_table(inspector, schema, table)
+            self._extract_table(inspector, schema, table)
 
-        for view in self.extract_views_names(inspector, schema):
-            self.extract_table(
+        for view in self._extract_views_names(inspector, schema):
+            self._extract_table(
                 inspector, schema, view, materialization=MaterializationType.VIEW
             )
 
-        for view in self.extract_mviews_names(inspector, schema):
-            self.extract_table(
+        for view in self._extract_mviews_names(inspector, schema):
+            self._extract_table(
                 inspector,
                 schema,
                 view,
@@ -114,7 +114,7 @@ class OracleExtractor(GenericDatabaseExtractor):
             rows = cursor.fetchall()
             return [user.lower() for user, in rows]
 
-    def extract_views_names(self, inspector: Inspector, schema: str):
+    def _extract_views_names(self, inspector: Inspector, schema: str):
         with inspector.engine.connect() as connection:
             sql = f"""
             SELECT VIEW_NAME FROM all_views
@@ -124,7 +124,7 @@ class OracleExtractor(GenericDatabaseExtractor):
             rows = cursor.fetchall()
             return [view_name for view_name, in rows]
 
-    def extract_mviews_names(self, inspector: Inspector, schema: str):
+    def _extract_mviews_names(self, inspector: Inspector, schema: str):
         with inspector.engine.connect() as connection:
             sql = f"""
             SELECT MVIEW_NAME FROM all_mviews
@@ -134,7 +134,7 @@ class OracleExtractor(GenericDatabaseExtractor):
             rows = cursor.fetchall()
             return [mview_name for mview_name, in rows]
 
-    def extract_ddl(self, inspector: Inspector):
+    def _extract_ddl(self, inspector: Inspector):
         engine = inspector.engine
 
         with engine.connect() as connection:
@@ -173,7 +173,7 @@ class OracleExtractor(GenericDatabaseExtractor):
                 assert dataset.schema and dataset.schema.sql_schema
                 dataset.schema.sql_schema.table_schema = ddl
 
-    def extract_query_logs(self, inspector: Inspector, excluded_users: List[str]):
+    def _extract_query_logs(self, inspector: Inspector, excluded_users: List[str]):
         start_time = start_of_day(
             daysAgo=self._query_logs_config.lookback_days
         ).strftime("%y-%m-%d/%H:%M:%S")
