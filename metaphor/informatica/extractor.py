@@ -124,7 +124,10 @@ class InformaticaExtractor(BaseExtractor):
                     type=PipelineType.INFORMATICA_MAPPING,
                 ),
                 source_info=SourceInfo(
-                    main_url=f"{self._api_base_url}/diUI/products/integrationDesign/main/mapping/{v3_id}",
+                    main_url=urljoin(
+                        self._api_base_url,
+                        f"/diUI/products/integrationDesign/main/mapping/{v3_id}",
+                    ),
                     created_at_source=mapping_detail.createTime,
                     created_by=mapping_detail.createdBy,
                     last_updated=mapping_detail.updateTime,
