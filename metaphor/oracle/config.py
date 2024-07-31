@@ -13,7 +13,7 @@ class OracleQueryLogConfig:
     lookback_days: int = 1
 
     # Query log filter to exclude certain usernames
-    excluded_usernames: Set[str] = field(default_factory=lambda: set())
+    excluded_usernames: Set[str] = field(default_factory=set)
 
 
 @dataclass(config=ConnectorConfig)
