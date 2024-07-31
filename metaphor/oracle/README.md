@@ -1,6 +1,6 @@
 # Oracle Connector
 
-This connector extracts technical metadata from a MySQL database using [oracledb](https://oracle.github.io/python-oracledb/) library.
+This connector extracts technical metadata from an Oracle database using [oracledb](https://oracle.github.io/python-oracledb/) library.
 
 ## Setup
 
