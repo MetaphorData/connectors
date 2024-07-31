@@ -52,7 +52,7 @@ database: <default_database_for_connections>
 
 ### Optional Configurations
 
-By default, the connector will connect using the default MySQL port 3306. You can change it using the following config:
+By default, the connector will connect using the default Oracle port 1521. You can change it using the following config:
 
 ```yaml
 port: <port_number>
