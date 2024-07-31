@@ -52,7 +52,7 @@ class OracleExtractor(GenericDatabaseExtractor):
         inspector = OracleExtractor.get_inspector(self._get_sqlalchemy_url())
 
         system_users = self.get_system_users(inspector)
-        system_users.extend(["RDSADMIN".lower()])
+        system_users.extend([RDSADMIN_USER.lower()])
 
         for schema in self._get_schemas(inspector):
             if schema.lower() in system_users:
