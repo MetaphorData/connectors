@@ -4,7 +4,7 @@ This connector extracts technical metadata from an Oracle database using [oracle
 
 ## Setup
 
-We recommend you to create a role
+We recommend you to create a role to manage privileges for Metaphor Oracle connector.
 
 ```sql
 -- Step 1: Create the role
@@ -12,7 +12,7 @@ CREATE ROLE metaphor;
 
 -- Grant necessary privileges to the role
 GRANT CREATE SESSION TO metaphor; -- Allows login
-GRANT SELECT_CATALOG_ROLE TO metaphor; -- Allows get DDL
+GRANT SELECT_CATALOG_ROLE TO metaphor; -- Allows getting DDL
 
 -- Step 2: Create the user
 CREATE USER metaphor_user IDENTIFIED BY my_password;
@@ -22,7 +22,7 @@ GRANT metaphor TO metaphor_user;
 
 ```
 
-We also need `SELECT` privileges on table and views to get metadata
+We also need `SELECT` privileges on tables, materialized views and views you care about to list them and get the metadata of them.
 
 ```sql
 BEGIN
