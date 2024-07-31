@@ -44,6 +44,8 @@ class OracleExtractor(GenericDatabaseExtractor):
         super().__init__(config)
         self._query_logs_config = config.query_logs
 
+        self._database = config.database.lower()
+
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Oracle host {self._config.host}")
 
@@ -122,7 +124,7 @@ class OracleExtractor(GenericDatabaseExtractor):
             """
             cursor = connection.execute(text(sql))
             rows = cursor.fetchall()
-            return [view_name for view_name, in rows]
+            return [view_name.lower() for view_name, in rows]
 
     def _extract_mviews_names(self, inspector: Inspector, schema: str):
         with inspector.engine.connect() as connection:
@@ -132,7 +134,7 @@ class OracleExtractor(GenericDatabaseExtractor):
             """
             cursor = connection.execute(text(sql))
             rows = cursor.fetchall()
-            return [mview_name for mview_name, in rows]
+            return [mview_name.lower() for mview_name, in rows]
 
     def _extract_ddl(self, inspector: Inspector):
         engine = inspector.engine
