@@ -1,0 +1,21 @@
+---
+host: host
+database: database
+user: user
+password: password
+alternative_host: host.foo
+filter:
+  includes:
+    schema1:
+    schema2:
+      - table1
+      - table2
+  excludes:
+    schema3:
+port: 1234
+query_logs:
+  lookback_days: 3
+  excluded_usernames:
+    - foo
+    - bar
+output: {}

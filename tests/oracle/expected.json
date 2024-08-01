@@ -2,8 +2,8 @@
   {
     "logicalId": {
       "account": "foo.bar.com",
-      "name": "db.schema1.table1",
-      "platform": "MYSQL"
+      "name": "db.dev.table1",
+      "platform": "ORACLE"
     },
     "schema": {
       "description": "comment",
@@ -27,24 +27,25 @@
         "materialization": "TABLE",
         "primaryKey": [
           "col1"
-        ]
+        ],
+        "tableSchema": "DDL ......"
       }
     },
     "structure": {
       "database": "db",
-      "schema": "schema1",
+      "schema": "dev",
       "table": "table1"
     },
     "systemDescription": {
       "description": "comment",
-      "platform": "MYSQL"
+      "platform": "ORACLE"
     }
   },
   {
     "logicalId": {
       "account": "foo.bar.com",
-      "name": "db.schema2.table2",
-      "platform": "MYSQL"
+      "name": "db.prod.table2",
+      "platform": "ORACLE"
     },
     "schema": {
       "fields": [
@@ -69,8 +70,8 @@
             "fieldPath": "x",
             "parent": {
               "account": "foo.bar.com",
-              "name": "schema1.table1",
-              "platform": "MYSQL"
+              "name": "dev.table1",
+              "platform": "ORACLE"
             },
             "parentField": "col1"
           }
@@ -83,15 +84,15 @@
     },
     "structure": {
       "database": "db",
-      "schema": "schema2",
+      "schema": "prod",
       "table": "table2"
     }
   },
   {
     "logicalId": {
       "account": "foo.bar.com",
-      "name": "db.schema2.table3",
-      "platform": "MYSQL"
+      "name": "db.prod.table3",
+      "platform": "ORACLE"
     },
     "schema": {
       "fields": [
@@ -119,8 +120,46 @@
     },
     "structure": {
       "database": "db",
-      "schema": "schema2",
+      "schema": "prod",
       "table": "table3"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "foo.bar.com",
+      "name": "db.prod.view",
+      "platform": "ORACLE"
+    },
+    "schema": {
+      "fields": [],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW"
+      }
+    },
+    "structure": {
+      "database": "db",
+      "schema": "prod",
+      "table": "view"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "foo.bar.com",
+      "name": "db.prod.mview",
+      "platform": "ORACLE"
+    },
+    "schema": {
+      "fields": [],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "MATERIALIZED_VIEW"
+      }
+    },
+    "structure": {
+      "database": "db",
+      "schema": "prod",
+      "table": "mview"
     }
   }
 ]

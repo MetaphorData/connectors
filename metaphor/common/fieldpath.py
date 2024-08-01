@@ -45,6 +45,7 @@ def build_schema_field(
     description: Optional[str] = None,
     nullable: Optional[bool] = None,
     field_path: Optional[str] = None,
+    precision: Optional[float] = None,
 ) -> SchemaField:
     """
     Build a schema field for a simple (non-nested) field based on column information.
@@ -56,4 +57,5 @@ def build_schema_field(
         native_type=field_type or None,
         description=description or None,
         nullable=nullable,
+        precision=precision,
     )
