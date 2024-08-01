@@ -58,7 +58,9 @@ By default, the connector will connect using the default Oracle port 1521. You c
 port: <port_number>
 ```
 
-If you are indirectly connect to the database, you need to set the real host of the database using the following config:
+When connecting to the database indirectly, such as through a tunnel, it's important to configure the `alternative_host` parameter. This ensures that a stable hostname is used to construct unique identifiers for tables, regardless of the connection method.
+
+For example, if you connect to the database using the IP and port host: `10.1.1.200`, you should also set the `alternative_host` parameter to a stable hostname like `dev.oracle.foo.com`. This hostname will be used for table identification and consistency.
 
 ```yaml
 alternative_host: <hostname>
