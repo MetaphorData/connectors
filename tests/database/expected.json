@@ -3,7 +3,7 @@
     "logicalId": {
       "account": "foo.bar.com",
       "name": "db.schema1.table1",
-      "platform": "MYSQL"
+      "platform": "UNKNOWN"
     },
     "schema": {
       "description": "comment",
@@ -37,14 +37,14 @@
     },
     "systemDescription": {
       "description": "comment",
-      "platform": "MYSQL"
+      "platform": "UNKNOWN"
     }
   },
   {
     "logicalId": {
       "account": "foo.bar.com",
       "name": "db.schema2.table2",
-      "platform": "MYSQL"
+      "platform": "UNKNOWN"
     },
     "schema": {
       "fields": [
@@ -70,7 +70,7 @@
             "parent": {
               "account": "foo.bar.com",
               "name": "schema1.table1",
-              "platform": "MYSQL"
+              "platform": "UNKNOWN"
             },
             "parentField": "col1"
           }
@@ -91,7 +91,7 @@
     "logicalId": {
       "account": "foo.bar.com",
       "name": "db.schema2.table3",
-      "platform": "MYSQL"
+      "platform": "UNKNOWN"
     },
     "schema": {
       "fields": [
