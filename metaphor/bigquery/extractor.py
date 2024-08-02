@@ -1,5 +1,6 @@
 import re
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from typing import (
     Any,
     Collection,
@@ -224,13 +225,10 @@ class BigQueryExtractor(BaseExtractor):
                 table_schema=bq_table.mview_query,
             )
         elif bq_table.table_type == "SNAPSHOT":
+
             schema.sql_schema = SQLSchema(
                 materialization=MaterializationType.SNAPSHOT,
-                snapshot_time=(
-                    bq_table.snapshot_definition.snapshot_time
-                    if bq_table.snapshot_definition
-                    else None
-                ),
+                snapshot_time=BigQueryExtractor._get_snapshot_time(bq_table),
             )
         else:
             raise ValueError(f"Unexpected table type {bq_table.table_type}")
@@ -238,6 +236,18 @@ class BigQueryExtractor(BaseExtractor):
         schema.fields = BigQueryExtractor._parse_fields(bq_table.schema, "")
 
         return schema
+
+    @staticmethod
+    def _get_snapshot_time(bq_table: bigquery.table.Table) -> Optional[datetime]:
+        # bigquery client fails to parse snapshot time sometimes
+        # See https://github.com/googleapis/python-bigquery/issues/1986
+        try:
+            if bq_table.snapshot_definition:
+                return bq_table.snapshot_definition.snapshot_time
+        except ValueError:
+            return None
+
+        return None
 
     # See https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.schema.SchemaField.html#google.cloud.bigquery.schema.SchemaField
     @staticmethod
