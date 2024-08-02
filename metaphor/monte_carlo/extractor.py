@@ -48,6 +48,12 @@ monitor_status_map = {
     "IN_TRAINING": DataMonitorStatus.UNKNOWN,
 }
 
+monitor_severity_map = {
+    "P1": DataMonitorSeverity.HIGH,
+    "P2": DataMonitorSeverity.MEDIUM,
+    "P3": DataMonitorSeverity.LOW,
+}
+
 connection_type_platform_map = {
     "BIGQUERY": DataPlatform.BIGQUERY,
     "REDSHIFT": DataPlatform.REDSHIFT,
@@ -106,7 +112,7 @@ class MonteCarloExtractor(BaseExtractor):
                     description
                     entities
                     entityMcons
-                    severity
+                    priority
                     monitorStatus
                     monitorFields
                     creatorId
@@ -182,14 +188,10 @@ class MonteCarloExtractor(BaseExtractor):
 
     def _parse_monitors(self, monitors) -> None:
         for monitor in monitors["get_monitors"]:
-            monitor_severity = DataMonitorSeverity.UNKNOWN
-            if monitor["severity"]:
-                try:
-                    monitor_severity = DataMonitorSeverity(
-                        monitor["severity"].toUpper()
-                    )
-                except Exception:
-                    logger.warning(f"Unknown severity {monitor['severity']}")
+            uuid = monitor["uuid"]
+            monitor_severity = monitor_severity_map.get(
+                monitor["priority"], DataMonitorSeverity.UNKNOWN
+            )
 
             data_monitor = DataMonitor(
                 title=monitor["name"],
@@ -197,13 +199,17 @@ class MonteCarloExtractor(BaseExtractor):
                 owner=monitor["creatorId"],
                 status=self._parse_monitor_status(monitor),
                 severity=monitor_severity,
-                url=f"{monitors_base_url}/{monitor['uuid']}",
+                url=f"{monitors_base_url}/{uuid}",
                 last_run=parser.parse(monitor["prevExecutionTime"]),
                 targets=[
                     DataMonitorTarget(column=field.upper())
                     for field in monitor["monitorFields"] or []
                 ],
             )
+
+            if monitor["entities"] is None or monitor["entityMcons"] is None:
+                logger.info(f"Skipping monitors not linked to any entities: {uuid}")
+                continue
 
             for index, entity in enumerate(monitor["entities"]):
                 if index > len(monitor["entityMcons"]) - 1:
