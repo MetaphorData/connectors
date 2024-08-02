@@ -63,12 +63,14 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [dbt.cloud](metaphor/dbt/cloud/)                                  | dbt model, test, lineage                 |
 | [fivetran](metaphor/fivetran/)                                    | Lineage, Pipeline                        |
 | [glue](metaphor/glue/)                                            | Schema, description                      |
+| [informatica](metaphor/informatica/)                              | Lineage, Pipeline                        |
 | [looker](metaphor/looker/)                                        | Looker view, explore, dashboard, lineage |
 | [kafka](metaphor/kafka/)                                          | Schema, description                      |
 | [metabase](metaphor/metabase/)                                    | Dashboard, lineage                       |
 | [monte_carlo](metaphor/monte_carlo/)                              | Data monitor                             |
 | [mssql](metaphor/mssql/)                                          | Schema                                   |
 | [mysql](metaphor/mysql/)                                          | Schema, description                      |
+| [oracle](metaphor/oracle/)                                        | Schema, description, queries             |
 | [notion](metaphor/notion/)                                        | Document embeddings                      |
 | [postgresql](metaphor/postgresql/)                                | Schema, description, statistics          |
 | [postgresql.profile](metaphor/postgresql/profile/)                | Data profile                             |
