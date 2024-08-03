@@ -66,7 +66,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "entityMcons": [
                         "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test1"
                     ],
-                    "severity": None,
+                    "priority": "P1",
                     "monitorStatus": "MISCONFIGURED",
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
@@ -80,7 +80,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "entityMcons": [
                         "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test2"
                     ],
-                    "severity": "LOW",
+                    "priority": "P2",
                     "monitorStatus": "SUCCESS",
                     "monitorFields": ["foo", "bar"],
                     "creatorId": "yi@metaphor.io",
@@ -94,7 +94,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "entityMcons": [
                         "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test3"
                     ],
-                    "severity": None,
+                    "priority": "P3",
                     "monitorStatus": "ERROR",
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
@@ -108,7 +108,20 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "entityMcons": [
                         "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test4"
                     ],
-                    "severity": None,
+                    "priority": None,
+                    "monitorStatus": "ERROR",
+                    "exceptions": "Ignore me",
+                    "monitorFields": None,
+                    "creatorId": "yi@metaphor.io",
+                    "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
+                },
+                {
+                    "uuid": "d14af7d8-6342-420a-bb09-5805fad677f1",
+                    "name": "auto_monitor_name_693b98e3-950d-472b-83fe-8c8e5b5979fa",
+                    "description": "Monitor with no entities",
+                    "entities": None,
+                    "entityMcons": None,
+                    "priority": None,
                     "monitorStatus": "ERROR",
                     "exceptions": "Ignore me",
                     "monitorFields": None,
