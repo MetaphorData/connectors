@@ -17,6 +17,7 @@ def test_yaml_config(test_root_dir):
         role="role",
         warehouse="warehouse",
         default_database="database",
+        account_usage_schema="db.schema",
         filter=DatasetFilter(
             includes={
                 "db1": {

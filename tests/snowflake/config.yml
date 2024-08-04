@@ -5,6 +5,7 @@ password: password
 role: role
 warehouse: warehouse
 default_database: database
+account_usage_schema: db.schema
 filter:
   includes:
     db1:

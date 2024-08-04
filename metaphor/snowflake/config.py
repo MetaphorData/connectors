@@ -70,3 +70,6 @@ class SnowflakeConfig(SnowflakeBaseConfig):
     streams: SnowflakeStreamsConfig = field(
         default_factory=lambda: SnowflakeStreamsConfig()
     )
+
+    # The fully qualified schema that contains all the account_usage views
+    account_usage_schema: str = "SNOWFLAKE.ACCOUNT_USAGE"
