@@ -111,6 +111,7 @@ class SnowflakeExtractor(BaseExtractor):
         self._account = normalize_snowflake_account(config.account)
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._tag_matchers = config.tag_matchers
+        self._account_usage_schema = config.account_usage_schema
         self._query_log_excluded_usernames = config.query_log.excluded_usernames
         self._query_log_lookback_days = config.query_log.lookback_days
         self._query_log_fetch_size = config.query_log.fetch_size
@@ -506,9 +507,9 @@ class SnowflakeExtractor(BaseExtractor):
             hierarchy.system_tags = SystemTags(tags=[system_tag])
 
     def _fetch_tags(self, cursor: SnowflakeCursor) -> None:
-        query = """
+        query = f"""
         SELECT TAG_NAME, TAG_VALUE, DOMAIN, OBJECT_DATABASE, OBJECT_SCHEMA, OBJECT_NAME, COLUMN_NAME
-        FROM snowflake.account_usage.tag_references
+        FROM {self._account_usage_schema}.TAG_REFERENCES
         WHERE DOMAIN in ('TABLE', 'COLUMN', 'DATABASE', 'SCHEMA')
         AND OBJECT_DELETED IS NULL
         ORDER BY case when DOMAIN = 'DATABASE' then 1
@@ -727,8 +728,8 @@ class SnowflakeExtractor(BaseExtractor):
                   q.USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED,
                   DIRECT_OBJECTS_ACCESSED, OBJECTS_MODIFIED
-                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
-                JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+                FROM {self._account_usage_schema}.QUERY_HISTORY q
+                JOIN {self._account_usage_schema}.ACCESS_HISTORY a
                   ON a.QUERY_ID = q.QUERY_ID
                 WHERE EXECUTION_STATUS = 'SUCCESS'
                   AND q.START_TIME > %s AND q.START_TIME <= %s
@@ -758,7 +759,7 @@ class SnowflakeExtractor(BaseExtractor):
                 SELECT QUERY_ID, QUERY_PARAMETERIZED_HASH,
                   USER_NAME, QUERY_TEXT, START_TIME, TOTAL_ELAPSED_TIME, CREDITS_USED_CLOUD_SERVICES,
                   DATABASE_NAME, SCHEMA_NAME, BYTES_SCANNED, BYTES_WRITTEN, ROWS_PRODUCED, ROWS_INSERTED, ROWS_UPDATED
-                FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
+                FROM {self._account_usage_schema}.QUERY_HISTORY q
                 WHERE EXECUTION_STATUS = 'SUCCESS'
                   AND START_TIME > %s AND START_TIME <= %s
                   {exclude_username_clause(self._query_log_excluded_usernames)}

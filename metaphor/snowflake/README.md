@@ -110,6 +110,14 @@ See [Output Config](../common/docs/output.md) for more information.
 
 See [Filter Config](../common/docs/filter.md) for more information on the optional `filter` config.
 
+#### Alternative ACCOUNT_USAGE Schema
+
+By default, the connector will read the [QUERY_HISTORY](https://docs.snowflake.com/en/sql-reference/account-usage/query_history), [ACCESS_HISTORY](https://docs.snowflake.com/en/sql-reference/account-usage/access_history), and [TAG_REFERENCES](https://docs.snowflake.com/en/sql-reference/account-usage/tag_references) views from [SNOWFLAKE.ACCOUNT_USAGE](https://docs.snowflake.com/en/sql-reference/account-usage) schema. If you do not wish to grant read access to the entire SNOWFLAKE database, you can mirror these views to a different schema and ask the connector to read from it instead:
+
+```yaml
+account_usage_schema: <db_name>.<schema_name>
+```
+
 #### Tag Assignment
 
 See [Tag Matcher Config](../common/docs/tag_matcher.md) for more information on the optional `tag_matcher` config.
