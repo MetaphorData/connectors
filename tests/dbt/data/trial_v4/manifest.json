@@ -26,7 +26,7 @@
         "database": null,
         "tags": [],
         "meta": {
-          "owner": "yi@metaphor.io",
+          "owner": "YI@METAPHOR.IO",
           "pii": true
         },
         "materialized": "view",
