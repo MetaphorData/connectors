@@ -98,6 +98,7 @@ class TrinoExtractor(BaseExtractor):
         query_log_count = 0
         for query_id, user, query, started, end in cursor.fetchall():
             log = QueryLog(
+                id=f"{DataPlatform.TRINO.name}:{query_id}",
                 query_id=query_id,
                 sql=query,
                 sql_hash=md5_digest(query.encode("utf-8")),
