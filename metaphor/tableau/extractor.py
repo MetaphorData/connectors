@@ -525,6 +525,7 @@ class TableauExtractor(BaseExtractor):
                         custom_sql_source.account if custom_sql_source else None
                     ),
                     source_datasets=source_datasets or None,
+                    url=f"{self._base_url}/workbooks/{workbook.vizportalUrlId}",
                 ),
                 entity_upstream=(
                     EntityUpstream(source_entities=source_datasets)

@@ -443,4 +443,5 @@ async def test_extractor(
 
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
-    assert events == load_json(f"{test_root_dir}/tableau/expected.json")
+    expected = f"{test_root_dir}/tableau/expected.json"
+    assert events == load_json(expected)
