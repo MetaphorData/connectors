@@ -82,7 +82,7 @@ def to_person_entity_id(email: str) -> EntityId:
     """
     return EntityId(
         EntityType.PERSON,
-        PersonLogicalID(email=email),
+        PersonLogicalID(email=email.lower()),
     )
 
 
