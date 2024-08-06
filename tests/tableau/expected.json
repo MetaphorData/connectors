@@ -127,7 +127,8 @@
       "name": "default.source2",
       "sourceDatasets": [
         "DATASET~F9D8E5963019975462CB6CB2002D247B"
-      ]
+      ],
+      "url": "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
     }
   },
   {
@@ -166,7 +167,8 @@
       "source_platform": "BIGQUERY",
       "sourceDatasets": [
         "DATASET~5375BC53A82C65FD48653B9418094BB0"
-      ]
+      ],
+      "url": "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
     }
   },
   {
