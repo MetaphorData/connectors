@@ -109,6 +109,7 @@ class TrinoExtractor(BaseExtractor):
                     else None
                 ),
                 user_id=user,
+                platform=DataPlatform.TRINO,
             )
             yield log
             query_log_count += 1
