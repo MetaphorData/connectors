@@ -15,6 +15,7 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetLogicalID,
     DatasetSchema,
+    DatasetStructure,
     EntityType,
     FieldStatistics,
     MaterializationType,
@@ -79,6 +80,10 @@ class HiveExtractor(BaseExtractor):
                 logical_id=DatasetLogicalID(
                     name=normalized_name,
                     platform=DataPlatform.HIVE,
+                ),
+                structure=DatasetStructure(
+                    schema=database,
+                    table=table,
                 ),
             )
             fields: List[SchemaField] = []

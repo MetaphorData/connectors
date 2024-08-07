@@ -33,6 +33,10 @@
         }
       ],
       "recordCount": 10.0
+    },
+    "structure": {
+      "schema": "default",
+      "table": "admirals"
     }
   },
   {
@@ -93,6 +97,10 @@
         }
       ],
       "recordCount": 5.0
+    },
+    "structure": {
+      "schema": "default",
+      "table": "depts"
     }
   },
   {
@@ -177,6 +185,10 @@
         }
       ],
       "recordCount": 25.0
+    },
+    "structure": {
+      "schema": "default",
+      "table": "emps"
     }
   },
   {
@@ -233,6 +245,10 @@
         }
       ],
       "recordCount": 13.0
+    },
+    "structure": {
+      "schema": "default",
+      "table": "mv1"
     }
   },
   {
@@ -269,6 +285,10 @@
         "materialization": "VIEW",
         "tableSchema": "CREATE VIEW `default`.`ok_movies` AS select `u_data`.`userid`, `u_data`.`movieid`, `u_data`.`rating`, `u_data`.`unixtime` from `default`.`u_data`\nwhere `u_data`.`rating` >= 2 and `u_data`.`rating` <=4"
       }
+    },
+    "structure": {
+      "schema": "default",
+      "table": "ok_movies"
     }
   },
   {
@@ -315,6 +335,10 @@
         }
       ],
       "recordCount": 10.0
+    },
+    "structure": {
+      "schema": "default",
+      "table": "ship_types"
     }
   },
   {
@@ -379,6 +403,10 @@
         }
       ],
       "recordCount": 100.0
+    },
+    "structure": {
+      "schema": "default",
+      "table": "ships"
     }
   },
   {
@@ -443,6 +471,10 @@
         }
       ],
       "recordCount": 1000.0
+    },
+    "structure": {
+      "schema": "default",
+      "table": "torpedos"
     }
   },
   {
@@ -517,6 +549,10 @@
         }
       ],
       "recordCount": 100000.0
+    },
+    "structure": {
+      "schema": "default",
+      "table": "u_data"
     }
   }
 ]
