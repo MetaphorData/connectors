@@ -94,6 +94,7 @@ def test_fetch_dashboards(test_root_dir) -> None:
             ),
             Dashboard(
                 id="4",
+                user_id="1",
                 title="old version dashboard",
                 description="foo",
                 preferred_viewer=None,
@@ -139,12 +140,16 @@ def test_fetch_dashboards(test_root_dir) -> None:
         "4": FolderMetadata(id="4", name="personal descendant", parent_id="3"),
     }
 
-    dashboards = create_extractor(config)._fetch_dashboards(models, folders)
+    users = {
+        "1": "foo@bar.com",
+    }
+
+    dashboards = create_extractor(config)._fetch_dashboards(models, folders, users)
 
     events = [EventUtil.trim_event(e) for e in dashboards]
     assert events == load_json(f"{test_root_dir}/looker/expected.json")
 
     config.alternative_base_url = "http://dev.test"
-    dashboards = create_extractor(config)._fetch_dashboards(models, folders)
+    dashboards = create_extractor(config)._fetch_dashboards(models, folders, users)
     events = [EventUtil.trim_event(e) for e in dashboards]
     assert events == load_json(f"{test_root_dir}/looker/expected_alternative.json")

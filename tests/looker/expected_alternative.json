@@ -28,6 +28,10 @@
         "2"
       ],
       "name": "first"
+    },
+    "systemDescription": {
+      "description": "first dashboard",
+      "platform": "LOOKER"
     }
   },
   {
@@ -59,6 +63,18 @@
         "2"
       ],
       "name": "old version dashboard"
+    },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "foo@bar.com",
+          "systemContactSource": "LOOKER"
+        }
+      ]
+    },
+    "systemDescription": {
+      "description": "foo",
+      "platform": "LOOKER"
     }
   }
 ]

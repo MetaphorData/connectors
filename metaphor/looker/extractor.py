@@ -19,6 +19,7 @@ from metaphor.looker.config import LookerConnectionConfig, LookerRunConfig
 from metaphor.looker.folder import FolderMap, FolderMetadata, build_directories
 from metaphor.looker.lookml_parser import ModelMap, fullname, parse_project
 from metaphor.models.metadata_change_event import (
+    AssetPlatform,
     AssetStructure,
     Chart,
     ChartType,
@@ -32,6 +33,9 @@ from metaphor.models.metadata_change_event import (
     HierarchyLogicalID,
     HierarchyType,
     SourceInfo,
+    SystemContact,
+    SystemContacts,
+    SystemDescription,
     VirtualViewType,
 )
 
@@ -106,8 +110,9 @@ class LookerExtractor(BaseExtractor):
         )
 
         folder_map = self._fetch_folders()
+        user_map = self._fetch_users()
 
-        dashboards = self._fetch_dashboards(model_map, folder_map)
+        dashboards = self._fetch_dashboards(model_map, folder_map, user_map)
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(dashboards)
@@ -129,8 +134,20 @@ class LookerExtractor(BaseExtractor):
 
         return folder_map
 
+    def _fetch_users(self) -> Dict[str, str]:
+        user_map: Dict[str, str] = {}
+        users = self._sdk.all_users()
+        json_dump_to_debug_file(users, "all_users.json")
+
+        for user in users:
+            if user.email is None or user.id is None:
+                continue
+            user_map[user.id] = user.email
+
+        return user_map
+
     def _fetch_dashboards(
-        self, model_map: ModelMap, folder_map: FolderMap
+        self, model_map: ModelMap, folder_map: FolderMap, user_map: Dict[str, str]
     ) -> List[Dashboard]:
         dashboards: List[Dashboard] = []
 
@@ -142,6 +159,9 @@ class LookerExtractor(BaseExtractor):
 
             try:
                 dashboard = self._sdk.dashboard(dashboard_id=basic_dashboard.id)
+                json_dump_to_debug_file(
+                    dashboard, f"{basic_dashboard.id}_dashboard.json"
+                )
             except Exception as error:
                 logger.error(f"Failed to fetch dashboard {basic_dashboard.id}: {error}")
                 continue
@@ -188,6 +208,20 @@ class LookerExtractor(BaseExtractor):
 
             assert dashboard.id is not None
 
+            owner_email = user_map.get(dashboard.user_id or "")
+            system_contacts = (
+                SystemContacts(
+                    contacts=[
+                        SystemContact(
+                            email=owner_email,
+                            system_contact_source=AssetPlatform.LOOKER,
+                        )
+                    ]
+                )
+                if owner_email
+                else None
+            )
+
             dashboards.append(
                 Dashboard(
                     logical_id=DashboardLogicalID(
@@ -204,6 +238,15 @@ class LookerExtractor(BaseExtractor):
                             name=dashboard.title,
                         )
                         if dashboard.folder and dashboard.folder.id
+                        else None
+                    ),
+                    system_contacts=system_contacts,
+                    system_description=(
+                        SystemDescription(
+                            description=dashboard.description,
+                            platform=AssetPlatform.LOOKER,
+                        )
+                        if dashboard.description
                         else None
                     ),
                 )
