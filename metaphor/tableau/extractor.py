@@ -23,6 +23,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetPlatform,
     AssetStructure,
     Chart,
     Dashboard,
@@ -36,7 +37,6 @@ from metaphor.models.metadata_change_event import (
     SourceInfo,
     SystemContact,
     SystemContacts,
-    SystemContactSource,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -229,7 +229,7 @@ class TableauExtractor(BaseExtractor):
 
         system_contact = SystemContact(
             email=self._users[user_id].email,
-            system_contact_source=SystemContactSource.TABLEAU,
+            system_contact_source=AssetPlatform.TABLEAU,
         )
         return SystemContacts(contacts=[system_contact])
 

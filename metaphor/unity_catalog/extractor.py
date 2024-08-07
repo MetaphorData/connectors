@@ -21,6 +21,7 @@ from metaphor.common.models import to_dataset_statistics
 from metaphor.common.utils import to_utc_datetime_from_timestamp
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetPlatform,
     DataPlatform,
     Dataset,
     DatasetLogicalID,
@@ -39,7 +40,6 @@ from metaphor.models.metadata_change_event import (
     SQLSchema,
     SystemContact,
     SystemContacts,
-    SystemContactSource,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -366,7 +366,7 @@ class UnityCatalogExtractor(BaseExtractor):
                 contacts=[
                     SystemContact(
                         email=owner,
-                        system_contact_source=SystemContactSource.UNITY_CATALOG,
+                        system_contact_source=AssetPlatform.UNITY_CATALOG,
                     )
                 ]
             )
@@ -751,7 +751,7 @@ class UnityCatalogExtractor(BaseExtractor):
                 contacts=[
                     SystemContact(
                         email=volume.owner,
-                        system_contact_source=SystemContactSource.UNITY_CATALOG,
+                        system_contact_source=AssetPlatform.UNITY_CATALOG,
                     )
                 ]
             )
