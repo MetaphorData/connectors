@@ -80,6 +80,7 @@ class LookerExtractor(BaseExtractor):
         self._lookml_git_repo = config.lookml_git_repo
         self._project_source_url = config.project_source_url
         self._include_personal_folders = config.include_personal_folders
+        self._explore_view_folder_name = config.explore_view_folder_name
 
         # Load config using environment variables instead from looker.ini file
         # See https://github.com/looker-open-source/sdk-codegen#environment-variable-configuration
@@ -106,7 +107,10 @@ class LookerExtractor(BaseExtractor):
         logger.info(f"Parsing LookML project at {lookml_dir}")
 
         model_map, virtual_views = parse_project(
-            lookml_dir, connections, self._project_source_url
+            lookml_dir,
+            connections,
+            self._explore_view_folder_name,
+            self._project_source_url,
         )
 
         folder_map = self._fetch_folders()

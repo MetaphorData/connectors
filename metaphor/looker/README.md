@@ -109,6 +109,14 @@ verify_ssl: false
 timeout: 30  # default 120 seconds
 ```
 
+#### Looker Explore/View folder name
+
+Looker explores and Looker views will be put in a folder named "Looker Models" by default. You can customize the name by using this config:
+
+```yaml
+explore_view_folder_name: "Looker Views & Explores"  # default to "LookML Models"
+```
+
 #### Output Destination
 
 See [Output Config](../common/docs/output.md) for more information on the optional `output` config.
