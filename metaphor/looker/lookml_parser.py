@@ -43,6 +43,8 @@ logger = get_logger()
 # lkml parser's debug log can be very noisy
 logging.getLogger("lkml.parser").setLevel(logging.WARNING)
 
+VIEW_EXPLORE_FOLDER = "LookML models"
+
 
 @dataclass
 class Explore:
@@ -200,7 +202,7 @@ def fullname(model: str, name: str) -> str:
 
 def _get_model_asset_structure(model: str, name: str) -> AssetStructure:
     return AssetStructure(
-        directories=[model],
+        directories=[VIEW_EXPLORE_FOLDER, model],
         name=name,
     )
 
