@@ -5,7 +5,7 @@ from sqlalchemy import Inspector, text
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import start_of_day, to_utc_time
+from metaphor.common.utils import md5_digest, start_of_day, to_utc_time
 from metaphor.database.extractor import GenericDatabaseExtractor
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -202,12 +202,14 @@ class OracleExtractor(GenericDatabaseExtractor):
             """
 
             cursor = connection.execute(text(sql))
-            for user, query, start, duration, sql_id in cursor:
+            for user, query, start, duration, query_id in cursor:
                 yield QueryLog(
-                    query_id=sql_id,
+                    id=f"{DataPlatform.ORACLE.name}:{query_id}",
+                    query_id=query_id,
                     platform=DataPlatform.ORACLE,
                     user_id=user,
                     sql=query,
+                    sql_hash=md5_digest(query.encode("utf-8")),
                     duration=float(duration),
                     start_time=to_utc_time(start),
                 )
