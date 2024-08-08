@@ -1,11 +1,6 @@
 from metaphor.common.entity_id import EntityId
 from metaphor.looker.config import LookerConnectionConfig
-from metaphor.looker.lookml_parser import (
-    VIEW_EXPLORE_FOLDER,
-    Explore,
-    Model,
-    parse_project,
-)
+from metaphor.looker.lookml_parser import Explore, Model, parse_project
 from metaphor.models.metadata_change_event import (
     AssetStructure,
     DataPlatform,
@@ -27,6 +22,8 @@ from metaphor.models.metadata_change_event import (
 )
 from tests.test_utils import compare_list_ignore_order
 
+VIEW_EXPLORE_FOLDER = "LookML models"
+
 connection_map = {
     "snowflake": LookerConnectionConfig(
         database="db",
@@ -44,7 +41,7 @@ connection_map = {
 
 def test_empty_model(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/empty_model", connection_map
+        f"{test_root_dir}/looker/empty_model", connection_map, VIEW_EXPLORE_FOLDER
     )
 
     expected = {"model1": Model(explores={})}
@@ -54,7 +51,10 @@ def test_empty_model(test_root_dir):
 
 def test_basic(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/basic", connection_map, "http://foo/files"
+        f"{test_root_dir}/looker/basic",
+        connection_map,
+        VIEW_EXPLORE_FOLDER,
+        "http://foo/files",
     )
 
     dataset_id = EntityId(
@@ -136,7 +136,7 @@ def test_basic(test_root_dir):
 
 def test_join(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/join", connection_map, ""
+        f"{test_root_dir}/looker/join", connection_map, VIEW_EXPLORE_FOLDER, ""
     )
 
     dataset_id1 = EntityId(
@@ -258,7 +258,7 @@ def test_join(test_root_dir):
 
 def test_explore_in_view(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/explore_in_view", connection_map
+        f"{test_root_dir}/looker/explore_in_view", connection_map, VIEW_EXPLORE_FOLDER
     )
 
     dataset_id = EntityId(
@@ -331,7 +331,7 @@ def test_explore_in_view(test_root_dir):
 
 def test_derived_table(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/derived_table", connection_map
+        f"{test_root_dir}/looker/derived_table", connection_map, VIEW_EXPLORE_FOLDER
     )
 
     virtual_view_id1 = EntityId(
@@ -458,7 +458,7 @@ def test_derived_table(test_root_dir):
 
 def test_sql_table_name(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/sql_table_name", connection_map
+        f"{test_root_dir}/looker/sql_table_name", connection_map, VIEW_EXPLORE_FOLDER
     )
 
     virtual_view_id1 = EntityId(
@@ -518,7 +518,9 @@ def test_sql_table_name(test_root_dir):
 
 def test_include_relative_to_model(test_root_dir):
     _, virtual_views = parse_project(
-        f"{test_root_dir}/looker/include_relative_to_model", connection_map
+        f"{test_root_dir}/looker/include_relative_to_model",
+        connection_map,
+        VIEW_EXPLORE_FOLDER,
     )
 
     dataset_id1 = EntityId(
@@ -569,7 +571,7 @@ def test_include_relative_to_model(test_root_dir):
 
 def test_complex_includes(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/complex_includes", connection_map
+        f"{test_root_dir}/looker/complex_includes", connection_map, VIEW_EXPLORE_FOLDER
     )
 
     virtual_view_id1 = EntityId(
@@ -692,7 +694,7 @@ def test_complex_includes(test_root_dir):
 
 def test_view_extension(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/view_extension", connection_map
+        f"{test_root_dir}/looker/view_extension", connection_map, VIEW_EXPLORE_FOLDER
     )
 
     virtual_view_id1 = EntityId(
@@ -843,7 +845,7 @@ def test_view_extension(test_root_dir):
 
 def test_explore_extension(test_root_dir):
     models_map, virtual_views = parse_project(
-        f"{test_root_dir}/looker/explore_extension", connection_map
+        f"{test_root_dir}/looker/explore_extension", connection_map, VIEW_EXPLORE_FOLDER
     )
 
     virtual_view1 = EntityId(

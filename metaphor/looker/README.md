@@ -109,6 +109,14 @@ verify_ssl: false
 timeout: 30  # default 120 seconds
 ```
 
+#### Looker Explore/View folder name
+
+We will put Looker explores and Looker views in a folder in Metaphor, and you can customize the folder name.
+
+```yaml
+explore_view_folder_name: "LookML models"  # default is "LookML models"
+```
+
 #### Output Destination
 
 See [Output Config](../common/docs/output.md) for more information on the optional `output` config.

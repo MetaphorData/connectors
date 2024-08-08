@@ -43,8 +43,6 @@ logger = get_logger()
 # lkml parser's debug log can be very noisy
 logging.getLogger("lkml.parser").setLevel(logging.WARNING)
 
-VIEW_EXPLORE_FOLDER = "LookML models"
-
 
 @dataclass
 class Explore:
@@ -200,9 +198,11 @@ def fullname(model: str, name: str) -> str:
     return f"{model}.{name}"
 
 
-def _get_model_asset_structure(model: str, name: str) -> AssetStructure:
+def _get_model_asset_structure(
+    model: str, name: str, explore_view_folder_name: str
+) -> AssetStructure:
     return AssetStructure(
-        directories=[VIEW_EXPLORE_FOLDER, model],
+        directories=[explore_view_folder_name, model],
         name=name,
     )
 
@@ -212,6 +212,7 @@ def _build_looker_view(
     raw_view: Dict,
     raw_model: RawModel,
     connection: LookerConnectionConfig,
+    explore_view_folder_name: str,
     url: Optional[str],
 ) -> VirtualView:
     name = raw_view["name"]
@@ -260,7 +261,7 @@ def _build_looker_view(
             name=fullname(model, name), type=VirtualViewType.LOOKER_VIEW
         ),
         looker_view=view,
-        structure=_get_model_asset_structure(model, name),
+        structure=_get_model_asset_structure(model, name, explore_view_folder_name),
         entity_upstream=(
             EntityUpstream(source_entities=source_entities) if source_entities else None
         ),
@@ -281,7 +282,11 @@ def _get_base_view_name(raw_explore: Dict, raw_model: RawModel) -> str:
 
 
 def _build_looker_explore(
-    model: str, raw_explore: Dict, raw_model: RawModel, url: Optional[str]
+    model: str,
+    raw_explore: Dict,
+    raw_model: RawModel,
+    explore_view_folder_name: str,
+    url: Optional[str],
 ) -> VirtualView:
     name = raw_explore["name"]
     base_view_name = _get_base_view_name(raw_explore, raw_model)
@@ -344,7 +349,7 @@ def _build_looker_explore(
             name=fullname(model, name), type=VirtualViewType.LOOKER_EXPLORE
         ),
         looker_explore=explore,
-        structure=_get_model_asset_structure(model, name),
+        structure=_get_model_asset_structure(model, name, explore_view_folder_name),
         entity_upstream=EntityUpstream(source_entities=source_entities),
         system_tags=SystemTags(tags=tags),
     )
@@ -606,6 +611,7 @@ def _load_model(
 def parse_project(
     base_dir: str,
     connections: Dict[str, LookerConnectionConfig],
+    explore_view_folder_name,
     projectSourceUrl: Optional[str] = None,
 ) -> Tuple[ModelMap, List[VirtualView]]:
     """
@@ -631,6 +637,7 @@ def parse_project(
                     view,
                     resolved_model,
                     connection,
+                    explore_view_folder_name,
                     entity_urls.get(view["name"]),
                 )
                 for view in resolved_model.raw_views.values()
@@ -646,6 +653,7 @@ def parse_project(
                     model_name,
                     explore,
                     resolved_model,
+                    explore_view_folder_name,
                     entity_urls.get(explore["name"]),
                 )
                 for explore in resolved_model.raw_explores.values()
