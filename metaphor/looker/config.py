@@ -54,7 +54,7 @@ class LookerRunConfig(BaseConfig):
     alternative_base_url: Optional[str] = None
 
     # LookML explores & views folder name
-    explore_view_folder_name: str = "LookML models"
+    explore_view_folder_name: str = "LookML Models"
 
     @model_validator(mode="after")
     def have_local_or_git_dir_for_lookml(self):
