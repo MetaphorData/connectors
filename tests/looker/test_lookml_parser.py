@@ -1,10 +1,10 @@
 from metaphor.common.entity_id import EntityId
 from metaphor.looker.config import LookerConnectionConfig
 from metaphor.looker.lookml_parser import (
+    VIEW_EXPLORE_FOLDER,
     Explore,
     Model,
     parse_project,
-    VIEW_EXPLORE_FOLDER,
 )
 from metaphor.models.metadata_change_event import (
     AssetStructure,
