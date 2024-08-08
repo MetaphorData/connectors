@@ -114,7 +114,7 @@ timeout: 30  # default 120 seconds
 We will put Looker explores and Looker views in a folder in Metaphor, and you can customize the folder name.
 
 ```yaml
-explore_view_folder_name: "LookML models"  # default is "LookML models"
+explore_view_folder_name: "Looker Views & Explores"  # default to "LookML models"
 ```
 
 #### Output Destination
