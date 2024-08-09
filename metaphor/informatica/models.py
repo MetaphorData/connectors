@@ -35,7 +35,9 @@ class ConnectionDetail(BaseModel):
     id: str
     connParams: Optional[ConnectorParams] = None
     type: str
-    connectorGuid: str
+    connectorGuid: Optional[str] = None
+    host: Optional[str] = None
+    database: Optional[str] = None
 
 
 class ObjectDetail(BaseModel):
@@ -79,10 +81,11 @@ class ExtendedObject(BaseModel):
 
 class MappingParameter(BaseModel):
     type: str
-    extendedObject: ExtendedObject
+    extendedObject: Optional[ExtendedObject] = None
     sourceConnectionId: Optional[str] = None
     targetConnectionId: Optional[str] = None
     targetObject: Optional[str] = None
+    customQuery: Optional[str] = None
 
 
 class MappingDetailResponse(BaseModel):

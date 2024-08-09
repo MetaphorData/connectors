@@ -43,6 +43,11 @@ async def test_extractor(
         ),
         MockResponse(
             load_json(
+                f"{test_root_dir}/informatica/responses/get_saas__api__v2__connection__01CY6H0B000000000004_defae7d8.json"
+            )
+        ),
+        MockResponse(
+            load_json(
                 f"{test_root_dir}/informatica/responses/get_saas__api__v2__connection__01CY6H0B000000000002_550571c1.json"
             )
         ),
@@ -63,6 +68,11 @@ async def test_extractor(
         ),
         MockResponse(
             load_json(
+                f"{test_root_dir}/informatica/responses/get_saas__public__core__v3__objects__4Gqtg7MZokni2KRthVB8AP__references_bca02709.json"
+            )
+        ),
+        MockResponse(
+            load_json(
                 f"{test_root_dir}/informatica/responses/get_saas__public__core__v3__objects__71e4gvVQh8lclejElAZ2qZ__references_d6d6c585.json"
             )
         ),
@@ -73,7 +83,17 @@ async def test_extractor(
         ),
         MockResponse(
             load_json(
+                f"{test_root_dir}/informatica/responses/get_saas__public__core__v3__objects__cBPBxxEPDibejSs5q58Ww8__references_284802f6.json"
+            )
+        ),
+        MockResponse(
+            load_json(
                 f"{test_root_dir}/informatica/responses/get_saas__public__core__v3__objects__gdm2ALESzgxjhPkzOGvns7__references_56133b21.json"
+            )
+        ),
+        MockResponse(
+            load_json(
+                f"{test_root_dir}/informatica/responses/get_saas__api__v2__mapping__01CY6H1700000000000Y_09bf56f3.json"
             )
         ),
         MockResponse(

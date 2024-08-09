@@ -1,4 +1,4 @@
-from typing import Callable, Collection, Dict, List, Optional
+from typing import Callable, Collection, Dict, List
 from urllib.parse import urljoin
 
 from metaphor.common.api_request import ApiError, make_request
@@ -9,6 +9,9 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.sql.table_level_lineage.table_level_lineage import (
+    extract_table_level_lineage,
+)
 from metaphor.common.utils import unique_list
 from metaphor.informatica.config import InformaticaRunConfig
 from metaphor.informatica.models import (
@@ -21,11 +24,15 @@ from metaphor.informatica.models import (
     ObjectReferenceResponse,
     ReferenceObjectDetail,
 )
-from metaphor.informatica.utils import init_dataset_logical_id, parse_error
+from metaphor.informatica.utils import (
+    get_account,
+    get_platform,
+    init_dataset_logical_id,
+    parse_error,
+)
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetStructure,
-    DataPlatform,
     Dataset,
     EntityUpstream,
     InformaticaMapping,
@@ -43,9 +50,8 @@ logger = get_logger()
 V2_SESSION_HEADER = "icSessionId"
 V3_SESSION_HEADER = "INFA-SESSION-ID"
 AUTH_ERROR_CODE = "AUTH_01"
-PARAMETER_SOURCE_TYPES = {"EXTENDED_SOURCE"}
+PARAMETER_SOURCE_TYPES = {"EXTENDED_SOURCE", "SOURCE"}
 PARAMETER_TARGET_TYPES = {"TARGET"}
-CONNECTOR_PLATFORM_MAP = {"com.infa.adapter.snowflake": DataPlatform.SNOWFLAKE}
 
 
 class InformaticaExtractor(BaseExtractor):
@@ -167,28 +173,40 @@ class InformaticaExtractor(BaseExtractor):
                 p for p in mapping.parameters if p.type in PARAMETER_SOURCE_TYPES
             ]
 
-            def trans_source(source: MappingParameter) -> Optional[str]:
+            def trans_source(source: MappingParameter) -> List[str]:
                 connection = connections.get(source.sourceConnectionId or "")
-                if connection is None or source.extendedObject.object is None:
+                if connection is None:
                     logger.warning(
                         f"Invalid source connection id for mapping '{mapping.name}'"
                     )
-                    return None
+                    return []
+
+                if source.customQuery:
+                    result = extract_table_level_lineage(
+                        sql=source.customQuery,
+                        platform=get_platform(connection),
+                        account=get_account(connection),
+                        database=connection.database,
+                    )
+                    return [dataset.id for dataset in result.sources]
+
+                if (
+                    source.extendedObject is None
+                    or source.extendedObject.object is None
+                ):
+                    return []
 
                 logical_id = init_dataset_logical_id(
                     source.extendedObject.object.name, connection
                 )
 
                 if logical_id is None:
-                    return None
+                    return []
 
-                return str(to_dataset_entity_id_from_logical_id(logical_id))
-
-            def is_not_none(value):
-                return value is not None
+                return [str(to_dataset_entity_id_from_logical_id(logical_id))]
 
             source_entities = unique_list(
-                filter(is_not_none, map(trans_source, sources))
+                source_id for ids in map(trans_source, sources) for source_id in ids
             )
 
             targets = [

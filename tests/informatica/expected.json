@@ -1,6 +1,29 @@
 [
   {
     "informaticaMapping": {
+      "description": "Extracts all or a subset of data from a source and loads it to a dynamically created target.\n\nIf you create a relational target, the Mapping task inserts data into the target table the first time it runs. Subsequent runs can load data using update or upsert operations. If you create a flat file target, the Mapping task re-creates the target file each time it runs.",
+      "name": "Copy Table"
+    },
+    "logicalId": {
+      "name": "4Gqtg7MZokni2KRthVB8AP",
+      "type": "INFORMATICA_MAPPING"
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-08-09T07:29:29+00:00",
+      "createdBy": "metaphor-dev",
+      "lastUpdated": "2024-08-09T08:10:04+00:00",
+      "mainUrl": "https://usw5.dm-us.informaticacloud.com/diUI/products/integrationDesign/main/mapping/4Gqtg7MZokni2KRthVB8AP",
+      "updatedBy": "metaphor-dev"
+    },
+    "structure": {
+      "directories": [
+        "Default"
+      ],
+      "name": "Copy Table"
+    }
+  },
+  {
+    "informaticaMapping": {
       "description": "desc in Informatica",
       "name": "Extract same station bike hires"
     },
@@ -20,6 +43,26 @@
         "Default"
       ],
       "name": "Extract same station bike hires"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~A834E10BEB2E4265997CFEFD1853F4F0"
+      ]
+    },
+    "logicalId": {
+      "account": "snowflake-account",
+      "name": "acme.informatica.books",
+      "platform": "SNOWFLAKE"
+    },
+    "pipelineInfo": {
+      "pipelineMapping": [
+        {
+          "isVirtual": false,
+          "pipelineEntityId": "PIPELINE~D0589B94E839076193E16F1DF1860B14"
+        }
+      ]
     }
   },
   {
