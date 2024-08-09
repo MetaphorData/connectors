@@ -1,0 +1,22 @@
+{
+  "count": 2,
+  "@id": "cBPBxxEPDibejSs5q58Ww8",
+  "references": [
+    {
+      "id": "8kAB9kRgU4pkf6HINLOPIj",
+      "appContextId": "01CY6H0Z000000000006",
+      "path": "Default/Copy Books to Snowflake",
+      "documentType": "MCT",
+      "description": null,
+      "lastUpdatedTime": "2024-08-09T12:10:27Z"
+    },
+    {
+      "id": "4Gqtg7MZokni2KRthVB8AP",
+      "appContextId": "01CY6H1700000000000Y",
+      "path": "Default/Copy Table",
+      "documentType": "MAPPING",
+      "description": "Extracts all or a subset of data from a source and loads it to a dynamically created target.\n\nIf you create a relational target, the Mapping task inserts data into the target table the first time it runs. Subsequent runs can load data using update or upsert operations. If you create a flat file target, the Mapping task re-creates the target file each time it runs.",
+      "lastUpdatedTime": "2024-08-09T12:10:06Z"
+    }
+  ]
+}

@@ -1,6 +1,17 @@
 {
-  "count": 2,
+  "count": 3,
   "objects": [
+    {
+      "id": "4Gqtg7MZokni2KRthVB8AP",
+      "path": "Default/Copy Table",
+      "type": "DTEMPLATE",
+      "description": "Extracts all or a subset of data from a source and loads it to a dynamically created target.\n\nIf you create a relational target, the Mapping task inserts data into the target table the first time it runs. Subsequent runs can load data using update or upsert operations. If you create a flat file target, the Mapping task re-creates the target file each time it runs.",
+      "updatedBy": "metaphor-dev",
+      "updateTime": "2024-08-09T12:10:06Z",
+      "tags": [],
+      "sourceControl": null,
+      "customAttributes": null
+    },
     {
       "id": "71e4gvVQh8lclejElAZ2qZ",
       "path": "Default/Extract same station bike hires",

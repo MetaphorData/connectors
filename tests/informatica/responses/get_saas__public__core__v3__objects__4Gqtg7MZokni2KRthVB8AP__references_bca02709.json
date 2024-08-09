@@ -1,0 +1,22 @@
+{
+  "count": 2,
+  "@id": "4Gqtg7MZokni2KRthVB8AP",
+  "references": [
+    {
+      "id": "cBPBxxEPDibejSs5q58Ww8",
+      "appContextId": "01CY6H0B000000000004",
+      "path": "Oracle",
+      "documentType": "SAAS_CONNECTION",
+      "description": null,
+      "lastUpdatedTime": "2024-08-09T11:10:03Z"
+    },
+    {
+      "id": "gdm2ALESzgxjhPkzOGvns7",
+      "appContextId": "01CY6H0B000000000002",
+      "path": "Snowflake",
+      "documentType": "SAAS_CONNECTION",
+      "description": null,
+      "lastUpdatedTime": "2024-07-15T10:00:34Z"
+    }
+  ]
+}

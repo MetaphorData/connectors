@@ -21,14 +21,18 @@ class Table:
             table=table.name,
         )
 
-    def to_queried_dataset(self, platform: DataPlatform, account: Optional[str]):
+    def to_queried_dataset(
+        self, platform: DataPlatform, account: Optional[str], database: Optional[str]
+    ):
         return QueriedDataset(
             database=self.db,
             schema=self.schema,
             table=self.table,
             id=str(
                 to_dataset_entity_id(
-                    dataset_normalized_name(self.db, self.schema, self.table),
+                    dataset_normalized_name(
+                        self.db or database, self.schema, self.table
+                    ),
                     platform,
                     account,
                 )
