@@ -1,5 +1,5 @@
 import os
-from typing import Collection, Dict, Iterable, Iterator, List, Sequence, Set, Tuple
+from typing import Collection, Dict, Iterable, List, Sequence, Set, Tuple
 
 from metaphor.common.git import clone_repo
 from metaphor.models.crawler_run_metadata import Platform
@@ -29,9 +29,6 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform,
     EntityUpstream,
     Hierarchy,
-    HierarchyInfo,
-    HierarchyLogicalID,
-    HierarchyType,
     SourceInfo,
     SystemContact,
     SystemContacts,
@@ -81,6 +78,7 @@ class LookerExtractor(BaseExtractor):
         self._project_source_url = config.project_source_url
         self._include_personal_folders = config.include_personal_folders
         self._explore_view_folder_name = config.explore_view_folder_name
+        self._folders: Dict[str, Hierarchy] = {}
 
         # Load config using environment variables instead from looker.ini file
         # See https://github.com/looker-open-source/sdk-codegen#environment-variable-configuration
@@ -121,7 +119,7 @@ class LookerExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(dashboards)
         entities.extend(virtual_views)
-        entities.extend(self.build_hierarchy(folder_map))
+        entities.extend(self._folders.values())
         return entities
 
     def _fetch_folders(self) -> FolderMap:
@@ -237,7 +235,9 @@ class LookerExtractor(BaseExtractor):
                     structure=(
                         AssetStructure(
                             directories=build_directories(
-                                dashboard.folder.id, folder_map
+                                dashboard.folder.id,
+                                folder_map,
+                                self._folders,
                             ),
                             name=dashboard.title,
                         )
@@ -320,17 +320,3 @@ class LookerExtractor(BaseExtractor):
                 source_entities=list(explore_ids),
             ),
         )
-
-    def build_hierarchy(
-        self, folder_map: Dict[str, FolderMetadata]
-    ) -> Iterator[Hierarchy]:
-        for folder in folder_map.values():
-            yield Hierarchy(
-                logical_id=HierarchyLogicalID(
-                    path=[DashboardPlatform.LOOKER.value]
-                    + build_directories(folder.id, folder_map)
-                ),
-                hierarchy_info=HierarchyInfo(
-                    type=HierarchyType.LOOKER_FOLDER, name=folder.name
-                ),
-            )

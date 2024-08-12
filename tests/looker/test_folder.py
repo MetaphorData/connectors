@@ -9,6 +9,10 @@ def test_build_directories(test_root_dir) -> None:
         "3": FolderMetadata(id="3", name="folder3", parent_id="2"),
     }
 
-    assert build_directories("1", folder_map) == ["1"]
-    assert build_directories("2", folder_map) == ["1", "2"]
-    assert build_directories("3", folder_map) == ["1", "2", "3"]
+    folders: dict = {}
+
+    assert build_directories("1", folder_map, folders) == ["1"]
+    assert build_directories("2", folder_map, folders) == ["1", "2"]
+    assert build_directories("3", folder_map, folders) == ["1", "2", "3"]
+
+    assert len(folders) == 3
