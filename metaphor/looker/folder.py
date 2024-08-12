@@ -49,7 +49,7 @@ def build_directories(
 
 
 def _build_hierarchies(
-    directories: List[str], folder_map: FolderMap, folders: Dict[str, Hierarchy]
+    directories: List[str], folder_map: FolderMap, folder_hierarchies: Dict[str, Hierarchy]
 ):
     for i, folder_id in enumerate(directories):
         folder = folder_map.get(folder_id)
