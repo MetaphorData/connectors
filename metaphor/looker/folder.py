@@ -53,7 +53,7 @@ def _build_hierarchies(
 ):
     for i, folder_id in enumerate(directories):
         folder = folder_map.get(folder_id)
-        if folder_id in folders or folder is None:
+        if folder_id in folder_hierarchies or folder is None:
             continue
 
         hierarchy = Hierarchy(
