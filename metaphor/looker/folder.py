@@ -65,4 +65,4 @@ def _build_hierarchies(
             ),
         )
 
-        folders[folder_id] = hierarchy
+        folder_hierarchies[folder_id] = hierarchy
