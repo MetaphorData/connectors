@@ -24,7 +24,9 @@ logger = get_logger()
 
 
 def build_directories(
-    folder_id: str, folder_map: FolderMap, folders: Dict[str, Hierarchy]
+    folder_id: str,
+    folder_map: FolderMap,
+    folder_hierarchies: Dict[str, Hierarchy],
 ) -> List[str]:
     directories: List[str] = []
 
@@ -41,7 +43,7 @@ def build_directories(
 
         folder_id = folder.parent_id
 
-    _build_hierarchies(directories, folder_map, folders)
+    _build_hierarchies(directories, folder_map, folder_hierarchies)
 
     return directories
 
