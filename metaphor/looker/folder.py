@@ -41,12 +41,12 @@ def build_directories(
 
         folder_id = folder.parent_id
 
-    build_hierarchies(directories, folder_map, folders)
+    _build_hierarchies(directories, folder_map, folders)
 
     return directories
 
 
-def build_hierarchies(
+def _build_hierarchies(
     directories: List[str], folder_map: FolderMap, folders: Dict[str, Hierarchy]
 ):
     for i, folder_id in enumerate(directories):
