@@ -35,3 +35,6 @@ def test_build_hierarchy(test_root_dir) -> None:
     assert folders["2"].logical_id.path == ["LOOKER", "1", "2"]
     assert folders["3"].hierarchy_info.name == "folder3"
     assert folders["3"].logical_id.path == ["LOOKER", "1", "2", "3"]
+
+    _build_hierarchies(["4"], folder_map, folders)
+    assert len(folders) == 3
