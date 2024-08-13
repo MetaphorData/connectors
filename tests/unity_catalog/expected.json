@@ -405,6 +405,14 @@
         "catalog"
       ]
     },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "service principal 1",
+          "systemContactSource": "UNITY_CATALOG"
+        }
+      ]
+    },
     "systemTags": {
       "tags": [
         {
@@ -426,6 +434,14 @@
         "UNITY_CATALOG",
         "catalog",
         "schema"
+      ]
+    },
+    "systemContacts": {
+      "contacts": [
+        {
+          "email": "test@foo.bar",
+          "systemContactSource": "UNITY_CATALOG"
+        }
       ]
     },
     "systemTags": {

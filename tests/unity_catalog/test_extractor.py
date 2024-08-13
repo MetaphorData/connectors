@@ -59,10 +59,10 @@ async def test_extractor(
     }
 
     def mock_list_catalogs():
-        return [CatalogInfo(name="catalog")]
+        return [CatalogInfo(name="catalog", owner="sp1")]
 
     def mock_list_schemas(catalog):
-        return [SchemaInfo(name="schema")]
+        return [SchemaInfo(name="schema", owner="test@foo.bar")]
 
     def mock_list_tables(catalog, schema):
         return [

@@ -173,7 +173,7 @@ class UnityCatalogExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
         self._query_log_config = config.query_log
-        self._hierarchies: List[Hierarchy] = []
+        self._hierarchies: Dict[str, Hierarchy] = {}
         self._volumes: Dict[str, VolumeInfo] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -225,19 +225,55 @@ class UnityCatalogExtractor(BaseExtractor):
         self._populate_last_refreshed_time()
 
         entities: List[ENTITY_TYPES] = []
-        entities.extend(list(self._datasets.values()))
-        entities.extend(self._hierarchies)
+        entities.extend(self._datasets.values())
+        entities.extend(self._hierarchies.values())
         return entities
 
     def _get_catalogs(self) -> List[str]:
         catalogs = list(self._api.catalogs.list())
         json_dump_to_debug_file(catalogs, "list-catalogs.json")
-        return [catalog.name for catalog in catalogs if catalog.name]
+
+        catalog_names = []
+        for catalog in catalogs:
+            if catalog.name is None:
+                continue
+
+            catalog_names.append(catalog.name)
+            if not catalog.owner:
+                continue
+
+            hierarchy = self._init_hierarchy(catalog.name)
+            hierarchy.system_contacts = SystemContacts(
+                contacts=[
+                    SystemContact(
+                        email=self._get_owner_display_name(catalog.owner),
+                        system_contact_source=AssetPlatform.UNITY_CATALOG,
+                    )
+                ]
+            )
+        return catalog_names
 
     def _get_schemas(self, catalog: str) -> List[str]:
         schemas = list(self._api.schemas.list(catalog))
         json_dump_to_debug_file(schemas, f"list-schemas-{catalog}.json")
-        return [schema.name for schema in schemas if schema.name]
+
+        schema_names = []
+        for schema in schemas:
+            if schema.name:
+                schema_names.append(schema.name)
+            if not schema.owner:
+                continue
+
+            hierarchy = self._init_hierarchy(catalog, schema.name)
+            hierarchy.system_contacts = SystemContacts(
+                contacts=[
+                    SystemContact(
+                        email=self._get_owner_display_name(schema.owner),
+                        system_contact_source=AssetPlatform.UNITY_CATALOG,
+                    )
+                ]
+            )
+        return schema_names
 
     def _get_table_infos(
         self, catalog: str, schema: str
@@ -353,19 +389,10 @@ class UnityCatalogExtractor(BaseExtractor):
         )
 
         if table_info.owner is not None:
-            # Unity Catalog returns service principal's application_id and must be
-            # manually map back to display_name
-            service_principal = self._service_principals.get(table_info.owner)
-            owner = (
-                service_principal.display_name
-                if service_principal
-                else table_info.owner
-            )
-
             dataset.system_contacts = SystemContacts(
                 contacts=[
                     SystemContact(
-                        email=owner,
+                        email=self._get_owner_display_name(table_info.owner),
                         system_contact_source=AssetPlatform.UNITY_CATALOG,
                     )
                 ]
@@ -467,34 +494,31 @@ class UnityCatalogExtractor(BaseExtractor):
         ):
             yield query_log
 
+    def _init_hierarchy(
+        self,
+        catalog: str,
+        schema: Optional[str] = None,
+    ) -> Hierarchy:
+        path = [part.lower() for part in [catalog, schema] if part]
+
+        return self._hierarchies.setdefault(
+            ".".join(path),
+            Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[DataPlatform.UNITY_CATALOG.value] + path
+                ),
+            ),
+        )
+
     def _extract_hierarchies(self, catalog_system_tags: CatalogSystemTags) -> None:
         for catalog, (catalog_tags, schema_name_to_tag) in catalog_system_tags.items():
             if catalog_tags:
-                self._hierarchies.append(
-                    Hierarchy(
-                        logical_id=HierarchyLogicalID(
-                            path=[
-                                DataPlatform.UNITY_CATALOG.value,
-                                catalog.lower(),
-                            ]
-                        ),
-                        system_tags=SystemTags(tags=catalog_tags),
-                    )
-                )
+                hierarchy = self._init_hierarchy(catalog)
+                hierarchy.system_tags = SystemTags(tags=catalog_tags)
             for schema, schema_tags in schema_name_to_tag.items():
                 if schema_tags:
-                    self._hierarchies.append(
-                        Hierarchy(
-                            logical_id=HierarchyLogicalID(
-                                path=[
-                                    DataPlatform.UNITY_CATALOG.value,
-                                    catalog.lower(),
-                                    schema.lower(),
-                                ]
-                            ),
-                            system_tags=SystemTags(tags=schema_tags),
-                        )
-                    )
+                    hierarchy = self._init_hierarchy(catalog, schema)
+                    hierarchy.system_tags = SystemTags(tags=schema_tags)
 
     def _fetch_catalog_system_tags(self, catalog: str) -> CatalogSystemTagsTuple:
         logger.info(f"Fetching tags for catalog {catalog}")
@@ -823,3 +847,13 @@ class UnityCatalogExtractor(BaseExtractor):
                     created_at_source=dataset.source_info.created_at_source,
                     last_updated=last_refreshed_time,
                 )
+
+    def _get_owner_display_name(self, user_id: str) -> str:
+        # Unity Catalog returns service principal's application_id and must be
+        # manually map back to display_name
+        service_principal = self._service_principals.get(user_id)
+        return (
+            service_principal.display_name
+            if service_principal and service_principal.display_name
+            else user_id
+        )
