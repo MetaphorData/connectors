@@ -235,12 +235,14 @@ class UnityCatalogExtractor(BaseExtractor):
 
         catalog_names = []
         for catalog in catalogs:
-            if catalog.name:
-                catalog_names.append(catalog.name)
+            if catalog.name is None:
+                continue
+
+            catalog_names.append(catalog.name)
             if not catalog.owner:
                 continue
 
-            hierarchy = self._assert_hierarchy(catalog.name)
+            hierarchy = self._init_hierarchy(catalog.name)
             hierarchy.system_contacts = SystemContacts(
                 contacts=[
                     SystemContact(
@@ -262,7 +264,7 @@ class UnityCatalogExtractor(BaseExtractor):
             if not schema.owner:
                 continue
 
-            hierarchy = self._assert_hierarchy(catalog, schema.name)
+            hierarchy = self._init_hierarchy(catalog, schema.name)
             hierarchy.system_contacts = SystemContacts(
                 contacts=[
                     SystemContact(
@@ -492,7 +494,7 @@ class UnityCatalogExtractor(BaseExtractor):
         ):
             yield query_log
 
-    def _assert_hierarchy(
+    def _init_hierarchy(
         self,
         catalog: str,
         schema: Optional[str] = None,
@@ -511,11 +513,11 @@ class UnityCatalogExtractor(BaseExtractor):
     def _extract_hierarchies(self, catalog_system_tags: CatalogSystemTags) -> None:
         for catalog, (catalog_tags, schema_name_to_tag) in catalog_system_tags.items():
             if catalog_tags:
-                hierarchy = self._assert_hierarchy(catalog)
+                hierarchy = self._init_hierarchy(catalog)
                 hierarchy.system_tags = SystemTags(tags=catalog_tags)
             for schema, schema_tags in schema_name_to_tag.items():
                 if schema_tags:
-                    hierarchy = self._assert_hierarchy(catalog, schema)
+                    hierarchy = self._init_hierarchy(catalog, schema)
                     hierarchy.system_tags = SystemTags(tags=schema_tags)
 
     def _fetch_catalog_system_tags(self, catalog: str) -> CatalogSystemTagsTuple:
