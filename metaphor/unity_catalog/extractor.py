@@ -235,7 +235,8 @@ class UnityCatalogExtractor(BaseExtractor):
 
         catalog_names = []
         for catalog in catalogs:
-            catalog_names.append(catalog.name)
+            if catalog.name:
+                catalog_names.append(catalog.name)
             if not catalog.owner:
                 continue
 
@@ -256,7 +257,8 @@ class UnityCatalogExtractor(BaseExtractor):
 
         schema_names = []
         for schema in schemas:
-            schema_names.append(schema.name)
+            if schema.name:
+                schema_names.append(schema.name)
             if not schema.owner:
                 continue
 
@@ -848,4 +850,8 @@ class UnityCatalogExtractor(BaseExtractor):
         # Unity Catalog returns service principal's application_id and must be
         # manually map back to display_name
         service_principal = self._service_principals.get(user_id)
-        return service_principal.display_name if service_principal else user_id
+        return (
+            service_principal.display_name
+            if service_principal and service_principal.display_name
+            else user_id
+        )
