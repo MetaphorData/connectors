@@ -156,15 +156,16 @@ def exclude_username_clause(excluded_usernames: Set[str]) -> str:
 
 def check_access_history(
     conn: SnowflakeConnection,
+    account_usage_schema: str,
 ) -> bool:
     """
     Check if access history table is available
     """
     cursor = conn.cursor()
     cursor.execute(
-        """
+        f"""
         SELECT QUERY_ID
-        FROM SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY
+        FROM {account_usage_schema}.ACCESS_HISTORY
         LIMIT 1
         """
     )
@@ -174,6 +175,7 @@ def check_access_history(
 
 def fetch_query_history_count(
     conn: SnowflakeConnection,
+    account_usage_schema: str,
     start_date: datetime,
     excluded_usernames: Set[str],
     end_date: datetime = datetime.now(),
@@ -187,8 +189,8 @@ def fetch_query_history_count(
         cursor.execute(
             f"""
             SELECT COUNT(1)
-            FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
-            JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+            FROM {account_usage_schema}.QUERY_HISTORY q
+            JOIN {account_usage_schema}.ACCESS_HISTORY a
               ON a.QUERY_ID = q.QUERY_ID
             WHERE EXECUTION_STATUS = 'SUCCESS'
               and START_TIME > %s and START_TIME <= %s

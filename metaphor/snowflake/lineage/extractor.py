@@ -59,6 +59,7 @@ class SnowflakeLineageExtractor(BaseExtractor):
         self._enable_view_lineage = config.enable_view_lineage
         self._enable_lineage_from_history = config.enable_lineage_from_history
         self._include_self_lineage = config.include_self_lineage
+        self._account_usage_schema = config.account_usage_schema
         self._config = config
 
         self._datasets: Dict[str, Dataset] = {}
@@ -76,10 +77,10 @@ class SnowflakeLineageExtractor(BaseExtractor):
                 logger.info("Fetching access and query history")
                 # Join QUERY_HISTORY & ACCESS_HISTORY to include only queries that succeeded.
                 cursor.execute(
-                    """
+                    f"""
                     SELECT COUNT(*)
-                    FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
-                    JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+                    FROM {self._account_usage_schema}.QUERY_HISTORY q
+                    JOIN {self._account_usage_schema}.ACCESS_HISTORY a
                         ON q.QUERY_ID = a.QUERY_ID
                     WHERE q.EXECUTION_STATUS = 'SUCCESS'
                         AND ARRAY_SIZE(a.DIRECT_OBJECTS_ACCESSED) > 0
@@ -100,8 +101,8 @@ class SnowflakeLineageExtractor(BaseExtractor):
                     str(x): QueryWithParam(
                         f"""
                         SELECT a.DIRECT_OBJECTS_ACCESSED, a.OBJECTS_MODIFIED, q.QUERY_TEXT
-                        FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY q
-                        JOIN SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY a
+                        FROM {self._account_usage_schema}.QUERY_HISTORY q
+                        JOIN {self._account_usage_schema}.ACCESS_HISTORY a
                             ON q.QUERY_ID = a.QUERY_ID
                         WHERE q.EXECUTION_STATUS = 'SUCCESS'
                             AND ARRAY_SIZE(a.DIRECT_OBJECTS_ACCESSED) > 0

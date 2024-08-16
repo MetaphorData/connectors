@@ -55,6 +55,9 @@ class SnowflakeBaseConfig(SnowflakeAuthConfig):
     # Max number of concurrent queries to database
     max_concurrency: int = DEFAULT_THREAD_POOL_SIZE
 
+    # The fully qualified schema that contains all the account_usage views
+    account_usage_schema: str = "SNOWFLAKE.ACCOUNT_USAGE"
+
 
 @dataclass(config=ConnectorConfig)
 class SnowflakeConfig(SnowflakeBaseConfig):
@@ -70,6 +73,3 @@ class SnowflakeConfig(SnowflakeBaseConfig):
     streams: SnowflakeStreamsConfig = field(
         default_factory=lambda: SnowflakeStreamsConfig()
     )
-
-    # The fully qualified schema that contains all the account_usage views
-    account_usage_schema: str = "SNOWFLAKE.ACCOUNT_USAGE"
