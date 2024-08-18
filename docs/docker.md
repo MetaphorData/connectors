@@ -8,7 +8,7 @@ We follow [Semantic Versioning](https://semver.org/) and [docker tagging best pr
 
 ## Running
 
-The Docker image contains all the required dependencies so running it should be very straightforward. Note that you'll need to provide your local config file to the Docker container via [bind mounts](https://docs.docker.com/storage/bind-mounts/). For example,
+The Docker image contains all the required dependencies so running it should be very straightforward. Note that you'll need to provide your local config file to the Docker container via [bind mounts](https://docs.docker.com/storage/bind-mounts/). For example, this command passes your local config file (`~/config.yml`) to the docker image,
 
 ```sh
 docker run -it --rm \
@@ -17,7 +17,7 @@ docker run -it --rm \
   metaphor bigquery /config.yml
 ```
 
-If you configure to write the [output](../metaphor/common/docs/output.md) to a local directory instead of an S3 path, you'll also need to bind mount the output directory to access the files, e.g.
+If you configure to write the [output](../metaphor/common/docs/output.md) to a local directory instead of an S3 path, you'll also need to bind mount the output directory (`~/output` in this case) to access the files, e.g.
 
 ```yml
 # ~/config.yml
@@ -44,10 +44,6 @@ To build and publish an image with the `test` tag for testing, run the following
 ```sh
 # Assuming not yet logged in
 docker login
-
-# Our Dockerfile refereneces requirements.txt to decrease build time. Make sure
-# to run this before running `docker build`.
-poetry export --all-extras --format=requirements.txt --output=requirements.txt
 
 docker build --platform linux/amd64 -t metaphordata/connectors:test .
 docker push metaphordata/connectors:test
