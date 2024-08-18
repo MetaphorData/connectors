@@ -1,20 +1,32 @@
+FROM python:3.8-slim AS base
 
-FROM python:3.8-slim
+# Builder - Dependencies
+FROM base AS builder
+
+RUN pip install poetry
+
+COPY pyproject.toml poetry.lock src/
+WORKDIR /src
+
+RUN poetry export \
+    --without dev \
+    --all-extras \
+    --format=requirements.txt \
+    --output=requirements.txt
+
+# Runtime
+FROM base AS runtime
 
 RUN apt-get clean
 RUN apt-get update
 RUN apt-get install -y git build-essential libsasl2-dev
 
-COPY ./requirements.txt /src/requirements.txt
+COPY --from=builder /src/requirements.txt /dep/requirements.txt
+RUN pip install -r /dep/requirements.txt --no-deps
+RUN rm -rf /dep
 
-RUN pip install -r /src/requirements.txt --no-deps
-
-RUN rm -rf /src
-
-COPY . /src
-
+COPY . src/
 RUN pip install '/src[all]'
-
 RUN rm -rf /src
 
 CMD ["sh", "-c", "metaphor ${CONNECTOR} ${CONFIG_FILE}"]
