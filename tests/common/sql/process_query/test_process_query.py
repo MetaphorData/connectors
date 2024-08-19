@@ -8,6 +8,7 @@ from metaphor.models.metadata_change_event import DataPlatform
 config = ProcessQueryConfig(
     redact_literals=RedactPIILiteralsConfig(
         where_clauses=True,
+        case_clauses=True,
         when_not_matched_insert_clauses=True,
     ),
     ignore_insert_values_into=True,
@@ -162,4 +163,30 @@ def test_merge_insert_when_not_matched():
     assert (
         processed
         == "MERGE INTO TargetProducts AS Target USING SourceProducts AS Source ON Source.ProductID = Target.ProductID WHEN NOT MATCHED THEN INSERT (ProductID, ProductName, Price) VALUES (<REDACTED>, '<REDACTED>', <REDACTED>) WHEN MATCHED THEN UPDATE SET Target.ProductName = Source.ProductName, Target.Price = Source.Price"
+    )
+
+
+def test_redact_where_clauses():
+    sql = """
+INSERT INTO target_table (first_name, last_name, email, status)
+SELECT
+    first_name,
+    last_name,
+    email,
+    CASE
+        WHEN age < 18 THEN 'Minor'
+        WHEN age >= 18 AND age < 65 THEN 'Adult'
+        ELSE 'Senior'
+    END as status
+FROM source_table
+WHERE email IS NOT NULL;
+    """
+    processed = process_query(
+        sql,
+        DataPlatform.SNOWFLAKE,
+        config,
+    )
+    assert (
+        processed
+        == "INSERT INTO target_table (first_name, last_name, email, status) SELECT first_name, last_name, email, CASE WHEN age < <REDACTED> THEN '<REDACTED>' WHEN age >= <REDACTED> AND age < <REDACTED> THEN '<REDACTED>' ELSE '<REDACTED>' END AS status FROM source_table WHERE NOT email IS NULL"
     )

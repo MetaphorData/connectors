@@ -16,6 +16,11 @@ class RedactPIILiteralsConfig:
     Whether to redact literal values in WHERE clauses. If set to `True`, all literal values will be redacted to a predefined string value.
     """
 
+    case_clauses: bool = False
+    """
+    Whether to redact literal values in CASE clauses. If set to `True`, all literal values will be redacted to a predefined string value.
+    """
+
     when_not_matched_insert_clauses: bool = False
     """
     Whether to redact literal values in WHEN NOT MATCHED INSERT clauses. If set to `True`, all literal values will be redacted to a predefined string value.
