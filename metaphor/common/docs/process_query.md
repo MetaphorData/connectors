@@ -7,6 +7,8 @@ process_query:
   redact_literals:
     where_clauses: <true | false>  # Whether to redact all literal values in WHERE clauses. Default is `false`.
 
+    case_clauses: <true | false>  # Whether to redact all literal values in CASE clauses. Default is `false`.
+
     when_not_matched_insert_clauses: <true | false>  # Whether to redact literal values in WHEN NOT MATCHED INSERT clauses. If set to `True`, all literal values will be redacted to a predefined string value. Default is `false`.
 
     placeholder_literal: <placeholder literal>  # The redacted values will be replaced by this placeholder string. Default is '<REDACTED>'.

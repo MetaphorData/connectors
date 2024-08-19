@@ -21,6 +21,14 @@ def _redact_literal_values_in_where_clauses(
             lit.args["this"] = config.redact_literals.placeholder_literal
 
 
+def _redact_literal_values_in_case_clauses(
+    expression: Expression, config: ProcessQueryConfig
+) -> None:
+    for case in expression.find_all(exp.Case):
+        for lit in case.find_all(exp.Literal):
+            lit.args["this"] = config.redact_literals.placeholder_literal
+
+
 def _redact_literal_values_in_when_not_matched_insert_clauses(
     expression: Expression,
     config: ProcessQueryConfig,
@@ -89,6 +97,9 @@ def process_query(
 
     if config.redact_literals.where_clauses:
         _redact_literal_values_in_where_clauses(expression, config)
+
+    if config.redact_literals.case_clauses:
+        _redact_literal_values_in_case_clauses(expression, config)
 
     if config.redact_literals.when_not_matched_insert_clauses:
         _redact_literal_values_in_when_not_matched_insert_clauses(expression, config)
