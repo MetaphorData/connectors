@@ -100,7 +100,7 @@ class SnowflakeExtractor(BaseExtractor):
     """Snowflake metadata extractor"""
 
     _description = "Snowflake metadata crawler"
-    _platform = Platform.REDSHIFT
+    _platform = Platform.SNOWFLAKE
 
     @staticmethod
     def from_config_file(config_file: str) -> "SnowflakeExtractor":
