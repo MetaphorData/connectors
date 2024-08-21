@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, validator
 
 from metaphor.common.utils import must_set_exactly_one
 
@@ -13,6 +14,15 @@ class AzureOpenAIConfig(BaseModel):
     version: Optional[str] = "2024-03-01-preview"
     model: Optional[str] = "text-embedding-3-small"
     deployment_name: Optional[str] = "Embedding_3_small"
+
+    @validator("version", pre=True)
+    def ensure_version_is_string(cls, value):
+        """
+        Handle the case where the version is a datetime object.
+        """
+        if isinstance(value, datetime):
+            return value.strftime("%Y-%m-%d")
+        return str(value)
 
 
 class OpenAIConfig(BaseModel):
