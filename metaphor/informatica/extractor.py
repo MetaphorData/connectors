@@ -186,7 +186,7 @@ class InformaticaExtractor(BaseExtractor):
                         sql=source.customQuery,
                         platform=get_platform(connection),
                         account=get_account(connection),
-                        database=connection.database,
+                        default_database=connection.database,
                     )
                     return [dataset.id for dataset in result.sources]
 

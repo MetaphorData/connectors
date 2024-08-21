@@ -1,11 +1,14 @@
 from typing import Collection, Iterator, List
 
-from sqlalchemy import Inspector, text
+from sqlalchemy import Connection, Inspector, text
 
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import md5_digest, start_of_day, to_utc_time
+from metaphor.common.sql.table_level_lineage.table_level_lineage import (
+    extract_table_level_lineage,
+)
+from metaphor.common.utils import md5_digest, safe_float, start_of_day, to_utc_time
 from metaphor.database.extractor import GenericDatabaseExtractor
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -175,6 +178,56 @@ class OracleExtractor(GenericDatabaseExtractor):
                 assert dataset.schema and dataset.schema.sql_schema
                 dataset.schema.sql_schema.table_schema = ddl
 
+    def _inner_fetch_query_logs(
+        self, sql: str, connection: Connection
+    ) -> List[QueryLog]:
+        cursor = connection.execute(text(sql))
+
+        rows = cursor.fetchall()
+        logs: List[QueryLog] = []
+        for (
+            user,
+            query,
+            start,
+            duration,
+            query_id,
+            read_bytes,
+            write_bytes,
+            row_count,
+        ) in rows:
+            schema = user.lower() if user else None
+            database = self._database if self._database else None
+
+            ttl = extract_table_level_lineage(
+                query,
+                platform=DataPlatform.ORACLE,
+                account=self._alternative_host or self._config.host,
+                query_id=query_id,
+                default_database=database,
+                default_schema=schema,
+            )
+
+            logs.append(
+                QueryLog(
+                    id=f"{DataPlatform.ORACLE.name}:{query_id}",
+                    query_id=query_id,
+                    platform=DataPlatform.ORACLE,
+                    default_database=database,
+                    default_schema=schema,
+                    user_id=user,
+                    sql=query,
+                    sql_hash=md5_digest(query.encode("utf-8")),
+                    duration=float(duration),
+                    start_time=to_utc_time(start),
+                    bytes_read=safe_float(read_bytes),
+                    bytes_written=safe_float(write_bytes),
+                    sources=ttl.sources,
+                    rows_read=safe_float(row_count),
+                    targets=ttl.targets,
+                )
+            )
+        return logs
+
     def _extract_query_logs(self, inspector: Inspector, excluded_users: List[str]):
         start_time = start_of_day(
             daysAgo=self._query_logs_config.lookback_days
@@ -183,33 +236,34 @@ class OracleExtractor(GenericDatabaseExtractor):
         users = [f"'{user.upper()}'" for user in excluded_users]
 
         with inspector.engine.connect() as connection:
+            offset = 0
             result_limit = 1000
             filters = f"""AND PARSING_SCHEMA_NAME not in ({','.join(users)})"""
 
-            sql = f"""
-            SELECT
-              PARSING_SCHEMA_NAME,
-              SQL_FULLTEXT AS query_text,
-              TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') AS start_time,
-              ELAPSED_TIME / 1000 AS duration,
-              SQL_ID
-            FROM gv$sql
-            WHERE OBJECT_STATUS = 'VALID'
-              {filters}
-              AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') >= TO_TIMESTAMP('{start_time}', 'yy-MM-dd HH24:MI:SS')
-            ORDER BY FIRST_LOAD_TIME DESC
-            OFFSET 0 ROWS FETCH NEXT {result_limit} ROWS ONLY
-            """
+            while True:
+                sql = f"""
+                SELECT
+                  PARSING_SCHEMA_NAME,
+                  SQL_FULLTEXT AS query_text,
+                  TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') AS start_time,
+                  ELAPSED_TIME / 1000000 AS duration,
+                  SQL_ID,
+                  PHYSICAL_READ_BYTES,
+                  PHYSICAL_WRITE_BYTES,
+                  ROWS_PROCESSED
+                FROM gv$sql
+                WHERE OBJECT_STATUS = 'VALID'
+                  {filters}
+                  AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') >= TO_TIMESTAMP('{start_time}', 'yy-MM-dd HH24:MI:SS')
+                ORDER BY FIRST_LOAD_TIME DESC
+                OFFSET {offset} ROWS FETCH NEXT {offset + result_limit} ROWS ONLY
+                """
+                logs = self._inner_fetch_query_logs(sql, connection)
+                for log in logs:
+                    yield log
 
-            cursor = connection.execute(text(sql))
-            for user, query, start, duration, query_id in cursor:
-                yield QueryLog(
-                    id=f"{DataPlatform.ORACLE.name}:{query_id}",
-                    query_id=query_id,
-                    platform=DataPlatform.ORACLE,
-                    user_id=user,
-                    sql=query,
-                    sql_hash=md5_digest(query.encode("utf-8")),
-                    duration=float(duration),
-                    start_time=to_utc_time(start),
-                )
+                logger.info(f"Fetched {len(logs)} query logs")
+
+                if len(logs) < result_limit:
+                    break
+                offset += result_limit

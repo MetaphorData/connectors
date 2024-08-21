@@ -119,18 +119,18 @@ def mock_connection():
             [("mview",)],  # extract_mviews_names, prod
             [("TABLE1", "DEV", "DDL ......")],  # extract_ddl
             [("SYS",)],  # get_system_users
-        ]
-    )
-
-    cursor.__iter__.return_value = iter(
-        [
-            (
-                "DEV",
-                "SELECT...",
-                datetime.fromtimestamp(1722353493, tz=timezone.utc),
-                10.0,
-                "sql-id",
-            )
+            [
+                (
+                    "DEV",
+                    "SELECT x, y FROM TABLE_5566",
+                    datetime.fromtimestamp(1722353493, tz=timezone.utc),
+                    10.0,
+                    "sql-id",
+                    1024.0,
+                    0.0,
+                    20,
+                )
+            ],
         ]
     )
 
