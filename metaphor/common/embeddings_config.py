@@ -11,7 +11,7 @@ supported_sources = ["azure_openai", "openai"]
 class AzureOpenAIConfig(BaseModel):
     key: Optional[str] = None
     endpoint: Optional[str] = None
-    version: Optional[str] = "2024-03-01-preview"
+    version: Optional[str] = "2024-06-01"
     model: Optional[str] = "text-embedding-3-small"
     deployment_name: Optional[str] = "Embedding_3_small"
 
