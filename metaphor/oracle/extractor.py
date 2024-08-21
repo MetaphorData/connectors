@@ -246,7 +246,7 @@ class OracleExtractor(GenericDatabaseExtractor):
                   PARSING_SCHEMA_NAME,
                   SQL_FULLTEXT AS query_text,
                   TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') AS start_time,
-                  ELAPSED_TIME / 1000 AS duration,
+                  ELAPSED_TIME / 1000000 AS duration,
                   SQL_ID,
                   PHYSICAL_READ_BYTES,
                   PHYSICAL_WRITE_BYTES,
