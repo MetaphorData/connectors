@@ -1417,13 +1417,13 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "faker"
-version = "27.3.0"
+version = "27.4.0"
 description = "Faker is a Python package that generates fake data for you."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "Faker-27.3.0-py3-none-any.whl", hash = "sha256:e3a3b843c9df828cea8cc91c84390a20294da084bef9d004ac9b985554fd58b7"},
-    {file = "faker-27.3.0.tar.gz", hash = "sha256:3015bcdc61e648e55f97f397ed8b49ee4c8dd69ad8c9a6bb782b624e862b9cf2"},
+    {file = "Faker-27.4.0-py3-none-any.whl", hash = "sha256:1c44d4bdcad7237516c9a829b6a0bcb031c6a4cb0506207c480c79f74d8922bf"},
+    {file = "faker-27.4.0.tar.gz", hash = "sha256:4ce108fc96053bbba3abf848e3a2885f05faa938deb987f97e4420deaec541c4"},
 ]
 
 [package.dependencies]
@@ -2605,13 +2605,13 @@ files = [
 
 [[package]]
 name = "llama-cloud"
-version = "0.0.13"
+version = "0.0.14"
 description = ""
 optional = true
 python-versions = "<4,>=3.8"
 files = [
-    {file = "llama_cloud-0.0.13-py3-none-any.whl", hash = "sha256:b641450308b80c85eeae7ef9cb5a3b4a3b1823d5cde05b626ce33f7494ec6229"},
-    {file = "llama_cloud-0.0.13.tar.gz", hash = "sha256:0e3165a22f8df34a00d13f1f5739438ba4d620f2d8a9289df830078a39fe6f1f"},
+    {file = "llama_cloud-0.0.14-py3-none-any.whl", hash = "sha256:356143a9d88d59ed8f0474841fcfba053fe8b56ff8bb3771e570d583869061f8"},
+    {file = "llama_cloud-0.0.14.tar.gz", hash = "sha256:44157bd3fc84099365181fb0254b7b533a502f2a8b97d5f87e86d1cccc1501d8"},
 ]
 
 [package.dependencies]
