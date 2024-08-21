@@ -134,7 +134,8 @@ def extract_table_level_lineage(
     account: Optional[str],
     statement_type: Optional[str] = None,
     query_id: Optional[str] = None,
-    database: Optional[str] = None,
+    default_database: Optional[str] = None,
+    default_schema: Optional[str] = None,
 ) -> Result:
 
     if statement_type and statement_type.upper() not in _VALID_STATEMENT_TYPES:
@@ -153,11 +154,15 @@ def extract_table_level_lineage(
     try:
         return Result(
             targets=[
-                target.to_queried_dataset(platform, account, database)
+                target.to_queried_dataset(
+                    platform, account, default_database, default_schema
+                )
                 for target in _find_targets(expression)
             ],
             sources=[
-                source.to_queried_dataset(platform, account, database)
+                source.to_queried_dataset(
+                    platform, account, default_database, default_schema
+                )
                 for source in _find_sources(expression)
             ],
         )

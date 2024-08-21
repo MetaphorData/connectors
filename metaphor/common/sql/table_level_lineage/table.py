@@ -22,17 +22,21 @@ class Table:
         )
 
     def to_queried_dataset(
-        self, platform: DataPlatform, account: Optional[str], database: Optional[str]
+        self,
+        platform: DataPlatform,
+        account: Optional[str],
+        default_database: Optional[str] = None,
+        default_schema: Optional[str] = None,
     ):
+        schema = self.schema or default_schema
+        database = self.db or default_database
         return QueriedDataset(
-            database=self.db,
-            schema=self.schema,
+            database=database,
+            schema=schema,
             table=self.table,
             id=str(
                 to_dataset_entity_id(
-                    dataset_normalized_name(
-                        self.db or database, self.schema, self.table
-                    ),
+                    dataset_normalized_name(database, schema, self.table),
                     platform,
                     account,
                 )

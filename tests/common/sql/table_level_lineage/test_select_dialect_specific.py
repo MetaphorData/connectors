@@ -102,3 +102,20 @@ def test_select_from_unnest_with_ordinality(platform: DataPlatform):
     CROSS JOIN UNNEST(numbers) WITH ORDINALITY AS t (n, a);
     """
     assert_table_lineage_equal(sql, None, None, platform=platform)
+
+
+@pytest.mark.parametrize("platform", [DataPlatform.ORACLE])
+def test_oracle_select_statement(platform: DataPlatform):
+    assert_table_lineage_equal(
+        "/* **** 60 */\nwith ss as (\n select\n     i_item_id,sum(ss_ext_sales_price) total_sales\n from\n \tstore_sales,\n \tdate_dim,\n     customer_address,\n     item\n where\n     i_item_id in (select\n i_item_id\nfrom\n item\nwhere i_category in ('Children'))\n and   ss_item_sk       = i_item_sk\n and   ss_sold_date_sk     = d_date_sk\n and   d_year         = 2000\n and   d_moy          = 8\n and   ss_addr_sk       = ca_address_sk\n and   ca_gmt_offset      = -7\n group by i_item_id),\n cs as (\n select\n     i_item_id,sum(cs_ext_sales_price) total_sales\n from\n \tcatalog_sales,\n \tdate_dim,\n     customer_address,\n     item\n where\n     i_item_id        in (select\n i_item_id\nfrom\n item\nwhere i_category in ('Children'))\n and   cs_item_sk       = i_item_sk\n and   cs_sold_date_sk     = d_date_sk\n and   d_year         = 2000\n and   d_moy          = 8\n and   cs_bill_addr_sk     = ca_address_sk\n and   ca_gmt_offset      = -7\n group by i_item_id),\n ws as (\n select\n     i_item_id,sum(ws_ext_sales_price) total_sales\n from\n \tweb_sales,\n \tdate_dim,\n     customer_address,\n     item\n where\n     i_item_id        in (select\n i_item_id\nfrom\n item\nwhere i_category in ('Children'))\n and   ws_item_sk       = i_item_sk\n and   ws_sold_date_sk     = d_date_sk\n and   d_year         = 2000\n and   d_moy          = 8\n and   ws_bill_addr_sk     = ca_address_sk\n and   ca_gmt_offset      = -7\n group by i_item_id)\n select * from ( select\n i_item_id\n,sum(total_sales) total_sales\n from (select * from ss\n    union all\n    select * from cs\n    union all\n    select * from ws) tmp1\n group by i_item_id\n order by i_item_id\n   ,total_sales\n ) where rownum <= 100",
+        {
+            "catalog_sales",
+            "customer_address",
+            "date_dim",
+            "item",
+            "store_sales",
+            "web_sales",
+        },
+        set(),
+        platform=platform,
+    )

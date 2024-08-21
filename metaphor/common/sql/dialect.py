@@ -9,6 +9,7 @@ PLATFORM_TO_DIALECT = {
     DataPlatform.REDSHIFT: "redshift",
     DataPlatform.SNOWFLAKE: "snowflake",
     DataPlatform.UNITY_CATALOG: "databricks",
+    DataPlatform.ORACLE: "oracle",
 }
 """
 Mapping from data platforms supported by Metaphor to dialects recognized by SQLGlot.
