@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import ValidationError
 
 from metaphor.common.embeddings_config import (
@@ -13,7 +15,7 @@ def test_default_initialization():
     )
     assert config.azure_openai.key == "key"
     assert config.azure_openai.endpoint == "endpoint"
-    assert config.azure_openai.version == "2024-03-01-preview"
+    assert config.azure_openai.version == "2024-06-01"
     assert config.azure_openai.model == "text-embedding-3-small"
     assert config.azure_openai.deployment_name == "Embedding_3_small"
     assert config.openai is None
@@ -65,3 +67,14 @@ def test_handling_both_configs():
         _ = EmbeddingModelConfig(**user_configuration)
     except ValidationError:
         assert True  # expect this to fail with two configuration
+
+
+def test_azure_openai_config_version_as_datetime():
+    # Create a datetime object
+    version_datetime = datetime(2024, 6, 1)
+
+    # Initialize AzureOpenAIConfig with the datetime object
+    config = AzureOpenAIConfig(key="key", version=version_datetime)
+
+    # Assert that the version is correctly converted to a string
+    assert config.version == "2024-06-01"
