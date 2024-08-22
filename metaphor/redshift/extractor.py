@@ -3,10 +3,13 @@ import datetime
 from typing import Collection, Iterator, List, Set
 
 from metaphor.common.constants import BYTES_PER_MEGABYTES
-from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
+from metaphor.common.sql.table_level_lineage.table_level_lineage import (
+    extract_table_level_lineage,
+)
 from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
@@ -34,7 +37,11 @@ class RedshiftExtractor(PostgreSQLExtractor):
         super().__init__(config)
         self._tag_matchers = config.tag_matchers
         self._query_log_lookback_days = config.query_log.lookback_days
+
+        # Exclude metaphor user
         self._query_log_excluded_usernames = config.query_log.excluded_usernames
+        self._query_log_excluded_usernames.add(config.user)
+
         self._filter = exclude_system_databases(self._filter)
 
         self._logs: List[QueryLog] = []
@@ -138,44 +145,49 @@ class RedshiftExtractor(PostgreSQLExtractor):
             if query_log:
                 yield query_log
 
-    def _process_record(self, access_event: AccessEvent):
-        if not self._filter.include_table(
-            access_event.database, access_event.schema, access_event.table
-        ):
-            return
+    def _is_related_query_log(self, queried_datasets: List[QueriedDataset]) -> bool:
+        for dataset in queried_datasets:
+            table_name = dataset_normalized_name(
+                db=dataset.database, schema=dataset.schema, table=dataset.table
+            )
 
+            if table_name in self._datasets:
+                return True
+        return False
+
+    def _process_record(self, access_event: AccessEvent):
         if access_event.usename in self._query_log_excluded_usernames:
             return
 
-        sources = [self._convert_resource_to_queried_dataset(access_event)]
+        tll = extract_table_level_lineage(
+            sql=access_event.querytxt,
+            platform=DataPlatform.REDSHIFT,
+            account=None,
+            query_id=str(access_event.query_id),
+            default_database=access_event.database,
+        )
+
+        if not (
+            self._is_related_query_log(tll.sources)
+            or self._is_related_query_log(tll.targets)
+        ):
+            return
 
         query_log = QueryLog(
-            id=f"{DataPlatform.REDSHIFT.name}:{access_event.query}",
-            query_id=str(access_event.query),
+            id=f"{DataPlatform.REDSHIFT.name}:{access_event.query_id}",
+            query_id=str(access_event.query_id),
             platform=DataPlatform.REDSHIFT,
-            start_time=access_event.starttime,
+            start_time=access_event.start_time,
             duration=float(
-                (access_event.endtime - access_event.starttime).total_seconds()
+                (access_event.end_time - access_event.start_time).total_seconds()
             ),
             user_id=access_event.usename,
             rows_read=float(access_event.rows),
             bytes_read=float(access_event.bytes),
-            sources=sources,
+            sources=tll.sources,
+            targets=tll.targets,
             sql=access_event.querytxt,
             sql_hash=md5_digest(access_event.querytxt.encode("utf-8")),
         )
 
         return query_log
-
-    @staticmethod
-    def _convert_resource_to_queried_dataset(event: AccessEvent) -> QueriedDataset:
-        dataset_name = dataset_normalized_name(
-            event.database, event.schema, event.table
-        )
-        dataset_id = str(to_dataset_entity_id(dataset_name, DataPlatform.REDSHIFT))
-        return QueriedDataset(
-            id=dataset_id,
-            database=event.database,
-            schema=event.schema,
-            table=event.table,
-        )

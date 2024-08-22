@@ -47,34 +47,26 @@ def test_collect_query_logs(test_root_dir: str) -> None:
     # Random stuff generated with polyfactory
     access_events = [
         AccessEvent(
-            userid=7610,
-            query=7086,
+            user_id=7610,
+            query_id=7086,
             usename="aZUytYDMFTryuKyWtbEM",
-            tbl=9923,
             rows=7155,
             bytes=6500,
-            querytxt="UaEktANLgExavLlDcKmu",
+            querytxt="select * from schema1.table1",
             database="db1",
-            schema="schema1",
-            table="table1",
-            starttime=datetime.datetime(2010, 6, 26, 10, 7, 18, 14673),
-            endtime=datetime.datetime(1999, 10, 8, 12, 25, 39, 706365),
-            aborted=3583,
+            start_time=datetime.datetime(2010, 6, 26, 10, 7, 18, 14673),
+            end_time=datetime.datetime(1999, 10, 8, 12, 25, 39, 706365),
         ),
         AccessEvent(
-            userid=8902,
-            query=9910,
+            user_id=8902,
+            query_id=9910,
             usename="IevfvBUzEVUDrTbaIWKY",
-            tbl=8494,
             rows=4617,
             bytes=176,
-            querytxt="qUKVJPZNJEmeMNSgnVkF",
+            querytxt="select * from schema2.table2",
             database="db2",
-            schema="schema2",
-            table="table2",
-            starttime=datetime.datetime(2003, 10, 1, 10, 15, 51, 904151),
-            endtime=datetime.datetime(1996, 11, 14, 17, 6, 9, 676224),
-            aborted=5146,
+            start_time=datetime.datetime(2003, 10, 1, 10, 15, 51, 904151),
+            end_time=datetime.datetime(1996, 11, 14, 17, 6, 9, 676224),
         ),
     ]
 
@@ -103,6 +95,8 @@ def test_collect_query_logs(test_root_dir: str) -> None:
 
         extractor = RedshiftExtractor(dummy_config())
         extractor._included_databases = included_dbs
+        extractor._datasets["db1.schema1.table1"] = 1
+        extractor._datasets["db2.schema2.table2"] = 1
         query_logs = wrap_query_log_stream_to_event(extractor.collect_query_logs())
         expected = f"{test_root_dir}/redshift/query_logs.json"
         assert query_logs == load_json(expected)

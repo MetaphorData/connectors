@@ -12,11 +12,14 @@ Use the following command to grant the permission:
 # Create a new user called "metaphor"
 CREATE USER metaphor PASSWORD <password>;
 
-# Grant minimally required privleages to the user
+# Grant minimally required privileges to the user
 GRANT SELECT ON pg_catalog.svv_table_info TO metaphor;
 
-# Grant access to syslog "STL_SCAN" and "STL_QUERY"
+# Grant access to syslog "SYS_*"
 ALTER USER metaphor WITH SYSLOG ACCESS UNRESTRICTED;
+
+# Grant access to "PG_USER_INFO"
+GRANT SELECT ON pg_catalog.pg_user_info TO metaphor;
 ```
 
 > Note: If the Redshift cluster contains more than one database, you must grant the permission in all databases. Alternatively, you can limit the connector to a subset of databases using the [filter configuration](../common/docs/filter.md).

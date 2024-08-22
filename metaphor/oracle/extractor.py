@@ -198,7 +198,7 @@ class OracleExtractor(GenericDatabaseExtractor):
             schema = user.lower() if user else None
             database = self._database if self._database else None
 
-            ttl = extract_table_level_lineage(
+            tll = extract_table_level_lineage(
                 query,
                 platform=DataPlatform.ORACLE,
                 account=self._alternative_host or self._config.host,
@@ -221,9 +221,9 @@ class OracleExtractor(GenericDatabaseExtractor):
                     start_time=to_utc_time(start),
                     bytes_read=safe_float(read_bytes),
                     bytes_written=safe_float(write_bytes),
-                    sources=ttl.sources,
+                    sources=tll.sources,
                     rows_read=safe_float(row_count),
-                    targets=ttl.targets,
+                    targets=tll.targets,
                 )
             )
         return logs
