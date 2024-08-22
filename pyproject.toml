@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.14.83"
+version = "0.14.85"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -46,6 +46,7 @@ metaphor-models = "0.38.1"
 more-itertools = { version = "^10.1.0", optional = true }
 msal = { version = "^1.28.0", optional = true }
 msgraph-beta-sdk = { version = "~1.4.0", optional = true }
+nltk = { version = "^3.9.1", optional = true }
 oracledb = { version = "^2.3.0", optional = true }
 parse = { version = "^1.20.0", optional = true }
 pathvalidate = "^3.2.0"
@@ -101,6 +102,7 @@ all = [
   "more-itertools",
   "msal",
   "msgraph-beta-sdk",
+  "nltk",
   "oracledb",
   "parse",
   "pycarlo",
@@ -121,7 +123,7 @@ all = [
   "trino",
 ]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
-confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence"]
+confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "nltk"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
 dbt = ["httpx"]
@@ -129,19 +131,19 @@ hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["confluent-kafka", "avro", "grpcio-tools"]
 looker = ["GitPython", "lkml", "looker-sdk"]
 metabase = []
-monday = ["llama-index", "llama-index-embeddings-azure-openai"]
+monday = ["llama-index", "llama-index-embeddings-azure-openai", "nltk"]
 monte_carlo = ["pycarlo"]
 mssql = ["pymssql"]
 mysql = ["pymysql", "SQLAlchemy"]
-notion = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-notion"]
+notion = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-notion", "nltk"]
 oracle = ["oracledb", "SQLAlchemy"]
 postgresql = ["asyncpg"]
 power_bi = ["msal", "msgraph-beta-sdk"]
 redshift = ["asyncpg"]
 s3 = ["fastavro", "more-itertools", "parse"]
-sharepoint = ["azure-identity", "beautifulsoup4", "llama-index", "lxml", "msgraph-beta-sdk"]
+sharepoint = ["azure-identity", "beautifulsoup4", "llama-index", "lxml", "msgraph-beta-sdk", "nltk"]
 snowflake = ["snowflake-connector-python", "sqlglot"]
-static_web = ["beautifulsoup4", "llama-index", "llama-index-embeddings-azure-openai", "lxml"]
+static_web = ["beautifulsoup4", "llama-index", "llama-index-embeddings-azure-openai", "lxml", "nltk"]
 synapse = ["pymssql"]
 tableau = ["tableauserverclient", "sqllineage"]
 thought_spot = ["thoughtspot-rest-api-v1", "sqllineage"]
