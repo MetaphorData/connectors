@@ -8,12 +8,12 @@ REDSHIFT_USAGE_SQL_TEMPLATE = """
 WITH queries AS (
     SELECT
         *,
-        SUM(LEN(text)) OVER (PARTITION BY query) AS length
+        SUM(LEN(text)) OVER (PARTITION BY query_id) AS length
     FROM
-        stl_querytext
+        sys_query_text
 ), filtered AS (
     SELECT
-        q.query,
+        q.query_id,
         LISTAGG(
             CASE
                 WHEN LEN(RTRIM(q.text)) = 0 THEN q.text
@@ -26,31 +26,25 @@ WITH queries AS (
     WHERE
         q.length < 65536
     GROUP BY
-        q.query
+        q.query_id
 )
 SELECT DISTINCT
-    ss.userid,
-    ss.query,
-    sui.usename,
-    ss.rows,
-    ss.bytes,
-    ss.tbl,
+    sqh.user_id,
+    sqh.query_id,
+    pu.usename,
+    sqh.returned_rows AS rows,
+    sqh.returned_bytes AS bytes,
     q.querytxt,
-    sti.database,
-    sti.schema,
-    sti.table,
-    sq.starttime,
-    sq.endtime,
-    sq.aborted
-FROM stl_scan ss
-    JOIN svv_table_info sti ON ss.tbl = sti.table_id
-    JOIN stl_query sq ON ss.query = sq.query
-    JOIN filtered q ON ss.query = q.query
-    JOIN svl_user_info sui ON sq.userid = sui.usesysid
-WHERE ss.starttime >= '{start_time}'
-    AND ss.starttime < '{end_time}'
-    AND sq.aborted = 0
-ORDER BY ss.endtime DESC;
+    trim(sqh.database_name) AS database,
+    sqh.start_time,
+    sqh.end_time
+FROM sys_query_history sqh
+    JOIN filtered q ON sqh.query_id = q.query_id
+    JOIN pg_user_info pu ON sqh.user_id = pu.usesysid
+WHERE sqh.status = 'success'
+    AND sqh.start_time >= '{start_time}'
+    AND sqh.start_time < '{end_time}'
+ORDER BY sqh.end_time DESC;
 """
 """
 The condition `length < 65536` is because Redshift's LISTAGG method
@@ -61,19 +55,15 @@ See https://docs.aws.amazon.com/redshift/latest/dg/r_WF_LISTAGG.html#r_WF_LISTAG
 
 @dataclass(frozen=True)
 class AccessEvent:
-    userid: int
-    query: int
+    user_id: int
+    query_id: int
     usename: str
-    tbl: int
     rows: int
     bytes: int
     querytxt: str
     database: str
-    schema: str
-    table: str
-    starttime: datetime
-    endtime: datetime
-    aborted: int
+    end_time: datetime
+    start_time: datetime
 
     @staticmethod
     def from_record(record: Record) -> "AccessEvent":
@@ -87,15 +77,12 @@ class AccessEvent:
             if isinstance(v, str):
                 record[k] = v.strip()
 
-        record["starttime"] = record["starttime"].replace(tzinfo=timezone.utc)
-        record["endtime"] = record["endtime"].replace(tzinfo=timezone.utc)
+        record["start_time"] = record["start_time"].replace(tzinfo=timezone.utc)
+        record["end_time"] = record["end_time"].replace(tzinfo=timezone.utc)
 
         record["querytxt"] = record["querytxt"].replace("\\n", "\n")
 
         return AccessEvent(**record)
-
-    def table_name(self) -> str:
-        return f"{self.database}.{self.schema}.{self.table}"
 
     @staticmethod
     async def fetch_access_event(

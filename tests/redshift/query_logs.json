@@ -17,8 +17,9 @@
               "table": "table1"
             }
           ],
-          "sql": "UaEktANLgExavLlDcKmu",
-          "sqlHash": "b871153e9d0d386ce0355159f196f0ad",
+          "targets": [],
+          "sql": "select * from schema1.table1",
+          "sqlHash": "fbbd533367fe766d71a48425c5c48654",
           "startTime": "2010-06-26T10:07:18.014673",
           "userId": "aZUytYDMFTryuKyWtbEM"
         },
@@ -37,8 +38,9 @@
               "table": "table2"
             }
           ],
-          "sql": "qUKVJPZNJEmeMNSgnVkF",
-          "sqlHash": "2d1aea13de8a75a410b37c223246810f",
+          "targets": [],
+          "sql": "select * from schema2.table2",
+          "sqlHash": "9f98db863e022a1b0c8b0895c1d4dec1",
           "startTime": "2003-10-01T10:15:51.904151",
           "userId": "IevfvBUzEVUDrTbaIWKY"
         }
