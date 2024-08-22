@@ -3,7 +3,7 @@ import datetime
 from typing import Collection, Iterator, List, Set
 
 from metaphor.common.constants import BYTES_PER_MEGABYTES
-from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
+from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
@@ -191,16 +191,3 @@ class RedshiftExtractor(PostgreSQLExtractor):
         )
 
         return query_log
-
-    @staticmethod
-    def _convert_resource_to_queried_dataset(event: AccessEvent) -> QueriedDataset:
-        dataset_name = dataset_normalized_name(
-            event.database, event.schema, event.table
-        )
-        dataset_id = str(to_dataset_entity_id(dataset_name, DataPlatform.REDSHIFT))
-        return QueriedDataset(
-            id=dataset_id,
-            database=event.database,
-            schema=event.schema,
-            table=event.table,
-        )
