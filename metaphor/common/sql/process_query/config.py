@@ -11,20 +11,7 @@ class RedactPIILiteralsConfig:
     Config to control whether we want to redact literal values. Useful if you want to remove PII from your queries.
     """
 
-    where_clauses: bool = False
-    """
-    Whether to redact literal values in WHERE clauses. If set to `True`, all literal values will be redacted to a predefined string value.
-    """
-
-    case_clauses: bool = False
-    """
-    Whether to redact literal values in CASE clauses. If set to `True`, all literal values will be redacted to a predefined string value.
-    """
-
-    when_not_matched_insert_clauses: bool = False
-    """
-    Whether to redact literal values in WHEN NOT MATCHED INSERT clauses. If set to `True`, all literal values will be redacted to a predefined string value.
-    """
+    redact: bool = False
 
     placeholder_literal: str = "<REDACTED>"
 
@@ -50,8 +37,4 @@ class ProcessQueryConfig:
         """
         Whether we should run the processing method at all.
         """
-        return (
-            self.redact_literals.where_clauses
-            or self.redact_literals.when_not_matched_insert_clauses
-            or self.ignore_insert_values_into
-        )
+        return self.redact_literals.redact or self.ignore_insert_values_into

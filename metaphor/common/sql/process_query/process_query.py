@@ -1,7 +1,10 @@
+import typing as t
 from typing import Optional
 
 from sqlglot import Expression, exp, maybe_parse
+from sqlglot.dialects.dialect import Dialect
 from sqlglot.errors import SqlglotError
+from sqlglot.generator import Generator
 
 from metaphor.common.logger import get_logger
 from metaphor.common.sql.dialect import PLATFORM_TO_DIALECT
@@ -11,45 +14,6 @@ from metaphor.common.sql.process_query.preprocess import preprocess
 from metaphor.models.metadata_change_event import DataPlatform
 
 logger = get_logger()
-
-
-def _redact_literal(lit: exp.Literal, config: ProcessQueryConfig) -> None:
-    lit.args["this"] = config.redact_literals.placeholder_literal
-    lit.args["is_string"] = True
-
-
-def _redact_literal_values_in_where_clauses(
-    expression: Expression, config: ProcessQueryConfig
-) -> None:
-    for where in expression.find_all(exp.Where):
-        for lit in where.find_all(exp.Literal):
-            _redact_literal(lit, config)
-
-
-def _redact_literal_values_in_case_clauses(
-    expression: Expression, config: ProcessQueryConfig
-) -> None:
-    for case in expression.find_all(exp.Case):
-        for lit in case.find_all(exp.Literal):
-            _redact_literal(lit, config)
-
-
-def _redact_literal_values_in_when_not_matched_insert_clauses(
-    expression: Expression,
-    config: ProcessQueryConfig,
-) -> None:
-    for when in expression.find_all(exp.When):
-        if "matched" not in when.args or when.args["matched"]:
-            continue
-        if not isinstance(when.args.get("then"), exp.Insert):
-            continue
-
-        values = when.args["then"].expression
-        if not isinstance(values, exp.Tuple):
-            continue
-
-        for lit in values.find_all(exp.Literal):
-            _redact_literal(lit, config)
 
 
 def _is_insert_values_into(expression: Expression) -> bool:
@@ -111,13 +75,22 @@ def process_query(
     if config.ignore_insert_values_into and _is_insert_values_into(expression):
         return None
 
-    if config.redact_literals.where_clauses:
-        _redact_literal_values_in_where_clauses(expression, config)
+    if not config.redact_literals.redact:
+        return expression.sql(dialect=dialect)
 
-    if config.redact_literals.case_clauses:
-        _redact_literal_values_in_case_clauses(expression, config)
+    DialectClass: t.Type[Dialect]
+    if dialect is None:
+        DialectClass = Dialect
+    else:
+        DialectClass = Dialect[dialect]
+    GeneratorClass: t.Type[Generator] = DialectClass().generator().__class__
 
-    if config.redact_literals.when_not_matched_insert_clauses:
-        _redact_literal_values_in_when_not_matched_insert_clauses(expression, config)
+    # Mypy does not allow dynamic base classes, but that's the only way for us to do it
+    class LiteralsRedacted(DialectClass):  # type: ignore
+        class Generator(GeneratorClass):  # type: ignore
+            TRANSFORMS: t.Dict[t.Type[exp.Expression], t.Callable[..., str]] = {
+                **GeneratorClass.TRANSFORMS,
+                exp.Literal: lambda *_: f"'{config.redact_literals.placeholder_literal}'",
+            }
 
-    return expression.sql(dialect=dialect)
+    return expression.sql(dialect=LiteralsRedacted)
