@@ -1,0 +1,1 @@
+SELECT col FROM src WHERE col > '<REDACTED>' AND col < '<REDACTED>'

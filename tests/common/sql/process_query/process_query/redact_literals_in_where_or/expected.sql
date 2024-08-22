@@ -1,0 +1,1 @@
+SELECT p.FirstName, p.LastName, e.JobTitle FROM Person.Person AS p JOIN HumanResources.Employee AS e ON p.BusinessEntityID = e.BusinessEntityID WHERE e.JobTitle = '<REDACTED>' OR e.JobTitle = '<REDACTED>' OR e.JobTitle = '<REDACTED>'

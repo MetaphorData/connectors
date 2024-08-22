@@ -19,6 +19,7 @@ def _redact_literal_values_in_where_clauses(
     for where in expression.find_all(exp.Where):
         for lit in where.find_all(exp.Literal):
             lit.args["this"] = config.redact_literals.placeholder_literal
+            lit.args["is_string"] = True
 
 
 def _redact_literal_values_in_case_clauses(
@@ -27,6 +28,7 @@ def _redact_literal_values_in_case_clauses(
     for case in expression.find_all(exp.Case):
         for lit in case.find_all(exp.Literal):
             lit.args["this"] = config.redact_literals.placeholder_literal
+            lit.args["is_string"] = True
 
 
 def _redact_literal_values_in_when_not_matched_insert_clauses(
@@ -45,6 +47,7 @@ def _redact_literal_values_in_when_not_matched_insert_clauses(
 
         for lit in values.find_all(exp.Literal):
             lit.args["this"] = config.redact_literals.placeholder_literal
+            lit.args["is_string"] = True
 
 
 def _is_insert_values_into(expression: Expression) -> bool:
