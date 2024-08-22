@@ -1,0 +1,1 @@
+COPY INTO tgt (foo, bar) FROM (SELECT * FROM src)

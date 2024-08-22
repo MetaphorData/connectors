@@ -1,0 +1,1 @@
+SELECT col FROM src WHERE col > 12345 AND col < 99999
