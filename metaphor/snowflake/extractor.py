@@ -823,6 +823,7 @@ class SnowflakeExtractor(BaseExtractor):
                     query_text,
                     DataPlatform.SNOWFLAKE,
                     self._config.query_log.process_query,
+                    query_id,
                 )
 
                 if sql:

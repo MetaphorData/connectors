@@ -62,6 +62,7 @@ def process_query(
     sql: str,
     data_platform: DataPlatform,
     config: ProcessQueryConfig,
+    query_id: Optional[str] = None,
 ) -> Optional[str]:
     """
     Processes a crawled SQL query.
@@ -77,6 +78,9 @@ def process_query(
     config : ProcessQueryConfig
         Config for controlling what to do.
 
+    query_id : str
+        The ID of the SQL query.
+
     Returns
     -------
     The processed SQL query as a `str`, or `None` if the SQL query does not
@@ -90,11 +94,18 @@ def process_query(
 
     dialect = PLATFORM_TO_DIALECT.get(data_platform)
 
+    sqlglot_error_message = "Sqlglot failed to parse sql"
+    if query_id:
+        sqlglot_error_message += f", query id = {query_id}"
+
     try:
         updated = preprocess(sql, data_platform)
         expression: Expression = maybe_parse(updated, dialect=dialect)
-    except SqlglotError:
-        logger.warning(f"Failed to parse sql: {sql}")
+    except SqlglotError as e:
+        logger.warning(f"{sqlglot_error_message}: {e}")
+        return sql
+    except RecursionError:
+        logger.warning(f"{sqlglot_error_message}: maximum recursion depth exceeded")
         return sql
 
     if config.ignore_insert_values_into and _is_insert_values_into(expression):
