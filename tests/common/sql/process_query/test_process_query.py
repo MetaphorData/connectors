@@ -39,9 +39,9 @@ def test_process_query(name: str, platform: DataPlatform):
     processed = process_query(sql, platform, config)
     assert processed
     dialect = PLATFORM_TO_DIALECT.get(platform)
-    actual = sqlglot.maybe_parse(processed, dialect=dialect)
+    actual: sqlglot.Expression = sqlglot.maybe_parse(processed, dialect=dialect)
     with open(dir / "expected.sql") as f:
-        expected = sqlglot.maybe_parse(f.read(), dialect=dialect)
+        expected: sqlglot.Expression = sqlglot.maybe_parse(f.read(), dialect=dialect)
     assert actual.sql(dialect=dialect) == expected.sql(dialect=dialect)
 
 
