@@ -235,6 +235,8 @@ class Client(BaseClient):
                   dependsOn
                   name
                   uniqueId
+                  status
+                  executeCompletedAt
                 }
               }
             }

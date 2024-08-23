@@ -15,5 +15,6 @@ def test_exclude_system_databases():
             "padb_harvest": None,
             "temp": None,
             "awsdatacatalog": None,
+            "sys:internal": None,
         },
     )

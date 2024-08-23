@@ -29,7 +29,13 @@ class AppliedModelSortField(str, Enum):
 class FreshnessStatus(str, Enum):
     Error = "Error"
     Pass = "Pass"
+    Unknown = "Unknown"
     Warn = "Warn"
+
+
+class OwnerResourceType(str, Enum):
+    exposure = "exposure"
+    group = "group"
 
 
 class PackageResourceType(str, Enum):
