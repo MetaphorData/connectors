@@ -130,6 +130,8 @@ query GetJobRunTests($jobId: BigInt!, $runId: BigInt!) {
       dependsOn
       name
       uniqueId
+      status
+      executeCompletedAt
     }
   }
 }

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 from typing import Dict
 
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
@@ -39,6 +39,8 @@ def test_dbt_test_parser():
         compiledCode="compiledCode",
         compiledSql="compiledSql",
         columnName="column",
+        status="warn",
+        executeCompletedAt=datetime(2000, 1, 2, tzinfo=timezone.utc),
     )
 
     # No depends_on - nothing
@@ -66,7 +68,7 @@ def test_dbt_test_parser():
         runResults=[
             RunResult(
                 status="pass",
-                executeCompletedAt=datetime.datetime.now(),
+                executeCompletedAt=datetime.now(),
             ),
         ],
         alias=None,
