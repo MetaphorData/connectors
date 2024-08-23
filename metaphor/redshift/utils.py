@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from metaphor.common.filter import DatasetFilter
 
-IGNORED_DATABASES = ["padb_harvest", "temp", "awsdatacatalog"]
+IGNORED_DATABASES = ["padb_harvest", "temp", "awsdatacatalog", "sys:internal"]
 
 
 def exclude_system_databases(filter: DatasetFilter) -> DatasetFilter:
