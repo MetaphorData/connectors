@@ -1,12 +1,9 @@
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from metaphor.common.logger import get_logger
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
     GetJobRunModelsJobModels as Model,
-)
-from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
-    GetJobRunModelsJobModelsRunResults as RunResult,
 )
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_tests import (
     GetJobRunTestsJobTests as Test,
@@ -70,8 +67,6 @@ class TestParser:
         if model_unique_id not in models:
             return
 
-        model = models[model_unique_id]
-
         dbt_test = DbtTest(
             name=test.name,
             unique_id=test.unique_id,
@@ -84,19 +79,16 @@ class TestParser:
 
         init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
 
-        if model.run_results:
-            self._parse_test_run_result(
-                test, models[model_unique_id], model.run_results
-            )
+        self._parse_test_run_result(test, models[model_unique_id])
 
     @staticmethod
-    def _get_run_result_executed_completed_at(
-        run_result: RunResult,
+    def _parse_date_time_from_result(
+        field: Optional[Any],
     ) -> Optional[datetime]:
-        if isinstance(run_result.execute_completed_at, datetime):
-            return run_result.execute_completed_at
-        if isinstance(run_result.execute_completed_at, str):
-            completed_at = run_result.execute_completed_at
+        if isinstance(field, datetime):
+            return field
+        if isinstance(field, str):
+            completed_at = field
             if completed_at.endswith("Z"):
                 # Convert Zulu to +00:00
                 completed_at = f"{completed_at[:-1]}+00:00"
@@ -110,36 +102,13 @@ class TestParser:
         self,
         test: Test,
         model: Model,
-        run_results: List[RunResult],
     ) -> None:
         model_name = model.alias or model.name
         if model.database is None or model.schema_ is None or model_name is None:
             logger.warning(f"Skipping model without name, {model.unique_id}")
             return
 
-        if not test.name:
-            return
-
-        if not run_results:
-            logger.warning(f"Skipping test without run_results, {model.unique_id}")
-            return
-
-        def run_result_key(run_result: RunResult):
-            completed_at = self._get_run_result_executed_completed_at(run_result)
-            if not completed_at:
-                return 0
-            return completed_at.timestamp()
-
-        run_result = next(
-            (
-                n
-                for n in sorted(run_results, key=run_result_key, reverse=True)
-                if n.status
-            ),
-            None,
-        )
-        if run_result is None or run_result.status is None:
-            logger.warning(f"No valid run_result found: {run_results}")
+        if not test.name or test.status is None or test.execute_completed_at is None:
             return
 
         dataset = init_dataset(
@@ -152,6 +121,6 @@ class TestParser:
             model.unique_id,
         )
 
-        status = dbt_run_result_output_data_monitor_status_map[run_result.status]
-        last_run = self._get_run_result_executed_completed_at(run_result)
+        status = dbt_run_result_output_data_monitor_status_map[test.status]
+        last_run = self._parse_date_time_from_result(test.execute_completed_at)
         add_data_quality_monitor(dataset, test.name, test.column_name, status, last_run)

@@ -3,8 +3,8 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:41.238000+00:00",
-          "status": "PASSED",
+          "lastRun": "2024-08-23T04:01:32.701000+00:00",
+          "status": "WARNING",
           "targets": [
             {
               "column": "customer_type",
@@ -14,8 +14,8 @@
           "title": "accepted_values_customers_customer_type__new__returning"
         },
         {
-          "lastRun": "2024-07-24T04:01:41.238000+00:00",
-          "status": "PASSED",
+          "lastRun": "2024-08-23T04:01:33.200000+00:00",
+          "status": "ERROR",
           "targets": [
             {
               "column": "customer_id",
@@ -25,7 +25,7 @@
           "title": "not_null_customers_customer_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:41.238000+00:00",
+          "lastRun": "2024-08-23T04:01:33.370000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -48,7 +48,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:39.404000+00:00",
+          "lastRun": "2024-08-23T04:01:33.173000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -59,7 +59,7 @@
           "title": "not_null_orders_order_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:39.404000+00:00",
+          "lastRun": "2024-08-23T04:01:33.468000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -70,7 +70,7 @@
           "title": "relationships_orders_customer_id__customer_id__ref_stg_customers_"
         },
         {
-          "lastRun": "2024-07-24T04:01:39.404000+00:00",
+          "lastRun": "2024-08-23T04:01:33.470000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -93,7 +93,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:35.949000+00:00",
+          "lastRun": "2024-08-23T04:01:33.113000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -104,7 +104,7 @@
           "title": "not_null_stg_customers_customer_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:35.949000+00:00",
+          "lastRun": "2024-08-23T04:01:33.520000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -127,7 +127,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:35.994000+00:00",
+          "lastRun": "2024-08-23T04:01:32.864000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -138,7 +138,7 @@
           "title": "not_null_stg_locations_location_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:35.994000+00:00",
+          "lastRun": "2024-08-23T04:01:33.541000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -161,7 +161,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:35.953000+00:00",
+          "lastRun": "2024-08-23T04:01:33.006000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -172,7 +172,7 @@
           "title": "not_null_stg_order_items_order_item_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:35.953000+00:00",
+          "lastRun": "2024-08-23T04:01:33.659000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -195,7 +195,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:37.610000+00:00",
+          "lastRun": "2024-08-23T04:01:33.194000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -206,7 +206,7 @@
           "title": "not_null_stg_orders_order_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:37.610000+00:00",
+          "lastRun": "2024-08-23T04:01:33.663000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -229,7 +229,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:36.921000+00:00",
+          "lastRun": "2024-08-23T04:01:33.253000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -240,7 +240,7 @@
           "title": "not_null_stg_products_product_id"
         },
         {
-          "lastRun": "2024-07-24T04:01:36.921000+00:00",
+          "lastRun": "2024-08-23T04:01:33.681000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -263,7 +263,7 @@
     "dataQuality": {
       "monitors": [
         {
-          "lastRun": "2024-07-24T04:01:37.035000+00:00",
+          "lastRun": "2024-08-23T04:01:33.357000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -274,7 +274,7 @@
           "title": "not_null_stg_supplies_supply_uuid"
         },
         {
-          "lastRun": "2024-07-24T04:01:37.035000+00:00",
+          "lastRun": "2024-08-23T04:01:33.720000+00:00",
           "status": "PASSED",
           "targets": [
             {
@@ -377,7 +377,7 @@
             "macro.dbt.test_accepted_values"
           ],
           "name": "accepted_values_customers_customer_type__new__returning",
-          "sql": "\\n    \\n    \\n\\nwith all_values as (\\n\\n    select\\n        customer_type as value_field,\\n        count(*) as n_records\\n\\n    from acme.jaffle_shop.customers\\n    group by customer_type\\n\\n)\\n\\nselect *\\nfrom all_values\\nwhere value_field not in (\\n    'new','returning'\\n)\\n\\n\\n",
+          "sql": "\n    \n    \n\nwith all_values as (\n\n    select\n        customer_type as value_field,\n        count(*) as n_records\n\n    from acme.jaffle_shop.customers\n    group by customer_type\n\n)\n\nselect *\nfrom all_values\nwhere value_field not in (\n    'new','returning'\n)\n\n\n",
           "uniqueId": "test.jaffle_shop.accepted_values_customers_customer_type__new__returning.d12f0947c8"
         },
         {
@@ -389,7 +389,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_customers_customer_id",
-          "sql": "\\n    \\n    \\n\\n\\n\\nselect customer_id\\nfrom acme.jaffle_shop.customers\\nwhere customer_id is null\\n\\n\\n",
+          "sql": "\n    \n    \n\n\n\nselect customer_id\nfrom acme.jaffle_shop.customers\nwhere customer_id is null\n\n\n",
           "uniqueId": "test.jaffle_shop.not_null_customers_customer_id.5c9bf9911d"
         },
         {
@@ -401,7 +401,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_customers_customer_id",
-          "sql": "\\n    \\n    \\n\\nselect\\n    customer_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.customers\\nwhere customer_id is not null\\ngroup by customer_id\\nhaving count(*) > 1\\n\\n\\n",
+          "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_customers_customer_id.c5af1ff4b1"
         }
       ],
@@ -639,7 +639,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_orders_order_id",
-          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_id\\nfrom acme.jaffle_shop.orders\\nwhere order_id is null\\n\\n\\n",
+          "sql": "\n    \n    \n\n\n\nselect order_id\nfrom acme.jaffle_shop.orders\nwhere order_id is null\n\n\n",
           "uniqueId": "test.jaffle_shop.not_null_orders_order_id.cf6c17daed"
         },
         {
@@ -651,7 +651,7 @@
             "macro.dbt.test_relationships"
           ],
           "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
-          "sql": "\\n    \\n    \\n\\nwith child as (\\n    select customer_id as from_field\\n    from acme.jaffle_shop.orders\\n    where customer_id is not null\\n),\\n\\nparent as (\\n    select customer_id as to_field\\n    from acme.jaffle_shop.stg_customers\\n)\\n\\nselect\\n    from_field\\n\\nfrom child\\nleft join parent\\n    on child.from_field = parent.to_field\\n\\nwhere parent.to_field is null\\n\\n\\n",
+          "sql": "\n    \n    \n\nwith child as (\n    select customer_id as from_field\n    from acme.jaffle_shop.orders\n    where customer_id is not null\n),\n\nparent as (\n    select customer_id as to_field\n    from acme.jaffle_shop.stg_customers\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
           "uniqueId": "test.jaffle_shop.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16"
         },
         {
@@ -663,7 +663,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_orders_order_id",
-          "sql": "\\n    \\n    \\n\\nselect\\n    order_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.orders\\nwhere order_id is not null\\ngroup by order_id\\nhaving count(*) > 1\\n\\n\\n",
+          "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_orders_order_id.fed79b3a6e"
         }
       ],
@@ -724,7 +724,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_customers_customer_id",
-          "sql": "\\n    \\n    \\n\\n\\n\\nselect customer_id\\nfrom acme.jaffle_shop.stg_customers\\nwhere customer_id is null\\n\\n\\n",
+          "sql": "\n    \n    \n\n\n\nselect customer_id\nfrom acme.jaffle_shop.stg_customers\nwhere customer_id is null\n\n\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_customers_customer_id.e2cfb1f9aa"
         },
         {
@@ -736,7 +736,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_customers_customer_id",
-          "sql": "\\n    \\n    \\n\\nselect\\n    customer_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_customers\\nwhere customer_id is not null\\ngroup by customer_id\\nhaving count(*) > 1\\n\\n\\n",
+          "sql": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_customers\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_stg_customers_customer_id.c7614daada"
         }
       ],
@@ -801,7 +801,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_locations_location_id",
-          "sql": "\\n    \\n    \\n\\n\\n\\nselect location_id\\nfrom acme.jaffle_shop.stg_locations\\nwhere location_id is null\\n\\n\\n",
+          "sql": "\n    \n    \n\n\n\nselect location_id\nfrom acme.jaffle_shop.stg_locations\nwhere location_id is null\n\n\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_locations_location_id.3d237927d2"
         },
         {
@@ -813,7 +813,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_locations_location_id",
-          "sql": "\\n    \\n    \\n\\nselect\\n    location_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_locations\\nwhere location_id is not null\\ngroup by location_id\\nhaving count(*) > 1\\n\\n\\n",
+          "sql": "\n    \n    \n\nselect\n    location_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_locations\nwhere location_id is not null\ngroup by location_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_stg_locations_location_id.2e2fc58ecc"
         }
       ],
@@ -872,7 +872,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_order_items_order_item_id",
-          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_item_id\\nfrom acme.jaffle_shop.stg_order_items\\nwhere order_item_id is null\\n\\n\\n",
+          "sql": "\n    \n    \n\n\n\nselect order_item_id\nfrom acme.jaffle_shop.stg_order_items\nwhere order_item_id is null\n\n\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_order_items_order_item_id.26a7e2bc35"
         },
         {
@@ -884,7 +884,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_order_items_order_item_id",
-          "sql": "\\n    \\n    \\n\\nselect\\n    order_item_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_order_items\\nwhere order_item_id is not null\\ngroup by order_item_id\\nhaving count(*) > 1\\n\\n\\n",
+          "sql": "\n    \n    \n\nselect\n    order_item_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_order_items\nwhere order_item_id is not null\ngroup by order_item_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_stg_order_items_order_item_id.90e333a108"
         }
       ],
@@ -961,7 +961,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_orders_order_id",
-          "sql": "\\n    \\n    \\n\\n\\n\\nselect order_id\\nfrom acme.jaffle_shop.stg_orders\\nwhere order_id is null\\n\\n\\n",
+          "sql": "\n    \n    \n\n\n\nselect order_id\nfrom acme.jaffle_shop.stg_orders\nwhere order_id is null\n\n\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_orders_order_id.81cfe2fe64"
         },
         {
@@ -973,7 +973,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_orders_order_id",
-          "sql": "\\n    \\n    \\n\\nselect\\n    order_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_orders\\nwhere order_id is not null\\ngroup by order_id\\nhaving count(*) > 1\\n\\n\\n",
+          "sql": "\n    \n    \n\nselect\n    order_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_orders\nwhere order_id is not null\ngroup by order_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_stg_orders_order_id.e3b841c71a"
         }
       ],
@@ -1056,7 +1056,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_products_product_id",
-          "sql": "\\n    \\n    \\n\\n\\n\\nselect product_id\\nfrom acme.jaffle_shop.stg_products\\nwhere product_id is null\\n\\n\\n",
+          "sql": "\n    \n    \n\n\n\nselect product_id\nfrom acme.jaffle_shop.stg_products\nwhere product_id is null\n\n\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_products_product_id.6373b0acf3"
         },
         {
@@ -1068,7 +1068,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_products_product_id",
-          "sql": "\\n    \\n    \\n\\nselect\\n    product_id as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_products\\nwhere product_id is not null\\ngroup by product_id\\nhaving count(*) > 1\\n\\n\\n",
+          "sql": "\n    \n    \n\nselect\n    product_id as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_products\nwhere product_id is not null\ngroup by product_id\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_stg_products_product_id.7d950a1467"
         }
       ],
@@ -1145,7 +1145,7 @@
             "macro.dbt.test_not_null"
           ],
           "name": "not_null_stg_supplies_supply_uuid",
-          "sql": "\\n    \\n    \\n\\n\\n\\nselect supply_uuid\\nfrom acme.jaffle_shop.stg_supplies\\nwhere supply_uuid is null\\n\\n\\n",
+          "sql": "\n    \n    \n\n\n\nselect supply_uuid\nfrom acme.jaffle_shop.stg_supplies\nwhere supply_uuid is null\n\n\n",
           "uniqueId": "test.jaffle_shop.not_null_stg_supplies_supply_uuid.515c6eda6d"
         },
         {
@@ -1157,7 +1157,7 @@
             "macro.dbt.test_unique"
           ],
           "name": "unique_stg_supplies_supply_uuid",
-          "sql": "\\n    \\n    \\n\\nselect\\n    supply_uuid as unique_field,\\n    count(*) as n_records\\n\\nfrom acme.jaffle_shop.stg_supplies\\nwhere supply_uuid is not null\\ngroup by supply_uuid\\nhaving count(*) > 1\\n\\n\\n",
+          "sql": "\n    \n    \n\nselect\n    supply_uuid as unique_field,\n    count(*) as n_records\n\nfrom acme.jaffle_shop.stg_supplies\nwhere supply_uuid is not null\ngroup by supply_uuid\nhaving count(*) > 1\n\n\n",
           "uniqueId": "test.jaffle_shop.unique_stg_supplies_supply_uuid.c9e3edcfed"
         }
       ],

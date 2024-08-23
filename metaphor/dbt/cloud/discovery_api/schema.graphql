@@ -87,6 +87,9 @@ type AppliedState {
   """
   lastUpdatedAt: DateTime
 
+  """The git sha of the project when the applied state was last updated."""
+  latestGitSha: String
+
   """Project Lineage."""
   lineage(
     """Lineage Filter"""
@@ -122,6 +125,10 @@ type AppliedState {
     """Sort by"""
     sort: AppliedModelSort
   ): ModelAppliedStateNodeConnection!
+  owners(
+    """Filter by resource type"""
+    resource: OwnerResourceType!
+  ): [ExposureOwner!]!
 
   """List of packages used in the environment"""
   packages(
@@ -790,6 +797,9 @@ type ExposureDefinitionNode implements EnvironmentDefinitionNode {
   """The fully qualified name of this exposure"""
   fqn: [String!]!
 
+  """Freshness status of the source"""
+  freshnessStatus: FreshnessStatus
+
   """Exposure Label"""
   label: String
 
@@ -1000,6 +1010,15 @@ type ExposureNode implements CloudArtifactInterface & NodeInterface {
   url: String
 }
 
+"""The owners of exposure"""
+type ExposureOwner {
+  """The email of the owner"""
+  email: String!
+
+  """The name of the owner"""
+  name: String!
+}
+
 """Public model from another project"""
 type ExternalModelNode implements EnvironmentAppliedNestedNode & EnvironmentDefinitionNestedNode {
   """The account ID of this node"""
@@ -1054,6 +1073,7 @@ type ExternalModelNode implements EnvironmentAppliedNestedNode & EnvironmentDefi
 enum FreshnessStatus {
   Error
   Pass
+  Unknown
   Warn
 }
 
@@ -2848,6 +2868,12 @@ interface NodeInterface {
 
   """The unique ID of this node"""
   uniqueId: String!
+}
+
+"""The type of owner"""
+enum OwnerResourceType {
+  exposure
+  group
 }
 
 """The type of package resource"""
