@@ -9,7 +9,8 @@ You must run the connector using a user with `SELECT` [privilege](https://www.po
 You can use the following command against all schemas:
 
 ```sql
-GRANT SELECT ON ALL TABLES IN SCHEMA [Schema] TO [User]
+GRANT USAGE ON SCHEMA [Schema];
+GRANT SELECT ON ALL TABLES IN SCHEMA [Schema] TO [User];
 ```
 
 ## Config File
