@@ -38,7 +38,7 @@ class RedactPIILiteralsConfig:
     @classmethod
     def _warn_deprecated_fields(cls, value: bool, info: ValidationInfo) -> bool:
         if value:
-            logger.warning(f"Deprecated field set to True: {info.field_name}")
+            logger.warning(f"Deprecated config {info.field_name} will be removed in v0.15.")
         return False
 
 
