@@ -1,11 +1,10 @@
-from __future__ import annotations
 from dataclasses import field
 
-from pydantic import Field, ValidationInfo, field_validator, model_validator
+from pydantic import Field, ValidationInfo, field_validator
 from pydantic.dataclasses import dataclass
 
-from metaphor.common.logger import get_logger
 from metaphor.common.base_config import ConnectorConfig
+from metaphor.common.logger import get_logger
 
 logger = get_logger()
 

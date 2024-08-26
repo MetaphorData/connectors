@@ -12,5 +12,7 @@ def test_config():
     config = ProcessQueryConfig()
     assert not config.should_process
 
-    config = ProcessQueryConfig(redact_literals=RedactPIILiteralsConfig(where_clauses=True))
+    config = ProcessQueryConfig(
+        redact_literals=RedactPIILiteralsConfig(where_clauses=True)
+    )
     assert not config.should_process
