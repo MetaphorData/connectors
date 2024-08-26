@@ -14,5 +14,5 @@ process_query:
 
 If any of the following boolean values is set to true, crawler will process the incoming SQL queries:
 
-- `redact_literals.redact`
+- `redact_literals.enabled`
 - `ignore_insert_values_into`
