@@ -3,15 +3,16 @@ from metaphor.common.sql.process_query.config import RedactPIILiteralsConfig
 
 
 def test_config():
-    config = ProcessQueryConfig(
-        redact_literals=RedactPIILiteralsConfig(where_clauses=True)
-    )
+    config = ProcessQueryConfig(ignore_insert_values_into=True)
     assert config.should_process
 
-    config = ProcessQueryConfig(
-        redact_literals=RedactPIILiteralsConfig(when_not_matched_insert_clauses=True)
-    )
+    config = ProcessQueryConfig(redact_literals=RedactPIILiteralsConfig(enabled=True))
     assert config.should_process
 
     config = ProcessQueryConfig()
+    assert not config.should_process
+
+    config = ProcessQueryConfig(
+        redact_literals=RedactPIILiteralsConfig(where_clauses=True)
+    )
     assert not config.should_process

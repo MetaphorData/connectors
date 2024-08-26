@@ -1,8 +1,12 @@
 from dataclasses import field
 
+from pydantic import Field, ValidationInfo, field_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import ConnectorConfig
+from metaphor.common.logger import get_logger
+
+logger = get_logger()
 
 
 @dataclass(config=ConnectorConfig)
@@ -11,22 +15,33 @@ class RedactPIILiteralsConfig:
     Config to control whether we want to redact literal values. Useful if you want to remove PII from your queries.
     """
 
-    where_clauses: bool = False
+    where_clauses: bool = Field(default=False)
     """
-    Whether to redact literal values in WHERE clauses. If set to `True`, all literal values will be redacted to a predefined string value.
-    """
-
-    case_clauses: bool = False
-    """
-    Whether to redact literal values in CASE clauses. If set to `True`, all literal values will be redacted to a predefined string value.
+    Deprecated.
     """
 
-    when_not_matched_insert_clauses: bool = False
+    case_clauses: bool = Field(default=False)
     """
-    Whether to redact literal values in WHEN NOT MATCHED INSERT clauses. If set to `True`, all literal values will be redacted to a predefined string value.
+    Deprecated.
     """
+
+    when_not_matched_insert_clauses: bool = Field(default=False)
+    """
+    Deprecated.
+    """
+
+    enabled: bool = False
 
     placeholder_literal: str = "<REDACTED>"
+
+    @field_validator("where_clauses", "case_clauses", "when_not_matched_insert_clauses")
+    @classmethod
+    def _warn_deprecated_fields(cls, value: bool, info: ValidationInfo) -> bool:
+        if value:
+            logger.warning(
+                f"Deprecated config {info.field_name} will be removed in v0.15."
+            )
+        return False
 
 
 @dataclass(config=ConnectorConfig)
@@ -50,8 +65,4 @@ class ProcessQueryConfig:
         """
         Whether we should run the processing method at all.
         """
-        return (
-            self.redact_literals.where_clauses
-            or self.redact_literals.when_not_matched_insert_clauses
-            or self.ignore_insert_values_into
-        )
+        return self.redact_literals.enabled or self.ignore_insert_values_into
