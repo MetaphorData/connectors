@@ -30,7 +30,7 @@ class RedactPIILiteralsConfig:
     Deprecated.
     """
 
-    redact: bool = False
+    enabled: bool = False
 
     placeholder_literal: str = "<REDACTED>"
 
@@ -38,7 +38,9 @@ class RedactPIILiteralsConfig:
     @classmethod
     def _warn_deprecated_fields(cls, value: bool, info: ValidationInfo) -> bool:
         if value:
-            logger.warning(f"Deprecated config {info.field_name} will be removed in v0.15.")
+            logger.warning(
+                f"Deprecated config {info.field_name} will be removed in v0.15."
+            )
         return False
 
 
@@ -63,4 +65,4 @@ class ProcessQueryConfig:
         """
         Whether we should run the processing method at all.
         """
-        return self.redact_literals.redact or self.ignore_insert_values_into
+        return self.redact_literals.enabled or self.ignore_insert_values_into

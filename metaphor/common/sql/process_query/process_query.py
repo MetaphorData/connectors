@@ -75,7 +75,7 @@ def process_query(
     if config.ignore_insert_values_into and _is_insert_values_into(expression):
         return None
 
-    if not config.redact_literals.redact:
+    if not config.redact_literals.enabled:
         return expression.sql(dialect=dialect)
 
     DialectClass: t.Type[Dialect]

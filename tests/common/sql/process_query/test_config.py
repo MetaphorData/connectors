@@ -6,7 +6,7 @@ def test_config():
     config = ProcessQueryConfig(ignore_insert_values_into=True)
     assert config.should_process
 
-    config = ProcessQueryConfig(redact_literals=RedactPIILiteralsConfig(redact=True))
+    config = ProcessQueryConfig(redact_literals=RedactPIILiteralsConfig(enabled=True))
     assert config.should_process
 
     config = ProcessQueryConfig()

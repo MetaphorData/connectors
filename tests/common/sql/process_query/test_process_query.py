@@ -13,7 +13,7 @@ from metaphor.models.metadata_change_event import DataPlatform
 
 config = ProcessQueryConfig(
     redact_literals=RedactPIILiteralsConfig(
-        redact=True,
+        enabled=True,
     ),
     ignore_insert_values_into=True,
 )

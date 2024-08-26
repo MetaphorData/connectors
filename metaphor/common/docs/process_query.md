@@ -5,7 +5,7 @@ Controls whether the crawler should process the SQL queries before storing the M
 ```yaml
 process_query:
   redact_literals:
-    redact: <true | false> # Whether to redact the literal values. Default it `false`.
+    enabled: <true | false> # Whether to redact the literal values. Default is `false`.
 
     placeholder_literal: <placeholder literal>  # The redacted values will be replaced by this placeholder string. Default is '<REDACTED>'.
 
