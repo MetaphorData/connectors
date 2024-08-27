@@ -434,7 +434,7 @@ def test_fetch_hierarchy_system_tags(mock_connect: MagicMock):
 
     extractor._fetch_tags(mock_cursor)
 
-    assert dataset.system_tags and dataset.system_tags.tags is not None
+    assert dataset.system_tags is None
     assert extractor._hierarchies.get(dataset_normalized_name(table_name)) is not None
     db_hierarchy = extractor._hierarchies[dataset_normalized_name(table_name)]
     assert db_hierarchy.logical_id == HierarchyLogicalID(

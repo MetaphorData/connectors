@@ -16,6 +16,7 @@ from metaphor.models.metadata_change_event import (
     SnowflakeStreamSourceType,
     SnowflakeStreamType,
     SystemTag,
+    SystemTags,
 )
 
 logger = logging.getLogger(__name__)
@@ -239,11 +240,13 @@ def _update_field_system_tag(field: SchemaField, system_tag: SystemTag) -> None:
 
 
 def append_dataset_system_tag(dataset: Dataset, system_tag: SystemTag) -> None:
-    assert (
-        dataset.schema is not None
-        and dataset.system_tags
-        and dataset.system_tags.tags is not None
-    )
+    assert dataset.schema is not None
+
+    if dataset.system_tags is None:
+        dataset.system_tags = SystemTags()
+    if dataset.system_tags.tags is None:
+        dataset.system_tags.tags = []
+
     # Always override exisiting tag, since we process database tags first, then schema tags and
     # then finally table tags
     other_tags = [t for t in dataset.system_tags.tags if t.key != system_tag.key]
