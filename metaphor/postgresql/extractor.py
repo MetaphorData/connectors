@@ -420,17 +420,23 @@ class PostgreSQLExtractor(BaseExtractor):
     ) -> Tuple[Optional[float], Optional[float]]:
         precision, max_length = None, None
 
-        excluded_types = (
-            "timestamp",
-            "timestamp with time zone",
-            "timestamp without time zone",
-            "boolean",
-            "date",
-            "text",
+        known_types = (
+            "time without time zone",
+            "time with time zone",
+            "interval",
+            "uuid",
+            "json",
+            "jsonb",
+            "xml",
+            "bytea",
+            "ARRAY",
+            "USER-DEFINED",
+            "point",
+            "inet",
+            "macaddr",
+            "tsquery",
+            "tsvector",
         )
-
-        if native_type in excluded_types:
-            return precision, max_length
 
         if native_type == "integer" or native_type == "int":
             precision = 32.0
@@ -448,7 +454,9 @@ class PostgreSQLExtractor(BaseExtractor):
             precision = PostgreSQLExtractor._parse_precision(type_str)
         elif native_type == "character varying" or native_type == "character":
             max_length = PostgreSQLExtractor._parse_max_length(type_str)
-        else:
-            logger.warning(f"Not supported native type: {native_type}")
+        elif native_type not in known_types:
+            logger.debug(
+                f"Not parsing precision and length for unknown type: {native_type}"
+            )
 
         return precision, max_length
