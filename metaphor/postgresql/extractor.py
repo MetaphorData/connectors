@@ -1,6 +1,8 @@
-from typing import Callable, Collection, Dict, List, Optional, Tuple
+import re
+from typing import Collection, Dict, List, Optional, Tuple
 
 from metaphor.common.fieldpath import build_schema_field
+from metaphor.common.utils import safe_float
 
 try:
     import asyncpg
@@ -396,31 +398,20 @@ class PostgreSQLExtractor(BaseExtractor):
             schema.foreign_key.append(foreign_key)
 
     @staticmethod
-    def _safe_parse(
-        type_str: str, parse: Callable[[str], str], name: str
-    ) -> Optional[float]:
-        try:
-            field = parse(type_str)
-            return float(field)
-        except IndexError:
-            logger.warning(f"Failed to parse {name} from {type_str}.")
-        except ValueError:
-            logger.warning(f"Failed to convert '{type_str}' to float")
+    def _parse_precision(type_str: str) -> Optional[float]:
+        pattern = re.compile(r"\((\d+)(\,\d+)*\)")
+        match = pattern.search(type_str)
+        if match and len(match.groups()) >= 1:
+            return safe_float(match.group(1))
         return None
 
     @staticmethod
-    def _parse_precision(type_str: str) -> Optional[float]:
-        def extract(type_str: str) -> str:
-            return type_str.split("(")[1].split(",")[0]
-
-        return PostgreSQLExtractor._safe_parse(type_str, extract, "precision")
-
-    @staticmethod
     def _parse_max_length(type_str: str) -> Optional[float]:
-        def extract(type_str: str) -> str:
-            return type_str.split("(")[1].strip(")")
-
-        return PostgreSQLExtractor._safe_parse(type_str, extract, "max_length")
+        pattern = re.compile(r"\((\d+)\)")
+        match = pattern.search(type_str)
+        if match and len(match.groups()) == 1:
+            return safe_float(match.group(1))
+        return None
 
     @staticmethod
     def _parse_format_type(
