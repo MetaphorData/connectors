@@ -11,8 +11,10 @@ def test_parse_precision():
     assert PostgreSQLExtractor._parse_precision("foo") is None
     assert PostgreSQLExtractor._parse_precision("foo(a,10)") is None
     assert PostgreSQLExtractor._parse_precision("foo(,10)") is None
-    assert PostgreSQLExtractor._parse_precision("foo(10,b)") == 10
-    assert PostgreSQLExtractor._parse_precision("foo(10,)") == 10
+    assert PostgreSQLExtractor._parse_precision("foo(10,b)") is None
+    assert PostgreSQLExtractor._parse_precision("foo(10,)") is None
+    assert PostgreSQLExtractor._parse_precision("foo(10,3)") == 10
+    assert PostgreSQLExtractor._parse_precision("foo(10)") == 10
 
 
 def test_parse_format_type():
