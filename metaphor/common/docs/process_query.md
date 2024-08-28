@@ -11,7 +11,7 @@ process_query:
 
   ignore_insert_values_into: <true | false>  # Ignore `INSERT INTO ... VALUES` expressions. These expressions don't have any lineage information, and are often very large in size. Default is `false`.
 
-  skip_unparsable_queries: <true | false>  # If this is set to `True`, when Sqlglot fails to parse a query we skip it from the collected MCE. Default is `false`, meaning we pass through any query we are unable to parse.
+  skip_unparsable_queries: <true | false>  # If this is set to `true`, when Sqlglot fails to parse a query we skip it from the collected MCE. Default is `false`, meaning we pass through any query we are unable to parse.
 ```
 
 If any of the following boolean values is set to true, crawler will process the incoming SQL queries:
