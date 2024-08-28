@@ -57,3 +57,33 @@ VALUES
         config,
     )
     assert processed is None
+
+
+def test_skip_unparseable_queries():
+    sql = """
+    SELECT
+        { fn convert("D", SQL_DATE) } as DATE
+    FROM
+        db.sch.tab
+    """
+
+    # This skips the unparseable query
+    processed = process_query(
+        sql,
+        DataPlatform.SNOWFLAKE,
+        ProcessQueryConfig(
+            redact_literals=RedactPIILiteralsConfig(
+                enabled=True,
+            ),
+            skip_unparsable_queries=True,
+        ),
+    )
+    assert processed is None
+
+    # This passes through
+    processed = process_query(
+        sql,
+        DataPlatform.SNOWFLAKE,
+        config,
+    )
+    assert processed == sql

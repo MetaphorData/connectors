@@ -60,6 +60,11 @@ class ProcessQueryConfig:
     lineage information, and are often very large in size.
     """
 
+    skip_unparsable_queries: bool = False
+    """
+    If this is set to `True`, when Sqlglot fails to parse a query we skip it from the collected MCE.
+    """
+
     @property
     def should_process(self) -> bool:
         """
