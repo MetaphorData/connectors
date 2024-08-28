@@ -67,10 +67,10 @@ def process_query(
         expression: Expression = maybe_parse(updated, dialect=dialect)
     except SqlglotError as e:
         logger.debug(f"{sqlglot_error_message}: {e}")
-        return sql
+        return None if config.skip_unparsable_queries else sql
     except RecursionError:
         logger.debug(f"{sqlglot_error_message}: maximum recursion depth exceeded")
-        return sql
+        return None if config.skip_unparsable_queries else sql
 
     if config.ignore_insert_values_into and _is_insert_values_into(expression):
         return None
