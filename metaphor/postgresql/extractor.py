@@ -1,11 +1,16 @@
 import re
-from typing import Collection, Dict, List, Optional, Tuple
+from datetime import datetime, timezone
+from typing import Collection, Dict, Iterator, List, Optional, Tuple
 
 from metaphor.common.fieldpath import build_schema_field
-from metaphor.common.utils import safe_float
+from metaphor.common.sql.table_level_lineage.table_level_lineage import (
+    extract_table_level_lineage,
+)
+from metaphor.common.utils import md5_digest, safe_float, start_of_day
 
 try:
     import asyncpg
+    import boto3
 except ImportError:
     print("Please install metaphor[postgresql] extra\n")
     raise
@@ -24,11 +29,13 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     ForeignKey,
     MaterializationType,
+    QueryLog,
     SchemaField,
     SchemaType,
     SQLSchema,
 )
 from metaphor.postgresql.config import PostgreSQLRunConfig
+from metaphor.postgresql.log_parser import ParsedLog, parse_postgres_log
 
 logger = get_logger()
 
@@ -61,6 +68,8 @@ class PostgreSQLExtractor(BaseExtractor):
         self._filter = config.filter.normalize()
         self._port = config.port
 
+        self._query_log_config = config.query_log
+
         self._datasets: Dict[str, Dataset] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -82,6 +91,19 @@ class PostgreSQLExtractor(BaseExtractor):
                 await conn.close()
 
         return self._datasets.values()
+
+    def collect_query_logs(self) -> Iterator[QueryLog]:
+        if (
+            self._query_log_config.aws
+            and self._query_log_config.lookback_days > 0
+            and self._query_log_config.logs_group is not None
+        ):
+            return self._collect_query_logs_from_cloud_watch(
+                client=self._query_log_config.aws.get_session().client("logs"),
+                lookback_days=self._query_log_config.lookback_days,
+                logs_group=self._query_log_config.logs_group,
+            )
+        yield from []
 
     async def _connect_database(self, database: str) -> asyncpg.Connection:
         logger.info(f"Connecting to DB {database}")
@@ -360,6 +382,117 @@ class PostgreSQLExtractor(BaseExtractor):
 
         return dataset
 
+    def _process_cloud_watch_log(
+        self, log: str, previous_line_cache: Dict[str, ParsedLog]
+    ) -> Optional[QueryLog]:
+        """
+        SQL statement and duration are in two consecutive record, example:
+
+        2024...:root@database:[session]:LOG:  statement: SELECT ......
+        2024...:root@database:[session]:LOG:  duration: 0.5 ms
+        """
+
+        parsed = parse_postgres_log(log)
+
+        # Skip log without user and database, and log_level of SQL statement is "LOG"
+        if (
+            parsed is None
+            or not parsed.user
+            or not parsed.database
+            or parsed.log_level != "LOG"
+            or parsed.user in self._query_log_config.excluded_usernames
+        ):
+            return None
+
+        previous_line = previous_line_cache.get(parsed.session)
+        previous_line_cache[parsed.session] = parsed
+
+        # The second line must be: duration: <number> ms
+        # Skip log that don't have previous line or invalid log
+        if (
+            not parsed.log_body[0].lstrip().startswith("duration")
+            or not previous_line
+            or len(previous_line.log_body) < 2
+        ):
+            return None
+
+        message_type = previous_line.log_body[0].lstrip()
+
+        # Only `statement` (simple query), and `execute` (extended query) we should care about
+        if not message_type.startswith("statement") or message_type.startswith(
+            "execute"
+        ):
+            return None
+
+        # Extract sql from the previous line
+        sql = ":".join(previous_line.log_body[1:]).lstrip()
+
+        # Extract duration from the current line
+        duration = self._extract_duration(parsed.log_body[1])
+
+        tll = extract_table_level_lineage(
+            sql=sql,
+            platform=DataPlatform.POSTGRESQL,
+            account=None,
+            default_database=parsed.database,
+        )
+
+        # Skip SQL statement that is not related to any table
+        if not tll.sources and not tll.targets:
+            return None
+
+        sql_hash = md5_digest(sql.encode("utf-8"))
+
+        return QueryLog(
+            id=f"{DataPlatform.POSTGRESQL.name}:{sql_hash}",
+            query_id=sql_hash,
+            platform=DataPlatform.POSTGRESQL,
+            default_database=parsed.database,
+            user_id=parsed.user,
+            sql=sql,
+            sql_hash=sql_hash,
+            duration=duration,
+            start_time=previous_line.log_time,
+            sources=tll.sources,
+            targets=tll.targets,
+        )
+
+    def _collect_query_logs_from_cloud_watch(
+        self, client: boto3.client, lookback_days: int, logs_group: str
+    ) -> Iterator[QueryLog]:
+
+        logger.info(f"Collecting query log from cloud watch for {lookback_days} days")
+
+        # Start time in milliseconds since epoch
+        start_timestamp_ms = int(start_of_day(lookback_days).timestamp() * 1000)
+        # End time in milliseconds since epoch
+        end_timestamp_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
+
+        next_token = None
+        previous_line_cache: Dict[str, ParsedLog] = {}
+
+        while True:
+            params = {
+                "logGroupName": logs_group,
+                "startTime": start_timestamp_ms,
+                "endTime": end_timestamp_ms,
+            }
+            if next_token:
+                params["nextToken"] = next_token
+            response = client.filter_log_events(**params)
+
+            next_token = response["nextToken"] if "nextToken" in response else None
+
+            for event in response["events"]:
+                message = event["message"]
+
+                query_log = self._process_cloud_watch_log(message, previous_line_cache)
+                if query_log:
+                    yield query_log
+
+            if next_token is None:
+                break
+
     @staticmethod
     def _build_field(column) -> SchemaField:
         native_type = column["data_type"]
@@ -460,3 +593,9 @@ class PostgreSQLExtractor(BaseExtractor):
             )
 
         return precision, max_length
+
+    @staticmethod
+    def _extract_duration(log_part: str) -> Optional[float]:
+        if log_part.endswith("ms"):
+            return float(log_part[:-2])
+        return None

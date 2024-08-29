@@ -41,6 +41,30 @@ By default, the connector will connect using the default PostgreSQL port 5432. Y
 port: <port_number>
 ```
 
+### Query Log Extraction Configurations
+
+The connector support extract query log history from CloudWatch for RDS postgres.
+
+```yaml
+query_log:
+  aws:
+    access_key_id: <aws_access_key_id>
+    secret_access_key: <aws_secret_access_key>
+    region_name: <aws_region_name>
+    assume_role_arn: <aws_role_arn>  # If using IAM role
+    session_token: <aws_session_token>  # If using session token
+    profile_name: <aws_profile_name>  # If using AWS profile
+  logs_group: <aws_cloud_watch_logs_group>
+
+  # (Optional) Number of days of query logs to fetch. Default to 1. If 0, the no query logs will be fetched.
+  lookback_days: <days>
+    
+  # (Optional) A list of users whose queries will be excluded from the log fetching.
+  excluded_usernames:
+    - <user_name1>
+    - <user_name2>
+```
+
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
 #### Output Destination
