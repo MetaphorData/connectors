@@ -27,4 +27,4 @@ class RedshiftRunConfig(PostgreSQLRunConfig):
     # configs for fetching query logs
     query_log: RedshiftQueryLogConfig = field(
         default_factory=lambda: RedshiftQueryLogConfig()
-    )
+    ) # type: ignore

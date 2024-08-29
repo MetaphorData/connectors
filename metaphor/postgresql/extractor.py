@@ -98,12 +98,11 @@ class PostgreSQLExtractor(BaseExtractor):
             and self._query_log_config.lookback_days > 0
             and self._query_log_config.logs_group is not None
         ):
-            return self._collect_query_logs_from_cloud_watch(
+            yield from self._collect_query_logs_from_cloud_watch(
                 client=self._query_log_config.aws.get_session().client("logs"),
                 lookback_days=self._query_log_config.lookback_days,
                 logs_group=self._query_log_config.logs_group,
             )
-        yield from []
 
     async def _connect_database(self, database: str) -> asyncpg.Connection:
         logger.info(f"Connecting to DB {database}")
