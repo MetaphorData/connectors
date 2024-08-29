@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, QueryLog
+from metaphor.postgresql.config import PostgreSQLQueryLogConfig
 from metaphor.postgresql.extractor import PostgreSQLExtractor, PostgreSQLRunConfig
 
 
@@ -53,7 +54,13 @@ def test_extract_duration():
 
 def dummy_config(**args):
     return PostgreSQLRunConfig(
-        host="", database="", user="", password="", output=OutputConfig(), **args
+        host="",
+        database="",
+        user="",
+        password="",
+        output=OutputConfig(),
+        **args,
+        query_log=PostgreSQLQueryLogConfig(excluded_usernames={"foo"})
     )
 
 
@@ -68,6 +75,7 @@ def test_process_cloud_watch_log():
         )
         is None
     )
+
     assert (
         extractor._process_cloud_watch_log(
             "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;",
@@ -109,4 +117,49 @@ def test_process_cloud_watch_log():
         targets=[],
         type=None,
         user_id="metaphor",
+    )
+
+    assert (
+        extractor._process_cloud_watch_log(
+            "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: CREATE USER abc PASSWORD 'asjdkasjd';",
+            cache,
+        )
+        is None
+    )
+    assert (
+        extractor._process_cloud_watch_log(
+            "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
+            cache,
+        )
+        is None
+    )
+
+    assert (
+        extractor._process_cloud_watch_log(
+            "2024-08-29 09:25:50 UTC:10.1.1.134(48507):foo@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;",
+            cache,
+        )
+        is None
+    )
+    assert (
+        extractor._process_cloud_watch_log(
+            "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
+            cache,
+        )
+        is None
+    )
+
+    assert (
+        extractor._process_cloud_watch_log(
+            "2024-08-29 09:25:50 UTC:10.1.1.134(48507):foo@metaphor:[615]:LOG: bind: SELECT x, y from schema.table;",
+            cache,
+        )
+        is None
+    )
+    assert (
+        extractor._process_cloud_watch_log(
+            "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
+            cache,
+        )
+        is None
     )
