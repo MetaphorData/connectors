@@ -43,7 +43,7 @@ port: <port_number>
 
 ### Query Log Extraction Configurations
 
-The connector support extract query log history from CloudWatch for RDS postgres. Please follow the [documentation](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_LogAccess.Concepts.PostgreSQL.Query_Logging.html) to configure RDS to log SQL statement to CloudWatch.
+The connector supports extracting query log history from CloudWatch for RDS PostgreSQL. Please follow [this documentation](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_LogAccess.Concepts.PostgreSQL.Query_Logging.html) to configure RDS to log SQL statements to CloudWatch.
 
 ```yaml
 query_log:
