@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
+
+import pytest
+from freezegun import freeze_time
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, QueryLog
@@ -65,6 +68,40 @@ def dummy_config(**args):
     )
 
 
+gold = QueryLog(
+    id="POSTGRESQL:330833d44bea62c26a5d6dd206eecdf4",
+    account=None,
+    bytes_read=None,
+    bytes_written=None,
+    cost=None,
+    default_database="metaphor",
+    default_schema=None,
+    duration=55.66,
+    email=None,
+    metadata=None,
+    parsing=None,
+    platform=DataPlatform.POSTGRESQL,
+    query_id="330833d44bea62c26a5d6dd206eecdf4",
+    rows_read=None,
+    rows_written=None,
+    sources=[
+        QueriedDataset(
+            columns=None,
+            database="metaphor",
+            id="DATASET~F68D8D6F1F49DA4605F13F20FD3CA883",
+            schema="schema",
+            table="table",
+        )
+    ],
+    sql="SELECT x, y from schema.table;",
+    sql_hash="330833d44bea62c26a5d6dd206eecdf4",
+    start_time=datetime(2024, 8, 29, 9, 25, 50, tzinfo=timezone.utc),
+    targets=[],
+    type=None,
+    user_id="metaphor",
+)
+
+
 def test_process_cloud_watch_log():
     extractor = PostgreSQLExtractor(dummy_config())
 
@@ -87,40 +124,12 @@ def test_process_cloud_watch_log():
         )
         is None
     )
-    assert extractor._process_cloud_watch_log(
-        "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
-        cache,
-    ) == QueryLog(
-        id="POSTGRESQL:330833d44bea62c26a5d6dd206eecdf4",
-        account=None,
-        bytes_read=None,
-        bytes_written=None,
-        cost=None,
-        default_database="metaphor",
-        default_schema=None,
-        duration=55.66,
-        email=None,
-        metadata=None,
-        parsing=None,
-        platform=DataPlatform.POSTGRESQL,
-        query_id="330833d44bea62c26a5d6dd206eecdf4",
-        rows_read=None,
-        rows_written=None,
-        sources=[
-            QueriedDataset(
-                columns=None,
-                database="metaphor",
-                id="DATASET~F68D8D6F1F49DA4605F13F20FD3CA883",
-                schema="schema",
-                table="table",
-            )
-        ],
-        sql="SELECT x, y from schema.table;",
-        sql_hash="330833d44bea62c26a5d6dd206eecdf4",
-        start_time=datetime(2024, 8, 29, 9, 25, 50, tzinfo=timezone.utc),
-        targets=[],
-        type=None,
-        user_id="metaphor",
+    assert (
+        extractor._process_cloud_watch_log(
+            "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
+            cache,
+        )
+        == gold
     )
 
     # SQL don't have source and targets
@@ -172,12 +181,44 @@ def test_process_cloud_watch_log():
     )
 
 
+@freeze_time("2000-01-01")
 def test_collect_query_logs_from_cloud_watch():
     extractor = PostgreSQLExtractor(dummy_config())
 
     mocked_client = MagicMock()
-    mocked_client.filter_log_events.return_value = []
+    mocked_client.filter_log_events.side_effect = [
+        {"nextToken": "token", "events": [{"message": ""}]},
+        {
+            "events": [
+                {
+                    "message": "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;",
+                },
+                {
+                    "message": "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
+                },
+            ]
+        },
+    ]
 
-    extractor._collect_query_logs_from_cloud_watch(
+    iterator = extractor._collect_query_logs_from_cloud_watch(
         mocked_client, lookback_days=1, logs_group="123"
+    )
+    assert next(iterator) == gold
+
+    with pytest.raises(StopIteration):
+        next(iterator)
+    mocked_client.filter_log_events.assert_has_calls(
+        [
+            call(
+                logGroupName="123",
+                startTime=946598400000,
+                endTime=946684800000,
+            ),
+            call(
+                logGroupName="123",
+                startTime=946598400000,
+                endTime=946684800000,
+                nextToken="token",
+            ),
+        ]
     )
