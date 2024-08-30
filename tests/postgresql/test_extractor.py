@@ -180,6 +180,15 @@ def test_process_cloud_watch_log():
         is None
     )
 
+    # Skip log that is not start with date time
+    assert (
+        extractor._process_cloud_watch_log(
+            "(1,2,3),(4,5,6)",
+            cache,
+        )
+        is None
+    )
+
 
 @freeze_time("2000-01-01")
 def test_collect_query_logs_from_cloud_watch():
