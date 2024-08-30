@@ -1,11 +1,11 @@
 from dataclasses import field
-from typing import List, Set
+from typing import List
 
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.tag_matcher import TagMatcher
-from metaphor.postgresql.config import BasePostgreSQLRunConfig, QueryLogConfig
+from metaphor.postgresql.config import BasePostgreSQLRunConfig
 
 
 @dataclass(config=ConnectorConfig)
