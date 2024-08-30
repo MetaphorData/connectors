@@ -11,6 +11,8 @@ def parse_environment(environment: GetEnvironmentAdapterTypeEnvironment):
     adapter_type = adapter_type.upper()
     if adapter_type == "DATABRICKS":
         platform = DataPlatform.UNITY_CATALOG
+    elif adapter_type == "POSTGRES":
+        platform = DataPlatform.POSTGRESQL
     else:
         assert (
             adapter_type in DataPlatform.__members__
