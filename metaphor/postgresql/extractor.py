@@ -51,6 +51,8 @@ _ignored_schemas = [
     "catalog_history",
 ]
 
+LOG_PREFIX_REGEX = re.compile(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}")
+
 
 class BasePostgreSQLExtractor(BaseExtractor):
     _description = "PostgreSQL metadata crawler"
@@ -421,6 +423,15 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         2024...:root@database:[session]:LOG:  statement: SELECT ......
         2024...:root@database:[session]:LOG:  duration: 0.5 ms
         """
+
+        if not LOG_PREFIX_REGEX.match(log):
+            """
+            insert into can split into 3 consecutive log
+            2024...:root@database:[session]:LOG:  statement: INSERT INTO ......
+                                                             (a, b, c)
+            2024...:root@database:[session]:LOG:  duration: 0.5 ms
+            """
+            return None
 
         parsed = parse_postgres_log(log)
 
