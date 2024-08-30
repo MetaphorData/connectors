@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, call
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
 from freezegun import freeze_time
@@ -64,7 +64,7 @@ def dummy_config(**args):
         password="",
         output=OutputConfig(),
         **args,
-        query_log=PostgreSQLQueryLogConfig(excluded_usernames={"foo"})
+        query_log=PostgreSQLQueryLogConfig(excluded_usernames={"foo"}),
     )
 
 
@@ -222,3 +222,15 @@ def test_collect_query_logs_from_cloud_watch():
             ),
         ]
     )
+
+
+@patch(
+    "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
+    new_callable=AsyncMock,
+)
+@pytest.mark.asyncio
+async def test_extractor(mocked_fetch_databases):
+    mocked_fetch_databases.return_value = []
+    extractor = PostgreSQLExtractor(dummy_config())
+    events = [e for e in await extractor.extract()]
+    assert events == []
