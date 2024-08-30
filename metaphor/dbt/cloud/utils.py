@@ -6,6 +6,7 @@ from metaphor.models.metadata_change_event import DataPlatform
 ADAPTER_TYPE_MAPPING = {
     "DATABRICKS": DataPlatform.UNITY_CATALOG,
     "POSTGRES": DataPlatform.POSTGRESQL,
+    "SNOWFLAKE": DataPlatform.SNOWFLAKE,
 }
 
 
