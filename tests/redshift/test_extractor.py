@@ -24,7 +24,7 @@ def dummy_config(**args):
 
 
 @patch(
-    "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
+    "metaphor.postgresql.extractor.BasePostgreSQLExtractor._fetch_databases",
     new_callable=AsyncMock,
 )
 @pytest.mark.asyncio
@@ -86,7 +86,7 @@ def test_collect_query_logs(test_root_dir: str) -> None:
     included_dbs = {ae.database for ae in access_events}
 
     with patch(
-        "metaphor.postgresql.extractor.PostgreSQLExtractor._connect_database"
+        "metaphor.postgresql.extractor.BasePostgreSQLExtractor._connect_database"
     ) as mock_connect_database, patch(
         "metaphor.redshift.access_event.AccessEvent.fetch_access_event"
     ) as mock_fetch_access_event:

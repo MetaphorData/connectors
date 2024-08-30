@@ -1,6 +1,7 @@
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
-from metaphor.redshift.config import QueryLogConfig, RedshiftRunConfig
+from metaphor.postgresql.config import QueryLogConfig
+from metaphor.redshift.config import RedshiftRunConfig
 
 
 def test_yaml_config(test_root_dir):

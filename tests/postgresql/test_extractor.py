@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from unittest.mock import MagicMock
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, QueryLog
@@ -168,4 +169,15 @@ def test_process_cloud_watch_log():
             cache,
         )
         is None
+    )
+
+
+def test_collect_query_logs_from_cloud_watch():
+    extractor = PostgreSQLExtractor(dummy_config())
+
+    mocked_client = MagicMock()
+    mocked_client.filter_log_events.return_value = []
+
+    extractor._collect_query_logs_from_cloud_watch(
+        mocked_client, lookback_days=1, logs_group="123"
     )

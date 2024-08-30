@@ -34,7 +34,11 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SQLSchema,
 )
-from metaphor.postgresql.config import PostgreSQLQueryLogConfig, PostgreSQLRunConfig
+from metaphor.postgresql.config import (
+    BasePostgreSQLRunConfig,
+    PostgreSQLQueryLogConfig,
+    PostgreSQLRunConfig,
+)
 from metaphor.postgresql.log_parser import ParsedLog, parse_postgres_log
 
 logger = get_logger()
@@ -48,18 +52,12 @@ _ignored_schemas = [
 ]
 
 
-class PostgreSQLExtractor(BaseExtractor):
-    """PostgreSQL metadata extractor"""
-
+class BasePostgreSQLExtractor(BaseExtractor):
     _description = "PostgreSQL metadata crawler"
     _platform = Platform.POSTGRESQL
     _dataset_platform = DataPlatform.POSTGRESQL
 
-    @staticmethod
-    def from_config_file(config_file: str) -> "PostgreSQLExtractor":
-        return PostgreSQLExtractor(PostgreSQLRunConfig.from_yaml_file(config_file))
-
-    def __init__(self, config: PostgreSQLRunConfig):
+    def __init__(self, config: BasePostgreSQLRunConfig):
         super().__init__(config)
         self._host = config.host
         self._database = config.database
@@ -71,39 +69,6 @@ class PostgreSQLExtractor(BaseExtractor):
         self._query_log_config = config.query_log
 
         self._datasets: Dict[str, Dataset] = {}
-
-    async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info(f"Fetching metadata from postgreSQL host {self._host}")
-
-        databases = (
-            await self._fetch_databases()
-            if self._filter.includes is None
-            else list(self._filter.includes.keys())
-        )
-
-        for db in databases:
-            conn = await self._connect_database(db)
-            try:
-                await self._fetch_tables(conn, db)
-                await self._fetch_columns(conn, db)
-                await self._fetch_constraints(conn, db)
-            finally:
-                await conn.close()
-
-        return self._datasets.values()
-
-    def collect_query_logs(self) -> Iterator[QueryLog]:
-        if (
-            isinstance(self._query_log_config, PostgreSQLQueryLogConfig)
-            and self._query_log_config.aws
-            and self._query_log_config.lookback_days > 0
-            and self._query_log_config.logs_group is not None
-        ):
-            yield from self._collect_query_logs_from_cloud_watch(
-                client=self._query_log_config.aws.get_session().client("logs"),
-                lookback_days=self._query_log_config.lookback_days,
-                logs_group=self._query_log_config.logs_group,
-            )
 
     async def _connect_database(self, database: str) -> asyncpg.Connection:
         logger.info(f"Connecting to DB {database}")
@@ -382,6 +347,71 @@ class PostgreSQLExtractor(BaseExtractor):
 
         return dataset
 
+    @staticmethod
+    def _build_constraint(constraint: Dict, schema: SQLSchema) -> None:
+        if constraint["constraint_type"] == "PRIMARY KEY":
+            schema.primary_key = constraint["key_columns"].split(",")
+        elif constraint["constraint_type"] == "FOREIGN KEY":
+            foreign_key = ForeignKey()
+            foreign_key.field_path = constraint["key_columns"]
+            foreign_key.parent = DatasetLogicalID()
+            foreign_key.parent.name = dataset_normalized_name(
+                constraint["constraint_db"],
+                constraint["constraint_schema"],
+                constraint["constraint_table"],
+            )
+            foreign_key.parent.platform = DataPlatform.POSTGRESQL
+            foreign_key.parent_field = constraint["constraint_columns"]
+
+            if not schema.foreign_key:
+                schema.foreign_key = []
+            schema.foreign_key.append(foreign_key)
+
+
+class PostgreSQLExtractor(BasePostgreSQLExtractor):
+    """PostgreSQL metadata extractor"""
+
+    _description = "PostgreSQL metadata crawler"
+    _platform = Platform.POSTGRESQL
+    _dataset_platform = DataPlatform.POSTGRESQL
+
+    @staticmethod
+    def from_config_file(config_file: str) -> "PostgreSQLExtractor":
+        return PostgreSQLExtractor(PostgreSQLRunConfig.from_yaml_file(config_file))
+
+    async def extract(self) -> Collection[ENTITY_TYPES]:
+        logger.info(f"Fetching metadata from postgreSQL host {self._host}")
+
+        databases = (
+            await self._fetch_databases()
+            if self._filter.includes is None
+            else list(self._filter.includes.keys())
+        )
+
+        for db in databases:
+            conn = await self._connect_database(db)
+            try:
+                await self._fetch_tables(conn, db)
+                await self._fetch_columns(conn, db)
+                await self._fetch_constraints(conn, db)
+            finally:
+                await conn.close()
+
+        return self._datasets.values()
+
+    def collect_query_logs(self) -> Iterator[QueryLog]:
+        if (
+            isinstance(self._query_log_config, PostgreSQLQueryLogConfig)
+            and self._query_log_config.aws
+            and self._query_log_config.lookback_days > 0
+            and self._query_log_config.logs_group is not None
+        ):
+            yield from self._collect_query_logs_from_cloud_watch(
+                client=self._query_log_config.aws.get_session().client("logs"),
+                lookback_days=self._query_log_config.lookback_days,
+                logs_group=self._query_log_config.logs_group,
+            )
+
     def _process_cloud_watch_log(
         self, log: str, previous_line_cache: Dict[str, ParsedLog]
     ) -> Optional[QueryLog]:
@@ -509,26 +539,6 @@ class PostgreSQLExtractor(BaseExtractor):
         field.max_length = max_length
         field.precision = precision
         return field
-
-    @staticmethod
-    def _build_constraint(constraint: Dict, schema: SQLSchema) -> None:
-        if constraint["constraint_type"] == "PRIMARY KEY":
-            schema.primary_key = constraint["key_columns"].split(",")
-        elif constraint["constraint_type"] == "FOREIGN KEY":
-            foreign_key = ForeignKey()
-            foreign_key.field_path = constraint["key_columns"]
-            foreign_key.parent = DatasetLogicalID()
-            foreign_key.parent.name = dataset_normalized_name(
-                constraint["constraint_db"],
-                constraint["constraint_schema"],
-                constraint["constraint_table"],
-            )
-            foreign_key.parent.platform = DataPlatform.POSTGRESQL
-            foreign_key.parent_field = constraint["constraint_columns"]
-
-            if not schema.foreign_key:
-                schema.foreign_key = []
-            schema.foreign_key.append(foreign_key)
 
     @staticmethod
     def _parse_precision(type_str: str) -> Optional[float]:
