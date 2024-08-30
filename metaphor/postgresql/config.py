@@ -10,20 +10,16 @@ from metaphor.common.filter import DatasetFilter
 
 
 @dataclass(config=ConnectorConfig)
-class PostgreSQLQueryLogConfig:
+class QueryLogConfig:
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 1
 
     # Query log filter to exclude certain usernames
     excluded_usernames: Set[str] = field(default_factory=lambda: set())
 
-    aws: Optional[AwsCredentials] = None
-
-    logs_group: Optional[str] = None
-
 
 @dataclass(config=ConnectorConfig)
-class PostgreSQLRunConfig(BaseConfig):
+class BasePostgreSQLRunConfig(BaseConfig):
     host: str
     database: str
     user: str
@@ -33,8 +29,20 @@ class PostgreSQLRunConfig(BaseConfig):
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
 
     # configs for fetching query logs
+    query_log: QueryLogConfig = field(default_factory=lambda: QueryLogConfig())
+
+    port: int = 5432
+
+
+@dataclass(config=ConnectorConfig)
+class PostgreSQLQueryLogConfig(QueryLogConfig):
+    aws: Optional[AwsCredentials] = None
+    logs_group: Optional[str] = None
+
+
+@dataclass(config=ConnectorConfig)
+class PostgreSQLRunConfig(BasePostgreSQLRunConfig):
+    # configs for fetching query logs
     query_log: PostgreSQLQueryLogConfig = field(
         default_factory=lambda: PostgreSQLQueryLogConfig()
     )
-
-    port: int = 5432

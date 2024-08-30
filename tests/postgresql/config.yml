@@ -14,4 +14,16 @@ filter:
   excludes:
     db3:
 port: 1234
+query_log:
+  aws:
+    access_key_id: access_id
+    secret_access_key: secret
+    region_name: us-west-2
+    assume_role_arn: arn:aws:iam::12312837197:role/MetaphorRole
+  logs_group: /aws/rds/instance/postgres/postgresql
+  lookback_days: 1
+  excluded_usernames:
+    - foo
+    - bar
+
 output: {}

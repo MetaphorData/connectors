@@ -1,9 +1,9 @@
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.dataclass import ConnectorConfig
-from metaphor.redshift.config import PostgreSQLRunConfig
+from metaphor.postgresql.config import BasePostgreSQLRunConfig
 
 
 @dataclass(config=ConnectorConfig)
-class PostgreSQLUsageRunConfig(PostgreSQLRunConfig):
+class PostgreSQLUsageRunConfig(BasePostgreSQLRunConfig):
     pass

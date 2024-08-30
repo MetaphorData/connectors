@@ -1,6 +1,6 @@
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
-from metaphor.redshift.config import RedshiftRunConfig
+from metaphor.redshift.config import QueryLogConfig, RedshiftRunConfig
 
 
 def test_yaml_config(test_root_dir):
@@ -28,5 +28,9 @@ def test_yaml_config(test_root_dir):
             excludes={"db3": None},
         ),
         port=1234,
+        query_log=QueryLogConfig(
+            lookback_days=1,
+            excluded_usernames={"metaphor"},
+        ),
         output=OutputConfig(),
     )

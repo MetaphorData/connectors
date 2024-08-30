@@ -34,7 +34,7 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
     SQLSchema,
 )
-from metaphor.postgresql.config import PostgreSQLRunConfig
+from metaphor.postgresql.config import PostgreSQLQueryLogConfig, PostgreSQLRunConfig
 from metaphor.postgresql.log_parser import ParsedLog, parse_postgres_log
 
 logger = get_logger()
@@ -94,7 +94,8 @@ class PostgreSQLExtractor(BaseExtractor):
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
         if (
-            self._query_log_config.aws
+            isinstance(self._query_log_config, PostgreSQLQueryLogConfig)
+            and self._query_log_config.aws
             and self._query_log_config.lookback_days > 0
             and self._query_log_config.logs_group is not None
         ):

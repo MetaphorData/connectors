@@ -68,6 +68,8 @@ def test_process_cloud_watch_log():
     extractor = PostgreSQLExtractor(dummy_config())
 
     cache = {}
+
+    # No previous log
     assert (
         extractor._process_cloud_watch_log(
             "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 0.858 ms",
@@ -76,6 +78,7 @@ def test_process_cloud_watch_log():
         is None
     )
 
+    # Valid Statement
     assert (
         extractor._process_cloud_watch_log(
             "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;",
@@ -119,6 +122,7 @@ def test_process_cloud_watch_log():
         user_id="metaphor",
     )
 
+    # SQL don't have source and targets
     assert (
         extractor._process_cloud_watch_log(
             "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: CREATE USER abc PASSWORD 'asjdkasjd';",
@@ -134,6 +138,7 @@ def test_process_cloud_watch_log():
         is None
     )
 
+    # Skip queries in excluded_user
     assert (
         extractor._process_cloud_watch_log(
             "2024-08-29 09:25:50 UTC:10.1.1.134(48507):foo@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;",
@@ -149,6 +154,7 @@ def test_process_cloud_watch_log():
         is None
     )
 
+    # Skip log that is not `statement` or `execute`
     assert (
         extractor._process_cloud_watch_log(
             "2024-08-29 09:25:50 UTC:10.1.1.134(48507):foo@metaphor:[615]:LOG: bind: SELECT x, y from schema.table;",
