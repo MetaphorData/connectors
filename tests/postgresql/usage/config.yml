@@ -14,7 +14,4 @@ filter:
   excludes:
     db3:
 port: 1234
-query_log:
-  lookback_days: 1
-  excluded_usernames: [metaphor]
 output: {}

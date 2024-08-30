@@ -1,13 +1,14 @@
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.filter import DatasetFilter
-from metaphor.postgresql.config import QueryLogConfig
-from metaphor.redshift.config import RedshiftRunConfig
+from metaphor.postgresql.usage.config import PostgreSQLUsageRunConfig
 
 
 def test_yaml_config(test_root_dir):
-    config = RedshiftRunConfig.from_yaml_file(f"{test_root_dir}/redshift/config.yml")
+    config = PostgreSQLUsageRunConfig.from_yaml_file(
+        f"{test_root_dir}/postgresql/usage/config.yml"
+    )
 
-    assert config == RedshiftRunConfig(
+    assert config == PostgreSQLUsageRunConfig(
         host="host",
         database="database",
         user="user",
@@ -29,9 +30,5 @@ def test_yaml_config(test_root_dir):
             excludes={"db3": None},
         ),
         port=1234,
-        query_log=QueryLogConfig(
-            lookback_days=1,
-            excluded_usernames={"metaphor"},
-        ),
         output=OutputConfig(),
     )

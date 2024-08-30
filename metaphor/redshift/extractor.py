@@ -14,7 +14,7 @@ from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import md5_digest, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, QueryLog
-from metaphor.postgresql.extractor import PostgreSQLExtractor
+from metaphor.postgresql.extractor import BasePostgreSQLExtractor
 from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.config import RedshiftRunConfig
 from metaphor.redshift.utils import exclude_system_databases
@@ -22,7 +22,7 @@ from metaphor.redshift.utils import exclude_system_databases
 logger = get_logger()
 
 
-class RedshiftExtractor(PostgreSQLExtractor):
+class RedshiftExtractor(BasePostgreSQLExtractor):
     """Redshift metadata extractor"""
 
     _description = "Redshift metadata crawler"
