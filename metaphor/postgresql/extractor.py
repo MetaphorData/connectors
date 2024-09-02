@@ -2,13 +2,6 @@ import re
 from datetime import datetime, timezone
 from typing import Collection, Dict, Iterator, List, Optional, Tuple
 
-from metaphor.common.fieldpath import build_schema_field
-from metaphor.common.sql.process_query.process_query import process_query
-from metaphor.common.sql.table_level_lineage.table_level_lineage import (
-    extract_table_level_lineage,
-)
-from metaphor.common.utils import md5_digest, safe_float, start_of_day
-
 try:
     import asyncpg
     import boto3
@@ -19,8 +12,15 @@ except ImportError:
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
+from metaphor.common.sql.process_query.process_query import process_query
+from metaphor.common.sql.table_level_lineage.table_level_lineage import (
+    extract_table_level_lineage,
+)
+from metaphor.common.sql.utils import is_valid_queried_datasets
+from metaphor.common.utils import md5_digest, safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -481,6 +481,12 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
 
         # Skip SQL statement that is not related to any table
         if not tll.sources and not tll.targets:
+            return None
+
+        # Skip if parsed sources or targets has invalid data.
+        if not is_valid_queried_datasets(tll.sources) or not is_valid_queried_datasets(
+            tll.targets
+        ):
             return None
 
         sql_hash = md5_digest(query.encode("utf-8"))
