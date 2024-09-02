@@ -7,6 +7,7 @@ from metaphor.common.aws import AwsCredentials
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.sql.process_query.config import ProcessQueryConfig
 
 
 @dataclass(config=ConnectorConfig)
@@ -16,6 +17,11 @@ class QueryLogConfig:
 
     # Query log filter to exclude certain usernames
     excluded_usernames: Set[str] = field(default_factory=lambda: set())
+
+    # Config to control query processing
+    process_query: ProcessQueryConfig = field(
+        default_factory=lambda: ProcessQueryConfig()
+    )
 
 
 @dataclass(config=ConnectorConfig)

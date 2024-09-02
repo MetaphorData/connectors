@@ -8,6 +8,7 @@ from pytest_snapshot.plugin import Snapshot
 
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import EventUtil
+from metaphor.common.sql.process_query.config import ProcessQueryConfig
 from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
@@ -113,6 +114,7 @@ GROUP BY
                     ),
                 ),
             },
+            ProcessQueryConfig(),
         )
     )
     for log in logs:

@@ -11,6 +11,8 @@ from databricks.sql.types import Row
 
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
+from metaphor.common.sql.process_query.config import ProcessQueryConfig
+from metaphor.common.sql.process_query.process_query import process_query
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
@@ -367,6 +369,7 @@ def to_query_log_with_tll(
     row: Row,
     service_principals: Dict[str, ServicePrincipal],
     datasets: Dict[str, Dataset],
+    process_query_config: ProcessQueryConfig,
 ):
     query_id = row["query_id"]
 
@@ -401,23 +404,29 @@ def to_query_log_with_tll(
         if found:
             targets.append(found)
 
-    return QueryLog(
-        id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
-        query_id=query_id,
-        platform=DataPlatform.UNITY_CATALOG,
-        email=email,
-        user_id=user_id,
-        start_time=row["start_time"],
-        duration=safe_float(row["duration"]),
-        rows_read=safe_float(row["rows_read"]),
-        rows_written=safe_float(row["rows_written"]),
-        bytes_read=safe_float(row["bytes_read"]),
-        bytes_written=safe_float(row["bytes_written"]),
-        sources=sources,
-        targets=targets,
-        sql=sql,
-        sql_hash=md5_digest(sql.encode("utf-8")),
-    )
+    if process_query_config.should_process:
+        sql = process_query(
+            sql, DataPlatform.UNITY_CATALOG, process_query_config, query_id
+        )
+
+    if sql:
+        return QueryLog(
+            id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
+            query_id=query_id,
+            platform=DataPlatform.UNITY_CATALOG,
+            email=email,
+            user_id=user_id,
+            start_time=row["start_time"],
+            duration=safe_float(row["duration"]),
+            rows_read=safe_float(row["rows_read"]),
+            rows_written=safe_float(row["rows_written"]),
+            bytes_read=safe_float(row["bytes_read"]),
+            bytes_written=safe_float(row["bytes_written"]),
+            sources=sources,
+            targets=targets,
+            sql=sql,
+            sql_hash=md5_digest(sql.encode("utf-8")),
+        )
 
 
 def get_query_logs(
@@ -426,6 +435,7 @@ def get_query_logs(
     excluded_usernames: Set[str],
     service_principals: Dict[str, ServicePrincipal],
     datasets: Dict[str, Dataset],
+    process_query_config: ProcessQueryConfig,
 ):
     rows = list_query_logs(
         connection,
@@ -436,8 +446,11 @@ def get_query_logs(
     count = 0
     logger.info(f"{len(rows)} queries to fetch")
     for row in rows:
-        res = to_query_log_with_tll(row, service_principals, datasets)
-        count += 1
-        if count % 1000 == 0:
-            logger.info(f"Fetched {count} queries")
-        yield res
+        res = to_query_log_with_tll(
+            row, service_principals, datasets, process_query_config
+        )
+        if res is not None:
+            count += 1
+            if count % 1000 == 0:
+                logger.info(f"Fetched {count} queries")
+            yield res

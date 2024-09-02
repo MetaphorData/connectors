@@ -6,6 +6,7 @@ from pydantic.dataclasses import dataclass
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.sql.process_query.config import ProcessQueryConfig
 
 
 @dataclass(config=ConnectorConfig)
@@ -18,6 +19,11 @@ class UnityCatalogQueryLogConfig:
 
     # Deprecated: Not used. Will be dropped in 0.15
     max_results: Optional[int] = 1000
+
+    # Config to control query processing
+    process_query: ProcessQueryConfig = field(
+        default_factory=lambda: ProcessQueryConfig()
+    )
 
 
 @dataclass(config=ConnectorConfig)

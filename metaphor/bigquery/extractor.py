@@ -14,6 +14,8 @@ from typing import (
     Union,
 )
 
+from metaphor.common.sql.process_query.process_query import process_query
+
 try:
     import google.cloud.bigquery as bigquery
 except ImportError:
@@ -359,7 +361,7 @@ class BigQueryExtractor(BaseExtractor):
         if job_change.default_dataset and job_change.default_dataset.count(".") == 1:
             default_database, default_schema = job_change.default_dataset.split(".")
 
-        query: Optional[str] = job_change.query
+        query = job_change.query
         # if query SQL is truncated, fetch full SQL from job API
         if (
             job_change.job_type == "QUERY"
@@ -378,35 +380,47 @@ class BigQueryExtractor(BaseExtractor):
         # https://cloud.google.com/compute/docs/access/service-accounts
         is_service_account = job_change.user_email.endswith(".gserviceaccount.com")
 
-        return QueryLog(
-            id=f"{DataPlatform.BIGQUERY.name}:{job_change.job_name}",
-            query_id=job_change.job_name,
-            platform=DataPlatform.BIGQUERY,
-            start_time=job_change.start_time,
-            duration=safe_float(elapsed_time),
-            user_id=job_change.user_email if is_service_account else None,
-            email=job_change.user_email if not is_service_account else None,
-            rows_written=(
-                float(job_change.output_rows) if job_change.output_rows else None
-            ),
-            bytes_read=(
-                float(job_change.input_bytes) if job_change.input_bytes else None
-            ),
-            bytes_written=(
-                float(job_change.output_bytes) if job_change.output_bytes else None
-            ),
-            sources=sources,
-            targets=target_datasets,
-            default_database=default_database,
-            default_schema=default_schema,
-            type=(
-                self._map_query_type(job_change.statementType)
-                if job_change.statementType
-                else None
-            ),
-            sql=query,
-            sql_hash=md5_digest(job_change.query.encode("utf-8")),
-        )
+        sql: Optional[str] = query
+        if self._config.query_log.process_query.should_process:
+            sql = process_query(
+                query,
+                DataPlatform.BIGQUERY,
+                self._config.query_log.process_query,
+                job_change.job_name,
+            )
+
+        if sql:
+            return QueryLog(
+                id=f"{DataPlatform.BIGQUERY.name}:{job_change.job_name}",
+                query_id=job_change.job_name,
+                platform=DataPlatform.BIGQUERY,
+                start_time=job_change.start_time,
+                duration=safe_float(elapsed_time),
+                user_id=job_change.user_email if is_service_account else None,
+                email=job_change.user_email if not is_service_account else None,
+                rows_written=(
+                    float(job_change.output_rows) if job_change.output_rows else None
+                ),
+                bytes_read=(
+                    float(job_change.input_bytes) if job_change.input_bytes else None
+                ),
+                bytes_written=(
+                    float(job_change.output_bytes) if job_change.output_bytes else None
+                ),
+                sources=sources,
+                targets=target_datasets,
+                default_database=default_database,
+                default_schema=default_schema,
+                type=(
+                    self._map_query_type(job_change.statementType)
+                    if job_change.statementType
+                    else None
+                ),
+                sql=sql,
+                sql_hash=md5_digest(sql.encode("utf-8")),
+            )
+
+        return None
 
     # https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata.QueryStatementType
     _query_type_map = {
