@@ -157,6 +157,10 @@ query_log:
   fetch_job_query_if_truncated: <boolean>
 ```
 
+##### Process Query Config
+
+See [Process Query](../common/docs/process_query.md) for more information on the optional `process_query_config` config.
+
 ### Notes
 
 Make sure to use BigQuery project ID when setting the `database` field in the filter configuration. For example:

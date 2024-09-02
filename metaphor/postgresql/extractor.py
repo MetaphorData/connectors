@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import Collection, Dict, Iterator, List, Optional, Tuple
 
 from metaphor.common.fieldpath import build_schema_field
+from metaphor.common.sql.process_query.process_query import process_query
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
@@ -466,13 +467,13 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
             return None
 
         # Extract sql from the previous line
-        sql = ":".join(previous_line.log_body[1:]).lstrip()
+        query = ":".join(previous_line.log_body[1:]).lstrip()
 
         # Extract duration from the current line
         duration = self._extract_duration(parsed.log_body[1])
 
         tll = extract_table_level_lineage(
-            sql=sql,
+            sql=query,
             platform=DataPlatform.POSTGRESQL,
             account=None,
             default_database=parsed.database,
@@ -482,21 +483,33 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         if not tll.sources and not tll.targets:
             return None
 
-        sql_hash = md5_digest(sql.encode("utf-8"))
+        sql_hash = md5_digest(query.encode("utf-8"))
+        sql: Optional[str] = query
 
-        return QueryLog(
-            id=f"{DataPlatform.POSTGRESQL.name}:{sql_hash}",
-            query_id=sql_hash,
-            platform=DataPlatform.POSTGRESQL,
-            default_database=parsed.database,
-            user_id=parsed.user,
-            sql=sql,
-            sql_hash=sql_hash,
-            duration=duration,
-            start_time=previous_line.log_time,
-            sources=tll.sources,
-            targets=tll.targets,
-        )
+        if self._query_log_config.process_query.should_process:
+            sql = process_query(
+                query,
+                DataPlatform.POSTGRESQL,
+                self._query_log_config.process_query,
+                sql_hash,
+            )
+
+        if sql:
+            sql_hash = md5_digest(sql.encode("utf-8"))
+            return QueryLog(
+                id=f"{DataPlatform.POSTGRESQL.name}:{sql_hash}",
+                query_id=sql_hash,
+                platform=DataPlatform.POSTGRESQL,
+                default_database=parsed.database,
+                user_id=parsed.user,
+                sql=sql,
+                sql_hash=sql_hash,
+                duration=duration,
+                start_time=previous_line.log_time,
+                sources=tll.sources,
+                targets=tll.targets,
+            )
+        return None
 
     def _collect_query_logs_from_cloud_watch(
         self, client: boto3.client, lookback_days: int, logs_group: str

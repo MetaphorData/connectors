@@ -63,6 +63,10 @@ query_log:
   max_results: <count>
 ```
 
+##### Process Query Config
+
+See [Process Query](../common/docs/process_query.md) for more information on the optional `process_query_config` config.
+
 #### Warehouse ID
 
 Note: we encourage using cluster, this connector will deprecate the SQL warehouse support.

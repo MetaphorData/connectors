@@ -85,6 +85,10 @@ query_log:
     - <user_name2>
 ```
 
+##### Process Query Config
+
+See [Process Query](../common/docs/process_query.md) for more information on the optional `process_query_config` config.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `redshift` extra.

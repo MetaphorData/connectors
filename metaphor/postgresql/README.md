@@ -65,6 +65,10 @@ query_log:
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
+#### Process Query Config
+
+See [Process Query](../common/docs/process_query.md) for more information on the optional `process_query_config` config.
+
 #### Output Destination
 
 See [Output Config](../common/docs/output.md) for more information on the optional `output` config.

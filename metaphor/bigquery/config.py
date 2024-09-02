@@ -7,6 +7,7 @@ from pydantic.dataclasses import dataclass
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.dataclass import ConnectorConfig
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.sql.process_query.config import ProcessQueryConfig
 from metaphor.common.tag_matcher import TagMatcher
 from metaphor.common.utils import must_set_exactly_one
 
@@ -55,6 +56,11 @@ class BigQueryQueryLogConfig:
 
     # Fetch the full query SQL from job API if it's truncated in the audit metadata log
     fetch_job_query_if_truncated: bool = True
+
+    # Config to control query processing
+    process_query: ProcessQueryConfig = field(
+        default_factory=lambda: ProcessQueryConfig()
+    )
 
 
 @dataclass(config=ConnectorConfig)
