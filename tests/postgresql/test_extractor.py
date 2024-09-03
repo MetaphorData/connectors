@@ -132,7 +132,7 @@ def test_process_cloud_watch_log():
         == gold
     )
 
-    # SQL don't have source and targets
+    # Skip commands
     assert (
         extractor._process_cloud_watch_log(
             "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: CREATE USER abc PASSWORD 'asjdkasjd';",
@@ -243,3 +243,45 @@ async def test_extractor(mocked_fetch_databases):
     extractor = PostgreSQLExtractor(dummy_config())
     events = [e for e in await extractor.extract()]
     assert events == []
+
+
+def test_alter_rename():
+    extractor = PostgreSQLExtractor(dummy_config())
+
+    cache = {}
+
+    # Valid Statement
+    assert (
+        extractor._process_cloud_watch_log(
+            "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: ALTER TABLE schema.table_tmp RENAME TO table;",
+            cache,
+        )
+        is None
+    )
+    assert extractor._process_cloud_watch_log(
+        "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
+        cache,
+    ) == QueryLog(
+        id="POSTGRESQL:e6c7e28a652b40dc29c1a5ed5c1b1f16",
+        account=None,
+        bytes_read=None,
+        bytes_written=None,
+        cost=None,
+        default_database="metaphor",
+        default_schema=None,
+        duration=55.66,
+        email=None,
+        metadata=None,
+        parsing=None,
+        platform=DataPlatform.POSTGRESQL,
+        query_id="e6c7e28a652b40dc29c1a5ed5c1b1f16",
+        rows_read=None,
+        rows_written=None,
+        sources=[],
+        sql="ALTER TABLE schema.table_tmp RENAME TO table;",
+        sql_hash="e6c7e28a652b40dc29c1a5ed5c1b1f16",
+        start_time=datetime(2024, 8, 29, 9, 25, 50, tzinfo=timezone.utc),
+        targets=[],
+        type=None,
+        user_id="metaphor",
+    )
