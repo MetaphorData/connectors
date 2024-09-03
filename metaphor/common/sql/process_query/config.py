@@ -54,21 +54,21 @@ class ProcessQueryConfig:
         default_factory=lambda: RedactPIILiteralsConfig()
     )
 
+    ignore_insert_values_into: bool = False
     """
     Ignore `INSERT INTO ... VALUES` expressions. These expressions don't have any
     lineage information, and are often very large in size.
     """
-    ignore_insert_values_into: bool = False
 
+    skip_unparsable_queries: bool = False
     """
     If this is set to `True`, when Sqlglot fails to parse a query we skip it from the collected MCE.
     """
-    skip_unparsable_queries: bool = False
 
+    ignore_command_statement: bool = True
     """
     Skip commands that interact with databases, such as: create user
     """
-    ignore_command_statement: bool = True
 
     @property
     def should_process(self) -> bool:
