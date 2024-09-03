@@ -18,19 +18,22 @@ config = ProcessQueryConfig(
     ignore_insert_values_into=True,
 )
 
+pre_preprocess_only = ProcessQueryConfig()
+
 
 @pytest.mark.parametrize(
-    ["name", "platform"],
+    ["name", "platform", "config"],
     [
-        ("redact_literal_values_in_where_clauses", DataPlatform.SNOWFLAKE),
-        ("redact_simple", DataPlatform.SNOWFLAKE),
-        ("snowflake_copy_into", DataPlatform.SNOWFLAKE),
-        ("redact_literals_in_where_in", DataPlatform.MSSQL),
-        ("redact_literals_in_where_or", DataPlatform.MSSQL),
-        ("redact_merge_insert_when_not_matched", DataPlatform.MSSQL),
+        ("redact_literal_values_in_where_clauses", DataPlatform.SNOWFLAKE, config),
+        ("redact_simple", DataPlatform.SNOWFLAKE, config),
+        ("snowflake_copy_into", DataPlatform.SNOWFLAKE, config),
+        ("snowflake_copy_into", DataPlatform.SNOWFLAKE, pre_preprocess_only),
+        ("redact_literals_in_where_in", DataPlatform.MSSQL, config),
+        ("redact_literals_in_where_or", DataPlatform.MSSQL, config),
+        ("redact_merge_insert_when_not_matched", DataPlatform.MSSQL, config),
     ],
 )
-def test_process_query(name: str, platform: DataPlatform):
+def test_process_query(name: str, platform: DataPlatform, config: ProcessQueryConfig):
     dir = Path(__file__).parent / "process_query" / name
     with open(dir / "query.sql") as f:
         sql = f.read()

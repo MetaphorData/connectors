@@ -479,10 +479,6 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
             default_database=parsed.database,
         )
 
-        # Skip SQL statement that is not related to any table
-        if not tll.sources and not tll.targets:
-            return None
-
         # Skip if parsed sources or targets has invalid data.
         if not is_valid_queried_datasets(tll.sources) or not is_valid_queried_datasets(
             tll.targets

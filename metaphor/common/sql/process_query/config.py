@@ -65,9 +65,18 @@ class ProcessQueryConfig:
     If this is set to `True`, when Sqlglot fails to parse a query we skip it from the collected MCE.
     """
 
+    ignore_command_statement: bool = True
+    """
+    Skip commands that interact with databases, such as: create user
+    """
+
     @property
     def should_process(self) -> bool:
         """
         Whether we should run the processing method at all.
         """
-        return self.redact_literals.enabled or self.ignore_insert_values_into
+        return (
+            self.redact_literals.enabled
+            or self.ignore_insert_values_into
+            or self.ignore_command_statement
+        )
