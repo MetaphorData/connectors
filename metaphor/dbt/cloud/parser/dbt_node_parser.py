@@ -128,9 +128,13 @@ class NodeParser:
             ]
 
     def _parse_model_materialization(
-        self, node: GetJobRunModelsJobModels, dbt_model: DbtModel
+        self, node: NODE_TYPE, dbt_model: DbtModel
     ) -> None:
-        materialized = node.materialized_type
+        materialized = (
+            node.materialized_type
+            if isinstance(node, GetJobRunModelsJobModels)
+            else "SNAPSHOT"
+        )
         if materialized is None:
             return
 
@@ -257,17 +261,12 @@ class NodeParser:
         dbt_model.raw_sql = node.raw_code or node.raw_sql
         dbt_model.compiled_sql = node.compiled_code or node.compiled_sql
 
+        self._parse_model_materialization(node, dbt_model)
+
         if isinstance(node, GetJobRunModelsJobModels):
             self._parse_model_meta(node, virtual_view)
-            self._parse_model_materialization(node, dbt_model)
             parse_depends_on(
                 self._virtual_views, node.depends_on, source_map, macro_map, dbt_model
-            )
-
-        if isinstance(node, GetJobRunSnapshotsJobSnapshots):
-            dbt_model.materialization = DbtMaterialization(
-                type=DbtMaterializationType.SNAPSHOT,
-                target_dataset=str(self._get_node_entity_id(node)),
             )
 
         self._parse_node_columns(node, dbt_model)
