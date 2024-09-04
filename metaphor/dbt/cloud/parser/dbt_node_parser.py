@@ -264,5 +264,11 @@ class NodeParser:
                 self._virtual_views, node.depends_on, source_map, macro_map, dbt_model
             )
 
+        if isinstance(node, GetJobRunSnapshotsJobSnapshots):
+            dbt_model.materialization = DbtMaterialization(
+                type=DbtMaterializationType.SNAPSHOT,
+                target_dataset=str(self._get_node_entity_id(node)),
+            )
+
         self._parse_node_columns(node, dbt_model)
         self._set_entity_upstream(virtual_view, dbt_model)
