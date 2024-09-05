@@ -1,9 +1,21 @@
+import argparse
 from typing import Type
 
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import EventUtil
 from metaphor.common.runner import run_connector
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Metaphor Connectors")
+
+    parser.add_argument(
+        "name", help="Name of the connector, e.g. snowflake or bigquery"
+    )
+    parser.add_argument("config", help="Path to the config file")
+    args = parser.parse_args()
+    return args
 
 
 def cli_main(extractor_cls: Type[BaseExtractor], config_file: str):
