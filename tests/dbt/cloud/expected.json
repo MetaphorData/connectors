@@ -2767,6 +2767,10 @@
           "tags": []
         }
       ],
+      "materialization": {
+        "targetDataset": "DATASET~2E893CA947DE6733D83497BA75FA0CB5",
+        "type": "SNAPSHOT"
+      },
       "packageName": "london_bike_analysis",
       "rawSql": "\n{{\n    config(\n      target_schema='snapshots',\n      strategy='check',\n      unique_key='bike_id',\n      check_cols=['start_date', 'end_date']\n    )\n}}\n\nselect * from {{ source('berlin_bicycles', 'cycle_hire') }}\n",
       "url": "https://cloud.getdbt.com/explore/1/projects/123/environments/production/details/snapshot.london_bike_analysis.cycle_hire_snapshot"
