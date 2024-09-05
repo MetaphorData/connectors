@@ -379,9 +379,6 @@
         }
       ]
     },
-    "systemTags": {
-      "tags": []
-    },
     "unityCatalog": {
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {

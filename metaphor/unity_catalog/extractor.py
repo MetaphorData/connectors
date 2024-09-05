@@ -397,9 +397,6 @@ class UnityCatalogExtractor(BaseExtractor):
                     )
                 ]
             )
-
-        dataset.system_tags = SystemTags(tags=[])
-
         self._datasets[normalized_name] = dataset
 
         return dataset
@@ -560,8 +557,13 @@ class UnityCatalogExtractor(BaseExtractor):
                     )
                     dataset = self._datasets.get(normalized_dataset_name)
                     if dataset is not None:
-                        assert dataset.system_tags
-                        dataset.system_tags.tags = (
+
+                        if dataset.system_tags is None:
+                            dataset.system_tags = SystemTags()
+                        if dataset.system_tags.tags is None:
+                            dataset.system_tags.tags = []
+
+                        dataset.system_tags.tags.extend(
                             catalog_system_tags[catalog][0]
                             + catalog_system_tags[catalog][1][schema.name]
                         )
@@ -589,7 +591,10 @@ class UnityCatalogExtractor(BaseExtractor):
                     logger.warning(f"Cannot find {normalized_dataset_name} dataset")
                     continue
 
-                assert dataset.system_tags and dataset.system_tags.tags is not None
+                if dataset.system_tags is None:
+                    dataset.system_tags = SystemTags()
+                if dataset.system_tags.tags is None:
+                    dataset.system_tags.tags = []
 
                 if tag_value:
                     tag = SystemTag(
@@ -790,8 +795,6 @@ class UnityCatalogExtractor(BaseExtractor):
             ),
         )
         dataset.entity_upstream = EntityUpstream(source_entities=[])
-
-        dataset.system_tags = SystemTags(tags=[])
 
         self._datasets[full_name] = dataset
 

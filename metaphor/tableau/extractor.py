@@ -408,12 +408,14 @@ class TableauExtractor(BaseExtractor):
         source_virtual_views: List[str] = []
         published_datasources: List[str] = []
 
-        system_tags = SystemTags(tags=[])
+        system_tags: Optional[SystemTags] = None
         if workbook.tags:
-            system_tags.tags = [
-                SystemTag(value=tag, system_tag_source=SystemTagSource.TABLEAU)
-                for tag in sorted(tag.name for tag in workbook.tags)
-            ]
+            system_tags = SystemTags(
+                tags=[
+                    SystemTag(value=tag, system_tag_source=SystemTagSource.TABLEAU)
+                    for tag in sorted(tag.name for tag in workbook.tags)
+                ]
+            )
 
         for published_source in workbook.upstreamDatasources:
             virtual_view_id = str(
