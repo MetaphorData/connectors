@@ -16,7 +16,6 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     EntityId,
     to_dataset_entity_id,
-    to_dataset_entity_id_from_logical_id,
     to_virtual_view_entity_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
@@ -31,8 +30,6 @@ from metaphor.models.metadata_change_event import (
     DashboardLogicalID,
     DashboardPlatform,
     DataPlatform,
-    Dataset,
-    DatasetLogicalID,
     EntityUpstream,
     SourceInfo,
     SystemContact,
@@ -99,7 +96,6 @@ class TableauExtractor(BaseExtractor):
 
         self._views: Dict[str, tableau.ViewItem] = {}
         self._projects: Dict[str, List[str]] = {}  # project id -> project hierarchy
-        self._datasets: Dict[EntityId, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._dashboards: Dict[str, Dashboard] = {}
 
@@ -144,7 +140,6 @@ class TableauExtractor(BaseExtractor):
         return [
             *self._dashboards.values(),
             *self._virtual_views.values(),
-            *self._datasets.values(),
         ]
 
     def _extract_dashboards(
@@ -374,7 +369,6 @@ class TableauExtractor(BaseExtractor):
                 logger.warning(f"Ignore non-fully qualified source table {fullname}")
                 continue
 
-            self._init_dataset(fullname, platform, account, None)
             upstream_datasets.append(
                 str(to_dataset_entity_id(fullname, platform, account))
             )
@@ -432,9 +426,7 @@ class TableauExtractor(BaseExtractor):
             # if source_datasets is None or empty from custom SQL, use the upstreamTables of the datasource
             source_datasets = (
                 custom_sql_source.sources if custom_sql_source else None
-            ) or self._parse_upstream_datasets(
-                published_source.upstreamTables, system_tags
-            )
+            ) or self._parse_upstream_datasets(published_source.upstreamTables)
 
             full_name, structure = self._build_asset_full_name_and_structure(
                 published_source.name,
@@ -498,9 +490,7 @@ class TableauExtractor(BaseExtractor):
             # if source_datasets is None or empty from custom SQL, use the upstreamTables of the datasource
             source_datasets = (
                 custom_sql_source.sources if custom_sql_source else None
-            ) or self._parse_upstream_datasets(
-                embedded_source.upstreamTables, system_tags
-            )
+            ) or self._parse_upstream_datasets(embedded_source.upstreamTables)
 
             self._virtual_views[embedded_source.id] = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -545,11 +535,8 @@ class TableauExtractor(BaseExtractor):
     def _parse_upstream_datasets(
         self,
         upstreamTables: List[DatabaseTable],
-        system_tags: Optional[SystemTags],
     ) -> List[str]:
-        upstream_datasets = [
-            self._parse_dataset_id(table, system_tags) for table in upstreamTables
-        ]
+        upstream_datasets = [self._parse_dataset_id(table) for table in upstreamTables]
         return list(
             set(
                 [
@@ -560,9 +547,7 @@ class TableauExtractor(BaseExtractor):
             )
         )
 
-    def _parse_dataset_id(
-        self, table: DatabaseTable, system_tags: Optional[SystemTags]
-    ) -> Optional[EntityId]:
+    def _parse_dataset_id(self, table: DatabaseTable) -> Optional[EntityId]:
         if (
             not table.name
             or not table.schema_
@@ -613,7 +598,6 @@ class TableauExtractor(BaseExtractor):
         )
 
         logger.debug(f"dataset id: {fullname} {connection_type} {account}")
-        self._init_dataset(fullname, platform, account, system_tags)
         return to_dataset_entity_id(fullname, platform, account)
 
     def _parse_chart(self, view: tableau.ViewItem) -> Chart:
@@ -635,21 +619,6 @@ class TableauExtractor(BaseExtractor):
         return Chart(title=view.name, url=view_url, preview=preview_data_url)
 
     _workbook_url_regex = r".+\/workbooks\/(\d+)(\/.*)?"
-
-    def _init_dataset(
-        self,
-        normalized_name: str,
-        platform: DataPlatform,
-        account: Optional[str],
-        system_tags: Optional[SystemTags],
-    ) -> Dataset:
-        dataset = Dataset()
-        dataset.logical_id = DatasetLogicalID(
-            name=normalized_name, account=account, platform=platform
-        )
-        dataset.system_tags = system_tags
-        entity_id = to_dataset_entity_id_from_logical_id(dataset.logical_id)
-        return self._datasets.setdefault(entity_id, dataset)
 
     @staticmethod
     def _extract_workbook_id(workbook_url: str) -> str:

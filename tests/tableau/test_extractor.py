@@ -157,7 +157,6 @@ def test_parse_database_table():
                 database=None,
                 schema=None,
             ),
-            system_tags=None,
         )
         is None
     )
@@ -171,7 +170,6 @@ def test_parse_database_table():
                 database=Database(name="db", connectionType="invalid_type"),
                 schema=None,
             ),
-            system_tags=None,
         )
         is None
     )
@@ -185,7 +183,6 @@ def test_parse_database_table():
             database=Database(name="db", connectionType="redshift"),
             schema="foo",
         ),
-        system_tags=None,
     ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
 
     # Full back to two-segment "name"
@@ -197,7 +194,6 @@ def test_parse_database_table():
             database=Database(name="db", connectionType="redshift"),
             schema="foo",
         ),
-        system_tags=None,
     ) == to_dataset_entity_id("db.schema.table", DataPlatform.REDSHIFT)
 
     # Test BigQuery project name => ID mapping
@@ -218,7 +214,6 @@ def test_parse_database_table():
             database=Database(name="bq_name", connectionType="bigquery"),
             schema="foo",
         ),
-        system_tags=None,
     ) == to_dataset_entity_id("bq_id.schema.table", DataPlatform.BIGQUERY)
 
 
