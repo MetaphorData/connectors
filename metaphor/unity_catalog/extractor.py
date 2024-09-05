@@ -551,22 +551,24 @@ class UnityCatalogExtractor(BaseExtractor):
     ) -> None:
         for schema in self._api.schemas.list(catalog):
             if schema.name:
-                for table in self._api.tables.list(catalog, schema.name):
-                    normalized_dataset_name = dataset_normalized_name(
-                        catalog, schema.name, table.name
-                    )
-                    dataset = self._datasets.get(normalized_dataset_name)
-                    if dataset is not None:
-
-                        if dataset.system_tags is None:
-                            dataset.system_tags = SystemTags()
-                        if dataset.system_tags.tags is None:
-                            dataset.system_tags.tags = []
-
-                        dataset.system_tags.tags.extend(
-                            catalog_system_tags[catalog][0]
-                            + catalog_system_tags[catalog][1][schema.name]
+                schema_tags = (
+                    catalog_system_tags[catalog][0]
+                    + catalog_system_tags[catalog][1][schema.name]
+                )
+                if schema_tags:
+                    for table in self._api.tables.list(catalog, schema.name):
+                        normalized_dataset_name = dataset_normalized_name(
+                            catalog, schema.name, table.name
                         )
+                        dataset = self._datasets.get(normalized_dataset_name)
+                        if dataset is not None:
+
+                            if dataset.system_tags is None:
+                                dataset.system_tags = SystemTags()
+                            if dataset.system_tags.tags is None:
+                                dataset.system_tags.tags = []
+
+                            dataset.system_tags.tags.extend(schema_tags)
 
     def _extract_object_tags(
         self, catalog, columns: List[str], tag_schema_name: str
