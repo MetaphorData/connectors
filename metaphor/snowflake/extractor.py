@@ -902,6 +902,8 @@ class SnowflakeExtractor(BaseExtractor):
             database=database, schema=schema, table=table
         )
 
+        dataset.system_tags = SystemTags(tags=[])
+
         return dataset
 
     @staticmethod

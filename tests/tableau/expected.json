@@ -170,48 +170,5 @@
       ],
       "url": "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
     }
-  },
-  {
-    "logicalId": {
-      "name": "db.schema.table",
-      "platform": "BIGQUERY"
-    }
-  },
-  {
-    "logicalId": {
-      "account": "snow",
-      "name": "dev_db.london.cycle",
-      "platform": "SNOWFLAKE"
-    },
-    "systemTags": {
-      "tags": [
-        {
-          "systemTagSource": "TABLEAU",
-          "value": "bar"
-        },
-        {
-          "systemTagSource": "TABLEAU",
-          "value": "foo"
-        }
-      ]
-    }
-  },
-  {
-    "logicalId": {
-      "name": "acme.berlin_bicycles.cycle_hire",
-      "platform": "REDSHIFT"
-    },
-    "systemTags": {
-      "tags": [
-        {
-          "systemTagSource": "TABLEAU",
-          "value": "bar"
-        },
-        {
-          "systemTagSource": "TABLEAU",
-          "value": "foo"
-        }
-      ]
-    }
   }
 ]
