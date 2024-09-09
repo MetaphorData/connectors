@@ -150,6 +150,11 @@ def extract_table_level_lineage(
         if not _is_truncated_insert_into_with_values(sql):
             logger.warning(f"Cannot parse sql with SQLGlot, query_id = {query_id}")
         return Result()
+    except RecursionError:
+        logger.warning(
+            f"Cannot parse sql with SQLGlot (max recursion level exceeded), query_id = {query_id}"
+        )
+        return Result()
 
     try:
         return Result(
