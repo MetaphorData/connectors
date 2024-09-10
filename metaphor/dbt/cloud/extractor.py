@@ -8,6 +8,7 @@ from metaphor.common.logger import get_logger
 from metaphor.dbt.cloud.client import DbtAdminAPIClient
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
+from metaphor.dbt.cloud.http import LogTransport
 from metaphor.dbt.cloud.parser.parser import Parser
 from metaphor.dbt.cloud.utils import parse_environment
 from metaphor.models.crawler_run_metadata import Platform
@@ -51,7 +52,11 @@ class DbtCloudExtractor(BaseExtractor):
         self._discovery_api_client = DiscoveryAPIClient(
             url=self._discovery_api_url,
             headers=headers,
-            http_client=httpx.Client(timeout=None, headers=headers),
+            http_client=httpx.Client(
+                timeout=None,
+                headers=headers,
+                transport=LogTransport(httpx.HTTPTransport()),
+            ),
         )
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
