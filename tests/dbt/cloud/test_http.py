@@ -18,6 +18,7 @@ def test_http_client():
         port = container.get_exposed_port(5678)
         host = container.get_container_host_ip()
 
+        debug_files.clear()
         url = f"http://{host}:{port}"
         http_client.post(url, content=json.dumps({"foo": "bar"}))
 
