@@ -1,5 +1,6 @@
 import json
 import secrets
+from collections.abc import Iterable
 
 import httpx
 
@@ -17,9 +18,11 @@ class LogResponse(httpx.Response):
             logger.exception("Not able to log request")
 
     def _log(self, response: bytes):
-        r_body = b"".join(self.request.stream)
-
         request = self.request
+        if not isinstance(request.stream, Iterable):
+            return
+
+        r_body = b"".join(request.stream)
         method = request.method
 
         request_signature = f"{method}_{request.url.path[1:].replace('/', u'__')}"
