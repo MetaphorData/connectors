@@ -240,7 +240,9 @@ class MonteCarloExtractor(BaseExtractor):
         )
 
         # Change status to UNKNOWN if the error message is to be ignored
-        message = monitor.get("exceptions", "")
+        message = (
+            monitor.get("exceptions", "") or ""
+        )  # monitor["exceptions"] is default to None
         if status == DataMonitorStatus.ERROR:
             for ignored_error in self._ignored_errors:
                 if re.match(ignored_error, message) is not None:
