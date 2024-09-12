@@ -44,7 +44,7 @@ monitor_status_map = {
     "ERROR": DataMonitorStatus.ERROR,
     "IN_PROGRESS": DataMonitorStatus.UNKNOWN,
     "NO_STATUS": DataMonitorStatus.UNKNOWN,
-    "MISCONFIGURED": DataMonitorStatus.UNKNOWN,
+    "MISCONFIGURED": DataMonitorStatus.ERROR,
     "IN_TRAINING": DataMonitorStatus.UNKNOWN,
 }
 
@@ -117,6 +117,7 @@ class MonteCarloExtractor(BaseExtractor):
                     monitorFields
                     creatorId
                     prevExecutionTime
+                    exceptions
                   }
                 }
                 """
@@ -193,6 +194,11 @@ class MonteCarloExtractor(BaseExtractor):
                 monitor["priority"], DataMonitorSeverity.UNKNOWN
             )
 
+            # MC monitor exceptions is a single string
+            exceptions = (
+                [monitor["exceptions"]] if monitor["exceptions"] is not None else None
+            )
+
             data_monitor = DataMonitor(
                 title=monitor["name"],
                 description=monitor["description"],
@@ -205,6 +211,7 @@ class MonteCarloExtractor(BaseExtractor):
                     DataMonitorTarget(column=field.upper())
                     for field in monitor["monitorFields"] or []
                 ],
+                exceptions=exceptions,
             )
 
             if monitor["entities"] is None or monitor["entityMcons"] is None:
