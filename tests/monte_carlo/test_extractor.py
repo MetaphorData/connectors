@@ -71,6 +71,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
+                    "exceptions": None,
                 },
                 {
                     "uuid": "ce4c4568-35f4-4365-a6fe-95f233fcf6c3",
@@ -85,6 +86,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "monitorFields": ["foo", "bar"],
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
+                    "exceptions": None,
                 },
                 {
                     "uuid": "2c156c8d-ab4a-432f-b8bb-f9ea9f31ed3d",
@@ -99,6 +101,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
+                    "exceptions": None,
                 },
                 {
                     "uuid": "d14af7d8-6342-420a-bb09-5805fad677f1",
@@ -110,7 +113,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     ],
                     "priority": None,
                     "monitorStatus": "ERROR",
-                    "exceptions": "Ignore me",
+                    "exceptions": "Oh no",
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
@@ -123,7 +126,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "entityMcons": None,
                     "priority": None,
                     "monitorStatus": "ERROR",
-                    "exceptions": "Ignore me",
+                    "exceptions": "No entity, this exception is ignored",
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
