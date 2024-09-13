@@ -84,12 +84,12 @@
         {
           "description": "Field Health for all fields in db:metaphor.test4",
           "exceptions": [
-            "Ignore me"
+            "Oh no"
           ],
           "lastRun": "2023-06-23T03:54:35.817000+00:00",
           "owner": "yi@metaphor.io",
           "severity": "UNKNOWN",
-          "status": "UNKNOWN",
+          "status": "ERROR",
           "targets": [],
           "title": "auto_monitor_name_693b98e3-950d-472b-83fe-8c8e5b5979f9",
           "url": "https://getmontecarlo.com/monitors/d14af7d8-6342-420a-bb09-5805fad677f1"
