@@ -20,7 +20,9 @@ class QueryLogConfig:
 
     # Config to control query processing
     process_query: ProcessQueryConfig = field(
-        default_factory=lambda: ProcessQueryConfig()
+        default_factory=lambda: ProcessQueryConfig(
+            ignore_command_statement=True
+        )  # Ignore COMMAND statements by default
     )
 
 

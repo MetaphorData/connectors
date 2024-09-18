@@ -65,7 +65,7 @@ class ProcessQueryConfig:
     If this is set to `True`, when Sqlglot fails to parse a query we skip it from the collected MCE.
     """
 
-    ignore_command_statement: bool = True
+    ignore_command_statement: bool = False
     """
     Skip commands that interact with databases, such as: create user
     """
