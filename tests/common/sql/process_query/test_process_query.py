@@ -16,9 +16,10 @@ config = ProcessQueryConfig(
         enabled=True,
     ),
     ignore_insert_values_into=True,
+    ignore_command_statement=True,
 )
 
-pre_preprocess_only = ProcessQueryConfig()
+pre_preprocess_only = ProcessQueryConfig(ignore_command_statement=True)
 
 
 @pytest.mark.parametrize(

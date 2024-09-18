@@ -10,10 +10,10 @@ def test_config():
     assert config.should_process
 
     config = ProcessQueryConfig()
-    assert config.should_process
-
-    config = ProcessQueryConfig(ignore_command_statement=False)
     assert not config.should_process
+
+    config = ProcessQueryConfig(ignore_command_statement=True)
+    assert config.should_process
 
     config = ProcessQueryConfig(
         redact_literals=RedactPIILiteralsConfig(where_clauses=True),
