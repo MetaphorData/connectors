@@ -140,7 +140,7 @@ def _process_physical_table_map(
                     continue
                 columns[column.Name] = Column()
 
-        if physical_table.RelationalTable:
+        elif physical_table.RelationalTable:
             source_dataset_id = _get_source_from_relation_table(
                 resources, physical_table.RelationalTable, source_entities
             )
@@ -154,7 +154,7 @@ def _process_physical_table_map(
                     ]
                 )
 
-        if physical_table.S3Source:
+        elif physical_table.S3Source:
             for column in physical_table.S3Source.InputColumns:
                 if column.Name is None:
                     continue
@@ -174,12 +174,12 @@ def _process_transformation(
                 columns[column.ColumnName] = Column(
                     upstream=[], expression=column.Expression
                 )
-        if transformation.ProjectOperation:
+        elif transformation.ProjectOperation:
             for key in list(columns.keys()):
                 if key not in transformation.ProjectOperation.ProjectedColumns:
                     columns.pop(key)
 
-        if transformation.RenameColumnOperation:
+        elif transformation.RenameColumnOperation:
             before = transformation.RenameColumnOperation.ColumnName
             after = transformation.RenameColumnOperation.NewColumnName
             columns[after] = columns[before]
@@ -200,8 +200,9 @@ def _process_logical_table_map(
         columns = {}
 
         for table_id, logical_table in logical_tables:
-            if logical_table.Source.DataSetArn:
-                arn = logical_table.Source.DataSetArn
+            source = logical_table.Source
+            if source.DataSetArn:
+                arn = source.DataSetArn
                 upstream_data_set = resources.get(arn)
                 if upstream_data_set is None:
                     continue
@@ -222,16 +223,16 @@ def _process_logical_table_map(
                         ]
                     )
 
-            if logical_table.Source.PhysicalTableId:
-                upstream_table = tables.get(logical_table.Source.PhysicalTableId)
+            elif source.PhysicalTableId:
+                upstream_table = tables.get(source.PhysicalTableId)
                 if upstream_table:
                     columns.update(**upstream_table)
                 else:
                     assert False, "should not happen"
 
-            if logical_table.Source.JoinInstruction:
-                left_table_id = logical_table.Source.JoinInstruction.LeftOperand
-                right_table_id = logical_table.Source.JoinInstruction.RightOperand
+            elif source.JoinInstruction:
+                left_table_id = source.JoinInstruction.LeftOperand
+                right_table_id = source.JoinInstruction.RightOperand
 
                 left_table = tables.get(left_table_id)
                 right_table = tables.get(right_table_id)
