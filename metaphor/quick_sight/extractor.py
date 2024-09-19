@@ -29,15 +29,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.quick_sight.cll import process_dataset_column_lineage
 from metaphor.quick_sight.config import AwsCredentials, QuickSightRunConfig
-from metaphor.quick_sight.models import (
-    Analysis,
-    Dashboard,
-    DataSet,
-    DataSource,
-    Folder,
-    ResourceType,
-    User,
-)
+from metaphor.quick_sight.models import Dashboard, DataSet, DataSource, ResourceType
 
 logger = get_logger()
 
@@ -50,9 +42,6 @@ class Endpoint(enum.Enum):
     list_dashboards = "list_dashboards"
     list_data_sets = "list_data_sets"
     list_data_sources = "list_data_sources"
-    list_analyses = "list_analyses"
-    list_folders = "list_folders"
-    list_users = "list_users"
 
 
 @dataclass
@@ -64,9 +53,7 @@ class EndpointDictKeys:
 ENDPOINT_SETTING = {
     Endpoint.list_data_sets: EndpointDictKeys("DataSetSummaries", "DataSetId"),
     Endpoint.list_dashboards: EndpointDictKeys("DashboardSummaryList", "DashboardId"),
-    Endpoint.list_analyses: EndpointDictKeys("AnalysisSummaryList", "AnalysisId"),
     Endpoint.list_data_sources: EndpointDictKeys("DataSources", "DataSourceId"),
-    Endpoint.list_folders: EndpointDictKeys("FolderSummaryList", "FolderId"),
 }
 
 
@@ -110,10 +97,7 @@ class QuickSightExtractor(BaseExtractor):
     def _get_resources(self):
         self._get_dataset_detail()
         self._get_dashboard_detail()
-        self._get_analysis_detail()
         self._get_data_source_detail()
-        self._get_folder_detail()
-        self._get_user_detail()
 
     def _extract_virtual_view(self):
         for data_set in self._resources.values():
@@ -244,27 +228,6 @@ class QuickSightExtractor(BaseExtractor):
 
         json_dump_to_debug_file(results, "dashboards.json")
 
-    def _get_analysis_detail(self):
-        results = []
-        for analysis_id in self._get_resource_ids(Endpoint.list_analyses):
-            result = self._client.describe_analysis(
-                AwsAccountId=self._aws_account_id, AnalysisId=analysis_id
-            )
-            results.append(result)
-            arn = result["Analysis"]["Arn"]
-            definition = self._client.describe_analysis_definition(
-                AwsAccountId=self._aws_account_id, AnalysisId=analysis_id
-            )
-
-            analysis = Analysis(**definition, Arn=arn)
-
-            if analysis.Arn is None:
-                continue
-
-            self._resources[analysis.Arn] = analysis
-
-        json_dump_to_debug_file(results, "analyses.json")
-
     def _get_data_source_detail(self):
         results = []
         for data_source_id in self._get_resource_ids(Endpoint.list_data_sources):
@@ -281,42 +244,3 @@ class QuickSightExtractor(BaseExtractor):
             self._resources[data_source.Arn] = data_source
 
         json_dump_to_debug_file(results, "data_sources.json")
-
-    def _get_folder_detail(self):
-        results = []
-        for folder_id in self._get_resource_ids(Endpoint.list_folders):
-            result = self._client.describe_folder(
-                AwsAccountId=self._aws_account_id, FolderId=folder_id
-            )
-            results.append(result)
-
-            folder = Folder(**result["Folder"])
-
-            if folder.Arn is None:
-                continue
-
-            self._resources[folder.Arn] = folder
-
-        json_dump_to_debug_file(results, "folders.json")
-
-    def _get_user_detail(self):
-        paginator = self._client.get_paginator(Endpoint.list_users.value)
-        paginator_response = paginator.paginate(
-            AwsAccountId=self._aws_account_id, Namespace="default"
-        )
-
-        users: List[User] = []
-        results = []
-        for page in paginator_response:
-            for item in page["UserList"]:
-                results.append(item)
-                user = User(**item)
-
-                if user.Arn is None:
-                    continue
-
-                users.append(user)
-                self._resources[user.Arn] = user
-
-        json_dump_to_debug_file(results, "users.json")
-        return users

@@ -81,10 +81,6 @@ async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
             mock_paginator = MagicMock()
             mock_paginator.paginate.return_value = list_data_sets_response
             return mock_paginator
-        elif method == "list_analyses":
-            mock_paginator = MagicMock()
-            mock_paginator.paginate.return_value = []
-            return mock_paginator
         elif method == "list_dashboards":
             mock_paginator = MagicMock()
             mock_paginator.paginate.return_value = list_dashboards_response
@@ -92,14 +88,6 @@ async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
         elif method == "list_data_sources":
             mock_paginator = MagicMock()
             mock_paginator.paginate.return_value = list_data_sources_response
-            return mock_paginator
-        elif method == "list_folders":
-            mock_paginator = MagicMock()
-            mock_paginator.paginate.return_value = []
-            return mock_paginator
-        elif method == "list_users":
-            mock_paginator = MagicMock()
-            mock_paginator.paginate.return_value = []
             return mock_paginator
 
     mock_client = MagicMock()
