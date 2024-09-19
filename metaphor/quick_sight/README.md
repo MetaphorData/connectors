@@ -52,6 +52,7 @@ aws:
   secret_access_key: <aws_secret_access_key>
   region_name: <aws_region_name>
   assume_role_arn: <aws_role_arn>  # If using IAM role
+aws_account_id: <quick_aws_account_id>
 ```
 
 ### Optional Configurations
