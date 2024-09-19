@@ -68,7 +68,7 @@ Follow the [Installation](../../README.md) instructions to install `metaphor-con
 Run the following command to test the connector locally:
 
 ```shell
-metaphor glue <config_file>
+metaphor quick_sight <config_file>
 ```
 
 Manually verify the output after the run finishes.
