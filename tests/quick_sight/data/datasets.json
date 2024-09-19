@@ -1,0 +1,718 @@
+[
+  {
+    "ResponseMetadata": {
+      "RequestId": "084a0be5-30bb-4a0e-9175-756a44ea021c",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:06 GMT",
+        "content-type": "application/json",
+        "content-length": "4477",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "084a0be5-30bb-4a0e-9175-756a44ea021c"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "DataSet": {
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:dataset/6f516e19-84f8-4d17-9bd9-feecf1bdc346",
+      "DataSetId": "6f516e19-84f8-4d17-9bd9-feecf1bdc346",
+      "Name": "locations",
+      "CreatedTime": "2024-09-19 16:59:00.434000+08:00",
+      "LastUpdatedTime": "2024-09-19 17:30:15.605000+08:00",
+      "PhysicalTableMap": {
+        "f3b260dc-4638-4620-91fe-36f006936052": {
+          "RelationalTable": {
+            "DataSourceArn": "arn:aws:quicksight:us-west-2:123456789012:datasource/7e079648-2501-423a-be75-9ee19f351aad",
+            "Schema": "jaffle_shop",
+            "Name": "locations",
+            "InputColumns": [
+              {
+                "Name": "location_id",
+                "Type": "STRING"
+              },
+              {
+                "Name": "location_name",
+                "Type": "STRING"
+              },
+              {
+                "Name": "tax_rate",
+                "Type": "DECIMAL",
+                "SubType": "FLOAT"
+              },
+              {
+                "Name": "opened_date",
+                "Type": "DATETIME"
+              }
+            ]
+          }
+        }
+      },
+      "LogicalTableMap": {
+        "2c824bdb-87ae-43ff-bb28-b31b089be133": {
+          "Alias": "orders",
+          "DataTransforms": [
+            {
+              "RenameColumnOperation": {
+                "ColumnName": "location_id",
+                "NewColumnName": "location_id[orders]"
+              }
+            }
+          ],
+          "Source": {
+            "DataSetArn": "arn:aws:quicksight:us-west-2:123456789012:dataset/fb1b23e7-ff1f-47b7-a04e-33b30847e9a7"
+          }
+        },
+        "b46b6946-3391-41cf-8f1f-57aa6e5e3d4e": {
+          "Alias": "Intermediate Table",
+          "DataTransforms": [
+            {
+              "CreateColumnsOperation": {
+                "Columns": [
+                  {
+                    "ColumnName": "revenue",
+                    "ColumnId": "a63c9ad8-6806-4ac0-ab2d-e77cbdbd178e",
+                    "Expression": "{order_total} - {order_cost}"
+                  }
+                ]
+              }
+            },
+            {
+              "ProjectOperation": {
+                "ProjectedColumns": [
+                  "location_name",
+                  "opened_date",
+                  "order_total",
+                  "tax_paid",
+                  "ordered_at",
+                  "order_cost",
+                  "customer_name",
+                  "customer_type",
+                  "revenue"
+                ]
+              }
+            }
+          ],
+          "Source": {
+            "JoinInstruction": {
+              "LeftOperand": "ff3db8ef-966c-4631-b33f-867fdbe0c008",
+              "RightOperand": "2c824bdb-87ae-43ff-bb28-b31b089be133",
+              "Type": "RIGHT",
+              "OnClause": "{location_id} = {location_id[orders]}"
+            }
+          }
+        },
+        "ff3db8ef-966c-4631-b33f-867fdbe0c008": {
+          "Alias": "locations",
+          "Source": {
+            "PhysicalTableId": "f3b260dc-4638-4620-91fe-36f006936052"
+          }
+        }
+      },
+      "OutputColumns": [
+        {
+          "Name": "location_name",
+          "Type": "STRING"
+        },
+        {
+          "Name": "opened_date",
+          "Type": "DATETIME"
+        },
+        {
+          "Name": "order_total",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "tax_paid",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "ordered_at",
+          "Type": "DATETIME"
+        },
+        {
+          "Name": "order_cost",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "customer_name",
+          "Type": "STRING"
+        },
+        {
+          "Name": "customer_type",
+          "Type": "STRING"
+        },
+        {
+          "Name": "revenue",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        }
+      ],
+      "ImportMode": "SPICE",
+      "ConsumedSpiceCapacityInBytes": 10548419,
+      "FieldFolders": {},
+      "DataSetUsageConfiguration": {
+        "DisableUseAsDirectQuerySource": false,
+        "DisableUseAsImportedSource": false
+      }
+    },
+    "RequestId": "084a0be5-30bb-4a0e-9175-756a44ea021c"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "ce96b506-6d79-41b7-bdfe-0a9ad146ac6b",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:07 GMT",
+        "content-type": "application/json",
+        "content-length": "4260",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "ce96b506-6d79-41b7-bdfe-0a9ad146ac6b"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "DataSet": {
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:dataset/7bcddd7f-ed98-4e91-8064-9ae885f0376a",
+      "DataSetId": "7bcddd7f-ed98-4e91-8064-9ae885f0376a",
+      "Name": "sample_sales_records",
+      "CreatedTime": "2024-09-12 20:59:05.938000+08:00",
+      "LastUpdatedTime": "2024-09-19 12:20:38.550000+08:00",
+      "PhysicalTableMap": {
+        "501bd127-d6a3-45ac-843c-6fee1ccb1aad": {
+          "RelationalTable": {
+            "DataSourceArn": "arn:aws:quicksight:us-west-2:123456789012:datasource/d2603795-6ef1-403a-84f7-898fabf9458c",
+            "Schema": "public",
+            "Name": "sample_sales_records",
+            "InputColumns": [
+              {
+                "Name": "region",
+                "Type": "STRING"
+              },
+              {
+                "Name": "country",
+                "Type": "STRING"
+              },
+              {
+                "Name": "item type",
+                "Type": "STRING"
+              },
+              {
+                "Name": "sales channel",
+                "Type": "STRING"
+              },
+              {
+                "Name": "order priority",
+                "Type": "STRING"
+              },
+              {
+                "Name": "order date",
+                "Type": "STRING"
+              },
+              {
+                "Name": "order id",
+                "Type": "INTEGER"
+              },
+              {
+                "Name": "ship date",
+                "Type": "STRING"
+              },
+              {
+                "Name": "units sold",
+                "Type": "INTEGER"
+              },
+              {
+                "Name": "unit price",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              },
+              {
+                "Name": "unit cost",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              },
+              {
+                "Name": "total revenue",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              },
+              {
+                "Name": "total cost",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              },
+              {
+                "Name": "total profit",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              }
+            ]
+          }
+        }
+      },
+      "LogicalTableMap": {
+        "0d6f3fd0-9d90-4e5e-b22f-8a95324ddc19": {
+          "Alias": "sample_sales_records",
+          "DataTransforms": [
+            {
+              "TagColumnOperation": {
+                "ColumnName": "region",
+                "Tags": [
+                  {
+                    "ColumnGeographicRole": "STATE"
+                  }
+                ]
+              }
+            },
+            {
+              "TagColumnOperation": {
+                "ColumnName": "country",
+                "Tags": [
+                  {
+                    "ColumnGeographicRole": "COUNTRY"
+                  }
+                ]
+              }
+            }
+          ],
+          "Source": {
+            "PhysicalTableId": "501bd127-d6a3-45ac-843c-6fee1ccb1aad"
+          }
+        }
+      },
+      "OutputColumns": [
+        {
+          "Name": "region",
+          "Type": "STRING"
+        },
+        {
+          "Name": "country",
+          "Type": "STRING"
+        },
+        {
+          "Name": "item type",
+          "Type": "STRING"
+        },
+        {
+          "Name": "sales channel",
+          "Type": "STRING"
+        },
+        {
+          "Name": "order priority",
+          "Type": "STRING"
+        },
+        {
+          "Name": "order date",
+          "Type": "STRING"
+        },
+        {
+          "Name": "order id",
+          "Type": "INTEGER"
+        },
+        {
+          "Name": "ship date",
+          "Type": "STRING"
+        },
+        {
+          "Name": "units sold",
+          "Type": "INTEGER"
+        },
+        {
+          "Name": "unit price",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "unit cost",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "total revenue",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "total cost",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "total profit",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        }
+      ],
+      "ImportMode": "SPICE",
+      "ConsumedSpiceCapacityInBytes": 31074367,
+      "DataSetUsageConfiguration": {
+        "DisableUseAsDirectQuerySource": false,
+        "DisableUseAsImportedSource": false
+      }
+    },
+    "RequestId": "ce96b506-6d79-41b7-bdfe-0a9ad146ac6b"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "dcae33c7-adbc-4aa9-bbaa-c6b91f4da51f",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:07 GMT",
+        "content-type": "application/json",
+        "content-length": "3749",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "dcae33c7-adbc-4aa9-bbaa-c6b91f4da51f"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "DataSet": {
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:dataset/7c6a5c47-fbc7-4307-afd3-57f79864593e",
+      "DataSetId": "7c6a5c47-fbc7-4307-afd3-57f79864593e",
+      "Name": "Bike data",
+      "CreatedTime": "2024-09-18 16:17:33.463000+08:00",
+      "LastUpdatedTime": "2024-09-18 16:42:39.096000+08:00",
+      "PhysicalTableMap": {
+        "1b016641-23c2-4b17-ab94-c773333bc76d": {
+          "CustomSql": {
+            "DataSourceArn": "arn:aws:quicksight:us-west-2:123456789012:datasource/01d81128-094e-4f2c-93c5-6d9f2c049ecd",
+            "Name": "Station Docks",
+            "SqlQuery": "SELECT docks_count, id FROM RIDE_SHARE.RAW_BIKE_STATIONS",
+            "Columns": [
+              {
+                "Name": "DOCKS_COUNT",
+                "Type": "INTEGER"
+              },
+              {
+                "Name": "ID",
+                "Type": "INTEGER"
+              }
+            ]
+          }
+        },
+        "2a463fad-08c9-4a63-9aab-a786f1b41752": {
+          "CustomSql": {
+            "DataSourceArn": "arn:aws:quicksight:us-west-2:123456789012:datasource/01d81128-094e-4f2c-93c5-6d9f2c049ecd",
+            "Name": "Total Minutes By Start",
+            "SqlQuery": "SELECT total_minutes, start_station_name, month, start_station_id FROM RIDE_SHARE.CLEANED_BIKE_RIDES",
+            "Columns": [
+              {
+                "Name": "TOTAL_MINUTES",
+                "Type": "DECIMAL"
+              },
+              {
+                "Name": "START_STATION_NAME",
+                "Type": "STRING"
+              },
+              {
+                "Name": "MONTH",
+                "Type": "INTEGER"
+              },
+              {
+                "Name": "START_STATION_ID",
+                "Type": "INTEGER"
+              }
+            ]
+          }
+        }
+      },
+      "LogicalTableMap": {
+        "12f0dcb4-ff96-4123-8568-00781596eb37": {
+          "Alias": "Station Docks",
+          "Source": {
+            "PhysicalTableId": "1b016641-23c2-4b17-ab94-c773333bc76d"
+          }
+        },
+        "82e644be-26ce-44a0-bbc9-95cc88e16a5c": {
+          "Alias": "Total Minutes By Start",
+          "Source": {
+            "PhysicalTableId": "2a463fad-08c9-4a63-9aab-a786f1b41752"
+          }
+        },
+        "8c374d17-42ce-46d8-9168-84ec82670b97": {
+          "Alias": "Intermediate Table",
+          "DataTransforms": [
+            {
+              "ProjectOperation": {
+                "ProjectedColumns": [
+                  "TOTAL_MINUTES",
+                  "START_STATION_NAME",
+                  "MONTH",
+                  "START_STATION_ID",
+                  "DOCKS_COUNT"
+                ]
+              }
+            }
+          ],
+          "Source": {
+            "JoinInstruction": {
+              "LeftOperand": "82e644be-26ce-44a0-bbc9-95cc88e16a5c",
+              "RightOperand": "12f0dcb4-ff96-4123-8568-00781596eb37",
+              "RightJoinKeyProperties": {
+                "UniqueKey": true
+              },
+              "Type": "LEFT",
+              "OnClause": "{START_STATION_ID} = {ID}"
+            }
+          }
+        }
+      },
+      "OutputColumns": [
+        {
+          "Name": "TOTAL_MINUTES",
+          "Type": "DECIMAL"
+        },
+        {
+          "Name": "START_STATION_NAME",
+          "Type": "STRING"
+        },
+        {
+          "Name": "MONTH",
+          "Type": "INTEGER"
+        },
+        {
+          "Name": "START_STATION_ID",
+          "Type": "INTEGER"
+        },
+        {
+          "Name": "DOCKS_COUNT",
+          "Type": "INTEGER"
+        }
+      ],
+      "ImportMode": "DIRECT_QUERY",
+      "ConsumedSpiceCapacityInBytes": 0,
+      "FieldFolders": {},
+      "DataSetUsageConfiguration": {
+        "DisableUseAsDirectQuerySource": false,
+        "DisableUseAsImportedSource": false
+      }
+    },
+    "RequestId": "dcae33c7-adbc-4aa9-bbaa-c6b91f4da51f"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "08dfb8bf-a945-4303-b98c-6356cc7086c6",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:07 GMT",
+        "content-type": "application/json",
+        "content-length": "5236",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "08dfb8bf-a945-4303-b98c-6356cc7086c6"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "DataSet": {
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:dataset/fb1b23e7-ff1f-47b7-a04e-33b30847e9a7",
+      "DataSetId": "fb1b23e7-ff1f-47b7-a04e-33b30847e9a7",
+      "Name": "orders",
+      "CreatedTime": "2024-09-18 15:59:12.164000+08:00",
+      "LastUpdatedTime": "2024-09-18 16:09:07.953000+08:00",
+      "PhysicalTableMap": {
+        "48cf151b-0e89-4707-a901-871f69b22017": {
+          "RelationalTable": {
+            "DataSourceArn": "arn:aws:quicksight:us-west-2:123456789012:datasource/7e079648-2501-423a-be75-9ee19f351aad",
+            "Schema": "jaffle_shop",
+            "Name": "customers",
+            "InputColumns": [
+              {
+                "Name": "customer_id",
+                "Type": "STRING"
+              },
+              {
+                "Name": "customer_name",
+                "Type": "STRING"
+              },
+              {
+                "Name": "count_lifetime_orders",
+                "Type": "INTEGER"
+              },
+              {
+                "Name": "first_ordered_at",
+                "Type": "DATETIME"
+              },
+              {
+                "Name": "last_ordered_at",
+                "Type": "DATETIME"
+              },
+              {
+                "Name": "lifetime_spend_pretax",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              },
+              {
+                "Name": "lifetime_spend",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              },
+              {
+                "Name": "customer_type",
+                "Type": "STRING"
+              }
+            ]
+          }
+        },
+        "4e4695f3-6178-447b-947e-289363740a82": {
+          "RelationalTable": {
+            "DataSourceArn": "arn:aws:quicksight:us-west-2:123456789012:datasource/7e079648-2501-423a-be75-9ee19f351aad",
+            "Schema": "jaffle_shop",
+            "Name": "orders",
+            "InputColumns": [
+              {
+                "Name": "order_id",
+                "Type": "STRING"
+              },
+              {
+                "Name": "location_id",
+                "Type": "STRING"
+              },
+              {
+                "Name": "customer_id",
+                "Type": "STRING"
+              },
+              {
+                "Name": "order_total",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              },
+              {
+                "Name": "tax_paid",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              },
+              {
+                "Name": "ordered_at",
+                "Type": "DATETIME"
+              },
+              {
+                "Name": "is_food_order",
+                "Type": "BIT"
+              },
+              {
+                "Name": "is_drink_order",
+                "Type": "BIT"
+              },
+              {
+                "Name": "order_cost",
+                "Type": "DECIMAL",
+                "SubType": "FIXED"
+              }
+            ]
+          }
+        }
+      },
+      "LogicalTableMap": {
+        "8f75cca0-6d39-48bd-9c4a-9d3a7015562e": {
+          "Alias": "Intermediate Table",
+          "DataTransforms": [
+            {
+              "ProjectOperation": {
+                "ProjectedColumns": [
+                  "order_id",
+                  "location_id",
+                  "customer_id",
+                  "order_total",
+                  "tax_paid",
+                  "ordered_at",
+                  "is_food_order",
+                  "is_drink_order",
+                  "order_cost",
+                  "customer_name",
+                  "customer_type"
+                ]
+              }
+            }
+          ],
+          "Source": {
+            "JoinInstruction": {
+              "LeftOperand": "a7b9ddbf-9fdf-48df-8952-b75b972fcc5d",
+              "RightOperand": "fb24929a-5175-4485-b934-5210fbd09dae",
+              "Type": "LEFT",
+              "OnClause": "{customer_id} = {customer_id[customers]}"
+            }
+          }
+        },
+        "a7b9ddbf-9fdf-48df-8952-b75b972fcc5d": {
+          "Alias": "orders",
+          "Source": {
+            "PhysicalTableId": "4e4695f3-6178-447b-947e-289363740a82"
+          }
+        },
+        "fb24929a-5175-4485-b934-5210fbd09dae": {
+          "Alias": "customers",
+          "DataTransforms": [
+            {
+              "RenameColumnOperation": {
+                "ColumnName": "customer_id",
+                "NewColumnName": "customer_id[customers]"
+              }
+            }
+          ],
+          "Source": {
+            "PhysicalTableId": "48cf151b-0e89-4707-a901-871f69b22017"
+          }
+        }
+      },
+      "OutputColumns": [
+        {
+          "Name": "order_id",
+          "Type": "STRING"
+        },
+        {
+          "Name": "location_id",
+          "Type": "STRING"
+        },
+        {
+          "Name": "customer_id",
+          "Type": "STRING"
+        },
+        {
+          "Name": "order_total",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "tax_paid",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "ordered_at",
+          "Type": "DATETIME"
+        },
+        {
+          "Name": "is_food_order",
+          "Type": "INTEGER"
+        },
+        {
+          "Name": "is_drink_order",
+          "Type": "INTEGER"
+        },
+        {
+          "Name": "order_cost",
+          "Type": "DECIMAL",
+          "SubType": "FIXED"
+        },
+        {
+          "Name": "customer_name",
+          "Type": "STRING"
+        },
+        {
+          "Name": "customer_type",
+          "Type": "STRING"
+        }
+      ],
+      "ImportMode": "SPICE",
+      "ConsumedSpiceCapacityInBytes": 19224167,
+      "FieldFolders": {},
+      "DataSetUsageConfiguration": {
+        "DisableUseAsDirectQuerySource": false,
+        "DisableUseAsImportedSource": false
+      }
+    },
+    "RequestId": "08dfb8bf-a945-4303-b98c-6356cc7086c6"
+  }
+]

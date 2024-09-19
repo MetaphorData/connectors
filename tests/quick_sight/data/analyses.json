@@ -1,0 +1,233 @@
+[
+  {
+    "ResponseMetadata": {
+      "RequestId": "adebf88a-fde7-42ea-94e1-0a3e1bc31710",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:09 GMT",
+        "content-type": "application/json",
+        "content-length": "904",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "adebf88a-fde7-42ea-94e1-0a3e1bc31710"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Analysis": {
+      "AnalysisId": "0176e428-e196-4cd8-b651-30971b6e6aa4",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:analysis/0176e428-e196-4cd8-b651-30971b6e6aa4",
+      "Name": "sample_sales_records analysis",
+      "Status": "CREATION_SUCCESSFUL",
+      "DataSetArns": [
+        "arn:aws:quicksight:us-west-2:123456789012:dataset/7bcddd7f-ed98-4e91-8064-9ae885f0376a"
+      ],
+      "CreatedTime": "2024-09-12 20:59:06.595000+08:00",
+      "LastUpdatedTime": "2024-09-12 21:00:51.324000+08:00",
+      "Sheets": [
+        {
+          "SheetId": "2ec249d2-c888-47c0-a7bb-f46e4e7d0e26",
+          "Name": "Revenue and Cost by Country"
+        }
+      ]
+    },
+    "RequestId": "adebf88a-fde7-42ea-94e1-0a3e1bc31710"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "46f427b7-8d73-4e28-baa0-cd5936f28093",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:10 GMT",
+        "content-type": "application/json",
+        "content-length": "866",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "46f427b7-8d73-4e28-baa0-cd5936f28093"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Analysis": {
+      "AnalysisId": "21784255-c3af-42d7-a9ae-8b2029650c22",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:analysis/21784255-c3af-42d7-a9ae-8b2029650c22",
+      "Name": "Sales Pipeline analysis",
+      "Status": "DELETED",
+      "DataSetArns": [
+        "arn:aws:quicksight:us-west-2:123456789012:dataset/80c63b2b-800d-48fc-8282-a7514251a6ce"
+      ],
+      "CreatedTime": "2024-09-12 18:36:46.827000+08:00",
+      "LastUpdatedTime": "2024-09-18 15:55:03.934000+08:00",
+      "Sheets": [
+        {
+          "SheetId": "26c1b974-bf92-4960-9f6a-790caffe1c40",
+          "Name": "Sheet 1"
+        }
+      ]
+    },
+    "RequestId": "46f427b7-8d73-4e28-baa0-cd5936f28093"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "e08ad991-45bc-4fe2-ba57-f8c4f4c103c6",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:10 GMT",
+        "content-type": "application/json",
+        "content-length": "867",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "e08ad991-45bc-4fe2-ba57-f8c4f4c103c6"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Analysis": {
+      "AnalysisId": "291839e6-e6a2-4345-933d-4fba6cb05387",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:analysis/291839e6-e6a2-4345-933d-4fba6cb05387",
+      "Name": "Business Review analysis",
+      "Status": "DELETED",
+      "DataSetArns": [
+        "arn:aws:quicksight:us-west-2:123456789012:dataset/9178dfce-4663-4d57-8a56-cf749eb6a5c2"
+      ],
+      "CreatedTime": "2024-09-12 18:36:46.802000+08:00",
+      "LastUpdatedTime": "2024-09-18 15:55:07.242000+08:00",
+      "Sheets": [
+        {
+          "SheetId": "9f4347a1-6329-49c6-b1ea-b9ec12c90e86",
+          "Name": "Sheet 1"
+        }
+      ]
+    },
+    "RequestId": "e08ad991-45bc-4fe2-ba57-f8c4f4c103c6"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "5d5dedd6-f108-4bf6-bf5f-ad32a253e066",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:11 GMT",
+        "content-type": "application/json",
+        "content-length": "867",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "5d5dedd6-f108-4bf6-bf5f-ad32a253e066"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Analysis": {
+      "AnalysisId": "79282e34-fbc6-4dae-8f09-a7127efdf09e",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:analysis/79282e34-fbc6-4dae-8f09-a7127efdf09e",
+      "Name": "People Overview analysis",
+      "Status": "DELETED",
+      "DataSetArns": [
+        "arn:aws:quicksight:us-west-2:123456789012:dataset/96ac4f3c-feb2-4eb0-b058-5bd2c721b9bf"
+      ],
+      "CreatedTime": "2024-09-12 18:36:46.916000+08:00",
+      "LastUpdatedTime": "2024-09-18 15:55:01.182000+08:00",
+      "Sheets": [
+        {
+          "SheetId": "af6bbb73-56a0-451e-aafc-3877a02522a2",
+          "Name": "Sheet 1"
+        }
+      ]
+    },
+    "RequestId": "5d5dedd6-f108-4bf6-bf5f-ad32a253e066"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "5a1ac04a-e5c8-4f81-b122-bcbf14a3ac61",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:11 GMT",
+        "content-type": "application/json",
+        "content-length": "882",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "5a1ac04a-e5c8-4f81-b122-bcbf14a3ac61"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Analysis": {
+      "AnalysisId": "9fcd1e1d-2a02-4d6b-9115-42d39b5c66d8",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:analysis/9fcd1e1d-2a02-4d6b-9115-42d39b5c66d8",
+      "Name": "Web and Social Media Analytics analysis",
+      "Status": "DELETED",
+      "DataSetArns": [
+        "arn:aws:quicksight:us-west-2:123456789012:dataset/329d9a80-6578-4cdd-adf0-517ca6e9f204"
+      ],
+      "CreatedTime": "2024-09-12 18:36:46.789000+08:00",
+      "LastUpdatedTime": "2024-09-18 15:55:10.478000+08:00",
+      "Sheets": [
+        {
+          "SheetId": "4f76279b-bc6d-4544-ba41-929ee190c55d",
+          "Name": "Sheet 1"
+        }
+      ]
+    },
+    "RequestId": "5a1ac04a-e5c8-4f81-b122-bcbf14a3ac61"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "6b1b1b98-1137-4f0d-9e0b-bb5d81444616",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:12 GMT",
+        "content-type": "application/json",
+        "content-length": "905",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "6b1b1b98-1137-4f0d-9e0b-bb5d81444616"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Analysis": {
+      "AnalysisId": "b00a97f9-f822-49e5-af92-3f42558af443",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:analysis/b00a97f9-f822-49e5-af92-3f42558af443",
+      "Name": "New custom SQL analysis",
+      "Status": "CREATION_SUCCESSFUL",
+      "DataSetArns": [
+        "arn:aws:quicksight:us-west-2:123456789012:dataset/7c6a5c47-fbc7-4307-afd3-57f79864593e"
+      ],
+      "CreatedTime": "2024-09-18 16:20:34.284000+08:00",
+      "LastUpdatedTime": "2024-09-18 16:23:35.564000+08:00",
+      "Sheets": [
+        {
+          "SheetId": "44c0a3d2-0d27-45a9-8594-4c192bf77f52",
+          "Name": "Relation between minutes and docks"
+        }
+      ]
+    },
+    "RequestId": "6b1b1b98-1137-4f0d-9e0b-bb5d81444616"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "be7f4f56-c19c-4e86-9f8f-da4d1f9b4009",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:13 GMT",
+        "content-type": "application/json",
+        "content-length": "870",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "be7f4f56-c19c-4e86-9f8f-da4d1f9b4009"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Analysis": {
+      "AnalysisId": "b1af962f-7251-426a-ac36-286156e3ce31",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:analysis/b1af962f-7251-426a-ac36-286156e3ce31",
+      "Name": "orders analysis",
+      "Status": "CREATION_SUCCESSFUL",
+      "DataSetArns": [
+        "arn:aws:quicksight:us-west-2:123456789012:dataset/fb1b23e7-ff1f-47b7-a04e-33b30847e9a7"
+      ],
+      "CreatedTime": "2024-09-18 15:59:12.696000+08:00",
+      "LastUpdatedTime": "2024-09-18 16:09:01.073000+08:00",
+      "Sheets": [
+        {
+          "SheetId": "74f6d342-3f1b-4924-a609-178b72bf06b1",
+          "Name": "Sheet 1"
+        }
+      ]
+    },
+    "RequestId": "be7f4f56-c19c-4e86-9f8f-da4d1f9b4009"
+  }
+]

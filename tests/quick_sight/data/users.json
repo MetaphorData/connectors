@@ -1,0 +1,11 @@
+[
+  {
+    "Arn": "arn:aws:quicksight:us-west-2:123123123:user/default/asdlaskjdlkajlkj/foo@metaphor.io",
+    "UserName": "AWSReservedSSO_SREAccess_c74f2795bc19f9e2/foo@metaphor.io",
+    "Email": "test@foo.bar",
+    "Role": "ADMIN",
+    "IdentityType": "IAM",
+    "Active": true,
+    "PrincipalId": "federated/iam/asldjli1:foo@metaphor.io"
+  }
+]

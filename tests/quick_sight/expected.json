@@ -1,0 +1,709 @@
+[
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "order_total",
+          "sources": [
+            {
+              "field": "order_total",
+              "sourceEntityId": "VIRTUAL_VIEW~543D1D7F1F0469635E8A454303BA2913"
+            }
+          ]
+        },
+        {
+          "destination": "tax_paid",
+          "sources": [
+            {
+              "field": "tax_paid",
+              "sourceEntityId": "VIRTUAL_VIEW~543D1D7F1F0469635E8A454303BA2913"
+            }
+          ]
+        },
+        {
+          "destination": "ordered_at",
+          "sources": [
+            {
+              "field": "ordered_at",
+              "sourceEntityId": "VIRTUAL_VIEW~543D1D7F1F0469635E8A454303BA2913"
+            }
+          ]
+        },
+        {
+          "destination": "order_cost",
+          "sources": [
+            {
+              "field": "order_cost",
+              "sourceEntityId": "VIRTUAL_VIEW~543D1D7F1F0469635E8A454303BA2913"
+            }
+          ]
+        },
+        {
+          "destination": "customer_name",
+          "sources": [
+            {
+              "field": "customer_name",
+              "sourceEntityId": "VIRTUAL_VIEW~543D1D7F1F0469635E8A454303BA2913"
+            }
+          ]
+        },
+        {
+          "destination": "customer_type",
+          "sources": [
+            {
+              "field": "customer_type",
+              "sourceEntityId": "VIRTUAL_VIEW~543D1D7F1F0469635E8A454303BA2913"
+            }
+          ]
+        },
+        {
+          "destination": "revenue",
+          "sources": []
+        },
+        {
+          "destination": "location_id",
+          "sources": [
+            {
+              "field": "location_id",
+              "sourceEntityId": "DATASET~D35648E120DEEA5750A87336C6AA2D25"
+            }
+          ]
+        },
+        {
+          "destination": "location_name",
+          "sources": [
+            {
+              "field": "location_name",
+              "sourceEntityId": "DATASET~D35648E120DEEA5750A87336C6AA2D25"
+            }
+          ]
+        },
+        {
+          "destination": "tax_rate",
+          "sources": [
+            {
+              "field": "tax_rate",
+              "sourceEntityId": "DATASET~D35648E120DEEA5750A87336C6AA2D25"
+            }
+          ]
+        },
+        {
+          "destination": "opened_date",
+          "sources": [
+            {
+              "field": "opened_date",
+              "sourceEntityId": "DATASET~D35648E120DEEA5750A87336C6AA2D25"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~D35648E120DEEA5750A87336C6AA2D25",
+        "VIRTUAL_VIEW~543D1D7F1F0469635E8A454303BA2913"
+      ]
+    },
+    "logicalId": {
+      "name": "arn:aws:quicksight:us-west-2:123456789012:dataset/6f516e19-84f8-4d17-9bd9-feecf1bdc346",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "location_name",
+          "fieldPath": "location_name",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "opened_date",
+          "fieldPath": "opened_date",
+          "type": "DATETIME"
+        },
+        {
+          "fieldName": "order_total",
+          "fieldPath": "order_total",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "tax_paid",
+          "fieldPath": "tax_paid",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "ordered_at",
+          "fieldPath": "ordered_at",
+          "type": "DATETIME"
+        },
+        {
+          "fieldName": "order_cost",
+          "fieldPath": "order_cost",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "customer_name",
+          "fieldPath": "customer_name",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "customer_type",
+          "fieldPath": "customer_type",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "revenue",
+          "fieldPath": "revenue",
+          "formula": "{order_total} - {order_cost}",
+          "optionalType": "FORMULA",
+          "type": "DECIMAL"
+        }
+      ]
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-19T16:59:00.434000+08:00",
+      "lastUpdated": "2024-09-19T17:30:15.605000+08:00"
+    },
+    "structure": {
+      "name": "locations"
+    }
+  },
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "region",
+          "sources": [
+            {
+              "field": "region",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "country",
+          "sources": [
+            {
+              "field": "country",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "item type",
+          "sources": [
+            {
+              "field": "item type",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "sales channel",
+          "sources": [
+            {
+              "field": "sales channel",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "order priority",
+          "sources": [
+            {
+              "field": "order priority",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "order date",
+          "sources": [
+            {
+              "field": "order date",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "order id",
+          "sources": [
+            {
+              "field": "order id",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "ship date",
+          "sources": [
+            {
+              "field": "ship date",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "units sold",
+          "sources": [
+            {
+              "field": "units sold",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "unit price",
+          "sources": [
+            {
+              "field": "unit price",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "unit cost",
+          "sources": [
+            {
+              "field": "unit cost",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "total revenue",
+          "sources": [
+            {
+              "field": "total revenue",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "total cost",
+          "sources": [
+            {
+              "field": "total cost",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        },
+        {
+          "destination": "total profit",
+          "sources": [
+            {
+              "field": "total profit",
+              "sourceEntityId": "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~B639ACB48EEE0795206A61803BC37DDF"
+      ]
+    },
+    "logicalId": {
+      "name": "arn:aws:quicksight:us-west-2:123456789012:dataset/7bcddd7f-ed98-4e91-8064-9ae885f0376a",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "region",
+          "fieldPath": "region",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "country",
+          "fieldPath": "country",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "item type",
+          "fieldPath": "item type",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "sales channel",
+          "fieldPath": "sales channel",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "order priority",
+          "fieldPath": "order priority",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "order date",
+          "fieldPath": "order date",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "order id",
+          "fieldPath": "order id",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "ship date",
+          "fieldPath": "ship date",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "units sold",
+          "fieldPath": "units sold",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "unit price",
+          "fieldPath": "unit price",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "unit cost",
+          "fieldPath": "unit cost",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "total revenue",
+          "fieldPath": "total revenue",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "total cost",
+          "fieldPath": "total cost",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "total profit",
+          "fieldPath": "total profit",
+          "type": "DECIMAL"
+        }
+      ]
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-12T20:59:05.938000+08:00",
+      "lastUpdated": "2024-09-19T12:20:38.550000+08:00"
+    },
+    "structure": {
+      "name": "sample_sales_records"
+    }
+  },
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "docks_count",
+          "sources": []
+        },
+        {
+          "destination": "total_minutes",
+          "sources": []
+        },
+        {
+          "destination": "start_station_name",
+          "sources": []
+        },
+        {
+          "destination": "month",
+          "sources": []
+        },
+        {
+          "destination": "start_station_id",
+          "sources": []
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~83E8304683CD6C30CA41557A39C4DF25",
+        "DATASET~E2EB9491F5BDD97D1591D2454917F450"
+      ]
+    },
+    "logicalId": {
+      "name": "arn:aws:quicksight:us-west-2:123456789012:dataset/7c6a5c47-fbc7-4307-afd3-57f79864593e",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "TOTAL_MINUTES",
+          "fieldPath": "total_minutes",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "START_STATION_NAME",
+          "fieldPath": "start_station_name",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "MONTH",
+          "fieldPath": "month",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "START_STATION_ID",
+          "fieldPath": "start_station_id",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "DOCKS_COUNT",
+          "fieldPath": "docks_count",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-18T16:17:33.463000+08:00",
+      "lastUpdated": "2024-09-18T16:42:39.096000+08:00"
+    },
+    "structure": {
+      "name": "Bike data"
+    }
+  },
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "order_id",
+          "sources": [
+            {
+              "field": "order_id",
+              "sourceEntityId": "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5"
+            }
+          ]
+        },
+        {
+          "destination": "location_id",
+          "sources": [
+            {
+              "field": "location_id",
+              "sourceEntityId": "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5"
+            }
+          ]
+        },
+        {
+          "destination": "order_total",
+          "sources": [
+            {
+              "field": "order_total",
+              "sourceEntityId": "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5"
+            }
+          ]
+        },
+        {
+          "destination": "tax_paid",
+          "sources": [
+            {
+              "field": "tax_paid",
+              "sourceEntityId": "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5"
+            }
+          ]
+        },
+        {
+          "destination": "ordered_at",
+          "sources": [
+            {
+              "field": "ordered_at",
+              "sourceEntityId": "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5"
+            }
+          ]
+        },
+        {
+          "destination": "is_food_order",
+          "sources": [
+            {
+              "field": "is_food_order",
+              "sourceEntityId": "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5"
+            }
+          ]
+        },
+        {
+          "destination": "is_drink_order",
+          "sources": [
+            {
+              "field": "is_drink_order",
+              "sourceEntityId": "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5"
+            }
+          ]
+        },
+        {
+          "destination": "order_cost",
+          "sources": [
+            {
+              "field": "order_cost",
+              "sourceEntityId": "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5"
+            }
+          ]
+        },
+        {
+          "destination": "customer_name",
+          "sources": [
+            {
+              "field": "customer_name",
+              "sourceEntityId": "DATASET~F6D22C1B6C06D037407B74D2D708058E"
+            }
+          ]
+        },
+        {
+          "destination": "customer_type",
+          "sources": [
+            {
+              "field": "customer_type",
+              "sourceEntityId": "DATASET~F6D22C1B6C06D037407B74D2D708058E"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~1D56ACA83CDEEDC47163BA86B7ADF5C5",
+        "DATASET~F6D22C1B6C06D037407B74D2D708058E"
+      ]
+    },
+    "logicalId": {
+      "name": "arn:aws:quicksight:us-west-2:123456789012:dataset/fb1b23e7-ff1f-47b7-a04e-33b30847e9a7",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "order_id",
+          "fieldPath": "order_id",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "location_id",
+          "fieldPath": "location_id",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "customer_id",
+          "fieldPath": "customer_id",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "order_total",
+          "fieldPath": "order_total",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "tax_paid",
+          "fieldPath": "tax_paid",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "ordered_at",
+          "fieldPath": "ordered_at",
+          "type": "DATETIME"
+        },
+        {
+          "fieldName": "is_food_order",
+          "fieldPath": "is_food_order",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "is_drink_order",
+          "fieldPath": "is_drink_order",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "order_cost",
+          "fieldPath": "order_cost",
+          "type": "DECIMAL"
+        },
+        {
+          "fieldName": "customer_name",
+          "fieldPath": "customer_name",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "customer_type",
+          "fieldPath": "customer_type",
+          "type": "STRING"
+        }
+      ]
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-18T15:59:12.164000+08:00",
+      "lastUpdated": "2024-09-18T16:09:07.953000+08:00"
+    },
+    "structure": {
+      "name": "orders"
+    }
+  },
+  {
+    "dashboardInfo": {
+      "charts": [
+        {
+          "chartType": "OTHER",
+          "title": "Revenue and Cost by Country"
+        }
+      ],
+      "title": "Sales"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~C791C9EC7B680B3BAF65B79D1765219B"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "arn:aws:quicksight:us-west-2:123456789012:dashboard/1c9b51b1-3204-4ee3-9491-e92ddded8518",
+      "platform": "QUICK_SIGHT"
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-12T21:01:13.249000+08:00",
+      "lastUpdated": "2024-09-12T21:01:13.244000+08:00"
+    },
+    "structure": {
+      "name": "Sales"
+    }
+  },
+  {
+    "dashboardInfo": {
+      "charts": [
+        {
+          "chartType": "OTHER",
+          "title": "Relation between minutes and docks"
+        }
+      ],
+      "title": "Bike rides"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~042F9509D727CB7FE827A0FF0AD9DDEE"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "arn:aws:quicksight:us-west-2:123456789012:dashboard/eb39c0d9-d071-43e6-b75a-cc303752b702",
+      "platform": "QUICK_SIGHT"
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-18T16:24:00.929000+08:00",
+      "lastUpdated": "2024-09-18T16:24:00.923000+08:00"
+    },
+    "structure": {
+      "name": "Bike rides"
+    }
+  },
+  {
+    "dashboardInfo": {
+      "charts": [
+        {
+          "chartType": "OTHER",
+          "title": "Sheet 1"
+        }
+      ],
+      "title": "Jaffle Shop Orders"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~543D1D7F1F0469635E8A454303BA2913"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "arn:aws:quicksight:us-west-2:123456789012:dashboard/fea7f6ce-ac23-44f4-bf9b-fb03b535403e",
+      "platform": "QUICK_SIGHT"
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-18T16:09:35.235000+08:00",
+      "lastUpdated": "2024-09-18T16:09:35.228000+08:00"
+    },
+    "structure": {
+      "name": "Jaffle Shop Orders"
+    }
+  }
+]

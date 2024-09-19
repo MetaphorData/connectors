@@ -1,0 +1,131 @@
+[
+  {
+    "ResponseMetadata": {
+      "RequestId": "4a45406f-cd36-4d6b-8b16-fd6e0403e2f3",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:08 GMT",
+        "content-type": "application/json",
+        "content-length": "1420",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "4a45406f-cd36-4d6b-8b16-fd6e0403e2f3"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Dashboard": {
+      "DashboardId": "1c9b51b1-3204-4ee3-9491-e92ddded8518",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:dashboard/1c9b51b1-3204-4ee3-9491-e92ddded8518",
+      "Name": "Sales",
+      "Version": {
+        "CreatedTime": "2024-09-12 21:01:13.244000+08:00",
+        "Errors": [],
+        "VersionNumber": 1,
+        "Status": "CREATION_SUCCESSFUL",
+        "SourceEntityArn": "arn:aws:quicksight:us-west-2:123456789012:analysis/0176e428-e196-4cd8-b651-30971b6e6aa4",
+        "DataSetArns": [
+          "arn:aws:quicksight:us-west-2:123456789012:dataset/7bcddd7f-ed98-4e91-8064-9ae885f0376a"
+        ],
+        "Sheets": [
+          {
+            "SheetId": "1c9b51b1-3204-4ee3-9491-e92ddded8518_2ec249d2-c888-47c0-a7bb-f46e4e7d0e26",
+            "Name": "Revenue and Cost by Country"
+          }
+        ]
+      },
+      "CreatedTime": "2024-09-12 21:01:13.249000+08:00",
+      "LastPublishedTime": "2024-09-12 21:01:13.249000+08:00",
+      "LastUpdatedTime": "2024-09-12 21:01:13.244000+08:00",
+      "LinkEntities": [
+        "arn:aws:quicksight:us-west-2:123456789012:analysis/0176e428-e196-4cd8-b651-30971b6e6aa4"
+      ]
+    },
+    "RequestId": "4a45406f-cd36-4d6b-8b16-fd6e0403e2f3"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "0dc50b4e-5138-4d8f-8670-ebfae0f4e6bc",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:08 GMT",
+        "content-type": "application/json",
+        "content-length": "1426",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "0dc50b4e-5138-4d8f-8670-ebfae0f4e6bc"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Dashboard": {
+      "DashboardId": "eb39c0d9-d071-43e6-b75a-cc303752b702",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:dashboard/eb39c0d9-d071-43e6-b75a-cc303752b702",
+      "Name": "Bike rides",
+      "Version": {
+        "CreatedTime": "2024-09-18 16:24:00.923000+08:00",
+        "Errors": [],
+        "VersionNumber": 1,
+        "Status": "CREATION_SUCCESSFUL",
+        "SourceEntityArn": "arn:aws:quicksight:us-west-2:123456789012:analysis/b00a97f9-f822-49e5-af92-3f42558af443",
+        "DataSetArns": [
+          "arn:aws:quicksight:us-west-2:123456789012:dataset/7c6a5c47-fbc7-4307-afd3-57f79864593e"
+        ],
+        "Sheets": [
+          {
+            "SheetId": "eb39c0d9-d071-43e6-b75a-cc303752b702_44c0a3d2-0d27-45a9-8594-4c192bf77f52",
+            "Name": "Relation between minutes and docks"
+          }
+        ]
+      },
+      "CreatedTime": "2024-09-18 16:24:00.929000+08:00",
+      "LastPublishedTime": "2024-09-18 16:24:00.929000+08:00",
+      "LastUpdatedTime": "2024-09-18 16:24:00.923000+08:00",
+      "LinkEntities": [
+        "arn:aws:quicksight:us-west-2:123456789012:analysis/b00a97f9-f822-49e5-af92-3f42558af443"
+      ]
+    },
+    "RequestId": "0dc50b4e-5138-4d8f-8670-ebfae0f4e6bc"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "823923d6-3cb3-4c8f-b636-381b01ad7862",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:09 GMT",
+        "content-type": "application/json",
+        "content-length": "1399",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "823923d6-3cb3-4c8f-b636-381b01ad7862"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "Dashboard": {
+      "DashboardId": "fea7f6ce-ac23-44f4-bf9b-fb03b535403e",
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:dashboard/fea7f6ce-ac23-44f4-bf9b-fb03b535403e",
+      "Name": "Jaffle Shop Orders",
+      "Version": {
+        "CreatedTime": "2024-09-18 16:09:35.228000+08:00",
+        "Errors": [],
+        "VersionNumber": 1,
+        "Status": "CREATION_SUCCESSFUL",
+        "SourceEntityArn": "arn:aws:quicksight:us-west-2:123456789012:analysis/b1af962f-7251-426a-ac36-286156e3ce31",
+        "DataSetArns": [
+          "arn:aws:quicksight:us-west-2:123456789012:dataset/fb1b23e7-ff1f-47b7-a04e-33b30847e9a7"
+        ],
+        "Sheets": [
+          {
+            "SheetId": "fea7f6ce-ac23-44f4-bf9b-fb03b535403e_74f6d342-3f1b-4924-a609-178b72bf06b1",
+            "Name": "Sheet 1"
+          }
+        ]
+      },
+      "CreatedTime": "2024-09-18 16:09:35.235000+08:00",
+      "LastPublishedTime": "2024-09-18 16:09:35.235000+08:00",
+      "LastUpdatedTime": "2024-09-18 16:09:35.228000+08:00",
+      "LinkEntities": [
+        "arn:aws:quicksight:us-west-2:123456789012:analysis/b1af962f-7251-426a-ac36-286156e3ce31"
+      ]
+    },
+    "RequestId": "823923d6-3cb3-4c8f-b636-381b01ad7862"
+  }
+]
