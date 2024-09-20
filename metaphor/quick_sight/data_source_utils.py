@@ -101,5 +101,5 @@ def get_account(data_source: DataSource) -> Optional[str]:
         )
 
     if parameters.SqlServerParameters:
-        return parameters.SqlServerParameters.Database
+        return parameters.SqlServerParameters.Host
     return None
