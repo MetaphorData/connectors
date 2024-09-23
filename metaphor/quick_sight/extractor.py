@@ -1,13 +1,9 @@
-import enum
 from typing import Collection, Dict, List
-
-import boto3
-from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import to_entity_id_from_virtual_view_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.logger import get_logger, json_dump_to_debug_file
+from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import AssetStructure, Chart, ChartType
@@ -20,41 +16,22 @@ from metaphor.models.metadata_change_event import (
     DashboardPlatform as MetaphorDashboardPlatform,
 )
 from metaphor.models.metadata_change_event import (
-    Dataset,
     EntityUpstream,
     SourceInfo,
     VirtualView,
     VirtualViewLogicalID,
     VirtualViewType,
 )
-from metaphor.quick_sight.cll import process_dataset_column_lineage
-from metaphor.quick_sight.config import AwsCredentials, QuickSightRunConfig
-from metaphor.quick_sight.models import Dashboard, DataSet, DataSource, ResourceType
+from metaphor.quick_sight.client import Client
+from metaphor.quick_sight.config import QuickSightRunConfig
+from metaphor.quick_sight.lineage import (
+    extract_virtual_view_schema,
+    extract_virtual_view_upstream,
+    process_dataset_lineage,
+)
+from metaphor.quick_sight.models import Dashboard, DataSet, ResourceType
 
 logger = get_logger()
-
-
-def create_quick_sight_client(aws: AwsCredentials) -> boto3.client:
-    return aws.get_session().client("quicksight")
-
-
-class Endpoint(enum.Enum):
-    list_dashboards = "list_dashboards"
-    list_data_sets = "list_data_sets"
-    list_data_sources = "list_data_sources"
-
-
-@dataclass
-class EndpointDictKeys:
-    list_key: str
-    item_key: str
-
-
-ENDPOINT_SETTING = {
-    Endpoint.list_data_sets: EndpointDictKeys("DataSetSummaries", "DataSetId"),
-    Endpoint.list_dashboards: EndpointDictKeys("DashboardSummaryList", "DashboardId"),
-    Endpoint.list_data_sources: EndpointDictKeys("DataSources", "DataSourceId"),
-}
 
 
 class QuickSightExtractor(BaseExtractor):
@@ -69,7 +46,6 @@ class QuickSightExtractor(BaseExtractor):
 
     def __init__(self, config: QuickSightRunConfig) -> None:
         super().__init__(config)
-        self._datasets: Dict[str, Dataset] = {}
         self._aws_config = config.aws
         self._aws_account_id = config.aws_account_id
 
@@ -79,49 +55,37 @@ class QuickSightExtractor(BaseExtractor):
         # Arn -> VirtualView
         self._virtual_views: Dict[str, VirtualView] = {}
 
+        # Arn -> Dashboard
+        self._dashboards: Dict[str, MetaphorDashboard] = {}
+
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from QuickSight")
 
-        self._client = create_quick_sight_client(self._aws_config)
+        client = Client(self._aws_config, self._aws_account_id, self._resources)
+        client.get_resources()
 
-        self._get_resources()
+        self._extract_virtual_views()
+        self._extract_dashboards()
 
-        self._extract_virtual_view()
-
-        entities: List[ENTITY_TYPES] = []
-        entities.extend(self._virtual_views.values())
-        entities.extend(self._extract_dashboard())
-
-        return entities
-
-    def _get_resources(self):
-        self._get_dataset_detail()
-        self._get_dashboard_detail()
-        self._get_data_source_detail()
+        return self._make_entities_list()
 
     def _extract_virtual_views(self):
         for data_set in self._resources.values():
-            if not isinstance(data_set, DataSet):
+            if not isinstance(data_set, DataSet) or data_set.Arn is None:
                 continue
 
-            view = VirtualView(
-                logical_id=VirtualViewLogicalID(
-                    name=data_set.Arn,
-                    type=VirtualViewType.QUICK_SIGHT,
-                ),
-                structure=AssetStructure(name=data_set.Name),
-                source_info=SourceInfo(
-                    created_at_source=data_set.CreatedTime,
-                    last_updated=data_set.LastUpdatedTime,
-                ),
+            view = self._init_virtual_view(data_set.Arn, data_set)
+
+            columns, source_entities = process_dataset_lineage(
+                self._resources, data_set
             )
 
-            process_dataset_column_lineage(self._resources, data_set, view)
+            view.schema = extract_virtual_view_schema(data_set, columns)
+            view.entity_upstream = extract_virtual_view_upstream(
+                columns, source_entities
+            )
 
-            self._virtual_views[data_set.Arn] = view
-
-    def _extract_dashboards(self) -> List[MetaphorDashboard]:
-        dashboards: List[MetaphorDashboard] = []
+    def _extract_dashboards(self) -> None:
         for dashboard in self._resources.values():
             if (
                 not isinstance(dashboard, Dashboard)
@@ -130,117 +94,81 @@ class QuickSightExtractor(BaseExtractor):
             ):
                 continue
 
-            metaphor_dashboard = MetaphorDashboard(
-                logical_id=MetaphorDashboardLogicalId(
-                    dashboard_id=dashboard.Arn,
-                    platform=MetaphorDashboardPlatform.QUICK_SIGHT,
-                ),
-                source_info=SourceInfo(
-                    created_at_source=dashboard.CreatedTime,
-                    last_updated=dashboard.LastUpdatedTime,
-                ),
-                structure=AssetStructure(
-                    name=dashboard.Name,
-                ),
+            metaphor_dashboard = self._init_dashboard(dashboard.Arn, dashboard)
+            metaphor_dashboard.entity_upstream = self._get_dashboard_upstream(
+                dataset_arns=dashboard.Version.DataSetArns or []
             )
 
-            sheets = dashboard.Version.Sheets or []
+    def _make_entities_list(self) -> Collection[ENTITY_TYPES]:
+        entities: List[ENTITY_TYPES] = []
+        entities.extend(self._virtual_views.values())
+        entities.extend(self._dashboards.values())
+        return entities
 
-            metaphor_dashboard.dashboard_info = MetaphorDashboardInfo(
-                description=dashboard.Version.Description,
-                title=dashboard.Name,
-                charts=[
-                    Chart(
-                        chart_type=ChartType.OTHER,
-                        title=sheet.Name,
-                        url=None,  # TODO: embed URL
-                    )
-                    for sheet in sheets
-                ],
-            )
+    def _init_virtual_view(self, arn: str, data_set: DataSet) -> VirtualView:
+        view = VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name=arn,
+                type=VirtualViewType.QUICK_SIGHT,
+            ),
+            structure=AssetStructure(name=data_set.Name),
+            source_info=SourceInfo(
+                created_at_source=data_set.CreatedTime,
+                last_updated=data_set.LastUpdatedTime,
+            ),
+        )
 
-            source_entities: List[str] = []
+        self._virtual_views[arn] = view
 
-            for arn in dashboard.Version.DataSetArns or []:
-                virtual_view = self._virtual_views.get(arn)
-                if not virtual_view:
-                    continue
-                source_entities.append(
-                    str(
-                        to_entity_id_from_virtual_view_logical_id(
-                            virtual_view.logical_id
-                        )
-                    )
+        return view
+
+    def _init_dashboard(self, arn: str, dashboard: Dashboard) -> MetaphorDashboard:
+        assert dashboard.Version
+
+        metaphor_dashboard = MetaphorDashboard(
+            logical_id=MetaphorDashboardLogicalId(
+                dashboard_id=arn,
+                platform=MetaphorDashboardPlatform.QUICK_SIGHT,
+            ),
+            source_info=SourceInfo(
+                created_at_source=dashboard.CreatedTime,
+                last_updated=dashboard.LastUpdatedTime,
+            ),
+            structure=AssetStructure(
+                name=dashboard.Name,
+            ),
+        )
+
+        sheets = dashboard.Version.Sheets or []
+
+        metaphor_dashboard.dashboard_info = MetaphorDashboardInfo(
+            description=dashboard.Version.Description,
+            title=dashboard.Name,
+            charts=[
+                Chart(
+                    chart_type=ChartType.OTHER,
+                    title=sheet.Name,
+                    url=None,
                 )
+                for sheet in sheets
+            ],
+        )
 
-            metaphor_dashboard.entity_upstream = EntityUpstream(
-                source_entities=(
-                    unique_list(source_entities) if source_entities else None
-                )
-            )
+        self._dashboards[arn] = metaphor_dashboard
 
-            dashboards.append(metaphor_dashboard)
+        return metaphor_dashboard
 
-        return dashboards
+    def _get_dashboard_upstream(self, dataset_arns: List[str]) -> EntityUpstream:
+        source_entities: List[str] = []
 
-    def _get_resource_ids(self, endpoint: Endpoint) -> List[str]:
-        paginator = self._client.get_paginator(endpoint.value)
-        paginator_response = paginator.paginate(AwsAccountId=self._aws_account_id)
-
-        ids = []
-        settings = ENDPOINT_SETTING[endpoint]
-        for page in paginator_response:
-            for item in page[settings.list_key]:
-                ids.append(item[settings.item_key])
-        return ids
-
-    def _get_dataset_detail(self) -> None:
-        results = []
-        for dataset_id in self._get_resource_ids(Endpoint.list_data_sets):
-            result = self._client.describe_data_set(
-                AwsAccountId=self._aws_account_id, DataSetId=dataset_id
-            )
-
-            results.append(result)
-
-            dataset = DataSet(**(result["DataSet"]))
-
-            if dataset.Arn is None:
+        for arn in dataset_arns:
+            virtual_view = self._virtual_views.get(arn)
+            if not virtual_view:
                 continue
-
-            self._resources[dataset.Arn] = dataset
-
-        json_dump_to_debug_file(results, "datasets.json")
-
-    def _get_dashboard_detail(self):
-        results = []
-        for dashboard_id in self._get_resource_ids(Endpoint.list_dashboards):
-            result = self._client.describe_dashboard(
-                AwsAccountId=self._aws_account_id, DashboardId=dashboard_id
+            source_entities.append(
+                str(to_entity_id_from_virtual_view_logical_id(virtual_view.logical_id))
             )
-            results.append(result)
-            dashboard = Dashboard(**(result["Dashboard"]))
 
-            if dashboard.Arn is None:
-                continue
-
-            self._resources[dashboard.Arn] = dashboard
-
-        json_dump_to_debug_file(results, "dashboards.json")
-
-    def _get_data_source_detail(self):
-        results = []
-        for data_source_id in self._get_resource_ids(Endpoint.list_data_sources):
-            result = self._client.describe_data_source(
-                AwsAccountId=self._aws_account_id, DataSourceId=data_source_id
-            )
-            results.append(result)
-
-            data_source = DataSource(**(result["DataSource"]))
-
-            if data_source.Arn is None:
-                continue
-
-            self._resources[data_source.Arn] = data_source
-
-        json_dump_to_debug_file(results, "data_sources.json")
+        return EntityUpstream(
+            source_entities=(unique_list(source_entities) if source_entities else None)
+        )

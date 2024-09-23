@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 from pydantic.dataclasses import Field, dataclass
 
@@ -13,7 +13,6 @@ from metaphor.models.metadata_change_event import (
     EntityUpstream,
     FieldMapping,
     SourceField,
-    VirtualView,
     VirtualViewLogicalID,
     VirtualViewSchema,
     VirtualViewSchemaField,
@@ -46,6 +45,9 @@ class ColumnReference:
 class Column:
     upstream: List[ColumnReference] = Field(default_factory=list)
     expression: Optional[str] = None
+
+
+TypeColumnMap = Dict[str, Column]
 
 
 def _get_source_from_relation_table(
@@ -121,12 +123,12 @@ def _get_source_from_custom_sql(
 
 def _process_physical_table_map(
     resources: Dict[str, ResourceType],
-    tables: Dict[str, Dict[str, Column]],
+    tables: Dict[str, TypeColumnMap],
     source_entities: Set[str],
     physical_table_map: Dict[str, DataSetPhysicalTable],
 ) -> None:
     for table_id, physical_table in physical_table_map.items():
-        columns: Dict[str, Column] = {}
+        columns: TypeColumnMap = {}
 
         if physical_table.CustomSql:
             # Table lineage
@@ -165,7 +167,7 @@ def _process_physical_table_map(
 
 
 def _process_transformation(
-    columns: Dict[str, Column],
+    columns: TypeColumnMap,
     transformations: List[TransformOperation],
 ) -> None:
     for transformation in transformations:
@@ -195,6 +197,7 @@ def _process_logical_table_map(
     logical_tables = list(logical_table_map.items())
     columns: Dict[str, Column]
 
+    # Walk through the dependence tree, the last table (root) will be the output table
     while logical_tables:
         unresolved = []
         columns = {}
@@ -249,21 +252,23 @@ def _process_logical_table_map(
             tables[table_id] = columns
 
         logical_tables = unresolved
+
+    # Return root
     return columns
 
 
 def process_dataset_lineage(
-    resources: Dict[str, ResourceType], data_set: DataSet, view: VirtualView
-):
+    resources: Dict[str, ResourceType], data_set: DataSet
+) -> Tuple[TypeColumnMap, Set[str]]:
+    tables: Dict[str, Dict[str, Column]] = {}
+    source_entities: Set[str] = set()
+
     if (
         not data_set.LogicalTableMap
         or not data_set.PhysicalTableMap
         or not data_set.OutputColumns
     ):
-        return
-
-    tables: Dict[str, Dict[str, Column]] = {}
-    source_entities: Set[str] = set()
+        return {}, source_entities
 
     _process_physical_table_map(
         resources, tables, source_entities, data_set.PhysicalTableMap
@@ -273,28 +278,40 @@ def process_dataset_lineage(
         resources, tables, source_entities, data_set.LogicalTableMap
     )
 
+    return columns, source_entities
+
+
+def extract_virtual_view_schema(
+    data_set: DataSet, columns: TypeColumnMap
+) -> Optional[VirtualViewSchema]:
     output_columns = data_set.OutputColumns or []
 
-    if output_columns:
-        fields: List[VirtualViewSchemaField] = []
-        for column in output_columns:
-            if column.Name is None:
-                continue
-            reference = columns.get(column.Name)
-            fields.append(
-                VirtualViewSchemaField(
-                    field_name=column.Name,
-                    field_path=column.Name.lower(),
-                    description=column.Description,
-                    type=column.Type,
-                    formula=reference.expression if reference else None,
-                    optional_type=(
-                        "FORMULA" if reference and reference.expression else None
-                    ),
-                )
-            )
-        view.schema = VirtualViewSchema(fields=fields)
+    if not output_columns:
+        return None
 
+    fields: List[VirtualViewSchemaField] = []
+    for column in output_columns:
+        if column.Name is None:
+            continue
+        reference = columns.get(column.Name)
+        fields.append(
+            VirtualViewSchemaField(
+                field_name=column.Name,
+                field_path=column.Name.lower(),
+                description=column.Description,
+                type=column.Type,
+                formula=reference.expression if reference else None,
+                optional_type=(
+                    "FORMULA" if reference and reference.expression else None
+                ),
+            )
+        )
+    return VirtualViewSchema(fields=fields) if fields else None
+
+
+def extract_virtual_view_upstream(
+    columns: Dict[str, Column], source_entities: Set[str]
+) -> EntityUpstream:
     field_mappings: List[FieldMapping] = []
     for column_name, upstream_column in columns.items():
         field_mappings.append(
@@ -307,7 +324,7 @@ def process_dataset_lineage(
             )
         )
 
-    view.entity_upstream = EntityUpstream(
+    return EntityUpstream(
         source_entities=sorted(list(source_entities)) if source_entities else None,
         field_mappings=field_mappings if field_mappings else None,
     )

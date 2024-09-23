@@ -19,7 +19,7 @@ def dummy_config():
     )
 
 
-@patch("metaphor.quick_sight.extractor.create_quick_sight_client")
+@patch("metaphor.quick_sight.client.create_quick_sight_client")
 @pytest.mark.asyncio
 async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
     datasets_response = load_json(f"{test_root_dir}/quick_sight/data/datasets.json")
