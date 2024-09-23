@@ -99,7 +99,7 @@ class QuickSightExtractor(BaseExtractor):
         self._get_dashboard_detail()
         self._get_data_source_detail()
 
-    def _extract_virtual_view(self):
+    def _extract_virtual_views(self):
         for data_set in self._resources.values():
             if not isinstance(data_set, DataSet):
                 continue
