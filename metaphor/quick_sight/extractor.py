@@ -120,7 +120,7 @@ class QuickSightExtractor(BaseExtractor):
 
             self._virtual_views[data_set.Arn] = view
 
-    def _extract_dashboard(self) -> List[MetaphorDashboard]:
+    def _extract_dashboards(self) -> List[MetaphorDashboard]:
         dashboards: List[MetaphorDashboard] = []
         for dashboard in self._resources.values():
             if (
