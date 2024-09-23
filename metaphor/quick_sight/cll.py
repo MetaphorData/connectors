@@ -252,7 +252,7 @@ def _process_logical_table_map(
     return columns
 
 
-def process_dataset_column_lineage(
+def process_dataset_lineage(
     resources: Dict[str, ResourceType], data_set: DataSet, view: VirtualView
 ):
     if (
