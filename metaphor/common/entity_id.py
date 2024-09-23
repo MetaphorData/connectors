@@ -103,6 +103,15 @@ def to_dashboard_entity_id_from_logical_id(logical_id: DashboardLogicalID) -> En
     return EntityId(EntityType.DASHBOARD, logical_id)
 
 
+def to_entity_id_from_virtual_view_logical_id(
+    logical_id: VirtualViewLogicalID,
+) -> EntityId:
+    """
+    converts a VirtualView logical ID to entity ID
+    """
+    return EntityId(EntityType.VIRTUAL_VIEW, logical_id)
+
+
 def normalize_full_dataset_name(name: str) -> str:
     """
     Normalizes a fully qualified dataset name

@@ -6,6 +6,7 @@ import azure.mgmt.datafactory.models as DfModels
 
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.logger import get_logger
+from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.common.utils import removesuffix
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -240,11 +241,9 @@ def process_snowflake_linked_service(
     query_db = parse_qs(url.query or "").get("db")
     database = query_db[0] if query_db else None
 
-    # extract snowflake account name from jdbc format, 'snowflake://<account>.snowflakecomputing.com/'
+    # extract snowflake account name from jdbc format, 'snowflake://<snowflake_host>/'
     hostname = urlparse(url.path).hostname
-    snowflake_account = (
-        removesuffix(hostname, ".snowflakecomputing.com") if hostname else None
-    )
+    snowflake_account = normalize_snowflake_account(hostname) if hostname else None
 
     return LinkedService(database=database, account=snowflake_account)
 

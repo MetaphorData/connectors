@@ -1,0 +1,110 @@
+[
+  {
+    "ResponseMetadata": {
+      "RequestId": "d10d8d0b-e621-4213-b9e5-06f107834a5d",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:13 GMT",
+        "content-type": "application/json",
+        "content-length": "1951",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "d10d8d0b-e621-4213-b9e5-06f107834a5d"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "DataSource": {
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:datasource/01d81128-094e-4f2c-93c5-6d9f2c049ecd",
+      "DataSourceId": "01d81128-094e-4f2c-93c5-6d9f2c049ecd",
+      "Name": "Snowflake",
+      "Type": "SNOWFLAKE",
+      "Status": "CREATION_SUCCESSFUL",
+      "CreatedTime": "2024-09-18 16:13:10.685000+08:00",
+      "LastUpdatedTime": "2024-09-18 16:13:10.685000+08:00",
+      "DataSourceParameters": {
+        "SnowflakeParameters": {
+          "Host": "account.snowflakecomputing.com",
+          "Database": "ACME",
+          "Warehouse": "COMPUTE_WH"
+        }
+      },
+      "SslProperties": {
+        "DisableSsl": false
+      }
+    },
+    "RequestId": "d10d8d0b-e621-4213-b9e5-06f107834a5d"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "6423da10-ad54-46a4-aca4-edbcc08b67f7",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:14 GMT",
+        "content-type": "application/json",
+        "content-length": "1603",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "6423da10-ad54-46a4-aca4-edbcc08b67f7"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "DataSource": {
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:datasource/7e079648-2501-423a-be75-9ee19f351aad",
+      "DataSourceId": "7e079648-2501-423a-be75-9ee19f351aad",
+      "Name": "Postgres (Public network)",
+      "Type": "POSTGRESQL",
+      "Status": "CREATION_SUCCESSFUL",
+      "CreatedTime": "2024-09-18 15:58:45.404000+08:00",
+      "LastUpdatedTime": "2024-09-18 15:58:45.404000+08:00",
+      "DataSourceParameters": {
+        "PostgreSqlParameters": {
+          "Host": "127.0.0.1",
+          "Port": 5432,
+          "Database": "metaphor"
+        }
+      },
+      "SslProperties": {
+        "DisableSsl": false
+      }
+    },
+    "RequestId": "6423da10-ad54-46a4-aca4-edbcc08b67f7"
+  },
+  {
+    "ResponseMetadata": {
+      "RequestId": "d7b2636b-a9db-4655-9f35-19d407ffd9b8",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "date": "Thu, 19 Sep 2024 10:34:14 GMT",
+        "content-type": "application/json",
+        "content-length": "1766",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "d7b2636b-a9db-4655-9f35-19d407ffd9b8"
+      },
+      "RetryAttempts": 0
+    },
+    "Status": 200,
+    "DataSource": {
+      "Arn": "arn:aws:quicksight:us-west-2:123456789012:datasource/d2603795-6ef1-403a-84f7-898fabf9458c",
+      "DataSourceId": "d2603795-6ef1-403a-84f7-898fabf9458c",
+      "Name": "Redshift",
+      "Type": "REDSHIFT",
+      "Status": "CREATION_SUCCESSFUL",
+      "CreatedTime": "2024-09-12 20:58:31.910000+08:00",
+      "LastUpdatedTime": "2024-09-12 20:58:31.910000+08:00",
+      "DataSourceParameters": {
+        "RedshiftParameters": {
+          "Host": "127.0.0.1",
+          "Port": 5439,
+          "Database": "metaphor"
+        }
+      },
+      "VpcConnectionProperties": {
+        "VpcConnectionArn": "arn:aws:quicksight:us-west-2:123456789012:vpcConnection/85b6925d-c221-43ad-af9a-75cf0d5789c4"
+      },
+      "SslProperties": {
+        "DisableSsl": false
+      }
+    },
+    "RequestId": "d7b2636b-a9db-4655-9f35-19d407ffd9b8"
+  }
+]

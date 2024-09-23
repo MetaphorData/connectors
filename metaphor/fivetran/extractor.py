@@ -400,9 +400,7 @@ class FivetranExtractor(BaseExtractor):
         if host is None:
             return None
 
-        # remove snowflakecomputing.com parts
-        account = ".".join(host.split(".")[:-2])
-        return normalize_snowflake_account(account)
+        return normalize_snowflake_account(host)
 
     @staticmethod
     def get_source_account_from_config(
