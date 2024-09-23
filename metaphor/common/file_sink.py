@@ -99,14 +99,17 @@ class QueryLogSink:
             )
 
     def _finalize_current_mce(self) -> None:
-        self._mces.append(EventUtil.build_then_trim(QueryLogs(logs=self._logs)))
+        event = EventUtil.build_then_trim(QueryLogs(logs=self._logs))
+        if EventUtil().validate_message(event) is None:
+            raise ValueError(f"Cannot validate query log batch: {event}")
+        self._mces.append(event)
         self._logs_count = 0
         self._logs.clear()
         self._mces_count += 1
         self.total_mces_wrote += 1
 
     def _finalize_current_batch(self) -> None:
-        # No need to validate mce
+        # self._mces is already validated
         self.storage.write_file(
             f"{self.path}/query_logs-{self.completed_batches}.json",
             json.dumps(self._mces),
