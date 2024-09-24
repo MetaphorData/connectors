@@ -1,26 +1,16 @@
 from typing import List
 
-from metaphor.models.metadata_change_event import (
-    DashboardPlatform,
-    Hierarchy,
-    HierarchyInfo,
-    HierarchyLogicalID,
-    HierarchyType,
-)
+from metaphor.common.hierarchy import create_hierarchy
+from metaphor.models.metadata_change_event import AssetPlatform, Hierarchy
 
 DASHBOARD_DIRECTORIES = ["DASHBOARD"]
 DATA_SET_DIRECTORIES = ["DATA_SET"]
 
 
-def _create_virtual_hierarchy(name: str, path: List[str]) -> Hierarchy:
-    return Hierarchy(
-        logical_id=HierarchyLogicalID(path=[DashboardPlatform.QUICK_SIGHT.name] + path),
-        hierarchy_info=HierarchyInfo(name=name, type=HierarchyType.VIRTUAL_HIERARCHY),
-    )
-
-
 def create_top_level_folders() -> List[Hierarchy]:
+    platform = AssetPlatform.QUICK_SIGHT
+
     return [
-        _create_virtual_hierarchy("Dashboards", DASHBOARD_DIRECTORIES),
-        _create_virtual_hierarchy("DataSets", DATA_SET_DIRECTORIES),
+        create_hierarchy(platform, DASHBOARD_DIRECTORIES, "Dashboards"),
+        create_hierarchy(platform, DATA_SET_DIRECTORIES, "DataSets"),
     ]
