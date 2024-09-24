@@ -1,6 +1,7 @@
 from dataclasses import field
 from typing import Dict, Optional, Set
 
+from pydantic import field_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.aws import AwsCredentials
@@ -28,6 +29,13 @@ class QueryLogConfig:
     # Config to link user name to email so that Metaphor can display each query's issuer.
     username_to_email: Dict[str, str] = field(default_factory=dict)
 
+    @field_validator("username_to_email")
+    def _normalize_emails(cls, username_to_email: Dict[str, str]):
+        return {
+            k: v.lower()
+            for k, v
+            in username_to_email.items()
+        }
 
 @dataclass(config=ConnectorConfig)
 class BasePostgreSQLRunConfig(BaseConfig):

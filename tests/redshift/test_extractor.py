@@ -97,7 +97,7 @@ def test_collect_query_logs(test_root_dir: str) -> None:
         config.query_log = QueryLogConfig(
             username_to_email={
                 "user1": "user1@metaphor.io",
-                "user2": "user2@metaphor.io",
+                "user2": "USER2@METAPHOR.IO",
             }
         )
         extractor = RedshiftExtractor(config)

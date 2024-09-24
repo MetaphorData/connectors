@@ -141,7 +141,7 @@ class KafkaConfig(BaseConfig):
     """
 
     bootstrap_servers: List[KafkaBootstrapServer] = dataclass_field(
-        default_factory=lambda: []
+        default_factory=list
     )
     """
     The Kafka bootstrap servers / brokers. Cannot be empty.
