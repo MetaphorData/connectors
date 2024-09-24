@@ -3258,13 +3258,13 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.38.3"
+version = "0.39.1"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "metaphor_models-0.38.3-py3-none-any.whl", hash = "sha256:e33810d5445aa4080d8ec204818272a7aea2d1deb44a7866335132cb35bcd0a3"},
-    {file = "metaphor_models-0.38.3.tar.gz", hash = "sha256:79e8710e08e9448ee2607526fb9c54b1d75008509f79c0c141af487c15f7fea2"},
+    {file = "metaphor_models-0.39.1-py3-none-any.whl", hash = "sha256:fbf4434aaf5c9a0b62c348567ac42e81225ea5863c6f5d201f9bba66e9a590d9"},
+    {file = "metaphor_models-0.39.1.tar.gz", hash = "sha256:b1e4692d555a079c309227a72b4a8ff13421d53308ad6100dd021950107f118b"},
 ]
 
 [[package]]
@@ -6666,4 +6666,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "0f6b045d0cc3d5203c7d5488cfdb16bdfcc3ddcf9bf103ff2f20099417b1dfda"
+content-hash = "180a1e347f9c53e49e9198199f6fefb3e6efcdd7552a1f3496f1b977b88e97f5"

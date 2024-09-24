@@ -24,6 +24,11 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.quick_sight.client import Client
 from metaphor.quick_sight.config import QuickSightRunConfig
+from metaphor.quick_sight.folder import (
+    DASHBOARD_DIRECTORIES,
+    DATA_SET_DIRECTORIES,
+    create_top_level_folders,
+)
 from metaphor.quick_sight.lineage import (
     extract_virtual_view_schema,
     extract_virtual_view_upstream,
@@ -103,6 +108,7 @@ class QuickSightExtractor(BaseExtractor):
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._virtual_views.values())
         entities.extend(self._dashboards.values())
+        entities.extend(create_top_level_folders())
         return entities
 
     def _init_virtual_view(self, arn: str, data_set: DataSet) -> VirtualView:
@@ -111,7 +117,9 @@ class QuickSightExtractor(BaseExtractor):
                 name=arn,
                 type=VirtualViewType.QUICK_SIGHT,
             ),
-            structure=AssetStructure(name=data_set.Name),
+            structure=AssetStructure(
+                name=data_set.Name, directories=DATA_SET_DIRECTORIES
+            ),
             source_info=SourceInfo(
                 created_at_source=data_set.CreatedTime,
                 last_updated=data_set.LastUpdatedTime,
@@ -136,6 +144,7 @@ class QuickSightExtractor(BaseExtractor):
             ),
             structure=AssetStructure(
                 name=dashboard.Name,
+                directories=DASHBOARD_DIRECTORIES,
             ),
         )
 

@@ -162,7 +162,10 @@
       "lastUpdated": "2024-09-19T17:30:15.605000+08:00"
     },
     "structure": {
-      "name": "locations"
+      "name": "locations",
+      "directories": [
+        "DATA_SET"
+      ]
     }
   },
   {
@@ -382,7 +385,10 @@
       "lastUpdated": "2024-09-19T12:20:38.550000+08:00"
     },
     "structure": {
-      "name": "sample_sales_records"
+      "name": "sample_sales_records",
+      "directories": [
+        "DATA_SET"
+      ]
     }
   },
   {
@@ -452,7 +458,10 @@
       "lastUpdated": "2024-09-18T16:42:39.096000+08:00"
     },
     "structure": {
-      "name": "Bike data"
+      "name": "Bike data",
+      "directories": [
+        "DATA_SET"
+      ]
     }
   },
   {
@@ -622,7 +631,10 @@
       "lastUpdated": "2024-09-18T16:09:07.953000+08:00"
     },
     "structure": {
-      "name": "orders"
+      "name": "orders",
+      "directories": [
+        "DATA_SET"
+      ]
     }
   },
   {
@@ -649,7 +661,10 @@
       "lastUpdated": "2024-09-12T21:01:13.244000+08:00"
     },
     "structure": {
-      "name": "Sales"
+      "name": "Sales",
+      "directories": [
+        "DASHBOARD"
+      ]
     }
   },
   {
@@ -676,7 +691,10 @@
       "lastUpdated": "2024-09-18T16:24:00.923000+08:00"
     },
     "structure": {
-      "name": "Bike rides"
+      "name": "Bike rides",
+      "directories": [
+        "DASHBOARD"
+      ]
     }
   },
   {
@@ -703,7 +721,34 @@
       "lastUpdated": "2024-09-18T16:09:35.228000+08:00"
     },
     "structure": {
-      "name": "Jaffle Shop Orders"
+      "name": "Jaffle Shop Orders",
+      "directories": [
+        "DASHBOARD"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "name": "Dashboards",
+      "type": "VIRTUAL_HIERARCHY"
+    },
+    "logicalId": {
+      "path": [
+        "QUICK_SIGHT",
+        "DASHBOARD"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "name": "DataSets",
+      "type": "VIRTUAL_HIERARCHY"
+    },
+    "logicalId": {
+      "path": [
+        "QUICK_SIGHT",
+        "DATA_SET"
+      ]
     }
   }
 ]
