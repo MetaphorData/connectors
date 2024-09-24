@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import Optional, Set
+from typing import Dict, Optional, Set
 
 from pydantic.dataclasses import dataclass
 
@@ -16,7 +16,7 @@ class QueryLogConfig:
     lookback_days: int = 1
 
     # Query log filter to exclude certain usernames
-    excluded_usernames: Set[str] = field(default_factory=lambda: set())
+    excluded_usernames: Set[str] = field(default_factory=set)
 
     # Config to control query processing
     process_query: ProcessQueryConfig = field(
@@ -24,6 +24,9 @@ class QueryLogConfig:
             ignore_command_statement=True
         )  # Ignore COMMAND statements by default
     )
+
+    # Config to link user name to email so that Metaphor can display each query's issuer.
+    username_to_email: Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(config=ConnectorConfig)

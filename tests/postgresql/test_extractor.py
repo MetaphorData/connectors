@@ -64,7 +64,10 @@ def dummy_config(**args):
         password="",
         output=OutputConfig(),
         **args,
-        query_log=PostgreSQLQueryLogConfig(excluded_usernames={"foo"}),
+        query_log=PostgreSQLQueryLogConfig(
+            excluded_usernames={"foo"},
+            username_to_email={"metaphor": "admin@metaphor.io"},
+        ),
     )
 
 
@@ -77,7 +80,7 @@ gold = QueryLog(
     default_database="metaphor",
     default_schema=None,
     duration=55.66,
-    email=None,
+    email="admin@metaphor.io",
     metadata=None,
     parsing=None,
     platform=DataPlatform.POSTGRESQL,
@@ -270,7 +273,7 @@ def test_alter_rename():
         default_database="metaphor",
         default_schema=None,
         duration=55.66,
-        email=None,
+        email="admin@metaphor.io",
         metadata=None,
         parsing=None,
         platform=DataPlatform.POSTGRESQL,

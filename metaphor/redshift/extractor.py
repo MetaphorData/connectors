@@ -184,6 +184,8 @@ class RedshiftExtractor(BasePostgreSQLExtractor):
             )
 
         if sql:
+            user_id = access_event.usename
+            email = self._query_log_config.username_to_email.get(user_id)
             query_log = QueryLog(
                 id=f"{DataPlatform.REDSHIFT.name}:{access_event.query_id}",
                 query_id=str(access_event.query_id),
@@ -192,7 +194,8 @@ class RedshiftExtractor(BasePostgreSQLExtractor):
                 duration=float(
                     (access_event.end_time - access_event.start_time).total_seconds()
                 ),
-                user_id=access_event.usename,
+                user_id=user_id,
+                email=email,
                 rows_read=float(access_event.rows),
                 bytes_read=float(access_event.bytes),
                 sources=tll.sources,

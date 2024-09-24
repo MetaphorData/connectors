@@ -61,6 +61,11 @@ query_log:
   excluded_usernames:
     - <user_name1>
     - <user_name2>
+
+  # (Optional) A dict from user name to email. This is for Metaphor to recognize each query's issuer.
+  username_to_email:
+    <user1>: <user1 email>
+    <user2>: <user2 email>
 ```
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.

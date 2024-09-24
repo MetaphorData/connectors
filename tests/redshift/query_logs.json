@@ -6,6 +6,7 @@
           "_id": "REDSHIFT:7086",
           "bytesRead": 6500.0,
           "duration": -338161298.308308,
+          "email": "user1@metaphor.io",
           "platform": "REDSHIFT",
           "queryId": "7086",
           "rowsRead": 7155.0,
@@ -17,16 +18,17 @@
               "table": "table1"
             }
           ],
-          "targets": [],
           "sql": "select * from schema1.table1",
           "sqlHash": "fbbd533367fe766d71a48425c5c48654",
           "startTime": "2010-06-26T10:07:18.014673",
-          "userId": "aZUytYDMFTryuKyWtbEM"
+          "targets": [],
+          "userId": "user1"
         },
         {
           "_id": "REDSHIFT:9910",
           "bytesRead": 176.0,
           "duration": -217012182.227927,
+          "email": "user2@metaphor.io",
           "platform": "REDSHIFT",
           "queryId": "9910",
           "rowsRead": 4617.0,
@@ -38,11 +40,11 @@
               "table": "table2"
             }
           ],
-          "targets": [],
           "sql": "select * from schema2.table2",
           "sqlHash": "9f98db863e022a1b0c8b0895c1d4dec1",
           "startTime": "2003-10-01T10:15:51.904151",
-          "userId": "IevfvBUzEVUDrTbaIWKY"
+          "targets": [],
+          "userId": "user2"
         }
       ]
     }

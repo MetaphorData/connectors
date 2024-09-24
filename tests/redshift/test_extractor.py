@@ -7,6 +7,7 @@ import pytest
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import DataPlatform
+from metaphor.postgresql.config import QueryLogConfig
 from metaphor.redshift.access_event import AccessEvent
 from metaphor.redshift.config import RedshiftRunConfig
 from metaphor.redshift.extractor import RedshiftExtractor
@@ -44,12 +45,11 @@ def test_dataset_platform():
 
 
 def test_collect_query_logs(test_root_dir: str) -> None:
-    # Random stuff generated with polyfactory
     access_events = [
         AccessEvent(
             user_id=7610,
             query_id=7086,
-            usename="aZUytYDMFTryuKyWtbEM",
+            usename="user1",
             rows=7155,
             bytes=6500,
             querytxt="select * from schema1.table1",
@@ -60,7 +60,7 @@ def test_collect_query_logs(test_root_dir: str) -> None:
         AccessEvent(
             user_id=8902,
             query_id=9910,
-            usename="IevfvBUzEVUDrTbaIWKY",
+            usename="user2",
             rows=4617,
             bytes=176,
             querytxt="select * from schema2.table2",
@@ -93,7 +93,14 @@ def test_collect_query_logs(test_root_dir: str) -> None:
         mock_connect_database.return_value = MagicMock()
         mock_fetch_access_event.return_value = AsyncIterator()
 
-        extractor = RedshiftExtractor(dummy_config())
+        config = dummy_config()
+        config.query_log = QueryLogConfig(
+            username_to_email={
+                "user1": "user1@metaphor.io",
+                "user2": "user2@metaphor.io",
+            }
+        )
+        extractor = RedshiftExtractor(config)
         extractor._included_databases = included_dbs
         extractor._datasets["db1.schema1.table1"] = 1
         extractor._datasets["db2.schema2.table2"] = 1

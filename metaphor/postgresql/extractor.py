@@ -498,12 +498,15 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
 
         if sql:
             sql_hash = md5_digest(sql.encode("utf-8"))
+            user_id = parsed.user
+            email = self._query_log_config.username_to_email.get(user_id)
             return QueryLog(
                 id=f"{DataPlatform.POSTGRESQL.name}:{sql_hash}",
                 query_id=sql_hash,
                 platform=DataPlatform.POSTGRESQL,
                 default_database=parsed.database,
-                user_id=parsed.user,
+                user_id=user_id,
+                email=email,
                 sql=sql,
                 sql_hash=sql_hash,
                 duration=duration,
