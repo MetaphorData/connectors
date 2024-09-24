@@ -16,10 +16,12 @@ from metaphor.common.entity_id import (
     to_virtual_view_entity_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.hierarchy import create_hierarchy
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import unique_list
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
+    AssetPlatform,
     AssetStructure,
     Chart,
     Dashboard,
@@ -30,6 +32,7 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     EntityUpstream,
     FieldMapping,
+    HierarchyType,
     SourceField,
     SourceInfo,
     SystemTag,
@@ -59,7 +62,6 @@ from metaphor.thought_spot.models import (
 )
 from metaphor.thought_spot.utils import (
     ThoughtSpot,
-    create_virtual_hierarchy,
     from_list,
     getColumnTransformation,
     mapping_chart_type,
@@ -102,24 +104,7 @@ class ThoughtSpotExtractor(BaseExtractor):
 
         self.fetch_virtual_views()
         self.fetch_dashboards()
-
-        virtual_hierarchies = [
-            create_virtual_hierarchy(
-                name="Answer", path=[ThoughtSpotDashboardType.ANSWER.name]
-            ),
-            create_virtual_hierarchy(
-                name="Liveboard", path=[ThoughtSpotDashboardType.LIVEBOARD.name]
-            ),
-            create_virtual_hierarchy(
-                name="Table", path=[ThoughtSpotDataObjectType.TABLE.name]
-            ),
-            create_virtual_hierarchy(
-                name="View", path=[ThoughtSpotDataObjectType.VIEW.name]
-            ),
-            create_virtual_hierarchy(
-                name="Worksheet", path=[ThoughtSpotDataObjectType.WORKSHEET.name]
-            ),
-        ]
+        virtual_hierarchies = self._create_virtual_hierarchies()
 
         return list(
             chain(
@@ -245,6 +230,24 @@ class ThoughtSpotExtractor(BaseExtractor):
                 system_tags=self._get_system_tags(table.header.tags),
             )
             self._virtual_views[table_id] = view
+
+    @staticmethod
+    def _create_virtual_hierarchies():
+        return [
+            create_hierarchy(
+                name=name,
+                path=[enum_value.value],
+                platform=AssetPlatform.THOUGHT_SPOT,
+                hierarchy_type=HierarchyType.THOUGHT_SPOT_VIRTUAL_HIERARCHY,
+            )
+            for name, enum_value in [
+                ("Answer", ThoughtSpotDashboardType.ANSWER),
+                ("Liveboard", ThoughtSpotDashboardType.LIVEBOARD),
+                ("Table", ThoughtSpotDataObjectType.TABLE),
+                ("View", ThoughtSpotDataObjectType.VIEW),
+                ("Worksheet", ThoughtSpotDataObjectType.WORKSHEET),
+            ]
+        ]
 
     @staticmethod
     def build_column_expr_map(tml: TMLObject):
