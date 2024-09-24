@@ -37,6 +37,7 @@ class QueryLogConfig:
             in username_to_email.items()
         }
 
+
 @dataclass(config=ConnectorConfig)
 class BasePostgreSQLRunConfig(BaseConfig):
     host: str
