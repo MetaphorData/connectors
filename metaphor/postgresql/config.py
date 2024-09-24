@@ -31,11 +31,7 @@ class QueryLogConfig:
 
     @field_validator("username_to_email")
     def _normalize_emails(cls, username_to_email: Dict[str, str]):
-        return {
-            k: v.lower()
-            for k, v
-            in username_to_email.items()
-        }
+        return {k: v.lower() for k, v in username_to_email.items()}
 
 
 @dataclass(config=ConnectorConfig)
