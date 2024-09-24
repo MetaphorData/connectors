@@ -7,5 +7,5 @@ embedding_model:
     endpoint: azure_openAI_endpoint
 
 include_text: true
-notion_api_version: '2022-06-08'
+notion_api_version: 2022-06-28
 output: {}
