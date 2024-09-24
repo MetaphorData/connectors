@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
+from metaphor.common.hierarchy import create_hierarchy
 from metaphor.common.logger import get_logger
 from metaphor.models.metadata_change_event import (
-    DashboardPlatform,
+    AssetPlatform,
     Hierarchy,
-    HierarchyInfo,
-    HierarchyLogicalID,
     HierarchyType,
 )
 
@@ -58,13 +57,9 @@ def _build_hierarchies(
         if folder_id in folder_hierarchies or folder is None:
             continue
 
-        hierarchy = Hierarchy(
-            logical_id=HierarchyLogicalID(
-                path=[DashboardPlatform.LOOKER.value] + directories[: i + 1]
-            ),
-            hierarchy_info=HierarchyInfo(
-                type=HierarchyType.LOOKER_FOLDER, name=folder.name
-            ),
+        folder_hierarchies[folder_id] = create_hierarchy(
+            platform=AssetPlatform.LOOKER,
+            name=folder.name,
+            path=directories[: i + 1],
+            hierarchy_type=HierarchyType.LOOKER_FOLDER,
         )
-
-        folder_hierarchies[folder_id] = hierarchy
