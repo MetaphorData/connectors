@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from pydantic.dataclasses import Field, dataclass
 
@@ -9,11 +9,14 @@ from metaphor.common.entity_id import (
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
+from metaphor.common.utils import unique_list
 from metaphor.models.metadata_change_event import (
     EntityUpstream,
     FieldMapping,
     SourceField,
+    VirtualView,
     VirtualViewLogicalID,
+    VirtualViewQuery,
     VirtualViewSchema,
     VirtualViewSchemaField,
     VirtualViewType,
@@ -25,6 +28,7 @@ from metaphor.quick_sight.data_source_utils import (
 )
 from metaphor.quick_sight.models import (
     DataSet,
+    DataSetColumn,
     DataSetLogicalTable,
     DataSetPhysicalTable,
     DataSource,
@@ -43,6 +47,7 @@ class ColumnReference:
 
 @dataclass
 class Column:
+    output: DataSetColumn
     upstream: List[ColumnReference] = Field(default_factory=list)
     expression: Optional[str] = None
 
@@ -50,46 +55,10 @@ class Column:
 TypeColumnMap = Dict[str, Column]
 
 
-def _get_source_from_relation_table(
-    resources: Dict[str, ResourceType],
-    relation_table: TypeRelationalTable,
-    source_entities: Set[str],
-) -> Optional[str]:
-    data_source = resources.get(relation_table.DataSourceArn)
-
-    if (
-        data_source is None
-        or not isinstance(data_source, DataSource)
-        or data_source.Type is None
-    ):
-        return None
-
-    data_platform = DATA_SOURCE_PLATFORM_MAP.get(data_source.Type)
-    if not data_platform:
-        return None
-
-    database = get_database(data_source)
-    account = get_account(data_source)
-
-    source_entity_id = str(
-        parts_to_dataset_entity_id(
-            platform=data_platform,
-            account=account,
-            database=relation_table.Catalog or database,
-            schema=relation_table.Schema,
-            table=relation_table.Name,
-        )
-    )
-
-    source_entities.add(source_entity_id)
-    return source_entity_id
-
-
 def _get_source_from_custom_sql(
     resources: Dict[str, ResourceType],
     custom_sql: TypeCustomSql,
-    source_entities: Set[str],
-) -> None:
+) -> Tuple[Optional[List[str]], Optional[VirtualViewQuery]]:
     data_source = resources.get(custom_sql.DataSourceArn)
 
     if (
@@ -97,11 +66,11 @@ def _get_source_from_custom_sql(
         or not isinstance(data_source, DataSource)
         or data_source.Type is None
     ):
-        return None
+        return None, None
 
     data_platform = DATA_SOURCE_PLATFORM_MAP.get(data_source.Type)
     if not data_platform:
-        return None
+        return None, None
 
     database = get_database(data_source)
     account = get_account(data_source)
@@ -115,55 +84,12 @@ def _get_source_from_custom_sql(
         default_database=database,
     )
 
-    for source in tll.sources:
-        source_entities.add(source.id)
-
-    return None
-
-
-def _process_physical_table_map(
-    resources: Dict[str, ResourceType],
-    tables: Dict[str, TypeColumnMap],
-    source_entities: Set[str],
-    physical_table_map: Dict[str, DataSetPhysicalTable],
-) -> None:
-    for table_id, physical_table in physical_table_map.items():
-        columns: TypeColumnMap = {}
-
-        if physical_table.CustomSql:
-            # Table lineage
-            _get_source_from_custom_sql(
-                resources, physical_table.CustomSql, source_entities
-            )
-
-            # CLL of custom sql is not supported
-            for column in physical_table.CustomSql.Columns:
-                if column.Name is None:
-                    continue
-                columns[column.Name] = Column()
-
-        elif physical_table.RelationalTable:
-            source_dataset_id = _get_source_from_relation_table(
-                resources, physical_table.RelationalTable, source_entities
-            )
-
-            for column in physical_table.RelationalTable.InputColumns:
-                if column.Name is None:
-                    continue
-                columns[column.Name] = Column(
-                    upstream=[
-                        ColumnReference(upstream_id=source_dataset_id, name=column.Name)
-                    ]
-                )
-
-        elif physical_table.S3Source:
-            for column in physical_table.S3Source.InputColumns:
-                if column.Name is None:
-                    continue
-                columns[column.Name] = Column()
-
-        tables[table_id] = columns
-    return None
+    return unique_list([source.id for source in tll.sources]), VirtualViewQuery(
+        default_database=database,
+        query=custom_sql.SqlQuery,
+        source_dataset_account=account,
+        source_platform=data_platform,
+    )
 
 
 def _process_transformation(
@@ -174,7 +100,9 @@ def _process_transformation(
         if transformation.CreateColumnsOperation:
             for column in transformation.CreateColumnsOperation.Columns:
                 columns[column.ColumnName] = Column(
-                    upstream=[], expression=column.Expression
+                    upstream=[],
+                    expression=column.Expression,
+                    output=DataSetColumn(Name=column.ColumnName),
                 )
         elif transformation.ProjectOperation:
             for key in list(columns.keys()):
@@ -188,132 +116,301 @@ def _process_transformation(
             columns.pop(before)
 
 
-def _process_logical_table_map(
-    resources: Dict[str, ResourceType],
-    tables: Dict[str, Dict[str, Column]],
-    source_entities: Set[str],
-    logical_table_map: Dict[str, DataSetLogicalTable],
-) -> Dict[str, Column]:
-    logical_tables = list(logical_table_map.items())
-    columns: Dict[str, Column]
+class LineageProcessor:
+    def __init__(
+        self,
+        resources: Dict[str, ResourceType],
+        virtual_views: Dict[str, VirtualView],
+        data_set: DataSet,
+    ):
+        self._resources = resources
+        self._virtual_views = virtual_views
+        self._data_set = data_set
 
-    # Walk through the dependence tree, the last table (root) will be the output table
-    while logical_tables:
-        unresolved = []
-        columns = {}
+    def run(self) -> str:
+        if (
+            not self._data_set.LogicalTableMap
+            or not self._data_set.PhysicalTableMap
+            or not self._data_set.OutputColumns
+        ):
+            return ""
 
-        for table_id, logical_table in logical_tables:
-            source = logical_table.Source
-            if source.DataSetArn:
-                arn = source.DataSetArn
-                upstream_data_set = resources.get(arn)
-                if upstream_data_set is None:
-                    continue
-                assert isinstance(upstream_data_set, DataSet)
+        tables: Dict[str, TypeColumnMap] = {}
 
-                upstream_id = str(
-                    to_entity_id_from_virtual_view_logical_id(
-                        VirtualViewLogicalID(name=arn, type=VirtualViewType.QUICK_SIGHT)
-                    )
+        self._process_physical_table_map(tables, self._data_set.PhysicalTableMap)
+        output_table_id = self._process_logical_table_map(
+            tables, self._data_set.LogicalTableMap
+        )
+
+        return output_table_id
+
+    def _get_source_from_relation_table(
+        self,
+        relation_table: TypeRelationalTable,
+    ) -> Optional[str]:
+        data_source = self._resources.get(relation_table.DataSourceArn)
+
+        if (
+            data_source is None
+            or not isinstance(data_source, DataSource)
+            or data_source.Type is None
+        ):
+            return None
+
+        data_platform = DATA_SOURCE_PLATFORM_MAP.get(data_source.Type)
+        if not data_platform:
+            return None
+
+        database = get_database(data_source)
+        account = get_account(data_source)
+
+        source_entity_id = str(
+            parts_to_dataset_entity_id(
+                platform=data_platform,
+                account=account,
+                database=relation_table.Catalog or database,
+                schema=relation_table.Schema,
+                table=relation_table.Name,
+            )
+        )
+
+        return source_entity_id
+
+    def _init_virtual_view(self, table_id: str) -> VirtualView:
+        view = VirtualView(
+            logical_id=VirtualViewLogicalID(
+                name=table_id,
+                type=VirtualViewType.QUICK_SIGHT,
+            ),
+            is_non_prod=True,
+        )
+
+        self._virtual_views[table_id] = view
+        return view
+
+    def _process_physical_table_map(
+        self,
+        tables: Dict[str, TypeColumnMap],
+        physical_table_map: Dict[str, DataSetPhysicalTable],
+    ) -> None:
+        for table_id, physical_table in physical_table_map.items():
+            column_lineage: TypeColumnMap = {}
+
+            if physical_table.CustomSql:
+                source_entities, query = _get_source_from_custom_sql(
+                    self._resources, physical_table.CustomSql
                 )
-                source_entities.add(upstream_id)
-                for column in upstream_data_set.OutputColumns or []:
+
+                # CLL of custom sql is not supported
+                for column in physical_table.CustomSql.Columns:
                     if column.Name is None:
                         continue
-                    columns[column.Name] = Column(
+                    column_lineage[column.Name] = Column(output=column)
+
+                view = self._init_virtual_view(table_id)
+                view.entity_upstream = extract_virtual_view_upstream(
+                    column_lineage, source_entities or []
+                )
+                view.schema = extract_virtual_view_schema(column_lineage, query)
+
+            elif physical_table.RelationalTable:
+                source_dataset_id = self._get_source_from_relation_table(
+                    physical_table.RelationalTable
+                )
+
+                columns = physical_table.RelationalTable.InputColumns
+
+                for column in columns:
+                    if column.Name is None:
+                        continue
+                    column_lineage[column.Name] = Column(
                         upstream=[
-                            ColumnReference(upstream_id=upstream_id, name=column.Name)
-                        ]
+                            ColumnReference(
+                                upstream_id=source_dataset_id, name=column.Name
+                            )
+                        ],
+                        output=column,
                     )
 
-            elif source.PhysicalTableId:
-                upstream_table = tables.get(source.PhysicalTableId)
-                if upstream_table:
-                    columns.update(**upstream_table)
-                else:
-                    assert False, "should not happen"
+                view = self._init_virtual_view(table_id)
+                view.entity_upstream = extract_virtual_view_upstream(
+                    column_lineage, [source_dataset_id] if source_dataset_id else []
+                )
+                view.schema = extract_virtual_view_schema(column_lineage)
 
-            elif source.JoinInstruction:
-                left_table_id = source.JoinInstruction.LeftOperand
-                right_table_id = source.JoinInstruction.RightOperand
+            elif physical_table.S3Source:
+                for column in physical_table.S3Source.InputColumns:
+                    if column.Name is None:
+                        continue
+                    column_lineage[column.Name] = Column(output=column)
 
-                left_table = tables.get(left_table_id)
-                right_table = tables.get(right_table_id)
-                if left_table and right_table:
-                    columns.update(**left_table)
-                    columns.update(**right_table)
+                view = self._init_virtual_view(table_id)
+                view.schema = extract_virtual_view_schema(column_lineage)
 
-            if not columns:
-                unresolved.append((table_id, logical_table))
-                continue
+            tables[table_id] = column_lineage
 
-            _process_transformation(columns, logical_table.DataTransforms or [])
+        return None
 
-            tables[table_id] = columns
+    @staticmethod
+    def _entity_id(arn_or_table_id: str) -> str:
+        return str(
+            to_entity_id_from_virtual_view_logical_id(
+                VirtualViewLogicalID(
+                    name=arn_or_table_id, type=VirtualViewType.QUICK_SIGHT
+                )
+            )
+        )
 
-        logical_tables = unresolved
-
-    # Return root
-    return columns
-
-
-def process_dataset_lineage(
-    resources: Dict[str, ResourceType], data_set: DataSet
-) -> Tuple[TypeColumnMap, Set[str]]:
-    tables: Dict[str, Dict[str, Column]] = {}
-    source_entities: Set[str] = set()
-
-    if (
-        not data_set.LogicalTableMap
-        or not data_set.PhysicalTableMap
-        or not data_set.OutputColumns
+    @staticmethod
+    def _replace_upstream_id(
+        upstream_table: TypeColumnMap,
+        upstream_id: str,
     ):
-        return {}, source_entities
+        column_lineage: TypeColumnMap = {}
+        for key, value in upstream_table.items():
+            if value.output.Name is None:
+                continue
+            column_lineage[key] = Column(
+                output=value.output,
+                upstream=[
+                    ColumnReference(upstream_id=upstream_id, name=value.output.Name)
+                ],
+            )
+        return column_lineage
 
-    _process_physical_table_map(
-        resources, tables, source_entities, data_set.PhysicalTableMap
-    )
+    def _process_logical_table_map(
+        self,
+        tables: Dict[str, TypeColumnMap],
+        logical_table_map: Dict[str, DataSetLogicalTable],
+    ) -> str:
+        logical_tables = list(logical_table_map.items())
+        output_table_id = ""
+        column_lineage: Dict[str, Column]
 
-    columns = _process_logical_table_map(
-        resources, tables, source_entities, data_set.LogicalTableMap
-    )
+        # Walk through the dependence tree, the last table (root) will be the output table
+        while logical_tables:
+            unresolved = []
 
-    return columns, source_entities
+            for table_id, logical_table in logical_tables:
+                column_lineage = {}
+                source = logical_table.Source
+                source_entities: List[str] = []
+                if source.DataSetArn:
+                    arn = source.DataSetArn
+                    upstream_data_set = self._resources.get(arn)
+                    if upstream_data_set is None:
+                        continue
+                    assert isinstance(upstream_data_set, DataSet)
+
+                    upstream_id = self._entity_id(arn)
+                    source_entities.append(upstream_id)
+
+                    for column in upstream_data_set.OutputColumns or []:
+                        if column.Name is None:
+                            continue
+                        column_lineage[column.Name] = Column(
+                            upstream=[
+                                ColumnReference(
+                                    upstream_id=upstream_id,
+                                    name=column.Name,
+                                )
+                            ],
+                            output=column,
+                        )
+
+                elif source.PhysicalTableId:
+                    upstream_table = tables.get(source.PhysicalTableId)
+                    upstream_id = self._entity_id(source.PhysicalTableId)
+                    source_entities.append(upstream_id)
+
+                    if upstream_table:
+                        column_lineage.update(
+                            **self._replace_upstream_id(upstream_table, upstream_id)
+                        )
+                    else:
+                        assert False, "should not happen"
+
+                elif source.JoinInstruction:
+                    left_table_id = source.JoinInstruction.LeftOperand
+                    right_table_id = source.JoinInstruction.RightOperand
+
+                    source_entities.append(self._entity_id(left_table_id))
+                    source_entities.append(self._entity_id(right_table_id))
+
+                    left_table = tables.get(left_table_id)
+                    right_table = tables.get(right_table_id)
+                    if left_table and right_table:
+                        column_lineage.update(
+                            **self._replace_upstream_id(
+                                left_table, self._entity_id(left_table_id)
+                            )
+                        )
+                        column_lineage.update(
+                            **self._replace_upstream_id(
+                                right_table, self._entity_id(right_table_id)
+                            )
+                        )
+
+                if not column_lineage:
+                    unresolved.append((table_id, logical_table))
+                    continue
+
+                _process_transformation(
+                    column_lineage, logical_table.DataTransforms or []
+                )
+
+                view = self._init_virtual_view(table_id)
+                view.entity_upstream = extract_virtual_view_upstream(
+                    column_lineage, source_entities
+                )
+                view.schema = extract_virtual_view_schema(column_lineage)
+
+                tables[table_id] = column_lineage
+
+                output_table_id = table_id
+
+            logical_tables = unresolved
+
+        # Return root table_id
+        return output_table_id
 
 
 def extract_virtual_view_schema(
-    data_set: DataSet, columns: TypeColumnMap
+    column_lineage: TypeColumnMap,
+    query: Optional[VirtualViewQuery] = None,
 ) -> Optional[VirtualViewSchema]:
-    output_columns = data_set.OutputColumns or []
-
-    if not output_columns:
+    if not column_lineage:
         return None
 
     fields: List[VirtualViewSchemaField] = []
-    for column in output_columns:
-        if column.Name is None:
+    for column in column_lineage.values():
+        if column.output.Name is None:
             continue
-        reference = columns.get(column.Name)
+
         fields.append(
             VirtualViewSchemaField(
-                field_name=column.Name,
-                field_path=column.Name.lower(),
-                description=column.Description,
-                type=column.Type,
-                formula=reference.expression if reference else None,
-                optional_type=(
-                    "FORMULA" if reference and reference.expression else None
-                ),
+                field_name=column.output.Name,
+                field_path=column.output.Name.lower(),
+                description=column.output.Description,
+                type=column.output.Type,
+                formula=column.expression,
+                optional_type=("FORMULA" if column.expression else None),
             )
         )
-    return VirtualViewSchema(fields=fields) if fields else None
+    return (
+        VirtualViewSchema(
+            fields=sorted(fields, key=lambda f: f.field_path), query=query
+        )
+        if fields
+        else None
+    )
 
 
 def extract_virtual_view_upstream(
-    columns: Dict[str, Column], source_entities: Set[str]
+    column_lineage: Dict[str, Column], source_entities: List[str]
 ) -> EntityUpstream:
     field_mappings: List[FieldMapping] = []
-    for column_name, upstream_column in columns.items():
+    for column_name, upstream_column in column_lineage.items():
         field_mappings.append(
             FieldMapping(
                 destination=column_name.lower(),
@@ -325,6 +422,6 @@ def extract_virtual_view_upstream(
         )
 
     return EntityUpstream(
-        source_entities=sorted(list(source_entities)) if source_entities else None,
+        source_entities=source_entities if source_entities else None,
         field_mappings=field_mappings if field_mappings else None,
     )

@@ -29,12 +29,12 @@ from metaphor.models.metadata_change_event import (
     LookerView,
     LookerViewDimension,
     LookerViewMeasure,
-    LookerViewQuery,
     SystemTag,
     SystemTags,
     SystemTagSource,
     VirtualView,
     VirtualViewLogicalID,
+    VirtualViewQuery,
     VirtualViewType,
 )
 
@@ -132,7 +132,7 @@ def _get_upstream_and_query(
     view_name: str,
     raw_model: RawModel,
     connection: LookerConnectionConfig,
-) -> Tuple[Set[EntityId], Optional[LookerViewQuery]]:
+) -> Tuple[Set[EntityId], Optional[VirtualViewQuery]]:
     raw_views = raw_model.raw_views
     raw_view = raw_views.get(view_name)
     if raw_view is None:
@@ -150,7 +150,7 @@ def _get_upstream_and_query(
     derived_table: Optional[Dict] = raw_view.get("derived_table")
     if derived_table is not None:
         if "sql" in derived_table:
-            query = LookerViewQuery(
+            query = VirtualViewQuery(
                 query=derived_table["sql"],
                 source_platform=connection.platform,
                 source_dataset_account=connection.account,

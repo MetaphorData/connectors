@@ -12,12 +12,12 @@ from metaphor.models.metadata_change_event import (
     LookerView,
     LookerViewDimension,
     LookerViewMeasure,
-    LookerViewQuery,
     SystemTag,
     SystemTags,
     SystemTagSource,
     VirtualView,
     VirtualViewLogicalID,
+    VirtualViewQuery,
     VirtualViewType,
 )
 from tests.test_utils import compare_list_ignore_order
@@ -370,7 +370,7 @@ def test_derived_table(test_root_dir):
                 name="view1",
             ),
             looker_view=LookerView(
-                query=LookerViewQuery(
+                query=VirtualViewQuery(
                     default_database="db",
                     default_schema="schema",
                     query="SELECT * FROM table1",
@@ -388,7 +388,7 @@ def test_derived_table(test_root_dir):
                 name="view2",
             ),
             looker_view=LookerView(
-                query=LookerViewQuery(
+                query=VirtualViewQuery(
                     default_database="db",
                     default_schema="schema",
                     query="SELECT * FROM ${view1.SQL_TABLE_NAME}",
@@ -757,7 +757,7 @@ def test_view_extension(test_root_dir):
                 name="view2",
             ),
             looker_view=LookerView(
-                query=LookerViewQuery(
+                query=VirtualViewQuery(
                     default_database="db",
                     default_schema="schema",
                     query="SELECT * FROM table2",
@@ -774,7 +774,7 @@ def test_view_extension(test_root_dir):
                 name="view3",
             ),
             looker_view=LookerView(
-                query=LookerViewQuery(
+                query=VirtualViewQuery(
                     default_database="db",
                     default_schema="schema",
                     query="SELECT * FROM table2",
@@ -804,7 +804,7 @@ def test_view_extension(test_root_dir):
                 name="base_view2",
             ),
             looker_view=LookerView(
-                query=LookerViewQuery(
+                query=VirtualViewQuery(
                     default_database="db",
                     default_schema="schema",
                     query="SELECT * FROM table2",
