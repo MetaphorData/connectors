@@ -29,11 +29,7 @@ from metaphor.quick_sight.folder import (
     DATA_SET_DIRECTORIES,
     create_top_level_folders,
 )
-from metaphor.quick_sight.lineage import (
-    extract_virtual_view_schema,
-    extract_virtual_view_upstream,
-    process_dataset_lineage,
-)
+from metaphor.quick_sight.lineage import LineageProcessor
 from metaphor.quick_sight.models import Dashboard, DataSet, ResourceType
 
 logger = get_logger()
@@ -80,15 +76,16 @@ class QuickSightExtractor(BaseExtractor):
                 continue
 
             view = self._init_virtual_view(data_set.Arn, data_set)
+            output_logical_table_id = LineageProcessor(
+                self._resources, self._virtual_views, data_set
+            ).run()
 
-            columns, source_entities = process_dataset_lineage(
-                self._resources, data_set
-            )
-
-            view.schema = extract_virtual_view_schema(data_set, columns)
-            view.entity_upstream = extract_virtual_view_upstream(
-                columns, source_entities
-            )
+            # The last logical_table is the output table for the dataset
+            output = self._virtual_views.get(output_logical_table_id)
+            if output:
+                view.schema = output.schema
+                view.entity_upstream = output.entity_upstream
+                self._virtual_views.pop(output_logical_table_id)
 
     def _extract_dashboards(self) -> None:
         for dashboard in self._resources.values():
