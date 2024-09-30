@@ -1,31 +1,32 @@
 from collections import Counter
-from typing import Any, Counter as CounterType, Dict, Sequence, Tuple, Union
+from datetime import datetime
+from typing import Any
+from typing import Counter as CounterType
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from typing_extensions import TypedDict
 
+from metaphor.common.logger import get_logger
+from metaphor.models.metadata_change_event import SchemaField
 
-class BasicSchemaDescription(TypedDict):
+logger = get_logger()
+
+SchemaTypeNameMapping = Dict[Optional[type], str]
+"""
+Type for mapping from Python types to platform data types.
+"""
+
+
+class _TypeCountSchemaField(TypedDict):
     types: CounterType[Union[type, str]]  # field types and times seen
     count: int  # times the field was seen
+    schema_field: SchemaField
+    is_array: bool
 
 
-class SchemaDescription(BasicSchemaDescription):
-    delimited_name: str  # collapsed field name
-    # we use 'mixed' to denote mixed types, so we need a str here
-    type: Union[type, str]  # collapsed type
-    nullable: bool  # if field is ever missing
-
-
-def is_field_nullable(doc: Dict[str, Any], field_path: Tuple[str, ...]) -> bool:
+def _is_field_nullable(doc: Dict[str, Any], field_path: Tuple[str, ...]) -> bool:
     """
     Check if a nested field is nullable in a document from a collection.
-
-    Parameters
-    ----------
-        doc:
-            document to check nullability for
-        field_path:
-            path to nested field to check, ex. ('first_field', 'nested_child', '2nd_nested_child')
     """
 
     if not field_path:
@@ -48,14 +49,14 @@ def is_field_nullable(doc: Dict[str, Any], field_path: Tuple[str, ...]) -> bool:
 
         # if dictionary, check additional level of nesting
         if isinstance(value, dict):
-            return is_field_nullable(doc[field], remaining_fields)
+            return _is_field_nullable(doc[field], remaining_fields)
         # if list, check if any member is missing field
         if isinstance(value, list):
             # count empty lists of nested objects as nullable
             if len(value) == 0:
                 return True
             return any(
-                isinstance(x, dict) and is_field_nullable(x, remaining_fields)
+                isinstance(x, dict) and _is_field_nullable(x, remaining_fields)
                 for x in doc[field]
             )
 
@@ -66,107 +67,119 @@ def is_field_nullable(doc: Dict[str, Any], field_path: Tuple[str, ...]) -> bool:
     return True
 
 
-def is_nullable_collection(
-    collection: Sequence[Dict[str, Any]], field_path: Tuple
-) -> bool:
+def _get_field_native_type(
+    field_types: Counter[Union[type, str]],
+    field_path: str,
+    type_mapping: SchemaTypeNameMapping,
+) -> str:
+    field_type: Union[str, type] = "mixed"
+
+    # if single type detected, mark that as the type to go with
+    if len(field_types.keys()) == 1:
+        field_type = next(iter(field_types))
+    elif set(field_types.keys()) == {int, float}:
+        field_type = float
+    elif set(field_types.keys()) == {datetime, str}:
+        field_type = datetime
+    else:
+        logger.warning(
+            f"Multiple types found in field: field = {field_path}, types = {list(field_types.keys())}"
+        )
+
+    if isinstance(field_type, str):
+        return field_type
+    if field_type in type_mapping:
+        return type_mapping[field_type]
+    logger.warning(f"Unexpected field type: field = {field_path}, type = {field_type}")
+    return str(field_type)
+
+
+def infer_schema(  # noqa: C901
+    documents: Sequence[Dict[str, Any]],
+    type_mapping: SchemaTypeNameMapping,
+) -> List[SchemaField]:
     """
-    Check if a nested field is nullable in a collection.
-
-    Parameters
-    ----------
-        collection:
-            collection to check nullability for
-        field_path:
-            path to nested field to check, ex. ('first_field', 'nested_child', '2nd_nested_child')
-    """
-
-    return any(is_field_nullable(doc, field_path) for doc in collection)
-
-
-def construct_schema(
-    collection: Sequence[Dict[str, Any]], delimiter: str
-) -> Dict[Tuple[str, ...], SchemaDescription]:
-    """
-    Construct (infer) a schema from a collection of documents.
-
-    For each field (represented as a tuple to handle nested items), reports the following:
-        - `types`: Python types of field values
-        - `count`: Number of times the field was encountered
-        - `type`: type of the field if `types` is just a single value, otherwise `mixed`
-        - `nullable`: if field is ever null/missing
-        - `delimited_name`: name of the field, joined by a given delimiter
-
-    Parameters
-    ----------
-        collection:
-            collection to construct schema over.
-        delimiter:
-            string to concatenate field names by
+    Infer a schema from documents.
     """
 
-    schema: Dict[Tuple[str, ...], BasicSchemaDescription] = {}
+    schema: Dict[Tuple[str, ...], _TypeCountSchemaField] = {}
 
-    def append_to_schema(doc: Dict[str, Any], parent_prefix: Tuple[str, ...]) -> None:
+    def append_to_schema(
+        doc: Dict[str, Any],
+        prefix: Tuple[str, ...],
+        parent_schema_field: Optional[SchemaField],
+    ) -> None:
         """
         Recursively update the schema with a document, which may/may not contain nested fields.
-
-        Parameters
-        ----------
-            doc:
-                document to scan
-            parent_prefix:
-                prefix of fields that the document is under, pass an empty tuple when initializing
         """
 
+        schema_fields: List[SchemaField] = []
+
         for key, value in doc.items():
-            new_parent_prefix = parent_prefix + (key,)
+
+            current_prefix = prefix + (key,)
+            field_path = ".".join(current_prefix)
+            schema_field = SchemaField(field_path=field_path, field_name=key)
+            schema_fields.append(schema_field)
+
+            field_type = type(value)
+            is_array = False
 
             # if nested value, look at the types within
             if isinstance(value, dict):
-                append_to_schema(value, new_parent_prefix)
+                append_to_schema(
+                    value, current_prefix, parent_schema_field=schema_field
+                )
             # if array of values, check what types are within
             if isinstance(value, list):
+                is_array = True
                 for item in value:
                     # if dictionary, add it as a nested object
                     if isinstance(item, dict):
-                        append_to_schema(item, new_parent_prefix)
+                        append_to_schema(
+                            item, current_prefix, parent_schema_field=schema_field
+                        )
 
             # don't record None values (counted towards nullable)
             if value is not None:
-                if new_parent_prefix not in schema:
-                    schema[new_parent_prefix] = {
-                        "types": Counter([type(value)]),
+                if current_prefix not in schema:
+                    schema[current_prefix] = {
+                        "types": Counter([field_type]),
                         "count": 1,
+                        "schema_field": schema_field,
+                        "is_array": is_array,
                     }
 
                 else:
                     # update the type count
-                    schema[new_parent_prefix]["types"].update({type(value): 1})
-                    schema[new_parent_prefix]["count"] += 1
+                    schema[current_prefix]["types"].update({field_type: 1})
+                    schema[current_prefix]["count"] += 1
 
-    for document in collection:
-        append_to_schema(document, ())
+        if parent_schema_field:
+            # dedup by field_path
+            parent_schema_field.subfields = list(
+                {f.field_path: f for f in schema_fields}.values()
+            )
 
-    extended_schema: Dict[Tuple[str, ...], SchemaDescription] = {}
+    for document in documents:
+        append_to_schema(document, (), None)
+
+    fields: List[SchemaField] = []
 
     for field_path in schema.keys():
-        field_types = schema[field_path]["types"]
-        field_type: Union[str, type] = "mixed"
+        schema_field = schema[field_path]["schema_field"]
+        schema_field.native_type = _get_field_native_type(
+            field_types=schema[field_path]["types"],
+            field_path=".".join(field_path),
+            type_mapping=type_mapping,
+        )
 
-        # if single type detected, mark that as the type to go with
-        if len(field_types.keys()) == 1:
-            field_type = next(iter(field_types))
-        elif set(field_types.keys()) == {int, float}:
-            # If there's only floats and ints, it's not really a mixed type.
-            field_type = float
-        field_extended: SchemaDescription = {
-            "types": schema[field_path]["types"],
-            "count": schema[field_path]["count"],
-            "nullable": is_nullable_collection(collection, field_path),
-            "delimited_name": delimiter.join(field_path),
-            "type": field_type,
-        }
+        schema_field.nullable = any(
+            _is_field_nullable(doc, field_path) for doc in documents
+        )
 
-        extended_schema[field_path] = field_extended
+        # If this is a root field in the schema, append it to the return value.
+        if len(field_path) == 1:
+            fields.append(schema_field)
 
-    return extended_schema
+    return fields
