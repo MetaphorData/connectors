@@ -40,6 +40,8 @@ class MongoDBExtractor(BaseExtractor):
         time: "Time",
         dict: "Object",
         bson.ObjectId: "ObjectId",
+        bson.Int64: "Int64",
+        bson.Decimal128: "Decimal128",
     }
 
     def __init__(self, config: MongoDBConfig) -> None:

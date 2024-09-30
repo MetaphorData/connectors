@@ -1,6 +1,8 @@
 from glob import glob
 from pathlib import Path
+import time
 from typing import List
+import typing
 import pytest
 
 
@@ -39,15 +41,32 @@ def mongodb_container(test_root_dir: str):
         container="/samples",
         mode="ro",
     ) as container:
+        container = typing.cast(MongoDbContainer, container)
+        # Make sure it's up and running before importing stuff
+        container.get_connection_client()
+        logger.info("MongoDB container is up")
+        time.sleep(3)
+
         for path_str in glob(
             f"{test_root_dir}/mongodb/mongodb-sample-dataset/*/*.json"
         ):
             path = Path(path_str)
             db = path.parent.name
             collection = path.name.split(".", maxsplit=1)[0]
-            container.exec(
-                f"mongoimport --drop --db {db} --collection {collection} --file /samples/{db}/{collection}.json --authenticationDatabase admin -u {user} -p {password}"
-            )
+            retries = 5
+            attempt = 1
+            while attempt <= retries:
+                logger.info(f"Importing {db}.{collection}, attempt #{attempt}")
+                res = container.exec(
+                    f"mongoimport --drop --db {db} --collection {collection} --file /samples/{db}/{collection}.json --authenticationDatabase admin -u {user} -p {password}"
+                )
+                if res.exit_code == 0:
+                    break
+                attempt += 1
+            
+            if attempt > retries:
+                assert False, "Failed to initialize mongodb container"
+
             logger.info(f"Imported {db}.{collection}")
 
         yield container
