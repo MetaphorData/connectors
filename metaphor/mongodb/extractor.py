@@ -65,7 +65,8 @@ class MongoDBExtractor(BaseExtractor):
                 }
             })
         docs = collection.aggregate(pipeline).to_list()
-        return infer_schema(docs, self._type_mapping)
+        fields = infer_schema(docs, self._type_mapping)
+        return fields
 
     def _get_collection_statistics(
         self, raw_stats: Dict[str, Any]

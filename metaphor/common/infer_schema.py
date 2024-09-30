@@ -1,6 +1,6 @@
 from collections import Counter
 from datetime import datetime
-from typing import Any
+from typing import Any, Set
 from typing import Counter as CounterType
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
@@ -22,6 +22,7 @@ class _TypeCountSchemaField(TypedDict):
     count: int  # times the field was seen
     schema_field: SchemaField
     is_array: bool
+    subfield_keys: Set[str]
 
 
 def _is_field_nullable(doc: Dict[str, Any], field_path: Tuple[str, ...]) -> bool:
@@ -107,20 +108,19 @@ def infer_schema(  # noqa: C901
     def append_to_schema(
         doc: Dict[str, Any],
         prefix: Tuple[str, ...],
-        parent_schema_field: Optional[SchemaField],
     ) -> None:
         """
         Recursively update the schema with a document, which may/may not contain nested fields.
         """
 
-        schema_fields: List[SchemaField] = []
+        fields: List[SchemaField] = []
 
         for key, value in doc.items():
 
             current_prefix = prefix + (key,)
             field_path = ".".join(current_prefix)
-            schema_field = SchemaField(field_path=field_path, field_name=key)
-            schema_fields.append(schema_field)
+            field = SchemaField(field_path=field_path, field_name=key)
+            fields.append(field)
 
             field_type = type(value)
             is_array = False
@@ -128,7 +128,7 @@ def infer_schema(  # noqa: C901
             # if nested value, look at the types within
             if isinstance(value, dict):
                 append_to_schema(
-                    value, current_prefix, parent_schema_field=schema_field
+                    value, current_prefix
                 )
             # if array of values, check what types are within
             if isinstance(value, list):
@@ -137,7 +137,7 @@ def infer_schema(  # noqa: C901
                     # if dictionary, add it as a nested object
                     if isinstance(item, dict):
                         append_to_schema(
-                            item, current_prefix, parent_schema_field=schema_field
+                            item, current_prefix
                         )
 
             # don't record None values (counted towards nullable)
@@ -146,7 +146,7 @@ def infer_schema(  # noqa: C901
                     schema[current_prefix] = {
                         "types": Counter([field_type]),
                         "count": 1,
-                        "schema_field": schema_field,
+                        "schema_field": field,
                         "is_array": is_array,
                     }
 
@@ -155,14 +155,21 @@ def infer_schema(  # noqa: C901
                     schema[current_prefix]["types"].update({field_type: 1})
                     schema[current_prefix]["count"] += 1
 
-        if parent_schema_field:
+        if prefix and prefix in schema and fields:
+            schema_field = schema[prefix]["schema_field"]
+            if not isinstance(schema_field.subfields, list):
+                schema_field.subfields = []
             # dedup by field_path
-            parent_schema_field.subfields = list(
-                {f.field_path: f for f in schema_fields}.values()
+            subfields = list(
+                {
+                    f.field_path: f
+                    for f in fields + schema_field.subfields
+                }.values()
             )
+            schema_field.subfields = subfields
 
     for document in documents:
-        append_to_schema(document, (), None)
+        append_to_schema(document, ())
 
     fields: List[SchemaField] = []
 
