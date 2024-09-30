@@ -1,37 +1,23 @@
+import time
+import typing
 from glob import glob
 from pathlib import Path
-import time
-from typing import List
-import typing
+
 import pytest
-
-
 from testcontainers.mongodb import MongoDbContainer
 
 from metaphor.common.base_config import OutputConfig
-from metaphor.models.metadata_change_event import Dataset, SchemaField
 from metaphor.common.event_util import EventUtil
 from metaphor.common.logger import get_logger
+from metaphor.models.metadata_change_event import Dataset
 from metaphor.mongodb.config import MongoDBConfig
 from metaphor.mongodb.extractor import MongoDBExtractor
 from tests.test_utils import load_json
 
 user = "test"
-password = "test"
+password = "test" # nosec B105
 
 logger = get_logger()
-
-
-def sort_fields(fields: List[SchemaField]) -> List[SchemaField]:
-    for field in fields:
-        if isinstance(field.subfields, list):
-            sort_fields(field.subfields)
-
-    return list(
-        dict(
-            sorted({field.field_name: field for field in fields}.items())
-        ).values()
-    )
 
 
 @pytest.fixture(scope="module")
@@ -64,7 +50,7 @@ def mongodb_container(test_root_dir: str):
                 if res.exit_code == 0:
                     break
                 attempt += 1
-            
+
             if attempt > retries:
                 assert False, "Failed to initialize mongodb container"
 
@@ -83,22 +69,17 @@ async def test_extractor(test_root_dir: str, mongodb_container: MongoDbContainer
         )
     )
     entities = await extractor.extract()
-    datasets = [ent for ent in entities if isinstance(ent, Dataset)]
-    # Sort the schema fields recursively
-    for dataset in datasets:
-        if dataset.schema and dataset.schema.fields:
-            dataset.schema.fields = sort_fields(dataset.schema.fields)
 
-    # Then sort the datasets
-    datasets = list(
-        dict(
-            sorted(
-                {
-                    (dataset.logical_id.name if dataset.logical_id and dataset.logical_id.name else ""): dataset
-                    for dataset in datasets
-                }.items()
-            )
-        ).values()
+    def get_dataset_name(dataset: Dataset):
+        return (
+            dataset.logical_id.name
+            if dataset.logical_id and dataset.logical_id.name
+            else ""
+        )
+
+    # Sort the datasets
+    datasets = sorted(
+        [ent for ent in entities if isinstance(ent, Dataset)], key=get_dataset_name
     )
 
     trimmed_datasets = [EventUtil.trim_event(ds) for ds in datasets]

@@ -1,8 +1,8 @@
 from collections import Counter
 from datetime import datetime
-from typing import Any, Set
+from typing import Any
 from typing import Counter as CounterType
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 from typing_extensions import TypedDict
 
@@ -100,7 +100,8 @@ def infer_schema(  # noqa: C901
     type_mapping: SchemaTypeNameMapping,
 ) -> List[SchemaField]:
     """
-    Infer a schema from documents.
+    Infer a schema from documents. The fields and their subfields are sorted by
+    `field_name`.
     """
 
     schema: Dict[Tuple[str, ...], _TypeCountSchemaField] = {}
@@ -127,18 +128,14 @@ def infer_schema(  # noqa: C901
 
             # if nested value, look at the types within
             if isinstance(value, dict):
-                append_to_schema(
-                    value, current_prefix
-                )
+                append_to_schema(value, current_prefix)
             # if array of values, check what types are within
             if isinstance(value, list):
                 is_array = True
                 for item in value:
                     # if dictionary, add it as a nested object
                     if isinstance(item, dict):
-                        append_to_schema(
-                            item, current_prefix
-                        )
+                        append_to_schema(item, current_prefix)
 
             # don't record None values (counted towards nullable)
             if value is not None:
@@ -157,7 +154,10 @@ def infer_schema(  # noqa: C901
                     schema[current_prefix]["count"] += 1
 
         if prefix and prefix in schema and fields:
-            schema[prefix]["subfield_keys"].update(f.field_name for f in fields if f.field_name is not None)
+            # Only keep track of the keys here
+            schema[prefix]["subfield_keys"].update(
+                f.field_name for f in fields if f.field_name is not None
+            )
 
     for document in documents:
         append_to_schema(document, ())
@@ -171,6 +171,8 @@ def infer_schema(  # noqa: C901
             field_path=".".join(field_path),
             type_mapping=type_mapping,
         )
+        # Now we know every subfield under the current field, let's look them up
+        # in the collected schema.
         if schema[field_path]["subfield_keys"]:
             schema_field.subfields = [
                 schema[field_path + (key,)]["schema_field"]
@@ -186,4 +188,4 @@ def infer_schema(  # noqa: C901
         if len(field_path) == 1:
             fields.append(schema_field)
 
-    return fields
+    return sorted(fields, key=lambda field: field.field_name or "")
