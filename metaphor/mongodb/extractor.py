@@ -59,11 +59,13 @@ class MongoDBExtractor(BaseExtractor):
     def _get_collection_schema(self, collection: MongoCollection):
         pipeline = []
         if self._sample_size:
-            pipeline.append({
-                "$sample": {
-                    "size": self._sample_size,
+            pipeline.append(
+                {
+                    "$sample": {
+                        "size": self._sample_size,
+                    }
                 }
-            })
+            )
         docs = collection.aggregate(pipeline).to_list()
         fields = infer_schema(docs, self._type_mapping)
         return fields
@@ -85,14 +87,15 @@ class MongoDBExtractor(BaseExtractor):
         database = None
         schema = collection.database.name
         table = collection.name
-        name = dataset_normalized_name(database, schema, table) 
+        name = dataset_normalized_name(database, schema, table)
         self._datasets[name] = Dataset(
             logical_id=DatasetLogicalID(
                 name=name,
                 platform=DataPlatform.MONGODB,
             ),
             schema=DatasetSchema(
-                fields=fields, schema_type=SchemaType.BSON,
+                fields=fields,
+                schema_type=SchemaType.BSON,
             ),
             statistics=self._get_collection_statistics(raw_coll_stats),
             structure=DatasetStructure(
