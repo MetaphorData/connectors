@@ -148,6 +148,7 @@ def infer_schema(  # noqa: C901
                         "count": 1,
                         "schema_field": field,
                         "is_array": is_array,
+                        "subfield_keys": set(),
                     }
 
                 else:
@@ -156,17 +157,7 @@ def infer_schema(  # noqa: C901
                     schema[current_prefix]["count"] += 1
 
         if prefix and prefix in schema and fields:
-            schema_field = schema[prefix]["schema_field"]
-            if not isinstance(schema_field.subfields, list):
-                schema_field.subfields = []
-            # dedup by field_path
-            subfields = list(
-                {
-                    f.field_path: f
-                    for f in fields + schema_field.subfields
-                }.values()
-            )
-            schema_field.subfields = subfields
+            schema[prefix]["subfield_keys"].update(f.field_name for f in fields if f.field_name is not None)
 
     for document in documents:
         append_to_schema(document, ())
@@ -180,6 +171,12 @@ def infer_schema(  # noqa: C901
             field_path=".".join(field_path),
             type_mapping=type_mapping,
         )
+        if schema[field_path]["subfield_keys"]:
+            schema_field.subfields = [
+                schema[field_path + (key,)]["schema_field"]
+                for key in sorted(schema[field_path]["subfield_keys"])
+                if (field_path + (key,)) in schema
+            ]
 
         schema_field.nullable = any(
             _is_field_nullable(doc, field_path) for doc in documents

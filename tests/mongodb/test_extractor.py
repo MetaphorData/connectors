@@ -45,6 +45,7 @@ def mongodb_container(test_root_dir: str):
         # Make sure it's up and running before importing stuff
         container.get_connection_client()
         logger.info("MongoDB container is up")
+        # Wait 3 seconds for MongoDB to actually go up
         time.sleep(3)
 
         for path_str in glob(
@@ -53,7 +54,7 @@ def mongodb_container(test_root_dir: str):
             path = Path(path_str)
             db = path.parent.name
             collection = path.name.split(".", maxsplit=1)[0]
-            retries = 5
+            retries = 3
             attempt = 1
             while attempt <= retries:
                 logger.info(f"Importing {db}.{collection}, attempt #{attempt}")
