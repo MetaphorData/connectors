@@ -69,7 +69,7 @@ def _is_field_nullable(doc: Dict[str, Any], field_path: Tuple[str, ...]) -> bool
 
 
 def _get_field_native_type(
-    field_types: Counter[Union[type, str]],
+    field_types: CounterType[Union[type, str]],
     field_path: str,
     type_mapping: SchemaTypeNameMapping,
 ) -> str:
