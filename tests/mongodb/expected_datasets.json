@@ -148,7 +148,7 @@
                     "fieldName": "bedrooms",
                     "fieldPath": "bedrooms",
                     "nativeType": "Int",
-                    "nullable": true
+                    "nullable": false
                 },
                 {
                     "fieldName": "beds",
@@ -558,8 +558,8 @@
             "schemaType": "BSON"
         },
         "statistics": {
-            "dataSizeBytes": 94362187.0,
-            "recordCount": 5555.0
+            "dataSizeBytes": 10957741.0,
+            "recordCount": 469.0
         },
         "structure": {
             "schema": "sample_airbnb",

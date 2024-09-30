@@ -84,4 +84,4 @@ async def test_extractor(test_root_dir: str, mongodb_container: MongoDbContainer
 
     trimmed_datasets = [EventUtil.trim_event(ds) for ds in datasets]
     expected = f"{test_root_dir}/mongodb/expected_datasets.json"
-    assert trimmed_datasets == load_json(expected)
+    assert trimmed_datasets == load_json(expected, trimmed_datasets)

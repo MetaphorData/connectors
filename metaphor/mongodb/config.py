@@ -1,8 +1,10 @@
 from typing import Optional, Set
-from pydantic import field_validator, Field
+
+from pydantic import Field, field_validator
 from pydantic.dataclasses import dataclass
 from pymongo import MongoClient
 from pymongo.auth import MECHANISMS
+
 from metaphor.common.base_config import BaseConfig
 from metaphor.common.dataclass import ConnectorConfig
 
