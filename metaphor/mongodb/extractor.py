@@ -16,6 +16,7 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetSchema,
     DatasetStatistics,
+    DatasetStructure,
     SchemaType,
 )
 from metaphor.mongodb.config import MongoDBConfig
@@ -25,7 +26,7 @@ class MongoDBExtractor(BaseExtractor):
     """MongoDB metadata extractor"""
 
     _description = "MongoDB metadata crawler"
-    _platform = Platform.S3  # FIXME
+    _platform = Platform.MONGODB
 
     _type_mapping: SchemaTypeNameMapping = {
         list: "Array",
@@ -43,7 +44,7 @@ class MongoDBExtractor(BaseExtractor):
 
     def __init__(self, config: MongoDBConfig) -> None:
         super().__init__(config)
-        self._sample_size = config.documents_to_infer_schema
+        self._sample_size = config.infer_schema_sample_size
         self._excluded_collections = config.excluded_collections
         self._excluded_databases = config.excluded_databases
         self.client = config.get_client()
@@ -54,15 +55,14 @@ class MongoDBExtractor(BaseExtractor):
         return MongoDBExtractor(MongoDBConfig.from_yaml_file(config_file))
 
     def _get_collection_schema(self, collection: MongoCollection):
-        docs = collection.aggregate(
-            [
-                {
-                    "$sample": {
-                        "size": self._sample_size,
-                    }
+        pipeline = []
+        if self._sample_size:
+            pipeline.append({
+                "$sample": {
+                    "size": self._sample_size,
                 }
-            ]
-        ).to_list()
+            })
+        docs = collection.aggregate(pipeline).to_list()
         return infer_schema(docs, self._type_mapping)
 
     def _get_collection_statistics(
@@ -79,18 +79,24 @@ class MongoDBExtractor(BaseExtractor):
         self, collection: MongoCollection, raw_coll_stats: Dict[str, Any]
     ) -> None:
         fields = self._get_collection_schema(collection)
-        name = dataset_normalized_name(
-            schema=collection.database.name, table=collection.name
-        )
+        database = None
+        schema = collection.database.name
+        table = collection.name
+        name = dataset_normalized_name(database, schema, table) 
         self._datasets[name] = Dataset(
             logical_id=DatasetLogicalID(
                 name=name,
-                platform=DataPlatform.S3,  # FIXME
+                platform=DataPlatform.MONGODB,
             ),
             schema=DatasetSchema(
-                fields=fields, schema_type=SchemaType.SCHEMALESS  # FIXME
+                fields=fields, schema_type=SchemaType.BSON,
             ),
             statistics=self._get_collection_statistics(raw_coll_stats),
+            structure=DatasetStructure(
+                database=database,
+                schema=schema,
+                table=table,
+            ),
         )
 
     async def extract(self) -> Collection[ENTITY_TYPES]:

@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, Iterator, Union
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 from metaphor.common.event_util import ENTITY_TYPES, EventUtil
 from metaphor.models.metadata_change_event import (
@@ -10,7 +10,13 @@ from metaphor.models.metadata_change_event import (
 )
 
 
-def load_json(path):
+def load_json(path, events: Optional[List[Dict[str, Any]]] = None):
+    """
+    To update the expected file, pass `events` into this function.
+    """
+    if events:
+        with open(path, "w") as f:
+            f.write(json.dumps(events, indent=4))
     with open(path, "r") as f:
         return json.load(f)
 
