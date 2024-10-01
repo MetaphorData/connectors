@@ -117,7 +117,7 @@ from metaphor.common.logger import get_logger
 
 logger = get_logger()
 logger.info('info message')
-logger.warn('warning message')
+logger.warning('warning message')
 logger.error('error message')
 ```
 

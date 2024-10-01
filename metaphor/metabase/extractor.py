@@ -179,7 +179,7 @@ class MetabaseExtractor(BaseExtractor):
 
         if not location:
             # We need location to build logical id
-            logger.warn(f"invalid collection, dict: {json.dumps(collection)}")
+            logger.warning(f"invalid collection, dict: {json.dumps(collection)}")
             return
 
         parent_path = location.split("/")[1:-1]

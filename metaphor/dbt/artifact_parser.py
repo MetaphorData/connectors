@@ -563,7 +563,7 @@ class ArtifactParser:
 
         # Skip test if it references an non-existing (most likely disabled) model
         if model_unique_id not in self._virtual_views:
-            logger.warn(
+            logger.warning(
                 f"Test {test.unique_id} references non-active model {model_unique_id}"
             )
             return
