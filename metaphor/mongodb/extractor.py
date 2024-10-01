@@ -22,7 +22,6 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.mongodb.config import MongoDBConfig
 
-
 logger = get_logger()
 
 
