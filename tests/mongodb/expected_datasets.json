@@ -767,6 +767,12 @@
               "nullable": true
             },
             {
+              "fieldName": "0df078f33aa74a2e9696e0520c1a828a",
+              "fieldPath": "tier_and_details.0df078f33aa74a2e9696e0520c1a828a",
+              "nativeType": "Object",
+              "nullable": true
+            },
+            {
               "fieldName": "0e025e0c398f412b854c0c5e5200efd3",
               "fieldPath": "tier_and_details.0e025e0c398f412b854c0c5e5200efd3",
               "nativeType": "Object",
@@ -1765,6 +1771,12 @@
             {
               "fieldName": "698ed77ac4bc4294af1598d70a77ac19",
               "fieldPath": "tier_and_details.698ed77ac4bc4294af1598d70a77ac19",
+              "nativeType": "Object",
+              "nullable": true
+            },
+            {
+              "fieldName": "699456451cc24f028d2aa99d7534c219",
+              "fieldPath": "tier_and_details.699456451cc24f028d2aa99d7534c219",
               "nativeType": "Object",
               "nullable": true
             },
