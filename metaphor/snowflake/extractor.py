@@ -174,7 +174,10 @@ class SnowflakeExtractor(BaseExtractor):
 
             self._fetch_primary_keys(cursor)
             self._fetch_unique_keys(cursor)
-            self._fetch_tags(cursor)
+
+            # Only fetch the tags when collect_tags is True
+            if self._config.collect_tags:
+                self._fetch_tags(cursor)
 
         datasets = list(self._datasets.values())
         tag_datasets(datasets, self._tag_matchers)
@@ -948,7 +951,9 @@ class SnowflakeExtractor(BaseExtractor):
             database=database, schema=schema, table=table
         )
 
-        dataset.system_tags = SystemTags(tags=[])
+        # Only initialize this when collect_tags is True
+        if self._config.collect_tags:
+            dataset.system_tags = SystemTags(tags=[])
 
         return dataset
 
