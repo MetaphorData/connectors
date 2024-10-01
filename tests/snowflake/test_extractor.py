@@ -14,6 +14,8 @@ from metaphor.models.metadata_change_event import (
     MaterializationType,
     QueriedDataset,
     SchemaField,
+    SnowflakeIcebergInfo,
+    SnowflakeIcebergTableType,
     SnowflakeStreamInfo,
     SnowflakeStreamSourceType,
     SnowflakeStreamType,
@@ -1178,3 +1180,46 @@ def test_fetch_schema_comment(mock_connect: MagicMock) -> None:
     assert hierarchy
     assert hierarchy.system_description.description == "desc"
     assert hierarchy.system_description.platform == AssetPlatform.SNOWFLAKE
+
+
+@patch("metaphor.snowflake.auth.connect")
+def test_fetch_iceberg_table(mock_connect: MagicMock) -> None:
+    mock_cursor = MagicMock()
+
+    mock_cursor.__iter__.return_value = iter(
+        [
+            (
+                "dont care",
+                "TABLE",  # stream_name,
+                "dont care",
+                "dont care",
+                "dont care",
+                "external_volume",  # external_volume_name
+                "dont care",
+                "MANAGED",  # table_type
+            ),
+        ]
+    )
+
+    extractor = SnowflakeExtractor(make_snowflake_config())
+    extractor._datasets["db.schema.table"] = extractor._init_dataset(
+        database="DB",
+        schema="SCHEMA",
+        table="TABLE",
+        table_type="BASE TABLE",
+        comment="",
+        row_count=None,
+        table_bytes=None,
+    )
+
+    extractor._fetch_iceberg_tables(mock_cursor, "DB", "SCHEMA")
+
+    normalized_name = dataset_normalized_name("DB", "SCHEMA", "TABLE")
+    assert normalized_name in extractor._datasets
+    assert len(extractor._datasets) == 1
+
+    dataset = extractor._datasets[normalized_name]
+    assert dataset.snowflake_iceberg_info == SnowflakeIcebergInfo(
+        iceberg_table_type=SnowflakeIcebergTableType.MANAGED,
+        external_volume_name="external_volume",
+    )
