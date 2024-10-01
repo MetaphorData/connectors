@@ -16,7 +16,8 @@ def load_json(path, events: Optional[List[Dict[str, Any]]] = None):
     """
     if events:
         with open(path, "w") as f:
-            f.write(json.dumps(events, indent=4))
+            f.write(json.dumps(events, indent=2, sort_keys=True))
+            f.write("\n")
     with open(path, "r") as f:
         return json.load(f)
 
