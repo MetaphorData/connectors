@@ -3541,7 +3541,7 @@
                 {
                     "fieldName": "depth",
                     "fieldPath": "depth",
-                    "nativeType": "mixed",
+                    "nativeType": "String",
                     "nullable": false
                 },
                 {
@@ -3755,13 +3755,13 @@
                         {
                             "fieldName": "rating",
                             "fieldPath": "imdb.rating",
-                            "nativeType": "mixed",
+                            "nativeType": "Float",
                             "nullable": false
                         },
                         {
                             "fieldName": "votes",
                             "fieldPath": "imdb.votes",
-                            "nativeType": "mixed",
+                            "nativeType": "Int",
                             "nullable": false
                         }
                     ]
@@ -3949,7 +3949,7 @@
                 {
                     "fieldName": "year",
                     "fieldPath": "year",
-                    "nativeType": "mixed",
+                    "nativeType": "Int",
                     "nullable": false
                 }
             ],
@@ -4320,7 +4320,7 @@
                         {
                             "fieldName": "price_amount",
                             "fieldPath": "acquisition.price_amount",
-                            "nativeType": "mixed",
+                            "nativeType": "Int",
                             "nullable": true
                         },
                         {
@@ -4396,7 +4396,7 @@
                         {
                             "fieldName": "price_amount",
                             "fieldPath": "acquisitions.price_amount",
-                            "nativeType": "mixed",
+                            "nativeType": "Int",
                             "nullable": true
                         },
                         {
@@ -4772,7 +4772,7 @@
                                 {
                                     "fieldName": "raised_amount",
                                     "fieldPath": "investments.funding_round.raised_amount",
-                                    "nativeType": "mixed",
+                                    "nativeType": "Int",
                                     "nullable": true
                                 },
                                 {
@@ -4836,7 +4836,7 @@
                         {
                             "fieldName": "valuation_amount",
                             "fieldPath": "ipo.valuation_amount",
-                            "nativeType": "mixed",
+                            "nativeType": "Int",
                             "nullable": true
                         },
                         {
@@ -5338,19 +5338,19 @@
                         {
                             "fieldName": "number",
                             "fieldPath": "address.number",
-                            "nativeType": "mixed",
+                            "nativeType": "Int",
                             "nullable": false
                         },
                         {
                             "fieldName": "street",
                             "fieldPath": "address.street",
-                            "nativeType": "mixed",
+                            "nativeType": "String",
                             "nullable": false
                         },
                         {
                             "fieldName": "zip",
                             "fieldPath": "address.zip",
-                            "nativeType": "mixed",
+                            "nativeType": "Int",
                             "nullable": false
                         }
                     ]
@@ -5364,7 +5364,7 @@
                 {
                     "fieldName": "certificate_number",
                     "fieldPath": "certificate_number",
-                    "nativeType": "mixed",
+                    "nativeType": "Int",
                     "nullable": false
                 },
                 {
@@ -5538,7 +5538,7 @@
                 {
                     "fieldName": "airplane",
                     "fieldPath": "airplane",
-                    "nativeType": "mixed",
+                    "nativeType": "String",
                     "nullable": false
                 },
                 {
@@ -5550,13 +5550,13 @@
                 {
                     "fieldName": "dst_airport",
                     "fieldPath": "dst_airport",
-                    "nativeType": "mixed",
+                    "nativeType": "String",
                     "nullable": false
                 },
                 {
                     "fieldName": "src_airport",
                     "fieldPath": "src_airport",
-                    "nativeType": "mixed",
+                    "nativeType": "String",
                     "nullable": false
                 },
                 {
@@ -5637,7 +5637,7 @@
                 {
                     "fieldName": "id",
                     "fieldPath": "id",
-                    "nativeType": "mixed",
+                    "nativeType": "String",
                     "nullable": false
                 },
                 {
@@ -5850,7 +5850,7 @@
                 {
                     "fieldName": "birth year",
                     "fieldPath": "birth year",
-                    "nativeType": "mixed",
+                    "nativeType": "Int",
                     "nullable": false
                 },
                 {

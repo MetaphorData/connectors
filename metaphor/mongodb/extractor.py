@@ -8,6 +8,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.infer_schema import SchemaTypeNameMapping, infer_schema
+from metaphor.common.logger import get_logger
 from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -20,6 +21,9 @@ from metaphor.models.metadata_change_event import (
     SchemaType,
 )
 from metaphor.mongodb.config import MongoDBConfig
+
+
+logger = get_logger()
 
 
 class MongoDBExtractor(BaseExtractor):
@@ -51,12 +55,20 @@ class MongoDBExtractor(BaseExtractor):
         self._excluded_databases = config.excluded_databases
         self.client = config.get_client()
         self._datasets: Dict[str, Dataset] = {}
+        if self._sample_size is None:
+            logger.info(
+                "Not sampling, all objects in a collection will be used to infer the collection's schema"
+            )
+        if self._sample_size == 0:
+            logger.info("Infer sample size set to 0, not inferring collection schema")
 
     @staticmethod
     def from_config_file(config_file: str) -> "MongoDBExtractor":
         return MongoDBExtractor(MongoDBConfig.from_yaml_file(config_file))
 
     def _get_collection_schema(self, collection: MongoCollection):
+        if self._sample_size == 0:
+            return []
         pipeline = []
         if self._sample_size:
             pipeline.append(

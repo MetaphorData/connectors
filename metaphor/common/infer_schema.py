@@ -83,8 +83,9 @@ def _get_field_native_type(
     elif set(field_types.keys()) == {datetime, str}:
         field_type = datetime
     else:
+        field_type = field_types.most_common(1)[0][0]
         logger.warning(
-            f"Multiple types found in field: field = {field_path}, types = {list(field_types.keys())}"
+            f"Multiple types found in field: field = {field_path}, types = {list(field_types.keys())}. Using the most common type {str(field_type)}"
         )
 
     if isinstance(field_type, str):
