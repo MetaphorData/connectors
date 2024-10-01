@@ -126,6 +126,14 @@ account_usage_schema: <db_name>.<schema_name>
 
 See [Tag Matcher Config](../common/docs/tag_matcher.md) for more information on the optional `tag_matcher` config.
 
+#### Disable Platform Tags Collection
+
+To stop the crawler from collecting platform tags from Snowflake, set `collect_tags` to `False`:
+
+```yaml
+collect_tags: false # Default is true.
+```
+
 #### Query Logs
 
 By default, the snowflake connector will fetch a full day's query logs from yesterday, to be analyzed for additional metadata, such as dataset usage and lineage information. To backfill log data, one can set `lookback_days` to the desired value. To turn off query log fetching, set `lookback_days` to 0.  

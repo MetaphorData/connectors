@@ -58,6 +58,9 @@ class SnowflakeBaseConfig(SnowflakeAuthConfig):
     # The fully qualified schema that contains all the account_usage views
     account_usage_schema: str = "SNOWFLAKE.ACCOUNT_USAGE"
 
+    # Whether to collect platform tags.
+    collect_tags: bool = True
+
 
 @dataclass(config=ConnectorConfig)
 class SnowflakeConfig(SnowflakeBaseConfig):
