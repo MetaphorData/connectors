@@ -56,6 +56,8 @@ from metaphor.models.metadata_change_event import (
     HierarchyLogicalID,
     QueryLog,
     SchemaType,
+    SnowflakeIcebergInfo,
+    SnowflakeIcebergTableType,
     SnowflakeStreamInfo,
     SourceInfo,
     SQLSchema,
@@ -165,9 +167,10 @@ class SnowflakeExtractor(BaseExtractor):
                         f"Failed to fetch table extra info for '{database}'\n{e}"
                     )
 
-                if self._streams_enabled:
-                    for schema in self._fetch_schemas(cursor):
+                for schema in self._fetch_schemas(cursor):
+                    if self._streams_enabled:
                         self._fetch_streams(cursor, database, schema)
+                    self._fetch_iceberg_tables(cursor, database, schema)
 
             self._fetch_primary_keys(cursor)
             self._fetch_unique_keys(cursor)
@@ -708,6 +711,49 @@ class SnowflakeExtractor(BaseExtractor):
             count += 1
 
         logger.info(f"Found {count} stream tables in {database}.{schema}")
+
+    def _fetch_iceberg_tables(
+        self, cursor: SnowflakeCursor, database: str, schema: str
+    ):
+        try:
+            cursor.execute(f"SHOW ICEBERG TABLES IN {schema}")
+        except Exception:
+            # Most likely due to a permission issue
+            logger.exception(f"Failed to show iceberg tables in '{schema}'")
+            return
+
+        count = 0
+        for entry in cursor:
+            (
+                table_name,
+                external_volume_name,
+                iceberg_table_type,
+            ) = (
+                entry[1],
+                entry[5],
+                entry[7],
+            )
+
+            normalized_name = dataset_normalized_name(database, schema, table_name)
+            dataset = self._datasets.get(normalized_name)
+
+            if dataset is None:
+                logger.warning(f"not able to find dataset, {normalized_name}")
+                continue
+
+            dataset.snowflake_iceberg_info = SnowflakeIcebergInfo(
+                external_volume_name=external_volume_name,
+                iceberg_table_type=(
+                    SnowflakeIcebergTableType.UNKNOWN
+                    if iceberg_table_type
+                    not in (item.value for item in SnowflakeIcebergTableType)
+                    else SnowflakeIcebergTableType[iceberg_table_type]
+                ),
+            )
+
+            count += 1
+
+        logger.info(f"Found {count} iceberg tables in {database}.{schema}")
 
     def _fetch_stream_row_count(self, stream_name) -> Optional[int]:
         with self._conn.cursor() as cursor:

@@ -50,6 +50,10 @@ grant references on future materialized views in database identifier($db) to rol
 -- (Optional) Grant privilege to "show streams"
 grant select on all streams in database identifier($db) to role identifier($role);
 grant select on future streams in database identifier($db) to role identifier($role);
+
+-- (Optional) Grant privilege to "show iceberg tables"
+grant select on all iceberg tables in database identifier($db) to role identifier($role);
+grant select on future iceberg tables in database identifier($db) to role identifier($role);
 ```
 
 ### Key Pair Authentication (Optional)
