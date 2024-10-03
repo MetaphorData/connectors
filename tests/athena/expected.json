@@ -1,0 +1,141 @@
+[
+  {
+    "logicalId": {
+      "name": "awsdatacatalog.spectrum_db2.sales",
+      "platform": "ATHENA"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "salesid",
+          "fieldPath": "salesid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "listid",
+          "fieldPath": "listid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "sellerid",
+          "fieldPath": "sellerid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "buyerid",
+          "fieldPath": "buyerid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "eventid",
+          "fieldPath": "eventid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "dateid",
+          "fieldPath": "dateid",
+          "nativeType": "smallint"
+        },
+        {
+          "fieldName": "qtysold",
+          "fieldPath": "qtysold",
+          "nativeType": "smallint"
+        },
+        {
+          "fieldName": "pricepaid",
+          "fieldPath": "pricepaid",
+          "nativeType": "decimal(8,2)"
+        },
+        {
+          "fieldName": "commission",
+          "fieldPath": "commission",
+          "nativeType": "decimal(8,2)"
+        },
+        {
+          "fieldName": "saletime",
+          "fieldPath": "saletime",
+          "nativeType": "timestamp"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "TABLE"
+      }
+    },
+    "sourceInfo": {
+      "createdAtSource": "2022-09-07T21:46:03+08:00"
+    },
+    "structure": {
+      "database": "AwsDataCatalog",
+      "schema": "spectrum_db2",
+      "table": "sales"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "awsdatacatalog.spectrum_db2.sales_view",
+      "platform": "ATHENA"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "salesid",
+          "fieldPath": "salesid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "listid",
+          "fieldPath": "listid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "sellerid",
+          "fieldPath": "sellerid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "buyerid",
+          "fieldPath": "buyerid",
+          "nativeType": "int"
+        },
+        {
+          "fieldName": "dateid",
+          "fieldPath": "dateid",
+          "nativeType": "smallint"
+        },
+        {
+          "fieldName": "qtysold",
+          "fieldPath": "qtysold",
+          "nativeType": "smallint"
+        },
+        {
+          "fieldName": "pricepaid",
+          "fieldPath": "pricepaid",
+          "nativeType": "decimal(8,2)"
+        },
+        {
+          "fieldName": "commission",
+          "fieldPath": "commission",
+          "nativeType": "decimal(8,2)"
+        },
+        {
+          "fieldName": "saletime",
+          "fieldPath": "saletime",
+          "nativeType": "timestamp"
+        }
+      ],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW"
+      }
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-10-03T00:50:38+08:00"
+    },
+    "structure": {
+      "database": "AwsDataCatalog",
+      "schema": "spectrum_db2",
+      "table": "sales_view"
+    }
+  }
+]
