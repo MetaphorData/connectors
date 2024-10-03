@@ -70,12 +70,8 @@ class AthenaExtractor(BaseExtractor):
         return self._datasets.values()
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
-        paginator = self._client.get_paginator("list_query_executions")
-        paginator_response = paginator.paginate()
-
-        ids = []
-        for page in paginator_response:
-            ids.extend(page["QueryExecutionIds"])
+        for page in self._paginate_and_dump_response("list_query_executions"):
+            ids = page["QueryExecutionIds"]
             yield from self._batch_get_queries(ids)
 
     def _get_catalogs(self):
@@ -173,10 +169,13 @@ class AthenaExtractor(BaseExtractor):
     def _batch_get_queries(self, query_execution_ids: List[str]) -> List[QueryLog]:
         query_logs: List[QueryLog] = []
         for ids in chunks(query_execution_ids, 50):
-            response = BatchGetQueryExecutionResponse(
-                **self._client.batch_get_query_execution(QueryExecutionIds=ids)
+            raw_response = self._client.batch_get_query_execution(QueryExecutionIds=ids)
+            request_id = raw_response["ResponseMetadata"]["RequestId"]
+            json_dump_to_debug_file(
+                raw_response, f"batch_get_query_execution_{request_id}.json"
             )
 
+            response = BatchGetQueryExecutionResponse(**raw_response)
             for unprocessed in response.UnprocessedQueryExecutionIds or []:
                 logger.warning(
                     f"id: {unprocessed.QueryExecutionId}, msg: {unprocessed.ErrorMessage}"
@@ -206,7 +205,6 @@ class AthenaExtractor(BaseExtractor):
 
                 query_logs.append(
                     QueryLog(
-                        id=query_execution.QueryExecutionId,
                         duration=(
                             query_execution.Statistics.TotalExecutionTimeInMillis
                             if query_execution.Statistics

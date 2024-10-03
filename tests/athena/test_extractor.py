@@ -58,3 +58,35 @@ async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/athena/expected.json")
+
+
+@patch("metaphor.athena.extractor.create_athena_client")
+@pytest.mark.asyncio
+async def test_collect_query_logs(mock_create_client: MagicMock, test_root_dir: str):
+    def mock_list_query_executions(**_):
+        yield load_json(
+            f"{test_root_dir}/athena/data/list_query_executions_3ec07c89-d2ee-414a-8490-c0a63471bd47.json"
+        )
+
+    def mock_get_paginator(method: str):
+        if method == "list_query_executions":
+            mock_paginator = MagicMock()
+            mock_paginator.paginate = mock_list_query_executions
+            return mock_paginator
+        if method == "list_data_catalogs":
+            mock_paginator = MagicMock()
+            mock_paginator.paginate.return_value = []
+            return mock_paginator
+
+    mock_client = MagicMock()
+    mock_client.get_paginator = mock_get_paginator
+    mock_client.batch_get_query_execution.return_value = load_json(
+        f"{test_root_dir}/athena/data/batch_get_query_executions_ef77e890-ca4f-4e46-b4d3-ee90915237ae.json"
+    )
+    mock_create_client.return_value = mock_client
+
+    extractor = AthenaExtractor(dummy_config())
+    assert list(await extractor.extract()) == []
+    events = [EventUtil.trim_event(e) for e in extractor.collect_query_logs()]
+
+    assert events == load_json(f"{test_root_dir}/athena/expected_query_logs.json")

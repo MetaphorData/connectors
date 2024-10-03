@@ -1,0 +1,57 @@
+[
+  {
+    "duration": 1360,
+    "platform": "GLUE",
+    "queryId": "a52ba71d-7cca-42e1-b4dc-db8c5c59e4ff",
+    "sources": [
+      {
+        "database": "awsdatacatalog",
+        "id": "DATASET~C855DD8FFCE8656CCFAD7A6265646408",
+        "schema": "spectrum_db2",
+        "table": "sales"
+      }
+    ],
+    "sql": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
+    "sqlHash": "ab84f70dad2f22c7680b41d0dc8ca73d",
+    "targets": []
+  },
+  {
+    "duration": 762,
+    "platform": "GLUE",
+    "queryId": "8c944c49-ccc0-43b2-9dc9-e2428c76e8ab",
+    "sources": [
+      {
+        "database": "awsdatacatalog",
+        "id": "DATASET~C855DD8FFCE8656CCFAD7A6265646408",
+        "schema": "spectrum_db2",
+        "table": "sales"
+      }
+    ],
+    "sql": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
+    "sqlHash": "ab84f70dad2f22c7680b41d0dc8ca73d",
+    "targets": []
+  },
+  {
+    "duration": 547,
+    "platform": "GLUE",
+    "queryId": "a80c3d38-5a82-450c-a7f3-58bc476597d8",
+    "sources": [
+      {
+        "database": "awsdatacatalog",
+        "id": "DATASET~C855DD8FFCE8656CCFAD7A6265646408",
+        "schema": "spectrum_db2",
+        "table": "sales"
+      }
+    ],
+    "sql": "-- View Example\nCREATE OR REPLACE VIEW sales_view AS\nSELECT salesid, listid, sellerid, buyerid, dateid, qtysold, pricepaid, commission, saletime\nFROM sales\nWHERE commission > 10",
+    "sqlHash": "f89a26b30eb0e4fac013ff31f4ea900e",
+    "targets": [
+      {
+        "database": "awsdatacatalog",
+        "id": "DATASET~3B5E15833E13C9CB49CAFEE5CFA225A4",
+        "schema": "spectrum_db2",
+        "table": "sales_view"
+      }
+    ]
+  }
+]
