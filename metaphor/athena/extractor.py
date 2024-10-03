@@ -197,7 +197,7 @@ class AthenaExtractor(BaseExtractor):
 
                 tll = extract_table_level_lineage(
                     sql=query,
-                    platform=DataPlatform.GLUE,
+                    platform=DataPlatform.ATHENA,
                     account=None,
                     default_database=database,
                     default_schema=schema,
