@@ -13,6 +13,7 @@
     ],
     "sql": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
     "sqlHash": "ab84f70dad2f22c7680b41d0dc8ca73d",
+    "startTime": "2024-10-03T00:50:12.646000+00:00",
     "targets": []
   },
   {
@@ -29,6 +30,7 @@
     ],
     "sql": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
     "sqlHash": "ab84f70dad2f22c7680b41d0dc8ca73d",
+    "startTime": "2024-10-02T16:48:48.443000+00:00",
     "targets": []
   },
   {
@@ -45,6 +47,7 @@
     ],
     "sql": "-- View Example\nCREATE OR REPLACE VIEW sales_view AS\nSELECT salesid, listid, sellerid, buyerid, dateid, qtysold, pricepaid, commission, saletime\nFROM sales\nWHERE commission > 10",
     "sqlHash": "f89a26b30eb0e4fac013ff31f4ea900e",
+    "startTime": "2024-10-03T00:50:38.339000+00:00",
     "targets": [
       {
         "database": "awsdatacatalog",

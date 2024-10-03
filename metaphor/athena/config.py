@@ -9,16 +9,8 @@ from metaphor.common.filter import DatasetFilter
 
 
 @dataclass(config=ConnectorConfig)
-class QueryLogConfig:
-    # Number of days back of query logs to fetch, if 0, don't fetch query logs
-    lookback_days: int = 1
-
-
-@dataclass(config=ConnectorConfig)
 class AthenaRunConfig(BaseConfig):
     aws: AwsCredentials
 
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
-
-    query_log: QueryLogConfig = field(default_factory=lambda: QueryLogConfig())

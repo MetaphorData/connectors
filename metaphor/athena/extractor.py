@@ -15,7 +15,7 @@ from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
-from metaphor.common.utils import chunks, md5_digest
+from metaphor.common.utils import chunks, md5_digest, to_utc_time
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -203,6 +203,13 @@ class AthenaExtractor(BaseExtractor):
                     default_schema=schema,
                 )
 
+                start_time = (
+                    to_utc_time(query_execution.Status.SubmissionDateTime)
+                    if query_execution.Status
+                    and query_execution.Status.SubmissionDateTime
+                    else None
+                )
+
                 query_logs.append(
                     QueryLog(
                         duration=(
@@ -216,6 +223,7 @@ class AthenaExtractor(BaseExtractor):
                         targets=tll.targets,
                         sql=query,
                         sql_hash=md5_digest(query.encode("utf-8")),
+                        start_time=start_time,
                     )
                 )
 
