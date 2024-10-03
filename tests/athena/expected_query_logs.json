@@ -1,12 +1,12 @@
 [
   {
     "duration": 1360,
-    "platform": "GLUE",
+    "platform": "ATHENA",
     "queryId": "a52ba71d-7cca-42e1-b4dc-db8c5c59e4ff",
     "sources": [
       {
         "database": "awsdatacatalog",
-        "id": "DATASET~C855DD8FFCE8656CCFAD7A6265646408",
+        "id": "DATASET~107B2CFCE5331D515FDF1B587B0FE42F",
         "schema": "spectrum_db2",
         "table": "sales"
       }
@@ -18,12 +18,12 @@
   },
   {
     "duration": 762,
-    "platform": "GLUE",
+    "platform": "ATHENA",
     "queryId": "8c944c49-ccc0-43b2-9dc9-e2428c76e8ab",
     "sources": [
       {
         "database": "awsdatacatalog",
-        "id": "DATASET~C855DD8FFCE8656CCFAD7A6265646408",
+        "id": "DATASET~107B2CFCE5331D515FDF1B587B0FE42F",
         "schema": "spectrum_db2",
         "table": "sales"
       }
@@ -35,12 +35,12 @@
   },
   {
     "duration": 547,
-    "platform": "GLUE",
+    "platform": "ATHENA",
     "queryId": "a80c3d38-5a82-450c-a7f3-58bc476597d8",
     "sources": [
       {
         "database": "awsdatacatalog",
-        "id": "DATASET~C855DD8FFCE8656CCFAD7A6265646408",
+        "id": "DATASET~107B2CFCE5331D515FDF1B587B0FE42F",
         "schema": "spectrum_db2",
         "table": "sales"
       }
@@ -51,7 +51,7 @@
     "targets": [
       {
         "database": "awsdatacatalog",
-        "id": "DATASET~3B5E15833E13C9CB49CAFEE5CFA225A4",
+        "id": "DATASET~0B496130C48991D869F08AF85BE2F330",
         "schema": "spectrum_db2",
         "table": "sales_view"
       }

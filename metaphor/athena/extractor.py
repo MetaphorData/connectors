@@ -44,7 +44,6 @@ SUPPORTED_CATALOG_TYPE = ("GLUE", "HIVE")
 class AthenaExtractor(BaseExtractor):
     """Athena metadata extractor"""
 
-    BYTES_PER_MEGABYTES = 1024 * 1024
     _description = "Athena metadata crawler"
     _platform = Platform.ATHENA
 
