@@ -217,7 +217,7 @@ class AthenaExtractor(BaseExtractor):
                             if query_execution.Statistics
                             else None
                         ),
-                        platform=DataPlatform.GLUE,
+                        platform=DataPlatform.ATHENA,
                         query_id=query_execution.QueryExecutionId,
                         sources=tll.sources,
                         targets=tll.targets,
