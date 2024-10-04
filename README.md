@@ -48,6 +48,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 
 | Connector Name                                                    | Metadata                                 |
 |-------------------------------------------------------------------|------------------------------------------|  
+| [athena](metaphor/athena/)                                        | Schema, description, queries             |
 | [azure_data_factory](metaphor/azure_data_factory/)                | Lineage, Pipeline                        |
 | [bigquery](metaphor/bigquery/)                                    | Schema, description, statistics, queries |
 | [bigquery.lineage](metaphor/bigquery/lineage/)                    | Lineage                                  |

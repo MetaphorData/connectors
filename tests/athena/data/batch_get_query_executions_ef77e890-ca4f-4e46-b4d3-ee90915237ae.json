@@ -1,0 +1,145 @@
+{
+  "QueryExecutions": [
+    {
+      "QueryExecutionId": "a52ba71d-7cca-42e1-b4dc-db8c5c59e4ff",
+      "Query": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
+      "StatementType": "DML",
+      "ResultConfiguration": {
+        "OutputLocation": "s3://metaphor-athena-output/athena/a52ba71d-7cca-42e1-b4dc-db8c5c59e4ff.csv",
+        "EncryptionConfiguration": {
+          "EncryptionOption": "SSE_S3"
+        }
+      },
+      "ResultReuseConfiguration": {
+        "ResultReuseByAgeConfiguration": {
+          "Enabled": false
+        }
+      },
+      "QueryExecutionContext": {
+        "Database": "spectrum_db2",
+        "Catalog": "awsdatacatalog"
+      },
+      "Status": {
+        "State": "SUCCEEDED",
+        "SubmissionDateTime": "2024-10-03 00:50:12.646000+08:00",
+        "CompletionDateTime": "2024-10-03 00:50:14.006000+08:00"
+      },
+      "Statistics": {
+        "EngineExecutionTimeInMillis": 1219,
+        "DataScannedInBytes": 1208093,
+        "TotalExecutionTimeInMillis": 1360,
+        "QueryQueueTimeInMillis": 60,
+        "ServicePreProcessingTimeInMillis": 53,
+        "QueryPlanningTimeInMillis": 54,
+        "ServiceProcessingTimeInMillis": 28,
+        "ResultReuseInformation": {
+          "ReusedPreviousResult": false
+        }
+      },
+      "WorkGroup": "primary",
+      "EngineVersion": {
+        "SelectedEngineVersion": "AUTO",
+        "EffectiveEngineVersion": "Athena engine version 3"
+      },
+      "SubstatementType": "SELECT"
+    },
+    {
+      "QueryExecutionId": "8c944c49-ccc0-43b2-9dc9-e2428c76e8ab",
+      "Query": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
+      "StatementType": "DML",
+      "ResultConfiguration": {
+        "OutputLocation": "s3://metaphor-athena-output/athena/8c944c49-ccc0-43b2-9dc9-e2428c76e8ab.csv",
+        "EncryptionConfiguration": {
+          "EncryptionOption": "SSE_S3"
+        }
+      },
+      "ResultReuseConfiguration": {
+        "ResultReuseByAgeConfiguration": {
+          "Enabled": false
+        }
+      },
+      "QueryExecutionContext": {
+        "Database": "spectrum_db2",
+        "Catalog": "awsdatacatalog"
+      },
+      "Status": {
+        "State": "SUCCEEDED",
+        "SubmissionDateTime": "2024-10-02 16:48:48.443000+08:00",
+        "CompletionDateTime": "2024-10-02 16:48:49.205000+08:00"
+      },
+      "Statistics": {
+        "EngineExecutionTimeInMillis": 600,
+        "DataScannedInBytes": 1208093,
+        "TotalExecutionTimeInMillis": 762,
+        "QueryQueueTimeInMillis": 66,
+        "ServicePreProcessingTimeInMillis": 68,
+        "QueryPlanningTimeInMillis": 55,
+        "ServiceProcessingTimeInMillis": 28,
+        "ResultReuseInformation": {
+          "ReusedPreviousResult": false
+        }
+      },
+      "WorkGroup": "primary",
+      "EngineVersion": {
+        "SelectedEngineVersion": "AUTO",
+        "EffectiveEngineVersion": "Athena engine version 3"
+      },
+      "SubstatementType": "SELECT"
+    },
+    {
+      "QueryExecutionId": "a80c3d38-5a82-450c-a7f3-58bc476597d8",
+      "Query": "-- View Example\nCREATE OR REPLACE VIEW sales_view AS\nSELECT salesid, listid, sellerid, buyerid, dateid, qtysold, pricepaid, commission, saletime\nFROM sales\nWHERE commission > 10",
+      "StatementType": "DDL",
+      "ResultConfiguration": {
+        "OutputLocation": "s3://metaphor-athena-output/athena/a80c3d38-5a82-450c-a7f3-58bc476597d8.txt",
+        "EncryptionConfiguration": {
+          "EncryptionOption": "SSE_S3"
+        }
+      },
+      "ResultReuseConfiguration": {
+        "ResultReuseByAgeConfiguration": {
+          "Enabled": false
+        }
+      },
+      "QueryExecutionContext": {
+        "Database": "spectrum_db2",
+        "Catalog": "awsdatacatalog"
+      },
+      "Status": {
+        "State": "SUCCEEDED",
+        "SubmissionDateTime": "2024-10-03 00:50:38.339000+08:00",
+        "CompletionDateTime": "2024-10-03 00:50:38.886000+08:00"
+      },
+      "Statistics": {
+        "EngineExecutionTimeInMillis": 475,
+        "DataScannedInBytes": 0,
+        "TotalExecutionTimeInMillis": 547,
+        "QueryQueueTimeInMillis": 40,
+        "ServicePreProcessingTimeInMillis": 14,
+        "ServiceProcessingTimeInMillis": 18,
+        "ResultReuseInformation": {
+          "ReusedPreviousResult": false
+        }
+      },
+      "WorkGroup": "primary",
+      "EngineVersion": {
+        "SelectedEngineVersion": "AUTO",
+        "EffectiveEngineVersion": "Athena engine version 3"
+      },
+      "SubstatementType": "CREATE_VIEW"
+    }
+  ],
+  "UnprocessedQueryExecutionIds": [],
+  "ResponseMetadata": {
+    "RequestId": "ef77e890-ca4f-4e46-b4d3-ee90915237ae",
+    "HTTPStatusCode": 200,
+    "HTTPHeaders": {
+      "date": "Thu, 03 Oct 2024 07:34:55 GMT",
+      "content-type": "application/x-amz-json-1.1",
+      "content-length": "3250",
+      "connection": "keep-alive",
+      "x-amzn-requestid": "ef77e890-ca4f-4e46-b4d3-ee90915237ae"
+    },
+    "RetryAttempts": 0
+  }
+}

@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import List, Optional
 
+from metaphor.common.logger import get_logger
+
+logger = get_logger()
+
 
 @dataclass
 class ParsedLog:
@@ -22,6 +26,9 @@ def parse_postgres_log(log: str) -> Optional[ParsedLog]:
 
     if len(parts) < 8:
         # log did not match the format
+        logger.warning(
+            f"Not able to parse the log, not enough parts, # of parts: {len(parts)}"
+        )
         return None
 
     user, database = parts[4].split("@")

@@ -1,0 +1,4405 @@
+[
+  {
+    "logicalId": {
+      "name": "sample_analytics.accounts",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "account_id",
+          "fieldPath": "account_id",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "limit",
+          "fieldPath": "limit",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "products",
+          "fieldPath": "products",
+          "nativeType": "Array",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 223235.0,
+      "recordCount": 1746.0
+    },
+    "structure": {
+      "schema": "sample_analytics",
+      "table": "accounts"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_analytics.transactions",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "account_id",
+          "fieldPath": "account_id",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "bucket_end_date",
+          "fieldPath": "bucket_end_date",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "bucket_start_date",
+          "fieldPath": "bucket_start_date",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "transaction_count",
+          "fieldPath": "transaction_count",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "transactions",
+          "fieldPath": "transactions",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "amount",
+              "fieldPath": "transactions.amount",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "date",
+              "fieldPath": "transactions.date",
+              "nativeType": "Datetime",
+              "nullable": false
+            },
+            {
+              "fieldName": "price",
+              "fieldPath": "transactions.price",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "symbol",
+              "fieldPath": "transactions.symbol",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "total",
+              "fieldPath": "transactions.total",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "transaction_code",
+              "fieldPath": "transactions.transaction_code",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 16138269.0,
+      "recordCount": 1746.0
+    },
+    "structure": {
+      "schema": "sample_analytics",
+      "table": "transactions"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_geospatial.shipwrecks",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "chart",
+          "fieldPath": "chart",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "coordinates",
+          "fieldPath": "coordinates",
+          "nativeType": "Array",
+          "nullable": false
+        },
+        {
+          "fieldName": "depth",
+          "fieldPath": "depth",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "feature_type",
+          "fieldPath": "feature_type",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "gp_quality",
+          "fieldPath": "gp_quality",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "history",
+          "fieldPath": "history",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "latdec",
+          "fieldPath": "latdec",
+          "nativeType": "Float",
+          "nullable": false
+        },
+        {
+          "fieldName": "londec",
+          "fieldPath": "londec",
+          "nativeType": "Float",
+          "nullable": false
+        },
+        {
+          "fieldName": "quasou",
+          "fieldPath": "quasou",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "recrd",
+          "fieldPath": "recrd",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "sounding_type",
+          "fieldPath": "sounding_type",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "vesslterms",
+          "fieldPath": "vesslterms",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "watlev",
+          "fieldPath": "watlev",
+          "nativeType": "String",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 3649279.0,
+      "recordCount": 11095.0
+    },
+    "structure": {
+      "schema": "sample_geospatial",
+      "table": "shipwrecks"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_mflix.comments",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "date",
+          "fieldPath": "date",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "email",
+          "fieldPath": "email",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "movie_id",
+          "fieldPath": "movie_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "name",
+          "fieldPath": "name",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "text",
+          "fieldPath": "text",
+          "nativeType": "String",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 14293728.0,
+      "recordCount": 50304.0
+    },
+    "structure": {
+      "schema": "sample_mflix",
+      "table": "comments"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_mflix.movies",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "awards",
+          "fieldPath": "awards",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "nominations",
+              "fieldPath": "awards.nominations",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "text",
+              "fieldPath": "awards.text",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "wins",
+              "fieldPath": "awards.wins",
+              "nativeType": "Int",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "cast",
+          "fieldPath": "cast",
+          "nativeType": "Array",
+          "nullable": true
+        },
+        {
+          "fieldName": "countries",
+          "fieldPath": "countries",
+          "nativeType": "Array",
+          "nullable": true
+        },
+        {
+          "fieldName": "directors",
+          "fieldPath": "directors",
+          "nativeType": "Array",
+          "nullable": true
+        },
+        {
+          "fieldName": "fullplot",
+          "fieldPath": "fullplot",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "genres",
+          "fieldPath": "genres",
+          "nativeType": "Array",
+          "nullable": true
+        },
+        {
+          "fieldName": "imdb",
+          "fieldPath": "imdb",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "id",
+              "fieldPath": "imdb.id",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "rating",
+              "fieldPath": "imdb.rating",
+              "nativeType": "Float",
+              "nullable": false
+            },
+            {
+              "fieldName": "votes",
+              "fieldPath": "imdb.votes",
+              "nativeType": "Int",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "languages",
+          "fieldPath": "languages",
+          "nativeType": "Array",
+          "nullable": true
+        },
+        {
+          "fieldName": "lastupdated",
+          "fieldPath": "lastupdated",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "metacritic",
+          "fieldPath": "metacritic",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "num_mflix_comments",
+          "fieldPath": "num_mflix_comments",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "plot",
+          "fieldPath": "plot",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "poster",
+          "fieldPath": "poster",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "rated",
+          "fieldPath": "rated",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "released",
+          "fieldPath": "released",
+          "nativeType": "Datetime",
+          "nullable": true
+        },
+        {
+          "fieldName": "runtime",
+          "fieldPath": "runtime",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "title",
+          "fieldPath": "title",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "tomatoes",
+          "fieldPath": "tomatoes",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "boxOffice",
+              "fieldPath": "tomatoes.boxOffice",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "consensus",
+              "fieldPath": "tomatoes.consensus",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "critic",
+              "fieldPath": "tomatoes.critic",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "meter",
+                  "fieldPath": "tomatoes.critic.meter",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "numReviews",
+                  "fieldPath": "tomatoes.critic.numReviews",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "rating",
+                  "fieldPath": "tomatoes.critic.rating",
+                  "nativeType": "Float",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "dvd",
+              "fieldPath": "tomatoes.dvd",
+              "nativeType": "Datetime",
+              "nullable": true
+            },
+            {
+              "fieldName": "fresh",
+              "fieldPath": "tomatoes.fresh",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "lastUpdated",
+              "fieldPath": "tomatoes.lastUpdated",
+              "nativeType": "Datetime",
+              "nullable": true
+            },
+            {
+              "fieldName": "production",
+              "fieldPath": "tomatoes.production",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "rotten",
+              "fieldPath": "tomatoes.rotten",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "viewer",
+              "fieldPath": "tomatoes.viewer",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "meter",
+                  "fieldPath": "tomatoes.viewer.meter",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "numReviews",
+                  "fieldPath": "tomatoes.viewer.numReviews",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "rating",
+                  "fieldPath": "tomatoes.viewer.rating",
+                  "nativeType": "Float",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "website",
+              "fieldPath": "tomatoes.website",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "type",
+          "fieldPath": "type",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "writers",
+          "fieldPath": "writers",
+          "nativeType": "Array",
+          "nullable": true
+        },
+        {
+          "fieldName": "year",
+          "fieldPath": "year",
+          "nativeType": "Int",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 37619160.0,
+      "recordCount": 23539.0
+    },
+    "structure": {
+      "schema": "sample_mflix",
+      "table": "movies"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_mflix.sessions",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "jwt",
+          "fieldPath": "jwt",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "user_id",
+          "fieldPath": "user_id",
+          "nativeType": "String",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 540.0,
+      "recordCount": 1.0
+    },
+    "structure": {
+      "schema": "sample_mflix",
+      "table": "sessions"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_mflix.theaters",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "location",
+          "fieldPath": "location",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "address",
+              "fieldPath": "location.address",
+              "nativeType": "Object",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "city",
+                  "fieldPath": "location.address.city",
+                  "nativeType": "String",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "state",
+                  "fieldPath": "location.address.state",
+                  "nativeType": "String",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "street1",
+                  "fieldPath": "location.address.street1",
+                  "nativeType": "String",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "street2",
+                  "fieldPath": "location.address.street2",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "zipcode",
+                  "fieldPath": "location.address.zipcode",
+                  "nativeType": "String",
+                  "nullable": false
+                }
+              ]
+            },
+            {
+              "fieldName": "geo",
+              "fieldPath": "location.geo",
+              "nativeType": "Object",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "coordinates",
+                  "fieldPath": "location.geo.coordinates",
+                  "nativeType": "Array",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "type",
+                  "fieldPath": "location.geo.type",
+                  "nativeType": "String",
+                  "nullable": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "theaterId",
+          "fieldPath": "theaterId",
+          "nativeType": "Int",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 349831.0,
+      "recordCount": 1564.0
+    },
+    "structure": {
+      "schema": "sample_mflix",
+      "table": "theaters"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_mflix.users",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "email",
+          "fieldPath": "email",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "name",
+          "fieldPath": "name",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "password",
+          "fieldPath": "password",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "preferences",
+          "fieldPath": "preferences",
+          "nativeType": "Object",
+          "nullable": true
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 29568.0,
+      "recordCount": 185.0
+    },
+    "structure": {
+      "schema": "sample_mflix",
+      "table": "users"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_supplies.sales",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "couponUsed",
+          "fieldPath": "couponUsed",
+          "nativeType": "Bool",
+          "nullable": false
+        },
+        {
+          "fieldName": "customer",
+          "fieldPath": "customer",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "age",
+              "fieldPath": "customer.age",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "email",
+              "fieldPath": "customer.email",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "gender",
+              "fieldPath": "customer.gender",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "satisfaction",
+              "fieldPath": "customer.satisfaction",
+              "nativeType": "Int",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "items",
+          "fieldPath": "items",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "name",
+              "fieldPath": "items.name",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "price",
+              "fieldPath": "items.price",
+              "nativeType": "Decimal128",
+              "nullable": false
+            },
+            {
+              "fieldName": "quantity",
+              "fieldPath": "items.quantity",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "tags",
+              "fieldPath": "items.tags",
+              "nativeType": "Array",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "purchaseMethod",
+          "fieldPath": "purchaseMethod",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "saleDate",
+          "fieldPath": "saleDate",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "storeLocation",
+          "fieldPath": "storeLocation",
+          "nativeType": "String",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 4328222.0,
+      "recordCount": 5000.0
+    },
+    "structure": {
+      "schema": "sample_supplies",
+      "table": "sales"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.companies",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "acquisition",
+          "fieldPath": "acquisition",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "acquired_day",
+              "fieldPath": "acquisition.acquired_day",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "acquired_month",
+              "fieldPath": "acquisition.acquired_month",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "acquired_year",
+              "fieldPath": "acquisition.acquired_year",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "acquiring_company",
+              "fieldPath": "acquisition.acquiring_company",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "name",
+                  "fieldPath": "acquisition.acquiring_company.name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "permalink",
+                  "fieldPath": "acquisition.acquiring_company.permalink",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "price_amount",
+              "fieldPath": "acquisition.price_amount",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "price_currency_code",
+              "fieldPath": "acquisition.price_currency_code",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_description",
+              "fieldPath": "acquisition.source_description",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_url",
+              "fieldPath": "acquisition.source_url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "term_code",
+              "fieldPath": "acquisition.term_code",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "acquisitions",
+          "fieldPath": "acquisitions",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "acquired_day",
+              "fieldPath": "acquisitions.acquired_day",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "acquired_month",
+              "fieldPath": "acquisitions.acquired_month",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "acquired_year",
+              "fieldPath": "acquisitions.acquired_year",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "company",
+              "fieldPath": "acquisitions.company",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "name",
+                  "fieldPath": "acquisitions.company.name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "permalink",
+                  "fieldPath": "acquisitions.company.permalink",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "price_amount",
+              "fieldPath": "acquisitions.price_amount",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "price_currency_code",
+              "fieldPath": "acquisitions.price_currency_code",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_description",
+              "fieldPath": "acquisitions.source_description",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_url",
+              "fieldPath": "acquisitions.source_url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "term_code",
+              "fieldPath": "acquisitions.term_code",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "alias_list",
+          "fieldPath": "alias_list",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "blog_feed_url",
+          "fieldPath": "blog_feed_url",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "blog_url",
+          "fieldPath": "blog_url",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "category_code",
+          "fieldPath": "category_code",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "competitions",
+          "fieldPath": "competitions",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "competitor",
+              "fieldPath": "competitions.competitor",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "name",
+                  "fieldPath": "competitions.competitor.name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "permalink",
+                  "fieldPath": "competitions.competitor.permalink",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "crunchbase_url",
+          "fieldPath": "crunchbase_url",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "deadpooled_day",
+          "fieldPath": "deadpooled_day",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "deadpooled_month",
+          "fieldPath": "deadpooled_month",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "deadpooled_url",
+          "fieldPath": "deadpooled_url",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "deadpooled_year",
+          "fieldPath": "deadpooled_year",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "description",
+          "fieldPath": "description",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "email_address",
+          "fieldPath": "email_address",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "external_links",
+          "fieldPath": "external_links",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "external_url",
+              "fieldPath": "external_links.external_url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "title",
+              "fieldPath": "external_links.title",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "founded_day",
+          "fieldPath": "founded_day",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "founded_month",
+          "fieldPath": "founded_month",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "founded_year",
+          "fieldPath": "founded_year",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "funding_rounds",
+          "fieldPath": "funding_rounds",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "funded_day",
+              "fieldPath": "funding_rounds.funded_day",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "funded_month",
+              "fieldPath": "funding_rounds.funded_month",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "funded_year",
+              "fieldPath": "funding_rounds.funded_year",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "id",
+              "fieldPath": "funding_rounds.id",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "investments",
+              "fieldPath": "funding_rounds.investments",
+              "nativeType": "Array",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "company",
+                  "fieldPath": "funding_rounds.investments.company",
+                  "nativeType": "Object",
+                  "nullable": true,
+                  "subfields": [
+                    {
+                      "fieldName": "name",
+                      "fieldPath": "funding_rounds.investments.company.name",
+                      "nativeType": "String",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "permalink",
+                      "fieldPath": "funding_rounds.investments.company.permalink",
+                      "nativeType": "String",
+                      "nullable": true
+                    }
+                  ]
+                },
+                {
+                  "fieldName": "financial_org",
+                  "fieldPath": "funding_rounds.investments.financial_org",
+                  "nativeType": "Object",
+                  "nullable": true,
+                  "subfields": [
+                    {
+                      "fieldName": "name",
+                      "fieldPath": "funding_rounds.investments.financial_org.name",
+                      "nativeType": "String",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "permalink",
+                      "fieldPath": "funding_rounds.investments.financial_org.permalink",
+                      "nativeType": "String",
+                      "nullable": true
+                    }
+                  ]
+                },
+                {
+                  "fieldName": "person",
+                  "fieldPath": "funding_rounds.investments.person",
+                  "nativeType": "Object",
+                  "nullable": true,
+                  "subfields": [
+                    {
+                      "fieldName": "first_name",
+                      "fieldPath": "funding_rounds.investments.person.first_name",
+                      "nativeType": "String",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "last_name",
+                      "fieldPath": "funding_rounds.investments.person.last_name",
+                      "nativeType": "String",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "permalink",
+                      "fieldPath": "funding_rounds.investments.person.permalink",
+                      "nativeType": "String",
+                      "nullable": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fieldName": "raised_amount",
+              "fieldPath": "funding_rounds.raised_amount",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "raised_currency_code",
+              "fieldPath": "funding_rounds.raised_currency_code",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "round_code",
+              "fieldPath": "funding_rounds.round_code",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_description",
+              "fieldPath": "funding_rounds.source_description",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_url",
+              "fieldPath": "funding_rounds.source_url",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "homepage_url",
+          "fieldPath": "homepage_url",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "image",
+          "fieldPath": "image",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "available_sizes",
+              "fieldPath": "image.available_sizes",
+              "nativeType": "Array",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "investments",
+          "fieldPath": "investments",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "funding_round",
+              "fieldPath": "investments.funding_round",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "company",
+                  "fieldPath": "investments.funding_round.company",
+                  "nativeType": "Object",
+                  "nullable": true,
+                  "subfields": [
+                    {
+                      "fieldName": "name",
+                      "fieldPath": "investments.funding_round.company.name",
+                      "nativeType": "String",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "permalink",
+                      "fieldPath": "investments.funding_round.company.permalink",
+                      "nativeType": "String",
+                      "nullable": true
+                    }
+                  ]
+                },
+                {
+                  "fieldName": "funded_day",
+                  "fieldPath": "investments.funding_round.funded_day",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "funded_month",
+                  "fieldPath": "investments.funding_round.funded_month",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "funded_year",
+                  "fieldPath": "investments.funding_round.funded_year",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "raised_amount",
+                  "fieldPath": "investments.funding_round.raised_amount",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "raised_currency_code",
+                  "fieldPath": "investments.funding_round.raised_currency_code",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "round_code",
+                  "fieldPath": "investments.funding_round.round_code",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "source_description",
+                  "fieldPath": "investments.funding_round.source_description",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "source_url",
+                  "fieldPath": "investments.funding_round.source_url",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "ipo",
+          "fieldPath": "ipo",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "pub_day",
+              "fieldPath": "ipo.pub_day",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "pub_month",
+              "fieldPath": "ipo.pub_month",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "pub_year",
+              "fieldPath": "ipo.pub_year",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "stock_symbol",
+              "fieldPath": "ipo.stock_symbol",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "valuation_amount",
+              "fieldPath": "ipo.valuation_amount",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "valuation_currency_code",
+              "fieldPath": "ipo.valuation_currency_code",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "milestones",
+          "fieldPath": "milestones",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "description",
+              "fieldPath": "milestones.description",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "id",
+              "fieldPath": "milestones.id",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_description",
+              "fieldPath": "milestones.source_description",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_text",
+              "fieldPath": "milestones.source_text",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "source_url",
+              "fieldPath": "milestones.source_url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "stoneable",
+              "fieldPath": "milestones.stoneable",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "name",
+                  "fieldPath": "milestones.stoneable.name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "permalink",
+                  "fieldPath": "milestones.stoneable.permalink",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "stoneable_type",
+              "fieldPath": "milestones.stoneable_type",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "stoned_day",
+              "fieldPath": "milestones.stoned_day",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "stoned_month",
+              "fieldPath": "milestones.stoned_month",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "stoned_year",
+              "fieldPath": "milestones.stoned_year",
+              "nativeType": "Int",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "name",
+          "fieldPath": "name",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "number_of_employees",
+          "fieldPath": "number_of_employees",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "offices",
+          "fieldPath": "offices",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "address1",
+              "fieldPath": "offices.address1",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "address2",
+              "fieldPath": "offices.address2",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "city",
+              "fieldPath": "offices.city",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "country_code",
+              "fieldPath": "offices.country_code",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "description",
+              "fieldPath": "offices.description",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "latitude",
+              "fieldPath": "offices.latitude",
+              "nativeType": "Float",
+              "nullable": true
+            },
+            {
+              "fieldName": "longitude",
+              "fieldPath": "offices.longitude",
+              "nativeType": "Float",
+              "nullable": true
+            },
+            {
+              "fieldName": "state_code",
+              "fieldPath": "offices.state_code",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "zip_code",
+              "fieldPath": "offices.zip_code",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "overview",
+          "fieldPath": "overview",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "partners",
+          "fieldPath": "partners",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "homepage_url",
+              "fieldPath": "partners.homepage_url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "link_1_name",
+              "fieldPath": "partners.link_1_name",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "link_1_url",
+              "fieldPath": "partners.link_1_url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "link_2_name",
+              "fieldPath": "partners.link_2_name",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "link_2_url",
+              "fieldPath": "partners.link_2_url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "link_3_name",
+              "fieldPath": "partners.link_3_name",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "link_3_url",
+              "fieldPath": "partners.link_3_url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "partner_name",
+              "fieldPath": "partners.partner_name",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "permalink",
+          "fieldPath": "permalink",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "phone_number",
+          "fieldPath": "phone_number",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "products",
+          "fieldPath": "products",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "name",
+              "fieldPath": "products.name",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "permalink",
+              "fieldPath": "products.permalink",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "providerships",
+          "fieldPath": "providerships",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "is_past",
+              "fieldPath": "providerships.is_past",
+              "nativeType": "Bool",
+              "nullable": true
+            },
+            {
+              "fieldName": "provider",
+              "fieldPath": "providerships.provider",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "name",
+                  "fieldPath": "providerships.provider.name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "permalink",
+                  "fieldPath": "providerships.provider.permalink",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "title",
+              "fieldPath": "providerships.title",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "relationships",
+          "fieldPath": "relationships",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "is_past",
+              "fieldPath": "relationships.is_past",
+              "nativeType": "Bool",
+              "nullable": true
+            },
+            {
+              "fieldName": "person",
+              "fieldPath": "relationships.person",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "first_name",
+                  "fieldPath": "relationships.person.first_name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "last_name",
+                  "fieldPath": "relationships.person.last_name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "permalink",
+                  "fieldPath": "relationships.person.permalink",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "title",
+              "fieldPath": "relationships.title",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "screenshots",
+          "fieldPath": "screenshots",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "available_sizes",
+              "fieldPath": "screenshots.available_sizes",
+              "nativeType": "Array",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "tag_list",
+          "fieldPath": "tag_list",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "total_money_raised",
+          "fieldPath": "total_money_raised",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "twitter_username",
+          "fieldPath": "twitter_username",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "updated_at",
+          "fieldPath": "updated_at",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "video_embeds",
+          "fieldPath": "video_embeds",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "description",
+              "fieldPath": "video_embeds.description",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "embed_code",
+              "fieldPath": "video_embeds.embed_code",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 36475858.0,
+      "recordCount": 9500.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "companies"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.grades",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "class_id",
+          "fieldPath": "class_id",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "scores",
+          "fieldPath": "scores",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "score",
+              "fieldPath": "scores.score",
+              "nativeType": "Float",
+              "nullable": false
+            },
+            {
+              "fieldName": "type",
+              "fieldPath": "scores.type",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "student_id",
+          "fieldPath": "student_id",
+          "nativeType": "Int",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 22500000.0,
+      "recordCount": 100000.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "grades"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.inspections",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "address",
+          "fieldPath": "address",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "city",
+              "fieldPath": "address.city",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "number",
+              "fieldPath": "address.number",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "street",
+              "fieldPath": "address.street",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "zip",
+              "fieldPath": "address.zip",
+              "nativeType": "Int",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "business_name",
+          "fieldPath": "business_name",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "certificate_number",
+          "fieldPath": "certificate_number",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "date",
+          "fieldPath": "date",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "result",
+          "fieldPath": "result",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "sector",
+          "fieldPath": "sector",
+          "nativeType": "String",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 22153565.0,
+      "recordCount": 80047.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "inspections"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.posts",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "author",
+          "fieldPath": "author",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "body",
+          "fieldPath": "body",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "comments",
+          "fieldPath": "comments",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "author",
+              "fieldPath": "comments.author",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "body",
+              "fieldPath": "comments.body",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "email",
+              "fieldPath": "comments.email",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "date",
+          "fieldPath": "date",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "permalink",
+          "fieldPath": "permalink",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "tags",
+          "fieldPath": "tags",
+          "nativeType": "Array",
+          "nullable": false
+        },
+        {
+          "fieldName": "title",
+          "fieldPath": "title",
+          "nativeType": "String",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 17453403.0,
+      "recordCount": 500.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "posts"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.routes",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "airline",
+          "fieldPath": "airline",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "alias",
+              "fieldPath": "airline.alias",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "iata",
+              "fieldPath": "airline.iata",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "id",
+              "fieldPath": "airline.id",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "name",
+              "fieldPath": "airline.name",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "airplane",
+          "fieldPath": "airplane",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "codeshare",
+          "fieldPath": "codeshare",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "dst_airport",
+          "fieldPath": "dst_airport",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "src_airport",
+          "fieldPath": "src_airport",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "stops",
+          "fieldPath": "stops",
+          "nativeType": "Int",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 12334501.0,
+      "recordCount": 66985.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "routes"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.stories",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "comments",
+          "fieldPath": "comments",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "container",
+          "fieldPath": "container",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "name",
+              "fieldPath": "container.name",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "short_name",
+              "fieldPath": "container.short_name",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "description",
+          "fieldPath": "description",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "diggs",
+          "fieldPath": "diggs",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "href",
+          "fieldPath": "href",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "inaccurate",
+          "fieldPath": "inaccurate",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "link",
+          "fieldPath": "link",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "media",
+          "fieldPath": "media",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "promote_date",
+          "fieldPath": "promote_date",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "shorturl",
+          "fieldPath": "shorturl",
+          "nativeType": "Array",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "short_url",
+              "fieldPath": "shorturl.short_url",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "view_count",
+              "fieldPath": "shorturl.view_count",
+              "nativeType": "Int",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "status",
+          "fieldPath": "status",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "submit_date",
+          "fieldPath": "submit_date",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "takedowndays",
+          "fieldPath": "takedowndays",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "takedownuri",
+          "fieldPath": "takedownuri",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "thumbnail",
+          "fieldPath": "thumbnail",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "contentType",
+              "fieldPath": "thumbnail.contentType",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "height",
+              "fieldPath": "thumbnail.height",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "originalheight",
+              "fieldPath": "thumbnail.originalheight",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "originalwidth",
+              "fieldPath": "thumbnail.originalwidth",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "src",
+              "fieldPath": "thumbnail.src",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "width",
+              "fieldPath": "thumbnail.width",
+              "nativeType": "Int",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "title",
+          "fieldPath": "title",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "topic",
+          "fieldPath": "topic",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "name",
+              "fieldPath": "topic.name",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "short_name",
+              "fieldPath": "topic.short_name",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "user",
+          "fieldPath": "user",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "fullname",
+              "fieldPath": "user.fullname",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "icon",
+              "fieldPath": "user.icon",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "name",
+              "fieldPath": "user.name",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profileviews",
+              "fieldPath": "user.profileviews",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "registered",
+              "fieldPath": "user.registered",
+              "nativeType": "Int",
+              "nullable": false
+            }
+          ]
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 10086049.0,
+      "recordCount": 9842.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "stories"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.trips",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "bikeid",
+          "fieldPath": "bikeid",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "birth year",
+          "fieldPath": "birth year",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "end station id",
+          "fieldPath": "end station id",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "end station location",
+          "fieldPath": "end station location",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "coordinates",
+              "fieldPath": "end station location.coordinates",
+              "nativeType": "Array",
+              "nullable": false
+            },
+            {
+              "fieldName": "type",
+              "fieldPath": "end station location.type",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "end station name",
+          "fieldPath": "end station name",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "gender",
+          "fieldPath": "gender",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "start station id",
+          "fieldPath": "start station id",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "start station location",
+          "fieldPath": "start station location",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "coordinates",
+              "fieldPath": "start station location.coordinates",
+              "nativeType": "Array",
+              "nullable": false
+            },
+            {
+              "fieldName": "type",
+              "fieldPath": "start station location.type",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "start station name",
+          "fieldPath": "start station name",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "start time",
+          "fieldPath": "start time",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "stop time",
+          "fieldPath": "stop time",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "tripduration",
+          "fieldPath": "tripduration",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "usertype",
+          "fieldPath": "usertype",
+          "nativeType": "String",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 4403868.0,
+      "recordCount": 10000.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "trips"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.tweets",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "coordinates",
+          "fieldPath": "coordinates",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "coordinates",
+              "fieldPath": "coordinates.coordinates",
+              "nativeType": "Array",
+              "nullable": true
+            },
+            {
+              "fieldName": "type",
+              "fieldPath": "coordinates.type",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "created_at",
+          "fieldPath": "created_at",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "entities",
+          "fieldPath": "entities",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "hashtags",
+              "fieldPath": "entities.hashtags",
+              "nativeType": "Array",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "indices",
+                  "fieldPath": "entities.hashtags.indices",
+                  "nativeType": "Array",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "text",
+                  "fieldPath": "entities.hashtags.text",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "urls",
+              "fieldPath": "entities.urls",
+              "nativeType": "Array",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "expanded_url",
+                  "fieldPath": "entities.urls.expanded_url",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "indices",
+                  "fieldPath": "entities.urls.indices",
+                  "nativeType": "Array",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "url",
+                  "fieldPath": "entities.urls.url",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "user_mentions",
+              "fieldPath": "entities.user_mentions",
+              "nativeType": "Array",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "id",
+                  "fieldPath": "entities.user_mentions.id",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "indices",
+                  "fieldPath": "entities.user_mentions.indices",
+                  "nativeType": "Array",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "name",
+                  "fieldPath": "entities.user_mentions.name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "screen_name",
+                  "fieldPath": "entities.user_mentions.screen_name",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "favorited",
+          "fieldPath": "favorited",
+          "nativeType": "Bool",
+          "nullable": false
+        },
+        {
+          "fieldName": "geo",
+          "fieldPath": "geo",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "coordinates",
+              "fieldPath": "geo.coordinates",
+              "nativeType": "Array",
+              "nullable": true
+            },
+            {
+              "fieldName": "type",
+              "fieldPath": "geo.type",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "id",
+          "fieldPath": "id",
+          "nativeType": "Int64",
+          "nullable": false
+        },
+        {
+          "fieldName": "in_reply_to_screen_name",
+          "fieldPath": "in_reply_to_screen_name",
+          "nativeType": "String",
+          "nullable": true
+        },
+        {
+          "fieldName": "in_reply_to_status_id",
+          "fieldPath": "in_reply_to_status_id",
+          "nativeType": "Int64",
+          "nullable": true
+        },
+        {
+          "fieldName": "in_reply_to_user_id",
+          "fieldPath": "in_reply_to_user_id",
+          "nativeType": "Int",
+          "nullable": true
+        },
+        {
+          "fieldName": "place",
+          "fieldPath": "place",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "attributes",
+              "fieldPath": "place.attributes",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "street_address",
+                  "fieldPath": "place.attributes.street_address",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "bounding_box",
+              "fieldPath": "place.bounding_box",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "coordinates",
+                  "fieldPath": "place.bounding_box.coordinates",
+                  "nativeType": "Array",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "type",
+                  "fieldPath": "place.bounding_box.type",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "country",
+              "fieldPath": "place.country",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "country_code",
+              "fieldPath": "place.country_code",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "full_name",
+              "fieldPath": "place.full_name",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "id",
+              "fieldPath": "place.id",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "name",
+              "fieldPath": "place.name",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "place_type",
+              "fieldPath": "place.place_type",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "url",
+              "fieldPath": "place.url",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "retweeted",
+          "fieldPath": "retweeted",
+          "nativeType": "Bool",
+          "nullable": false
+        },
+        {
+          "fieldName": "retweeted_status",
+          "fieldPath": "retweeted_status",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "contributors",
+              "fieldPath": "retweeted_status.contributors",
+              "nativeType": "Array",
+              "nullable": true
+            },
+            {
+              "fieldName": "coordinates",
+              "fieldPath": "retweeted_status.coordinates",
+              "nativeType": "Object",
+              "nullable": true
+            },
+            {
+              "fieldName": "created_at",
+              "fieldPath": "retweeted_status.created_at",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "entities",
+              "fieldPath": "retweeted_status.entities",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "hashtags",
+                  "fieldPath": "retweeted_status.entities.hashtags",
+                  "nativeType": "Array",
+                  "nullable": true,
+                  "subfields": [
+                    {
+                      "fieldName": "indices",
+                      "fieldPath": "retweeted_status.entities.hashtags.indices",
+                      "nativeType": "Array",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "text",
+                      "fieldPath": "retweeted_status.entities.hashtags.text",
+                      "nativeType": "String",
+                      "nullable": true
+                    }
+                  ]
+                },
+                {
+                  "fieldName": "urls",
+                  "fieldPath": "retweeted_status.entities.urls",
+                  "nativeType": "Array",
+                  "nullable": true,
+                  "subfields": [
+                    {
+                      "fieldName": "expanded_url",
+                      "fieldPath": "retweeted_status.entities.urls.expanded_url",
+                      "nativeType": "String",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "indices",
+                      "fieldPath": "retweeted_status.entities.urls.indices",
+                      "nativeType": "Array",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "url",
+                      "fieldPath": "retweeted_status.entities.urls.url",
+                      "nativeType": "String",
+                      "nullable": true
+                    }
+                  ]
+                },
+                {
+                  "fieldName": "user_mentions",
+                  "fieldPath": "retweeted_status.entities.user_mentions",
+                  "nativeType": "Array",
+                  "nullable": true,
+                  "subfields": [
+                    {
+                      "fieldName": "id",
+                      "fieldPath": "retweeted_status.entities.user_mentions.id",
+                      "nativeType": "Int",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "indices",
+                      "fieldPath": "retweeted_status.entities.user_mentions.indices",
+                      "nativeType": "Array",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "name",
+                      "fieldPath": "retweeted_status.entities.user_mentions.name",
+                      "nativeType": "String",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "screen_name",
+                      "fieldPath": "retweeted_status.entities.user_mentions.screen_name",
+                      "nativeType": "String",
+                      "nullable": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fieldName": "favorited",
+              "fieldPath": "retweeted_status.favorited",
+              "nativeType": "Bool",
+              "nullable": true
+            },
+            {
+              "fieldName": "geo",
+              "fieldPath": "retweeted_status.geo",
+              "nativeType": "Object",
+              "nullable": true
+            },
+            {
+              "fieldName": "id",
+              "fieldPath": "retweeted_status.id",
+              "nativeType": "Int64",
+              "nullable": true
+            },
+            {
+              "fieldName": "in_reply_to_screen_name",
+              "fieldPath": "retweeted_status.in_reply_to_screen_name",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "in_reply_to_status_id",
+              "fieldPath": "retweeted_status.in_reply_to_status_id",
+              "nativeType": "Int64",
+              "nullable": true
+            },
+            {
+              "fieldName": "in_reply_to_user_id",
+              "fieldPath": "retweeted_status.in_reply_to_user_id",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "place",
+              "fieldPath": "retweeted_status.place",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "attributes",
+                  "fieldPath": "retweeted_status.place.attributes",
+                  "nativeType": "Object",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "bounding_box",
+                  "fieldPath": "retweeted_status.place.bounding_box",
+                  "nativeType": "Object",
+                  "nullable": true,
+                  "subfields": [
+                    {
+                      "fieldName": "coordinates",
+                      "fieldPath": "retweeted_status.place.bounding_box.coordinates",
+                      "nativeType": "Array",
+                      "nullable": true
+                    },
+                    {
+                      "fieldName": "type",
+                      "fieldPath": "retweeted_status.place.bounding_box.type",
+                      "nativeType": "String",
+                      "nullable": true
+                    }
+                  ]
+                },
+                {
+                  "fieldName": "country",
+                  "fieldPath": "retweeted_status.place.country",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "country_code",
+                  "fieldPath": "retweeted_status.place.country_code",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "full_name",
+                  "fieldPath": "retweeted_status.place.full_name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "id",
+                  "fieldPath": "retweeted_status.place.id",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "name",
+                  "fieldPath": "retweeted_status.place.name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "place_type",
+                  "fieldPath": "retweeted_status.place.place_type",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "url",
+                  "fieldPath": "retweeted_status.place.url",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "retweeted",
+              "fieldPath": "retweeted_status.retweeted",
+              "nativeType": "Bool",
+              "nullable": true
+            },
+            {
+              "fieldName": "source",
+              "fieldPath": "retweeted_status.source",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "text",
+              "fieldPath": "retweeted_status.text",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "truncated",
+              "fieldPath": "retweeted_status.truncated",
+              "nativeType": "Bool",
+              "nullable": true
+            },
+            {
+              "fieldName": "user",
+              "fieldPath": "retweeted_status.user",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "contributors_enabled",
+                  "fieldPath": "retweeted_status.user.contributors_enabled",
+                  "nativeType": "Bool",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "created_at",
+                  "fieldPath": "retweeted_status.user.created_at",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "description",
+                  "fieldPath": "retweeted_status.user.description",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "favourites_count",
+                  "fieldPath": "retweeted_status.user.favourites_count",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "followers_count",
+                  "fieldPath": "retweeted_status.user.followers_count",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "friends_count",
+                  "fieldPath": "retweeted_status.user.friends_count",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "geo_enabled",
+                  "fieldPath": "retweeted_status.user.geo_enabled",
+                  "nativeType": "Bool",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "id",
+                  "fieldPath": "retweeted_status.user.id",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "lang",
+                  "fieldPath": "retweeted_status.user.lang",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "listed_count",
+                  "fieldPath": "retweeted_status.user.listed_count",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "location",
+                  "fieldPath": "retweeted_status.user.location",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "name",
+                  "fieldPath": "retweeted_status.user.name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_background_color",
+                  "fieldPath": "retweeted_status.user.profile_background_color",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_background_image_url",
+                  "fieldPath": "retweeted_status.user.profile_background_image_url",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_background_tile",
+                  "fieldPath": "retweeted_status.user.profile_background_tile",
+                  "nativeType": "Bool",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_image_url",
+                  "fieldPath": "retweeted_status.user.profile_image_url",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_link_color",
+                  "fieldPath": "retweeted_status.user.profile_link_color",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_sidebar_border_color",
+                  "fieldPath": "retweeted_status.user.profile_sidebar_border_color",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_sidebar_fill_color",
+                  "fieldPath": "retweeted_status.user.profile_sidebar_fill_color",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_text_color",
+                  "fieldPath": "retweeted_status.user.profile_text_color",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "profile_use_background_image",
+                  "fieldPath": "retweeted_status.user.profile_use_background_image",
+                  "nativeType": "Bool",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "protected",
+                  "fieldPath": "retweeted_status.user.protected",
+                  "nativeType": "Bool",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "screen_name",
+                  "fieldPath": "retweeted_status.user.screen_name",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "show_all_inline_media",
+                  "fieldPath": "retweeted_status.user.show_all_inline_media",
+                  "nativeType": "Bool",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "statuses_count",
+                  "fieldPath": "retweeted_status.user.statuses_count",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "time_zone",
+                  "fieldPath": "retweeted_status.user.time_zone",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "url",
+                  "fieldPath": "retweeted_status.user.url",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "utc_offset",
+                  "fieldPath": "retweeted_status.user.utc_offset",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "verified",
+                  "fieldPath": "retweeted_status.user.verified",
+                  "nativeType": "Bool",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "source",
+          "fieldPath": "source",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "text",
+          "fieldPath": "text",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "truncated",
+          "fieldPath": "truncated",
+          "nativeType": "Bool",
+          "nullable": false
+        },
+        {
+          "fieldName": "user",
+          "fieldPath": "user",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "contributors_enabled",
+              "fieldPath": "user.contributors_enabled",
+              "nativeType": "Bool",
+              "nullable": false
+            },
+            {
+              "fieldName": "created_at",
+              "fieldPath": "user.created_at",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "description",
+              "fieldPath": "user.description",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "favourites_count",
+              "fieldPath": "user.favourites_count",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "followers_count",
+              "fieldPath": "user.followers_count",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "friends_count",
+              "fieldPath": "user.friends_count",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "geo_enabled",
+              "fieldPath": "user.geo_enabled",
+              "nativeType": "Bool",
+              "nullable": false
+            },
+            {
+              "fieldName": "id",
+              "fieldPath": "user.id",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "lang",
+              "fieldPath": "user.lang",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "listed_count",
+              "fieldPath": "user.listed_count",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "location",
+              "fieldPath": "user.location",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "name",
+              "fieldPath": "user.name",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_background_color",
+              "fieldPath": "user.profile_background_color",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_background_image_url",
+              "fieldPath": "user.profile_background_image_url",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_background_tile",
+              "fieldPath": "user.profile_background_tile",
+              "nativeType": "Bool",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_image_url",
+              "fieldPath": "user.profile_image_url",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_link_color",
+              "fieldPath": "user.profile_link_color",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_sidebar_border_color",
+              "fieldPath": "user.profile_sidebar_border_color",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_sidebar_fill_color",
+              "fieldPath": "user.profile_sidebar_fill_color",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_text_color",
+              "fieldPath": "user.profile_text_color",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "profile_use_background_image",
+              "fieldPath": "user.profile_use_background_image",
+              "nativeType": "Bool",
+              "nullable": false
+            },
+            {
+              "fieldName": "protected",
+              "fieldPath": "user.protected",
+              "nativeType": "Bool",
+              "nullable": false
+            },
+            {
+              "fieldName": "screen_name",
+              "fieldPath": "user.screen_name",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "show_all_inline_media",
+              "fieldPath": "user.show_all_inline_media",
+              "nativeType": "Bool",
+              "nullable": false
+            },
+            {
+              "fieldName": "statuses_count",
+              "fieldPath": "user.statuses_count",
+              "nativeType": "Int",
+              "nullable": false
+            },
+            {
+              "fieldName": "time_zone",
+              "fieldPath": "user.time_zone",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "url",
+              "fieldPath": "user.url",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "utc_offset",
+              "fieldPath": "user.utc_offset",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "verified",
+              "fieldPath": "user.verified",
+              "nativeType": "Bool",
+              "nullable": false
+            }
+          ]
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 41300186.0,
+      "recordCount": 24832.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "tweets"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_training.zips",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "city",
+          "fieldPath": "city",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "loc",
+          "fieldPath": "loc",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "x",
+              "fieldPath": "loc.x",
+              "nativeType": "Float",
+              "nullable": false
+            },
+            {
+              "fieldName": "y",
+              "fieldPath": "loc.y",
+              "nativeType": "Float",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "pop",
+          "fieldPath": "pop",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "state",
+          "fieldPath": "state",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "zip",
+          "fieldPath": "zip",
+          "nativeType": "String",
+          "nullable": false
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 3285786.0,
+      "recordCount": 29470.0
+    },
+    "structure": {
+      "schema": "sample_training",
+      "table": "zips"
+    }
+  },
+  {
+    "logicalId": {
+      "name": "sample_weatherdata.data",
+      "platform": "MONGODB"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "_id",
+          "fieldPath": "_id",
+          "nativeType": "ObjectId",
+          "nullable": false
+        },
+        {
+          "fieldName": "airTemperature",
+          "fieldPath": "airTemperature",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "quality",
+              "fieldPath": "airTemperature.quality",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "value",
+              "fieldPath": "airTemperature.value",
+              "nativeType": "Float",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "atmosphericPressureChange",
+          "fieldPath": "atmosphericPressureChange",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "quantity24Hours",
+              "fieldPath": "atmosphericPressureChange.quantity24Hours",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "atmosphericPressureChange.quantity24Hours.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "atmosphericPressureChange.quantity24Hours.value",
+                  "nativeType": "Float",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "quantity3Hours",
+              "fieldPath": "atmosphericPressureChange.quantity3Hours",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "atmosphericPressureChange.quantity3Hours.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "atmosphericPressureChange.quantity3Hours.value",
+                  "nativeType": "Float",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "tendency",
+              "fieldPath": "atmosphericPressureChange.tendency",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "code",
+                  "fieldPath": "atmosphericPressureChange.tendency.code",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "atmosphericPressureChange.tendency.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "atmosphericPressureObservation",
+          "fieldPath": "atmosphericPressureObservation",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "altimeterSetting",
+              "fieldPath": "atmosphericPressureObservation.altimeterSetting",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "atmosphericPressureObservation.altimeterSetting.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "atmosphericPressureObservation.altimeterSetting.value",
+                  "nativeType": "Float",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "stationPressure",
+              "fieldPath": "atmosphericPressureObservation.stationPressure",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "atmosphericPressureObservation.stationPressure.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "atmosphericPressureObservation.stationPressure.value",
+                  "nativeType": "Float",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "callLetters",
+          "fieldPath": "callLetters",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "dataSource",
+          "fieldPath": "dataSource",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "dewPoint",
+          "fieldPath": "dewPoint",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "quality",
+              "fieldPath": "dewPoint.quality",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "value",
+              "fieldPath": "dewPoint.value",
+              "nativeType": "Float",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "elevation",
+          "fieldPath": "elevation",
+          "nativeType": "Int",
+          "nullable": false
+        },
+        {
+          "fieldName": "extremeAirTemperature",
+          "fieldPath": "extremeAirTemperature",
+          "nativeType": "Array",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "code",
+              "fieldPath": "extremeAirTemperature.code",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "period",
+              "fieldPath": "extremeAirTemperature.period",
+              "nativeType": "Float",
+              "nullable": true
+            },
+            {
+              "fieldName": "quantity",
+              "fieldPath": "extremeAirTemperature.quantity",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "value",
+              "fieldPath": "extremeAirTemperature.value",
+              "nativeType": "Float",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "liquidPrecipitation",
+          "fieldPath": "liquidPrecipitation",
+          "nativeType": "Array",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "condition",
+              "fieldPath": "liquidPrecipitation.condition",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "depth",
+              "fieldPath": "liquidPrecipitation.depth",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "period",
+              "fieldPath": "liquidPrecipitation.period",
+              "nativeType": "Int",
+              "nullable": true
+            },
+            {
+              "fieldName": "quality",
+              "fieldPath": "liquidPrecipitation.quality",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "pastWeatherObservationManual",
+          "fieldPath": "pastWeatherObservationManual",
+          "nativeType": "Array",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "atmosphericCondition",
+              "fieldPath": "pastWeatherObservationManual.atmosphericCondition",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "pastWeatherObservationManual.atmosphericCondition.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "pastWeatherObservationManual.atmosphericCondition.value",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "period",
+              "fieldPath": "pastWeatherObservationManual.period",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "pastWeatherObservationManual.period.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "pastWeatherObservationManual.period.value",
+                  "nativeType": "Int",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "position",
+          "fieldPath": "position",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "coordinates",
+              "fieldPath": "position.coordinates",
+              "nativeType": "Array",
+              "nullable": true
+            },
+            {
+              "fieldName": "type",
+              "fieldPath": "position.type",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "precipitationEstimatedObservation",
+          "fieldPath": "precipitationEstimatedObservation",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "discrepancy",
+              "fieldPath": "precipitationEstimatedObservation.discrepancy",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "estimatedWaterDepth",
+              "fieldPath": "precipitationEstimatedObservation.estimatedWaterDepth",
+              "nativeType": "Int",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "presentWeatherObservationManual",
+          "fieldPath": "presentWeatherObservationManual",
+          "nativeType": "Array",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "condition",
+              "fieldPath": "presentWeatherObservationManual.condition",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "quality",
+              "fieldPath": "presentWeatherObservationManual.quality",
+              "nativeType": "String",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "pressure",
+          "fieldPath": "pressure",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "quality",
+              "fieldPath": "pressure.quality",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "value",
+              "fieldPath": "pressure.value",
+              "nativeType": "Float",
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "fieldName": "qualityControlProcess",
+          "fieldPath": "qualityControlProcess",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "seaSurfaceTemperature",
+          "fieldPath": "seaSurfaceTemperature",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "quality",
+              "fieldPath": "seaSurfaceTemperature.quality",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "value",
+              "fieldPath": "seaSurfaceTemperature.value",
+              "nativeType": "Float",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "fieldName": "sections",
+          "fieldPath": "sections",
+          "nativeType": "Array",
+          "nullable": false
+        },
+        {
+          "fieldName": "skyCondition",
+          "fieldPath": "skyCondition",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "cavok",
+              "fieldPath": "skyCondition.cavok",
+              "nativeType": "String",
+              "nullable": false
+            },
+            {
+              "fieldName": "ceilingHeight",
+              "fieldPath": "skyCondition.ceilingHeight",
+              "nativeType": "Object",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "determination",
+                  "fieldPath": "skyCondition.ceilingHeight.determination",
+                  "nativeType": "String",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyCondition.ceilingHeight.quality",
+                  "nativeType": "String",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyCondition.ceilingHeight.value",
+                  "nativeType": "Int",
+                  "nullable": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "skyConditionObservation",
+          "fieldPath": "skyConditionObservation",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "highCloudGenus",
+              "fieldPath": "skyConditionObservation.highCloudGenus",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyConditionObservation.highCloudGenus.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyConditionObservation.highCloudGenus.value",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "lowCloudGenus",
+              "fieldPath": "skyConditionObservation.lowCloudGenus",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyConditionObservation.lowCloudGenus.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyConditionObservation.lowCloudGenus.value",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "lowestCloudBaseHeight",
+              "fieldPath": "skyConditionObservation.lowestCloudBaseHeight",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyConditionObservation.lowestCloudBaseHeight.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyConditionObservation.lowestCloudBaseHeight.value",
+                  "nativeType": "Int",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "lowestCloudCoverage",
+              "fieldPath": "skyConditionObservation.lowestCloudCoverage",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyConditionObservation.lowestCloudCoverage.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyConditionObservation.lowestCloudCoverage.value",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "midCloudGenus",
+              "fieldPath": "skyConditionObservation.midCloudGenus",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyConditionObservation.midCloudGenus.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyConditionObservation.midCloudGenus.value",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "totalCoverage",
+              "fieldPath": "skyConditionObservation.totalCoverage",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "opaque",
+                  "fieldPath": "skyConditionObservation.totalCoverage.opaque",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyConditionObservation.totalCoverage.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyConditionObservation.totalCoverage.value",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "skyCoverLayer",
+          "fieldPath": "skyCoverLayer",
+          "nativeType": "Array",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "baseHeight",
+              "fieldPath": "skyCoverLayer.baseHeight",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyCoverLayer.baseHeight.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyCoverLayer.baseHeight.value",
+                  "nativeType": "Int",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "cloudType",
+              "fieldPath": "skyCoverLayer.cloudType",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyCoverLayer.cloudType.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyCoverLayer.cloudType.value",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "coverage",
+              "fieldPath": "skyCoverLayer.coverage",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "skyCoverLayer.coverage.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "skyCoverLayer.coverage.value",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "st",
+          "fieldPath": "st",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "ts",
+          "fieldPath": "ts",
+          "nativeType": "Datetime",
+          "nullable": false
+        },
+        {
+          "fieldName": "type",
+          "fieldPath": "type",
+          "nativeType": "String",
+          "nullable": false
+        },
+        {
+          "fieldName": "visibility",
+          "fieldPath": "visibility",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "distance",
+              "fieldPath": "visibility.distance",
+              "nativeType": "Object",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "visibility.distance.quality",
+                  "nativeType": "String",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "visibility.distance.value",
+                  "nativeType": "Int",
+                  "nullable": false
+                }
+              ]
+            },
+            {
+              "fieldName": "variability",
+              "fieldPath": "visibility.variability",
+              "nativeType": "Object",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "visibility.variability.quality",
+                  "nativeType": "String",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "value",
+                  "fieldPath": "visibility.variability.value",
+                  "nativeType": "String",
+                  "nullable": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "waveMeasurement",
+          "fieldPath": "waveMeasurement",
+          "nativeType": "Object",
+          "nullable": true,
+          "subfields": [
+            {
+              "fieldName": "method",
+              "fieldPath": "waveMeasurement.method",
+              "nativeType": "String",
+              "nullable": true
+            },
+            {
+              "fieldName": "seaState",
+              "fieldPath": "waveMeasurement.seaState",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "code",
+                  "fieldPath": "waveMeasurement.seaState.code",
+                  "nativeType": "String",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "waveMeasurement.seaState.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "fieldName": "waves",
+              "fieldPath": "waveMeasurement.waves",
+              "nativeType": "Object",
+              "nullable": true,
+              "subfields": [
+                {
+                  "fieldName": "height",
+                  "fieldPath": "waveMeasurement.waves.height",
+                  "nativeType": "Float",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "period",
+                  "fieldPath": "waveMeasurement.waves.period",
+                  "nativeType": "Int",
+                  "nullable": true
+                },
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "waveMeasurement.waves.quality",
+                  "nativeType": "String",
+                  "nullable": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fieldName": "wind",
+          "fieldPath": "wind",
+          "nativeType": "Object",
+          "nullable": false,
+          "subfields": [
+            {
+              "fieldName": "direction",
+              "fieldPath": "wind.direction",
+              "nativeType": "Object",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "angle",
+                  "fieldPath": "wind.direction.angle",
+                  "nativeType": "Int",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "wind.direction.quality",
+                  "nativeType": "String",
+                  "nullable": false
+                }
+              ]
+            },
+            {
+              "fieldName": "speed",
+              "fieldPath": "wind.speed",
+              "nativeType": "Object",
+              "nullable": false,
+              "subfields": [
+                {
+                  "fieldName": "quality",
+                  "fieldPath": "wind.speed.quality",
+                  "nativeType": "String",
+                  "nullable": false
+                },
+                {
+                  "fieldName": "rate",
+                  "fieldPath": "wind.speed.rate",
+                  "nativeType": "Float",
+                  "nullable": false
+                }
+              ]
+            },
+            {
+              "fieldName": "type",
+              "fieldPath": "wind.type",
+              "nativeType": "String",
+              "nullable": false
+            }
+          ]
+        }
+      ],
+      "schemaType": "BSON"
+    },
+    "statistics": {
+      "dataSizeBytes": 16842636.0,
+      "recordCount": 10000.0
+    },
+    "structure": {
+      "schema": "sample_weatherdata",
+      "table": "data"
+    }
+  }
+]

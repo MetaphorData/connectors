@@ -142,7 +142,7 @@ class NotionExtractor(BaseExtractor):
                 queried = self.NotionReader.load_data(database_ids=[db_id])
             except Exception as e:
                 logger.warning(f"Failed to get documents from db {db_id}")
-                logger.warn(e)
+                logger.warning(e)
                 continue
             # exclude functionality would be implemented here somewhere
             # regex patterns, url-exclusion, etc.

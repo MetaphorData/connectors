@@ -1,0 +1,20 @@
+{
+  "DataCatalogsSummary": [
+    {
+      "CatalogName": "AwsDataCatalog",
+      "Type": "GLUE"
+    }
+  ],
+  "ResponseMetadata": {
+    "RequestId": "f8346904-fad9-4b57-a4ca-4a5df6392d62",
+    "HTTPStatusCode": 200,
+    "HTTPHeaders": {
+      "date": "Thu, 03 Oct 2024 06:47:14 GMT",
+      "content-type": "application/x-amz-json-1.1",
+      "content-length": "99",
+      "connection": "keep-alive",
+      "x-amzn-requestid": "f8346904-fad9-4b57-a4ca-4a5df6392d62"
+    },
+    "RetryAttempts": 0
+  }
+}

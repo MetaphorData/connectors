@@ -50,6 +50,10 @@ grant references on future materialized views in database identifier($db) to rol
 -- (Optional) Grant privilege to "show streams"
 grant select on all streams in database identifier($db) to role identifier($role);
 grant select on future streams in database identifier($db) to role identifier($role);
+
+-- (Optional) Grant privilege to "show iceberg tables"
+grant select on all iceberg tables in database identifier($db) to role identifier($role);
+grant select on future iceberg tables in database identifier($db) to role identifier($role);
 ```
 
 ### Key Pair Authentication (Optional)
@@ -121,6 +125,14 @@ account_usage_schema: <db_name>.<schema_name>
 #### Tag Assignment
 
 See [Tag Matcher Config](../common/docs/tag_matcher.md) for more information on the optional `tag_matcher` config.
+
+#### Disable Platform Tags Collection
+
+To stop the crawler from collecting platform tags from Snowflake, set `collect_tags` to `False`:
+
+```yaml
+collect_tags: false # Default is true.
+```
 
 #### Query Logs
 

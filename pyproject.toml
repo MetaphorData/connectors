@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.14.110"
+version = "0.14.115"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -42,7 +42,7 @@ llama-index-readers-confluence = { version = "^0.1.4", optional = true }
 llama-index-readers-notion = { version = "^0.1.6", optional = true }
 looker-sdk = { version = "^24.2.0", optional = true }
 lxml = { version = "~=5.0.0", optional = true }
-metaphor-models = "0.40.0"
+metaphor-models = "0.40.3"
 more-itertools = { version = "^10.1.0", optional = true }
 msal = { version = "^1.28.0", optional = true }
 msgraph-beta-sdk = { version = "~1.4.0", optional = true }
@@ -54,6 +54,7 @@ pyarrow = { version = "^16.1.0", extras = ["pandas"]}
 pycarlo = { version = "^0.9.0", optional = true }
 pydantic = { version = "2.6.4", extras = ["email"]}
 pyhive = { version = "^0.7.0", optional = true }
+pymongo = { version = "^4.9.1", optional = true }
 pymssql = { version = "~=2.2.11", optional = true }
 pymysql = { version = "^1.0.2", optional = true }
 python = ">=3.8.1,<3.12"
@@ -107,6 +108,7 @@ all = [
   "parse",
   "pycarlo",
   "pyhive",
+  "pymongo",
   "pymssql",
   "pymysql",
   "pyserde",
@@ -132,6 +134,7 @@ kafka = ["confluent-kafka", "avro", "grpcio-tools"]
 looker = ["GitPython", "lkml", "looker-sdk"]
 metabase = []
 monday = ["llama-index", "llama-index-embeddings-azure-openai", "nltk"]
+mongodb = ["pymongo"]
 monte_carlo = ["pycarlo"]
 mssql = ["pymssql"]
 mysql = ["pymysql", "SQLAlchemy"]
