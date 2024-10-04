@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timezone
 from typing import Collection, List
 
@@ -31,7 +30,6 @@ class ConfluenceExtractor(BaseExtractor):
         # Confluence instance setup
         self.confluence_base_URL = config.confluence_base_URL
         self.confluence_cloud = config.confluence_cloud
-        self.select_method = config.select_method
 
         # Authentication
         self.confluence_username = config.confluence_username
@@ -40,6 +38,7 @@ class ConfluenceExtractor(BaseExtractor):
 
         # Selection
         self.space_key = config.space_key
+        self.space_keys = config.space_keys
         self.page_ids = config.page_ids
         self.label = config.label
         self.cql = config.cql
@@ -53,22 +52,13 @@ class ConfluenceExtractor(BaseExtractor):
         # Embedding source and configs
         self.embedding_model = config.embedding_model
 
-        # Replace empty configs for validation
-        self.space_key = self.space_key if self.space_key else None  # type: ignore[assignment]
-        self.page_ids = self.page_ids if self.page_ids else None  # type: ignore[assignment]
-        self.label = self.label if self.label else None  # type: ignore[assignment]
-        self.cql = self.cql if self.cql else None  # type: ignore[assignment]
-
-        # Set appropriate environment variables
-        if self.confluence_cloud:
-            os.environ["CONFLUENCE_USERNAME"] = self.confluence_username
-            os.environ["CONFLUENCE_PASSWORD"] = self.confluence_password
-        else:
-            os.environ["CONFLUENCE_API_TOKEN"] = self.confluence_PAT
-
         # Initialize Reader; will read appropriate environment variables.
         self.confluence_reader = ConfluenceReader(
-            base_url=self.confluence_base_URL, cloud=self.confluence_cloud
+            base_url=self.confluence_base_URL,
+            cloud=self.confluence_cloud,
+            api_token=self.confluence_PAT,
+            user_name=self.confluence_username,
+            password=self.confluence_password,
         )
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
