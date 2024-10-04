@@ -52,7 +52,7 @@ class ConfluenceExtractor(BaseExtractor):
         # Embedding source and configs
         self.embedding_model = config.embedding_model
 
-        # Initialize Reader; will read appropriate environment variables.
+        # Initialize Reader
         self.confluence_reader = ConfluenceReader(
             base_url=self.confluence_base_URL,
             cloud=self.confluence_cloud,
@@ -80,21 +80,27 @@ class ConfluenceExtractor(BaseExtractor):
         return embedded_nodes
 
     def _load_confluence_data(self) -> List[Document]:
-        # Use ConfluenceReader to extract Documents.
-        # ConfluenceReader validates that only one input type is present.
-        docs = self.confluence_reader.load_data(
-            space_key=self.space_key,
-            page_ids=self.page_ids,
-            page_status=self.page_status,
-            label=self.label,
-            cql=self.cql,
-            include_attachments=self.include_attachments,
-            include_children=self.include_children,
-        )
+        all_docs = []
+
+        # Handle space_keys if provided, otherwise use space_key
+        space_keys_to_process = self.space_keys if self.space_keys else [self.space_key]  # type: ignore[list-item]
+
+        for space_key in space_keys_to_process:
+            # Use ConfluenceReader to extract Documents for each space_key.
+            docs = self.confluence_reader.load_data(
+                space_key=space_key,
+                page_ids=self.page_ids,
+                page_status=self.page_status,
+                label=self.label,
+                cql=self.cql,
+                include_attachments=self.include_attachments,
+                include_children=self.include_children,
+            )
+            all_docs.extend(docs)
 
         current_time = str(datetime.now(timezone.utc))
 
-        for doc in docs:
+        for doc in all_docs:
             # Reset page_id
             doc.metadata["pageId"] = doc.metadata.pop("page_id")
 
@@ -110,6 +116,6 @@ class ConfluenceExtractor(BaseExtractor):
             # Add timestamp
             doc.metadata["lastRefreshed"] = current_time
 
-        logger.info(f"Successfully retrieved {len(docs)} documents.")
+        logger.info(f"Successfully retrieved {len(all_docs)} documents.")
 
-        return docs
+        return all_docs
