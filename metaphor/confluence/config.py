@@ -15,6 +15,7 @@ class ConfluenceRunConfig(BaseConfig):
     # General Confluence configs
     confluence_base_URL: str
     confluence_cloud: bool
+    select_method: str  # TODO: remove at next breaking change release
 
     # Embeddings
     embedding_model: EmbeddingModelConfig = field(default_factory=EmbeddingModelConfig)
