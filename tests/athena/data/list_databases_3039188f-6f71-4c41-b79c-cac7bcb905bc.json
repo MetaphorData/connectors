@@ -1,0 +1,19 @@
+{
+  "DatabaseList": [
+    {
+      "Name": "spectrum_db2"
+    }
+  ],
+  "ResponseMetadata": {
+    "RequestId": "3039188f-6f71-4c41-b79c-cac7bcb905bc",
+    "HTTPStatusCode": 200,
+    "HTTPHeaders": {
+      "date": "Thu, 03 Oct 2024 06:47:14 GMT",
+      "content-type": "application/x-amz-json-1.1",
+      "content-length": "253",
+      "connection": "keep-alive",
+      "x-amzn-requestid": "3039188f-6f71-4c41-b79c-cac7bcb905bc"
+    },
+    "RetryAttempts": 0
+  }
+}

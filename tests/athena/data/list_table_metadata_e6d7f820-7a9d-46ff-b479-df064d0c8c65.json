@@ -1,0 +1,127 @@
+{
+  "TableMetadataList": [
+    {
+      "Name": "sales",
+      "CreateTime": "2022-09-07 21:46:03+08:00",
+      "LastAccessTime": "1970-01-01 08:00:00+08:00",
+      "TableType": "EXTERNAL_TABLE",
+      "Columns": [
+        {
+          "Name": "salesid",
+          "Type": "int"
+        },
+        {
+          "Name": "listid",
+          "Type": "int"
+        },
+        {
+          "Name": "sellerid",
+          "Type": "int"
+        },
+        {
+          "Name": "buyerid",
+          "Type": "int"
+        },
+        {
+          "Name": "eventid",
+          "Type": "int"
+        },
+        {
+          "Name": "dateid",
+          "Type": "smallint"
+        },
+        {
+          "Name": "qtysold",
+          "Type": "smallint"
+        },
+        {
+          "Name": "pricepaid",
+          "Type": "decimal(8,2)"
+        },
+        {
+          "Name": "commission",
+          "Type": "decimal(8,2)"
+        },
+        {
+          "Name": "saletime",
+          "Type": "timestamp"
+        }
+      ],
+      "PartitionKeys": [],
+      "Parameters": {
+        "EXTERNAL": "TRUE",
+        "inputformat": "org.apache.hadoop.mapred.TextInputFormat",
+        "location": "s3://metaphor-specturm/example",
+        "numRows": "172000",
+        "outputformat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+        "serde.param.field.delim": "\t",
+        "serde.param.serialization.format": "\t",
+        "serde.serialization.lib": "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
+        "transient_lastDdlTime": "1662558363"
+      }
+    },
+    {
+      "Name": "sales_view",
+      "CreateTime": "2024-10-03 00:50:38+08:00",
+      "TableType": "VIRTUAL_VIEW",
+      "Columns": [
+        {
+          "Name": "salesid",
+          "Type": "int"
+        },
+        {
+          "Name": "listid",
+          "Type": "int"
+        },
+        {
+          "Name": "sellerid",
+          "Type": "int"
+        },
+        {
+          "Name": "buyerid",
+          "Type": "int"
+        },
+        {
+          "Name": "dateid",
+          "Type": "smallint"
+        },
+        {
+          "Name": "qtysold",
+          "Type": "smallint"
+        },
+        {
+          "Name": "pricepaid",
+          "Type": "decimal(8,2)"
+        },
+        {
+          "Name": "commission",
+          "Type": "decimal(8,2)"
+        },
+        {
+          "Name": "saletime",
+          "Type": "timestamp"
+        }
+      ],
+      "Parameters": {
+        "comment": "Presto View",
+        "inputformat": null,
+        "location": "",
+        "outputformat": null,
+        "presto_view": "true",
+        "serde.serialization.lib": null
+      }
+    }
+  ],
+  "ResponseMetadata": {
+    "RequestId": "e6d7f820-7a9d-46ff-b479-df064d0c8c65",
+    "HTTPStatusCode": 200,
+    "HTTPHeaders": {
+      "date": "Thu, 03 Oct 2024 06:47:16 GMT",
+      "content-type": "application/x-amz-json-1.1",
+      "content-length": "1482",
+      "connection": "keep-alive",
+      "x-amzn-requestid": "e6d7f820-7a9d-46ff-b479-df064d0c8c65"
+    },
+    "RetryAttempts": 0
+  }
+}
