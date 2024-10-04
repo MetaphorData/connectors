@@ -527,6 +527,7 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
 
         next_token = None
         previous_line_cache: Dict[str, ParsedLog] = {}
+        count = 0
 
         while True:
             params = {
@@ -542,10 +543,14 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
 
             for event in response["events"]:
                 message = event["message"]
+                count += 1
 
                 query_log = self._process_cloud_watch_log(message, previous_line_cache)
                 if query_log:
                     yield query_log
+
+                if count % 1000 == 0:
+                    logger.info(f"Processed {count} logs")
 
             if next_token is None:
                 break
