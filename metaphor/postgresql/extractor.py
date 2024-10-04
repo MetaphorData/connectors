@@ -432,6 +432,7 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
                                                              (a, b, c)
             2024...:root@database:[session]:LOG:  duration: 0.5 ms
             """
+            logger.warning("log format is not start with date")
             return None
 
         parsed = parse_postgres_log(log)
