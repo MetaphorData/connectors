@@ -471,6 +471,8 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         ):
             return None
 
+        logger.debug(f"processing valid query: {log}")
+
         # Extract sql from the previous line
         query = ":".join(previous_line.log_body[1:]).lstrip()
 
@@ -488,6 +490,7 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         if not is_valid_queried_datasets(tll.sources) or not is_valid_queried_datasets(
             tll.targets
         ):
+            logger.debug(f"invalid sources/targets, log: {log}")
             return None
 
         sql_hash = md5_digest(query.encode("utf-8"))
