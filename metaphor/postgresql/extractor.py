@@ -1,14 +1,13 @@
 import re
-from datetime import datetime, timezone
 from typing import Collection, Dict, Iterator, List, Optional, Tuple
 
 try:
     import asyncpg
-    import boto3
 except ImportError:
     print("Please install metaphor[postgresql] extra\n")
     raise
 
+from metaphor.common.aws import iterate_logs_from_cloud_watch
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
@@ -20,7 +19,7 @@ from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
 from metaphor.common.sql.utils import is_valid_queried_datasets
-from metaphor.common.utils import md5_digest, safe_float, start_of_day
+from metaphor.common.utils import md5_digest, safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -403,17 +402,24 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         return self._datasets.values()
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
+        previous_line_cache: Dict[str, ParsedLog] = {}
+
         if (
             isinstance(self._query_log_config, PostgreSQLQueryLogConfig)
             and self._query_log_config.aws
             and self._query_log_config.lookback_days > 0
             and self._query_log_config.logs_group is not None
         ):
-            yield from self._collect_query_logs_from_cloud_watch(
-                client=self._query_log_config.aws.get_session().client("logs"),
-                lookback_days=self._query_log_config.lookback_days,
-                logs_group=self._query_log_config.logs_group,
-            )
+            client = (self._query_log_config.aws.get_session().client("logs"),)
+            lookback_days = self._query_log_config.lookback_days
+            logs_group = self._query_log_config.logs_group
+
+            for message in iterate_logs_from_cloud_watch(
+                client, lookback_days, logs_group
+            ):
+                query_log = self._process_cloud_watch_log(message, previous_line_cache)
+                if query_log:
+                    yield query_log
 
     def _process_cloud_watch_log(
         self, log: str, previous_line_cache: Dict[str, ParsedLog]
@@ -517,47 +523,6 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
                 targets=tll.targets,
             )
         return None
-
-    def _collect_query_logs_from_cloud_watch(
-        self, client: boto3.client, lookback_days: int, logs_group: str
-    ) -> Iterator[QueryLog]:
-
-        logger.info(f"Collecting query log from cloud watch for {lookback_days} days")
-
-        # Start time in milliseconds since epoch
-        start_timestamp_ms = int(start_of_day(lookback_days).timestamp() * 1000)
-        # End time in milliseconds since epoch
-        end_timestamp_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
-
-        next_token = None
-        previous_line_cache: Dict[str, ParsedLog] = {}
-        count = 0
-
-        while True:
-            params = {
-                "logGroupName": logs_group,
-                "startTime": start_timestamp_ms,
-                "endTime": end_timestamp_ms,
-            }
-            if next_token:
-                params["nextToken"] = next_token
-            response = client.filter_log_events(**params)
-
-            next_token = response["nextToken"] if "nextToken" in response else None
-
-            for event in response["events"]:
-                message = event["message"]
-                count += 1
-
-                query_log = self._process_cloud_watch_log(message, previous_line_cache)
-                if query_log:
-                    yield query_log
-
-                if count % 1000 == 0:
-                    logger.info(f"Processed {count} logs")
-
-            if next_token is None:
-                break
 
     @staticmethod
     def _build_field(column) -> SchemaField:
