@@ -436,15 +436,19 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
             return None
 
         parsed = parse_postgres_log(log)
+        if parsed is None:
+            return None
 
-        # Skip log without user and database, and log_level of SQL statement is "LOG"
-        if (
-            parsed is None
-            or not parsed.user
-            or not parsed.database
-            or parsed.log_level != "LOG"
-            or parsed.user in self._query_log_config.excluded_usernames
-        ):
+        if not parsed.user or not parsed.database:
+            logger.debug(f"Invalid user or database, log: {log}")
+            return None
+
+        if parsed.log_level != "LOG":
+            logger.debug(f"Skip {parsed.log_level} log: {log}")
+            return None
+
+        if parsed.user in self._query_log_config.excluded_usernames:
+            logger.debug(f"Skip {parsed}'s query")
             return None
 
         previous_line = previous_line_cache.get(parsed.session)
