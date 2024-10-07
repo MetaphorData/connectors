@@ -168,12 +168,6 @@ class RedshiftExtractor(BasePostgreSQLExtractor):
             default_database=access_event.database,
         )
 
-        if not (
-            self._is_related_query_log(tll.sources)
-            or self._is_related_query_log(tll.targets)
-        ):
-            return
-
         sql: Optional[str] = access_event.querytxt
         if self._query_log_config.process_query.should_process:
             sql = process_query(
