@@ -9,7 +9,7 @@ from metaphor.dbt.cloud.http import LogTransport
 
 def test_http_client():
     http_client = httpx.Client(
-        transport=LogTransport(httpx.HTTPTransport()),
+        transport=LogTransport(httpx.HTTPTransport()), timeout=30
     )
 
     with DockerContainer("hashicorp/http-echo").with_exposed_ports(5678).with_env(
