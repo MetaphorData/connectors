@@ -53,7 +53,7 @@ class DbtCloudExtractor(BaseExtractor):
             url=self._discovery_api_url,
             headers=headers,
             http_client=httpx.Client(
-                timeout=None,
+                timeout=30,
                 headers=headers,
                 transport=LogTransport(httpx.HTTPTransport()),
             ),
