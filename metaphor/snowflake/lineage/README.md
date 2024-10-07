@@ -1,4 +1,6 @@
-# Snowflake Usage Statistics Connector
+# (DEPRECATED) Snowflake Lineage Connector
+
+The base Snowflake crawler already covers the query logs, and our main app will extract TLL and CLL from the collected query logs. This makes the Snowflake lineage connector redundant.
 
 This connector extracts linage from a Snowflake account using [Snowflake Connector](https://docs.snowflake.com/en/user-guide/python-connector.html). It queries [ACCESS_HISTORY](https://docs.snowflake.com/en/sql-reference/account-usage/access_history.html) and therefore requires Snowflake Enterprise or higher.
 
