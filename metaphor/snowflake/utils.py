@@ -317,7 +317,7 @@ def update_dataset_entity_upstream(
         dataset.entity_upstream = EntityUpstream(
             source_entities=[],
         )
-    
+
     if query:
         dataset.entity_upstream.transformation = query
 
