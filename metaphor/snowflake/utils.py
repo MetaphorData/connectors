@@ -13,10 +13,16 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     MaterializationType,
     SchemaField,
+    DatasetLogicalID,
+    EntityUpstream,
+    DataPlatform,
     SnowflakeStreamSourceType,
     SnowflakeStreamType,
+    QueriedDataset,
     SystemTag,
 )
+
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -272,3 +278,47 @@ def append_column_system_tag(
     field = next((f for f in fields if is_target_field(f)), None)
     if field:
         _update_field_system_tag(field, system_tag)
+
+
+def queried_dataset_normalized_name(queried_dataset: QueriedDataset) -> str:
+    return dataset_normalized_name(
+        queried_dataset.database, queried_dataset.schema, queried_dataset.table
+    )
+
+
+def queried_dataset_entity_id(queried_dataset: QueriedDataset, account: Optional[str]):
+    return str(
+        to_dataset_entity_id(
+            queried_dataset_normalized_name(queried_dataset),
+            DataPlatform.SNOWFLAKE,
+            account,
+        )
+    )
+
+
+def update_dataset_entity_upstream(
+    datasets: Dict[str, Dataset],
+    normalized_name: str,
+    account: Optional[str],
+    source_entities: List[str],
+    query: Optional[str],
+) -> None:
+    """
+    Updates the dataset's entity upstream. If no such dataset exists or it does not have an entity upstream, they
+    will be initialized. Updated source entities are deduped.
+    """
+    if normalized_name not in datasets:
+        datasets[normalized_name] = Dataset(
+            logical_id=DatasetLogicalID(name=normalized_name, platform=DataPlatform.SNOWFLAKE, account=account),
+        )
+
+    dataset = datasets[normalized_name]
+    if not dataset.entity_upstream:
+        dataset.entity_upstream = EntityUpstream(
+            source_entities=[],
+        )
+    
+    if query:
+        dataset.entity_upstream.transformation = query
+
+    dataset.entity_upstream.source_entities = list({*source_entities, *(dataset.entity_upstream.source_entities or [])})
