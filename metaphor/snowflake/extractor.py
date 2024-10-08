@@ -1115,10 +1115,10 @@ class SnowflakeExtractor(BaseExtractor):
     def _fetch_direct_object_dependencies(self, cursor: SnowflakeCursor):
         logger.info("Fetching direct object dependencies")
         cursor.execute(
-            """
+            f"""
             SELECT REFERENCED_DATABASE, REFERENCED_SCHEMA, REFERENCED_OBJECT_NAME, REFERENCED_OBJECT_DOMAIN,
                 REFERENCING_DATABASE, REFERENCING_SCHEMA, REFERENCING_OBJECT_NAME, REFERENCING_OBJECT_DOMAIN
-            FROM SNOWFLAKE.ACCOUNT_USAGE.OBJECT_DEPENDENCIES;
+            FROM {self._account_usage_schema}.OBJECT_DEPENDENCIES;
             """
         )
         dependencies = cursor.fetchall()
