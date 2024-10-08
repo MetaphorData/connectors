@@ -9,20 +9,19 @@ from typing import Callable, Dict, List, Optional, Set, Tuple
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.cursor import SnowflakeCursor
 
+from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.models.metadata_change_event import (
+    DataPlatform,
     Dataset,
-    MaterializationType,
-    SchemaField,
     DatasetLogicalID,
     EntityUpstream,
-    DataPlatform,
+    MaterializationType,
+    QueriedDataset,
+    SchemaField,
     SnowflakeStreamSourceType,
     SnowflakeStreamType,
-    QueriedDataset,
     SystemTag,
 )
-
-from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
