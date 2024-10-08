@@ -68,6 +68,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [looker](metaphor/looker/)                                        | Looker view, explore, dashboard, lineage |
 | [kafka](metaphor/kafka/)                                          | Schema, description                      |
 | [metabase](metaphor/metabase/)                                    | Dashboard, lineage                       |
+| [mongodb](metaphor/mongodb/)                                      | Schema, statistics                       |
 | [monte_carlo](metaphor/monte_carlo/)                              | Data monitor                             |
 | [mssql](metaphor/mssql/)                                          | Schema                                   |
 | [mysql](metaphor/mysql/)                                          | Schema, description                      |
@@ -82,7 +83,6 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [redshift.profile](metaphor/redshift/profile/)                    | Data profile                             |
 | [sharepoint](metaphor/sharepoint/)                                | Document embeddings                      |
 | [snowflake](metaphor/snowflake/)                                  | Schema, description, statistics, queries |
-| [snowflake.lineage](metaphor/snowflake/lineage/)                  | Lineage                                  |
 | [snowflake.profile](metaphor/snowflake/profile/)                  | Data profile                             |
 | [static_web](metaphor/static_web/)                                | Document embeddings                      |
 | [synapse](metaphor/synapse/)                                      | Schema, queries                          |

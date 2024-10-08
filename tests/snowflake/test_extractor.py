@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from typing import Optional
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.filter import DatasetFilter
@@ -488,19 +490,36 @@ def test_fetch_shared_databases(mock_connect: MagicMock):
     assert results == ["shared_1", "shared_3"]
 
 
+@pytest.mark.asyncio
 @patch("metaphor.snowflake.extractor.check_access_history")
 @patch("metaphor.snowflake.extractor.fetch_query_history_count")
+@patch("metaphor.snowflake.extractor.SnowflakeExtractor.fetch_databases")
+@patch("metaphor.snowflake.extractor.SnowflakeExtractor._fetch_shared_databases")
+@patch("metaphor.snowflake.extractor.SnowflakeExtractor._fetch_database_comment")
+@patch("metaphor.snowflake.extractor.SnowflakeExtractor._fetch_primary_keys")
+@patch("metaphor.snowflake.extractor.SnowflakeExtractor._fetch_unique_keys")
+@patch(
+    "metaphor.snowflake.extractor.SnowflakeExtractor._fetch_direct_object_dependencies"
+)
 @patch("metaphor.snowflake.auth.connect")
-def test_collect_query_logs(
+async def test_collect_query_logs(
     mock_connect: MagicMock,
+    mock_fetch_direct_object_dependencies: MagicMock,
+    mock_fetch_unique_keys: MagicMock,
+    mock_fetch_primary_keys: MagicMock,
+    mock_fetch_database_comment: MagicMock,
+    mock_fetch_shared_databases: MagicMock,
+    mock_fetch_databases: MagicMock,
     mock_fetch_query_history_count: MagicMock,
     mock_check_access_history: MagicMock,
 ):
     mock_check_access_history.return_value = True
     mock_fetch_query_history_count.return_value = 1
+    mock_fetch_databases.return_value = []
+    mock_fetch_shared_databases.return_value = []
 
     class MockCursor:
-        def execute(self, _query, _params):
+        def execute(self, _query, _params=None):
             pass
 
         def __iter__(self):
@@ -859,11 +878,13 @@ def test_collect_query_logs(
 
     config = make_snowflake_config()
     config.query_log = SnowflakeQueryLogConfig(max_query_size=40)
+    config.collect_tags = False
 
     extractor = SnowflakeExtractor(config)
     conn_instance = MagicMock()
     conn_instance.cursor.return_value = MockCursor()
     mock_connect.return_value = conn_instance
+    await extractor.extract()
     query_logs = list(extractor.collect_query_logs())
 
     assert len(query_logs) == 1

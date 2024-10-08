@@ -54,6 +54,7 @@ from metaphor.models.metadata_change_event import (
     EntityUpstream,
     Hierarchy,
     HierarchyLogicalID,
+    QueriedDataset,
     QueryLog,
     SchemaType,
     SnowflakeIcebergInfo,
@@ -67,7 +68,10 @@ from metaphor.models.metadata_change_event import (
     SystemTagSource,
 )
 from metaphor.snowflake import auth
-from metaphor.snowflake.accessed_object import parse_accessed_objects
+from metaphor.snowflake.accessed_object import (
+    SUPPORTED_OBJECT_DOMAIN_TYPES,
+    parse_accessed_objects,
+)
 from metaphor.snowflake.config import SnowflakeConfig
 from metaphor.snowflake.utils import (
     DatasetInfo,
@@ -78,10 +82,13 @@ from metaphor.snowflake.utils import (
     check_access_history,
     exclude_username_clause,
     fetch_query_history_count,
+    queried_dataset_entity_id,
+    queried_dataset_normalized_name,
     str_to_source_type,
     str_to_stream_type,
     table_type_to_materialization_type,
     to_quoted_identifier,
+    update_dataset_entity_upstream,
 )
 
 logger = get_logger()
@@ -123,7 +130,7 @@ class SnowflakeExtractor(BaseExtractor):
         self._streams_count_rows = config.streams.count_rows
         self._config = config
 
-        self._datasets: Dict[str, Dataset] = {}
+        self._datasets: Dict[str, Dataset] = {}  # key: normalized name
         self._hierarchies: Dict[str, Hierarchy] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -179,6 +186,17 @@ class SnowflakeExtractor(BaseExtractor):
             if self._config.collect_tags:
                 self._fetch_tags(cursor)
 
+            # Fetch query logs now since we need the dataset entity upstream lineage here,
+            # and in `collect_query_logs` we can't touch `self._datasets` anymore.
+            self._query_logs = (
+                list(self._fetch_query_logs())
+                if self._query_log_lookback_days > 0
+                else None
+            )
+
+            # Fetch direct object dependencies
+            self._fetch_direct_object_dependencies(cursor)
+
         datasets = list(self._datasets.values())
         tag_datasets(datasets, self._tag_matchers)
 
@@ -188,11 +206,8 @@ class SnowflakeExtractor(BaseExtractor):
         return entities
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
-        self._conn = auth.connect(self._config)
-
-        with self._conn:
-            if self._query_log_lookback_days > 0:
-                yield from self._fetch_query_logs()
+        if self._query_logs is not None:
+            yield from self._query_logs
 
     @staticmethod
     def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
@@ -861,6 +876,11 @@ class SnowflakeExtractor(BaseExtractor):
                     else None
                 )
 
+                # Set entity upstream here, use raw query_text as the transformation
+                self._set_entity_upstream(
+                    sources or [], targets or [], query_text, False
+                )
+
                 # Skip large queries
                 if len(query_text) > self._query_log_max_query_size:
                     continue
@@ -1048,3 +1068,81 @@ class SnowflakeExtractor(BaseExtractor):
         logger.debug(
             f"Fetched {comment_count}/{schema_count} schema comment in database: {database}"
         )
+
+    def _set_entity_upstream(
+        self,
+        sources: List[QueriedDataset],
+        targets: List[QueriedDataset],
+        transformation: Optional[str],
+        direct_object_dependencies: bool,
+    ):
+        # Dedup source datasets
+        source_datasets = list(
+            {queried_dataset_entity_id(source, self._account) for source in sources}
+        )
+        if len(source_datasets) == 0:
+            return
+
+        for target in targets:
+            normalized_name = queried_dataset_normalized_name(target)
+
+            if not self._filter.include_table(
+                target.database or "", target.schema or "", target.table or ""
+            ):
+                logger.debug(f"Excluding table {normalized_name}")
+                continue
+
+            filtered_source_datasets = source_datasets.copy()
+            if (
+                not self._config.lineage.include_self_lineage
+                and not direct_object_dependencies
+            ):
+                try:
+                    entity_id = queried_dataset_entity_id(target, self._account)
+                    filtered_source_datasets.remove(entity_id)
+                except ValueError:
+                    # Nothing to remove if there's no self lineage
+                    pass
+
+            update_dataset_entity_upstream(
+                self._datasets,
+                normalized_name,
+                self._account,
+                filtered_source_datasets,
+                transformation,
+            )
+
+    def _fetch_direct_object_dependencies(self, cursor: SnowflakeCursor):
+        logger.info("Fetching direct object dependencies")
+        cursor.execute(
+            f"""
+            SELECT REFERENCED_DATABASE, REFERENCED_SCHEMA, REFERENCED_OBJECT_NAME, REFERENCED_OBJECT_DOMAIN,
+                REFERENCING_DATABASE, REFERENCING_SCHEMA, REFERENCING_OBJECT_NAME, REFERENCING_OBJECT_DOMAIN
+            FROM {self._account_usage_schema}.OBJECT_DEPENDENCIES;
+            """
+        )
+        dependencies = cursor.fetchall()
+        for (
+            source_db,
+            source_schema,
+            source_table,
+            source_object_domain,
+            target_db,
+            target_schema,
+            target_table,
+            target_object_domain,
+        ) in dependencies:
+            if (
+                not source_object_domain
+                or source_object_domain.upper() not in SUPPORTED_OBJECT_DOMAIN_TYPES
+                or not target_object_domain
+                or target_object_domain.upper() not in SUPPORTED_OBJECT_DOMAIN_TYPES
+            ):
+                continue
+            source = QueriedDataset(
+                database=source_db, schema=source_schema, table=source_table
+            )
+            target = QueriedDataset(
+                database=target_db, schema=target_schema, table=target_table
+            )
+            self._set_entity_upstream([source], [target], None, True)

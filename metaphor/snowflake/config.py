@@ -63,6 +63,15 @@ class SnowflakeBaseConfig(SnowflakeAuthConfig):
 
 
 @dataclass(config=ConnectorConfig)
+class SnowflakeLineageConfig:
+    # Whether to enable finding view lineage from object dependencies, default True
+    enable_view_lineage: bool = True
+
+    # Whether to include self loop in lineage, default to exclude self loop
+    include_self_lineage: bool = False
+
+
+@dataclass(config=ConnectorConfig)
 class SnowflakeConfig(SnowflakeBaseConfig):
     # How tags should be assigned to datasets
     tag_matchers: List[TagMatcher] = field(default_factory=lambda: [])
@@ -75,4 +84,9 @@ class SnowflakeConfig(SnowflakeBaseConfig):
     # configs for fetching Snowflake streams
     streams: SnowflakeStreamsConfig = field(
         default_factory=lambda: SnowflakeStreamsConfig()
+    )
+
+    # configs for lineage information
+    lineage: SnowflakeLineageConfig = field(
+        default_factory=lambda: SnowflakeLineageConfig()
     )
