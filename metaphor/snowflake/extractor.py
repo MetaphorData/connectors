@@ -27,7 +27,6 @@ from metaphor.common.entity_id import (
     dataset_normalized_name,
     normalize_full_dataset_name,
     to_dataset_entity_id,
-    to_dataset_entity_id_from_logical_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
@@ -42,7 +41,6 @@ from metaphor.common.utils import (
     safe_float,
     start_of_day,
     to_utc_datetime_from_timestamp,
-    unique_list,
 )
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -50,13 +48,13 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     Dataset,
     DatasetLogicalID,
-    QueriedDataset,
     DatasetSchema,
     DatasetStructure,
     EntityType,
     EntityUpstream,
     Hierarchy,
     HierarchyLogicalID,
+    QueriedDataset,
     QueryLog,
     SchemaType,
     SnowflakeIcebergInfo,
@@ -188,6 +186,14 @@ class SnowflakeExtractor(BaseExtractor):
             if self._config.collect_tags:
                 self._fetch_tags(cursor)
 
+            # Fetch query logs now since we need the dataset entity upstream lineage here,
+            # and in `collect_query_logs` we can't touch `self._datasets` anymore.
+            self._query_logs = (
+                list(self._fetch_query_logs())
+                if self._query_log_lookback_days > 0
+                else None
+            )
+
             # Fetch direct object dependencies
             self._fetch_direct_object_dependencies(cursor)
 
@@ -200,11 +206,8 @@ class SnowflakeExtractor(BaseExtractor):
         return entities
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
-        self._conn = auth.connect(self._config)
-
-        with self._conn:
-            if self._query_log_lookback_days > 0:
-                yield from self._fetch_query_logs()
+        if self._query_logs is not None:
+            yield from self._query_logs
 
     @staticmethod
     def fetch_databases(cursor: SnowflakeCursor) -> List[str]:
