@@ -15,6 +15,6 @@ def test_config(test_root_dir):
         notion_api_token="notion_api_token",
         embedding_model=embed_config,
         include_text=True,
-        notion_api_version="2022-06-08",
+        notion_api_version="2022-06-28",
         output=OutputConfig(),
     )
