@@ -88,7 +88,7 @@ class MySQLExtractor(GenericDatabaseExtractor):
             sql=query,
             platform=DataPlatform.MYSQL,
             account=self._alternative_host or self._config.host,
-            default_schema=database,
+            default_schema=database if database else None,
         )
 
         # Skip if parsed sources or targets has invalid data.
@@ -114,7 +114,7 @@ class MySQLExtractor(GenericDatabaseExtractor):
                 id=f"{DataPlatform.MYSQL.name}:{sql_hash}",
                 query_id=sql_hash,
                 platform=DataPlatform.MYSQL,
-                default_schema=database,
+                default_schema=database if database else None,
                 user_id=user,
                 sql=sql,
                 sql_hash=sql_hash,
