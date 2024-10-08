@@ -16,9 +16,10 @@ Create a YAML config file based on the following template.
 
 One of the authentication methods must be appropriately configured (either username / token OR PAT, depending on the version of Confluence you are connecting to).
 
-Additionally, *one* of the page filtering options must be appropriately configured, any one of the following. The configured entry should match the `select_method`:
-* `space_key` - load all pages from a space
-  *  `page_status` can be optionally configured as `None`, `current`, `archived`, `draft`
+Additionally, *one* of the page filtering options must be appropriately configured:
+*  `space_keys` - list of spaces to load pages from. If configured, the `page_status` filtering will apply to all specified `space`s.
+   *  `page_status` can be optionally configured as `None`, `current`, `archived`, `draft`
+   *  *Note: `space_key` is deprecated, and will be removed in favor of `space_keys` in v0.15. See [this issue](https://github.com/MetaphorData/connectors/issues/858) for other changes.*
 * `page_ids` - load all pages from a list of ids
   *  `include_children` can be optionally configured to load all child pages as well
 * `label` - load all pages with a given label
@@ -35,8 +36,7 @@ https://confluence.company.com/wiki/spaces/<space_key>/pages/<page_id>/...
 ```yaml
 # General Confluence configs
 confluence_base_URL: <confluence_base_URL> # Ends in "/wiki", e.g. "https://confluence.company.com/wiki"; no trailing "/"
-confluence_cloud: <is_confluence_cloud> # True or False
-select_method: <select_method> # one of "space_key", "page_ids", "cql"
+confluence_cloud: <is_confluence_cloud> # True or False, default True
 
 # for Confluence Cloud
 confluence_username: <confluence_username> # service account username, "name@company.com" usually
@@ -45,8 +45,8 @@ confluence_token: <confluence_token> # service account API token
 # for Confluence Data Center or Server
 confluence_PAT: <confluence_PAT> # service account Personal Access Token
 
-# PICK ONE OF space_key OR page_ids OR label OR cql
-space_key: <space_key> # ex: "KB"
+# PICK ONE OF space_key OR space_keys OR page_ids OR label OR cql
+space_keys: <space_keys> # ex: ["KB", "DEV"]
 
 page_ids: <page_ids> # ex: [1234, 5678]
 
