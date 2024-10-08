@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "MYSQL:3b98ab273f45af78849db563df6598d1",
+    "defaultSchema": "metaphor",
+    "platform": "MYSQL",
+    "queryId": "3b98ab273f45af78849db563df6598d1",
+    "sources": [
+      {
+        "id": "DATASET~DA7D4D6282155184FF47E551F9CC0727",
+        "schema": "metaphor",
+        "table": "products"
+      }
+    ],
+    "sql": "select * from products",
+    "sqlHash": "3b98ab273f45af78849db563df6598d1",
+    "startTime": "2024-10-07T16:04:29.994530+00:00",
+    "targets": [],
+    "userId": "user"
+  }
+]
