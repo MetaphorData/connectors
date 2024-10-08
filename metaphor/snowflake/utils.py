@@ -309,7 +309,9 @@ def update_dataset_entity_upstream(
     """
     if normalized_name not in datasets:
         datasets[normalized_name] = Dataset(
-            logical_id=DatasetLogicalID(name=normalized_name, platform=DataPlatform.SNOWFLAKE, account=account),
+            logical_id=DatasetLogicalID(
+                name=normalized_name, platform=DataPlatform.SNOWFLAKE, account=account
+            ),
         )
 
     dataset = datasets[normalized_name]
@@ -321,4 +323,6 @@ def update_dataset_entity_upstream(
     if query:
         dataset.entity_upstream.transformation = query
 
-    dataset.entity_upstream.source_entities = list({*source_entities, *(dataset.entity_upstream.source_entities or [])})
+    dataset.entity_upstream.source_entities = list(
+        {*source_entities, *(dataset.entity_upstream.source_entities or [])}
+    )
