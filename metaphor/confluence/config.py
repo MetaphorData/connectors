@@ -14,7 +14,7 @@ from metaphor.common.utils import must_set_exactly_one
 class ConfluenceRunConfig(BaseConfig):
     # General Confluence configs
     confluence_base_URL: str
-    confluence_cloud: bool
+    confluence_cloud: bool = True
     select_method: Optional[str] = None  # TODO: remove at next breaking change release
 
     # Embeddings

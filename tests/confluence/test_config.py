@@ -15,7 +15,6 @@ def test_config(test_root_dir):
     config = ConfluenceRunConfig.from_yaml_file(
         f"{test_root_dir}/confluence/config.yml"
     )
-    print(config)
 
     assert config == ConfluenceRunConfig(
         confluence_base_URL="https://test.atlassian.net/wiki",
