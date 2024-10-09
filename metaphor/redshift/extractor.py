@@ -1,18 +1,18 @@
 import asyncio
 import datetime
-from typing import Collection, Iterator, List, Optional, Set
+from typing import Collection, Iterator, List, Set
 
 from metaphor.common.constants import BYTES_PER_MEGABYTES
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.sql.process_query.process_query import process_query
+from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import md5_digest, start_of_day
+from metaphor.common.utils import start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, QueryLog
 from metaphor.postgresql.extractor import BasePostgreSQLExtractor
@@ -168,20 +168,11 @@ class RedshiftExtractor(BasePostgreSQLExtractor):
             default_database=access_event.database,
         )
 
-        sql: Optional[str] = access_event.querytxt
-        if self._query_log_config.process_query.should_process:
-            sql = process_query(
-                access_event.querytxt,
-                DataPlatform.REDSHIFT,
-                self._query_log_config.process_query,
-                str(access_event.query_id),
-            )
-
-        if sql:
-            query_log = QueryLog(
-                id=f"{DataPlatform.REDSHIFT.name}:{access_event.query_id}",
-                query_id=str(access_event.query_id),
-                platform=DataPlatform.REDSHIFT,
+        return process_and_init_query_log(
+            query=access_event.querytxt,
+            platform=DataPlatform.REDSHIFT,
+            process_query_config=self._query_log_config.process_query,
+            query_log=PartialQueryLog(
                 start_time=access_event.start_time,
                 duration=float(
                     (access_event.end_time - access_event.start_time).total_seconds()
@@ -191,8 +182,6 @@ class RedshiftExtractor(BasePostgreSQLExtractor):
                 bytes_read=float(access_event.bytes),
                 sources=tll.sources,
                 targets=tll.targets,
-                sql=access_event.querytxt,
-                sql_hash=md5_digest(sql.encode("utf-8")),
-            )
-
-            return query_log
+            ),
+            query_id=str(access_event.query_id),
+        )

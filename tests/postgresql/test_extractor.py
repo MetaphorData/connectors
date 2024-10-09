@@ -1,13 +1,15 @@
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, call, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from freezegun import freeze_time
 
+from metaphor.common.aws import AwsCredentials
 from metaphor.common.base_config import OutputConfig
+from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import DataPlatform, QueriedDataset, QueryLog
 from metaphor.postgresql.config import PostgreSQLQueryLogConfig
 from metaphor.postgresql.extractor import PostgreSQLExtractor, PostgreSQLRunConfig
+from tests.test_utils import load_json
 
 
 def test_parse_max_length():
@@ -63,8 +65,18 @@ def dummy_config(**args):
         user="",
         password="",
         output=OutputConfig(),
+        query_log=PostgreSQLQueryLogConfig(
+            lookback_days=1,
+            logs_group="group",
+            excluded_usernames={"foo"},
+            aws=AwsCredentials(
+                access_key_id="",
+                secret_access_key="",
+                region_name="",
+                assume_role_arn="",
+            ),
+        ),
         **args,
-        query_log=PostgreSQLQueryLogConfig(excluded_usernames={"foo"}),
     )
 
 
@@ -190,59 +202,36 @@ def test_process_cloud_watch_log():
     )
 
 
-@freeze_time("2000-01-01")
-def test_collect_query_logs_from_cloud_watch():
-    extractor = PostgreSQLExtractor(dummy_config())
-
-    mocked_client = MagicMock()
-    mocked_client.filter_log_events.side_effect = [
-        {"nextToken": "token", "events": [{"message": ""}]},
-        {
-            "events": [
-                {
-                    "message": "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;",
-                },
-                {
-                    "message": "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
-                },
-            ]
-        },
-    ]
-
-    iterator = extractor._collect_query_logs_from_cloud_watch(
-        mocked_client, lookback_days=1, logs_group="123"
-    )
-    assert next(iterator) == gold
-
-    with pytest.raises(StopIteration):
-        next(iterator)
-    mocked_client.filter_log_events.assert_has_calls(
-        [
-            call(
-                logGroupName="123",
-                startTime=946598400000,
-                endTime=946684800000,
-            ),
-            call(
-                logGroupName="123",
-                startTime=946598400000,
-                endTime=946684800000,
-                nextToken="token",
-            ),
-        ]
-    )
-
-
+@patch("metaphor.common.aws.AwsCredentials.get_session")
+@patch("metaphor.postgresql.extractor.iterate_logs_from_cloud_watch")
 @patch(
     "metaphor.postgresql.extractor.PostgreSQLExtractor._fetch_databases",
     new_callable=AsyncMock,
 )
 @pytest.mark.asyncio
-async def test_extractor(mocked_fetch_databases):
+async def test_extractor(
+    mocked_fetch_databases: MagicMock,
+    mocked_iterate_logs: MagicMock,
+    mocked_get_session: MagicMock,
+    test_root_dir: str,
+):
     mocked_fetch_databases.return_value = []
+    mock_session = MagicMock()
+    mock_session.client.return_value = 1
+    mocked_get_session.return_value = mock_session
+
+    def mock_iterate_logs(a, b, c):
+        yield "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;"
+        yield "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms"
+
+    mocked_iterate_logs.side_effect = mock_iterate_logs
+
     extractor = PostgreSQLExtractor(dummy_config())
     events = [e for e in await extractor.extract()]
     assert events == []
+
+    log_events = [EventUtil.trim_event(e) for e in extractor.collect_query_logs()]
+    assert log_events == load_json(f"{test_root_dir}/postgresql/expected_logs.json")
 
 
 def test_alter_rename():

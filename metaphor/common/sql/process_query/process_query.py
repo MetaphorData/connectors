@@ -78,6 +78,13 @@ def process_query(
     if config.ignore_command_statement and isinstance(expression, exp.Command):
         return None
 
+    if (
+        isinstance(expression, exp.Show)
+        or isinstance(expression, exp.Set)
+        or isinstance(expression, exp.Rollback)
+    ):
+        return None
+
     if not config.redact_literals.enabled:
         return updated
 

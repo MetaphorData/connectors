@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "POSTGRESQL:330833d44bea62c26a5d6dd206eecdf4",
+    "defaultDatabase": "metaphor",
+    "duration": 55.66,
+    "platform": "POSTGRESQL",
+    "queryId": "330833d44bea62c26a5d6dd206eecdf4",
+    "sources": [
+      {
+        "database": "metaphor",
+        "id": "DATASET~F68D8D6F1F49DA4605F13F20FD3CA883",
+        "schema": "schema",
+        "table": "table"
+      }
+    ],
+    "sql": "SELECT x, y from schema.table;",
+    "sqlHash": "330833d44bea62c26a5d6dd206eecdf4",
+    "startTime": "2024-08-29T09:25:50+00:00",
+    "targets": [],
+    "userId": "metaphor"
+  }
+]
