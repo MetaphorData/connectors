@@ -58,7 +58,10 @@ class AwsCredentials:
 
 
 def iterate_logs_from_cloud_watch(
-    client: client, lookback_days: int, logs_group: str
+    client: client,
+    lookback_days: int,
+    logs_group: str,
+    filter_pattern: Optional[str] = None,
 ) -> Iterator[str]:
 
     logger.info(f"Collecting query log from cloud watch for {lookback_days} days")
@@ -79,6 +82,8 @@ def iterate_logs_from_cloud_watch(
         }
         if next_token:
             params["nextToken"] = next_token
+        if filter_pattern:
+            params["filterPattern"] = filter_pattern
         response = client.filter_log_events(**params)
 
         next_token = response["nextToken"] if "nextToken" in response else None

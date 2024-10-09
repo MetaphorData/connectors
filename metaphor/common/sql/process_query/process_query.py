@@ -22,6 +22,15 @@ def _is_insert_values_into(expression: Expression) -> bool:
     )
 
 
+ALLOW_EXPRESSION_TYPES = (
+    exp.Alter,
+    exp.DDL,
+    exp.DML,
+    exp.Merge,
+    exp.Query,
+)
+
+
 def process_query(
     sql: str,
     data_platform: DataPlatform,
@@ -78,11 +87,7 @@ def process_query(
     if config.ignore_command_statement and isinstance(expression, exp.Command):
         return None
 
-    if (
-        isinstance(expression, exp.Show)
-        or isinstance(expression, exp.Set)
-        or isinstance(expression, exp.Rollback)
-    ):
+    if not isinstance(expression, ALLOW_EXPRESSION_TYPES):
         return None
 
     if not config.redact_literals.enabled:

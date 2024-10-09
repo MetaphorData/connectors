@@ -69,6 +69,7 @@ def dummy_config(**args):
             lookback_days=1,
             logs_group="group",
             excluded_usernames={"foo"},
+            log_duration_enabled=True,
             aws=AwsCredentials(
                 access_key_id="",
                 secret_access_key="",
@@ -220,9 +221,13 @@ async def test_extractor(
     mock_session.client.return_value = 1
     mocked_get_session.return_value = mock_session
 
-    def mock_iterate_logs(a, b, c):
-        yield "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;"
-        yield "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms"
+    logs = [
+        "2024-08-29 09:25:50 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: statement: SELECT x, y from schema.table;",
+        "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
+    ]
+
+    def mock_iterate_logs(**_):
+        yield from logs
 
     mocked_iterate_logs.side_effect = mock_iterate_logs
 
@@ -273,4 +278,44 @@ def test_alter_rename():
         targets=[],
         type=None,
         user_id="metaphor",
+    )
+
+
+@patch("metaphor.common.aws.AwsCredentials.get_session")
+@patch("metaphor.postgresql.extractor.iterate_logs_from_cloud_watch")
+def test_collect_query_logs(
+    mocked_iterate_logs: MagicMock,
+    mocked_get_session: MagicMock,
+    test_root_dir: str,
+):
+    mock_session = MagicMock()
+    mock_session.client.return_value = 1
+    mocked_get_session.return_value = mock_session
+
+    date = "2024-08-29 09:25:50 UTC"
+    host = "10.1.1.134(48507)"
+    user_db = "metaphor@metaphor"
+
+    logs = [
+        f"{date}:{host}:{user_db}:[615]:LOG: execute <unnamed>: BEGIN",
+        f"{date}:{host}:{user_db}:[615]:LOG: execute <unnamed>: SELECT * FROM schema.table",
+        f"{date}:{host}:{user_db}:[615]:LOG: execute S_1: COMMIT",
+        f"{date}:{host}:{user_db}:[616]:LOG: execute <unnamed>: BEGIN",
+        f"{date}:{host}:{user_db}:[616]:LOG: execute <unnamed>: SELECT * FROM schema2.table",
+        f"{date}:{host}:{user_db}:[616]:LOG: execute S_1: COMMIT",
+    ]
+
+    def mock_iterate_logs(**_):
+        yield from logs
+
+    mocked_iterate_logs.side_effect = mock_iterate_logs
+
+    config = dummy_config()
+    assert config.query_log
+    config.query_log.log_duration_enabled = False
+
+    extractor = PostgreSQLExtractor(config)
+    log_events = [EventUtil.trim_event(e) for e in extractor.collect_query_logs()]
+    assert log_events == load_json(
+        f"{test_root_dir}/postgresql/expected_logs_execute.json"
     )
