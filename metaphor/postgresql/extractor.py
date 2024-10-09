@@ -1,6 +1,8 @@
 import re
 from typing import Collection, Dict, Iterator, List, Optional, Tuple
 
+from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
+
 try:
     import asyncpg
 except ImportError:
@@ -14,12 +16,11 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.sql.process_query.process_query import process_query
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
 from metaphor.common.sql.utils import is_valid_queried_datasets
-from metaphor.common.utils import md5_digest, safe_float
+from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -500,33 +501,19 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
             logger.debug(f"invalid sources/targets, log: {log}")
             return None
 
-        sql_hash = md5_digest(query.encode("utf-8"))
-        sql: Optional[str] = query
-
-        if self._query_log_config.process_query.should_process:
-            sql = process_query(
-                query,
-                DataPlatform.POSTGRESQL,
-                self._query_log_config.process_query,
-                sql_hash,
-            )
-
-        if sql:
-            sql_hash = md5_digest(sql.encode("utf-8"))
-            return QueryLog(
-                id=f"{DataPlatform.POSTGRESQL.name}:{sql_hash}",
-                query_id=sql_hash,
-                platform=DataPlatform.POSTGRESQL,
+        return process_and_init_query_log(
+            query=query,
+            platform=DataPlatform.POSTGRESQL,
+            process_query_config=self._query_log_config.process_query,
+            query_log=PartialQueryLog(
                 default_database=parsed.database,
                 user_id=parsed.user,
-                sql=sql,
-                sql_hash=sql_hash,
                 duration=duration,
                 start_time=previous_line.log_time,
                 sources=tll.sources,
                 targets=tll.targets,
-            )
-        return None
+            ),
+        )
 
     @staticmethod
     def _build_field(column) -> SchemaField:
