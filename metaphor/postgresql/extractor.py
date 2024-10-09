@@ -414,7 +414,6 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
             lookback_days = self._query_log_config.lookback_days
             logs_group = self._query_log_config.logs_group
 
-            print(iterate_logs_from_cloud_watch)
             for message in iterate_logs_from_cloud_watch(
                 client, lookback_days, logs_group
             ):
