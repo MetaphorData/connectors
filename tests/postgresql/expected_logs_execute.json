@@ -1,0 +1,40 @@
+[
+  {
+    "_id": "POSTGRESQL:9f07fea1cd4a1223a3695b4865f40d82",
+    "defaultDatabase": "metaphor",
+    "platform": "POSTGRESQL",
+    "queryId": "9f07fea1cd4a1223a3695b4865f40d82",
+    "sources": [
+      {
+        "database": "metaphor",
+        "id": "DATASET~F68D8D6F1F49DA4605F13F20FD3CA883",
+        "schema": "schema",
+        "table": "table"
+      }
+    ],
+    "sql": "SELECT * FROM schema.table",
+    "sqlHash": "9f07fea1cd4a1223a3695b4865f40d82",
+    "startTime": "2024-08-29T09:25:50+00:00",
+    "targets": [],
+    "userId": "metaphor"
+  },
+  {
+    "_id": "POSTGRESQL:06903bf0b96b1021e32edad5cf2b15f1",
+    "defaultDatabase": "metaphor",
+    "platform": "POSTGRESQL",
+    "queryId": "06903bf0b96b1021e32edad5cf2b15f1",
+    "sources": [
+      {
+        "database": "metaphor",
+        "id": "DATASET~1149097F32B03CEE64BB356B77701736",
+        "schema": "schema2",
+        "table": "table"
+      }
+    ],
+    "sql": "SELECT * FROM schema2.table",
+    "sqlHash": "06903bf0b96b1021e32edad5cf2b15f1",
+    "startTime": "2024-08-29T09:25:50+00:00",
+    "targets": [],
+    "userId": "metaphor"
+  }
+]

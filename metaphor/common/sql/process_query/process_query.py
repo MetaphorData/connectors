@@ -82,6 +82,7 @@ def process_query(
         isinstance(expression, exp.Show)
         or isinstance(expression, exp.Set)
         or isinstance(expression, exp.Rollback)
+        or isinstance(expression, exp.Commit)
     ):
         return None
 

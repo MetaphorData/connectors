@@ -418,12 +418,19 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
             for message in iterate_logs_from_cloud_watch(
                 client, lookback_days, logs_group
             ):
-                query_log = self._process_cloud_watch_log(message, previous_line_cache)
+                query_log = self._process_cloud_watch_log(
+                    message,
+                    previous_line_cache,
+                    self._query_log_config.log_duration_enabled,
+                )
                 if query_log:
                     yield query_log
 
     def _process_cloud_watch_log(
-        self, log: str, previous_line_cache: Dict[str, ParsedLog]
+        self,
+        log: str,
+        previous_line_cache: Dict[str, ParsedLog],
+        log_duration_enabled=True,
     ) -> Optional[QueryLog]:
         """
         SQL statement and duration are in two consecutive record, example:
@@ -461,9 +468,11 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         previous_line = previous_line_cache.get(parsed.session)
         previous_line_cache[parsed.session] = parsed
 
+        if not log_duration_enabled:
+            previous_line = parsed
         # The second line must be: duration: <number> ms
         # Skip log that don't have previous line or invalid log
-        if (
+        elif (
             not parsed.log_body[0].lstrip().startswith("duration")
             or not previous_line
             or len(previous_line.log_body) < 2
@@ -473,7 +482,7 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         message_type = previous_line.log_body[0].lstrip()
 
         # Only `statement` (simple query), and `execute` (extended query) we should care about
-        if not message_type.startswith("statement") or message_type.startswith(
+        if not message_type.startswith("statement") and not message_type.startswith(
             "execute"
         ):
             return None
@@ -484,7 +493,9 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         query = ":".join(previous_line.log_body[1:]).lstrip()
 
         # Extract duration from the current line
-        duration = self._extract_duration(parsed.log_body[1])
+        duration = (
+            self._extract_duration(parsed.log_body[1]) if log_duration_enabled else None
+        )
 
         tll = extract_table_level_lineage(
             sql=query,
