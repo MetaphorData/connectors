@@ -24,16 +24,14 @@ def process_and_init_query_log(
     query_id: Optional[str] = None,
 ) -> Optional[QueryLog]:
     sql_hash = md5_digest(query.encode("utf-8"))
-    sql: Optional[str] = query
     query_id = query_id or sql_hash
 
-    if process_query_config.should_process:
-        sql = process_query(
-            query,
-            platform,
-            process_query_config,
-            sql_hash,
-        )
+    sql = process_query(
+        query,
+        platform,
+        process_query_config,
+        sql_hash,
+    )
 
     if sql:
         return QueryLog(
