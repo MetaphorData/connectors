@@ -22,8 +22,9 @@ def process_and_init_query_log(
     process_query_config: ProcessQueryConfig,
     query_log: PartialQueryLog,
     query_id: Optional[str] = None,
+    query_hash: Optional[str] = None,
 ) -> Optional[QueryLog]:
-    sql_hash = md5_digest(query.encode("utf-8"))
+    sql_hash = query_hash or md5_digest(query.encode("utf-8"))
     query_id = query_id or sql_hash
 
     sql = process_query(

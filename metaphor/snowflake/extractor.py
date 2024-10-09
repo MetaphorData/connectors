@@ -14,6 +14,7 @@ from typing import (
 )
 
 from metaphor.common.fieldpath import build_schema_field
+from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
 
 try:
     from snowflake.connector.cursor import DictCursor, SnowflakeCursor
@@ -34,7 +35,6 @@ from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
 from metaphor.common.query_history import user_id_or_email
 from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.sql.process_query import process_query
 from metaphor.common.tag_matcher import tag_datasets
 from metaphor.common.utils import (
     chunks,
@@ -868,18 +868,11 @@ class SnowflakeExtractor(BaseExtractor):
                 # User IDs can be an email address
                 user_id, email = user_id_or_email(username)
 
-                sql = process_query(
-                    query_text,
-                    DataPlatform.SNOWFLAKE,
-                    self._config.query_log.process_query,
-                    query_id,
-                )
-
-                if sql:
-                    query_log = QueryLog(
-                        id=f"{DataPlatform.SNOWFLAKE.name}:{query_id}",
-                        query_id=query_id,
-                        platform=DataPlatform.SNOWFLAKE,
+                query_log = process_and_init_query_log(
+                    query=query_text,
+                    platform=DataPlatform.SNOWFLAKE,
+                    process_query_config=self._config.query_log.process_query,
+                    query_log=PartialQueryLog(
                         account=self._account,
                         start_time=start_time,
                         duration=safe_float(elapsed_time / 1000.0),
@@ -895,10 +888,11 @@ class SnowflakeExtractor(BaseExtractor):
                         bytes_written=safe_float(bytes_written),
                         sources=sources,
                         targets=targets,
-                        sql=sql,
-                        sql_hash=query_hash,
-                    )
-
+                    ),
+                    query_id=query_id,
+                    query_hash=query_hash,
+                )
+                if query_log:
                     yield query_log
             except Exception:
                 logger.exception(f"query log processing error, query id: {query_id}")
