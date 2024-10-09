@@ -4,17 +4,11 @@ This connector extracts technical metadata from a S3 compatible object storage.
 
 ## Setup
 
-To locally setup a S3 compatible storage, run the following command:
-
-```shell
-docker-compose -f metaphor/s3/docker-compose.yml up -d
-```
-
-This sets up a Minio service, with its data prepopulated with the fake data defined in oure unit test folder.
-
-### Required Configurations
-
 You must specify an AWS user credential to access S3 API. You can also specify a role ARN and let the connector assume the role before accessing AWS APIs.
+
+## Config File
+
+Create a YAML config file based on the following template.
 
 ```yaml
 aws:
@@ -22,18 +16,12 @@ aws:
   secret_access_key: <aws_secret_access_key>
   region_name: <aws_region_name>
   assume_role_arn: <aws_role_arn>  # If using IAM role
-  session_token: <aws_session_token>  # If using session token
-  profile_name: <aws_profile_name>  # If using AWS profile
 path_specs:
   - <PATH_SPEC_1>
   - <PATH_SPEC_2>
-verify_ssl: <verify_ssl> 
-# Whether or not to verify SSL certificates. By default SSL certificates are verified. You can provide the following            values:
-# * False - do not validate SSL certificates. SSL will still be used, but SSL certificates will not be verified.
-# * path/to/cert/bundle.pem - A filename of the CA cert bundle to use.  You can specify this argument if you want to use a different CA cert bundle than the one used by botocore.
 ```
 
-#### Path specifications
+### Path specifications
 
 This specifies the files / directories to be parse as datasets. Each `path_spec` should follow the below format:
 
@@ -48,11 +36,11 @@ path_specs:
     - <excluded_uri_2>
 ```
 
-##### URI for files / directories to be ingested
+#### URI for files / directories to be ingested
 
 Below are the supported methods to specify which files you want to be ingested as datasets:
 
-###### Ingest a single file as dataset
+##### Ingest a single file as dataset
 
 To map a single file to a dataset, specify your uri as:
 
@@ -68,7 +56,7 @@ Wildcards are supported. For example,
 
 will do what you think it would do.
 
-###### Ingest a directory as a single dataset
+##### Ingest a directory as a single dataset
 
 You can parse a directory as a single dataset by specifying a `{table}` label in your uri. For example,
 
@@ -108,13 +96,13 @@ It is also possible to specify partitions without keys. For example, with the fo
 
 The connector will consider `k1=v1` and `k2=v1` as two unnamed columns' values.
 
-###### Rules for specifying URI
+##### Rules for specifying URI
 
 - The URI must start with `s3://`.
 - The bucket name must be specified in the URI.
 - Consider providing exact URIs rather than those composed from a bunch of wildcard characters.
 
-##### File types
+#### File types
 
 The following file types are supported:
 
@@ -126,17 +114,26 @@ The following file types are supported:
 
 All other file types are automatically ignored. If not provided, all these file types will be included.
 
-##### Excluded URIs
+#### Excluded URIs
 
 The excluded URIs do not support labels.
 
-### Optional Configurations
+## Optional Configurations
 
-#### Output Destination
+### TLS Verification
 
-See [Output Config](../common/docs/output.md) for more information.
+By default, TLS certificates are fully verified using the boto's Certificate Authority (CA). You can change it by setting the following config:
 
-#### Endpoint URL
+```yaml
+verify_ssl: <verify_ssl> 
+```
+
+The config takes one of the following values:
+- `true`: Verify the TLS certificate.
+- `false`: Do not verify the TLS certificate.
+- `path/to/cert/bundle.pem` - A filename of the CA cert bundle to use.
+
+### Endpoint URL
 
 If you're connecting to S3 compatible storage such as Minio, an endponint URL must be provided:
 
@@ -145,6 +142,10 @@ endpoint_url: <endpoint_url>  # The URL for the S3 object storage
 ```
 
 This is not needed for AWS S3.
+
+### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 
