@@ -45,9 +45,9 @@ class BasePostgreSQLRunConfig(BaseConfig):
 @dataclass(config=ConnectorConfig)
 class PostgreSQLQueryLogConfig(QueryLogConfig):
     aws: Optional[AwsCredentials] = None
+    filter_pattern: Optional[str] = None
     log_duration_enabled: bool = False
     logs_group: Optional[str] = None
-    filter_pattern: Optional[str] = None
 
 
 @dataclass(config=ConnectorConfig)
