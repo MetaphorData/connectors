@@ -1,12 +1,13 @@
 ---
 confluence_base_URL: https://test.atlassian.net/wiki
 confluence_cloud: true
-select_method: label
 
 confluence_username: test@metaphor.io
 confluence_token: token
 
-space_key: KB
+space_keys:
+  - KB
+  - KB2
 
 embedding_model:
   azure_openai:

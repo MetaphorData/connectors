@@ -1,5 +1,7 @@
 from dataclasses import field
+from datetime import datetime
 
+from pydantic import field_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -20,3 +22,12 @@ class NotionRunConfig(BaseConfig):
 
     # Notion API version
     notion_api_version: str = "2022-06-28"
+
+    @field_validator("notion_api_version", mode="before")
+    def ensure_version_is_string(cls, value):
+        """
+        Handle the case where the version is a datetime object.
+        """
+        if isinstance(value, datetime):
+            return value.strftime("%Y-%m-%d")
+        return str(value)
