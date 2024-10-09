@@ -4,7 +4,7 @@ This connector extracts technical metadata from a S3 compatible object storage.
 
 ## Setup
 
-We recommend creating a dedicated AWS IAM user for the crawler with limited permissions based on the following IAM policy:
+We recommend creating a dedicated AWS IAM user for the connector with limited permissions based on the following IAM policy:
 
 ```json
 {
@@ -45,48 +45,54 @@ path_specs:
 
 ### Path specifications
 
-This specifies the files / directories to be parse as datasets. Each `path_spec` should follow the below format:
+This specifies the files/directories to be parsed as datasets. Each `path_spec` should follow the below format:
 
 ```yaml
 path_specs:
   - uri: <URI>
+
     file_types:
-    - <file_type_1>
-    - <file_type_2>
+      - <file_type_1>
+      - <file_type_2>
+
     excludes:
-    - <excluded_uri_1>
-    - <excluded_uri_2>
+      - <excluded_uri_1>
+      - <excluded_uri_2>
 ```
 
-#### URI for files / directories to be ingested
+#### URI for files/directories to be ingested
 
-Below are the supported methods to specify which files you want to be ingested as datasets:
+Format for the URI:
 
-##### Ingest a single file as dataset
+- The URI must start with `s3://`.
+- The bucket name must be specified in the URI.
+- Minimize the use of wildcard characters to avoid picking up unexpected files.
+
+##### Ingest a single file as a dataset
 
 To map a single file to a dataset, specify your uri as:
 
 ```yaml
-- uri: "s3://<PATH_TO_YOUR_FILES>
+  - uri: "s3://<bucket>/<path>
 ```
 
 Wildcards are supported. For example,
 
 ```yaml
-- uri: "s3://foo/*/bar/*/*.csv
+  - uri: "s3://some_bucket/*/bar/*/*.csv
 ```
 
-will do what you think it would do.
+will ingest all CSV files in the directories matched.
 
 ##### Ingest a directory as a single dataset
 
 You can parse a directory as a single dataset by specifying a `{table}` label in your uri. For example,
 
 ```yaml
-- uri: "s3://foo/bar/{table}/*/*
+  - uri: "s3://foo/bar/{table}/*/*
 ```
 
-will parse all directories in `foo/bar` as a dataset. Note that we will pick the most recently created file as the actual table.
+will parse all directories in `foo/bar` as a dataset. Note that the connector will extract the schema from the most recently created file.
 
 ###### Ingest a directory as a partitioned dataset
 
@@ -110,13 +116,13 @@ To parse `foo` and `bar` as datasets with partitions created from columns `k1` a
 - uri: "s3://bucket/{table}/{partition_key[0]}={partition[0]}/{partition_key[1]}={partition[1]}/*.parquet
 ```
 
-It is also possible to specify partitions without keys. For example, with the following specification:
+It is also possible to specify partitions without keys. For example, with the following specification
 
 ```yaml
-- uri: "s3://bucket/{table}/{partition[0]}/{partition[1]}/*.parquet
+  - uri: "s3://bucket/{table}/{partition[0]}/{partition[1]}/*.parquet
 ```
 
-The connector will consider `k1=v1` and `k2=v1` as two unnamed columns' values.
+the connector will consider `k1=v1` and `k2=v1` as two unnamed columns' values.
 
 ##### Rules for specifying URI
 
@@ -126,25 +132,25 @@ The connector will consider `k1=v1` and `k2=v1` as two unnamed columns' values.
 
 #### File types
 
-The following file types are supported:
+`five_types` config can take one or multiple values from below:
 
-- "csv"
-- "tsv"
-- "avro"
-- "parquet"
-- "json"
+- `csv`
+- `tsv`
+- `avro`
+- `parquet`
+- `json`
 
-All other file types are automatically ignored. If not provided, all these file types will be included.
+All other file types are automatically ignored. If not specified, all of the above file types will be included.
 
 #### Excluded URIs
 
-The excluded URIs do not support labels.
+You can optionally specify the URI patterns to exclude using the `excludes` config. It supports wildcards but not `{table}` & `{partition}` labels.
 
 ## Optional Configurations
 
 ### TLS Verification
 
-By default, TLS certificates are fully verified using the boto's Certificate Authority (CA). You can change it by setting the following config:
+By default, TLS certificates are fully verified using the default Certificate Authority (CA). You can change it by setting the following config:
 
 ```yaml
 verify_ssl: <verify_ssl> 
