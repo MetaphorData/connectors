@@ -14,8 +14,6 @@ from typing import (
     Union,
 )
 
-from metaphor.common.sql.process_query.process_query import process_query
-
 try:
     import google.cloud.bigquery as bigquery
 except ImportError:
@@ -38,8 +36,9 @@ from metaphor.common.fieldpath import FieldDataType, build_field_path
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
+from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import md5_digest, safe_float, start_of_day
+from metaphor.common.utils import safe_float, start_of_day
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -380,20 +379,11 @@ class BigQueryExtractor(BaseExtractor):
         # https://cloud.google.com/compute/docs/access/service-accounts
         is_service_account = job_change.user_email.endswith(".gserviceaccount.com")
 
-        sql: Optional[str] = query
-        if self._config.query_log.process_query.should_process:
-            sql = process_query(
-                query,
-                DataPlatform.BIGQUERY,
-                self._config.query_log.process_query,
-                job_change.job_name,
-            )
-
-        if sql:
-            return QueryLog(
-                id=f"{DataPlatform.BIGQUERY.name}:{job_change.job_name}",
-                query_id=job_change.job_name,
-                platform=DataPlatform.BIGQUERY,
+        return process_and_init_query_log(
+            query=query,
+            platform=DataPlatform.BIGQUERY,
+            process_query_config=self._config.query_log.process_query,
+            query_log=PartialQueryLog(
                 start_time=job_change.start_time,
                 duration=safe_float(elapsed_time),
                 user_id=job_change.user_email if is_service_account else None,
@@ -416,11 +406,9 @@ class BigQueryExtractor(BaseExtractor):
                     if job_change.statementType
                     else None
                 ),
-                sql=sql,
-                sql_hash=md5_digest(sql.encode("utf-8")),
-            )
-
-        return None
+            ),
+            query_id=job_change.job_name,
+        )
 
     # https://cloud.google.com/bigquery/docs/reference/auditlogs/rest/Shared.Types/BigQueryAuditMetadata.QueryStatementType
     _query_type_map = {

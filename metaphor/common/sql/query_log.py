@@ -38,7 +38,7 @@ def process_and_init_query_log(
     if sql:
         return QueryLog(
             **query_log.__dict__,
-            id=f"{platform.name}:{sql_hash}",
+            id=f"{platform.name}:{query_id}",
             sql=sql,
             query_id=query_id,
             sql_hash=sql_hash,
