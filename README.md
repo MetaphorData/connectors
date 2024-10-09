@@ -80,6 +80,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [quick_sight](metaphor/quick_sight/)                              | Dashboard, lineage                       |
 | [redshift](metaphor/redshift/)                                    | Schema, description, statistics, queries |
 | [redshift.profile](metaphor/redshift/profile/)                    | Data profile                             |
+| [s3](metaphor/s3/)                                                | Schema, description                      |
 | [sharepoint](metaphor/sharepoint/)                                | Document embeddings                      |
 | [snowflake](metaphor/snowflake/)                                  | Schema, description, statistics, queries |
 | [snowflake.lineage](metaphor/snowflake/lineage/)                  | Lineage                                  |
