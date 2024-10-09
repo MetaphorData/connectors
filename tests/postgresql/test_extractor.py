@@ -226,7 +226,7 @@ async def test_extractor(
         "2024-08-29 09:25:51 UTC:10.1.1.134(48507):metaphor@metaphor:[615]:LOG: duration: 55.66 ms",
     ]
 
-    def mock_iterate_logs(_1, _2, _3):
+    def mock_iterate_logs(**_):
         yield from logs
 
     mocked_iterate_logs.side_effect = mock_iterate_logs
@@ -305,7 +305,7 @@ def test_collect_query_logs(
         f"{date}:{host}:{user_db}:[616]:LOG: execute S_1: COMMIT",
     ]
 
-    def mock_iterate_logs(_1, _2, _3):
+    def mock_iterate_logs(**_):
         yield from logs
 
     mocked_iterate_logs.side_effect = mock_iterate_logs
