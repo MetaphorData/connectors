@@ -4,12 +4,12 @@ from typing import Collection, Iterator, List, Optional
 from metaphor.common.aws import iterate_logs_from_cloud_watch
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.common.sql.process_query.process_query import process_query
+from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
 from metaphor.common.sql.utils import is_valid_queried_datasets
-from metaphor.common.utils import md5_digest, to_utc_datetime_from_timestamp
+from metaphor.common.utils import to_utc_datetime_from_timestamp
 from metaphor.database.extractor import GenericDatabaseExtractor
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import DataPlatform, QueryLog
@@ -97,30 +97,15 @@ class MySQLExtractor(GenericDatabaseExtractor):
         ) or not is_valid_queried_datasets(tll.targets, ignore_database=True):
             return None
 
-        sql_hash = md5_digest(query.encode("utf-8"))
-        sql: Optional[str] = query
-
-        if self._query_log_config.process_query.should_process:
-            sql = process_query(
-                query,
-                DataPlatform.MYSQL,
-                self._query_log_config.process_query,
-                sql_hash,
-            )
-
-        if sql:
-            sql_hash = md5_digest(sql.encode("utf-8"))
-            return QueryLog(
-                id=f"{DataPlatform.MYSQL.name}:{sql_hash}",
-                query_id=sql_hash,
-                platform=DataPlatform.MYSQL,
+        return process_and_init_query_log(
+            query=query,
+            platform=DataPlatform.MYSQL,
+            process_query_config=self._query_log_config.process_query,
+            query_log=PartialQueryLog(
                 default_schema=database if database else None,
                 user_id=user,
-                sql=sql,
-                sql_hash=sql_hash,
                 start_time=to_utc_datetime_from_timestamp(int(timestamp_us) / 1000_000),
                 sources=tll.sources,
                 targets=tll.targets,
-            )
-
-        return None
+            ),
+        )
