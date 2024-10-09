@@ -4,7 +4,29 @@ This connector extracts technical metadata from a S3 compatible object storage.
 
 ## Setup
 
-You must specify an AWS user credential to access S3 API. You can also specify a role ARN and let the connector assume the role before accessing AWS APIs.
+We recommend creating a dedicated AWS IAM user for the crawler with limited permissions based on the following IAM policy:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement":
+    [
+        {
+            "Effect": "Allow",
+            "Action":
+            [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource":
+            [
+                "arn:aws:s3:::<bucket>",
+                "arn:aws:s3:::<bucket>/*"
+            ]
+        }
+    ]
+}
+```
 
 ## Config File
 
