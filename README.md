@@ -5,7 +5,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/MetaphorData/connectors)](https://app.codecov.io/gh/MetaphorData/connectors/tree/main)
 [![CodeQL](https://github.com/MetaphorData/connectors/workflows/CodeQL/badge.svg)](https://github.com/MetaphorData/connectors/actions/workflows/codeql-analysis.yml)
 [![PyPI Version](https://img.shields.io/pypi/v/metaphor-connectors)](https://pypi.org/project/metaphor-connectors/)
-![Python version 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)
+![Python version 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)
 ![PyPI Downloads](https://img.shields.io/pypi/dm/metaphor-connectors)
 [![Docker Pulls](https://img.shields.io/docker/pulls/metaphordata/connectors)](https://hub.docker.com/r/metaphordata/connectors)
 [![License](https://img.shields.io/github/license/MetaphorData/connectors)](https://github.com/MetaphorData/connectors/blob/master/LICENSE)
@@ -14,7 +14,7 @@ This repository contains a collection of Python-based "connectors" that extract 
 
 ## Installation
 
-This package requires Python 3.8+ installed. You can verify the version on your system by running the following command,
+This package requires Python 3.9+ installed. You can verify the version on your system by running the following command,
 
 ```shell
 python -V  # or python3 on some systems

@@ -18,6 +18,7 @@ from metaphor.power_bi.models import (
     PowerBIDashboard,
     PowerBIDataset,
     PowerBIDatasetParameter,
+    PowerBIDataSource,
     PowerBIPage,
     PowerBIRefresh,
     PowerBiRefreshSchedule,
@@ -141,6 +142,24 @@ class PowerBIClient:
         except Exception:
             logger.exception(
                 f"Unable to get parameters for dataset {dataset_id} in group {group_id}, please add the service principal as a viewer to the workspace"
+            )
+            return []
+
+    def get_dataset_datasources(
+        self, group_id: str, dataset_id: str
+    ) -> List[PowerBIDataSource]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/get-datasources-in-group
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/datasets/{dataset_id}/datasources"
+
+        try:
+            return self._call_get(
+                url,
+                List[PowerBIDataSource],
+                transform_response=lambda r: r.json()["value"],
+            )
+        except Exception:
+            logger.exception(
+                f"Unable to get datasource for dataset {dataset_id} in group {group_id}, please add the service principal as a viewer to the workspace"
             )
             return []
 
