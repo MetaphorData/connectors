@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from typing import Optional
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.filter import DatasetFilter
@@ -488,10 +490,11 @@ def test_fetch_shared_databases(mock_connect: MagicMock):
     assert results == ["shared_1", "shared_3"]
 
 
+@pytest.mark.asyncio
 @patch("metaphor.snowflake.extractor.check_access_history")
 @patch("metaphor.snowflake.extractor.fetch_query_history_count")
 @patch("metaphor.snowflake.auth.connect")
-def test_collect_query_logs(
+async def test_collect_query_logs(
     mock_connect: MagicMock,
     mock_fetch_query_history_count: MagicMock,
     mock_check_access_history: MagicMock,
@@ -500,7 +503,7 @@ def test_collect_query_logs(
     mock_fetch_query_history_count.return_value = 1
 
     class MockCursor:
-        def execute(self, _query, _params):
+        def execute(self, _query, _params=None):
             pass
 
         def __iter__(self):
@@ -859,6 +862,7 @@ def test_collect_query_logs(
 
     config = make_snowflake_config()
     config.query_log = SnowflakeQueryLogConfig(max_query_size=40)
+    config.collect_tags = False
 
     extractor = SnowflakeExtractor(config)
     conn_instance = MagicMock()
