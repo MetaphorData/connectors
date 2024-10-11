@@ -12,7 +12,6 @@ from tests.test_utils import load_json
 dummy_config = ConfluenceRunConfig(
     confluence_base_URL="https://test.atlassian.net/wiki",
     confluence_cloud=True,
-    select_method="label",
     confluence_username="test@metaphor.io",
     confluence_token="token",
     space_key="KB",

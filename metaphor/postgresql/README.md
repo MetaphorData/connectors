@@ -56,6 +56,12 @@ query_log:
 
   # (Optional) Number of days of query logs to fetch. Default to 1. If 0, the no query logs will be fetched.
   lookback_days: <days>
+
+  # (Optional) Extract query log duration if postgres parameter `log_duration` is true
+  log_duration_enabled: <bool>
+
+  # (Optional) CloudWatch log filter pattern, https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html
+  filter_pattern: <pattern>  # For example: -root LOG
     
   # (Optional) A list of users whose queries will be excluded from the log fetching.
   excluded_usernames:

@@ -1,4 +1,4 @@
-from typing import Collection, Dict, List
+from typing import Collection, Dict, List, Optional
 
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.engine import URL, Inspector
@@ -54,7 +54,7 @@ class GenericDatabaseExtractor(BaseExtractor):
         self._config = config
 
         self._alternative_host = config.alternative_host
-        self._database = config.database
+        self._database: Optional[str] = config.database
 
         self._filter = DatasetFilter.from_two_level_dataset_filter(
             config.filter

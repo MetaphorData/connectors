@@ -12,17 +12,12 @@ from databricks.sql.types import Row
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.common.sql.process_query.config import ProcessQueryConfig
-from metaphor.common.sql.process_query.process_query import process_query
+from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
-from metaphor.common.utils import is_email, md5_digest, safe_float, start_of_day
-from metaphor.models.metadata_change_event import (
-    DataPlatform,
-    Dataset,
-    QueriedDataset,
-    QueryLog,
-)
+from metaphor.common.utils import is_email, safe_float, start_of_day
+from metaphor.models.metadata_change_event import DataPlatform, Dataset, QueriedDataset
 from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
 
 logger = get_logger()
@@ -404,16 +399,11 @@ def to_query_log_with_tll(
         if found:
             targets.append(found)
 
-    if process_query_config.should_process:
-        sql = process_query(
-            sql, DataPlatform.UNITY_CATALOG, process_query_config, query_id
-        )
-
-    if sql:
-        return QueryLog(
-            id=f"{DataPlatform.UNITY_CATALOG.name}:{query_id}",
-            query_id=query_id,
-            platform=DataPlatform.UNITY_CATALOG,
+    return process_and_init_query_log(
+        query=sql,
+        platform=DataPlatform.UNITY_CATALOG,
+        process_query_config=process_query_config,
+        query_log=PartialQueryLog(
             email=email,
             user_id=user_id,
             start_time=row["start_time"],
@@ -424,9 +414,9 @@ def to_query_log_with_tll(
             bytes_written=safe_float(row["bytes_written"]),
             sources=sources,
             targets=targets,
-            sql=sql,
-            sql_hash=md5_digest(sql.encode("utf-8")),
-        )
+        ),
+        query_id=query_id,
+    )
 
 
 def get_query_logs(

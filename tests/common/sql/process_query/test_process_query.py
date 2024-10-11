@@ -91,3 +91,36 @@ def test_skip_unparseable_queries():
         config,
     )
     assert processed == sql
+
+
+def test_ignore_rollback():
+    assert (
+        process_query(
+            "ROLLBACK;",
+            DataPlatform.MYSQL,
+            config,
+        )
+        is None
+    )
+
+
+def test_ignore_show_exp():
+    assert (
+        process_query(
+            "SHOW SCHEMAS;",
+            DataPlatform.MYSQL,
+            config,
+        )
+        is None
+    )
+
+
+def test_ignore_set_exp():
+    assert (
+        process_query(
+            "SET NAMES utf8mb4",
+            DataPlatform.MYSQL,
+            config,
+        )
+        is None
+    )

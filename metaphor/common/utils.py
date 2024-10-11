@@ -181,7 +181,7 @@ def to_utc_datetime_from_timestamp(
     tzinfo: Optional[timezone] = timezone.utc,
 ) -> Optional[datetime]:
     """
-    Return a datetime from timestamp or timestamp_ms, None if timestamp are None
+    Return a datetime from timestamp, None if timestamp are None
     """
     if timestamp is not None:
         return datetime.fromtimestamp(timestamp, tz=tzinfo).replace(tzinfo=timezone.utc)

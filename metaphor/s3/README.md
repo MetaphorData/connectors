@@ -4,17 +4,33 @@ This connector extracts technical metadata from a S3 compatible object storage.
 
 ## Setup
 
-To locally setup a S3 compatible storage, run the following command:
+We recommend creating a dedicated AWS IAM user for the connector with limited permissions based on the following IAM policy:
 
-```shell
-docker-compose -f metaphor/s3/docker-compose.yml up -d
+```json
+{
+    "Version": "2012-10-17",
+    "Statement":
+    [
+        {
+            "Effect": "Allow",
+            "Action":
+            [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource":
+            [
+                "arn:aws:s3:::<bucket>",
+                "arn:aws:s3:::<bucket>/*"
+            ]
+        }
+    ]
+}
 ```
 
-This sets up a Minio service, with its data prepopulated with the fake data defined in oure unit test folder.
+## Config File
 
-### Required Configurations
-
-You must specify an AWS user credential to access S3 API. You can also specify a role ARN and let the connector assume the role before accessing AWS APIs.
+Create a YAML config file based on the following template.
 
 ```yaml
 aws:
@@ -22,61 +38,61 @@ aws:
   secret_access_key: <aws_secret_access_key>
   region_name: <aws_region_name>
   assume_role_arn: <aws_role_arn>  # If using IAM role
-  session_token: <aws_session_token>  # If using session token
-  profile_name: <aws_profile_name>  # If using AWS profile
 path_specs:
   - <PATH_SPEC_1>
   - <PATH_SPEC_2>
-verify_ssl: <verify_ssl> 
-# Whether or not to verify SSL certificates. By default SSL certificates are verified. You can provide the following            values:
-# * False - do not validate SSL certificates. SSL will still be used, but SSL certificates will not be verified.
-# * path/to/cert/bundle.pem - A filename of the CA cert bundle to use.  You can specify this argument if you want to use a different CA cert bundle than the one used by botocore.
 ```
 
-#### Path specifications
+### Path specifications
 
-This specifies the files / directories to be parse as datasets. Each `path_spec` should follow the below format:
+This specifies the files/directories to be parsed as datasets. Each `path_spec` should follow the below format:
 
 ```yaml
 path_specs:
   - uri: <URI>
+
     file_types:
-    - <file_type_1>
-    - <file_type_2>
+      - <file_type_1>
+      - <file_type_2>
+
     excludes:
-    - <excluded_uri_1>
-    - <excluded_uri_2>
+      - <excluded_uri_1>
+      - <excluded_uri_2>
 ```
 
-##### URI for files / directories to be ingested
+#### URI for files/directories to be ingested
 
-Below are the supported methods to specify which files you want to be ingested as datasets:
+Format for the URI:
 
-###### Ingest a single file as dataset
+- The URI must start with `s3://`.
+- The bucket name must be specified in the URI.
+- Minimize the use of wildcard characters to avoid picking up unexpected files.
+
+##### Ingest a single file as a dataset
 
 To map a single file to a dataset, specify your uri as:
 
 ```yaml
-- uri: "s3://<PATH_TO_YOUR_FILES>
+  - uri: "s3://<bucket>/<path>
 ```
 
 Wildcards are supported. For example,
 
 ```yaml
-- uri: "s3://foo/*/bar/*/*.csv
+  - uri: "s3://some_bucket/*/bar/*/*.csv
 ```
 
-will do what you think it would do.
+will ingest all CSV files in the directories matched.
 
-###### Ingest a directory as a single dataset
+##### Ingest a directory as a single dataset
 
 You can parse a directory as a single dataset by specifying a `{table}` label in your uri. For example,
 
 ```yaml
-- uri: "s3://foo/bar/{table}/*/*
+  - uri: "s3://foo/bar/{table}/*/*
 ```
 
-will parse all directories in `foo/bar` as a dataset. Note that we will pick the most recently created file as the actual table.
+will parse all directories in `foo/bar` as a dataset. Note that the connector will extract the schema from the most recently created file.
 
 ###### Ingest a directory as a partitioned dataset
 
@@ -100,43 +116,52 @@ To parse `foo` and `bar` as datasets with partitions created from columns `k1` a
 - uri: "s3://bucket/{table}/{partition_key[0]}={partition[0]}/{partition_key[1]}={partition[1]}/*.parquet
 ```
 
-It is also possible to specify partitions without keys. For example, with the following specification:
+It is also possible to specify partitions without keys. For example, with the following specification
 
 ```yaml
-- uri: "s3://bucket/{table}/{partition[0]}/{partition[1]}/*.parquet
+  - uri: "s3://bucket/{table}/{partition[0]}/{partition[1]}/*.parquet
 ```
 
-The connector will consider `k1=v1` and `k2=v1` as two unnamed columns' values.
+the connector will consider `k1=v1` and `k2=v1` as two unnamed columns' values.
 
-###### Rules for specifying URI
+##### Rules for specifying URI
 
 - The URI must start with `s3://`.
 - The bucket name must be specified in the URI.
 - Consider providing exact URIs rather than those composed from a bunch of wildcard characters.
 
-##### File types
+#### File types
 
-The following file types are supported:
+`five_types` config can take one or multiple values from below:
 
-- "csv"
-- "tsv"
-- "avro"
-- "parquet"
-- "json"
+- `csv`
+- `tsv`
+- `avro`
+- `parquet`
+- `json`
 
-All other file types are automatically ignored. If not provided, all these file types will be included.
+All other file types are automatically ignored. If not specified, all of the above file types will be included.
 
-##### Excluded URIs
+#### Excluded URIs
 
-The excluded URIs do not support labels.
+You can optionally specify the URI patterns to exclude using the `excludes` config. It supports wildcards but not `{table}` & `{partition}` labels.
 
-### Optional Configurations
+## Optional Configurations
 
-#### Output Destination
+### TLS Verification
 
-See [Output Config](../common/docs/output.md) for more information.
+By default, TLS certificates are fully verified using the default Certificate Authority (CA). You can change it by setting the following config:
 
-#### Endpoint URL
+```yaml
+verify_ssl: <verify_ssl> 
+```
+
+The config takes one of the following values:
+- `true`: Verify the TLS certificate.
+- `false`: Do not verify the TLS certificate.
+- `path/to/cert/bundle.pem` - A filename of the CA cert bundle to use.
+
+### Endpoint URL
 
 If you're connecting to S3 compatible storage such as Minio, an endponint URL must be provided:
 
@@ -145,6 +170,10 @@ endpoint_url: <endpoint_url>  # The URL for the S3 object storage
 ```
 
 This is not needed for AWS S3.
+
+### Output Destination
+
+See [Output Config](../common/docs/output.md) for more information.
 
 ## Testing
 

@@ -1,26 +1,26 @@
 import re
-from datetime import datetime, timezone
 from typing import Collection, Dict, Iterator, List, Optional, Tuple
+
+from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
 
 try:
     import asyncpg
-    import boto3
 except ImportError:
     print("Please install metaphor[postgresql] extra\n")
     raise
 
+from metaphor.common.aws import iterate_logs_from_cloud_watch
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.sql.process_query.process_query import process_query
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
 from metaphor.common.sql.utils import is_valid_queried_datasets
-from metaphor.common.utils import md5_digest, safe_float, start_of_day
+from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -403,20 +403,35 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         return self._datasets.values()
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
+        previous_line_cache: Dict[str, ParsedLog] = {}
+
         if (
             isinstance(self._query_log_config, PostgreSQLQueryLogConfig)
             and self._query_log_config.aws
             and self._query_log_config.lookback_days > 0
             and self._query_log_config.logs_group is not None
         ):
-            yield from self._collect_query_logs_from_cloud_watch(
-                client=self._query_log_config.aws.get_session().client("logs"),
+            client = self._query_log_config.aws.get_session().client("logs")
+
+            for message in iterate_logs_from_cloud_watch(
+                client=client,
                 lookback_days=self._query_log_config.lookback_days,
                 logs_group=self._query_log_config.logs_group,
-            )
+                filter_pattern=self._query_log_config.filter_pattern,
+            ):
+                query_log = self._process_cloud_watch_log(
+                    message,
+                    previous_line_cache,
+                    self._query_log_config.log_duration_enabled,
+                )
+                if query_log:
+                    yield query_log
 
     def _process_cloud_watch_log(
-        self, log: str, previous_line_cache: Dict[str, ParsedLog]
+        self,
+        log: str,
+        previous_line_cache: Dict[str, ParsedLog],
+        log_duration_enabled=True,
     ) -> Optional[QueryLog]:
         """
         SQL statement and duration are in two consecutive record, example:
@@ -454,9 +469,11 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         previous_line = previous_line_cache.get(parsed.session)
         previous_line_cache[parsed.session] = parsed
 
+        if not log_duration_enabled:
+            previous_line = parsed
         # The second line must be: duration: <number> ms
         # Skip log that don't have previous line or invalid log
-        if (
+        elif (
             not parsed.log_body[0].lstrip().startswith("duration")
             or not previous_line
             or len(previous_line.log_body) < 2
@@ -466,7 +483,7 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         message_type = previous_line.log_body[0].lstrip()
 
         # Only `statement` (simple query), and `execute` (extended query) we should care about
-        if not message_type.startswith("statement") or message_type.startswith(
+        if not message_type.startswith("statement") and not message_type.startswith(
             "execute"
         ):
             return None
@@ -477,7 +494,9 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         query = ":".join(previous_line.log_body[1:]).lstrip()
 
         # Extract duration from the current line
-        duration = self._extract_duration(parsed.log_body[1])
+        duration = (
+            self._extract_duration(parsed.log_body[1]) if log_duration_enabled else None
+        )
 
         tll = extract_table_level_lineage(
             sql=query,
@@ -493,74 +512,19 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
             logger.debug(f"invalid sources/targets, log: {log}")
             return None
 
-        sql_hash = md5_digest(query.encode("utf-8"))
-        sql: Optional[str] = query
-
-        if self._query_log_config.process_query.should_process:
-            sql = process_query(
-                query,
-                DataPlatform.POSTGRESQL,
-                self._query_log_config.process_query,
-                sql_hash,
-            )
-
-        if sql:
-            sql_hash = md5_digest(sql.encode("utf-8"))
-            return QueryLog(
-                id=f"{DataPlatform.POSTGRESQL.name}:{sql_hash}",
-                query_id=sql_hash,
-                platform=DataPlatform.POSTGRESQL,
+        return process_and_init_query_log(
+            query=query,
+            platform=DataPlatform.POSTGRESQL,
+            process_query_config=self._query_log_config.process_query,
+            query_log=PartialQueryLog(
                 default_database=parsed.database,
                 user_id=parsed.user,
-                sql=sql,
-                sql_hash=sql_hash,
                 duration=duration,
                 start_time=previous_line.log_time,
                 sources=tll.sources,
                 targets=tll.targets,
-            )
-        return None
-
-    def _collect_query_logs_from_cloud_watch(
-        self, client: boto3.client, lookback_days: int, logs_group: str
-    ) -> Iterator[QueryLog]:
-
-        logger.info(f"Collecting query log from cloud watch for {lookback_days} days")
-
-        # Start time in milliseconds since epoch
-        start_timestamp_ms = int(start_of_day(lookback_days).timestamp() * 1000)
-        # End time in milliseconds since epoch
-        end_timestamp_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
-
-        next_token = None
-        previous_line_cache: Dict[str, ParsedLog] = {}
-        count = 0
-
-        while True:
-            params = {
-                "logGroupName": logs_group,
-                "startTime": start_timestamp_ms,
-                "endTime": end_timestamp_ms,
-            }
-            if next_token:
-                params["nextToken"] = next_token
-            response = client.filter_log_events(**params)
-
-            next_token = response["nextToken"] if "nextToken" in response else None
-
-            for event in response["events"]:
-                message = event["message"]
-                count += 1
-
-                query_log = self._process_cloud_watch_log(message, previous_line_cache)
-                if query_log:
-                    yield query_log
-
-                if count % 1000 == 0:
-                    logger.info(f"Processed {count} logs")
-
-            if next_token is None:
-                break
+            ),
+        )
 
     @staticmethod
     def _build_field(column) -> SchemaField:

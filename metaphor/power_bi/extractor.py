@@ -40,6 +40,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.models.metadata_change_event import (
     PowerBIDatasetParameter,
+    PowerBIDatasource,
     PowerBIRefreshSchedule,
 )
 from metaphor.models.metadata_change_event import PowerBISubscription as Subscription
@@ -344,20 +345,31 @@ class PowerBIExtractor(BaseExtractor):
                 self._client, workspace.id, wds.id
             )
 
-            parameters = self._client.get_dataset_parameters(workspace.id, wds.id)
-            dataset_parameters = (
-                [
-                    PowerBIDatasetParameter(
-                        name=p.name,
-                        type=p.type,
-                        value=p.currentValue,
-                        is_required=p.isRequired,
-                    )
-                    for p in parameters
-                ]
-                if parameters
-                else None
-            )
+            parameters = [
+                PowerBIDatasetParameter(
+                    name=p.name,
+                    type=p.type,
+                    value=p.currentValue,
+                    is_required=p.isRequired,
+                )
+                for p in self._client.get_dataset_parameters(workspace.id, wds.id)
+            ]
+
+            data_sources = [
+                PowerBIDatasource(
+                    type=ds.datasourceType,
+                    datasource_id=ds.datasourceId,
+                    gateway_id=ds.gatewayId,
+                    kind=(ds.connectionDetails or {}).get("kind", None),
+                    url=(ds.connectionDetails or {}).get("url", None),
+                    path=(ds.connectionDetails or {}).get("path", None),
+                    server=(ds.connectionDetails or {}).get("server", None),
+                    account=(ds.connectionDetails or {}).get("account", None),
+                    database=(ds.connectionDetails or {}).get("database", None),
+                    domain=(ds.connectionDetails or {}).get("domain", None),
+                )
+                for ds in self._client.get_dataset_datasources(workspace.id, wds.id)
+            ]
 
             virtual_view = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -372,7 +384,8 @@ class PowerBIExtractor(BaseExtractor):
                     url=ds.webUrl,
                     description=wds.description,
                     workspace_id=workspace.id,
-                    parameters=dataset_parameters,
+                    parameters=parameters or None,
+                    data_sources=data_sources or None,
                     last_refreshed=last_refreshed,
                     refresh_schedule=refresh_schedule,
                     created_date=safe_parse_ISO8601(wds.createdDate),
