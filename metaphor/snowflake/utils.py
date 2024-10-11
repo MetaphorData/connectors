@@ -300,7 +300,6 @@ def update_dataset_entity_upstream(
     normalized_name: str,
     account: Optional[str],
     source_entities: List[str],
-    query: Optional[str],
 ) -> None:
     """
     Updates the dataset's entity upstream. If no such dataset exists or it does not have an entity upstream, they
@@ -318,9 +317,6 @@ def update_dataset_entity_upstream(
         dataset.entity_upstream = EntityUpstream(
             source_entities=[],
         )
-
-    if query:
-        dataset.entity_upstream.transformation = query
 
     dataset.entity_upstream.source_entities = list(
         {*source_entities, *(dataset.entity_upstream.source_entities or [])}

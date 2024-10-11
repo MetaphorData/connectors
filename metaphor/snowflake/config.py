@@ -67,9 +67,6 @@ class SnowflakeLineageConfig:
     # Whether to enable finding view lineage from object dependencies, default True
     enable_view_lineage: bool = True
 
-    # Whether to include self loop in lineage, default to exclude self loop
-    include_self_lineage: bool = False
-
 
 @dataclass(config=ConnectorConfig)
 class SnowflakeConfig(SnowflakeBaseConfig):
