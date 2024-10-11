@@ -186,7 +186,7 @@ class SnowflakeExtractor(BaseExtractor):
             if self._config.collect_tags:
                 self._fetch_tags(cursor)
 
-            # Fetch direct object dependencies
+            # Fetch direct object dependencies for view lineage
             self._fetch_direct_object_dependencies(cursor)
 
         datasets = list(self._datasets.values())
