@@ -1,0 +1,1 @@
+DESCRIBE HISTORY db.schema.table LIMIT 50

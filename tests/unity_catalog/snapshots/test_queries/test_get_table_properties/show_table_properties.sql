@@ -1,0 +1,1 @@
+SHOW TBLPROPERTIES db.schema.table

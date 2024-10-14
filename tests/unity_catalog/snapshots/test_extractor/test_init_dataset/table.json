@@ -10,8 +10,13 @@
         "description": "some description",
         "fieldName": "col1",
         "fieldPath": "col1",
-        "nativeType": "int",
-        "precision": 32.0
+        "nativeType": "INT",
+        "nullable": true,
+        "precision": 32.0,
+        "tags": [
+          "col1_tag_key_1=col1_tag_value_1",
+          "col1_tag_key_2=col1_tag_value_2"
+        ]
       }
     ],
     "schemaType": "SQL",
@@ -20,8 +25,11 @@
     }
   },
   "sourceInfo": {
-    "createdAtSource": "1970-01-01T00:00:00+00:00",
-    "mainUrl": "http://foo.bar/catalog/schema/table"
+    "createdAtSource": "2020-01-01T00:00:00+00:00",
+    "createdBy": "foo@bar.com",
+    "lastUpdated": "2020-01-01T00:00:00+00:00",
+    "mainUrl": "http://foo.bar/catalog/schema/table",
+    "updatedBy": "foo@bar.com"
   },
   "structure": {
     "database": "catalog",
@@ -42,14 +50,8 @@
   "unityCatalog": {
     "datasetType": "UNITY_CATALOG_TABLE",
     "tableInfo": {
-      "dataSourceFormat": "CSV",
+      "dataSourceFormat": "csv",
       "owner": "foo@bar.com",
-      "properties": [
-        {
-          "key": "delta.lastCommitTimestamp",
-          "value": "\"1664444422000\""
-        }
-      ],
       "storageLocation": "s3://path",
       "type": "MANAGED"
     }
