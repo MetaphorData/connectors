@@ -55,6 +55,7 @@ class AthenaExtractor(BaseExtractor):
         super().__init__(config)
         self._datasets: Dict[str, Dataset] = {}
         self._aws_config = config.aws
+        self._filter = config.filter.normalize()
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Athena")
@@ -62,8 +63,16 @@ class AthenaExtractor(BaseExtractor):
         self._client = create_athena_client(self._aws_config)
 
         for catalog in self._get_catalogs():
+            if not self._filter.include_database(database_name=catalog):
+                logger.info(f"Skipping catalog: {catalog}")
+                continue
+
             databases = self._get_databases(catalog)
             for database in databases:
+                if not self._filter.include_schema(database=catalog, schema=database):
+                    logger.info(f"Skipping database: {catalog}.{database}")
+                    continue
+
                 self._extract_tables(catalog, database)
 
         return self._datasets.values()
@@ -110,9 +119,13 @@ class AthenaExtractor(BaseExtractor):
             yield page
 
     def _init_dataset(self, catalog: str, database: str, table_metadata: TableMetadata):
-        name = dataset_normalized_name(
-            db=catalog, schema=database, table=table_metadata.Name
-        )
+        table = table_metadata.Name
+
+        if not self._filter.include_table(catalog, database, table):
+            logger.info(f"Skipping table: {catalog}.{database}.{table}")
+            return
+
+        name = dataset_normalized_name(db=catalog, schema=database, table=table)
 
         table_type = (
             TableTypeEnum(table_metadata.TableType)

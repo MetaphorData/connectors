@@ -2,6 +2,9 @@
   "DatabaseList": [
     {
       "Name": "spectrum_db2"
+    },
+    {
+      "Name": "Foo"
     }
   ],
   "ResponseMetadata": {

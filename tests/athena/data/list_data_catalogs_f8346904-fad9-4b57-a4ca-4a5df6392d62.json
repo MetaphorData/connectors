@@ -3,6 +3,10 @@
     {
       "CatalogName": "AwsDataCatalog",
       "Type": "GLUE"
+    },
+    {
+      "CatalogName": "Test",
+      "Type": "GLUE"
     }
   ],
   "ResponseMetadata": {
