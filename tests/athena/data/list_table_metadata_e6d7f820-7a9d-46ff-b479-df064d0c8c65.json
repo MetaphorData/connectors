@@ -110,6 +110,30 @@
         "presto_view": "true",
         "serde.serialization.lib": null
       }
+    },
+    {
+      "Name": "table",
+      "CreateTime": "2022-09-07 21:46:03+08:00",
+      "LastAccessTime": "1970-01-01 08:00:00+08:00",
+      "TableType": "EXTERNAL_TABLE",
+      "Columns": [
+        {
+          "Name": "salesid",
+          "Type": "int"
+        }
+      ],
+      "PartitionKeys": [],
+      "Parameters": {
+        "EXTERNAL": "TRUE",
+        "inputformat": "org.apache.hadoop.mapred.TextInputFormat",
+        "location": "s3://metaphor-specturm/example",
+        "numRows": "172000",
+        "outputformat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+        "serde.param.field.delim": "\t",
+        "serde.param.serialization.format": "\t",
+        "serde.serialization.lib": "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
+        "transient_lastDdlTime": "1662558363"
+      }
     }
   ],
   "ResponseMetadata": {

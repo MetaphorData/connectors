@@ -6,6 +6,7 @@ from metaphor.athena.config import AthenaRunConfig, AwsCredentials
 from metaphor.athena.extractor import AthenaExtractor
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
+from metaphor.common.filter import DatasetFilter
 from tests.test_utils import load_json
 
 
@@ -13,6 +14,12 @@ def dummy_config():
     return AthenaRunConfig(
         aws=AwsCredentials(
             access_key_id="key", secret_access_key="secret", region_name="region"
+        ),
+        filter=DatasetFilter(
+            excludes={
+                "test": None,
+                "awsdatacatalog": {"foo": None, "spectrum_db2": set(["table"])},
+            }
         ),
         output=OutputConfig(),
     )
