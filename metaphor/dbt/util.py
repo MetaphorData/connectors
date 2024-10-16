@@ -14,7 +14,7 @@ from metaphor.common.entity_id import (
 )
 from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
-from metaphor.common.utils import is_email
+from metaphor.common.utils import dedup_lists, is_email
 from metaphor.dbt.config import MetaOwnership, MetaTag
 from metaphor.models.metadata_change_event import (
     DataMonitor,
@@ -302,7 +302,9 @@ def add_data_quality_monitor(
     assert dataset.data_quality.monitors is not None
     assert dataset.logical_id
 
-    dataset.data_quality.monitors.append(
+    DataMonitor.__hash__ = lambda data_monitor: hash(json.dumps(data_monitor.to_dict()))  # type: ignore
+    # Dedup data monitors
+    new_monitors = [
         # For `DataMonitorTarget`:
         # column: Name of the target column. Not set if the monitor performs dataset-level tests, e.g. row count.
         # dataset: Entity ID of the target dataset. Set only if the monitor uses a different dataset from the one the data quality metadata is attached to.
@@ -319,6 +321,9 @@ def add_data_quality_monitor(
             ],
             status=status,
         )
+    ]
+    dataset.data_quality.monitors = dedup_lists(
+        dataset.data_quality.monitors, new_monitors
     )
 
 
