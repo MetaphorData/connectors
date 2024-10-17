@@ -19,11 +19,7 @@ class MongoDBConfig(BaseConfig):
     excluded_databases: Set[str] = Field(
         default_factory=lambda: set(["admin", "config", "local", "system"])
     )
-    excluded_collections: Set[str] = Field(
-        default_factory=lambda: set(
-            ["system.buckets", "system.profile", "system.js", "system.views"]
-        )
-    )
+    excluded_collections: Set[str] = Field(default_factory=set)
 
     @field_validator("auth_mechanism", mode="before")
     def _validate_auth_mechanism(cls, auth_mechanism: str):
