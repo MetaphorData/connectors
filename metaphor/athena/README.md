@@ -63,6 +63,11 @@ query_log:
   # (Optional) Number of days of query logs to fetch. Default to 1. If 0, the no query logs will be fetched.
   lookback_days: <days>
 
+  # (Optional) WorkGroups to collect query history, default to []. If not specify, collect from the primary workgroup
+  work_groups:
+    - workgroup_1
+    - ...
+
   # (Optional)
   process_query: <process_query_config>
 ```
