@@ -15,7 +15,7 @@ infer_schema_sample_size: <int> # Number of documents to sample in a collection 
 excluded_databases: # Databases to ignore. By default the databases "admin", "config", "local", "system" are excluded.
   - db1
   - db2
-excluded_collections: # Collections to ignore.
+excluded_collections: # Extra collections to ignore. Note that the system specific collections (`system.views`, `system.profile`, etc.) are always ignored, see https://www.mongodb.com/docs/manual/reference/system-collections/#database-specific-collections for more details.
   - coll1
   - coll2
 ```

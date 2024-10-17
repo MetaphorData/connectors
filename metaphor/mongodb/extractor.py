@@ -50,7 +50,13 @@ class MongoDBExtractor(BaseExtractor):
     def __init__(self, config: MongoDBConfig) -> None:
         super().__init__(config)
         self._sample_size = config.infer_schema_sample_size
+
         self._excluded_collections = config.excluded_collections
+        # Always ignore these system collections
+        self._excluded_collections.update(
+            ["system.buckets", "system.profile", "system.js", "system.views"]
+        )
+
         self._excluded_databases = config.excluded_databases
         self.client = config.get_client()
         self._datasets: Dict[str, Dataset] = {}
