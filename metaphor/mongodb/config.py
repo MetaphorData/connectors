@@ -13,7 +13,7 @@ from metaphor.common.dataclass import ConnectorConfig
 class MongoDBConfig(BaseConfig):
     uri: str
     auth_mechanism: str = "DEFAULT"
-    tls: bool = False
+    tls: bool = True
 
     infer_schema_sample_size: Optional[int] = 1000
     excluded_databases: Set[str] = Field(default_factory=set)
