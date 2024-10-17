@@ -1,4 +1,5 @@
 from dataclasses import field
+from typing import List
 
 from pydantic.dataclasses import dataclass
 
@@ -13,6 +14,9 @@ from metaphor.common.sql.process_query.config import ProcessQueryConfig
 class QueryLogConfig:
     # Number of days back of query logs to fetch, if 0, don't fetch query logs
     lookback_days: int = 1
+
+    # (Optional) WorkGroups to collect query history, default to []. If not specify, collect from the primary workgroup
+    work_groups: List[str] = field(default_factory=list)
 
     # Config to control query processing
     process_query: ProcessQueryConfig = field(

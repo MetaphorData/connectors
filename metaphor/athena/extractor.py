@@ -80,10 +80,20 @@ class AthenaExtractor(BaseExtractor):
         return self._datasets.values()
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
+        # If empty, don't call list_query_executions with WorkGroup
+        work_groups = self._query_log_config.work_groups or [""]
+
         if self._query_log_config.lookback_days > 0:
-            for page in self._paginate_and_dump_response("list_query_executions"):
-                ids = page["QueryExecutionIds"]
-                yield from self._batch_get_queries(ids)
+            for workgroup in work_groups:
+                params = {}
+                if workgroup:
+                    params["WorkGroup"] = workgroup
+
+                for page in self._paginate_and_dump_response(
+                    "list_query_executions", **params
+                ):
+                    ids = page["QueryExecutionIds"]
+                    yield from self._batch_get_queries(ids)
 
     def _get_catalogs(self):
         database_names = []
