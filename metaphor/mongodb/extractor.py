@@ -51,13 +51,16 @@ class MongoDBExtractor(BaseExtractor):
         super().__init__(config)
         self._sample_size = config.infer_schema_sample_size
 
+        self._excluded_databases = config.excluded_databases
+        # Always ignore these system databases
+        self._excluded_databases.update(["admin", "config", "local", "system"])
+
         self._excluded_collections = config.excluded_collections
         # Always ignore these system collections
         self._excluded_collections.update(
             ["system.buckets", "system.profile", "system.js", "system.views"]
         )
 
-        self._excluded_databases = config.excluded_databases
         self.client = config.get_client()
         self._datasets: Dict[str, Dataset] = {}
         if self._sample_size is None:

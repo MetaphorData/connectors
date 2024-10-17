@@ -4,6 +4,16 @@ This connector extracts technical metadata from a MongoDB database.
 
 ## Setup
 
+Your user should be granted with enough permission to be able to perform `listDatabases` and do `collstats` on all non-system collections.
+
+To grant permission to your user, run the following command in `mongosh`:
+
+```js
+db.getSiblingDb("admin").grantRoleToUser("<USER_NAME>", ["clusterManager"]);
+```
+
+For the complete list of available roles, visit [the official MongoDB manual](https://www.mongodb.com/docs/manual/reference/built-in-roles/).
+
 ### Required Configurations
 
 ```yaml
@@ -12,7 +22,7 @@ auth_mechanism: <auth_mechanism> # The authentication mechanism. Allowed values 
 tls: <boolean> # Whether to set TLS when connecting to MongoDB. Default is False.
 
 infer_schema_sample_size: <int> # Number of documents to sample in a collection in order to infer the schema. Set this to `null` to disable sampling and use all documents in the collections. To disable schema inference altogether, set this to 0. Default is 1000.
-excluded_databases: # Databases to ignore. By default the databases "admin", "config", "local", "system" are excluded.
+excluded_databases: # Extra databases to ignore. The system databases "admin", "config", "local", "system" are always excluded.
   - db1
   - db2
 excluded_collections: # Extra collections to ignore. Note that the system specific collections (`system.views`, `system.profile`, etc.) are always ignored, see https://www.mongodb.com/docs/manual/reference/system-collections/#database-specific-collections for more details.
