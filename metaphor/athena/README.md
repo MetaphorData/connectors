@@ -64,7 +64,7 @@ query_log:
   lookback_days: <days>
 
   # (Optional)
-  process_query_config: <process_query_config>
+  process_query: <process_query_config>
 ```
 
 ##### Process Query Config
