@@ -294,6 +294,174 @@
     }
   },
   {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset contains profile info of each customer. E.g first name, last name, email, company name etc."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Auto-generated ID",
+          "fieldPath": "id"
+        },
+        {
+          "documentation": "Customer's first name",
+          "fieldPath": "first_name"
+        },
+        {
+          "documentation": "Customer's last name",
+          "fieldPath": "last_name"
+        },
+        {
+          "documentation": "Customer's email address",
+          "fieldPath": "email"
+        },
+        {
+          "documentation": "Customer's company",
+          "fieldPath": "company"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "date"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.customer_profile",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset contains all subscriptions info."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "created_at"
+        },
+        {
+          "documentation": "Subscription full display name",
+          "fieldPath": "long_name"
+        },
+        {
+          "documentation": "Subscription price in cents",
+          "fieldPath": "price"
+        },
+        {
+          "documentation": "Type of subscription renewal",
+          "fieldPath": "renew_type"
+        },
+        {
+          "documentation": "Subscription short name",
+          "fieldPath": "short_name"
+        },
+        {
+          "documentation": "Primary Key",
+          "fieldPath": "sub_id"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_base",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [
+        "This dataset represents all the raw subscription changes info of our product. Each subscription is represented by unique subs_id and each change has a unique chng_id."
+      ],
+      "fieldDocumentations": [
+        {
+          "documentation": "Change type",
+          "fieldPath": "change_type"
+        },
+        {
+          "documentation": "Primary Key",
+          "fieldPath": "chg_id"
+        },
+        {
+          "documentation": "Creation timestamp",
+          "fieldPath": "created_at"
+        },
+        {
+          "documentation": "Subscription ID",
+          "fieldPath": "sub_id"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_change_raw",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.churn_region_agg",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.modular_campaigns",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_growth",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "demo_db.metaphor.subscriptions_v2",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [],
+      "fieldDocumentations": [
+        {
+          "documentation": "Duration of the bike trip in seconds.",
+          "fieldPath": "duration"
+        }
+      ]
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.berlin_bicycles.cycle_hire",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "documentation": {
+      "datasetDocumentations": [],
+      "fieldDocumentations": []
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.berlin_bicycles.cycle_stations",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.ride_share.cleaned_bike_rides",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
     "dbtModel": {
       "compiledSql": "\\n\\nwith\\n\\ncustomers as (\\n\\n    select * from acme.jaffle_shop.stg_customers\\n\\n),\\n\\norders_mart as (\\n\\n    select * from acme.jaffle_shop.orders\\n\\n),\\n\\norder_items_mart as (\\n\\n    select * from acme.jaffle_shop.order_items\\n),\\n\\norder_summary as (\\n\\n    select\\n        customer_id,\\n\\n        count(distinct om.order_id) as count_lifetime_orders,\\n        count(distinct om.order_id) > 1 as is_repeat_buyer,\\n        min(om.ordered_at) as first_ordered_at,\\n        max(om.ordered_at) as last_ordered_at,\\n        sum(oi.subtotal) as lifetime_spend_pretax,\\n        sum(om.order_total) as lifetime_spend\\n\\n    from orders_mart om\\n    \\n    left join order_items_mart oi on om.order_id = oi.order_id\\n    \\n    group by 1\\n\\n),\\n\\njoined as (\\n\\n    select\\n        customers.*,\\n        order_summary.count_lifetime_orders,\\n        order_summary.first_ordered_at,\\n        order_summary.last_ordered_at,\\n        order_summary.lifetime_spend_pretax,\\n        order_summary.lifetime_spend,\\n\\n        case\\n            when order_summary.is_repeat_buyer then 'returning'\\n            else 'new'\\n        end as customer_type\\n\\n    from customers\\n\\n    left join order_summary\\n        on customers.customer_id = order_summary.customer_id\\n\\n)\\n\\nselect * from joined",
       "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
@@ -1175,367 +1343,6 @@
     }
   },
   {
-    "dbtMetric": {
-      "description": "The cumulative revenue for all orders.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Cumulative Revenue (All Time)",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "cumulative",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.cumulative_revenue"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.cumulative_revenue",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Distict count of customers placing orders",
-      "dimensions": [],
-      "filters": [],
-      "label": "Customers w/ Orders",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.customers_with_orders"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.customers_with_orders",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Count of orders that contain food order items",
-      "dimensions": [],
-      "filters": [],
-      "label": "Food Orders",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_orders"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.food_orders",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "The revenue from food in each order",
-      "dimensions": [],
-      "filters": [],
-      "label": "Food Revenue",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_revenue"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.food_revenue",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "The % of order revenue from food.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Food Revenue %",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "ratio",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_revenue_pct"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.food_revenue_pct",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Count of orders with order total over 20.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Large Orders",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.large_order"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.large_order",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Count of locations that placed in order.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Locations",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.locations"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.locations",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "The median revenue for each order item. Excludes tax.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Median Revenue",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.median_revenue"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.median_revenue",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Unique count of new customers.",
-      "dimensions": [],
-      "filters": [],
-      "label": "New Customers",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.new_customer"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.new_customer",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Sum of cost for each order item.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Order Cost",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_cost"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.order_cost",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Gross profit from each order.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Order Gross Profit",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "derived",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_gross_profit"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.order_gross_profit",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Count of orders.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Orders",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.orders"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.orders",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Sum of total order amonunt. Includes tax + revenue.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Order Total",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_total"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.order_total",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Sum of the product revenue for each order item. Excludes tax.",
-      "dimensions": [],
-      "filters": [],
-      "label": "Revenue",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "simple",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.revenue"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.revenue",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "dbtMetric": {
-      "description": "Percentage growth of revenue compared to 1 month ago. Excluded tax",
-      "dimensions": [],
-      "filters": [],
-      "label": "Revenue Growth % M/M",
-      "packageName": "jaffle_shop",
-      "timeGrains": [],
-      "type": "derived",
-      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.revenue_growth_mom"
-    },
-    "entityUpstream": {},
-    "logicalId": {
-      "name": "jaffle_shop.revenue_growth_mom",
-      "type": "DBT_METRIC"
-    }
-  },
-  {
-    "documentation": {
-      "datasetDocumentations": [
-        "This dataset contains profile info of each customer. E.g first name, last name, email, company name etc."
-      ],
-      "fieldDocumentations": [
-        {
-          "documentation": "Auto-generated ID",
-          "fieldPath": "id"
-        },
-        {
-          "documentation": "Customer's first name",
-          "fieldPath": "first_name"
-        },
-        {
-          "documentation": "Customer's last name",
-          "fieldPath": "last_name"
-        },
-        {
-          "documentation": "Customer's email address",
-          "fieldPath": "email"
-        },
-        {
-          "documentation": "Customer's company",
-          "fieldPath": "company"
-        },
-        {
-          "documentation": "Creation timestamp",
-          "fieldPath": "date"
-        }
-      ]
-    },
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "demo_db.metaphor.customer_profile",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
-    "documentation": {
-      "datasetDocumentations": [
-        "This dataset contains all subscriptions info."
-      ],
-      "fieldDocumentations": [
-        {
-          "documentation": "Creation timestamp",
-          "fieldPath": "created_at"
-        },
-        {
-          "documentation": "Subscription full display name",
-          "fieldPath": "long_name"
-        },
-        {
-          "documentation": "Subscription price in cents",
-          "fieldPath": "price"
-        },
-        {
-          "documentation": "Type of subscription renewal",
-          "fieldPath": "renew_type"
-        },
-        {
-          "documentation": "Subscription short name",
-          "fieldPath": "short_name"
-        },
-        {
-          "documentation": "Primary Key",
-          "fieldPath": "sub_id"
-        }
-      ]
-    },
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "demo_db.metaphor.subscriptions_base",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
-    "documentation": {
-      "datasetDocumentations": [
-        "This dataset represents all the raw subscription changes info of our product. Each subscription is represented by unique subs_id and each change has a unique chng_id."
-      ],
-      "fieldDocumentations": [
-        {
-          "documentation": "Change type",
-          "fieldPath": "change_type"
-        },
-        {
-          "documentation": "Primary Key",
-          "fieldPath": "chg_id"
-        },
-        {
-          "documentation": "Creation timestamp",
-          "fieldPath": "created_at"
-        },
-        {
-          "documentation": "Subscription ID",
-          "fieldPath": "sub_id"
-        }
-      ]
-    },
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "demo_db.metaphor.subscriptions_change_raw",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
     "dbtModel": {
       "compiledSql": "select \n  1 as id,\n  subscriptions_growth.customer_id as cus_id,\n  'no' as reason,\n  subscriptions_growth.created_at as sub_date,\n  '2014-01-01 16:00:00' as cancel_date\nfrom DEMO_DB.METAPHOR.subscriptions_growth as subscriptions_growth",
       "description": "This dataset contains info about churn, all the accounts that have cancelled the subscriptions in the past.",
@@ -2008,33 +1815,6 @@
           "value": "subscription"
         }
       ]
-    }
-  },
-  {
-    "documentation": {
-      "datasetDocumentations": [],
-      "fieldDocumentations": [
-        {
-          "documentation": "Duration of the bike trip in seconds.",
-          "fieldPath": "duration"
-        }
-      ]
-    },
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "acme.berlin_bicycles.cycle_hire",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
-    "documentation": {
-      "datasetDocumentations": [],
-      "fieldDocumentations": []
-    },
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "acme.berlin_bicycles.cycle_stations",
-      "platform": "SNOWFLAKE"
     }
   },
   {
@@ -2784,6 +2564,291 @@
         "london_bike_analysis"
       ],
       "name": "cycle_hire_snapshot"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The cumulative revenue for all orders.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Cumulative Revenue (All Time)",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "cumulative",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.cumulative_revenue"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.cumulative_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Distict count of customers placing orders",
+      "dimensions": [],
+      "filters": [],
+      "label": "Customers w/ Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.customers_with_orders"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.customers_with_orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders that contain food order items",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_orders"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.food_orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The revenue from food in each order",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_revenue"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.food_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The % of order revenue from food.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Food Revenue %",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "ratio",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.food_revenue_pct"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.food_revenue_pct",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders with order total over 20.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Large Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.large_order"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.large_order",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of locations that placed in order.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Locations",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.locations"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.locations",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The median revenue for each order item. Excludes tax.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Median Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.median_revenue"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.median_revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Unique count of new customers.",
+      "dimensions": [],
+      "filters": [],
+      "label": "New Customers",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.new_customer"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.new_customer",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of cost for each order item.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Cost",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_cost"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.order_cost",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Gross profit from each order.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Gross Profit",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "derived",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_gross_profit"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.order_gross_profit",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Count of orders.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Orders",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.orders"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.orders",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of total order amonunt. Includes tax + revenue.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Order Total",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.order_total"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.order_total",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Sum of the product revenue for each order item. Excludes tax.",
+      "dimensions": [],
+      "filters": [],
+      "label": "Revenue",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "simple",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.revenue"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.revenue",
+      "type": "DBT_METRIC"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "Percentage growth of revenue compared to 1 month ago. Excluded tax",
+      "dimensions": [],
+      "filters": [],
+      "label": "Revenue Growth % M/M",
+      "packageName": "jaffle_shop",
+      "timeGrains": [],
+      "type": "derived",
+      "url": "https://cloud.getdbt.com/accounts/1/jobs/21/docs/#!/metric/metric.jaffle_shop.revenue_growth_mom"
+    },
+    "entityUpstream": {
+      "sourceEntities": []
+    },
+    "logicalId": {
+      "name": "jaffle_shop.revenue_growth_mom",
+      "type": "DBT_METRIC"
     }
   }
 ]

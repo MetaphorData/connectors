@@ -37,15 +37,18 @@ class Parser:
         project_name: Optional[str],
         docs_base_url: str,
         project_explore_url: str,
+        datasets: Dict[str, Dataset],
+        virtual_views: Dict[str, VirtualView],
+        metrics: Dict[str, Metric],
     ) -> None:
         self._discovery_api = discovery_api
         self._platform = platform
         self._account = account
         self._config = config
 
-        self._datasets: Dict[str, Dataset] = {}
-        self._virtual_views: Dict[str, VirtualView] = {}
-        self._metrics: Dict[str, Metric] = {}
+        self._datasets: Dict[str, Dataset] = datasets
+        self._virtual_views: Dict[str, VirtualView] = virtual_views
+        self._metrics: Dict[str, Metric] = metrics
         self._referenced_virtual_views: Set[str] = set()
 
         self._project_name = project_name
@@ -119,6 +122,10 @@ class Parser:
         """
         start = time.time()
         nodes = self._get_nodes(run)
+        if not nodes:
+            logger.info(f"Nothing to parse for job: {run.job_id}")
+            return
+
         models: Dict[str, Model] = dict()
         for node in nodes:
             init_virtual_view(
@@ -128,12 +135,6 @@ class Parser:
                 self._referenced_virtual_views.add(node.unique_id)
             if isinstance(node, Model):
                 models[node.unique_id] = node
-
-        if not self._virtual_views:
-            logger.info(
-                f"Fetched job ID: no entity to parse. Elapsed time: {time.time() - start} secs."
-            )
-            return []
 
         source_map = self._get_source_map(run)
         macro_map = self._get_macro_map(run)
@@ -160,6 +161,5 @@ class Parser:
         )
         entities.extend(self._metrics.values())
         logger.info(
-            f"Fetched job ID: {run.job_id} and parsed {len(entities)} entities. Elapsed time: {time.time() - start} secs."
+            f"Fetched job ID: {run.job_id}. Elapsed time: {time.time() - start} secs."
         )
-        return entities
