@@ -54,6 +54,23 @@ aws:
 
 See [Output Config](../common/docs/output.md) for more information.
 
+#### Query Log Extraction Configurations
+
+The Athena connector will enable query log extraction by default
+
+```yaml
+query_log:
+  # (Optional) Number of days of query logs to fetch. Default to 1. If 0, the no query logs will be fetched.
+  lookback_days: <days>
+
+  # (Optional)
+  process_query: <process_query_config>
+```
+
+##### Process Query Config
+
+See [Process Query](../common/docs/process_query.md) for more information on the optional `process_query_config` config.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv).

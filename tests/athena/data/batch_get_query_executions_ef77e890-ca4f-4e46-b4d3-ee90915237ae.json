@@ -45,7 +45,7 @@
     },
     {
       "QueryExecutionId": "8c944c49-ccc0-43b2-9dc9-e2428c76e8ab",
-      "Query": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
+      "Query": "SELECT * FROM \"spectrum_db2\".\"sales\" WHERE id = '00001' limit 10",
       "StatementType": "DML",
       "ResultConfiguration": {
         "OutputLocation": "s3://metaphor-athena-output/athena/8c944c49-ccc0-43b2-9dc9-e2428c76e8ab.csv",

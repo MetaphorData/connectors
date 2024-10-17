@@ -1,5 +1,6 @@
 [
   {
+    "_id": "ATHENA:a52ba71d-7cca-42e1-b4dc-db8c5c59e4ff",
     "duration": 1360,
     "platform": "ATHENA",
     "queryId": "a52ba71d-7cca-42e1-b4dc-db8c5c59e4ff",
@@ -11,12 +12,13 @@
         "table": "sales"
       }
     ],
-    "sql": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
+    "sql": "SELECT * FROM \"spectrum_db2\".\"sales\" LIMIT '<REDACTED>'",
     "sqlHash": "ab84f70dad2f22c7680b41d0dc8ca73d",
     "startTime": "2024-10-03T00:50:12.646000+00:00",
     "targets": []
   },
   {
+    "_id": "ATHENA:8c944c49-ccc0-43b2-9dc9-e2428c76e8ab",
     "duration": 762,
     "platform": "ATHENA",
     "queryId": "8c944c49-ccc0-43b2-9dc9-e2428c76e8ab",
@@ -28,12 +30,13 @@
         "table": "sales"
       }
     ],
-    "sql": "SELECT * FROM \"spectrum_db2\".\"sales\" limit 10",
-    "sqlHash": "ab84f70dad2f22c7680b41d0dc8ca73d",
+    "sql": "SELECT * FROM \"spectrum_db2\".\"sales\" WHERE id = '<REDACTED>' LIMIT '<REDACTED>'",
+    "sqlHash": "459ebefd29191afbc3a59e313d5acdb8",
     "startTime": "2024-10-02T16:48:48.443000+00:00",
     "targets": []
   },
   {
+    "_id": "ATHENA:a80c3d38-5a82-450c-a7f3-58bc476597d8",
     "duration": 547,
     "platform": "ATHENA",
     "queryId": "a80c3d38-5a82-450c-a7f3-58bc476597d8",
@@ -45,7 +48,7 @@
         "table": "sales"
       }
     ],
-    "sql": "-- View Example\nCREATE OR REPLACE VIEW sales_view AS\nSELECT salesid, listid, sellerid, buyerid, dateid, qtysold, pricepaid, commission, saletime\nFROM sales\nWHERE commission > 10",
+    "sql": "/* View Example */ CREATE OR REPLACE VIEW sales_view AS SELECT salesid, listid, sellerid, buyerid, dateid, qtysold, pricepaid, commission, saletime FROM sales WHERE commission > '<REDACTED>'",
     "sqlHash": "f89a26b30eb0e4fac013ff31f4ea900e",
     "startTime": "2024-10-03T00:50:38.339000+00:00",
     "targets": [
