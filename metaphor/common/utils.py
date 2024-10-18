@@ -1,7 +1,7 @@
 import math
 from datetime import datetime, time, timedelta, timezone
 from hashlib import md5
-from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, TypeVar, Union
 
 from dateutil.parser import isoparse
 from pydantic import validate_email
@@ -18,9 +18,19 @@ def start_of_day(daysAgo=0) -> datetime:
     ) - timedelta(days=daysAgo)
 
 
-def unique_list(non_unique_list: Iterable) -> list:
+T = TypeVar("T")
+
+
+def unique_list(non_unique_list: Iterable[T]) -> list[T]:
     """Returns an order-preserving list with no duplicate elements"""
     return list(dict.fromkeys(non_unique_list))
+
+
+def dedup_lists(left: Optional[List[T]], right: Optional[List[T]]) -> List[T]:
+    """
+    Dedups two lists into a single list. Order is preserved.
+    """
+    return unique_list((left or []) + (right or []))
 
 
 def filter_empty_strings(original_list: list) -> list:

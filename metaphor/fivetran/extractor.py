@@ -14,7 +14,7 @@ from metaphor.common.entity_id import (
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
-from metaphor.common.utils import safe_float
+from metaphor.common.utils import dedup_lists, safe_float
 from metaphor.fivetran.config import FivetranRunConfig
 from metaphor.fivetran.models import (
     ConnectorPayload,
@@ -291,7 +291,8 @@ class FivetranExtractor(BaseExtractor):
         dataset_id = str(to_dataset_entity_id_from_logical_id(dataset.logical_id))
 
         pipeline = self._pipelines[connector.id]
-        pipeline.fivetran.targets = list(set(pipeline.fivetran.targets + [dataset_id]))
+        assert pipeline.fivetran is not None
+        pipeline.fivetran.targets = dedup_lists(pipeline.fivetran.targets, [dataset_id])
 
         if connector.service in SOURCE_PLATFORM_MAPPING:
             source_db = self.get_database_name_from_connector(connector)

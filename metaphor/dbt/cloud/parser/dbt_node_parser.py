@@ -1,8 +1,9 @@
 import json
-from typing import Any, Dict, List, Optional, Union, cast
+from collections import defaultdict
+from typing import Any, Dict, List, Mapping, Optional, Set, Union, cast
 
 from metaphor.common.entity_id import EntityId, parts_to_dataset_entity_id
-from metaphor.common.utils import unique_list
+from metaphor.common.utils import dedup_lists, unique_list
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
@@ -11,10 +12,14 @@ from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_snapshots import (
     GetJobRunSnapshotsJobSnapshots,
 )
-from metaphor.dbt.cloud.parser.common import parse_depends_on
+from metaphor.dbt.cloud.parser.common import (
+    parse_depends_on,
+    update_entity_ownership_assignments,
+    update_entity_system_tags,
+    update_entity_tag_assignments,
+)
 from metaphor.dbt.util import (
     build_model_docs_url,
-    build_system_tags,
     get_dbt_tags_from_meta,
     get_metaphor_tags_from_meta,
     get_model_name_from_unique_id,
@@ -36,7 +41,6 @@ from metaphor.models.metadata_change_event import (
     DbtModel,
     EntityUpstream,
     Metric,
-    OwnershipAssignment,
     TagAssignment,
     VirtualView,
 )
@@ -106,25 +110,30 @@ class NodeParser:
 
         # Assign ownership & tags to materialized table/view
         ownerships = get_ownerships_from_meta(model.meta, self._meta_ownerships)
-        if len(ownerships.materialized_table) > 0:
-            dataset.ownership_assignment = OwnershipAssignment(
-                ownerships=ownerships.materialized_table
-            )
-        if len(ownerships.dbt_model) > 0:
-            virtual_view.ownership_assignment = OwnershipAssignment(
-                ownerships=ownerships.dbt_model
-            )
+        update_entity_ownership_assignments(dataset, ownerships.materialized_table)
+        update_entity_ownership_assignments(virtual_view, ownerships.dbt_model)
 
         tag_names = get_metaphor_tags_from_meta(model.meta, self._meta_tags)
-        if len(tag_names) > 0:
-            dataset.tag_assignment = TagAssignment(tag_names=tag_names)
+        update_entity_tag_assignments(dataset, tag_names)
 
         # Capture the whole "meta" field as key-value pairs
         if len(model.meta) > 0:
             assert virtual_view.dbt_model
+
+            # Dedups the meta items - if a key appears multiple times with different values
+            # we store them as separate metadata items. If there is any duplicate, it is
+            # discarded.
+            metas: Mapping[str, Set[Any]] = defaultdict(set)
+            for meta in virtual_view.dbt_model.meta or []:
+                assert meta.key
+                metas[meta.key].add(meta.value)
+            for key, value in cast(Dict[str, Any], model.meta).items():
+                metas[key].add(json.dumps(value))
+
             virtual_view.dbt_model.meta = [
-                DbtMetadataItem(key=key, value=json.dumps(value))
-                for key, value in cast(Dict[str, Any], model.meta).items()
+                DbtMetadataItem(key, value)
+                for key, values in metas.items()
+                for value in values
             ]
 
     def _parse_model_materialization(
@@ -166,9 +175,9 @@ class NodeParser:
                     continue
                 column_name = col.name.lower()
                 field = init_field(dbt_model.fields, column_name)
-                field.description = col.description
-                field.native_type = col.type or "Not Set"
-                field.tags = col.tags
+                field.description = field.description or col.description
+                field.native_type = field.native_type or col.type or "Not Set"
+                field.tags = dedup_lists(field.tags, col.tags)
 
                 if col.meta is not None:
                     self._parse_column_meta(node, column_name, col.meta)
@@ -205,13 +214,14 @@ class NodeParser:
         )
 
     def _init_dbt_model(self, node: NODE_TYPE, virtual_view: VirtualView):
-        virtual_view.dbt_model = DbtModel(
-            package_name=node.package_name,
-            description=node.description or None,
-            url=f"{self._project_explore_base_url}/{node.unique_id}",
-            docs_url=build_model_docs_url(self._docs_base_url, node.unique_id),
-            fields=[],
-        )
+        if not virtual_view.dbt_model:
+            virtual_view.dbt_model = DbtModel(
+                package_name=node.package_name,
+                description=node.description or None,
+                url=f"{self._project_explore_base_url}/{node.unique_id}",
+                docs_url=build_model_docs_url(self._docs_base_url, node.unique_id),
+                fields=[],
+            )
         return virtual_view.dbt_model
 
     def _set_system_tags(self, node: NODE_TYPE, virtual_view: VirtualView):
@@ -220,19 +230,22 @@ class NodeParser:
             get_dbt_tags_from_meta(node.meta, self._meta_key_tags)
             + (node.tags if node.tags else [])
         )
+        update_entity_system_tags(virtual_view, tags)
 
-        if len(tags) > 0:
-            virtual_view.system_tags = build_system_tags(tags)
-
-    def _set_entity_upstream(self, virtual_view: VirtualView, dbt_model: DbtModel):
-        source_entities = []
-        if dbt_model.source_datasets is not None:
-            source_entities.extend(dbt_model.source_datasets)
-        if dbt_model.source_models is not None:
-            source_entities.extend(dbt_model.source_models)
+    def _update_entity_upstream(self, virtual_view: VirtualView, dbt_model: DbtModel):
+        source_entities = (dbt_model.source_datasets or []) + (
+            dbt_model.source_models or []
+        )
         if len(source_entities) > 0:
             virtual_view.entity_upstream = EntityUpstream(
-                source_entities=source_entities,
+                source_entities=dedup_lists(
+                    (
+                        virtual_view.entity_upstream.source_entities
+                        if virtual_view.entity_upstream
+                        else []
+                    ),
+                    source_entities,
+                )
             )
 
     def parse(
@@ -270,4 +283,4 @@ class NodeParser:
             )
 
         self._parse_node_columns(node, dbt_model)
-        self._set_entity_upstream(virtual_view, dbt_model)
+        self._update_entity_upstream(virtual_view, dbt_model)

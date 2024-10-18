@@ -8,6 +8,7 @@ from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_tests import (
     GetJobRunTestsJobTests as Test,
 )
+from metaphor.dbt.cloud.parser.common import dedup_lists
 from metaphor.dbt.util import add_data_quality_monitor, init_dataset, init_dbt_tests
 from metaphor.models.metadata_change_event import (
     DataMonitorStatus,
@@ -77,7 +78,19 @@ class TestParser:
         # V7 renamed "compiled_sql" to "compiled_code"
         dbt_test.sql = test.compiled_code or test.compiled_sql
 
-        init_dbt_tests(self._virtual_views, model_unique_id).append(dbt_test)
+        existing_tests = init_dbt_tests(self._virtual_views, model_unique_id)
+        existing_test = next(
+            (t for t in existing_tests if t.unique_id == test.unique_id), None
+        )
+        if existing_test:
+            # This test is already covered, just update the columns and dependencies
+            existing_test.columns = dedup_lists(existing_test.columns, dbt_test.columns)
+            existing_test.depends_on_macros = dedup_lists(
+                existing_test.depends_on_macros, dbt_test.depends_on_macros
+            )
+        else:
+            # This is the first time we see this test, append it.
+            existing_tests.append(dbt_test)
 
         self._parse_test_run_result(test, models[model_unique_id])
 
