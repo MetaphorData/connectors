@@ -66,6 +66,7 @@ async def test_extractor(test_root_dir: str, mongodb_container: MongoDbContainer
             output=OutputConfig(),
             uri=f"mongodb://{user}:{password}@{mongodb_container.get_container_host_ip()}:{mongodb_container.get_exposed_port(27017)}",
             infer_schema_sample_size=None,
+            tls=False,
         )
     )
     entities = await extractor.extract()

@@ -1,12 +1,17 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from freezegun import freeze_time
 
-from metaphor.athena.config import AthenaRunConfig, AwsCredentials
+from metaphor.athena.config import AthenaRunConfig, AwsCredentials, QueryLogConfig
 from metaphor.athena.extractor import AthenaExtractor
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
 from metaphor.common.filter import DatasetFilter
+from metaphor.common.sql.process_query.config import (
+    ProcessQueryConfig,
+    RedactPIILiteralsConfig,
+)
 from tests.test_utils import load_json
 
 
@@ -20,6 +25,11 @@ def dummy_config():
                 "test": None,
                 "awsdatacatalog": {"foo": None, "spectrum_db2": set(["table"])},
             }
+        ),
+        query_log=QueryLogConfig(
+            process_query=ProcessQueryConfig(
+                redact_literals=RedactPIILiteralsConfig(enabled=True)
+            )
         ),
         output=OutputConfig(),
     )
@@ -69,6 +79,7 @@ async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
 
 @patch("metaphor.athena.extractor.create_athena_client")
 @pytest.mark.asyncio
+@freeze_time("2024-10-03")
 async def test_collect_query_logs(mock_create_client: MagicMock, test_root_dir: str):
     def mock_list_query_executions(**_):
         yield load_json(

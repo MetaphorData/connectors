@@ -12,10 +12,11 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
+from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
-from metaphor.common.utils import chunks, md5_digest, to_utc_time
+from metaphor.common.utils import chunks, start_of_day, to_utc_time
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -56,6 +57,7 @@ class AthenaExtractor(BaseExtractor):
         self._datasets: Dict[str, Dataset] = {}
         self._aws_config = config.aws
         self._filter = config.filter.normalize()
+        self._query_log_config = config.query_log
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Athena")
@@ -78,9 +80,20 @@ class AthenaExtractor(BaseExtractor):
         return self._datasets.values()
 
     def collect_query_logs(self) -> Iterator[QueryLog]:
-        for page in self._paginate_and_dump_response("list_query_executions"):
-            ids = page["QueryExecutionIds"]
-            yield from self._batch_get_queries(ids)
+        # If empty, don't call list_query_executions with WorkGroup
+        work_groups = self._query_log_config.work_groups or [""]
+
+        if self._query_log_config.lookback_days > 0:
+            for workgroup in work_groups:
+                params = {}
+                if workgroup:
+                    params["WorkGroup"] = workgroup
+
+                for page in self._paginate_and_dump_response(
+                    "list_query_executions", **params
+                ):
+                    ids = page["QueryExecutionIds"]
+                    yield from self._batch_get_queries(ids)
 
     def _get_catalogs(self):
         database_names = []
@@ -180,12 +193,10 @@ class AthenaExtractor(BaseExtractor):
 
     def _batch_get_queries(self, query_execution_ids: List[str]) -> List[QueryLog]:
         query_logs: List[QueryLog] = []
+        lookback_start_time = start_of_day(self._query_log_config.lookback_days)
+
         for ids in chunks(query_execution_ids, 50):
             raw_response = self._client.batch_get_query_execution(QueryExecutionIds=ids)
-            request_id = raw_response["ResponseMetadata"]["RequestId"]
-            json_dump_to_debug_file(
-                raw_response, f"batch_get_query_execution_{request_id}.json"
-            )
 
             response = BatchGetQueryExecutionResponse(**raw_response)
             for unprocessed in response.UnprocessedQueryExecutionIds or []:
@@ -207,6 +218,16 @@ class AthenaExtractor(BaseExtractor):
                     (context.Catalog, context.Database) if context else (None, None)
                 )
 
+                start_time = (
+                    to_utc_time(query_execution.Status.SubmissionDateTime)
+                    if query_execution.Status
+                    and query_execution.Status.SubmissionDateTime
+                    else None
+                )
+
+                if start_time and start_time < lookback_start_time:
+                    continue
+
                 tll = extract_table_level_lineage(
                     sql=query,
                     platform=DataPlatform.ATHENA,
@@ -215,28 +236,24 @@ class AthenaExtractor(BaseExtractor):
                     default_schema=schema,
                 )
 
-                start_time = (
-                    to_utc_time(query_execution.Status.SubmissionDateTime)
-                    if query_execution.Status
-                    and query_execution.Status.SubmissionDateTime
-                    else None
-                )
-
-                query_logs.append(
-                    QueryLog(
+                query_log = process_and_init_query_log(
+                    query=query,
+                    platform=DataPlatform.ATHENA,
+                    process_query_config=self._query_log_config.process_query,
+                    query_log=PartialQueryLog(
                         duration=(
                             query_execution.Statistics.TotalExecutionTimeInMillis
                             if query_execution.Statistics
                             else None
                         ),
-                        platform=DataPlatform.ATHENA,
-                        query_id=query_execution.QueryExecutionId,
                         sources=tll.sources,
                         targets=tll.targets,
-                        sql=query,
-                        sql_hash=md5_digest(query.encode("utf-8")),
                         start_time=start_time,
-                    )
+                    ),
+                    query_id=query_execution.QueryExecutionId,
                 )
+
+                if query_log:
+                    query_logs.append(query_log)
 
         return query_logs
