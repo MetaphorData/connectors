@@ -98,23 +98,25 @@ class NodeParser:
         if not model.database or not model.schema_ or not table:
             return
 
-        dataset = init_dataset(
-            self._datasets,
-            model.database,
-            model.schema_,
-            table,
-            self._platform,
-            self._account,
-            model.unique_id,
-        )
-
         # Assign ownership & tags to materialized table/view
         ownerships = get_ownerships_from_meta(model.meta, self._meta_ownerships)
-        update_entity_ownership_assignments(dataset, ownerships.materialized_table)
+        tag_names = get_metaphor_tags_from_meta(model.meta, self._meta_tags)
         update_entity_ownership_assignments(virtual_view, ownerships.dbt_model)
 
-        tag_names = get_metaphor_tags_from_meta(model.meta, self._meta_tags)
-        update_entity_tag_assignments(dataset, tag_names)
+        # Only init the dataset if there's ownership or tag names
+        if ownerships.materialized_table or tag_names:
+            dataset = init_dataset(
+                self._datasets,
+                model.database,
+                model.schema_,
+                table,
+                self._platform,
+                self._account,
+                model.unique_id,
+            )
+
+            update_entity_ownership_assignments(dataset, ownerships.materialized_table)
+            update_entity_tag_assignments(dataset, tag_names)
 
         # Capture the whole "meta" field as key-value pairs
         if len(model.meta) > 0:

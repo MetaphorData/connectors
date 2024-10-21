@@ -66,20 +66,6 @@ def parse_depends_on(
         )
 
 
-def dataset_has_parsed_fields(
-    dataset: Dataset,
-) -> bool:
-    """
-    init_dataset may generate irrelevant datasets, need to filter these out
-    """
-    return (
-        dataset.ownership_assignment is not None
-        or dataset.tag_assignment is not None
-        or dataset.documentation is not None
-        or dataset.data_quality is not None
-    )
-
-
 def update_entity_system_tags(
     entity: Union[Metric, VirtualView],
     tags: List[str],

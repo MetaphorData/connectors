@@ -12,6 +12,7 @@ from metaphor.common.entity_id import (
     to_person_entity_id,
     to_virtual_view_entity_id,
 )
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import dedup_lists, is_email
@@ -338,3 +339,32 @@ def get_data_platform_from_manifest(
         return DataPlatform.UNITY_CATALOG
     assert platform in DataPlatform.__members__, f"Invalid data platform {platform}"
     return DataPlatform[platform]
+
+
+def should_be_included(entity: ENTITY_TYPES) -> bool:
+    """
+    If an entity was referenced but no actual field of it has been parsed, we should
+    exclude it from the final results.
+    """
+    if isinstance(entity, Dataset):
+        return (
+            entity.data_quality is not None
+            or entity.ownership_assignment is not None
+            or entity.tag_assignment is not None
+            or entity.documentation is not None
+            or entity.entity_upstream is not None
+        )
+    if isinstance(entity, VirtualView):
+        return (
+            entity.ownership_assignment is not None
+            or entity.system_tags is not None
+            or entity.dbt_model is not None
+            or entity.entity_upstream is not None
+        )
+    if isinstance(entity, Metric):
+        return (
+            entity.dbt_metric is not None
+            or entity.system_tags is not None
+            or entity.entity_upstream is not None
+        )
+    return False

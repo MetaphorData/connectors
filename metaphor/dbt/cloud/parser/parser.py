@@ -1,7 +1,6 @@
 import time
-from typing import Dict, List, Optional, Set
+from typing import Dict, Optional, Set
 
-from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.dbt.cloud.client import DbtRun
@@ -10,7 +9,6 @@ from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
     GetJobRunModelsJobModels as Model,
 )
-from metaphor.dbt.cloud.parser.common import dataset_has_parsed_fields
 from metaphor.dbt.cloud.parser.dbt_macro_parser import MacroParser
 from metaphor.dbt.cloud.parser.dbt_metric_parser import MetricParser
 from metaphor.dbt.cloud.parser.dbt_node_parser import NodeParser
@@ -148,18 +146,6 @@ class Parser:
         for metric in self._get_metrics(run):
             self._metric_parser.parse(metric, source_map, macro_map)
 
-        entities: List[ENTITY_TYPES] = []
-        entities.extend(
-            dataset
-            for dataset in self._datasets.values()
-            if dataset_has_parsed_fields(dataset)
-        )
-        entities.extend(
-            v
-            for k, v in self._virtual_views.items()
-            if k not in self._referenced_virtual_views
-        )
-        entities.extend(self._metrics.values())
         logger.info(
             f"Fetched job ID: {run.job_id}. Elapsed time: {time.time() - start} secs."
         )
