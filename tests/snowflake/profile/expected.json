@@ -3,17 +3,17 @@
     "fieldStatistics": {
       "fieldStatistics": [
         {
-          "fieldPath": "ID",
+          "fieldPath": "id",
           "nonnullValueCount": 4.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "COMMON",
+          "fieldPath": "common",
           "nonnullValueCount": 4.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "CLASS",
+          "fieldPath": "class",
           "nonnullValueCount": 4.0,
           "nullValueCount": 0.0
         }
@@ -29,32 +29,32 @@
     "fieldStatistics": {
       "fieldStatistics": [
         {
-          "fieldPath": "ID",
+          "fieldPath": "id",
           "nonnullValueCount": 0.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "FOO",
+          "fieldPath": "foo",
           "nonnullValueCount": 0.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "BAR",
+          "fieldPath": "bar",
           "nonnullValueCount": 0.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "ID",
+          "fieldPath": "id",
           "nonnullValueCount": 0.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "FoO",
+          "fieldPath": "foo",
           "nonnullValueCount": 0.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "Phone Number",
+          "fieldPath": "phone number",
           "nonnullValueCount": 0.0,
           "nullValueCount": 0.0
         }
@@ -70,22 +70,22 @@
     "fieldStatistics": {
       "fieldStatistics": [
         {
-          "fieldPath": "D",
+          "fieldPath": "d",
           "nonnullValueCount": 5.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "LOC",
+          "fieldPath": "loc",
           "nonnullValueCount": 5.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "B_ID",
+          "fieldPath": "b_id",
           "nonnullValueCount": 5.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "C",
+          "fieldPath": "c",
           "nonnullValueCount": 5.0,
           "nullValueCount": 0.0
         }
@@ -101,12 +101,12 @@
     "fieldStatistics": {
       "fieldStatistics": [
         {
-          "fieldPath": "ID",
+          "fieldPath": "id",
           "nonnullValueCount": 2.0,
           "nullValueCount": 0.0
         },
         {
-          "fieldPath": "NAME",
+          "fieldPath": "name",
           "nonnullValueCount": 2.0,
           "nullValueCount": 0.0
         }

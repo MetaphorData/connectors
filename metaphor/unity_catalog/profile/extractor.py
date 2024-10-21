@@ -4,26 +4,18 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from queue import Queue
 from typing import Collection, List, Optional, Tuple
 
-from databricks.sql.client import Connection
-
-from metaphor.unity_catalog.extractor import DEFAULT_FILTER
-from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
-from metaphor.unity_catalog.utils import (
-    create_api,
-    create_connection_pool,
-    escape_special_characters,
-)
-
 try:
     from databricks.sdk.service.catalog import ColumnTypeName, TableInfo, TableType
 except ImportError:
     print("Please install metaphor[unity_catalog] extra\n")
     raise
 
+from databricks.sql.client import Connection
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import normalize_full_dataset_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_field_statistics
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
@@ -33,7 +25,13 @@ from metaphor.models.metadata_change_event import (
     DatasetFieldStatistics,
     DatasetLogicalID,
     DatasetStatistics,
-    FieldStatistics,
+)
+from metaphor.unity_catalog.extractor import DEFAULT_FILTER
+from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
+from metaphor.unity_catalog.utils import (
+    create_api,
+    create_connection_pool,
+    escape_special_characters,
 )
 
 logger = get_logger()
@@ -267,14 +265,16 @@ class UnityCatalogProfileExtractor(BaseExtractor):
                         return safe_float(value)
                     return value
 
-                stats = FieldStatistics(
-                    distinct_value_count=get_value_from_row("distinct_count"),
-                    field_path=numeric_column,
-                    max_value=get_value_from_row("max"),
-                    min_value=get_value_from_row("min"),
-                    null_value_count=get_value_from_row("num_nulls"),
+                field_statistics.field_statistics.append(
+                    build_field_statistics(
+                        numeric_column,
+                        get_value_from_row("distinct_count"),
+                        get_value_from_row("num_nulls"),
+                        None,
+                        get_value_from_row("min"),
+                        get_value_from_row("max"),
+                    )
                 )
-                field_statistics.field_statistics.append(stats)
 
         logger.info(
             f"Profiled {table_info.full_name} "
