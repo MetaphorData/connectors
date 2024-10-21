@@ -8,13 +8,13 @@ except ImportError:
     print("Please install metaphor[snowflake] extra\n")
     raise
 
-
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     dataset_normalized_name,
     normalize_full_dataset_name,
 )
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_field_statistics
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
 from metaphor.common.snowflake import normalize_snowflake_account
@@ -25,7 +25,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetFieldStatistics,
     DatasetLogicalID,
-    FieldStatistics,
 )
 from metaphor.snowflake import auth
 from metaphor.snowflake.extractor import DEFAULT_FILTER, SnowflakeExtractor
@@ -307,15 +306,15 @@ class SnowflakeProfileExtractor(BaseExtractor):
                     index += 1
 
             fields.append(
-                FieldStatistics(
-                    field_path=column,
-                    distinct_value_count=unique_count,
-                    null_value_count=nulls,
-                    nonnull_value_count=non_nulls,
-                    min_value=min_value,
-                    max_value=max_value,
-                    average=avg,
-                    std_dev=std_dev,
+                build_field_statistics(
+                    column,
+                    unique_count,
+                    nulls,
+                    non_nulls,
+                    min_value,
+                    max_value,
+                    avg,
+                    std_dev,
                 )
             )
 

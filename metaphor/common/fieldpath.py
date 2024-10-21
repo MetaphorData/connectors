@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from metaphor.models.metadata_change_event import SchemaField
+from metaphor.models.metadata_change_event import FieldStatistics, SchemaField
 
 
 class FieldDataType(Enum):
@@ -58,4 +58,29 @@ def build_schema_field(
         description=description or None,
         nullable=nullable,
         precision=precision,
+    )
+
+
+def build_field_statistics(
+    column: str,
+    unique_count: Optional[float] = None,
+    nulls: Optional[float] = None,
+    non_nulls: Optional[float] = None,
+    min_value: Optional[float] = None,
+    max_value: Optional[float] = None,
+    avg: Optional[float] = None,
+    std_dev: Optional[float] = None,
+) -> FieldStatistics:
+    """
+    Build field statistics for a column based on extracted column statistics.
+    """
+    return FieldStatistics(
+        field_path=column.lower(),
+        distinct_value_count=unique_count,
+        null_value_count=nulls,
+        nonnull_value_count=non_nulls,
+        min_value=min_value,
+        max_value=max_value,
+        average=avg,
+        std_dev=std_dev,
     )
