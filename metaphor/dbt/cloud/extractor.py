@@ -3,7 +3,7 @@ from typing import Collection, Dict, Set
 import httpx
 
 from metaphor.common.base_extractor import BaseExtractor
-from metaphor.common.event_util import ENTITY_TYPES, EventUtil
+from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.dbt.cloud.client import DbtAdminAPIClient
 from metaphor.dbt.cloud.config import DbtCloudConfig
@@ -11,10 +11,9 @@ from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.http import LogTransport
 from metaphor.dbt.cloud.parser.parser import Parser
 from metaphor.dbt.cloud.utils import parse_environment
+from metaphor.dbt.util import should_be_included
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import Dataset, Metric, VirtualView
-
-from metaphor.dbt.util import should_be_included
 
 logger = get_logger()
 
@@ -80,7 +79,7 @@ class DbtCloudExtractor(BaseExtractor):
         datasets = [d for d in self.datasets.values() if should_be_included(d)]
         views = [v for v in self.virtual_views.values() if should_be_included(v)]
         metrics = [m for m in self.metrics.values() if should_be_included(m)]
-        
+
         return datasets + views + metrics
 
     async def _extract_job(self, job_id: int):
