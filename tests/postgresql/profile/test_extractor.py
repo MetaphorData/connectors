@@ -1,3 +1,4 @@
+from metaphor.common.base_config import OutputConfig
 from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.sampling import SamplingConfig
 from metaphor.models.metadata_change_event import (
@@ -8,9 +9,12 @@ from metaphor.models.metadata_change_event import (
     DatasetSchema,
     DatasetStatistics,
     FieldStatistics,
+    MaterializationType,
     SchemaField,
+    SQLSchema,
 )
 from metaphor.postgresql.profile.extractor import PostgreSQLProfileExtractor
+from metaphor.redshift.profile.config import RedshiftProfileRunConfig
 
 column_statistics = ColumnStatistics(unique_count=True, avg_value=True)
 
@@ -23,10 +27,40 @@ def init_dataset(name: str, row_count) -> Dataset:
 
     dataset.schema = DatasetSchema()
     dataset.schema.fields = []
+    dataset.schema.sql_schema = SQLSchema()
 
     dataset.statistics = DatasetStatistics()
     dataset.statistics.record_count = float(row_count)
     return dataset
+
+
+def test_filter_dataset_type():
+    table = init_dataset(name="1", row_count=1000)
+    table.schema.sql_schema.materialization = MaterializationType.TABLE
+
+    view = init_dataset(name="2", row_count=1000)
+    view.schema.sql_schema.materialization = MaterializationType.VIEW
+
+    external = init_dataset(name="3", row_count=1000)
+    external.schema.sql_schema.materialization = MaterializationType.EXTERNAL
+
+    config = RedshiftProfileRunConfig(
+        host="",
+        database="",
+        user="",
+        password="",
+        output=OutputConfig(),
+    )
+    extractor_filter_view = PostgreSQLProfileExtractor(config)
+    assert extractor_filter_view._filter_dataset_type(table)
+    assert not extractor_filter_view._filter_dataset_type(view)
+    assert not extractor_filter_view._filter_dataset_type(external)
+
+    config.include_views = True
+    extractor_include_view = PostgreSQLProfileExtractor(config)
+    assert extractor_include_view._filter_dataset_type(table)
+    assert extractor_include_view._filter_dataset_type(view)
+    assert not extractor_include_view._filter_dataset_type(external)
 
 
 def test_build_profiling_query():
