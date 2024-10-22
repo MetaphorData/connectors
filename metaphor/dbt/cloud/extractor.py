@@ -41,9 +41,9 @@ class DbtCloudExtractor(BaseExtractor):
 
         self._project_accounts: Dict[int, str] = {}
 
-        self.datasets: Dict[str, Dataset] = {}
-        self.virtual_views: Dict[str, VirtualView] = {}
-        self.metrics: Dict[str, Metric] = {}
+        self._datasets: Dict[str, Dataset] = {}
+        self._virtual_views: Dict[str, VirtualView] = {}
+        self._metrics: Dict[str, Metric] = {}
 
         self._parsed_runs: Set[int] = set()
 
@@ -76,9 +76,9 @@ class DbtCloudExtractor(BaseExtractor):
         for job_id in self._job_ids:
             await self._extract_job(job_id)
 
-        datasets = [d for d in self.datasets.values() if should_be_included(d)]
-        views = [v for v in self.virtual_views.values() if should_be_included(v)]
-        metrics = [m for m in self.metrics.values() if should_be_included(m)]
+        datasets = [d for d in self._datasets.values() if should_be_included(d)]
+        views = [v for v in self._virtual_views.values() if should_be_included(v)]
+        metrics = [m for m in self._metrics.values() if should_be_included(m)]
 
         return datasets + views + metrics
 
@@ -122,9 +122,9 @@ class DbtCloudExtractor(BaseExtractor):
             project_name,
             docs_base_url,
             project_explore_url=project_explore_url,
-            datasets=self.datasets,
-            virtual_views=self.virtual_views,
-            metrics=self.metrics,
+            datasets=self._datasets,
+            virtual_views=self._virtual_views,
+            metrics=self._metrics,
         )
         job_run_parser.parse_run(run)
         self._parsed_runs.add(run.run_id)
