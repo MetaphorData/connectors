@@ -10,7 +10,6 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
-
 from metaphor.bigquery.extractor import BigQueryExtractor
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
 from metaphor.bigquery.utils import build_client, get_credentials
@@ -18,6 +17,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_field_statistics
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import safe_float
@@ -28,7 +28,6 @@ from metaphor.models.metadata_change_event import (
     DatasetFieldStatistics,
     DatasetLogicalID,
     DatasetSchema,
-    FieldStatistics,
 )
 
 logger = get_logger()
@@ -264,15 +263,15 @@ class BigQueryProfileExtractor(BaseExtractor):
                     index += 1
 
             fields.append(
-                FieldStatistics(
-                    field_path=field.field_path,
-                    distinct_value_count=unique_count,
-                    null_value_count=nulls,
-                    nonnull_value_count=non_nulls,
-                    min_value=min_value,
-                    max_value=max_value,
-                    average=avg,
-                    std_dev=std_dev,
+                build_field_statistics(
+                    field.field_path,
+                    unique_count,
+                    nulls,
+                    non_nulls,
+                    min_value,
+                    max_value,
+                    avg,
+                    std_dev,
                 )
             )
 

@@ -11,13 +11,13 @@ except ImportError:
 from metaphor.common.column_statistics import ColumnStatistics
 from metaphor.common.entity_id import dataset_normalized_name
 from metaphor.common.event_util import ENTITY_TYPES
+from metaphor.common.fieldpath import build_field_statistics
 from metaphor.common.logger import get_logger
 from metaphor.common.sampling import SamplingConfig
 from metaphor.common.utils import safe_float
 from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetFieldStatistics,
-    FieldStatistics,
     MaterializationType,
 )
 from metaphor.postgresql.extractor import PostgreSQLExtractor
@@ -179,14 +179,14 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
                     index += 1
 
             dataset.field_statistics.field_statistics.append(
-                FieldStatistics(
-                    field_path=field.field_path,
-                    distinct_value_count=unique_values,
-                    null_value_count=nulls,
-                    nonnull_value_count=(row_count - nulls),
-                    min_value=min_value,
-                    max_value=max_value,
-                    average=avg,
+                build_field_statistics(
+                    field.field_path,
+                    unique_values,
+                    nulls,
+                    row_count - nulls,
+                    min_value,
+                    max_value,
+                    avg,
                 )
             )
 
