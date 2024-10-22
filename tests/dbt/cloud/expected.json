@@ -400,34 +400,6 @@
     }
   },
   {
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "demo_db.metaphor.churn_region_agg",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "demo_db.metaphor.modular_campaigns",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "demo_db.metaphor.subscriptions_growth",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "demo_db.metaphor.subscriptions_v2",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
     "documentation": {
       "datasetDocumentations": [],
       "fieldDocumentations": [
@@ -451,13 +423,6 @@
     "logicalId": {
       "account": "john.doe@metaphor.io",
       "name": "acme.berlin_bicycles.cycle_stations",
-      "platform": "SNOWFLAKE"
-    }
-  },
-  {
-    "logicalId": {
-      "account": "john.doe@metaphor.io",
-      "name": "acme.ride_share.cleaned_bike_rides",
       "platform": "SNOWFLAKE"
     }
   },
