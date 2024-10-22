@@ -146,6 +146,8 @@ All other file types are automatically ignored. If not specified, all of the abo
 
 You can optionally specify the URI patterns to exclude using the `excludes` config. It supports wildcards but not `{table}` & `{partition}` labels.
 
+To exclude an entire directory, use `s3://bucket/directory` instead of `s3://bucket/directory/*`.
+
 ## Optional Configurations
 
 ### TLS Verification

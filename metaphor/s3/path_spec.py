@@ -293,6 +293,8 @@ class PathSpec(BaseModel):
             path.rsplit("/", slash_to_remove)[0]
             if exclude[-1] == "/":
                 exclude_pat = exclude[:-1]
+            elif exclude[-2:] == "/*":
+                exclude_pat = exclude[:-2]
             else:
                 exclude_pat = exclude
             if fnmatch(path.rsplit("/", slash_to_remove)[0], exclude_pat):
