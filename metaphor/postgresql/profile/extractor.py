@@ -1,6 +1,6 @@
 import asyncio
 import traceback
-from typing import Collection, Iterable, List
+from typing import Collection, List
 
 try:
     import asyncpg
@@ -61,7 +61,11 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
 
         await asyncio.gather(*coroutines)
 
-        return self._datasets.values()
+        return [
+            dataset
+            for dataset in self._datasets.values()
+            if self._trim_fields_and_check_empty_dataset(dataset)
+        ]
 
     async def _profile_database(self, database: str) -> None:
         pool = await self._create_connection_pool()
@@ -69,18 +73,28 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
         async with pool.acquire() as conn:
             await self._fetch_tables(conn, database)
             datasets = await self._fetch_columns(conn, database)
-            logger.info(f"Include {len(datasets)} tables from {database}")
+            logger.info(f"Include {len(datasets)} datasets from {database}")
 
         tasks = [
             self._profile_dataset(pool, dataset)
             for dataset in datasets
-            if dataset.schema.sql_schema.materialization != MaterializationType.VIEW
-            or not self._include_views
+            if self._filter_dataset_type(dataset)
         ]
         await asyncio.gather(*tasks)
         await pool.close()
 
-        self._trim_fields(datasets)
+    def _filter_dataset_type(self, dataset: Dataset) -> bool:
+        """
+        Filter out dataset types based on the config, not profile "External", "Stream" and "Snapshot"
+        """
+        dataset_type = dataset.schema.sql_schema.materialization
+        if self._include_views:
+            return dataset_type in {
+                MaterializationType.TABLE,
+                MaterializationType.VIEW,
+                MaterializationType.MATERIALIZED_VIEW,
+            }
+        return dataset_type == MaterializationType.TABLE
 
     async def _profile_dataset(self, pool: asyncpg.Pool, dataset: Dataset) -> None:
         async with pool.acquire() as conn:
@@ -224,8 +238,14 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
         )
 
     @staticmethod
-    def _trim_fields(datasets: Iterable[Dataset]) -> None:
-        """Drop temporary fields"""
-        for dataset in datasets:
-            dataset.schema = None
-            dataset.statistics = None
+    def _trim_fields_and_check_empty_dataset(dataset: Dataset) -> bool:
+        """Drop temporary fields and check if the dataset field statistic is empty"""
+        if (
+            not dataset.field_statistics
+            or not dataset.field_statistics.field_statistics
+        ):
+            return False
+
+        dataset.schema = None
+        dataset.statistics = None
+        return True
