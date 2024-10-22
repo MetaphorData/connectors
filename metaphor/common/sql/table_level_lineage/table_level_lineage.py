@@ -147,13 +147,14 @@ def extract_table_level_lineage(
             sql, dialect=PLATFORM_TO_DIALECT.get(platform)
         )
     except (sqlglot.errors.ParseError, sqlglot.errors.TokenError):
-        if not _is_truncated_insert_into_with_values(sql):
+        if not _is_truncated_insert_into_with_values(sql) and query_id:
             logger.warning(f"Cannot parse sql with SQLGlot, query_id = {query_id}")
         return Result()
     except RecursionError:
-        logger.warning(
-            f"Cannot parse sql with SQLGlot (max recursion level exceeded), query_id = {query_id}"
-        )
+        if query_id:
+            logger.warning(
+                f"Cannot parse sql with SQLGlot (max recursion level exceeded), query_id = {query_id}"
+            )
         return Result()
 
     try:

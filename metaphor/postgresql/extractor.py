@@ -19,7 +19,6 @@ from metaphor.common.models import to_dataset_statistics
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
-from metaphor.common.sql.utils import is_valid_queried_datasets
 from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
@@ -30,6 +29,7 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     ForeignKey,
     MaterializationType,
+    QueriedDataset,
     QueryLog,
     SchemaField,
     SchemaType,
@@ -447,7 +447,7 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
                                                              (a, b, c)
             2024...:root@database:[session]:LOG:  duration: 0.5 ms
             """
-            logger.warning("log format is not start with date")
+            logger.debug("log format is not start with date")
             return None
 
         parsed = parse_postgres_log(log)
@@ -488,7 +488,7 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
         ):
             return None
 
-        logger.debug(f"processing valid query: {log}")
+        logger.debug(f"processing valid query: {log.encode('unicode_escape').decode()}")
 
         # Extract sql from the previous line
         query = ":".join(previous_line.log_body[1:]).lstrip()
@@ -505,12 +505,10 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
             default_database=parsed.database,
         )
 
-        # Skip if parsed sources or targets has invalid data.
-        if not is_valid_queried_datasets(tll.sources) or not is_valid_queried_datasets(
-            tll.targets
-        ):
-            logger.debug(f"invalid sources/targets, log: {log}")
-            return None
+        def exclude_invalid_dataset(
+            datasets: List[QueriedDataset],
+        ) -> List[QueriedDataset]:
+            return [d for d in datasets if d.database and d.schema]
 
         return process_and_init_query_log(
             query=query,
@@ -521,8 +519,8 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
                 user_id=parsed.user,
                 duration=duration,
                 start_time=previous_line.log_time,
-                sources=tll.sources,
-                targets=tll.targets,
+                sources=exclude_invalid_dataset(tll.sources),
+                targets=exclude_invalid_dataset(tll.targets),
             ),
         )
 
