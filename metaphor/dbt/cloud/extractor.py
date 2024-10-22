@@ -1,4 +1,4 @@
-from typing import Collection, Dict, List
+from typing import Collection, Dict, Set
 
 import httpx
 
@@ -11,7 +11,9 @@ from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.http import LogTransport
 from metaphor.dbt.cloud.parser.parser import Parser
 from metaphor.dbt.cloud.utils import parse_environment
+from metaphor.dbt.util import should_be_included
 from metaphor.models.crawler_run_metadata import Platform
+from metaphor.models.metadata_change_event import Dataset, Metric, VirtualView
 
 logger = get_logger()
 
@@ -38,7 +40,13 @@ class DbtCloudExtractor(BaseExtractor):
         self._discovery_api_url = config.discovery_api_url
 
         self._project_accounts: Dict[int, str] = {}
-        self._entities: List[ENTITY_TYPES] = []
+
+        self._datasets: Dict[str, Dataset] = {}
+        self._virtual_views: Dict[str, VirtualView] = {}
+        self._metrics: Dict[str, Metric] = {}
+
+        self._parsed_runs: Set[int] = set()
+
         self._client = DbtAdminAPIClient(
             base_url=self._base_url,
             account_id=self._account_id,
@@ -68,7 +76,11 @@ class DbtCloudExtractor(BaseExtractor):
         for job_id in self._job_ids:
             await self._extract_job(job_id)
 
-        return self._entities
+        datasets = [d for d in self._datasets.values() if should_be_included(d)]
+        views = [v for v in self._virtual_views.values() if should_be_included(v)]
+        metrics = [m for m in self._metrics.values() if should_be_included(m)]
+
+        return datasets + views + metrics
 
     async def _extract_job(self, job_id: int):
         if not self._client.is_job_included(job_id):
@@ -82,7 +94,7 @@ class DbtCloudExtractor(BaseExtractor):
             logger.warning(f"Cannot find any successful run for job ID: {job_id}")
             return
 
-        if run.run_id in self._entities:
+        if run.run_id in self._parsed_runs:
             logger.info(f"Found already extracted run: {run}")
             return
 
@@ -110,5 +122,9 @@ class DbtCloudExtractor(BaseExtractor):
             project_name,
             docs_base_url,
             project_explore_url=project_explore_url,
+            datasets=self._datasets,
+            virtual_views=self._virtual_views,
+            metrics=self._metrics,
         )
-        self._entities.extend(job_run_parser.parse_run(run))
+        job_run_parser.parse_run(run)
+        self._parsed_runs.add(run.run_id)

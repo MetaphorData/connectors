@@ -4,8 +4,12 @@ from metaphor.common.entity_id import EntityId, parts_to_dataset_entity_id
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_sources import (
     GetJobRunSourcesJobSources,
 )
-from metaphor.dbt.util import init_dataset, init_documentation, init_field_doc
-from metaphor.models.metadata_change_event import DataPlatform, Dataset
+from metaphor.dbt.util import init_dataset, init_documentation
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    FieldDocumentation,
+)
 
 
 class SourceParser:
@@ -39,17 +43,30 @@ class SourceParser:
         )
 
         init_documentation(dataset)
-        assert dataset.documentation is not None
+        assert (
+            dataset.documentation is not None
+            and dataset.documentation.dataset_documentations is not None
+            and dataset.documentation.field_documentations is not None
+        )
         if source.description:
-            dataset.documentation.dataset_documentations = [source.description]
+            dataset.documentation.dataset_documentations.append(source.description)
 
         for col in source.columns:
             if col.description:
                 if not col.name:
                     continue
                 column_name = col.name.lower()
-                field_doc = init_field_doc(dataset, column_name)
-                field_doc.documentation = col.description
+                if not any(
+                    field_documentation.field_path == column_name
+                    and field_documentation.documentation == col.description
+                    for field_documentation in dataset.documentation.field_documentations
+                    or []
+                ):
+                    dataset.documentation.field_documentations.append(
+                        FieldDocumentation(
+                            documentation=col.description, field_path=column_name
+                        )
+                    )
 
     def parse(self, sources: List[GetJobRunSourcesJobSources]) -> Dict[str, EntityId]:
         source_map: Dict[str, EntityId] = {}

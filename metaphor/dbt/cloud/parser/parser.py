@@ -1,7 +1,6 @@
 import time
-from typing import Dict, List, Optional, Set
+from typing import Dict, Optional, Set
 
-from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.dbt.cloud.client import DbtRun
@@ -10,7 +9,6 @@ from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.discovery_api.generated.get_job_run_models import (
     GetJobRunModelsJobModels as Model,
 )
-from metaphor.dbt.cloud.parser.common import dataset_has_parsed_fields
 from metaphor.dbt.cloud.parser.dbt_macro_parser import MacroParser
 from metaphor.dbt.cloud.parser.dbt_metric_parser import MetricParser
 from metaphor.dbt.cloud.parser.dbt_node_parser import NodeParser
@@ -37,15 +35,18 @@ class Parser:
         project_name: Optional[str],
         docs_base_url: str,
         project_explore_url: str,
+        datasets: Dict[str, Dataset],
+        virtual_views: Dict[str, VirtualView],
+        metrics: Dict[str, Metric],
     ) -> None:
         self._discovery_api = discovery_api
         self._platform = platform
         self._account = account
         self._config = config
 
-        self._datasets: Dict[str, Dataset] = {}
-        self._virtual_views: Dict[str, VirtualView] = {}
-        self._metrics: Dict[str, Metric] = {}
+        self._datasets: Dict[str, Dataset] = datasets
+        self._virtual_views: Dict[str, VirtualView] = virtual_views
+        self._metrics: Dict[str, Metric] = metrics
         self._referenced_virtual_views: Set[str] = set()
 
         self._project_name = project_name
@@ -119,6 +120,10 @@ class Parser:
         """
         start = time.time()
         nodes = self._get_nodes(run)
+        if not nodes:
+            logger.info(f"Nothing to parse for job: {run.job_id}")
+            return
+
         models: Dict[str, Model] = dict()
         for node in nodes:
             init_virtual_view(
@@ -128,12 +133,6 @@ class Parser:
                 self._referenced_virtual_views.add(node.unique_id)
             if isinstance(node, Model):
                 models[node.unique_id] = node
-
-        if not self._virtual_views:
-            logger.info(
-                f"Fetched job ID: no entity to parse. Elapsed time: {time.time() - start} secs."
-            )
-            return []
 
         source_map = self._get_source_map(run)
         macro_map = self._get_macro_map(run)
@@ -147,19 +146,6 @@ class Parser:
         for metric in self._get_metrics(run):
             self._metric_parser.parse(metric, source_map, macro_map)
 
-        entities: List[ENTITY_TYPES] = []
-        entities.extend(
-            dataset
-            for dataset in self._datasets.values()
-            if dataset_has_parsed_fields(dataset)
-        )
-        entities.extend(
-            v
-            for k, v in self._virtual_views.items()
-            if k not in self._referenced_virtual_views
-        )
-        entities.extend(self._metrics.values())
         logger.info(
-            f"Fetched job ID: {run.job_id} and parsed {len(entities)} entities. Elapsed time: {time.time() - start} secs."
+            f"Fetched job ID: {run.job_id}. Elapsed time: {time.time() - start} secs."
         )
-        return entities
