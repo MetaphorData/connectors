@@ -1,7 +1,6 @@
 [
   {
     "entityId": "EXTERNAL_DOCUMENT~5678",
-    "documentId": "EXTERNAL_DOCUMENT~5678",
     "embedding_1": [
       0.1,
       0.2,
