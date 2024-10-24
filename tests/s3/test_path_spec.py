@@ -28,8 +28,13 @@ def test_exclude_table_wildcard() -> None:
     assert not path_spec.allow_path("s3://bucket/v1/services/data/skipped_1")
 
 
-def test_strip_last_slash() -> None:
+def test_trim_url_end() -> None:
     assert (
-        PathSpec._strip_last_slash(yarl.URL("s3://bucket/foo/bar/")).human_repr()
+        PathSpec._trim_url_end(yarl.URL("s3://bucket/foo/bar/")).human_repr()
+        == "s3://bucket/foo/bar"
+    )
+
+    assert (
+        PathSpec._trim_url_end(yarl.URL("s3://bucket/foo/bar/*")).human_repr()
         == "s3://bucket/foo/bar"
     )

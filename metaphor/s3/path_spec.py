@@ -285,11 +285,10 @@ class PathSpec(BaseModel):
             logger.debug(f"Unmatched path: {path}")
             return False
 
-        for exclude in self.excludes:
-            if self._path_is_excluded(yarl.URL(exclude), path_url):
-                return False
-
-        return True
+        return not any(
+            self._path_is_excluded(yarl.URL(exclude), path_url)
+            for exclude in self.excludes
+        )
 
     def extract_table_name_and_path(self, path: str) -> Tuple[str, str]:
         parsed_vars = self.get_named_vars(path)
@@ -322,8 +321,8 @@ class PathSpec(BaseModel):
             return False
 
         # Ensure both `path` and `exclude` do not end with `/`
-        exclude = PathSpec._strip_last_slash(exclude)
-        path = PathSpec._strip_last_slash(path)
+        exclude = PathSpec._trim_url_end(exclude)
+        path = PathSpec._trim_url_end(path)
 
         # Check the parts one by one
         for exclude_part, path_part in zip(exclude.parts, path.parts):
@@ -338,7 +337,13 @@ class PathSpec(BaseModel):
         return len(path.parts) >= len(exclude.parts)
 
     @staticmethod
-    def _strip_last_slash(url: yarl.URL) -> yarl.URL:
+    def _trim_url_end(url: yarl.URL) -> yarl.URL:
+        """
+        Trims the final part of the URL to make sure it does not end with
+        either `/` or `/*`.
+        """
         if url.human_repr().endswith("/"):
             return yarl.URL(url.human_repr()[:-1])
+        if url.human_repr().endswith("/*"):
+            return yarl.URL(url.human_repr()[:-2])
         return url
