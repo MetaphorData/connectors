@@ -1,5 +1,6 @@
 from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import (
+    API,
     Dashboard,
     Dataset,
     ExternalSearchDocument,
@@ -19,6 +20,7 @@ from metaphor.models.metadata_change_event import (
 def test_build_event():
     event_utils = EventUtil()
 
+    assert event_utils.build_event(API()) == MetadataChangeEvent(api=API())
     assert event_utils.build_event(Dashboard()) == MetadataChangeEvent(
         dashboard=Dashboard()
     )
