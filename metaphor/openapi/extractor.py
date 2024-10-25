@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 from typing import Collection, List, Optional
 from urllib.parse import urljoin
 
@@ -7,6 +8,7 @@ import requests
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
+from metaphor.common.utils import md5_digest
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     API,
@@ -42,18 +44,21 @@ class OpenAPIExtractor(BaseExtractor):
         super().__init__(config)
 
         self._base_url = config.base_url
-        self._api_name = config.api_name or config.base_url
+        self._api_id = md5_digest(config.base_url.encode("utf-8"))
         self._openapi_json_path = config.openapi_json_path
         self._auth = config.auth
         self._requests_session = requests.sessions.Session()
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info(
-            f"Fetching metadata from {self._base_url + self._openapi_json_path}"
-        )
+        logger.info(f"Fetching metadata from {self._openapi_json_path}")
 
         self._initial_session()
         openapi_json = self._get_openapi_json()
+
+        if not openapi_json:
+            logger.error("Unable to get OAS json")
+            return []
+
         endpoints = self._extract_paths(openapi_json)
         hierarchies = self._build_hierarchies(openapi_json)
 
@@ -67,9 +72,25 @@ class OpenAPIExtractor(BaseExtractor):
             basic_auth = self._auth.basic_auth
             self._requests_session.auth = (basic_auth.user, basic_auth.password)
 
-    def _get_openapi_json(self) -> dict:
-        url = self._base_url + self._openapi_json_path
-        return self._requests_session.get(url).json()
+    def _get_openapi_json(self) -> Optional[dict]:
+        if not self._openapi_json_path.startswith("http"):
+            with open(self._openapi_json_path, "r") as f:
+                return json.load(f)
+
+        headers = OrderedDict(
+            {
+                "User-Agent": None,
+                "Accept": None,
+                "Connection": None,
+                "Accept-Encoding": None,
+            }
+        )
+        resp = self._requests_session.get(self._openapi_json_path, headers=headers)
+
+        if resp.status_code != 200:
+            return None
+
+        return resp.json()
 
     def _extract_paths(self, openapi: dict) -> List[API]:
         endpoints: List[API] = []
@@ -93,7 +114,7 @@ class OpenAPIExtractor(BaseExtractor):
                     name=endpoint_url, platform=APIPlatform.OPEN_API
                 ),
                 open_api=OpenAPI(path=path, methods=self._extract_methods(path_item)),
-                structure=AssetStructure(directories=[self._api_name]),
+                structure=AssetStructure(directories=[self._api_id], name=path),
             )
             endpoints.append(endpoint)
         return endpoints
@@ -115,8 +136,8 @@ class OpenAPIExtractor(BaseExtractor):
 
             methods.append(
                 OpenAPIMethod(
-                    summary=item.get("summary"),
-                    description=item.get("description"),
+                    summary=item.get("summary") or None,
+                    description=item.get("description") or None,
                     type=operation_type,
                 )
             )
@@ -126,7 +147,7 @@ class OpenAPIExtractor(BaseExtractor):
         title = openapi["info"]["title"]
         hierarchy = Hierarchy(
             logical_id=HierarchyLogicalID(
-                path=[AssetPlatform.OPEN_API.value] + [self._api_name],
+                path=[AssetPlatform.OPEN_API.value] + [self._api_id],
             ),
             hierarchy_info=HierarchyInfo(
                 name=title,

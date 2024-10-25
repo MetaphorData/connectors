@@ -19,9 +19,7 @@ class OpenAPIAuthConfig:
 
 @dataclass(config=ConnectorConfig)
 class OpenAPIRunConfig(BaseConfig):
-    base_url: str
-    openapi_json_path: str
-
-    api_name: Optional[str] = None
+    openapi_json_path: str  # URL or file path
+    base_url: str  # base_url of endpoints
 
     auth: Optional[OpenAPIAuthConfig] = None
