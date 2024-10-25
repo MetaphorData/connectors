@@ -107,7 +107,7 @@ class OpenAPIExtractor(BaseExtractor):
             if not base_path.startswith("http"):
                 endpoint_url = urljoin(self._base_url, base_path + path)
             else:
-                endpoint_url = urljoin(base_path, path)
+                endpoint_url = urljoin(base_path + "/", f"./{path}")
 
             endpoint = API(
                 logical_id=APILogicalID(
