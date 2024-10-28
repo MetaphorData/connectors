@@ -20,7 +20,7 @@ class PostgreSQLUsageExtractor(PostgreSQLExtractor):
     def __init__(self, config: PostgreSQLUsageRunConfig):
         super().__init__(config)
         warn(
-            "Redshift usage crawler is deprecated, and is marked for removal in 0.15.0",
+            "PostgreSQL usage crawler is deprecated, and is marked for removal in 0.15.0",
             DeprecationWarning,
             stacklevel=2,
         )
