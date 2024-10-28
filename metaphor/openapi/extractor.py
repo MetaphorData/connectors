@@ -62,7 +62,7 @@ class OpenAPIExtractor(BaseExtractor):
             return []
 
         apis = self._extract_apis(openapi_json)
-        hierarchies = self._build_hierarchies(openapi_json)
+        hierarchies = self._extract_hierarchies(openapi_json)
 
         return hierarchies + endpoints
 
