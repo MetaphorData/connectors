@@ -38,11 +38,7 @@ IGNORED_HISTORY_OPERATIONS = {
 
 
 def to_tags(tags: Optional[List[Dict]]) -> List[Tag]:
-    return (
-        [Tag(key=tag["tag_name"], value=tag["tag_value"]) for tag in tags]
-        if tags
-        else []
-    )
+    return [Tag(key=tag["tag_name"], value=tag["tag_value"]) for tag in tags or []]
 
 
 def list_catalogs(connection: Connection) -> List[CatalogInfo]:
