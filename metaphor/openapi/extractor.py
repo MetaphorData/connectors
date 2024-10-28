@@ -189,7 +189,7 @@ class OpenAPIExtractor(BaseExtractor):
                         path=[AssetPlatform.OPEN_API.value, self._api_id, name],
                     ),
                     hierarchy_info=HierarchyInfo(
-                        name=title,
+                        name=name,
                         description=description,
                         type=HierarchyType.OPEN_API,
                     ),

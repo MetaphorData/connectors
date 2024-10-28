@@ -17,7 +17,7 @@
   {
     "hierarchyInfo": {
       "description": "Everything about your Pets",
-      "name": "Swagger Petstore - OpenAPI 3.0",
+      "name": "pet",
       "type": "OPEN_API"
     },
     "logicalId": {
@@ -31,7 +31,7 @@
   {
     "hierarchyInfo": {
       "description": "Access to Petstore orders",
-      "name": "Swagger Petstore - OpenAPI 3.0",
+      "name": "store",
       "type": "OPEN_API"
     },
     "logicalId": {
@@ -45,7 +45,7 @@
   {
     "hierarchyInfo": {
       "description": "Operations about user",
-      "name": "Swagger Petstore - OpenAPI 3.0",
+      "name": "user",
       "type": "OPEN_API"
     },
     "logicalId": {
