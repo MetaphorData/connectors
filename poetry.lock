@@ -646,8 +646,8 @@ files = [
 jmespath = ">=0.7.1,<2.0.0"
 python-dateutil = ">=2.1,<3.0.0"
 urllib3 = [
-    {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""},
     {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""},
+    {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""},
 ]
 
 [package.extras]
@@ -1159,20 +1159,20 @@ openai = ["httpx", "langchain-openai", "openai"]
 
 [[package]]
 name = "databricks-sql-connector"
-version = "3.5.0"
+version = "3.6.0"
 description = "Databricks SQL Connector for Python"
 optional = true
 python-versions = "<4.0.0,>=3.8.0"
 files = [
-    {file = "databricks_sql_connector-3.5.0-py3-none-any.whl", hash = "sha256:d88a0b7a810e7a02dfd0964e4d597ecddc7e27602db194e37bb7e05dac0b6a91"},
-    {file = "databricks_sql_connector-3.5.0.tar.gz", hash = "sha256:5d08341c81dad16920c5a2e9e2de2456f04bd08d327018bab392354c0734b122"},
+    {file = "databricks_sql_connector-3.6.0-py3-none-any.whl", hash = "sha256:126b1b0ec8403c2ca7d84f1c617ef482f4288f428608b51122186dabc69bbd0f"},
+    {file = "databricks_sql_connector-3.6.0.tar.gz", hash = "sha256:4302828afa17b9f993dc63143aa35c76e30d2b46bdb4bcc47452d4c44bb412d8"},
 ]
 
 [package.dependencies]
 lz4 = ">=4.0.2,<5.0.0"
 numpy = [
-    {version = ">=1.23.4,<2.0.0", markers = "python_version >= \"3.11\""},
     {version = ">=1.16.6,<2.0.0", markers = "python_version >= \"3.8\" and python_version < \"3.11\""},
+    {version = ">=1.23.4,<2.0.0", markers = "python_version >= \"3.11\""},
 ]
 oauthlib = ">=3.1.0,<4.0.0"
 openpyxl = ">=3.0.10,<4.0.0"
@@ -1222,9 +1222,9 @@ isort = ">=4.3.21,<6.0"
 jinja2 = ">=2.10.1,<4.0"
 packaging = "*"
 pydantic = [
-    {version = ">=1.10.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.11\" and python_version < \"4.0\""},
     {version = ">=1.5.1,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version < \"3.10\""},
     {version = ">=1.9.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
+    {version = ">=1.10.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.11\" and python_version < \"4.0\""},
 ]
 pyyaml = ">=6.0.1"
 toml = {version = ">=0.10.0,<1.0.0", markers = "python_version < \"3.11\""}
@@ -1692,12 +1692,12 @@ files = [
 google-auth = ">=2.14.1,<3.0.dev0"
 googleapis-common-protos = ">=1.56.2,<2.0.dev0"
 grpcio = [
-    {version = ">=1.49.1,<2.0dev", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
     {version = ">=1.33.2,<2.0dev", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
+    {version = ">=1.49.1,<2.0dev", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
 ]
 grpcio-status = [
-    {version = ">=1.49.1,<2.0.dev0", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
     {version = ">=1.33.2,<2.0.dev0", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
+    {version = ">=1.49.1,<2.0.dev0", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
 ]
 proto-plus = ">=1.22.3,<2.0.0dev"
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<6.0.0.dev0"
@@ -1833,8 +1833,8 @@ google-cloud-core = ">=2.0.0,<3.0.0dev"
 grpc-google-iam-v1 = ">=0.12.4,<1.0.0dev"
 opentelemetry-api = ">=1.9.0"
 proto-plus = [
-    {version = ">=1.22.2,<2.0.0dev", markers = "python_version >= \"3.11\""},
     {version = ">=1.22.0,<2.0.0dev", markers = "python_version < \"3.11\""},
+    {version = ">=1.22.2,<2.0.0dev", markers = "python_version >= \"3.11\""},
 ]
 protobuf = ">=3.20.2,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<6.0.0dev"
 
@@ -3221,13 +3221,13 @@ files = [
 
 [[package]]
 name = "metaphor-models"
-version = "0.40.5"
+version = "0.41.0"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "metaphor_models-0.40.5-py3-none-any.whl", hash = "sha256:44db27ac48f496c289acd74ee6289d4b2d21cc68172d385e3c286acabb02facd"},
-    {file = "metaphor_models-0.40.5.tar.gz", hash = "sha256:9585249d67997c3ce40aa84ba3f138c4a1ef3b0620a74cd4d06d44b2af96931c"},
+    {file = "metaphor_models-0.41.0-py3-none-any.whl", hash = "sha256:f58035b3fd903696c0e30ebbebe3f155a05339e3f309071fef8a71f4f0f74d18"},
+    {file = "metaphor_models-0.41.0.tar.gz", hash = "sha256:7e864ac309a86413277010bc647e1749f7d16cd569db4ab55a6e78ee469ffed8"},
 ]
 
 [[package]]
@@ -3957,8 +3957,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.23.2", markers = "python_version == \"3.11\""},
     {version = ">=1.22.4", markers = "python_version < \"3.11\""},
+    {version = ">=1.23.2", markers = "python_version == \"3.11\""},
 ]
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
@@ -6860,4 +6860,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "b1619790900815ec8b24f38b56e3626dda52f4a305e51e31c9dcc744b429a068"
+content-hash = "97ff6a1aa416689438658a9db3b0e577082d54cf4126e8998fbb381eef3a1d96"
