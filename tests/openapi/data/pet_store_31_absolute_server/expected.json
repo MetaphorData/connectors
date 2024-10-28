@@ -10,7 +10,7 @@
     "logicalId": {
       "path": [
         "OPEN_API",
-        "3a45981ff1a3539f49317040f895e979"
+        "5a3c97a89f1d0f3edc5d35bfa96170b4"
       ]
     }
   },
@@ -23,7 +23,7 @@
     "logicalId": {
       "path": [
         "OPEN_API",
-        "3a45981ff1a3539f49317040f895e979",
+        "5a3c97a89f1d0f3edc5d35bfa96170b4",
         "pet"
       ]
     }
@@ -37,7 +37,7 @@
     "logicalId": {
       "path": [
         "OPEN_API",
-        "3a45981ff1a3539f49317040f895e979",
+        "5a3c97a89f1d0f3edc5d35bfa96170b4",
         "store"
       ]
     }
@@ -51,7 +51,7 @@
     "logicalId": {
       "path": [
         "OPEN_API",
-        "3a45981ff1a3539f49317040f895e979",
+        "5a3c97a89f1d0f3edc5d35bfa96170b4",
         "user"
       ]
     }
@@ -78,7 +78,7 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979",
+        "5a3c97a89f1d0f3edc5d35bfa96170b4",
         "pet"
       ],
       "name": "/pet"
@@ -101,7 +101,7 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979",
+        "5a3c97a89f1d0f3edc5d35bfa96170b4",
         "pet"
       ],
       "name": "/pet/{petId}"

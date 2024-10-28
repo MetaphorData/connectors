@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 import requests
+from pydantic import HttpUrl
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
@@ -13,9 +14,9 @@ from tests.test_utils import load_json
 
 def get_dummy_config(base_url: str, path: str = "", url: str = ""):
     return OpenAPIRunConfig(
-        base_url=base_url,
+        base_url=HttpUrl(base_url),
         openapi_json_path=path or None,
-        openapi_json_url=url or None,
+        openapi_json_url=HttpUrl(url) if url else None,
         output=OutputConfig(),
     )
 
@@ -56,13 +57,13 @@ class MockResponse:
 
 
 @patch.object(requests.Session, "get")
-def test_get_openapi_json(mock_get_method: MagicMock, test_root_dir: str):
+def test_get_openapi_json(mock_get_method: MagicMock):
     mock_get_method.side_effect = [
         MockResponse({}, 403),
         MockResponse({}, 200),
     ]
     extractor = OpenAPIExtractor(
-        get_dummy_config("", url="http://foo.bar/openapi.json")
+        get_dummy_config("http://baz", url="http://foo.bar/openapi.json")
     )
 
     assert extractor._get_openapi_json() is None

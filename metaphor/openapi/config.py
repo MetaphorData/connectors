@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import model_validator
+from pydantic import HttpUrl, model_validator
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.base_config import BaseConfig
@@ -21,9 +21,9 @@ class OpenAPIAuthConfig:
 
 @dataclass(config=ConnectorConfig)
 class OpenAPIRunConfig(BaseConfig):
-    base_url: str  # base_url of endpoints
+    base_url: HttpUrl
     openapi_json_path: Optional[str] = None
-    openapi_json_url: Optional[str] = None
+    openapi_json_url: Optional[HttpUrl] = None
     auth: Optional[OpenAPIAuthConfig] = None
 
     @model_validator(mode="after")

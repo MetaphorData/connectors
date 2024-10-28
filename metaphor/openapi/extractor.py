@@ -43,10 +43,10 @@ class OpenAPIExtractor(BaseExtractor):
     def __init__(self, config: OpenAPIRunConfig):
         super().__init__(config)
 
-        self._base_url = config.base_url
-        self._api_id = md5_digest(config.base_url.encode("utf-8"))
+        self._base_url = str(config.base_url)
+        self._api_id = md5_digest(self._base_url.encode("utf-8"))
         self._openapi_json_path = config.openapi_json_path
-        self._openapi_json_url = config.openapi_json_url
+        self._openapi_json_url = str(config.openapi_json_url)
         self._auth = config.auth
         self._init_session()
 
