@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 import requests
-from pydantic import HttpUrl
+from pydantic import FilePath, HttpUrl
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
@@ -15,7 +15,7 @@ from tests.test_utils import load_json
 def get_dummy_config(base_url: str, path: str = "", url: str = ""):
     return OpenAPIRunConfig(
         base_url=HttpUrl(base_url),
-        openapi_json_path=path or None,
+        openapi_json_path=FilePath(path) if path else None,
         openapi_json_url=HttpUrl(url) if url else None,
         output=OutputConfig(),
     )
