@@ -77,7 +77,6 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [notion](metaphor/notion/)                                        | Document embeddings                      |
 | [postgresql](metaphor/postgresql/)                                | Schema, description, statistics          |
 | [postgresql.profile](metaphor/postgresql/profile/)                | Data profile                             |
-| [postgresql.usage](metaphor/postgresql/usage/)                    | Usage                                    |
 | [power_bi](metaphor/power_bi/)                                    | Dashboard, lineage                       |
 | [quick_sight](metaphor/quick_sight/)                              | Dashboard, lineage                       |
 | [redshift](metaphor/redshift/)                                    | Schema, description, statistics, queries |
