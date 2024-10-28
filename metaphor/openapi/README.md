@@ -1,6 +1,10 @@
 # OpenAPI Connector
 
-This connector extracts APIs from an OpenAPI Specification JSON.
+This connector extracts APIs from an OpenAPI Specification JSON. The following OAS versions are supported:
+
+- OpenAPI Specification 3.1.0
+- OpenAPI Specification 3.0.0
+- Swagger 2.0
 
 ## Config File
 
