@@ -138,8 +138,7 @@ class OpenAPIExtractor(BaseExtractor):
     def _extract_methods(self, path_item: dict) -> List[OpenAPIMethod]:
         def to_operation_type(method: str) -> Optional[OperationType]:
             try:
-                operation_type = OperationType(method.upper())
-                return operation_type
+                return OperationType(method.upper())
             except ValueError:
                 return None
 
