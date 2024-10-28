@@ -15,6 +15,48 @@
     }
   },
   {
+    "hierarchyInfo": {
+      "description": "Everything about your Pets",
+      "name": "Swagger Petstore",
+      "type": "OPEN_API"
+    },
+    "logicalId": {
+      "path": [
+        "OPEN_API",
+        "3a45981ff1a3539f49317040f895e979",
+        "pet"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "description": "Access to Petstore orders",
+      "name": "Swagger Petstore",
+      "type": "OPEN_API"
+    },
+    "logicalId": {
+      "path": [
+        "OPEN_API",
+        "3a45981ff1a3539f49317040f895e979",
+        "store"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "description": "Operations about user",
+      "name": "Swagger Petstore",
+      "type": "OPEN_API"
+    },
+    "logicalId": {
+      "path": [
+        "OPEN_API",
+        "3a45981ff1a3539f49317040f895e979",
+        "user"
+      ]
+    }
+  },
+  {
     "logicalId": {
       "name": "https://foo.bar/pet/{petId}/uploadImage",
       "platform": "OPEN_API"
@@ -30,7 +72,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "pet"
       ],
       "name": "/pet/{petId}/uploadImage"
     }
@@ -55,7 +98,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "pet"
       ],
       "name": "/pet"
     }
@@ -77,7 +121,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "pet"
       ],
       "name": "/pet/findByStatus"
     }
@@ -99,7 +144,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "pet"
       ],
       "name": "/pet/findByTags"
     }
@@ -129,7 +175,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "pet"
       ],
       "name": "/pet/{petId}"
     }
@@ -151,7 +198,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "store"
       ],
       "name": "/store/inventory"
     }
@@ -172,7 +220,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "store"
       ],
       "name": "/store/order"
     }
@@ -199,7 +248,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "store"
       ],
       "name": "/store/order/{orderId}"
     }
@@ -220,7 +270,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "user"
       ],
       "name": "/user/createWithList"
     }
@@ -251,7 +302,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "user"
       ],
       "name": "/user/{username}"
     }
@@ -272,7 +324,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "user"
       ],
       "name": "/user/login"
     }
@@ -293,7 +346,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "user"
       ],
       "name": "/user/logout"
     }
@@ -314,7 +368,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "user"
       ],
       "name": "/user/createWithArray"
     }
@@ -336,7 +391,8 @@
     },
     "structure": {
       "directories": [
-        "3a45981ff1a3539f49317040f895e979"
+        "3a45981ff1a3539f49317040f895e979",
+        "user"
       ],
       "name": "/user"
     }

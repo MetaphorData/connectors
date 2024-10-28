@@ -11,10 +11,11 @@ from metaphor.openapi.extractor import OpenAPIExtractor
 from tests.test_utils import load_json
 
 
-def get_dummy_config(openapi_json_path: str, base_url: str):
+def get_dummy_config(base_url: str, path: str = "", url: str = ""):
     return OpenAPIRunConfig(
-        openapi_json_path=openapi_json_path,
         base_url=base_url,
+        openapi_json_path=path or None,
+        openapi_json_url=url or None,
         output=OutputConfig(),
     )
 
@@ -33,7 +34,10 @@ async def test_extractor(data_folder, base_url, test_root_dir):
     data_folder = f"{test_root_dir}/openapi/data/{data_folder}"
 
     extractor = OpenAPIExtractor(
-        config=get_dummy_config(f"{data_folder}/openapi.json", base_url)
+        config=get_dummy_config(
+            base_url,
+            path=f"{data_folder}/openapi.json",
+        )
     )
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
     assert events == load_json(f"{data_folder}/expected.json")
@@ -57,7 +61,9 @@ def test_get_openapi_json(mock_get_method: MagicMock, test_root_dir: str):
         MockResponse({}, 403),
         MockResponse({}, 200),
     ]
-    extractor = OpenAPIExtractor(get_dummy_config("http://foo.bar/openapi.json", ""))
+    extractor = OpenAPIExtractor(
+        get_dummy_config("", url="http://foo.bar/openapi.json")
+    )
 
     assert extractor._get_openapi_json() is None
     assert extractor._get_openapi_json() == {}
@@ -69,7 +75,7 @@ def test_get_openapi_json(mock_get_method: MagicMock, test_root_dir: str):
                 headers=OrderedDict(
                     [
                         ("User-Agent", None),
-                        ("Accept", None),
+                        ("Accept", "application/json"),
                         ("Connection", None),
                         ("Accept-Encoding", None),
                     ]
@@ -80,7 +86,7 @@ def test_get_openapi_json(mock_get_method: MagicMock, test_root_dir: str):
                 headers=OrderedDict(
                     [
                         ("User-Agent", None),
-                        ("Accept", None),
+                        ("Accept", "application/json"),
                         ("Connection", None),
                         ("Accept-Encoding", None),
                     ]

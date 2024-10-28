@@ -190,7 +190,7 @@
     "/pet/{petId}": {
       "get": {
         "tags": [
-          "pets"
+          "pet"
         ],
         "summary": "Find pet by ID",
         "description": "Returns a pet when 0 < ID <= 10.  ID > 10 or nonintegers will simulate API error conditions",

@@ -46,13 +46,15 @@ class OpenAPIExtractor(BaseExtractor):
         self._base_url = config.base_url
         self._api_id = md5_digest(config.base_url.encode("utf-8"))
         self._openapi_json_path = config.openapi_json_path
+        self._openapi_json_url = config.openapi_json_url
         self._auth = config.auth
-        self._requests_session = requests.sessions.Session()
+        self._init_session()
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
-        logger.info(f"Fetching metadata from {self._openapi_json_path}")
+        logger.info(
+            f"Fetching metadata from {self._openapi_json_path or self._openapi_json_url}"
+        )
 
-        self._initial_session()
         openapi_json = self._get_openapi_json()
 
         if not openapi_json:
@@ -64,7 +66,9 @@ class OpenAPIExtractor(BaseExtractor):
 
         return hierarchies + endpoints
 
-    def _initial_session(self):
+    def _init_session(self):
+        self._requests_session = requests.sessions.Session()
+
         if not self._auth:
             return
 
@@ -73,19 +77,20 @@ class OpenAPIExtractor(BaseExtractor):
             self._requests_session.auth = (basic_auth.user, basic_auth.password)
 
     def _get_openapi_json(self) -> Optional[dict]:
-        if not self._openapi_json_path.startswith("http"):
+        if self._openapi_json_path:
             with open(self._openapi_json_path, "r") as f:
                 return json.load(f)
 
+        # to have full control of HTTP header
         headers = OrderedDict(
             {
                 "User-Agent": None,
-                "Accept": None,
+                "Accept": "application/json",
                 "Connection": None,
                 "Accept-Encoding": None,
             }
         )
-        resp = self._requests_session.get(self._openapi_json_path, headers=headers)
+        resp = self._requests_session.get(self._openapi_json_url, headers=headers)
 
         if resp.status_code != 200:
             return None
@@ -98,26 +103,37 @@ class OpenAPIExtractor(BaseExtractor):
 
         for path, path_item in openapi["paths"].items():
             path_servers = path_item.get("servers")
-            base_path = (
+            server = (
                 path_servers[0]["url"]
                 if path_servers
                 else servers[0]["url"] if servers else ""
             )
 
-            if not base_path.startswith("http"):
-                endpoint_url = urljoin(self._base_url, base_path + path)
+            if not server.startswith("http"):
+                endpoint_url = urljoin(self._base_url, server + path)
             else:
-                endpoint_url = urljoin(base_path + "/", f"./{path}")
+                endpoint_url = urljoin(server + "/", f"./{path}")
+
+            first_tag = self._get_first_tag(path_item)
 
             endpoint = API(
                 logical_id=APILogicalID(
                     name=endpoint_url, platform=APIPlatform.OPEN_API
                 ),
                 open_api=OpenAPI(path=path, methods=self._extract_methods(path_item)),
-                structure=AssetStructure(directories=[self._api_id], name=path),
+                structure=AssetStructure(
+                    directories=[self._api_id] + [first_tag] if first_tag else [],
+                    name=path,
+                ),
             )
             endpoints.append(endpoint)
         return endpoints
+
+    def _get_first_tag(self, path_item: dict) -> Optional[str]:
+        for item in path_item.values():
+            if "tags" in item and len(item["tags"]) > 0:
+                return item["tags"][0]
+        return None
 
     def _extract_methods(self, path_item: dict) -> List[OpenAPIMethod]:
         def to_operation_type(method: str) -> Optional[OperationType]:
@@ -144,16 +160,40 @@ class OpenAPIExtractor(BaseExtractor):
         return methods
 
     def _build_hierarchies(self, openapi: dict) -> List[Hierarchy]:
+        hierarchies: List[Hierarchy] = []
+
         title = openapi["info"]["title"]
-        hierarchy = Hierarchy(
-            logical_id=HierarchyLogicalID(
-                path=[AssetPlatform.OPEN_API.value] + [self._api_id],
-            ),
-            hierarchy_info=HierarchyInfo(
-                name=title,
-                open_api=OpenAPISpecification(definition=json.dumps(openapi)),
-                type=HierarchyType.OPEN_API,
-            ),
+        hierarchies.append(
+            Hierarchy(
+                logical_id=HierarchyLogicalID(
+                    path=[AssetPlatform.OPEN_API.value, self._api_id],
+                ),
+                hierarchy_info=HierarchyInfo(
+                    name=title,
+                    open_api=OpenAPISpecification(definition=json.dumps(openapi)),
+                    type=HierarchyType.OPEN_API,
+                ),
+            )
         )
 
-        return [hierarchy]
+        for tag in openapi.get("tags") or []:
+            name = tag.get("name")
+            description = tag.get("description")
+
+            if not name:
+                continue
+
+            hierarchies.append(
+                Hierarchy(
+                    logical_id=HierarchyLogicalID(
+                        path=[AssetPlatform.OPEN_API.value, self._api_id, name],
+                    ),
+                    hierarchy_info=HierarchyInfo(
+                        name=title,
+                        description=description,
+                        type=HierarchyType.OPEN_API,
+                    ),
+                )
+            )
+
+        return hierarchies
