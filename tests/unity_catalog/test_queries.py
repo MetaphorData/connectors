@@ -81,6 +81,11 @@ def test_list_catalogs(
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "list_catalogs.sql")
 
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    catalogs = list_catalogs(mock_connection)
+    assert catalogs == []
+
 
 def test_list_schemas(
     test_root_dir: str,
@@ -138,6 +143,11 @@ def test_list_schemas(
 
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "list_schemas.sql")
+
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    schemas = list_schemas(mock_connection, "catalog1")
+    assert schemas == []
 
 
 def test_list_tables(
@@ -229,6 +239,11 @@ def test_list_tables(
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "list_tables.sql")
 
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    tables = list_tables(mock_connection, "catalog1", "schema1")
+    assert tables == []
+
 
 def test_list_volumes(
     test_root_dir: str,
@@ -288,6 +303,11 @@ def test_list_volumes(
 
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "list_volumes.sql")
+
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    volumes = list_volumes(mock_connection, "catalog1", "schema1")
+    assert volumes == []
 
 
 def test_list_volume_files(
@@ -370,6 +390,11 @@ def test_list_table_lineage(
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "list_table_lineage.sql")
 
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    table_lineage = list_table_lineage(mock_connection, "c", "s")
+    assert table_lineage == {}
+
 
 def test_list_column_lineage(
     test_root_dir: str,
@@ -414,6 +439,11 @@ def test_list_column_lineage(
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "list_column_lineage.sql")
 
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    column_lineage = list_column_lineage(mock_connection, "c", "s")
+    assert column_lineage == {}
+
 
 @freeze_time("2000-01-02")
 def test_list_query_logs(
@@ -432,6 +462,11 @@ def test_list_query_logs(
         datetime(2000, 1, 1, tzinfo=timezone.utc),
         datetime(2000, 1, 2, tzinfo=timezone.utc),
     ]
+
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    query_logs = list_query_logs(mock_connection, 1, ["user1", "user2"])
+    assert query_logs == []
 
 
 def test_get_last_refreshed_time(
@@ -473,6 +508,11 @@ def test_get_last_refreshed_time(
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "describe_history.sql")
 
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    result = get_last_refreshed_time(mock_connection, "db.schema.table", 50)
+    assert result is None
+
 
 def test_get_table_properties(
     test_root_dir: str,
@@ -504,3 +544,8 @@ def test_get_table_properties(
 
     args = mock_cursor.execute.call_args_list[0].args
     snapshot.assert_match(args[0], "show_table_properties.sql")
+
+    # Exception handling
+    mock_connection = mock_sql_connection([], Exception("some error"))
+    result = get_table_properties(mock_connection, "db.schema.table")
+    assert result is None

@@ -694,7 +694,7 @@ def get_last_refreshed_time(
 def get_table_properties(
     connection: Connection,
     table_full_name: str,
-) -> Tuple[str, Dict[str, str]]:
+) -> Optional[Tuple[str, Dict[str, str]]]:
     """
     Retrieve the properties for a table
     See https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-tblproperties.html
@@ -707,7 +707,7 @@ def get_table_properties(
             logger.exception(
                 f"Failed to show table properties for {table_full_name}: {error}"
             )
-            return (table_full_name, {})
+            return None
 
         for row in cursor.fetchall():
             properties[row["key"]] = row["value"]
