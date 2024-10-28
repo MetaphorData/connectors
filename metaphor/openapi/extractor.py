@@ -144,18 +144,14 @@ class OpenAPIExtractor(BaseExtractor):
 
         methods: List[OpenAPIMethod] = []
         for method, item in path_item.items():
-            operation_type = to_operation_type(method)
-
-            if not operation_type:
-                continue
-
-            methods.append(
-                OpenAPIMethod(
-                    summary=item.get("summary") or None,
-                    description=item.get("description") or None,
-                    type=operation_type,
+            if operation_type := to_operation_type(method):
+                methods.append(
+                    OpenAPIMethod(
+                        summary=item.get("summary"),
+                        description=item.get("description"),
+                        type=operation_type,
+                    )
                 )
-            )
         return methods
 
     def _build_hierarchies(self, openapi: dict) -> List[Hierarchy]:
