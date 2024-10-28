@@ -61,7 +61,7 @@ class OpenAPIExtractor(BaseExtractor):
             logger.error("Unable to get OAS json")
             return []
 
-        endpoints = self._extract_paths(openapi_json)
+        apis = self._extract_apis(openapi_json)
         hierarchies = self._build_hierarchies(openapi_json)
 
         return hierarchies + endpoints
