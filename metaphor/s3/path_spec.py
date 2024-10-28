@@ -262,13 +262,14 @@ class PathSpec(BaseModel):
     def allow_path(self, path: str) -> bool:
         """
         Check if the directory path is accepted by this path spec.
-
-        Note that the `path` parameter should be a full path, i.e. has `s3` scheme,
-        with a specified bucket.
         """
         path_slash = path.count("/")
         uri_slash = self.uri.count("/")
         if path_slash > uri_slash:
+            return False
+
+        path_url = yarl.URL(path)
+        if path_url.scheme != "s3":
             return False
 
         slash_to_remove = (uri_slash - path_slash) + 1
@@ -284,24 +285,10 @@ class PathSpec(BaseModel):
             logger.debug(f"Unmatched path: {path}")
             return False
 
-        for exclude in self.excludes:
-            exclude_slash = exclude.count("/")
-            if path_slash < exclude_slash:
-                # Can't tell
-                continue
-            slash_to_remove = (path_slash - exclude_slash) + 1
-            path.rsplit("/", slash_to_remove)[0]
-            if exclude[-1] == "/":
-                exclude_pat = exclude[:-1]
-            elif exclude[-2:] == "/*":
-                exclude_pat = exclude[:-2]
-            else:
-                exclude_pat = exclude
-            if fnmatch(path.rsplit("/", slash_to_remove)[0], exclude_pat):
-                logger.debug(f"Path {path} excluded by pattern: {exclude}")
-                return False
-
-        return True
+        return not any(
+            self._path_is_excluded(yarl.URL(exclude), path_url)
+            for exclude in self.excludes
+        )
 
     def extract_table_name_and_path(self, path: str) -> Tuple[str, str]:
         parsed_vars = self.get_named_vars(path)
@@ -320,3 +307,43 @@ class PathSpec(BaseModel):
                 match.format_map(parsed_vars.named) for match in self.labels
             )
             return table_name, table_path
+
+    @staticmethod
+    def _path_is_excluded(
+        exclude: yarl.URL,
+        path: yarl.URL,
+    ) -> bool:
+        """
+        Checks if a path is covered by the exclude rule.
+        """
+        if exclude.host != path.host:
+            # Different buckets, not excluded
+            return False
+
+        # Ensure both `path` and `exclude` do not end with `/`
+        exclude = PathSpec._trim_url_end(exclude)
+        path = PathSpec._trim_url_end(path)
+
+        # Check the parts one by one
+        for exclude_part, path_part in zip(exclude.parts, path.parts):
+            if not fnmatch(path_part, exclude_part):
+                # Found a part in path url that does not match the excluded part pattern, not excluded
+                return False
+
+        # `len(path.parts) < len(exclude.parts)` means path is an ancestor of the exclude path, and
+        # path should not be excluded.
+        # On the other hand, if `len(path.parts) >= len(exclude.parts)` it means the exclude path
+        # covers the path, so path should be excluded.
+        return len(path.parts) >= len(exclude.parts)
+
+    @staticmethod
+    def _trim_url_end(url: yarl.URL) -> yarl.URL:
+        """
+        Trims the final part of the URL to make sure it does not end with
+        either `/` or `/*`.
+        """
+        if url.human_repr().endswith("/"):
+            return yarl.URL(url.human_repr()[:-1])
+        if url.human_repr().endswith("/*"):
+            return yarl.URL(url.human_repr()[:-2])
+        return url
