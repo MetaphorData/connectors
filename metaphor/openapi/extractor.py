@@ -64,7 +64,7 @@ class OpenAPIExtractor(BaseExtractor):
         apis = self._extract_apis(openapi_json)
         hierarchies = self._extract_hierarchies(openapi_json)
 
-        return hierarchies + endpoints
+        return hierarchies + apis
 
     def _init_session(self):
         self._requests_session = requests.sessions.Session()
@@ -97,8 +97,8 @@ class OpenAPIExtractor(BaseExtractor):
 
         return resp.json()
 
-    def _extract_paths(self, openapi: dict) -> List[API]:
-        endpoints: List[API] = []
+    def _extract_apis(self, openapi: dict) -> List[API]:
+        apis: List[API] = []
         servers = openapi.get("servers")
 
         for path, path_item in openapi["paths"].items():
@@ -126,8 +126,8 @@ class OpenAPIExtractor(BaseExtractor):
                     name=path,
                 ),
             )
-            endpoints.append(endpoint)
-        return endpoints
+            apis.append(endpoint)
+        return apis
 
     def _get_first_tag(self, path_item: dict) -> Optional[str]:
         for item in path_item.values():
@@ -147,14 +147,14 @@ class OpenAPIExtractor(BaseExtractor):
             if operation_type := to_operation_type(method):
                 methods.append(
                     OpenAPIMethod(
-                        summary=item.get("summary"),
-                        description=item.get("description"),
+                        summary=item.get("summary") or None,
+                        description=item.get("description") or None,
                         type=operation_type,
                     )
                 )
         return methods
 
-    def _build_hierarchies(self, openapi: dict) -> List[Hierarchy]:
+    def _extract_hierarchies(self, openapi: dict) -> List[Hierarchy]:
         hierarchies: List[Hierarchy] = []
 
         title = openapi["info"]["title"]
