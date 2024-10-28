@@ -72,6 +72,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [monte_carlo](metaphor/monte_carlo/)                              | Data monitor                             |
 | [mssql](metaphor/mssql/)                                          | Schema                                   |
 | [mysql](metaphor/mysql/)                                          | Schema, description                      |
+| [openapi](metaphor/openapi/)                                      | API, description                         |
 | [oracle](metaphor/oracle/)                                        | Schema, description, queries             |
 | [notion](metaphor/notion/)                                        | Document embeddings                      |
 | [postgresql](metaphor/postgresql/)                                | Schema, description, statistics          |

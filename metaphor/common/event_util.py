@@ -8,6 +8,7 @@ from jsonschema.validators import validator_for
 
 from metaphor import models  # type: ignore
 from metaphor.models.metadata_change_event import (
+    API,
     Dashboard,
     Dataset,
     ExternalSearchDocument,
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 ENTITY_TYPES = Union[
+    API,
     Dashboard,
     Dataset,
     ExternalSearchDocument,
@@ -57,9 +59,11 @@ class EventUtil:
         return MetadataChangeEvent(**kwargs)
 
     @staticmethod
-    def build_event(entity: ENTITY_TYPES):
+    def build_event(entity: ENTITY_TYPES):  # noqa: C901
         """Build MCE given an entity"""
-        if type(entity) is Dashboard:
+        if type(entity) is API:
+            return EventUtil._build_event(api=entity)
+        elif type(entity) is Dashboard:
             return EventUtil._build_event(dashboard=entity)
         elif type(entity) is Dataset:
             return EventUtil._build_event(dataset=entity)
