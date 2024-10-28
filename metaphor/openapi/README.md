@@ -12,9 +12,18 @@ Create a YAML config file based on the following template.
 
 ### Required Configurations
 
+Configure the connector by either
+
 ```yaml
 base_url: <url>  # BaseUrl for endpoints in OAS
-openapi_json_path: <path or url>  # URL or path of OAS
+openapi_json_path: <path>  # path to OAS JSON file
+```
+
+or
+
+```yaml
+base_url: <url>  # BaseUrl for endpoints in OAS
+openapi_json_url: <url>  # URL of OAS
 ```
 
 ### Optional Configurations
