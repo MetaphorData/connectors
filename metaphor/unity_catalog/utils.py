@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from queue import Queue
-from typing import Collection, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 
 from databricks import sql
 from databricks.sdk import WorkspaceClient
@@ -16,179 +16,23 @@ from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_quer
 from metaphor.common.sql.table_level_lineage.table_level_lineage import (
     extract_table_level_lineage,
 )
-from metaphor.common.utils import is_email, safe_float, start_of_day
-from metaphor.models.metadata_change_event import DataPlatform, Dataset, QueriedDataset
-from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
+from metaphor.common.utils import is_email, safe_float
+from metaphor.models.metadata_change_event import (
+    DataPlatform,
+    Dataset,
+    QueriedDataset,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
+)
+from metaphor.unity_catalog.models import Tag
+from metaphor.unity_catalog.queries import (
+    get_last_refreshed_time,
+    get_table_properties,
+    list_query_logs,
+)
 
 logger = get_logger()
-
-# Map a table's full name to its table lineage
-TableLineageMap = Dict[str, TableLineage]
-
-# Map a table's full name to its column lineage
-ColumnLineageMap = Dict[str, ColumnLineage]
-
-IGNORED_HISTORY_OPERATIONS = {
-    "ADD CONSTRAINT",
-    "CHANGE COLUMN",
-    "LIQUID TAGGING",
-    "OPTIMIZE",
-    "SET TBLPROPERTIES",
-}
-"""These are the operations that do not modify actual data."""
-
-
-def list_table_lineage(
-    connection: Connection, catalog: str, schema: str, lookback_days=7
-) -> TableLineageMap:
-    """
-    Fetch table lineage for a specific schema from system.access.table_lineage table
-    See https://docs.databricks.com/en/admin/system-tables/lineage.html for more details
-    """
-
-    with connection.cursor() as cursor:
-        query = f"""
-            SELECT
-                source_table_full_name,
-                target_table_full_name
-            FROM system.access.table_lineage
-            WHERE
-                target_table_catalog = '{catalog}' AND
-                target_table_schema = '{schema}' AND
-                source_table_full_name IS NOT NULL AND
-                event_time > date_sub(now(), {lookback_days})
-            GROUP BY
-                source_table_full_name,
-                target_table_full_name
-        """
-        cursor.execute(query)
-
-        table_lineage: Dict[str, TableLineage] = {}
-        for source_table, target_table in cursor.fetchall():
-            lineage = table_lineage.setdefault(target_table.lower(), TableLineage())
-            lineage.upstream_tables.append(source_table.lower())
-
-    logger.info(
-        f"Fetched table lineage for {len(table_lineage)} tables in {catalog}.{schema}"
-    )
-    json_dump_to_debug_file(table_lineage, f"table_lineage_{catalog}_{schema}.json")
-    return table_lineage
-
-
-def list_column_lineage(
-    connection: Connection, catalog: str, schema: str, lookback_days=7
-) -> ColumnLineageMap:
-    """
-    Fetch column lineage for a specific schema from system.access.table_lineage table
-    See https://docs.databricks.com/en/admin/system-tables/lineage.html for more details
-    """
-
-    with connection.cursor() as cursor:
-        query = f"""
-            SELECT
-                source_table_full_name,
-                source_column_name,
-                target_table_full_name,
-                target_column_name
-            FROM system.access.column_lineage
-            WHERE
-                target_table_catalog = '{catalog}' AND
-                target_table_schema = '{schema}' AND
-                source_table_full_name IS NOT NULL AND
-                event_time > date_sub(now(), {lookback_days})
-            GROUP BY
-                source_table_full_name,
-                source_column_name,
-                target_table_full_name,
-                target_column_name
-        """
-        cursor.execute(query)
-
-        column_lineage: Dict[str, ColumnLineage] = {}
-        for (
-            source_table,
-            source_column,
-            target_table,
-            target_column,
-        ) in cursor.fetchall():
-            lineage = column_lineage.setdefault(target_table.lower(), ColumnLineage())
-            columns = lineage.upstream_columns.setdefault(target_column.lower(), [])
-            columns.append(
-                Column(
-                    table_name=source_table.lower(), column_name=source_column.lower()
-                )
-            )
-
-    logger.info(
-        f"Fetched column lineage for {len(column_lineage)} tables in {catalog}.{schema}"
-    )
-    json_dump_to_debug_file(column_lineage, f"column_lineage_{catalog}_{schema}.json")
-    return column_lineage
-
-
-def list_query_logs(
-    connection: Connection, lookback_days: int, excluded_usernames: Collection[str]
-):
-    """
-    Fetch query logs from system.query.history table
-    See https://docs.databricks.com/en/admin/system-tables/query-history.html
-    """
-    start = start_of_day(lookback_days)
-    end = start_of_day()
-
-    user_condition = ",".join([f"'{user}'" for user in excluded_usernames])
-    user_filter = f"Q.executed_by IN ({user_condition}) AND" if user_condition else ""
-
-    with connection.cursor() as cursor:
-        query = f"""
-            SELECT
-                statement_id as query_id,
-                executed_by as email,
-                start_time,
-                int(total_task_duration_ms/1000) as duration,
-                read_rows as rows_read,
-                produced_rows as rows_written,
-                read_bytes as bytes_read,
-                written_bytes as bytes_written,
-                statement_type as query_type,
-                statement_text as query_text
-            FROM system.query.history
-            WHERE
-                {user_filter}
-                execution_status = 'FINISHED' AND
-                start_time >= ? AND
-                start_time < ?
-        """
-        cursor.execute(query, [start, end])
-        return cursor.fetchall()
-
-
-def get_last_refreshed_time(
-    connection: Connection,
-    table_full_name: str,
-    limit: int,
-) -> Optional[Tuple[str, datetime]]:
-    """
-    Retrieve the last refresh time for a table
-    See https://docs.databricks.com/en/delta/history.html
-    """
-
-    with connection.cursor() as cursor:
-        try:
-            cursor.execute(f"DESCRIBE HISTORY {table_full_name} LIMIT {limit}")
-        except Exception as error:
-            logger.exception(f"Failed to get history for {table_full_name}: {error}")
-            return None
-
-        for history in cursor.fetchall():
-            operation = history["operation"]
-            if operation not in IGNORED_HISTORY_OPERATIONS:
-                logger.info(
-                    f"Fetched last refresh time for {table_full_name} ({operation})"
-                )
-                return (table_full_name, history["timestamp"])
-
-    return None
 
 
 def batch_get_last_refreshed_time(
@@ -226,6 +70,44 @@ def batch_get_last_refreshed_time(
             except Exception:
                 logger.exception(
                     f"Not able to get refreshed time for {futures[future]}"
+                )
+
+    return result_map
+
+
+def batch_get_table_properties(
+    connection_pool: Queue,
+    table_full_names: List[str],
+) -> Dict[str, Dict[str, str]]:
+    result_map: Dict[str, Dict[str, str]] = {}
+
+    with ThreadPoolExecutor(max_workers=connection_pool.maxsize) as executor:
+
+        def get_table_properties_helper(table_full_name: str):
+            connection = connection_pool.get()
+            result = get_table_properties(connection, table_full_name)
+            connection_pool.put(connection)
+            return result
+
+        futures = {
+            executor.submit(
+                get_table_properties_helper,
+                table_full_name,
+            ): table_full_name
+            for table_full_name in table_full_names
+        }
+
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+                if result is None:
+                    continue
+
+                table_full_name, properties = result
+                result_map[table_full_name] = properties
+            except Exception:
+                logger.exception(
+                    f"Not able to get table properties for {futures[future]}"
                 )
 
     return result_map
@@ -360,7 +242,7 @@ def find_qualified_dataset(dataset: QueriedDataset, datasets: Dict[str, Dataset]
     return None
 
 
-def to_query_log_with_tll(
+def _to_query_log_with_tll(
     row: Row,
     service_principals: Dict[str, ServicePrincipal],
     datasets: Dict[str, Dataset],
@@ -436,7 +318,7 @@ def get_query_logs(
     count = 0
     logger.info(f"{len(rows)} queries to fetch")
     for row in rows:
-        res = to_query_log_with_tll(
+        res = _to_query_log_with_tll(
             row, service_principals, datasets, process_query_config
         )
         if res is not None:
@@ -444,3 +326,16 @@ def get_query_logs(
             if count % 1000 == 0:
                 logger.info(f"Fetched {count} queries")
             yield res
+
+
+def to_system_tags(tags: List[Tag]) -> SystemTags:
+    return SystemTags(
+        tags=[
+            SystemTag(
+                key=tag.key if tag.value else None,
+                value=tag.value if tag.value else tag.key,
+                system_tag_source=SystemTagSource.UNITY_CATALOG,
+            )
+            for tag in tags
+        ],
+    )

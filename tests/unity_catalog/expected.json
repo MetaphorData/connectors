@@ -9,9 +9,9 @@
     },
     "schema": {},
     "sourceInfo": {
-      "createdAtSource": "2024-04-25T08:39:38.658000+00:00",
+      "createdAtSource": "2020-01-01T00:00:00+00:00",
       "createdBy": "foo@bar.com",
-      "lastUpdated": "2024-04-25T08:39:38.658000+00:00",
+      "lastUpdated": "2020-01-01T00:00:00+00:00",
       "mainUrl": "https://dummy.host/explore/data/volumes/catalog2/schema/volume",
       "updatedBy": "foo@bar.com"
     },
@@ -45,14 +45,14 @@
         "volumeFiles": [
           {
             "entityId": "DATASET~C109145C4035631CA68E19687464C80A",
-            "modification_time": "2024-05-09T16:49:14+00:00",
+            "modification_time": "2020-01-01T00:00:00+00:00",
             "name": "input.csv",
             "path": "/Volumes/catalog2/schema/volume/input.csv",
             "size": 100000.0
           },
           {
             "entityId": "DATASET~3AC713F58F40836DEA91AF59F2AE4D7A",
-            "modification_time": "2024-05-09T18:12:34+00:00",
+            "modification_time": "2020-01-01T00:00:00+00:00",
             "name": "output.csv",
             "path": "/Volumes/catalog2/schema/volume/output.csv",
             "size": 200000.0
@@ -70,7 +70,7 @@
       "platform": "UNITY_CATALOG_VOLUME_FILE"
     },
     "sourceInfo": {
-      "lastUpdated": "2024-05-09T16:49:14+00:00"
+      "lastUpdated": "2020-01-01T00:00:00+00:00"
     },
     "statistics": {
       "dataSizeBytes": 100000.0
@@ -89,7 +89,7 @@
       "platform": "UNITY_CATALOG_VOLUME_FILE"
     },
     "sourceInfo": {
-      "lastUpdated": "2024-05-09T18:12:34+00:00"
+      "lastUpdated": "2020-01-01T00:00:00+00:00"
     },
     "statistics": {
       "dataSizeBytes": 200000.0
@@ -128,7 +128,8 @@
           "description": "some description",
           "fieldName": "col1",
           "fieldPath": "col1",
-          "nativeType": "int",
+          "nativeType": "INT",
+          "nullable": true,
           "precision": 32.0,
           "tags": [
             "col_tag=col_value",
@@ -142,7 +143,7 @@
       }
     },
     "sourceInfo": {
-      "createdAtSource": "1970-01-01T00:00:00+00:00",
+      "createdAtSource": "2020-01-01T00:00:00+00:00",
       "lastUpdated": "2020-01-01T00:00:00+00:00",
       "mainUrl": "https://dummy.host/explore/data/catalog/schema/table"
     },
@@ -187,8 +188,9 @@
           "value": "value"
         },
         {
+          "key": "tag2",
           "systemTagSource": "UNITY_CATALOG",
-          "value": "tag2"
+          "value": "value2"
         }
       ]
     },
@@ -197,14 +199,14 @@
       "tableInfo": {
         "dataSourceFormat": "CSV",
         "owner": "user1@foo.com",
+        "storageLocation": "s3://path",
+        "type": "MANAGED",
         "properties": [
           {
             "key": "delta.lastCommitTimestamp",
-            "value": "\"1664444422000\""
+            "value": "1664444422000"
           }
-        ],
-        "storageLocation": "s3://path",
-        "type": "MANAGED"
+        ]
       }
     }
   },
@@ -219,8 +221,10 @@
         {
           "fieldName": "col1",
           "fieldPath": "col1",
-          "nativeType": "int",
-          "precision": 32.0
+          "nativeType": "INT",
+          "nullable": true,
+          "precision": 32.0,
+          "tags": []
         }
       ],
       "schemaType": "SQL",
@@ -230,7 +234,10 @@
       }
     },
     "sourceInfo": {
-      "createdAtSource": "1970-01-01T00:00:00+00:00",
+      "createdAtSource": "2020-01-01T00:00:00+00:00",
+      "createdBy": "foo@bar.com",
+      "lastUpdated": "2020-01-01T00:00:00+00:00",
+      "updatedBy": "foo@bar.com",
       "mainUrl": "https://dummy.host/explore/data/catalog/schema/view"
     },
     "structure": {
@@ -274,69 +281,66 @@
       "datasetType": "UNITY_CATALOG_TABLE",
       "tableInfo": {
         "owner": "user2@foo.com",
+        "dataSourceFormat": "CSV",
+        "type": "VIEW",
         "properties": [
           {
             "key": "view.catalogAndNamespace.numParts",
-            "value": "\"2\""
+            "value": "2"
           },
           {
             "key": "view.sqlConfig.spark.sql.hive.convertCTAS",
-            "value": "\"true\""
+            "value": "true"
           },
           {
             "key": "view.query.out.col.0",
-            "value": "\"key\""
+            "value": "key"
           },
           {
             "key": "view.sqlConfig.spark.sql.parquet.compression.codec",
-            "value": "\"snappy\""
+            "value": "snappy"
           },
           {
             "key": "view.query.out.numCols",
-            "value": "\"3\""
+            "value": "3"
           },
           {
             "key": "view.referredTempViewNames",
-            "value": "\"[]\""
+            "value": "[]"
           },
           {
             "key": "view.query.out.col.1",
-            "value": "\"values\""
+            "value": "values"
           },
           {
             "key": "view.sqlConfig.spark.sql.streaming.stopTimeout",
-            "value": "\"15s\""
+            "value": "15s"
           },
           {
             "key": "view.catalogAndNamespace.part.0",
-            "value": "\"catalog\""
+            "value": "catalog"
           },
           {
             "key": "view.sqlConfig.spark.sql.sources.commitProtocolClass",
-            "value": "\"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\""
+            "value": "com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol"
           },
           {
             "key": "view.sqlConfig.spark.sql.sources.default",
-            "value": "\"delta\""
+            "value": "delta"
           },
           {
             "key": "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault",
-            "value": "\"false\""
+            "value": "false"
           },
           {
             "key": "view.query.out.col.2",
-            "value": "\"nested_values\""
-          },
-          {
-            "key": "view.referredTempFunctionsNames",
-            "value": "\"[]\""
+            "value": "nested_values"
           },
           {
             "key": "view.catalogAndNamespace.part.1",
-            "value": "\"default\""
+            "value": "default"
           }
-        ],
-        "type": "VIEW"
+        ]
       }
     }
   },
@@ -352,8 +356,10 @@
           "description": "some description",
           "fieldName": "col1",
           "fieldPath": "col1",
-          "nativeType": "int",
-          "precision": 32.0
+          "nativeType": "INT",
+          "nullable": true,
+          "precision": 32.0,
+          "tags": []
         }
       ],
       "schemaType": "SQL",
@@ -362,7 +368,7 @@
       }
     },
     "sourceInfo": {
-      "createdAtSource": "1970-01-01T00:00:00+00:00",
+      "createdAtSource": "2020-01-01T00:00:00+00:00",
       "lastUpdated": "2020-01-01T00:00:00+00:00",
       "mainUrl": "https://dummy.host/explore/data/catalog2/schema/table2"
     },
@@ -387,12 +393,6 @@
       "tableInfo": {
         "dataSourceFormat": "DELTA",
         "owner": "sp1",
-        "properties": [
-          {
-            "key": "delta.lastCommitTimestamp",
-            "value": "\"1664444422000\""
-          }
-        ],
         "storageLocation": "s3://path",
         "type": "MANAGED"
       }

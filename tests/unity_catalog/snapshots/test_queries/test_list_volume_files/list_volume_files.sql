@@ -1,0 +1,1 @@
+LIST '/Volumes/catalog1/schema1/volume1'

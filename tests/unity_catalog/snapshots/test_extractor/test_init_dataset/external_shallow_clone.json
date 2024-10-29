@@ -11,12 +11,24 @@
     }
   },
   "sourceInfo": {
-    "mainUrl": "http://foo.bar/catalog/schema/table"
+    "createdAtSource": "2020-01-01T00:00:00+00:00",
+    "createdBy": "bar",
+    "lastUpdated": "2020-01-01T00:00:00+00:00",
+    "mainUrl": "http://foo.bar/catalog/schema/table",
+    "updatedBy": "baz"
   },
   "structure": {
     "database": "catalog",
     "schema": "schema",
     "table": "table"
+  },
+  "systemContacts": {
+    "contacts": [
+      {
+        "email": "foo",
+        "systemContactSource": "UNITY_CATALOG"
+      }
+    ]
   },
   "systemTags": {
     "tags": []
@@ -24,7 +36,8 @@
   "unityCatalog": {
     "datasetType": "UNITY_CATALOG_TABLE",
     "tableInfo": {
-      "properties": [],
+      "dataSourceFormat": "csv",
+      "owner": "foo",
       "type": "EXTERNAL_SHALLOW_CLONE"
     }
   }

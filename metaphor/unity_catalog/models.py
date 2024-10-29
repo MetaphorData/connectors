@@ -1,28 +1,7 @@
-from typing import Dict, List
+from datetime import datetime
+from typing import Dict, List, Literal, Optional
 
-from databricks.sdk.service.catalog import ColumnInfo
 from pydantic import BaseModel
-
-from metaphor.common.fieldpath import build_schema_field
-from metaphor.common.logger import get_logger
-from metaphor.models.metadata_change_event import SchemaField
-
-logger = get_logger()
-
-
-def extract_schema_field_from_column_info(column: ColumnInfo) -> SchemaField:
-    if column.name is None or column.type_name is None:
-        raise ValueError(f"Invalid column {column.name}, no type_name found")
-
-    field = build_schema_field(
-        column.name, column.type_name.value.lower(), column.comment
-    )
-    field.precision = (
-        float(column.type_precision)
-        if column.type_precision is not None
-        else float("nan")
-    )
-    return field
 
 
 class TableLineage(BaseModel):
@@ -36,3 +15,73 @@ class Column(BaseModel):
 
 class ColumnLineage(BaseModel):
     upstream_columns: Dict[str, List[Column]] = {}
+
+
+class Tag(BaseModel):
+    key: str
+    value: str
+
+
+class CatalogInfo(BaseModel):
+    catalog_name: str
+    owner: str
+    comment: Optional[str] = None
+    tags: List[Tag]
+
+
+class SchemaInfo(BaseModel):
+    catalog_name: str
+    schema_name: str
+    owner: str
+    comment: Optional[str] = None
+    tags: List[Tag]
+
+
+class ColumnInfo(BaseModel):
+    column_name: str
+    data_type: str
+    data_precision: Optional[int]
+    is_nullable: bool
+    comment: Optional[str] = None
+    tags: List[Tag]
+
+
+class TableInfo(BaseModel):
+    catalog_name: str
+    schema_name: str
+    table_name: str
+    type: str
+    owner: str
+    comment: Optional[str] = None
+    created_at: datetime
+    created_by: str
+    updated_at: datetime
+    updated_by: str
+    view_definition: Optional[str] = None
+    storage_location: Optional[str] = None
+    data_source_format: str
+    tags: List[Tag] = []
+    columns: List[ColumnInfo] = []
+
+
+class VolumeInfo(BaseModel):
+    catalog_name: str
+    schema_name: str
+    volume_name: str
+    volume_type: Literal["MANAGED", "EXTERNAL"]
+    full_name: str
+    owner: str
+    comment: Optional[str] = None
+    created_at: datetime
+    created_by: str
+    updated_at: datetime
+    updated_by: str
+    storage_location: str
+    tags: List[Tag]
+
+
+class VolumeFileInfo(BaseModel):
+    last_updated: datetime
+    name: str
+    path: str
+    size: float

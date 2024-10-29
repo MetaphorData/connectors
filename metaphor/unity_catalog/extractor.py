@@ -1,12 +1,9 @@
-import json
 import re
 import urllib.parse
-from collections import defaultdict
-from datetime import datetime
-from typing import Collection, Dict, Generator, Iterator, List, Optional, Tuple
+from typing import Collection, Dict, Iterator, List, Optional
 
-from databricks.sdk.service.catalog import TableInfo, TableType, VolumeInfo
 from databricks.sdk.service.iam import ServicePrincipal
+from pydantic import BaseModel
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -15,10 +12,10 @@ from metaphor.common.entity_id import (
     to_dataset_entity_id_from_logical_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
-from metaphor.common.filter import DatasetFilter
-from metaphor.common.logger import get_logger, json_dump_to_debug_file
+from metaphor.common.fieldpath import build_schema_field
+from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.utils import to_utc_datetime_from_timestamp
+from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetPlatform,
@@ -34,12 +31,14 @@ from metaphor.models.metadata_change_event import (
     KeyValuePair,
     MaterializationType,
     QueryLog,
+    SchemaField,
     SchemaType,
     SourceField,
     SourceInfo,
     SQLSchema,
     SystemContact,
     SystemContacts,
+    SystemDescription,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -52,59 +51,68 @@ from metaphor.models.metadata_change_event import (
     VolumeFile,
 )
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
-from metaphor.unity_catalog.models import extract_schema_field_from_column_info
-from metaphor.unity_catalog.utils import (
+from metaphor.unity_catalog.models import (
+    CatalogInfo,
+    ColumnInfo,
+    SchemaInfo,
+    TableInfo,
+    Tag,
+    VolumeFileInfo,
+    VolumeInfo,
+)
+from metaphor.unity_catalog.queries import (
     ColumnLineageMap,
     TableLineageMap,
+    list_catalogs,
+    list_column_lineage,
+    list_schemas,
+    list_table_lineage,
+    list_tables,
+    list_volume_files,
+    list_volumes,
+)
+from metaphor.unity_catalog.utils import (
     batch_get_last_refreshed_time,
+    batch_get_table_properties,
     create_api,
     create_connection,
     create_connection_pool,
     get_query_logs,
-    list_column_lineage,
     list_service_principals,
-    list_table_lineage,
 )
 
 logger = get_logger()
 
-# Filter out "system" database & all "information_schema" schemas
-DEFAULT_FILTER: DatasetFilter = DatasetFilter(
-    excludes={
-        "system": None,
-        "*": {"information_schema": None},
-    }
-)
 
 TABLE_TYPE_MATERIALIZATION_TYPE_MAP = {
-    TableType.EXTERNAL: MaterializationType.EXTERNAL,
-    TableType.EXTERNAL_SHALLOW_CLONE: MaterializationType.EXTERNAL,
-    TableType.FOREIGN: MaterializationType.EXTERNAL,
-    TableType.MANAGED: MaterializationType.TABLE,
-    TableType.MANAGED_SHALLOW_CLONE: MaterializationType.TABLE,
-    TableType.MATERIALIZED_VIEW: MaterializationType.MATERIALIZED_VIEW,
-    TableType.STREAMING_TABLE: MaterializationType.STREAM,
-    TableType.VIEW: MaterializationType.VIEW,
+    "EXTERNAL": MaterializationType.EXTERNAL,
+    "EXTERNAL_SHALLOW_CLONE": MaterializationType.EXTERNAL,
+    "FOREIGN": MaterializationType.EXTERNAL,
+    "MANAGED": MaterializationType.TABLE,
+    "MANAGED_SHALLOW_CLONE": MaterializationType.TABLE,
+    "MATERIALIZED_VIEW": MaterializationType.MATERIALIZED_VIEW,
+    "STREAMING_TABLE": MaterializationType.STREAM,
+    "VIEW": MaterializationType.VIEW,
 }
 
 TABLE_TYPE_WITH_HISTORY = set(
     [
-        TableType.EXTERNAL,
-        TableType.EXTERNAL_SHALLOW_CLONE,
-        TableType.MANAGED,
-        TableType.MANAGED_SHALLOW_CLONE,
+        "EXTERNAL",
+        "EXTERNAL_SHALLOW_CLONE",
+        "MANAGED",
+        "MANAGED_SHALLOW_CLONE",
     ]
 )
 
 TABLE_TYPE_MAP = {
-    TableType.EXTERNAL: UnityCatalogTableType.EXTERNAL,
-    TableType.EXTERNAL_SHALLOW_CLONE: UnityCatalogTableType.EXTERNAL_SHALLOW_CLONE,
-    TableType.FOREIGN: UnityCatalogTableType.FOREIGN,
-    TableType.MANAGED: UnityCatalogTableType.MANAGED,
-    TableType.MANAGED_SHALLOW_CLONE: UnityCatalogTableType.MANAGED_SHALLOW_CLONE,
-    TableType.MATERIALIZED_VIEW: UnityCatalogTableType.MATERIALIZED_VIEW,
-    TableType.STREAMING_TABLE: UnityCatalogTableType.STREAMING_TABLE,
-    TableType.VIEW: UnityCatalogTableType.VIEW,
+    "EXTERNAL": UnityCatalogTableType.EXTERNAL,
+    "EXTERNAL_SHALLOW_CLONE": UnityCatalogTableType.EXTERNAL_SHALLOW_CLONE,
+    "FOREIGN": UnityCatalogTableType.FOREIGN,
+    "MANAGED": UnityCatalogTableType.MANAGED,
+    "MANAGED_SHALLOW_CLONE": UnityCatalogTableType.MANAGED_SHALLOW_CLONE,
+    "MATERIALIZED_VIEW": UnityCatalogTableType.MATERIALIZED_VIEW,
+    "STREAMING_TABLE": UnityCatalogTableType.STREAMING_TABLE,
+    "VIEW": UnityCatalogTableType.VIEW,
 }
 
 # For variable substitution in source URLs
@@ -114,22 +122,9 @@ URL_SCHEMA_RE = re.compile(r"{schema}")
 URL_TABLE_RE = re.compile(r"{table}")
 
 
-CatalogSystemTagsTuple = Tuple[List[SystemTag], Dict[str, List[SystemTag]]]
-"""
-(catalog system tags, schema name -> schema system tags)
-"""
-
-
-CatalogSystemTags = Dict[str, CatalogSystemTagsTuple]
-"""
-catalog name -> (catalog tags, schema name -> schema tags)
-"""
-
-
-def to_utc_from_timestamp_ms(timestamp_ms: Optional[int]):
-    if timestamp_ms is not None:
-        return to_utc_datetime_from_timestamp(timestamp_ms / 1000)
-    return None
+class CatalogSystemTags(BaseModel):
+    catalog_tags: List[SystemTag] = []
+    schema_name_to_tags: Dict[str, List[SystemTag]] = {}
 
 
 class UnityCatalogExtractor(BaseExtractor):
@@ -168,10 +163,11 @@ class UnityCatalogExtractor(BaseExtractor):
         self._service_principals: Dict[str, ServicePrincipal] = {}
 
         self._last_refresh_time_queue: List[str] = []
+        self._table_properties_queue: List[str] = []
 
         # Map fullname or volume path to a dataset
         self._datasets: Dict[str, Dataset] = {}
-        self._filter = config.filter.normalize().merge(DEFAULT_FILTER)
+        self._filter = config.filter.normalize()
         self._query_log_config = config.query_log
         self._hierarchies: Dict[str, Hierarchy] = {}
         self._volumes: Dict[str, VolumeInfo] = {}
@@ -182,114 +178,53 @@ class UnityCatalogExtractor(BaseExtractor):
         self._service_principals = list_service_principals(self._api)
         logger.info(f"Found service principals: {self._service_principals}")
 
-        catalogs = [
-            catalog
-            for catalog in self._get_catalogs()
-            if self._filter.include_database(catalog)
-        ]
+        catalogs = list_catalogs(self._connection)
+        for catalog_info in catalogs:
+            catalog = catalog_info.catalog_name
+            if not self._filter.include_database(catalog):
+                logger.info(f"Ignore catalog {catalog} due to filter config")
+                continue
 
-        logger.info(f"Found catalogs: {catalogs}")
+            self._init_catalog(catalog_info)
 
-        for catalog in catalogs:
-            schemas = self._get_schemas(catalog)
-            for schema in schemas:
+            for schema_info in list_schemas(self._connection, catalog):
+                schema = schema_info.schema_name
                 if not self._filter.include_schema(catalog, schema):
                     logger.info(
-                        f"Ignore schema: {catalog}.{schema} due to filter config"
+                        f"Ignore schema {catalog}.{schema} due to filter config"
                     )
                     continue
+
+                self._init_schema(schema_info)
 
                 table_lineage = list_table_lineage(self._connection, catalog, schema)
                 column_lineage = list_column_lineage(self._connection, catalog, schema)
 
-                for volume in self._get_volume_infos(catalog, schema):
-                    assert volume.full_name
-                    self._volumes[volume.full_name] = volume
-                    self._init_volume(volume)
-                    self._extract_volume_files(volume)
+                for volume_info in list_volumes(self._connection, catalog, schema):
+                    self._volumes[volume_info.full_name] = volume_info
+                    self._init_volume(volume_info)
+                    self._extract_volume_files(volume_info)
 
-                for table_info in self._get_table_infos(catalog, schema):
-                    table_name = f"{catalog}.{schema}.{table_info.name}"
-                    if table_info.name is None:
-                        logger.error(f"Ignoring table without name: {table_info}")
-                        continue
-                    if not self._filter.include_table(catalog, schema, table_info.name):
+                for table_info in list_tables(self._connection, catalog, schema):
+                    table = table_info.table_name
+                    table_name = f"{catalog}.{schema}.{table}"
+                    if not self._filter.include_table(catalog, schema, table):
                         logger.info(f"Ignore table: {table_name} due to filter config")
                         continue
 
                     dataset = self._init_dataset(table_info)
                     self._populate_lineage(dataset, table_lineage, column_lineage)
 
-        self._fetch_tags(catalogs)
+        self._propagate_tags()
 
+        # Batch query table properties and last refreshed time
+        self._populate_table_properties()
         self._populate_last_refreshed_time()
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
         entities.extend(self._hierarchies.values())
         return entities
-
-    def _get_catalogs(self) -> List[str]:
-        catalogs = list(self._api.catalogs.list())
-        json_dump_to_debug_file(catalogs, "list-catalogs.json")
-
-        catalog_names = []
-        for catalog in catalogs:
-            if catalog.name is None:
-                continue
-
-            catalog_names.append(catalog.name)
-            if not catalog.owner:
-                continue
-
-            hierarchy = self._init_hierarchy(catalog.name)
-            hierarchy.system_contacts = SystemContacts(
-                contacts=[
-                    SystemContact(
-                        email=self._get_owner_display_name(catalog.owner),
-                        system_contact_source=AssetPlatform.UNITY_CATALOG,
-                    )
-                ]
-            )
-        return catalog_names
-
-    def _get_schemas(self, catalog: str) -> List[str]:
-        schemas = list(self._api.schemas.list(catalog))
-        json_dump_to_debug_file(schemas, f"list-schemas-{catalog}.json")
-
-        schema_names = []
-        for schema in schemas:
-            if schema.name:
-                schema_names.append(schema.name)
-            if not schema.owner:
-                continue
-
-            hierarchy = self._init_hierarchy(catalog, schema.name)
-            hierarchy.system_contacts = SystemContacts(
-                contacts=[
-                    SystemContact(
-                        email=self._get_owner_display_name(schema.owner),
-                        system_contact_source=AssetPlatform.UNITY_CATALOG,
-                    )
-                ]
-            )
-        return schema_names
-
-    def _get_table_infos(
-        self, catalog: str, schema: str
-    ) -> Generator[TableInfo, None, None]:
-        tables = list(self._api.tables.list(catalog, schema))
-        json_dump_to_debug_file(tables, f"list-tables-{catalog}-{schema}.json")
-        for table in tables:
-            yield table
-
-    def _get_volume_infos(
-        self, catalog: str, schema: str
-    ) -> Generator[VolumeInfo, None, None]:
-        volumes = list(self._api.volumes.list(catalog, schema))
-        json_dump_to_debug_file(volumes, f"list-volumes-{catalog}-{schema}.json")
-        for volume in volumes:
-            yield volume
 
     def _get_table_source_url(
         self, database: str, schema_name: str, table_name: str
@@ -314,11 +249,10 @@ class UnityCatalogExtractor(BaseExtractor):
         return url
 
     def _init_dataset(self, table_info: TableInfo) -> Dataset:
-        assert table_info.catalog_name and table_info.schema_name and table_info.name
-        table_name = table_info.name
+        table_name = table_info.table_name
         schema_name = table_info.schema_name
         database = table_info.catalog_name
-        table_type = table_info.table_type
+        table_type = table_info.type
 
         normalized_name = dataset_normalized_name(database, schema_name, table_name)
 
@@ -331,15 +265,7 @@ class UnityCatalogExtractor(BaseExtractor):
             database=database, schema=schema_name, table=table_name
         )
 
-        if table_type is None:
-            raise ValueError(f"Invalid table {table_info.name}, no table_type found")
-
-        fields = []
-        if table_info.columns is not None:
-            fields = [
-                extract_schema_field_from_column_info(column_info)
-                for column_info in table_info.columns
-            ]
+        fields = [self._init_column(column) for column in table_info.columns]
 
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
@@ -347,62 +273,82 @@ class UnityCatalogExtractor(BaseExtractor):
             fields=fields,
             sql_schema=SQLSchema(
                 materialization=TABLE_TYPE_MATERIALIZATION_TYPE_MAP.get(
-                    table_type, MaterializationType.TABLE
+                    table_type,
+                    MaterializationType.TABLE,
                 ),
-                table_schema=(
-                    table_info.view_definition if table_info.view_definition else None
-                ),
+                table_schema=table_info.view_definition,
             ),
         )
 
-        if table_info.table_type in TABLE_TYPE_WITH_HISTORY:
+        # Queue tables with history for batch query later
+        if table_type in TABLE_TYPE_WITH_HISTORY:
             self._last_refresh_time_queue.append(normalized_name)
 
         main_url = self._get_table_source_url(database, schema_name, table_name)
         dataset.source_info = SourceInfo(
             main_url=main_url,
-            created_at_source=to_utc_from_timestamp_ms(
-                timestamp_ms=table_info.created_at
-            ),
+            created_at_source=table_info.created_at,
+            created_by=table_info.created_by,
+            last_updated=table_info.updated_at,
+            updated_by=table_info.updated_by,
         )
 
         dataset.unity_catalog = UnityCatalog(
             dataset_type=UnityCatalogDatasetType.UNITY_CATALOG_TABLE,
             table_info=UnityCatalogTableInfo(
-                type=TABLE_TYPE_MAP.get(table_type, UnityCatalogTableType.UNKNOWN),
-                data_source_format=(
-                    table_info.data_source_format.value
-                    if table_info.data_source_format is not None
-                    else None
+                type=TABLE_TYPE_MAP.get(
+                    table_type,
+                    UnityCatalogTableType.UNKNOWN,
                 ),
+                data_source_format=table_info.data_source_format,
                 storage_location=table_info.storage_location,
                 owner=table_info.owner,
-                properties=(
-                    [
-                        KeyValuePair(key=k, value=json.dumps(v))
-                        for k, v in table_info.properties.items()
-                    ]
-                    if table_info.properties is not None
-                    else []
-                ),
             ),
         )
 
-        if table_info.owner is not None:
-            dataset.system_contacts = SystemContacts(
-                contacts=[
-                    SystemContact(
-                        email=self._get_owner_display_name(table_info.owner),
-                        system_contact_source=AssetPlatform.UNITY_CATALOG,
-                    )
-                ]
-            )
+        # Queue non-view tables for batch query later
+        if table_info.view_definition is None:
+            self._table_properties_queue.append(normalized_name)
 
-        dataset.system_tags = SystemTags(tags=[])
+        dataset.system_contacts = SystemContacts(
+            contacts=[
+                SystemContact(
+                    email=self._get_owner_display_name(table_info.owner),
+                    system_contact_source=AssetPlatform.UNITY_CATALOG,
+                )
+            ]
+        )
+
+        dataset.system_tags = SystemTags(
+            tags=[
+                SystemTag(
+                    key=tag.key,
+                    value=tag.value,
+                    system_tag_source=SystemTagSource.UNITY_CATALOG,
+                )
+                for tag in table_info.tags
+            ]
+        )
 
         self._datasets[normalized_name] = dataset
 
         return dataset
+
+    def _init_column(self, column_info: ColumnInfo) -> SchemaField:
+        field = build_schema_field(
+            column_name=column_info.column_name,
+            field_type=column_info.data_type,
+            description=column_info.comment,
+            nullable=column_info.is_nullable,
+            precision=safe_float(column_info.data_precision),
+        )
+
+        field.tags = [
+            f"{tag.key}={tag.value}" if tag.key else tag.value
+            for tag in column_info.tags
+        ]
+
+        return field
 
     def _get_location_url(self, location_name: str):
         url = f"https://{self._hostname}/explore/location/{location_name}/browse"
@@ -499,10 +445,12 @@ class UnityCatalogExtractor(BaseExtractor):
         self,
         catalog: str,
         schema: Optional[str] = None,
+        owner: Optional[str] = None,
+        comment: Optional[str] = None,
+        tags: Optional[List[Tag]] = None,
     ) -> Hierarchy:
         path = [part.lower() for part in [catalog, schema] if part]
-
-        return self._hierarchies.setdefault(
+        hierarchy = self._hierarchies.setdefault(
             ".".join(path),
             Hierarchy(
                 logical_id=HierarchyLogicalID(
@@ -511,242 +459,96 @@ class UnityCatalogExtractor(BaseExtractor):
             ),
         )
 
-    def _extract_hierarchies(self, catalog_system_tags: CatalogSystemTags) -> None:
-        for catalog, (catalog_tags, schema_name_to_tag) in catalog_system_tags.items():
-            if catalog_tags:
-                hierarchy = self._init_hierarchy(catalog)
-                hierarchy.system_tags = SystemTags(tags=catalog_tags)
-            for schema, schema_tags in schema_name_to_tag.items():
-                if schema_tags:
-                    hierarchy = self._init_hierarchy(catalog, schema)
-                    hierarchy.system_tags = SystemTags(tags=schema_tags)
+        if owner is not None:
+            hierarchy.system_contacts = SystemContacts(
+                contacts=[
+                    SystemContact(
+                        email=self._get_owner_display_name(owner),
+                        system_contact_source=AssetPlatform.UNITY_CATALOG,
+                    )
+                ]
+            )
 
-    def _fetch_catalog_system_tags(self, catalog: str) -> CatalogSystemTagsTuple:
-        logger.info(f"Fetching tags for catalog {catalog}")
+        if comment is not None:
+            hierarchy.system_description = SystemDescription(
+                description=comment,
+                platform=AssetPlatform.UNITY_CATALOG,
+            )
 
-        with self._connection.cursor() as cursor:
-            catalog_tags = []
-            schema_tags: Dict[str, List[SystemTag]] = defaultdict(list)
-            catalog_tags_query = f"SELECT tag_name, tag_value FROM {catalog}.information_schema.catalog_tags"
-            cursor.execute(catalog_tags_query)
-            for tag_name, tag_value in cursor.fetchall():
-                tag = SystemTag(
-                    key=tag_name,
-                    value=tag_value,
-                    system_tag_source=SystemTagSource.UNITY_CATALOG,
-                )
-                catalog_tags.append(tag)
-
-            schema_tags_query = f"SELECT schema_name, tag_name, tag_value FROM {catalog}.information_schema.schema_tags"
-            cursor.execute(schema_tags_query)
-            for schema_name, tag_name, tag_value in cursor.fetchall():
-                if self._filter.include_schema(catalog, schema_name):
-                    tag = SystemTag(
-                        key=tag_name,
-                        value=tag_value,
+        if tags is not None:
+            hierarchy.system_tags = SystemTags(
+                tags=[
+                    SystemTag(
+                        key=tag.key,
+                        value=tag.value,
                         system_tag_source=SystemTagSource.UNITY_CATALOG,
                     )
-                    schema_tags[schema_name].append(tag)
-        return catalog_tags, schema_tags
+                    for tag in tags
+                ]
+            )
 
-    def _assign_dataset_system_tags(
-        self, catalog: str, catalog_system_tags: CatalogSystemTags
-    ) -> None:
-        for schema in self._api.schemas.list(catalog):
-            if schema.name:
-                for table in self._api.tables.list(catalog, schema.name):
-                    normalized_dataset_name = dataset_normalized_name(
-                        catalog, schema.name, table.name
-                    )
-                    dataset = self._datasets.get(normalized_dataset_name)
-                    if dataset is not None:
-                        assert dataset.system_tags
-                        dataset.system_tags.tags = (
-                            catalog_system_tags[catalog][0]
-                            + catalog_system_tags[catalog][1][schema.name]
-                        )
+        return hierarchy
 
-    def _extract_object_tags(
-        self, catalog, columns: List[str], tag_schema_name: str
-    ) -> None:
-        with self._connection.cursor() as cursor:
-            query = f"SELECT {', '.join(columns)} FROM {catalog}.information_schema.{tag_schema_name}"
-
-            cursor.execute(query)
-            for (
-                catalog_name,
-                schema_name,
-                dataset_name,
-                tag_name,
-                tag_value,
-            ) in cursor.fetchall():
-                normalized_dataset_name = dataset_normalized_name(
-                    catalog_name, schema_name, dataset_name
-                )
-                dataset = self._datasets.get(normalized_dataset_name)
-
-                if dataset is None:
-                    logger.warning(f"Cannot find {normalized_dataset_name} dataset")
-                    continue
-
-                assert dataset.system_tags and dataset.system_tags.tags is not None
-
-                if tag_value:
-                    tag = SystemTag(
-                        key=tag_name,
-                        system_tag_source=SystemTagSource.UNITY_CATALOG,
-                        value=tag_value,
-                    )
-                else:
-                    tag = SystemTag(
-                        key=None,
-                        system_tag_source=SystemTagSource.UNITY_CATALOG,
-                        value=tag_name,
-                    )
-                dataset.system_tags.tags.append(tag)
-
-    def _extract_table_tags(self, catalog: str) -> None:
-        self._extract_object_tags(
-            catalog,
-            columns=[
-                "catalog_name",
-                "schema_name",
-                "table_name",
-                "tag_name",
-                "tag_value",
-            ],
-            tag_schema_name="table_tags",
+    def _init_catalog(
+        self,
+        catalog_info: CatalogInfo,
+    ) -> Hierarchy:
+        return self._init_hierarchy(
+            catalog=catalog_info.catalog_name,
+            owner=catalog_info.owner,
+            comment=catalog_info.comment,
+            tags=catalog_info.tags,
         )
 
-    def _extract_volume_tags(self, catalog: str) -> None:
-        self._extract_object_tags(
-            catalog,
-            columns=[
-                "catalog_name",
-                "schema_name",
-                "volume_name",
-                "tag_name",
-                "tag_value",
-            ],
-            tag_schema_name="volume_tags",
+    def _init_schema(
+        self,
+        schema_info: SchemaInfo,
+    ) -> Hierarchy:
+        return self._init_hierarchy(
+            catalog=schema_info.catalog_name,
+            schema=schema_info.schema_name,
+            owner=schema_info.owner,
+            comment=schema_info.comment,
+            tags=schema_info.tags,
         )
-
-    def _extract_column_tags(self, catalog: str) -> None:
-        with self._connection.cursor() as cursor:
-            columns = [
-                "catalog_name",
-                "schema_name",
-                "table_name",
-                "column_name",
-                "tag_name",
-                "tag_value",
-            ]
-            query = f"SELECT {', '.join(columns)} FROM {catalog}.information_schema.column_tags"
-
-            cursor.execute(query)
-            for (
-                catalog_name,
-                schema_name,
-                table_name,
-                column_name,
-                tag_name,
-                tag_value,
-            ) in cursor.fetchall():
-                normalized_dataset_name = dataset_normalized_name(
-                    catalog_name, schema_name, table_name
-                )
-                dataset = self._datasets.get(normalized_dataset_name)
-                if dataset is None:
-                    logger.warning(f"Cannot find {normalized_dataset_name} table")
-                    continue
-
-                tag = f"{tag_name}={tag_value}" if tag_value else tag_name
-
-                assert (
-                    dataset.schema is not None
-                )  # Can't be None, we initialized it at `init_dataset`
-                if dataset.schema.fields:
-                    field = next(
-                        (
-                            f
-                            for f in dataset.schema.fields
-                            if f.field_name == column_name
-                        ),
-                        None,
-                    )
-                    if field is not None:
-                        if not field.tags:
-                            field.tags = []
-                        field.tags.append(tag)
-
-    def _fetch_tags(self, catalogs: List[str]):
-        catalog_system_tags: CatalogSystemTags = {}
-
-        for catalog in catalogs:
-            if self._filter.include_database(catalog):
-                catalog_system_tags[catalog] = self._fetch_catalog_system_tags(catalog)
-                self._extract_hierarchies(catalog_system_tags)
-                self._assign_dataset_system_tags(catalog, catalog_system_tags)
-                self._extract_table_tags(catalog)
-                self._extract_volume_tags(catalog)
-                self._extract_column_tags(catalog)
 
     def _extract_volume_files(self, volume: VolumeInfo):
+        catalog_name = volume.catalog_name
+        schema_name = volume.schema_name
+        volume_name = volume.volume_name
+
         volume_dataset = self._datasets.get(
-            dataset_normalized_name(
-                volume.catalog_name, volume.schema_name, volume.name
-            )
+            dataset_normalized_name(catalog_name, schema_name, volume_name)
         )
 
-        if not volume_dataset:
+        if volume_dataset is None:
             return
 
-        with self._connection.cursor() as cursor:
-            query = f"LIST '/Volumes/{volume.catalog_name}/{volume.schema_name}/{volume.name}'"
-
-            cursor.execute(query)
-            for path, name, size, modification_time in cursor.fetchall():
-                last_updated = to_utc_from_timestamp_ms(timestamp_ms=modification_time)
-                volume_file = self._init_volume_file(
-                    path,
-                    size,
-                    last_updated,
-                    entity_id=str(
-                        to_dataset_entity_id_from_logical_id(volume_dataset.logical_id)
-                    ),
-                )
-
-                if volume_dataset and volume_file:
-                    assert (
-                        volume_dataset.unity_catalog.volume_info.volume_files
-                        is not None
-                    )
-                    volume_dataset.unity_catalog.volume_info.volume_files.append(
-                        VolumeFile(
-                            modification_time=last_updated,
-                            name=name,
-                            path=path,
-                            size=float(size),
-                            entity_id=str(
-                                to_dataset_entity_id_from_logical_id(
-                                    volume_file.logical_id
-                                )
-                            ),
-                        )
-                    )
-
-    def _init_volume(self, volume: VolumeInfo):
-        assert (
-            volume.volume_type
-            and volume.schema_name
-            and volume.catalog_name
-            and volume.name
+        volume_entity_id = str(
+            to_dataset_entity_id_from_logical_id(volume_dataset.logical_id)
         )
 
+        for volume_file_info in list_volume_files(self._connection, volume):
+            volume_file = self._init_volume_file(volume_file_info, volume_entity_id)
+            assert volume_dataset.unity_catalog.volume_info.volume_files is not None
+
+            volume_dataset.unity_catalog.volume_info.volume_files.append(
+                VolumeFile(
+                    modification_time=volume_file_info.last_updated,
+                    name=volume_file_info.name,
+                    path=volume_file_info.path,
+                    size=volume_file_info.size,
+                    entity_id=str(
+                        to_dataset_entity_id_from_logical_id(volume_file.logical_id)
+                    ),
+                )
+            )
+
+    def _init_volume(self, volume: VolumeInfo):
         schema_name = volume.schema_name
         catalog_name = volume.catalog_name
-        name = volume.name
-        full_name = dataset_normalized_name(catalog_name, schema_name, name)
+        volume_name = volume.volume_name
+        full_name = dataset_normalized_name(catalog_name, schema_name, volume_name)
 
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID(
@@ -755,15 +557,15 @@ class UnityCatalogExtractor(BaseExtractor):
         )
 
         dataset.structure = DatasetStructure(
-            database=catalog_name, schema=schema_name, table=volume.name
+            database=catalog_name, schema=schema_name, table=volume_name
         )
 
-        main_url = self._get_volume_source_url(catalog_name, schema_name, name)
+        main_url = self._get_volume_source_url(catalog_name, schema_name, volume_name)
         dataset.source_info = SourceInfo(
             main_url=main_url,
-            last_updated=to_utc_from_timestamp_ms(timestamp_ms=volume.updated_at),
-            created_at_source=to_utc_from_timestamp_ms(timestamp_ms=volume.created_at),
+            created_at_source=volume.created_at,
             created_by=volume.created_by,
+            last_updated=volume.updated_at,
             updated_by=volume.updated_by,
         )
 
@@ -784,14 +586,23 @@ class UnityCatalogExtractor(BaseExtractor):
         dataset.unity_catalog = UnityCatalog(
             dataset_type=UnityCatalogDatasetType.UNITY_CATALOG_VOLUME,
             volume_info=UnityCatalogVolumeInfo(
-                type=UnityCatalogVolumeType[volume.volume_type.value],
+                type=UnityCatalogVolumeType[volume.volume_type],
                 volume_files=[],
                 storage_location=volume.storage_location,
             ),
         )
         dataset.entity_upstream = EntityUpstream(source_entities=[])
 
-        dataset.system_tags = SystemTags(tags=[])
+        dataset.system_tags = SystemTags(
+            tags=[
+                SystemTag(
+                    key=tag.key,
+                    value=tag.value,
+                    system_tag_source=SystemTagSource.UNITY_CATALOG,
+                )
+                for tag in volume.tags
+            ]
+        )
 
         self._datasets[full_name] = dataset
 
@@ -799,35 +610,56 @@ class UnityCatalogExtractor(BaseExtractor):
 
     def _init_volume_file(
         self,
-        path: str,
-        size: int,
-        last_updated: Optional[datetime],
-        entity_id: str,
-    ) -> Optional[Dataset]:
+        volume_file_info: VolumeFileInfo,
+        volume_entity_id: str,
+    ) -> Dataset:
         dataset = Dataset()
         dataset.logical_id = DatasetLogicalID(
             # We use path as ID for file
-            name=path,
+            name=volume_file_info.path,
             platform=DataPlatform.UNITY_CATALOG_VOLUME_FILE,
         )
 
-        if last_updated:
-            dataset.source_info = SourceInfo(last_updated=last_updated)
+        dataset.source_info = SourceInfo(last_updated=volume_file_info.last_updated)
 
         dataset.unity_catalog = UnityCatalog(
             dataset_type=UnityCatalogDatasetType.UNITY_CATALOG_VOLUME_FILE,
-            volume_entity_id=entity_id,
+            volume_entity_id=volume_entity_id,
         )
 
         dataset.statistics = to_dataset_statistics(
-            size_bytes=size,
+            size_bytes=volume_file_info.size,
         )
 
         dataset.entity_upstream = EntityUpstream(source_entities=[])
 
-        self._datasets[path] = dataset
+        self._datasets[volume_file_info.path] = dataset
 
         return dataset
+
+    def _propagate_tags(self):
+        """Propagate tags from catalogs and schemas to tables & volumes"""
+
+        for dataset in self._datasets.values():
+            tags = []
+
+            if dataset.structure is None:
+                continue
+
+            catalog_name = dataset.structure.database.lower()
+            catalog = self._hierarchies.get(catalog_name)
+            if catalog is not None and catalog.system_tags is not None:
+                tags.extend(catalog.system_tags.tags)
+
+            schema_name = dataset.structure.schema.lower()
+            schema = self._hierarchies.get(f"{catalog_name}.{schema_name}")
+            if schema is not None and schema.system_tags is not None:
+                tags.extend(schema.system_tags.tags)
+
+            if dataset.system_tags is not None:
+                tags.extend(dataset.system_tags.tags)
+
+            dataset.system_tags = SystemTags(tags=tags)
 
     def _populate_last_refreshed_time(self):
         connection_pool = create_connection_pool(
@@ -848,6 +680,29 @@ class UnityCatalogExtractor(BaseExtractor):
                     created_at_source=dataset.source_info.created_at_source,
                     last_updated=last_refreshed_time,
                 )
+
+    def _populate_table_properties(self):
+        connection_pool = create_connection_pool(
+            self._token, self._hostname, self._http_path, self._max_concurrency
+        )
+
+        result_map = batch_get_table_properties(
+            connection_pool,
+            self._table_properties_queue,
+        )
+
+        for name, properties in result_map.items():
+            dataset = self._datasets.get(name)
+            if (
+                dataset is None
+                or dataset.unity_catalog is None
+                or dataset.unity_catalog.table_info is None
+            ):
+                continue
+
+            dataset.unity_catalog.table_info.properties = [
+                KeyValuePair(key=k, value=v) for k, v in properties.items()
+            ]
 
     def _get_owner_display_name(self, user_id: str) -> str:
         # Unity Catalog returns service principal's application_id and must be
