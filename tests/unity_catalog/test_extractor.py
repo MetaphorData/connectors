@@ -1,17 +1,7 @@
 from datetime import datetime, timezone
-from queue import Queue
 from unittest.mock import MagicMock, patch
 
 import pytest
-from databricks.sdk.service.catalog import (
-    CatalogInfo,
-    ColumnInfo,
-    ColumnTypeName,
-    DataSourceFormat,
-    SchemaInfo,
-)
-from databricks.sdk.service.catalog import TableInfo as Table
-from databricks.sdk.service.catalog import TableType, VolumeInfo, VolumeType
 from databricks.sdk.service.iam import ServicePrincipal
 from pytest_snapshot.plugin import Snapshot
 
@@ -20,9 +10,19 @@ from metaphor.common.event_util import EventUtil
 from metaphor.models.metadata_change_event import DataPlatform, QueryLog
 from metaphor.unity_catalog.config import UnityCatalogRunConfig
 from metaphor.unity_catalog.extractor import UnityCatalogExtractor
-from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
+from metaphor.unity_catalog.models import (
+    CatalogInfo,
+    Column,
+    ColumnInfo,
+    ColumnLineage,
+    SchemaInfo,
+    TableInfo,
+    TableLineage,
+    Tag,
+    VolumeFileInfo,
+    VolumeInfo,
+)
 from tests.test_utils import load_json, serialize_event, wrap_query_log_stream_to_event
-from tests.unity_catalog.mocks import mock_sql_connection
 
 
 def dummy_config():
@@ -34,20 +34,35 @@ def dummy_config():
     )
 
 
+mock_time = datetime(2020, 1, 1, tzinfo=timezone.utc)
+
+
 @patch("metaphor.unity_catalog.extractor.batch_get_last_refreshed_time")
 @patch("metaphor.unity_catalog.extractor.create_connection_pool")
 @patch("metaphor.unity_catalog.extractor.create_connection")
 @patch("metaphor.unity_catalog.extractor.create_api")
+@patch("metaphor.unity_catalog.extractor.list_catalogs")
+@patch("metaphor.unity_catalog.extractor.list_schemas")
+@patch("metaphor.unity_catalog.extractor.list_tables")
+@patch("metaphor.unity_catalog.extractor.list_volumes")
+@patch("metaphor.unity_catalog.extractor.list_volume_files")
 @patch("metaphor.unity_catalog.extractor.list_table_lineage")
 @patch("metaphor.unity_catalog.extractor.list_column_lineage")
+@patch("metaphor.unity_catalog.extractor.batch_get_table_properties")
 @patch("metaphor.unity_catalog.extractor.get_query_logs")
 @patch("metaphor.unity_catalog.extractor.list_service_principals")
 @pytest.mark.asyncio
 async def test_extractor(
     mock_list_service_principals: MagicMock,
     mock_get_query_logs: MagicMock,
+    mock_batch_get_table_properties: MagicMock,
     mock_list_column_lineage: MagicMock,
     mock_list_table_lineage: MagicMock,
+    mock_list_volume_files: MagicMock,
+    mock_list_volumes: MagicMock,
+    mock_list_tables: MagicMock,
+    mock_list_schemas: MagicMock,
+    mock_list_catalogs: MagicMock,
     mock_create_api: MagicMock,
     mock_create_connection: MagicMock,
     mock_create_connection_pool: MagicMock,
@@ -58,134 +73,153 @@ async def test_extractor(
         "sp1": ServicePrincipal(display_name="service principal 1")
     }
 
-    def mock_list_catalogs():
-        return [CatalogInfo(name="catalog", owner="sp1")]
-
-    def mock_list_schemas(catalog):
-        return [SchemaInfo(name="schema", owner="test@foo.bar")]
-
-    def mock_list_tables(catalog, schema):
-        return [
-            Table(
-                name="table",
+    mock_list_catalogs.side_effect = [
+        [
+            CatalogInfo(
+                catalog_name="catalog",
+                owner="sp1",
+                tags=[
+                    Tag(key="catalog_tag_key_1", value="catalog_tag_value_1"),
+                    Tag(key="catalog_tag_key_2", value="catalog_tag_value_2"),
+                ],
+            )
+        ]
+    ]
+    mock_list_schemas.side_effect = [
+        [
+            SchemaInfo(
                 catalog_name="catalog",
                 schema_name="schema",
-                table_type=TableType.MANAGED,
-                data_source_format=DataSourceFormat.CSV,
+                owner="test@foo.bar",
+                tags=[
+                    Tag(key="schema_tag_key_1", value="schema_tag_value_1"),
+                    Tag(key="schema_tag_key_2", value="schema_tag_value_2"),
+                ],
+            )
+        ]
+    ]
+
+    mock_list_tables.side_effect = [
+        [
+            TableInfo(
+                table_name="table",
+                catalog_name="catalog",
+                schema_name="schema",
+                type="MANAGED",
+                data_source_format="CSV",
                 columns=[
                     ColumnInfo(
-                        name="col1",
-                        type_name=ColumnTypeName.INT,
-                        type_precision=32,
-                        nullable=True,
+                        column_name="col1",
+                        data_type="INT",
+                        data_precision=32,
+                        is_nullable=True,
                         comment="some description",
+                        tags=[
+                            Tag(key="col_tag", value="col_value"),
+                            Tag(key="col_tag2", value="tag_value_2"),
+                        ],
                     )
                 ],
                 storage_location="s3://path",
                 owner="user1@foo.com",
                 comment="example",
-                updated_at=0,
+                updated_at=mock_time,
                 updated_by="foo@bar.com",
-                properties={
-                    "delta.lastCommitTimestamp": "1664444422000",
-                },
-                created_at=0,
+                created_at=mock_time,
+                created_by="foo@bar.com",
+                tags=[
+                    Tag(key="tag", value="value"),
+                    Tag(key="tag2", value="value2"),
+                ],
             ),
-            Table(
-                name="view",
+            TableInfo(
+                table_name="view",
                 catalog_name="catalog",
                 schema_name="schema",
-                table_type=TableType.VIEW,
+                type="VIEW",
+                data_source_format="CSV",
                 columns=[
                     ColumnInfo(
-                        name="col1",
-                        type_name=ColumnTypeName.INT,
-                        type_precision=32,
-                        nullable=True,
+                        column_name="col1",
+                        data_type="INT",
+                        data_precision=32,
+                        is_nullable=True,
+                        tags=[],
                     )
                 ],
                 view_definition="SELECT ...",
                 owner="user2@foo.com",
                 comment="example",
-                updated_at=0,
+                updated_at=mock_time,
                 updated_by="foo@bar.com",
-                properties={
-                    "view.catalogAndNamespace.numParts": "2",
-                    "view.sqlConfig.spark.sql.hive.convertCTAS": "true",
-                    "view.query.out.col.0": "key",
-                    "view.sqlConfig.spark.sql.parquet.compression.codec": "snappy",
-                    "view.query.out.numCols": "3",
-                    "view.referredTempViewNames": "[]",
-                    "view.query.out.col.1": "values",
-                    "view.sqlConfig.spark.sql.streaming.stopTimeout": "15s",
-                    "view.catalogAndNamespace.part.0": "catalog",
-                    "view.sqlConfig.spark.sql.sources.commitProtocolClass": "com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol",
-                    "view.sqlConfig.spark.sql.sources.default": "delta",
-                    "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault": "false",
-                    "view.query.out.col.2": "nested_values",
-                    "view.referredTempFunctionsNames": "[]",
-                    "view.catalogAndNamespace.part.1": "default",
-                },
-                created_at=0,
+                created_at=mock_time,
+                created_by="foo@bar.com",
             ),
-            Table(
-                name="table2",
+            TableInfo(
+                table_name="table2",
                 catalog_name="catalog2",
                 schema_name="schema",
-                table_type=TableType.MANAGED,
-                data_source_format=DataSourceFormat.DELTA,
+                type="MANAGED",
+                data_source_format="DELTA",
                 columns=[
                     ColumnInfo(
-                        name="col1",
-                        type_name=ColumnTypeName.INT,
-                        type_precision=32,
-                        nullable=True,
+                        column_name="col1",
+                        data_type="INT",
+                        data_precision=32,
+                        is_nullable=True,
                         comment="some description",
+                        tags=[],
                     )
                 ],
                 storage_location="s3://path",
                 owner="sp1",
                 comment="example",
-                updated_at=0,
+                updated_at=mock_time,
                 updated_by="foo@bar.com",
-                properties={
-                    "delta.lastCommitTimestamp": "1664444422000",
-                },
-                created_at=0,
+                created_at=mock_time,
+                created_by="foo@bar.com",
             ),
         ]
+    ]
 
-    def mock_list_volumes(catalog, schema):
-        return [
+    mock_list_volumes.side_effect = [
+        [
             VolumeInfo(
-                access_point=None,
                 catalog_name="catalog2",
-                comment=None,
-                created_at=1714034378658,
-                created_by="foo@bar.com",
-                encryption_details=None,
-                full_name="catalog2.schema.volume",
-                metastore_id="ashjkdhaskd",
-                name="volume",
-                owner="foo@bar.com",
                 schema_name="schema",
-                storage_location="s3://path",
-                updated_at=1714034378658,
+                volume_name="volume",
+                volume_type="EXTERNAL",
+                full_name="catalog2.schema.volume",
+                owner="foo@bar.com",
+                created_at=mock_time,
+                created_by="foo@bar.com",
+                updated_at=mock_time,
                 updated_by="foo@bar.com",
-                volume_id="volume-id",
-                volume_type=VolumeType.EXTERNAL,
+                storage_location="s3://path",
+                tags=[
+                    Tag(key="tag", value="value"),
+                ],
             )
         ]
+    ]
 
-    mock_client = MagicMock()
-    mock_client.catalogs = MagicMock()
-    mock_client.catalogs.list = mock_list_catalogs
-    mock_client.schemas = MagicMock()
-    mock_client.schemas.list = mock_list_schemas
-    mock_client.tables = MagicMock()
-    mock_client.tables.list = mock_list_tables
-    mock_client.volumes = MagicMock()
-    mock_client.volumes.list = mock_list_volumes
+    mock_list_volume_files.side_effect = [
+        [
+            VolumeFileInfo(
+                last_updated=mock_time,
+                name="input.csv",
+                path="/Volumes/catalog2/schema/volume/input.csv",
+                size=100000,
+            ),
+            VolumeFileInfo(
+                last_updated=mock_time,
+                name="output.csv",
+                path="/Volumes/catalog2/schema/volume/output.csv",
+                size=200000,
+            ),
+        ]
+    ]
+
     mock_list_table_lineage.side_effect = [
         {
             "catalog.schema.table": TableLineage(
@@ -213,7 +247,7 @@ async def test_extractor(
         QueryLog(
             query_id="foo",
             email="foo@bar.com",
-            start_time=datetime(2020, 1, 1, tzinfo=timezone.utc),
+            start_time=mock_time,
             duration=1234.0,
             rows_read=9487.0,
             rows_written=5566.0,
@@ -228,53 +262,34 @@ async def test_extractor(
         )
     ]
 
-    mock_batch_get_last_refreshed_time.return_value = {
-        "catalog.schema.table": datetime(2020, 1, 1, tzinfo=timezone.utc),
-        "catalog2.schema.table2": datetime(2020, 1, 1, tzinfo=timezone.utc),
+    mock_batch_get_table_properties.return_value = {
+        "catalog.schema.table": {
+            "delta.lastCommitTimestamp": "1664444422000",
+        },
+        "catalog.schema.view": {
+            "view.catalogAndNamespace.numParts": "2",
+            "view.sqlConfig.spark.sql.hive.convertCTAS": "true",
+            "view.query.out.col.0": "key",
+            "view.sqlConfig.spark.sql.parquet.compression.codec": "snappy",
+            "view.query.out.numCols": "3",
+            "view.referredTempViewNames": "[]",
+            "view.query.out.col.1": "values",
+            "view.sqlConfig.spark.sql.streaming.stopTimeout": "15s",
+            "view.catalogAndNamespace.part.0": "catalog",
+            "view.sqlConfig.spark.sql.sources.commitProtocolClass": "com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol",
+            "view.sqlConfig.spark.sql.sources.default": "delta",
+            "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault": "false",
+            "view.query.out.col.2": "nested_values",
+            "view.catalogAndNamespace.part.1": "default",
+        },
     }
 
-    mock_create_api.return_value = mock_client
+    mock_batch_get_last_refreshed_time.return_value = {
+        "catalog.schema.table": mock_time,
+        "catalog2.schema.table2": mock_time,
+    }
 
-    results = [
-        [
-            (
-                "/Volumes/catalog2/schema/volume/input.csv",
-                "input.csv",
-                "100000",
-                1715273354000,
-            ),
-            (
-                "/Volumes/catalog2/schema/volume/output.csv",
-                "output.csv",
-                "200000",
-                1715278354000,
-            ),
-        ],
-        [
-            ("catalog_tag_key_1", "catalog_tag_value_1"),
-            ("catalog_tag_key_2", "catalog_tag_value_2"),
-        ],
-        [
-            ("schema", "schema_tag_key_1", "schema_tag_value_1"),
-            ("schema", "schema_tag_key_2", "schema_tag_value_2"),
-        ],
-        [
-            ("catalog", "schema", "table", "tag", "value"),
-            ("catalog", "schema", "table", "tag2", ""),
-            ("does", "not", "exist", "also", "doesn't exist"),
-        ],
-        [
-            ("catalog2", "schema", "volume", "tag", "value"),
-        ],
-        [
-            ("catalog", "schema", "table", "col1", "col_tag", "col_value"),
-            ("catalog", "schema", "table", "col1", "col_tag2", "tag_value_2"),
-            ("does", "not", "exist", "also", "doesn't", "exist"),
-        ],
-    ]
-
-    mock_create_connection.return_value = mock_sql_connection(results)
-    mock_create_connection_pool.return_value = Queue(1)
+    mock_create_api.return_value = MagicMock()
 
     extractor = UnityCatalogExtractor(dummy_config())
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
@@ -324,25 +339,6 @@ def test_source_url(
 
 @patch("metaphor.unity_catalog.extractor.create_connection")
 @patch("metaphor.unity_catalog.extractor.create_api")
-def test_init_invalid_dataset(
-    mock_create_api: MagicMock,
-    mock_create_connection: MagicMock,
-    test_root_dir: str,
-) -> None:
-    mock_create_api.return_value = None
-    mock_create_connection.return_value = None
-
-    extractor = UnityCatalogExtractor.from_config_file(
-        f"{test_root_dir}/unity_catalog/config.yml"
-    )
-    with pytest.raises(ValueError):
-        extractor._init_dataset(
-            Table(catalog_name="catalog", schema_name="schema", name="table")
-        )
-
-
-@patch("metaphor.unity_catalog.extractor.create_connection")
-@patch("metaphor.unity_catalog.extractor.create_api")
 def test_init_dataset(
     mock_create_api: MagicMock,
     mock_create_connection: MagicMock,
@@ -359,30 +355,35 @@ def test_init_dataset(
     snapshot.assert_match(
         serialize_event(
             extractor._init_dataset(
-                Table(
-                    name="table",
+                TableInfo(
+                    table_name="table",
                     catalog_name="catalog",
                     schema_name="schema",
-                    table_type=TableType.MANAGED,
-                    data_source_format=DataSourceFormat.CSV,
+                    type="MANAGED",
+                    data_source_format="csv",
                     columns=[
                         ColumnInfo(
-                            name="col1",
-                            type_name=ColumnTypeName.INT,
-                            type_precision=32,
-                            nullable=True,
+                            column_name="col1",
+                            data_type="INT",
+                            data_precision=32,
+                            is_nullable=True,
                             comment="some description",
+                            tags=[
+                                Tag(key="col1_tag_key_1", value="col1_tag_value_1"),
+                                Tag(key="col1_tag_key_2", value="col1_tag_value_2"),
+                            ],
                         )
                     ],
                     storage_location="s3://path",
                     owner="foo@bar.com",
                     comment="example",
-                    updated_at=0,
+                    updated_at=mock_time,
                     updated_by="foo@bar.com",
                     properties={
                         "delta.lastCommitTimestamp": "1664444422000",
                     },
-                    created_at=0,
+                    created_at=mock_time,
+                    created_by="foo@bar.com",
                 ),
             )
         ),
@@ -392,11 +393,17 @@ def test_init_dataset(
     snapshot.assert_match(
         serialize_event(
             extractor._init_dataset(
-                Table(
-                    name="table",
+                TableInfo(
+                    table_name="table",
                     catalog_name="catalog",
                     schema_name="schema",
-                    table_type=TableType.MANAGED_SHALLOW_CLONE,
+                    type="MANAGED_SHALLOW_CLONE",
+                    owner="foo",
+                    created_at=mock_time,
+                    created_by="bar",
+                    updated_at=mock_time,
+                    updated_by="baz",
+                    data_source_format="csv",
                 ),
             )
         ),
@@ -406,11 +413,17 @@ def test_init_dataset(
     snapshot.assert_match(
         serialize_event(
             extractor._init_dataset(
-                Table(
-                    name="table",
+                TableInfo(
+                    table_name="table",
                     catalog_name="catalog",
                     schema_name="schema",
-                    table_type=TableType.EXTERNAL_SHALLOW_CLONE,
+                    type="EXTERNAL_SHALLOW_CLONE",
+                    owner="foo",
+                    created_at=mock_time,
+                    created_by="bar",
+                    updated_at=mock_time,
+                    updated_by="baz",
+                    data_source_format="csv",
                 ),
             )
         ),

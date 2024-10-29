@@ -1,9 +1,8 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional, Tuple
 from unittest.mock import MagicMock
 
 from databricks.sdk.service.iam import ServicePrincipal
-from freezegun import freeze_time
 from pytest_snapshot.plugin import Snapshot
 
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
@@ -15,18 +14,20 @@ from metaphor.models.metadata_change_event import (
     DatasetStructure,
     QueriedDataset,
     QueryLogs,
+    SystemTag,
+    SystemTags,
+    SystemTagSource,
 )
-from metaphor.unity_catalog.models import Column, ColumnLineage, TableLineage
+from metaphor.unity_catalog.models import Tag
 from metaphor.unity_catalog.utils import (
     batch_get_last_refreshed_time,
+    batch_get_table_properties,
     escape_special_characters,
     find_qualified_dataset,
     get_last_refreshed_time,
     get_query_logs,
-    list_column_lineage,
-    list_query_logs,
     list_service_principals,
-    list_table_lineage,
+    to_system_tags,
 )
 from tests.test_utils import load_json
 from tests.unity_catalog.mocks import mock_connection_pool, mock_sql_connection
@@ -179,78 +180,6 @@ def test_find_qualified_dataset():
     assert not found
 
 
-def test_list_table_lineage():
-    mock_connection = mock_sql_connection(
-        [
-            [
-                ("c.s.t1", "c.s.t3"),
-                ("c.s.t2", "c.s.t3"),
-                ("c.s.t4", "c.s.t2"),
-            ]
-        ]
-    )
-
-    table_lineage = list_table_lineage(mock_connection, "c", "s")
-
-    assert table_lineage == {
-        "c.s.t3": TableLineage(upstream_tables=["c.s.t1", "c.s.t2"]),
-        "c.s.t2": TableLineage(upstream_tables=["c.s.t4"]),
-    }
-
-
-def test_list_column_lineage():
-    mock_connection = mock_sql_connection(
-        [
-            [
-                ("c.s.t1", "c1", "c.s.t3", "ca"),
-                ("c.s.t1", "c2", "c.s.t3", "ca"),
-                ("c.s.t1", "c3", "c.s.t3", "cb"),
-                ("c.s.t2", "c4", "c.s.t3", "ca"),
-                ("c.s.t3", "c5", "c.s.t2", "cc"),
-            ]
-        ]
-    )
-
-    column_lineage = list_column_lineage(mock_connection, "catalog", "schema")
-
-    assert column_lineage == {
-        "c.s.t3": ColumnLineage(
-            upstream_columns={
-                "ca": [
-                    Column(column_name="c1", table_name="c.s.t1"),
-                    Column(column_name="c2", table_name="c.s.t1"),
-                    Column(column_name="c4", table_name="c.s.t2"),
-                ],
-                "cb": [Column(column_name="c3", table_name="c.s.t1")],
-            }
-        ),
-        "c.s.t2": ColumnLineage(
-            upstream_columns={
-                "cc": [Column(column_name="c5", table_name="c.s.t3")],
-            }
-        ),
-    }
-
-
-@freeze_time("2000-01-02")
-def test_list_query_logs(
-    test_root_dir: str,
-    snapshot: Snapshot,
-):
-
-    mock_cursor = MagicMock()
-    mock_connection = mock_sql_connection(None, None, mock_cursor)
-
-    list_query_logs(mock_connection, 1, ["user1", "user2"])
-
-    args = mock_cursor.execute.call_args_list[0].args
-    snapshot.assert_match(args[0], "list_query_log.sql")
-    assert args[1] == [
-        datetime(2000, 1, 1, tzinfo=timezone.utc),
-        datetime(2000, 1, 2, tzinfo=timezone.utc),
-    ]
-
-
 def test_get_last_refreshed_time(
     test_root_dir: str,
     snapshot: Snapshot,
@@ -315,6 +244,30 @@ def test_batch_get_last_refreshed_time():
     assert result_map == {"a.b.c": datetime(2020, 1, 1), "d.e.f": datetime(2020, 1, 1)}
 
 
+def test_batch_get_table_properties():
+
+    connection_pool = mock_connection_pool(
+        [
+            [
+                {
+                    "key": "prop1",
+                    "value": "value1",
+                },
+            ],
+            [
+                {
+                    "key": "prop2",
+                    "value": "value2",
+                },
+            ],
+        ],
+    )
+
+    result_map = batch_get_table_properties(connection_pool, ["a.b.c", "d.e.f"])
+
+    assert result_map == {"a.b.c": {"prop1": "value1"}, "d.e.f": {"prop2": "value2"}}
+
+
 def test_list_service_principals():
 
     sp1 = ServicePrincipal(application_id="sp1", display_name="SP1")
@@ -332,3 +285,22 @@ def test_list_service_principals():
 def test_escape_special_characters():
     assert escape_special_characters("this.is.a_table") == "this.is.a_table"
     assert escape_special_characters("this.is.also-a-table") == "`this.is.also-a-table`"
+
+
+def test_to_system_tags():
+    assert to_system_tags(
+        [Tag(key="tag", value="value"), Tag(key="tag2", value="")]
+    ) == SystemTags(
+        tags=[
+            SystemTag(
+                key="tag",
+                value="value",
+                system_tag_source=SystemTagSource.UNITY_CATALOG,
+            ),
+            SystemTag(
+                key=None,
+                value="tag2",
+                system_tag_source=SystemTagSource.UNITY_CATALOG,
+            ),
+        ]
+    )

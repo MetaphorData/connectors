@@ -1,13 +1,8 @@
-from typing import Collection, Dict, Optional
+from typing import Collection, Dict, List, Optional
 
 import great_expectations as gx
 from great_expectations.core.batch import LegacyBatchDefinition
-from great_expectations.core.batch_spec import (
-    BatchSpec,
-    RuntimeDataBatchSpec,
-    RuntimeQueryBatchSpec,
-    SqlAlchemyDatasourceBatchSpec,
-)
+from great_expectations.core.batch_spec import BatchSpec
 from great_expectations.core.expectation_validation_result import (
     ExpectationSuiteValidationResult,
 )
@@ -65,7 +60,7 @@ class GreatExpectationsExtractor(BaseExtractor):
         )
         for validation_result in self.context.validation_results_store.get_all():
             if isinstance(validation_result, ExpectationSuiteValidationResult):
-                self._parse_expectation_suite_validation_result(validation_result)
+                self._parse_suite_result(validation_result)
         return self._datasets.values()
 
     @staticmethod
@@ -89,11 +84,12 @@ class GreatExpectationsExtractor(BaseExtractor):
         table: str,
     ) -> Dataset:
         key = self._get_dataset_key(platform, account, database, schema, table)
+        dataset_name = dataset_normalized_name(database, schema, table)
         if key not in self._datasets:
             self._datasets[key] = Dataset(
                 logical_id=DatasetLogicalID(
                     account=account,
-                    name=dataset_normalized_name(database, schema, table),
+                    name=dataset_name,
                     platform=platform,
                 ),
                 structure=DatasetStructure(
@@ -111,74 +107,7 @@ class GreatExpectationsExtractor(BaseExtractor):
             )
         return dataset
 
-    def _parse_sql_execution_engine_validation_result(
-        self,
-        validation_result: ExpectationSuiteValidationResult,
-        execution_engine: SqlAlchemyExecutionEngine,
-        data_asset: DataAsset,
-    ) -> None:
-        batch_spec: BatchSpec = validation_result.meta["batch_spec"]
-        logger.info(f"batch spec: {batch_spec}, type = {type(batch_spec)}")
-
-        if isinstance(batch_spec, RuntimeQueryBatchSpec):
-            logger.warning(
-                "RuntimeQueryBatchSpec not supported, not parsing this validation result"
-            )
-            return
-
-        if isinstance(batch_spec, RuntimeDataBatchSpec):
-            logger.warning(
-                "RuntimeDataBatchSpec not supported, not parsing this validation result"
-            )
-            return
-
-        if not isinstance(batch_spec, SqlAlchemyDatasourceBatchSpec):
-            logger.warning(
-                f"Cannot parse batch spec {batch_spec}, type = {type(batch_spec)}"
-            )
-            return
-
-        url = execution_engine.engine.url
-        backend = url.get_backend_name().upper()
-        if backend not in DataPlatform:
-            logger.warning(
-                f"Unknown SqlAlchemy backend: {backend}, not parsing this validation result"
-            )
-            return
-
-        platform = DataPlatform[backend]
-        account = (
-            self._config.snowflake_account
-            if platform is DataPlatform.SNOWFLAKE
-            else None
-        )
-        database = url.database
-        schema = batch_spec.get("schema_name")
-        table = batch_spec.get("table_name")
-
-        dataset = self._init_dataset(
-            platform,
-            account,
-            database,
-            schema,
-            table or data_asset.name,
-        )
-
-        assert dataset.data_quality and dataset.data_quality.monitors is not None
-        dataset.data_quality.monitors.append(
-            DataMonitor(
-                title=validation_result.suite_name,
-                status=(
-                    DataMonitorStatus.PASSED
-                    if validation_result.success
-                    else DataMonitorStatus.ERROR
-                ),
-                targets=[DataMonitorTarget() for x in validation_result.results],
-                url=validation_result.result_url,
-            )
-        )
-
-    def _parse_expectation_suite_validation_result(
+    def _parse_suite_result(
         self, validation_result: ExpectationSuiteValidationResult
     ) -> None:
         logger.info(f"Parsing validation result: {validation_result.id}")
@@ -211,8 +140,113 @@ class GreatExpectationsExtractor(BaseExtractor):
             )
             return
 
-        self._parse_sql_execution_engine_validation_result(
+        self._parse_sql_execution_engine_result(
             validation_result,
             execution_engine,
             datasource.get_asset(active_batch_definition["data_asset_name"]),
         )
+
+    def _parse_sql_execution_engine_result(
+        self,
+        validation_result: ExpectationSuiteValidationResult,
+        execution_engine: SqlAlchemyExecutionEngine,
+        data_asset: DataAsset,
+    ) -> None:
+        # batch_spec is always just a dict, using isinstance to get its type will not work
+        batch_spec: BatchSpec = validation_result.meta["batch_spec"]
+        logger.info(f"batch spec: {batch_spec}")
+
+        if "query" in batch_spec:
+            # This is a RuntimeQueryBatchSpec, we should parse the query and see what datasets
+            # are referenced in it.
+            logger.warning(
+                "RuntimeQueryBatchSpec not supported, not parsing this validation result"
+            )
+            return
+
+        if "batch_data" in batch_spec:
+            logger.warning(
+                "RuntimeDataBatchSpec not supported, not parsing this validation result"
+            )
+            return
+
+        if "schema_name" not in batch_spec and "table_name" not in batch_spec:
+            # At this point the only batch spec we care is SqlAlchemyDatasourceBatchSpec,
+            # anything else we are not parsing.
+            logger.warning(
+                f"Cannot parse batch spec {batch_spec}, ignoring this validation result"
+            )
+            return
+
+        url = execution_engine.engine.url
+        backend = url.get_backend_name().upper()
+        platform = next((x for x in DataPlatform if x.value == backend), None)
+        if not platform:
+            logger.warning(
+                f"Unknown SqlAlchemy backend: {backend}, not parsing this validation result"
+            )
+            return
+
+        account = (
+            self._config.snowflake_account
+            if platform is DataPlatform.SNOWFLAKE
+            else None
+        )
+        database = url.database
+        schema = batch_spec.get("schema_name")
+        table = batch_spec.get("table_name")
+
+        dataset = self._init_dataset(
+            platform,
+            account,
+            database,
+            schema,
+            table or data_asset.name,
+        )
+
+        assert dataset.data_quality and dataset.data_quality.monitors is not None
+
+        # Right now the whole suite is a single DataMonitor, so if one expectation fails
+        # the whole monitor fails.
+        # TODO: decide if we want to make a DataMonitor for each `validation_result.result`.
+        dataset.data_quality.monitors.append(
+            DataMonitor(
+                title=validation_result.suite_name,
+                status=(
+                    DataMonitorStatus.PASSED
+                    if validation_result.success
+                    else DataMonitorStatus.ERROR
+                ),
+                targets=self._parse_result_targets(validation_result, dataset),
+                url=validation_result.result_url,
+                exceptions=self._parse_result_exceptions(validation_result),
+            )
+        )
+
+    @staticmethod
+    def _parse_result_targets(
+        validation_result: ExpectationSuiteValidationResult, dataset: Dataset
+    ) -> Optional[List[DataMonitorTarget]]:
+        assert dataset.logical_id and dataset.logical_id.name
+        targets = [
+            DataMonitorTarget(
+                dataset=dataset.logical_id.name,
+                column=result.expectation_config.kwargs["column"],
+            )
+            for result in validation_result.results
+            if result.expectation_config
+            and result.expectation_config.kwargs.get("column")
+        ]
+        return targets or None
+
+    @staticmethod
+    def _parse_result_exceptions(
+        validation_result: ExpectationSuiteValidationResult,
+    ) -> Optional[List[str]]:
+        exceptions = [
+            result.exception_info["exception_message"]
+            for result in validation_result.results
+            if result.exception_info
+            and result.exception_info.get("raised_exception", False)
+        ]
+        return exceptions or None

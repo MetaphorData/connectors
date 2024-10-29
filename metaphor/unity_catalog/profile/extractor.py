@@ -16,6 +16,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import normalize_full_dataset_name
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import build_field_statistics
+from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
@@ -26,7 +27,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetStatistics,
 )
-from metaphor.unity_catalog.extractor import DEFAULT_FILTER
 from metaphor.unity_catalog.profile.config import UnityCatalogProfileRunConfig
 from metaphor.unity_catalog.utils import (
     create_api,
@@ -35,6 +35,14 @@ from metaphor.unity_catalog.utils import (
 )
 
 logger = get_logger()
+
+# Filter out "system" database & all "information_schema" schemas
+DEFAULT_FILTER: DatasetFilter = DatasetFilter(
+    excludes={
+        "system": None,
+        "*": {"information_schema": None},
+    }
+)
 
 NON_MODIFICATION_OPERATIONS = {
     "SET TBLPROPERTIES",
