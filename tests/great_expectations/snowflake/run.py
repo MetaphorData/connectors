@@ -1,4 +1,5 @@
 # Import required modules from GX library.
+import os
 import shutil
 from pathlib import Path
 from typing import Dict, List, NamedTuple
@@ -21,8 +22,18 @@ def run() -> None:
             return f"snowflake://{self.user}:{self.password}@{self.account}/{database}/{schema}?warehouse={self.warehouse}&role={self.role}&application=great_expectations_oss"
 
     current_path = Path(__file__).parent.resolve()
-    with open(current_path / "config.yml") as f:
-        config = Config.model_validate(yaml.safe_load(f.read()))
+    config_path = current_path / "config.yml"
+    if config_path.exists():
+        with open(config_path) as f:
+            config = Config.model_validate(yaml.safe_load(f.read()))
+    else:
+        config = Config(
+            user=os.environ["SNOWFLAKE_USER"],
+            password=os.environ["SNOWFLAKE_PASSWORD"],
+            account=os.environ["SNOWFLAKE_ACCOUNT"],
+            warehouse=os.environ["SNOWFLAKE_WAREHOUSE"],
+            role=os.environ["SNOWFLAKE_ROLE"],
+        )
 
     # Clear gx context.
     if (current_path / "gx").exists():
