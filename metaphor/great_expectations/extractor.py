@@ -124,19 +124,7 @@ class GreatExpectationsExtractor(BaseExtractor):
         execution_engine = datasource.get_execution_engine()
 
         # TODO: support PandasExecutionEngine
-        if isinstance(execution_engine, PandasExecutionEngine):
-            logger.warning(
-                "PandasExecutionEngine not supported, not parsing this validation result"
-            )
-            return
-
         # TODO: support SparkDFExecutionEngine
-        if isinstance(execution_engine, SparkDFExecutionEngine):
-            logger.warning(
-                "SparkDFExecution not supported, not parsing this validation result"
-            )
-            return
-
         if not isinstance(execution_engine, SqlAlchemyExecutionEngine):
             logger.warning(
                 f"Cannot process execution engine: {execution_engine}, not parsing this validation result"
@@ -159,26 +147,21 @@ class GreatExpectationsExtractor(BaseExtractor):
         batch_spec: BatchSpec = validation_result.meta["batch_spec"]
         logger.info(f"batch spec: {batch_spec}")
 
-        if "query" in batch_spec:
-            # This is a RuntimeQueryBatchSpec, we should parse the query and see what datasets
-            # are referenced in it.
-            logger.warning(
-                "RuntimeQueryBatchSpec not supported, not parsing this validation result"
-            )
-            return
-
-        if "batch_data" in batch_spec:
-            logger.warning(
-                "RuntimeDataBatchSpec not supported, not parsing this validation result"
-            )
-            return
-
-        if "schema_name" not in batch_spec and "table_name" not in batch_spec:
-            # At this point the only batch spec we care is SqlAlchemyDatasourceBatchSpec,
-            # anything else we are not parsing.
-            logger.warning(
-                f"Cannot parse batch spec {batch_spec}, ignoring this validation result"
-            )
+        if (
+            "query" in batch_spec
+            or "batch_data" in batch_spec
+            or "schema_name" not in batch_spec
+            and "table_name" not in batch_spec
+        ):
+            # If "query" is in batch spec, then it is a RuntimeQueryBatchSpec, we should parse
+            # the query and see what datasets are referenced in it.
+            #
+            # If "batch_data" is in batch spec, then it is a RuntimeDataBatchSpec and it's just
+            # a file in the filesystem.
+            #
+            # If batch spec does not have "schema_name" nor "table_name", there's no way for us
+            # to get a fully qualified name for the dataset, and we're just gonna ignore it.
+            logger.warning("Unsupported batch spec, not parsing this validation result")
             return
 
         url = execution_engine.engine.url
