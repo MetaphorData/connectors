@@ -1,0 +1,22 @@
+{
+  "data": {
+    "asset": {
+      "id": "983d2e5f-ba41-4078-af26-a8cfce072c68",
+      "name": "asset"
+    },
+    "batch_definition": {
+      "id": "ae647844-4dc3-4cf3-ae52-4eadde3756b9",
+      "name": "batch_definition"
+    },
+    "datasource": {
+      "id": "0c4e9a5e-191b-4b66-a3e3-e615af76fc78",
+      "name": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-source"
+    }
+  },
+  "id": "55e31740-f677-47cd-bc66-62507dcebdba",
+  "name": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-validation_definition",
+  "suite": {
+    "id": "24753089-5656-4f20-9fc8-da6bbf946ed4",
+    "name": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-expectations"
+  }
+}

@@ -1,0 +1,133 @@
+# Welcome to Great Expectations! Always know what to expect from your data.
+#
+# Here you can define datasources, batch kwargs generators, integrations and
+# more. This file is intended to be committed to your repo. For help with
+# configuration please:
+#   - Read our docs: https://docs.greatexpectations.io/docs/guides/connecting_to_your_data/connect_to_data_overview/#2-configure-your-datasource
+#   - Join our slack channel: http://greatexpectations.io/slack
+
+# config_version refers to the syntactic version of this config file, and is used in maintaining backwards compatibility
+# It is auto-generated and usually does not need to be changed.
+config_version: 4.0
+
+# This config file supports variable substitution which enables: 1) keeping
+# secrets out of source control & 2) environment-based configuration changes
+# such as staging vs prod.
+#
+# When GX encounters substitution syntax (like `my_key: ${my_value}` or
+# `my_key: $my_value`) in the great_expectations.yml file, it will attempt
+# to replace the value of `my_key` with the value from an environment
+# variable `my_value` or a corresponding key read from this config file,
+# which is defined through the `config_variables_file_path`.
+# Environment variables take precedence over variables defined here.
+#
+# Substitution values defined here can be a simple (non-nested) value,
+# nested value such as a dictionary, or an environment variable (i.e. ${ENV_VAR})
+#
+#
+# https://docs.greatexpectations.io/docs/guides/setup/configuring_data_contexts/how_to_configure_credentials
+
+
+config_variables_file_path: uncommitted/config_variables.yml
+
+# The plugins_directory will be added to your python path for custom modules
+# used to override and extend Great Expectations.
+plugins_directory: plugins/
+
+stores:
+# Stores are configurable places to store things like Expectations, Validations
+# Data Docs, and more. These are for advanced users only - most users can simply
+# leave this section alone.
+  expectations_store:
+    class_name: ExpectationsStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: expectations/
+
+  validation_results_store:
+    class_name: ValidationResultsStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: uncommitted/validations/
+
+  checkpoint_store:
+    class_name: CheckpointStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      suppress_store_backend_id: true
+      base_directory: checkpoints/
+
+  validation_definition_store:
+    class_name: ValidationDefinitionStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: validation_definitions/
+
+expectations_store_name: expectations_store
+validation_results_store_name: validation_results_store
+checkpoint_store_name: checkpoint_store
+
+data_docs_sites:
+  # Data Docs make it simple to visualize data quality in your project. These
+  # include Expectations, Validations & Profiles. The are built for all
+  # Datasources from JSON artifacts in the local repo including validations &
+  # profiles from the uncommitted directory. Read more at https://docs.greatexpectations.io/docs/terms/data_docs
+  local_site:
+    class_name: SiteBuilder
+    show_how_to_buttons: true
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: uncommitted/data_docs/local_site/
+    site_index_builder:
+      class_name: DefaultSiteIndexBuilder
+fluent_datasources:
+  ACME_BERLIN_BICYCLES_CYCLE_HIRE-source:
+    type: snowflake
+    id: 0c4e9a5e-191b-4b66-a3e3-e615af76fc78
+    assets:
+      asset:
+        type: table
+        id: 983d2e5f-ba41-4078-af26-a8cfce072c68
+        batch_metadata: {}
+        batch_definitions:
+          batch_definition:
+            id: ae647844-4dc3-4cf3-ae52-4eadde3756b9
+            partitioner:
+        table_name: CYCLE_HIRE
+        schema_name: berlin_bicycles
+    connection_string: 
+      snowflake://metaphor_user:baf.ATM-mhx4fjw6xqr@metaphor-dev/ACME/BERLIN_BICYCLES?warehouse=COMPUTE_WH&role=METAPHOR_ROLE&application=great_expectations_oss
+  ACME_BERLIN_BICYCLES_CYCLE_STATIONS-source:
+    type: snowflake
+    id: 39075924-0394-4235-8fc8-229e2eacff31
+    assets:
+      asset:
+        type: table
+        id: aff8319d-1520-42fb-8914-7e1d09768c3b
+        batch_metadata: {}
+        batch_definitions:
+          batch_definition:
+            id: 16bbd58c-3554-4d58-aced-123569bf454d
+            partitioner:
+        table_name: CYCLE_STATIONS
+        schema_name: berlin_bicycles
+    connection_string: 
+      snowflake://metaphor_user:baf.ATM-mhx4fjw6xqr@metaphor-dev/ACME/BERLIN_BICYCLES?warehouse=COMPUTE_WH&role=METAPHOR_ROLE&application=great_expectations_oss
+  ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-source:
+    type: snowflake
+    id: b26fd2fc-e53a-4496-bd19-5ef1de6314dc
+    assets:
+      asset:
+        type: table
+        id: 5770a63a-1999-4ccd-aaa8-22195443a45d
+        batch_metadata: {}
+        batch_definitions:
+          batch_definition:
+            id: 41550047-6aab-499e-b4a9-64131f60eea8
+            partitioner:
+        table_name: CLEANED_BIKE_RIDES
+        schema_name: ride_share
+    connection_string: 
+      snowflake://metaphor_user:baf.ATM-mhx4fjw6xqr@metaphor-dev/ACME/RIDE_SHARE?warehouse=COMPUTE_WH&role=METAPHOR_ROLE&application=great_expectations_oss
+analytics_enabled:
+data_context_id: 7a6129dd-4e50-4f86-9e56-e7afb1cbd35e

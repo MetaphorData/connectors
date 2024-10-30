@@ -1,0 +1,33 @@
+{
+  "expectations": [
+    {
+      "id": "2d317e10-a5b8-47e0-b4dd-e5f40ba116c5",
+      "kwargs": {
+        "column": "TOTAL_MINUTES",
+        "max_value": 10000.0,
+        "min_value": 500.0,
+        "mostly": 0.7
+      },
+      "meta": {},
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "d767da09-0143-416f-b0cb-89a7df34a099",
+      "kwargs": {
+        "column": "SAME_STATION_FLAG",
+        "value_set": [
+          true,
+          false
+        ]
+      },
+      "meta": {},
+      "type": "expect_column_distinct_values_to_be_in_set"
+    }
+  ],
+  "id": "ea1ce85a-2850-43b1-a4eb-06f070a03425",
+  "meta": {
+    "great_expectations_version": "1.2.0"
+  },
+  "name": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-expectations",
+  "notes": null
+}

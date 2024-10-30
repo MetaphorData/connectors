@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "id": "550a0eff-5575-4202-8590-5634a3c304ec",
+      "kwargs": {
+        "column": "LATITUDE"
+      },
+      "meta": {},
+      "type": "expect_column_to_exist"
+    },
+    {
+      "id": "0f47835e-8f49-464e-ac18-d109726e96d9",
+      "kwargs": {
+        "column": "LATITUDE"
+      },
+      "meta": {},
+      "type": "expect_column_values_to_be_unique"
+    },
+    {
+      "id": "c5cfa263-fc13-42ed-9ad3-f1d137102ea5",
+      "kwargs": {
+        "column": "LATITUDE",
+        "max_value": 52.0,
+        "min_value": 51.0
+      },
+      "meta": {},
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "63878277-0b3f-45db-84c3-a34ae09c4082",
+      "kwargs": {
+        "column": "PRICING_TIER",
+        "mostly": 0.8
+      },
+      "meta": {},
+      "type": "expect_column_values_to_be_null"
+    }
+  ],
+  "id": "2d62aa97-707c-4ba9-8282-cd4ad1720709",
+  "meta": {
+    "great_expectations_version": "1.2.0"
+  },
+  "name": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-expectations",
+  "notes": null
+}

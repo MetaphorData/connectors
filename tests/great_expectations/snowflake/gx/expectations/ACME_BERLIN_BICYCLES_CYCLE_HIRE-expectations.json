@@ -1,0 +1,43 @@
+{
+  "expectations": [
+    {
+      "id": "2aef3499-9868-4f31-8c27-191b764d8d7e",
+      "kwargs": {
+        "column": "RENTAL_ID"
+      },
+      "meta": {},
+      "type": "expect_column_to_exist"
+    },
+    {
+      "id": "073d84c3-9c55-442e-8131-66ad8a3f2612",
+      "kwargs": {
+        "column": "RENTAL_ID"
+      },
+      "meta": {},
+      "type": "expect_column_values_to_be_unique"
+    },
+    {
+      "id": "99335d7e-20da-4bd0-a276-2f0ef4f63a99",
+      "kwargs": {
+        "column": "PRICING_TIER",
+        "mostly": 0.8
+      },
+      "meta": {},
+      "type": "expect_column_values_to_be_null"
+    },
+    {
+      "id": "494a5549-a47a-4682-96be-2236af536f33",
+      "kwargs": {
+        "column": "END_DATE"
+      },
+      "meta": {},
+      "type": "expect_column_values_to_be_dateutil_parseable"
+    }
+  ],
+  "id": "24753089-5656-4f20-9fc8-da6bbf946ed4",
+  "meta": {
+    "great_expectations_version": "1.2.0"
+  },
+  "name": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-expectations",
+  "notes": null
+}

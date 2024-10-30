@@ -1,0 +1,22 @@
+{
+  "data": {
+    "asset": {
+      "id": "5770a63a-1999-4ccd-aaa8-22195443a45d",
+      "name": "asset"
+    },
+    "batch_definition": {
+      "id": "41550047-6aab-499e-b4a9-64131f60eea8",
+      "name": "batch_definition"
+    },
+    "datasource": {
+      "id": "b26fd2fc-e53a-4496-bd19-5ef1de6314dc",
+      "name": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-source"
+    }
+  },
+  "id": "361c2c04-dee2-43ff-bc17-763e4326a927",
+  "name": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-validation_definition",
+  "suite": {
+    "id": "ea1ce85a-2850-43b1-a4eb-06f070a03425",
+    "name": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-expectations"
+  }
+}
