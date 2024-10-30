@@ -254,5 +254,5 @@ class GreatExpectationsExtractor(BaseExtractor):
             return url.database or ""
 
         database = url.database or ""
-        logger.warning(f"Using {database} for platform = {platform.value}")
+        logger.info(f"Using {database} for platform = {platform.value}")
         return database
