@@ -7,11 +7,7 @@ from great_expectations.core.expectation_validation_result import (
     ExpectationSuiteValidationResult,
 )
 from great_expectations.datasource.fluent import DataAsset
-from great_expectations.execution_engine import (
-    PandasExecutionEngine,
-    SparkDFExecutionEngine,
-    SqlAlchemyExecutionEngine,
-)
+from great_expectations.execution_engine import SqlAlchemyExecutionEngine
 from sqlalchemy import URL
 
 from metaphor.common.base_extractor import BaseExtractor
