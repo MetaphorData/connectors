@@ -144,5 +144,9 @@ poetry.toml
 # Minio system files
 tests/s3/data/.minio.sys
 
+# GX configs in tests
+tests/great_expectations/**/gx/
+tests/great_expectations/**/snowflake/config.yml
+
 # pytest-testmon metadata
 .testmondata*

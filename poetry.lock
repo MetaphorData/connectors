@@ -6118,6 +6118,25 @@ pandas = ["pandas (>=1.0.0,<3.0.0)", "pyarrow"]
 secure-local-storage = ["keyring (>=23.1.0,<26.0.0)"]
 
 [[package]]
+name = "snowflake-sqlalchemy"
+version = "1.6.1"
+description = "Snowflake SQLAlchemy Dialect"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "snowflake_sqlalchemy-1.6.1-py3-none-any.whl", hash = "sha256:06f5eac0f864f5634e7bcec4b87cdb77044723b9135c02bab426ba15382effee"},
+    {file = "snowflake_sqlalchemy-1.6.1.tar.gz", hash = "sha256:792cde928c0d1d30714b88b0404de81ed297a7745cbcc253dcda973f65759382"},
+]
+
+[package.dependencies]
+snowflake-connector-python = "<4.0.0"
+sqlalchemy = ">=1.4.19"
+
+[package.extras]
+development = ["mock", "numpy", "pre-commit", "pytest", "pytest-cov", "pytest-rerunfailures", "pytest-timeout", "pytz"]
+pandas = ["snowflake-connector-python[pandas]"]
+
+[[package]]
 name = "sortedcontainers"
 version = "2.4.0"
 description = "Sorted Containers -- Sorted List, Sorted Dict, Sorted Set"
@@ -7134,13 +7153,13 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 type = ["pytest-mypy"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "great-expectations", "grpcio-tools", "httpx", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "nltk", "oracledb", "parse", "psycopg2", "pycarlo", "pyhive", "pymongo", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "sql-metadata", "sqlglot", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "great-expectations", "grpcio-tools", "httpx", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "nltk", "oracledb", "parse", "psycopg2", "pycarlo", "pyhive", "pymongo", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "snowflake-sqlalchemy", "sql-metadata", "sqlglot", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "nltk"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
 dbt = ["httpx"]
-great-expectations = ["SQLAlchemy", "great-expectations", "psycopg2"]
+great-expectations = ["SQLAlchemy", "great-expectations", "psycopg2", "snowflake-connector-python", "snowflake-sqlalchemy"]
 hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["avro", "confluent-kafka", "grpcio-tools"]
 looker = ["GitPython", "lkml", "looker-sdk"]
@@ -7168,4 +7187,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "1f07de8dc6665a8fcc68f2cac5a41de7ff711a2028a06b3dc59ba2d31e5284e8"
+content-hash = "16fc7b1cb9646a415cf277908e5fdcd67688926d61490e8c93d79ce674e057d5"

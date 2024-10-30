@@ -12,6 +12,7 @@ from great_expectations.execution_engine import (
     SparkDFExecutionEngine,
     SqlAlchemyExecutionEngine,
 )
+from sqlalchemy import URL
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
@@ -31,14 +32,21 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetDataQuality,
     DatasetLogicalID,
-    DatasetStructure,
 )
 
 logger = get_logger()
 
 
 class GreatExpectationsExtractor(BaseExtractor):
-    """Great Expectations metadata extractor"""
+    """
+    Great Expectations metadata extractor. The extractor runs by
+    parsing existing Great Expectations data context, so make sure the
+    execution context has been persisted. In other words, it will not
+    work if you get Great Expectations context like this in your script:
+    ```python
+    ctx = gx.get_context() # This creates a context in memory, and nothing is persisted
+    ```
+    """
 
     _description = "Great Expectations metadata crawler"
     _platform = Platform.GREAT_EXPECTATIONS
@@ -91,11 +99,6 @@ class GreatExpectationsExtractor(BaseExtractor):
                     account=account,
                     name=dataset_name,
                     platform=platform,
-                ),
-                structure=DatasetStructure(
-                    database=database,
-                    schema=schema,
-                    table=table,
                 ),
             )
 
@@ -192,7 +195,7 @@ class GreatExpectationsExtractor(BaseExtractor):
             if platform is DataPlatform.SNOWFLAKE
             else None
         )
-        database = url.database
+        database = self._extract_database_from_sqlalchemy_url(url, platform)
         schema = batch_spec.get("schema_name")
         table = batch_spec.get("table_name")
 
@@ -250,3 +253,27 @@ class GreatExpectationsExtractor(BaseExtractor):
             and result.exception_info.get("raised_exception", False)
         ]
         return exceptions or None
+
+    @staticmethod
+    def _extract_database_from_sqlalchemy_url(url: URL, platform: DataPlatform) -> str:
+        """
+        Reference:
+        https://docs.greatexpectations.io/docs/core/connect_to_data/sql_data/#procedure
+        """
+
+        if platform is DataPlatform.SNOWFLAKE:
+            # GX connect string for Snowflake looks like
+            # snowflake://<USER_NAME>:<PASSWORD>@<ACCOUNT_NAME>/<DATABASE_NAME>/<SCHEMA_NAME>?warehouse=<WAREHOUSE_NAME>&role=<ROLE_NAME>&application=great_expectations_oss
+            # And SQLAlchemy URL considers whatever is behind `ACCOUNT_NAME` the database of the url.
+            #
+            # We want to extract `SCHEMA_NAME` from `DATABASE_NAME/SCHEMA_NAME`.
+            return (url.database or "").rsplit("/", maxsplit=1)[0]
+
+        if platform is DataPlatform.POSTGRESQL:
+            # PostgreSQL connect string:
+            # postgresql+psycopg2://<USERNAME>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>
+            return url.database or ""
+
+        database = url.database or ""
+        logger.warning(f"Using {database} for platform = {platform.value}")
+        return database

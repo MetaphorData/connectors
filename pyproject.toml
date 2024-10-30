@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.14.139"
+version = "0.14.140"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -66,6 +66,7 @@ requests = "^2.28.1"
 sasl = { version = "^0.3.1", optional = true }
 smart-open = "^7.0.1"
 snowflake-connector-python = { version = "^3.12.3", optional = true }
+snowflake-sqlalchemy = { version = "^1.6.1", optional = true }
 SQLAlchemy = { version = "^2.0.31", optional = true}
 sql-metadata = { version = "^2.10.0", optional = true }
 sqlglot = { extras = ["rs"], version = "^25.5.0", optional = true }
@@ -118,6 +119,7 @@ all = [
   "pyserde",
   "sasl",
   "snowflake-connector-python",
+  "snowflake-sqlalchemy",
   "SQLAlchemy",
   "sql-metadata",
   "sqlglot",
@@ -133,7 +135,7 @@ confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
 datahub = ["gql"]
 dbt = ["httpx"]
-great_expectations = ["great-expectations", "SQLAlchemy", "psycopg2"]
+great_expectations = ["great-expectations", "SQLAlchemy", "psycopg2", "snowflake-sqlalchemy", "snowflake-connector-python"]
 hive = ["pyhive", "sasl", "thrift", "thrift-sasl"]
 kafka = ["confluent-kafka", "avro", "grpcio-tools"]
 looker = ["GitPython", "lkml", "looker-sdk"]
