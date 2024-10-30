@@ -22,6 +22,9 @@ async def test_extractor(test_root_dir: str, directory: str) -> None:
 
     extractor = GreatExpectationsExtractor(config)
     entities = await extractor.extract()
-    events = [EventUtil.trim_event(e) for e in entities]
+    events = sorted(
+        (EventUtil.trim_event(e) for e in entities),
+        key=lambda ds: ds["logicalId"]["name"],
+    )
     expected = root / "great_expectations" / f"expected_{directory}.json"
     assert events == load_json(expected)
