@@ -1,0 +1,20 @@
+{
+  "actions": [],
+  "id": "a866a018-3534-4d98-87b8-75b9e259ae79",
+  "name": "checkpoint",
+  "result_format": "SUMMARY",
+  "validation_definitions": [
+    {
+      "id": "58a29a02-35dc-4db7-bdd8-5aa9bb0685bb",
+      "name": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-validation_definition"
+    },
+    {
+      "id": "3317f8cb-a85d-4232-85c7-e675543c89ac",
+      "name": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-validation_definition"
+    },
+    {
+      "id": "ef7ecd8a-1cb7-4ee9-b498-e10d414aa49f",
+      "name": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-validation_definition"
+    }
+  ]
+}

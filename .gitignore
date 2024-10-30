@@ -144,8 +144,6 @@ poetry.toml
 # Minio system files
 tests/s3/data/.minio.sys
 
-# GX artifacts
-tests/great_expectations/*/gx
 # GX snowflake config in tests
 tests/great_expectations/snowflake/config.yml
 

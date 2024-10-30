@@ -1,0 +1,134 @@
+{
+  "id": null,
+  "meta": {
+    "active_batch_definition": {
+      "batch_identifiers": {},
+      "data_asset_name": "asset",
+      "data_connector_name": "fluent",
+      "datasource_name": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-source"
+    },
+    "batch_markers": {
+      "ge_load_time": "20241030T150112.369716Z"
+    },
+    "batch_parameters": null,
+    "batch_spec": {
+      "batch_identifiers": {},
+      "data_asset_name": "asset",
+      "schema_name": "berlin_bicycles",
+      "table_name": "CYCLE_HIRE",
+      "type": "table"
+    },
+    "checkpoint_id": "a866a018-3534-4d98-87b8-75b9e259ae79",
+    "great_expectations_version": "1.2.0",
+    "run_id": {
+      "run_name": null,
+      "run_time": "2024-10-30T23:01:12.367270+08:00"
+    },
+    "validation_id": "58a29a02-35dc-4db7-bdd8-5aa9bb0685bb",
+    "validation_time": "2024-10-30T15:01:12.367270+00:00"
+  },
+  "results": [
+    {
+      "exception_info": {
+        "exception_message": "No provider found for column_values.dateutil_parseable.unexpected_count using SqlAlchemyExecutionEngine",
+        "exception_traceback": "Traceback (most recent call last):\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/expectations/registry.py\", line 315, in get_metric_provider\n    return metric_definition[\"providers\"][type(execution_engine).__name__]\nKeyError: 'SqlAlchemyExecutionEngine'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/validator/validator.py\", line 714, in _generate_metric_dependency_subgraphs_for_each_expectation_configuration\n    graph=self._metrics_calculator.build_metric_dependency_graph(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/validator/metrics_calculator.py\", line 199, in build_metric_dependency_graph\n    graph.build_metric_dependency_graph(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/validator/validation_graph.py\", line 132, in build_metric_dependency_graph\n    ) = self.set_metric_configuration_default_kwargs_if_absent(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/validator/validation_graph.py\", line 176, in set_metric_configuration_default_kwargs_if_absent\n    metric_impl_klass, metric_provider = get_metric_provider(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/expectations/registry.py\", line 317, in get_metric_provider\n    raise gx_exceptions.MetricProviderError(  # noqa: TRY003\ngreat_expectations.exceptions.exceptions.MetricProviderError: No provider found for column_values.dateutil_parseable.unexpected_count using SqlAlchemyExecutionEngine\n",
+        "raised_exception": true
+      },
+      "expectation_config": {
+        "id": "98661e96-ac81-4a6a-9167-f40271d67ea8",
+        "kwargs": {
+          "batch_id": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-source-asset",
+          "column": "END_DATE"
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_dateutil_parseable"
+      },
+      "meta": {},
+      "result": {},
+      "success": false
+    },
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "7bfe3973-9a40-4cc8-8cb0-15e7c03a9ce9",
+        "kwargs": {
+          "batch_id": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-source-asset",
+          "column": "RENTAL_ID"
+        },
+        "meta": {},
+        "type": "expect_column_to_exist"
+      },
+      "meta": {},
+      "result": {},
+      "success": true
+    },
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "aabf45f5-33bc-4bc7-b8d6-be025f69dceb",
+        "kwargs": {
+          "batch_id": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-source-asset",
+          "column": "RENTAL_ID"
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_unique"
+      },
+      "meta": {},
+      "result": {
+        "element_count": 36018,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "partial_unexpected_counts": [],
+        "partial_unexpected_list": [],
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "unexpected_percent_nonmissing": 0.0,
+        "unexpected_percent_total": 0.0
+      },
+      "success": true
+    },
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "ab478dc1-371a-4092-abc0-fc306e6d6244",
+        "kwargs": {
+          "batch_id": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-source-asset",
+          "column": "PRICING_TIER",
+          "mostly": 0.8
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_null"
+      },
+      "meta": {},
+      "result": {
+        "element_count": 36018,
+        "partial_unexpected_counts": [],
+        "partial_unexpected_list": [],
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0
+      },
+      "success": true
+    }
+  ],
+  "statistics": {
+    "evaluated_expectations": 4,
+    "success_percent": 75.0,
+    "successful_expectations": 3,
+    "unsuccessful_expectations": 1
+  },
+  "success": false,
+  "suite_name": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-expectations",
+  "suite_parameters": {}
+}

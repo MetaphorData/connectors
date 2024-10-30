@@ -1,0 +1,142 @@
+{
+  "id": null,
+  "meta": {
+    "active_batch_definition": {
+      "batch_identifiers": {},
+      "data_asset_name": "taxi data",
+      "data_connector_name": "fluent",
+      "datasource_name": "postgres db"
+    },
+    "batch_markers": {
+      "ge_load_time": "20241030T150056.987943Z"
+    },
+    "batch_parameters": null,
+    "batch_spec": {
+      "batch_identifiers": {},
+      "data_asset_name": "taxi data",
+      "schema_name": null,
+      "table_name": "nyc_taxi_data",
+      "type": "table"
+    },
+    "checkpoint_id": "0d8680ae-ac87-4334-8bf5-76207091625a",
+    "great_expectations_version": "1.2.0",
+    "run_id": {
+      "run_name": null,
+      "run_time": "2024-10-30T23:00:56.985672+08:00"
+    },
+    "validation_id": "10b8e369-5441-4000-be26-c4049430ab33",
+    "validation_time": "2024-10-30T15:00:56.985672+00:00"
+  },
+  "results": [
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "e41d3066-c656-4293-9bbd-97d69a68e973",
+        "kwargs": {
+          "batch_id": "postgres db-taxi data",
+          "column": "passenger_count",
+          "max_value": 6.0,
+          "min_value": 1.0
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_between"
+      },
+      "meta": {},
+      "result": {
+        "element_count": 20000,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "partial_unexpected_counts": [],
+        "partial_unexpected_list": [],
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "unexpected_percent_nonmissing": 0.0,
+        "unexpected_percent_total": 0.0
+      },
+      "success": true
+    },
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "49ef5837-a282-402c-9980-8516d3c4133a",
+        "kwargs": {
+          "batch_id": "postgres db-taxi data",
+          "column": "fare_amount",
+          "min_value": 0.0
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_between"
+      },
+      "meta": {},
+      "result": {
+        "element_count": 20000,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "partial_unexpected_counts": [
+          {
+            "count": 4,
+            "value": -52.0
+          },
+          {
+            "count": 2,
+            "value": -5.5
+          },
+          {
+            "count": 2,
+            "value": -4.0
+          },
+          {
+            "count": 2,
+            "value": -3.0
+          },
+          {
+            "count": 2,
+            "value": -0.1
+          },
+          {
+            "count": 2,
+            "value": -0.01
+          }
+        ],
+        "partial_unexpected_list": [
+          -0.01,
+          -52.0,
+          -0.1,
+          -5.5,
+          -3.0,
+          -52.0,
+          -4.0,
+          -0.01,
+          -52.0,
+          -0.1,
+          -5.5,
+          -3.0,
+          -52.0,
+          -4.0
+        ],
+        "unexpected_count": 14,
+        "unexpected_percent": 0.06999999999999999,
+        "unexpected_percent_nonmissing": 0.06999999999999999,
+        "unexpected_percent_total": 0.06999999999999999
+      },
+      "success": false
+    }
+  ],
+  "statistics": {
+    "evaluated_expectations": 2,
+    "success_percent": 50.0,
+    "successful_expectations": 1,
+    "unsuccessful_expectations": 1
+  },
+  "success": false,
+  "suite_name": "expectations",
+  "suite_parameters": {}
+}

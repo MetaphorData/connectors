@@ -1,4 +1,3 @@
-from importlib import import_module
 from pathlib import Path
 
 import pytest
@@ -14,10 +13,6 @@ from tests.test_utils import load_json
 @pytest.mark.asyncio
 async def test_extractor(test_root_dir: str, directory: str) -> None:
     root = Path(test_root_dir)
-
-    # Import the GX script module, then run the script!
-    module = import_module(f"tests.great_expectations.{directory}.run")
-    module.run()
 
     config = GreatExpectationConfig(
         output=OutputConfig(),
