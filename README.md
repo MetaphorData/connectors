@@ -64,6 +64,7 @@ Each connector is placed under its own directory under [metaphor](./metaphor) an
 | [dbt.cloud](metaphor/dbt/cloud/)                                  | dbt model, test, lineage                 |
 | [fivetran](metaphor/fivetran/)                                    | Lineage, Pipeline                        |
 | [glue](metaphor/glue/)                                            | Schema, description                      |
+| [great_expectations](metaphor/great_expectations/)                | Data monitor                             |
 | [informatica](metaphor/informatica/)                              | Lineage, Pipeline                        |
 | [looker](metaphor/looker/)                                        | Looker view, explore, dashboard, lineage |
 | [kafka](metaphor/kafka/)                                          | Schema, description                      |

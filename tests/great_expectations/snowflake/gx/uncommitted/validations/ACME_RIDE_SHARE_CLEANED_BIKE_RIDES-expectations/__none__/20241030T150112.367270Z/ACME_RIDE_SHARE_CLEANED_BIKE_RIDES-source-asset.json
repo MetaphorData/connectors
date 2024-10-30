@@ -1,0 +1,183 @@
+{
+  "id": null,
+  "meta": {
+    "active_batch_definition": {
+      "batch_identifiers": {},
+      "data_asset_name": "asset",
+      "data_connector_name": "fluent",
+      "datasource_name": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-source"
+    },
+    "batch_markers": {
+      "ge_load_time": "20241030T150122.596677Z"
+    },
+    "batch_parameters": null,
+    "batch_spec": {
+      "batch_identifiers": {},
+      "data_asset_name": "asset",
+      "schema_name": "ride_share",
+      "table_name": "CLEANED_BIKE_RIDES",
+      "type": "table"
+    },
+    "checkpoint_id": "a866a018-3534-4d98-87b8-75b9e259ae79",
+    "great_expectations_version": "1.2.0",
+    "run_id": {
+      "run_name": null,
+      "run_time": "2024-10-30T23:01:12.367270+08:00"
+    },
+    "validation_id": "ef7ecd8a-1cb7-4ee9-b498-e10d414aa49f",
+    "validation_time": "2024-10-30T15:01:12.367270+00:00"
+  },
+  "results": [
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "016d86f8-90d8-4277-aa48-b633869d347c",
+        "kwargs": {
+          "batch_id": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-source-asset",
+          "column": "TOTAL_MINUTES",
+          "max_value": 10000.0,
+          "min_value": 500.0,
+          "mostly": 0.7
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_between"
+      },
+      "meta": {},
+      "result": {
+        "element_count": 5340,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "partial_unexpected_counts": [
+          {
+            "count": 3,
+            "value": 472.0
+          },
+          {
+            "count": 2,
+            "value": 473.0
+          },
+          {
+            "count": 2,
+            "value": 477.0
+          },
+          {
+            "count": 2,
+            "value": 480.0
+          },
+          {
+            "count": 2,
+            "value": 494.0
+          },
+          {
+            "count": 2,
+            "value": 495.0
+          },
+          {
+            "count": 2,
+            "value": 497.0
+          },
+          {
+            "count": 1,
+            "value": 474.0
+          },
+          {
+            "count": 1,
+            "value": 479.0
+          },
+          {
+            "count": 1,
+            "value": 482.0
+          },
+          {
+            "count": 1,
+            "value": 486.0
+          },
+          {
+            "count": 1,
+            "value": 496.0
+          }
+        ],
+        "partial_unexpected_list": [
+          497.0,
+          497.0,
+          496.0,
+          495.0,
+          495.0,
+          494.0,
+          494.0,
+          486.0,
+          482.0,
+          480.0,
+          480.0,
+          479.0,
+          477.0,
+          477.0,
+          474.0,
+          473.0,
+          473.0,
+          472.0,
+          472.0,
+          472.0
+        ],
+        "unexpected_count": 5121,
+        "unexpected_percent": 95.89887640449439,
+        "unexpected_percent_nonmissing": 95.89887640449439,
+        "unexpected_percent_total": 95.89887640449439
+      },
+      "success": false
+    },
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "98f9e941-c3a9-4e2e-84cd-32a60537ee95",
+        "kwargs": {
+          "batch_id": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-source-asset",
+          "column": "SAME_STATION_FLAG",
+          "value_set": [
+            true,
+            false
+          ]
+        },
+        "meta": {},
+        "type": "expect_column_distinct_values_to_be_in_set"
+      },
+      "meta": {},
+      "result": {
+        "details": {
+          "value_counts": [
+            {
+              "count": 4377,
+              "value": false
+            },
+            {
+              "count": 963,
+              "value": true
+            }
+          ]
+        },
+        "observed_value": [
+          false,
+          true
+        ]
+      },
+      "success": true
+    }
+  ],
+  "statistics": {
+    "evaluated_expectations": 2,
+    "success_percent": 50.0,
+    "successful_expectations": 1,
+    "unsuccessful_expectations": 1
+  },
+  "success": false,
+  "suite_name": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-expectations",
+  "suite_parameters": {}
+}

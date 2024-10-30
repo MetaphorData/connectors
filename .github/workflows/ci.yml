@@ -39,7 +39,7 @@ jobs:
 
       - name: Setup dev libs
         run: |
-          sudo apt-get install libsasl2-dev
+          sudo apt-get install libsasl2-dev libpq-dev
 
       - name: Lint & Type Check
         run: |
