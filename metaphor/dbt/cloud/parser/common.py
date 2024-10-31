@@ -1,9 +1,15 @@
 import json
-from typing import Dict, List, Union
+from typing import Callable, Dict, List, Union
 
 from metaphor.common.entity_id import EntityId
 from metaphor.common.utils import dedup_lists, unique_list
-from metaphor.dbt.util import build_system_tags, get_virtual_view_id
+from metaphor.dbt.util import (
+    build_system_tags,
+    get_model_name_from_unique_id,
+    get_snapshot_name_from_unique_id,
+    get_virtual_view_id,
+    init_virtual_view,
+)
 from metaphor.models.metadata_change_event import (
     Dataset,
     DbtMacro,
@@ -35,10 +41,17 @@ def parse_depends_on(
         or None
     )
 
+    def get_source_model_name(n: str) -> Callable[[str], str]:
+        if n.startswith("model."):
+            return get_model_name_from_unique_id
+        if n.startswith("snapshot."):
+            return get_snapshot_name_from_unique_id
+        assert False
+
     target.source_models = (
         unique_list(
             [
-                get_virtual_view_id(virtual_views[n].logical_id)  # type: ignore
+                get_virtual_view_id(init_virtual_view(virtual_views, n, get_source_model_name).logical_id)  # type: ignore
                 for n in depends_on
                 if n.startswith("model.") or n.startswith("snapshot.")
             ]
