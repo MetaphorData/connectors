@@ -1,0 +1,22 @@
+{
+  "data": {
+    "asset": {
+      "id": "c98454e1-397d-4791-9cb8-2222ab88191f",
+      "name": "taxi data"
+    },
+    "batch_definition": {
+      "id": "9c2ad11c-3090-46e1-b907-9d3ecd002541",
+      "name": "batch definition"
+    },
+    "datasource": {
+      "id": "07c83059-7610-43bb-af9d-4ae4193ef7b0",
+      "name": "postgres db"
+    }
+  },
+  "id": "10b8e369-5441-4000-be26-c4049430ab33",
+  "name": "validation definition",
+  "suite": {
+    "id": "df694500-a2ab-46f8-916f-82741b003464",
+    "name": "expectations"
+  }
+}

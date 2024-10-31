@@ -19,7 +19,7 @@ FROM base AS runtime
 
 RUN apt-get clean
 RUN apt-get update
-RUN apt-get install -y git build-essential libsasl2-dev
+RUN apt-get install -y git build-essential libsasl2-dev libpq-dev
 
 COPY --from=builder /src/requirements.txt /dep/requirements.txt
 RUN pip install -r /dep/requirements.txt --no-deps

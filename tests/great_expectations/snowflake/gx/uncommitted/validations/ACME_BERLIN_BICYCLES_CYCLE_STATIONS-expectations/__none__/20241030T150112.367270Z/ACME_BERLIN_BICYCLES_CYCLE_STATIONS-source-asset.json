@@ -1,0 +1,150 @@
+{
+  "id": null,
+  "meta": {
+    "active_batch_definition": {
+      "batch_identifiers": {},
+      "data_asset_name": "asset",
+      "data_connector_name": "fluent",
+      "datasource_name": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-source"
+    },
+    "batch_markers": {
+      "ge_load_time": "20241030T150117.695029Z"
+    },
+    "batch_parameters": null,
+    "batch_spec": {
+      "batch_identifiers": {},
+      "data_asset_name": "asset",
+      "schema_name": "berlin_bicycles",
+      "table_name": "CYCLE_STATIONS",
+      "type": "table"
+    },
+    "checkpoint_id": "a866a018-3534-4d98-87b8-75b9e259ae79",
+    "great_expectations_version": "1.2.0",
+    "run_id": {
+      "run_name": null,
+      "run_time": "2024-10-30T23:01:12.367270+08:00"
+    },
+    "validation_id": "3317f8cb-a85d-4232-85c7-e675543c89ac",
+    "validation_time": "2024-10-30T15:01:12.367270+00:00"
+  },
+  "results": [
+    {
+      "exception_info": {
+        "('column_values.null.condition', '590d56f6fcba2a47acdec50c221d01bf', ())": {
+          "exception_message": "Error: The column \"PRICING_TIER\" in BatchData does not exist.",
+          "exception_traceback": "Traceback (most recent call last):\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/execution_engine/execution_engine.py\", line 532, in _process_direct_and_bundled_metric_computation_configurations\n    metric_computation_configuration.metric_fn(  # type: ignore[misc] # F not callable\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/expectations/metrics/metric_provider.py\", line 99, in inner_func\n    return metric_fn(*args, **kwargs)\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/expectations/metrics/map_metric_provider/column_condition_partial.py\", line 161, in inner_func\n    metric_domain_kwargs = get_dbms_compatible_metric_domain_kwargs(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/expectations/metrics/util.py\", line 719, in get_dbms_compatible_metric_domain_kwargs\n    column_name: str | sqlalchemy.quoted_name = get_dbms_compatible_column_names(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/expectations/metrics/util.py\", line 789, in get_dbms_compatible_column_names\n    _verify_column_names_exist_and_get_normalized_typed_column_names_map(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/expectations/metrics/util.py\", line 874, in _verify_column_names_exist_and_get_normalized_typed_column_names_map\n    raise gx_exceptions.InvalidMetricAccessorDomainKwargsKeyError(\ngreat_expectations.exceptions.exceptions.InvalidMetricAccessorDomainKwargsKeyError: Error: The column \"PRICING_TIER\" in BatchData does not exist.\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/validator/validation_graph.py\", line 276, in _resolve\n    self._execution_engine.resolve_metrics(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/execution_engine/execution_engine.py\", line 279, in resolve_metrics\n    return self._process_direct_and_bundled_metric_computation_configurations(\n  File \"/Users/andy/Library/Caches/pypoetry/virtualenvs/metaphor-connectors-np3LZT1s-py3.9/lib/python3.9/site-packages/great_expectations/execution_engine/execution_engine.py\", line 537, in _process_direct_and_bundled_metric_computation_configurations\n    raise gx_exceptions.MetricResolutionError(\ngreat_expectations.exceptions.exceptions.MetricResolutionError: Error: The column \"PRICING_TIER\" in BatchData does not exist.\n",
+          "raised_exception": true
+        }
+      },
+      "expectation_config": {
+        "id": "89732a41-286f-4a36-9d85-f82a3aeea1dd",
+        "kwargs": {
+          "batch_id": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-source-asset",
+          "column": "PRICING_TIER",
+          "mostly": 0.8
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_null"
+      },
+      "meta": {},
+      "result": {},
+      "success": false
+    },
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "1aba923e-dbe4-4262-abef-ef9dc508b971",
+        "kwargs": {
+          "batch_id": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-source-asset",
+          "column": "LATITUDE"
+        },
+        "meta": {},
+        "type": "expect_column_to_exist"
+      },
+      "meta": {},
+      "result": {},
+      "success": true
+    },
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "06e9b53d-c168-410c-879b-c46af4074ee7",
+        "kwargs": {
+          "batch_id": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-source-asset",
+          "column": "LATITUDE"
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_unique"
+      },
+      "meta": {},
+      "result": {
+        "element_count": 785,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "partial_unexpected_counts": [
+          {
+            "count": 2,
+            "value": 51.521564
+          }
+        ],
+        "partial_unexpected_list": [
+          51.521564,
+          51.521564
+        ],
+        "unexpected_count": 2,
+        "unexpected_percent": 0.25477707006369427,
+        "unexpected_percent_nonmissing": 0.25477707006369427,
+        "unexpected_percent_total": 0.25477707006369427
+      },
+      "success": false
+    },
+    {
+      "exception_info": {
+        "exception_message": null,
+        "exception_traceback": null,
+        "raised_exception": false
+      },
+      "expectation_config": {
+        "id": "16d33648-c8b7-458b-bb58-38885a6a31dc",
+        "kwargs": {
+          "batch_id": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-source-asset",
+          "column": "LATITUDE",
+          "max_value": 52.0,
+          "min_value": 51.0
+        },
+        "meta": {},
+        "type": "expect_column_values_to_be_between"
+      },
+      "meta": {},
+      "result": {
+        "element_count": 785,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "partial_unexpected_counts": [],
+        "partial_unexpected_list": [],
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "unexpected_percent_nonmissing": 0.0,
+        "unexpected_percent_total": 0.0
+      },
+      "success": true
+    }
+  ],
+  "statistics": {
+    "evaluated_expectations": 4,
+    "success_percent": 50.0,
+    "successful_expectations": 2,
+    "unsuccessful_expectations": 2
+  },
+  "success": false,
+  "suite_name": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-expectations",
+  "suite_parameters": {}
+}

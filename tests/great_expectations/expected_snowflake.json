@@ -1,0 +1,99 @@
+[
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "exceptions": [
+            "No provider found for column_values.dateutil_parseable.unexpected_count using SqlAlchemyExecutionEngine"
+          ],
+          "status": "ERROR",
+          "targets": [
+            {
+              "column": "END_DATE",
+              "dataset": "acme.berlin_bicycles.cycle_hire"
+            },
+            {
+              "column": "RENTAL_ID",
+              "dataset": "acme.berlin_bicycles.cycle_hire"
+            },
+            {
+              "column": "RENTAL_ID",
+              "dataset": "acme.berlin_bicycles.cycle_hire"
+            },
+            {
+              "column": "PRICING_TIER",
+              "dataset": "acme.berlin_bicycles.cycle_hire"
+            }
+          ],
+          "title": "ACME_BERLIN_BICYCLES_CYCLE_HIRE-expectations"
+        }
+      ],
+      "provider": "GREAT_EXPECTATIONS"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.berlin_bicycles.cycle_hire",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "ERROR",
+          "targets": [
+            {
+              "column": "PRICING_TIER",
+              "dataset": "acme.berlin_bicycles.cycle_stations"
+            },
+            {
+              "column": "LATITUDE",
+              "dataset": "acme.berlin_bicycles.cycle_stations"
+            },
+            {
+              "column": "LATITUDE",
+              "dataset": "acme.berlin_bicycles.cycle_stations"
+            },
+            {
+              "column": "LATITUDE",
+              "dataset": "acme.berlin_bicycles.cycle_stations"
+            }
+          ],
+          "title": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-expectations"
+        }
+      ],
+      "provider": "GREAT_EXPECTATIONS"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.berlin_bicycles.cycle_stations",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "status": "ERROR",
+          "targets": [
+            {
+              "column": "TOTAL_MINUTES",
+              "dataset": "acme.ride_share.cleaned_bike_rides"
+            },
+            {
+              "column": "SAME_STATION_FLAG",
+              "dataset": "acme.ride_share.cleaned_bike_rides"
+            }
+          ],
+          "title": "ACME_RIDE_SHARE_CLEANED_BIKE_RIDES-expectations"
+        }
+      ],
+      "provider": "GREAT_EXPECTATIONS"
+    },
+    "logicalId": {
+      "account": "john.doe@metaphor.io",
+      "name": "acme.ride_share.cleaned_bike_rides",
+      "platform": "SNOWFLAKE"
+    }
+  }
+]

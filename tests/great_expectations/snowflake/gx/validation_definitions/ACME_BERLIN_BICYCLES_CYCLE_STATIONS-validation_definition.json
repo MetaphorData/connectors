@@ -1,0 +1,22 @@
+{
+  "data": {
+    "asset": {
+      "id": "f5141f9a-e88c-4fc4-b704-cc9dd3959506",
+      "name": "asset"
+    },
+    "batch_definition": {
+      "id": "7de29d45-3921-44f4-9bcf-9806ac350f6f",
+      "name": "batch_definition"
+    },
+    "datasource": {
+      "id": "4e6d966e-b902-4000-9fae-0f66652cc217",
+      "name": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-source"
+    }
+  },
+  "id": "3317f8cb-a85d-4232-85c7-e675543c89ac",
+  "name": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-validation_definition",
+  "suite": {
+    "id": "9b57daf8-ec36-4ee5-a7ce-04ce11fb411e",
+    "name": "ACME_BERLIN_BICYCLES_CYCLE_STATIONS-expectations"
+  }
+}
