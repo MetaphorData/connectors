@@ -51,7 +51,7 @@ def parse_depends_on(
     target.source_models = (
         unique_list(
             [
-                get_virtual_view_id(init_virtual_view(virtual_views, n, get_source_model_name).logical_id)  # type: ignore
+                get_virtual_view_id(init_virtual_view(virtual_views, n, get_source_model_name(n)).logical_id)  # type: ignore
                 for n in depends_on
                 if n.startswith("model.") or n.startswith("snapshot.")
             ]
