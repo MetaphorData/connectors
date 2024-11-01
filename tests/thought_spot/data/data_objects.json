@@ -22,6 +22,9 @@
           }
         ]
       }
+    },
+    "metadata_header": {
+      "isVerified": false
     }
   },
   {
@@ -67,6 +70,9 @@
           }
         ]
       }
+    },
+    "metadata_header": {
+      "isVerified": false
     }
   },
   {
@@ -115,6 +121,9 @@
         "description": "This is view1",
         "tags": []
       }
+    },
+    "metadata_header": {
+      "isVerified": false
     }
   },
   {
@@ -147,6 +156,9 @@
         "tags": [],
         "type": "SQL_VIEW"
       }
+    },
+    "metadata_header": {
+      "isVerified": false
     }
   },
   {
@@ -179,6 +191,9 @@
         "tags": [],
         "type": "SQL_VIEW"
       }
+    },
+    "metadata_header": {
+      "isVerified": false
     }
   }
 ]
