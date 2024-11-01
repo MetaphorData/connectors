@@ -469,7 +469,7 @@ class UnityCatalogExtractor(BaseExtractor):
                 ]
             )
 
-        if comment is not None:
+        if comment:
             hierarchy.system_description = SystemDescription(
                 description=comment,
                 platform=AssetPlatform.UNITY_CATALOG,
