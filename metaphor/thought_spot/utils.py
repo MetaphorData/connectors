@@ -14,14 +14,11 @@ from metaphor.models.metadata_change_event import (
 from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
     AnswerMetadata,
-    AnswerMetadataDetail,
     Connection,
     ConnectionDetail,
     ConnectionType,
     LiveBoardMetadata,
-    LiveBoardMetadataDetail,
     LogicalTableMetadata,
-    LogicalTableMetadataDetail,
     SourceType,
     TMLResult,
 )
@@ -143,8 +140,8 @@ class ThoughtSpot:
         return connection_details
 
     @classmethod
-    def fetch_tables(cls, client: TSRestApiV2) -> List[LogicalTableMetadataDetail]:
-        table_details: List[LogicalTableMetadataDetail] = []
+    def fetch_tables(cls, client: TSRestApiV2) -> List[LogicalTableMetadata]:
+        table_details: List[LogicalTableMetadata] = []
 
         batch_count = 0
         batch_size = 100
@@ -167,15 +164,15 @@ class ThoughtSpot:
             for table in TypeAdapter(List[LogicalTableMetadata]).validate_python(
                 response
             ):
-                table_details.append(table.metadata_detail)
+                table_details.append(table)
 
         logger.info(f"Extract #{len(table_details)} tables")
 
         return table_details
 
     @classmethod
-    def fetch_answers(cls, client: TSRestApiV2) -> List[AnswerMetadataDetail]:
-        answer_details: List[AnswerMetadataDetail] = []
+    def fetch_answers(cls, client: TSRestApiV2) -> List[AnswerMetadata]:
+        answer_details: List[AnswerMetadata] = []
 
         batch_count = 0
         batch_size = 100
@@ -196,15 +193,15 @@ class ThoughtSpot:
             batch_count += 1
 
             for answer in TypeAdapter(List[AnswerMetadata]).validate_python(response):
-                answer_details.append(answer.metadata_detail)
+                answer_details.append(answer)
 
         logger.info(f"Extract #{len(answer_details)} liveboards")
 
         return answer_details
 
     @classmethod
-    def fetch_liveboards(cls, client: TSRestApiV2) -> List[LiveBoardMetadataDetail]:
-        liveboard_details: List[LiveBoardMetadataDetail] = []
+    def fetch_liveboards(cls, client: TSRestApiV2) -> List[LiveBoardMetadata]:
+        liveboard_details: List[LiveBoardMetadata] = []
 
         batch_count = 0
         batch_size = 100
@@ -227,7 +224,7 @@ class ThoughtSpot:
             for liveboard in TypeAdapter(List[LiveBoardMetadata]).validate_python(
                 response
             ):
-                liveboard_details.append(liveboard.metadata_detail)
+                liveboard_details.append(liveboard)
 
         logger.info(f"Extract #{len(liveboard_details)} liveboards")
 

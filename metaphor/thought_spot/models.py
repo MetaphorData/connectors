@@ -25,6 +25,10 @@ class Header(BaseModel):
         return self.id
 
 
+class MetadataHeader(BaseModel):
+    isVerified: bool
+
+
 class Reference(BaseModel):
     id: str
     name: str
@@ -170,6 +174,10 @@ class LogicalTableMetadataDetail(Metadata):
 
 class LogicalTableMetadata(BaseModel):
     metadata_detail: LogicalTableMetadataDetail
+    metadata_header: MetadataHeader
+
+    def __repr__(self):
+        return self.metadata_detail.header.id
 
 
 class AnswerMetadataDetail(Metadata):
@@ -179,6 +187,10 @@ class AnswerMetadataDetail(Metadata):
 
 class AnswerMetadata(BaseModel):
     metadata_detail: AnswerMetadataDetail
+    metadata_header: MetadataHeader
+
+    def __repr__(self):
+        return self.metadata_detail.header.id
 
 
 class LiveBoardMetadataDetail(Metadata):
@@ -189,6 +201,10 @@ class LiveBoardMetadataDetail(Metadata):
 
 class LiveBoardMetadata(BaseModel):
     metadata_detail: LiveBoardMetadataDetail
+    metadata_header: MetadataHeader
+
+    def __repr__(self):
+        return self.metadata_detail.header.id
 
 
 class TMLResult(BaseModel):

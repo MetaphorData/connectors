@@ -49,12 +49,12 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.thought_spot.config import ThoughtSpotRunConfig
 from metaphor.thought_spot.models import (
-    AnswerMetadataDetail,
+    AnswerMetadata,
     ConnectionDetail,
     DataSourceTypeEnum,
     Header,
-    LiveBoardMetadataDetail,
-    LogicalTableMetadataDetail,
+    LiveBoardMetadata,
+    LogicalTableMetadata,
     TableMappingInfo,
     Tag,
     TMLObject,
@@ -119,11 +119,11 @@ class ThoughtSpotExtractor(BaseExtractor):
 
         data_objects = ThoughtSpot.fetch_tables(self._client)
 
-        def is_source_valid(table: LogicalTableMetadataDetail):
+        def is_source_valid(table: LogicalTableMetadata):
             """
             Table should source from a connection
             """
-            return table.dataSourceId in connections
+            return table.metadata_detail.dataSourceId in connections
 
         tables = filter(is_source_valid, data_objects)
 
@@ -136,15 +136,13 @@ class ThoughtSpotExtractor(BaseExtractor):
         self.populate_lineage(connections, tables)
         self.populate_formula()
 
-    def populate_logical_column_mapping(
-        self, tables: Dict[str, LogicalTableMetadataDetail]
-    ):
+    def populate_logical_column_mapping(self, tables: Dict[str, LogicalTableMetadata]):
         for table in tables.values():
-            table_id = table.header.id
+            table_id = table.metadata_detail.header.id
             view_id = VirtualViewLogicalID(
                 name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
             )
-            for column in table.columns:
+            for column in table.metadata_detail.columns:
                 self._column_references[column.header.id] = ColumnReference(
                     entity_id=str(EntityId(EntityType.VIRTUAL_VIEW, view_id)),
                     field=column.header.name,
@@ -153,20 +151,23 @@ class ThoughtSpotExtractor(BaseExtractor):
     def populate_virtual_views(
         self,
         connections: Dict[str, ConnectionDetail],
-        tables: Dict[str, LogicalTableMetadataDetail],
+        tables: Dict[str, LogicalTableMetadata],
     ):
         for table in tables.values():
-            table_id = table.header.id
-            table_type = mapping_data_object_type(table.type)
+            table_detail = table.metadata_detail
+            table_id = table_detail.header.id
+            table_type = mapping_data_object_type(table_detail.type)
 
             field_mappings = []
-            for column in table.columns:
+            for column in table_detail.columns:
                 field_mapping = FieldMapping(destination=column.header.name, sources=[])
 
                 assert field_mapping.sources is not None
-                if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
+                if table_detail.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
                     # the table upstream is external source, i.e. BigQuery
-                    table_mapping_info = table.logicalTableContent.tableMappingInfo
+                    table_mapping_info = (
+                        table_detail.logicalTableContent.tableMappingInfo
+                    )
                     if table_mapping_info is None:
                         logger.warning(
                             f"tableMappingInfo is missing, skip for column: {column.header.name}"
@@ -176,7 +177,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                     source_entity_id = self.find_entity_id_from_connection(
                         connections,
                         table_mapping_info,
-                        table.dataSourceId,
+                        table_detail.dataSourceId,
                     )
                     field_mapping.sources.append(
                         SourceField(
@@ -207,7 +208,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 ),
                 structure=AssetStructure(
                     directories=[table_type.name],
-                    name=table.header.name,
+                    name=table_detail.header.name,
                 ),
                 thought_spot=ThoughtSpotDataObject(
                     columns=[
@@ -217,17 +218,18 @@ class ThoughtSpotExtractor(BaseExtractor):
                             type=column.dataType if column.dataType else column.type,
                             optional_type=column.optionalType,
                         )
-                        for column in table.columns
+                        for column in table_detail.columns
                     ],
-                    name=table.header.name,
-                    description=table.header.description,
+                    name=table_detail.header.name,
+                    description=table_detail.header.description,
                     type=table_type,
                     url=f"{self._base_url}/#/data/tables/{table_id}",
+                    is_verified=table.metadata_header.isVerified,
                 ),
                 entity_upstream=EntityUpstream(
                     field_mappings=field_mappings if field_mappings else None
                 ),
-                system_tags=self._get_system_tags(table.header.tags),
+                system_tags=self._get_system_tags(table_detail.header.tags),
             )
             self._virtual_views[table_id] = view
 
@@ -296,13 +298,13 @@ class ThoughtSpotExtractor(BaseExtractor):
     def populate_lineage(
         self,
         connections: Dict[str, ConnectionDetail],
-        tables: Dict[str, LogicalTableMetadataDetail],
+        tables: Dict[str, LogicalTableMetadata],
     ):
         """
         Populate lineage between tables/worksheets/views
         """
         for view in self._virtual_views.values():
-            table = tables[view.logical_id.name]
+            table = tables[view.logical_id.name].metadata_detail
 
             if table.dataSourceTypeEnum != DataSourceTypeEnum.DEFAULT:
                 # SQL_VIEW case
@@ -501,14 +503,15 @@ class ThoughtSpotExtractor(BaseExtractor):
         liveboards = ThoughtSpot.fetch_liveboards(self._client)
         self.populate_liveboards(liveboards)
 
-    def populate_answers(self, answers: List[AnswerMetadataDetail]):
+    def populate_answers(self, answers: List[AnswerMetadata]):
         for answer in answers:
-            answer_id = answer.header.id
+            detail = answer.metadata_detail
+            answer_id = detail.header.id
 
             visualizations = [
                 # Use answer.header instead as viz.header contain only dummy values
-                (viz, answer.header, "")
-                for sheet in answer.reportContent.sheets
+                (viz, detail.header, "")
+                for sheet in detail.reportContent.sheets
                 for viz in sheet.sheetContent.visualizations
                 if viz.vizContent.vizType == "CHART"
             ]
@@ -520,29 +523,30 @@ class ThoughtSpotExtractor(BaseExtractor):
                 ),
                 structure=AssetStructure(
                     directories=[ThoughtSpotDashboardType.ANSWER.name],
-                    name=answer.header.name,
+                    name=detail.header.name,
                 ),
                 dashboard_info=DashboardInfo(
-                    description=answer.header.description,
-                    title=answer.header.name,
+                    description=detail.header.description,
+                    title=detail.header.name,
                     charts=self._populate_charts(
                         visualizations, self._base_url, answer_id
                     ),
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.ANSWER,
+                        is_verified=answer.metadata_header.isVerified,
                     ),
                     dashboard_type=DashboardType.THOUGHT_SPOT_ANSWER,
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
-                system_tags=self._get_system_tags(answer.header.tags),
+                system_tags=self._get_system_tags(detail.header.tags),
             )
 
             self._dashboards[answer_id] = dashboard
 
-    def populate_answers_lineage(self, answers: List[AnswerMetadataDetail]):
-        ids = [answer.header.id for answer in answers]
+    def populate_answers_lineage(self, answers: List[AnswerMetadata]):
+        ids = [answer.metadata_detail.header.id for answer in answers]
         for tml_result in ThoughtSpot.fetch_tml(self._client, ids):
             if not tml_result.edoc:
                 continue
@@ -620,14 +624,15 @@ class ThoughtSpotExtractor(BaseExtractor):
 
         return field_mappings
 
-    def populate_liveboards(self, liveboards: List[LiveBoardMetadataDetail]):
+    def populate_liveboards(self, liveboards: List[LiveBoardMetadata]):
         for board in liveboards:
-            board_id = board.header.id
+            detail = board.metadata_detail
+            board_id = detail.header.id
 
-            resolvedObjects = board.header.resolvedObjects
+            resolvedObjects = detail.header.resolvedObjects
             answers = {
                 viz.header.id: resolvedObjects[viz.vizContent.refVizId]
-                for sheet in board.reportContent.sheets
+                for sheet in detail.reportContent.sheets
                 for viz in sheet.sheetContent.visualizations
                 if viz.vizContent.refVizId
             }
@@ -649,17 +654,18 @@ class ThoughtSpotExtractor(BaseExtractor):
                 ),
                 structure=AssetStructure(
                     directories=[ThoughtSpotDashboardType.LIVEBOARD.name],
-                    name=board.header.name,
+                    name=detail.header.name,
                 ),
                 dashboard_info=DashboardInfo(
-                    description=board.header.description,
-                    title=board.header.name,
+                    description=detail.header.description,
+                    title=detail.header.name,
                     charts=self._populate_charts(
                         visualizations, self._base_url, board_id
                     ),
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.LIVEBOARD,
                         embed_url=f"{self._base_url}/#/embed/viz/{board_id}",
+                        is_verified=board.metadata_header.isVerified,
                     ),
                     dashboard_type=DashboardType.THOUGHT_SPOT_LIVEBOARD,
                 ),
@@ -672,7 +678,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         visualizations
                     ),
                 ),
-                system_tags=self._get_system_tags(board.header.tags),
+                system_tags=self._get_system_tags(detail.header.tags),
             )
 
             self._dashboards[board_id] = dashboard
