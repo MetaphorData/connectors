@@ -99,7 +99,7 @@ class GlueExtractor(BaseExtractor):
                 )
                 table_type = table.get("TableType")
                 parameters = table.get("Parameters")
-                row_count = int(parameters.get("numRows")) if parameters else 0
+                row_count = parameters.get("numRows") if parameters else 0
                 description = table.get("Description")
 
                 dataset = self._init_dataset(
