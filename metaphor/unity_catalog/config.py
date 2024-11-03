@@ -41,6 +41,9 @@ class UnityCatalogRunConfig(BaseConfig):
     # Include or exclude specific databases/schemas/tables
     filter: DatasetFilter = field(default_factory=lambda: DatasetFilter())
 
+    # Whether the user has SELECT permissions on the tables
+    has_select_permissions: bool = True
+
     # configs for fetching query logs
     query_log: UnityCatalogQueryLogConfig = field(
         default_factory=lambda: UnityCatalogQueryLogConfig()
