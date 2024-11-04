@@ -88,7 +88,7 @@ class BigQueryExtractor(BaseExtractor):
         self._fetch_job_query_if_truncated = (
             config.query_log.fetch_job_query_if_truncated
         )
-        self._rate_limit = config.query_log.rate_limit
+        self._max_requests_per_minute = config.query_log.max_requests_per_minute
 
         self._datasets: List[Dataset] = []
 
@@ -326,7 +326,7 @@ class BigQueryExtractor(BaseExtractor):
             if count % self._query_log_fetch_size == 0:
                 current_time = time.time()
                 elapsed_time = current_time - last_time
-                wait_time = (60 / self._rate_limit) - elapsed_time
+                wait_time = (60 / self._max_requests_per_minute) - elapsed_time
                 last_time = current_time
                 if wait_time > 0:
                     time.sleep(wait_time)
