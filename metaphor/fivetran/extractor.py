@@ -135,6 +135,7 @@ class FivetranExtractor(BaseExtractor):
         self._source_metadata: Dict[str, SourceMetadataPayload] = {}
         self._users: Dict[str, str] = {}
         self._base_url = "https://api.fivetran.com/v1"
+        self._requests_timeout = config.requests.timeout
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from Fivetran")
@@ -549,4 +550,10 @@ class FivetranExtractor(BaseExtractor):
 
     def _call_get(self, url: str, **kwargs):
         headers = {"Accept": "application/json;version=2"}
-        return make_request(url=url, headers=headers, auth=self._auth, **kwargs)
+        return make_request(
+            url=url,
+            headers=headers,
+            timeout=self._requests_timeout,
+            auth=self._auth,
+            **kwargs,
+        )
